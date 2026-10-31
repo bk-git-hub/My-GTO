@@ -31,13 +31,31 @@ npm run preview    # 빌드 결과 미리보기
 
 휴대폰에 설치하려면 `dist/`를 HTTPS 정적 호스팅(GitHub Pages, Vercel, Netlify 등)에 올리고, 브라우저 메뉴에서 "홈 화면에 추가"를 누르면 된다. `base: "./"`라서 하위 경로에 올려도 동작한다.
 
-## API 키
+## AI 코치 연결
 
-1. [Claude Console](https://platform.claude.com/settings/keys)에서 API 키를 만든다.
-2. Max/Ultra 요금제의 월 API 크레딧을 쓰려면 claude.ai → 설정 → 결제 → API 크레딧에서 Console 조직을 연결하고, **그 조직에서** 키를 만든다.
-3. 앱의 설정 탭에 키를 넣고 "키 확인"을 누른다 (토큰을 쓰지 않는 모델 조회로 확인).
+설정 탭에서 두 방식 중 하나를 고른다.
 
-키는 그 기기의 브라우저에만 저장되고, 브라우저에서 Anthropic API로 직접 요청한다(`dangerouslyAllowBrowser`). **혼자 쓰는 용도로만 안전하다.** 앱을 마켓에 내거나 다른 사람이 쓰게 하려면 키를 서버(프록시)로 옮겨야 한다.
+### 1. 서버 키 (Vercel) — 기본값
+Vercel 함수(`api/anthropic.ts`)가 서버에 등록된 키로 Claude API를 대신 호출한다. 키는 브라우저로 내려가지 않는다.
+
+Vercel → 프로젝트 → Settings → Environment Variables:
+
+| 이름 | 값 | 필수 |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Claude API 키 (Sensitive로 저장) | 필수 |
+| `APP_PASSCODE` | 접속 비밀번호. 등록하면 앱 설정에 같은 값을 넣은 기기만 쓸 수 있다 | 선택 |
+
+- 환경 변수를 바꾼 뒤에는 **다시 배포**해야 적용된다 (새 커밋 푸시 또는 Deployments → Redeploy).
+- `APP_PASSCODE`가 없으면 주소를 아는 누구나 그 키의 크레딧을 쓸 수 있다. 중계 함수는 앱이 쓰는 두 엔드포인트(`v1/messages`, `v1/models/*`)와 앱의 모델 3개만 허용한다.
+- 로컬 `npm run dev`에는 이 함수가 없으므로 2번 방식을 쓴다.
+
+### 2. 내 API 키
+키를 그 기기의 브라우저에만 저장하고 브라우저에서 Anthropic API로 직접 요청한다(`dangerouslyAllowBrowser`). 혼자 쓰는 용도로만 안전하다.
+
+### 키와 크레딧
+- 키는 [Claude Console](https://platform.claude.com/settings/keys)에서 만든다.
+- Max/Ultra 요금제의 월 API 크레딧을 쓰려면 claude.ai → 설정 → 결제 → API 크레딧에서 Console 조직을 연결하고, **그 조직에서** 키를 만든다.
+- "연결 확인" 버튼은 토큰을 쓰지 않는 모델 조회로 연결을 확인한다.
 
 ## 차트 데이터
 
@@ -61,6 +79,8 @@ src/
     coach/      AI 코치 (프롬프트, 해설집, Claude API 클라이언트, 대화 저장)
     settings/   설정
   state/        localStorage 저장소
+api/
+  anthropic.ts  Vercel 함수: 서버 키로 Claude API 중계
 ```
 
 핸드 평가기는 테스트에서 단순 무차별 평가기와 무작위 3000판을 비교해 검증한다.

@@ -17,32 +17,51 @@ export function SettingsPage() {
   const [testing, setTesting] = useState(false);
   const update = (patch: Partial<typeof settings>) => settingsStore.set((s) => ({ ...s, ...patch }));
 
-  async function checkKey() {
+  async function checkConnection() {
     setTesting(true);
     setKeyStatus(null);
-    const { describeError, testApiKey } = await import("../coach/client");
+    const { describeError, testConnection } = await import("../coach/client");
     try {
-      const name = await testApiKey(settings.apiKey.trim(), settings.model);
+      const name = await testConnection(settings);
       setKeyStatus({ ok: true, text: `연결 성공 — ${name} 사용 가능` });
     } catch (e) {
-      setKeyStatus({ ok: false, text: describeError(e) });
+      setKeyStatus({ ok: false, text: describeError(e, settings.keyMode) });
     } finally {
       setTesting(false);
     }
   }
 
+  const server = settings.keyMode === "server";
+
   return (
     <div className="page">
       <section className="card-box">
         <h2>AI 코치 (Claude API)</h2>
+        <div className="field">
+          연결 방식
+          <div className="seg small">
+            <button className={server ? "on" : ""} onClick={() => { update({ keyMode: "server" }); setKeyStatus(null); }}>
+              서버 키 (Vercel)
+            </button>
+            <button className={!server ? "on" : ""} onClick={() => { update({ keyMode: "own" }); setKeyStatus(null); }}>
+              내 API 키
+            </button>
+          </div>
+          <span className="muted small">
+            {server
+              ? "Vercel에 등록한 API 키를 서버가 대신 써요. 기기마다 키를 넣을 필요가 없어요."
+              : "이 기기 브라우저에 키를 저장하고 직접 호출해요. 로컬 개발(npm run dev)할 때 쓰세요."}
+          </span>
+        </div>
+
         <label className="field">
-          API 키
+          {server ? "접속 비밀번호 (Vercel에 APP_PASSCODE를 등록한 경우만)" : "API 키"}
           <div className="row-gap">
             <input
               type={showKey ? "text" : "password"}
-              value={settings.apiKey}
-              onChange={(e) => update({ apiKey: e.target.value.trim() })}
-              placeholder="sk-ant-..."
+              value={server ? settings.passcode : settings.apiKey}
+              onChange={(e) => update(server ? { passcode: e.target.value } : { apiKey: e.target.value.trim() })}
+              placeholder={server ? "없으면 비워 두세요" : "sk-ant-..."}
               autoComplete="off"
               spellCheck={false}
             />
@@ -52,18 +71,32 @@ export function SettingsPage() {
           </div>
         </label>
         <div className="row-gap">
-          <button className="primary small" onClick={checkKey} disabled={!settings.apiKey || testing}>
-            {testing ? "확인 중…" : "키 확인"}
+          <button
+            className="primary small"
+            onClick={checkConnection}
+            disabled={(!server && !settings.apiKey) || testing}
+          >
+            {testing ? "확인 중…" : "연결 확인"}
           </button>
           {keyStatus && <span className={keyStatus.ok ? "ok-text" : "err-text"}>{keyStatus.text}</span>}
         </div>
         <p className="muted small">
-          키는 이 기기의 브라우저에만 저장되고, Anthropic API로 직접 요청할 때만 쓰여요. 키는{" "}
-          <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noreferrer">
-            Claude Console
-          </a>
-          에서 만들 수 있어요. Ultra·Max 요금제의 월 API 크레딧을 쓰려면 claude.ai 설정 → 결제 → API 크레딧에서
-          Console 조직을 연결하고, <b>그 조직에서</b> 키를 만들어야 해요.
+          {server ? (
+            <>
+              Vercel 프로젝트의 환경 변수 <code>ANTHROPIC_API_KEY</code>를 쓰는 방식이에요. <code>APP_PASSCODE</code>를
+              등록하면 그 비밀번호를 아는 기기만 쓸 수 있어요(등록하지 않으면 주소를 아는 누구나 사용 가능).
+            </>
+          ) : (
+            <>
+              키는 이 기기의 브라우저에만 저장되고, Anthropic API로 직접 요청할 때만 쓰여요. 키는{" "}
+              <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noreferrer">
+                Claude Console
+              </a>
+              에서 만들 수 있어요.
+            </>
+          )}{" "}
+          Ultra·Max 요금제의 월 API 크레딧을 쓰려면 claude.ai 설정 → 결제 → API 크레딧에서 Console 조직을 연결하고,{" "}
+          <b>그 조직에서</b> 만든 키를 써야 해요.
         </p>
 
         <label className="field">

@@ -16,7 +16,13 @@ export const MODEL_OPTIONS: ModelOption[] = [
   { id: "claude-haiku-5-5", label: "Claude Haiku 5.5", note: "가장 저렴 · 간단한 질문용", fallback: false },
 ];
 
+/** server: Vercel 함수가 서버에 등록된 키로 중계 / own: 이 기기에 저장한 키로 직접 호출 */
+export type KeyMode = "server" | "own";
+
 export interface Settings {
+  keyMode: KeyMode;
+  /** keyMode "server"이고 Vercel에 APP_PASSCODE를 등록한 경우에만 필요 */
+  passcode: string;
   apiKey: string;
   model: string;
   effort: Effort;
@@ -25,6 +31,8 @@ export interface Settings {
 }
 
 export const settingsStore = createStore<Settings>("mygto.settings", {
+  keyMode: "server",
+  passcode: "",
   apiKey: "",
   model: "claude-opus-5-5",
   effort: "medium",
@@ -32,3 +40,8 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
 });
 
 export const useSettings = settingsStore.use;
+
+export function isCoachConfigured(s: Settings): boolean {
+  // Server mode works without a passcode when APP_PASSCODE isn't set on Vercel.
+  return s.keyMode === "server" || s.apiKey.length > 0;
+}

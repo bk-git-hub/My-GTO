@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { MODEL_OPTIONS, type Settings } from "../../state/settings";
+import { MODEL_OPTIONS, type KeyMode, type Settings } from "../../state/settings";
 import { buildSystem } from "./prompt";
 
 export type CoachMessage = Anthropic.Beta.BetaMessageParam;
@@ -12,10 +12,18 @@ export interface CoachReply {
   refused: boolean;
 }
 
-function makeClient(apiKey: string) {
-  // 개인용 PWA라서 사용자가 입력한 키로 브라우저에서 직접 호출한다.
-  // 마켓 출시 시에는 서버(프록시)로 옮겨야 한다.
-  return new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+function makeClient(settings: Settings) {
+  if (settings.keyMode === "server") {
+    // api/anthropic.ts (Vercel Function) relays the call with the server-side key.
+    return new Anthropic({
+      apiKey: "server-managed", // placeholder; the relay sets the real key
+      baseURL: `${location.origin}/api/anthropic`,
+      defaultHeaders: settings.passcode ? { "x-app-passcode": settings.passcode } : undefined,
+      dangerouslyAllowBrowser: true,
+    });
+  }
+  // 이 기기에 저장한 키로 브라우저에서 직접 호출한다 (개인용).
+  return new Anthropic({ apiKey: settings.apiKey, dangerouslyAllowBrowser: true });
 }
 
 /**
@@ -36,7 +44,7 @@ export async function streamCoachReply(opts: {
   signal?: AbortSignal;
 }): Promise<CoachReply> {
   const { settings, history, onText, signal } = opts;
-  const client = makeClient(settings.apiKey);
+  const client = makeClient(settings);
   const model = MODEL_OPTIONS.find((m) => m.id === settings.model);
 
   const stream = client.beta.messages.stream(
@@ -68,14 +76,23 @@ export async function streamCoachReply(opts: {
   };
 }
 
-/** Validate a key without spending tokens. */
-export async function testApiKey(apiKey: string, model: string): Promise<string> {
-  const info = await makeClient(apiKey).models.retrieve(model);
+/** Validate the connection without spending tokens. */
+export async function testConnection(settings: Settings): Promise<string> {
+  const info = await makeClient(settings).models.retrieve(settings.model);
   return info.display_name ?? info.id;
 }
 
-export function describeError(err: unknown): string {
+export function describeError(err: unknown, mode: KeyMode = "own"): string {
   if (err instanceof Anthropic.APIUserAbortError) return "중단했어요.";
+  // Errors raised by the relay itself carry a readable message.
+  if (err instanceof Anthropic.APIError && (err.type as string | null) === "proxy_error") {
+    return (err.error as { error?: { message?: string } } | undefined)?.error?.message ?? err.message;
+  }
+  if (mode === "server") {
+    if (err instanceof Anthropic.AuthenticationError) return "서버에 등록된 API 키가 올바르지 않아요. Vercel의 ANTHROPIC_API_KEY를 확인해 주세요.";
+    if (err instanceof Anthropic.NotFoundError)
+      return "서버 중계 함수를 찾을 수 없어요. 배포된 사이트에서 쓰거나, 로컬 개발 중이면 '내 API 키' 방식을 쓰세요.";
+  }
   if (err instanceof Anthropic.AuthenticationError) return "API 키가 올바르지 않아요. 설정에서 키를 확인해 주세요.";
   if (err instanceof Anthropic.PermissionDeniedError) return "이 API 키로는 선택한 모델을 쓸 수 없어요.";
   if (err instanceof Anthropic.NotFoundError) return "모델을 찾을 수 없어요. 설정에서 모델을 확인해 주세요.";

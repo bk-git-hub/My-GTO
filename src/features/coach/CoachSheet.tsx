@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { MODEL_OPTIONS, useSettings } from "../../state/settings";
+import { isCoachConfigured, MODEL_OPTIONS, useSettings } from "../../state/settings";
 import { describeError, isAbort, streamCoachReply, type CoachMessage } from "./client";
 import { firstUserMessage, type SpotContext } from "./prompt";
 import { deleteThread, saveThread, threadsStore, type Thread } from "./threads";
@@ -21,13 +21,14 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
   const bottomRef = useRef<HTMLDivElement>(null);
   const busy = streaming !== null;
   const modelLabel = MODEL_OPTIONS.find((m) => m.id === settings.model)?.label ?? settings.model;
+  const configured = isCoachConfigured(settings);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
   }, [thread.display.length, streaming]);
 
   useEffect(() => {
-    if (!autoSent.current && thread.display.length === 0 && settings.apiKey) {
+    if (!autoSent.current && thread.display.length === 0 && configured) {
       autoSent.current = true;
       void send(spot.defaultQuestion);
     }
@@ -38,7 +39,7 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
   async function send(question: string) {
     const q = question.trim();
     if (!q || busy) return;
-    if (!settings.apiKey) return onNeedKey();
+    if (!configured) return onNeedKey();
 
     const before = thread;
     const userContent = before.history.length === 0 ? firstUserMessage(spot, q) : q;
@@ -76,7 +77,7 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
       // Nothing was saved for this turn; put the question back so it can be retried.
       setThread(before);
       setInput(q);
-      if (!isAbort(err)) setError(describeError(err));
+      if (!isAbort(err)) setError(describeError(err, settings.keyMode));
     } finally {
       abortRef.current = null;
       setStreaming(null);
@@ -117,9 +118,9 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
             <pre>{spot.facts}</pre>
           </details>
 
-          {!settings.apiKey && (
+          {!configured && (
             <div className="notice">
-              AI 해설을 쓰려면 Anthropic API 키가 필요해요.
+              AI 해설을 쓰려면 설정에서 접속 비밀번호나 API 키를 입력해 주세요.
               <button className="primary small" onClick={onNeedKey}>
                 설정으로 이동
               </button>
@@ -150,7 +151,7 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
             </div>
           )}
 
-          {!busy && thread.display.length === 0 && settings.apiKey && (
+          {!busy && thread.display.length === 0 && configured && (
             <div className="chips">
               <button className="chip" onClick={() => send(spot.defaultQuestion)}>
                 {spot.defaultQuestion}
