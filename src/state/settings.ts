@@ -28,6 +28,8 @@ export interface Settings {
   effort: Effort;
   /** 사용자가 직접 추가하는 해설 노트 (시스템 프롬프트에 함께 들어감) */
   userNotes: string;
+  /** 차트·퀴즈에 쓸 차트 세트 (src/data/sets) */
+  chartSet: string;
 }
 
 export const settingsStore = createStore<Settings>("mygto.settings", {
@@ -37,6 +39,7 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
   model: "claude-opus-5-5",
   effort: "medium",
   userNotes: "",
+  chartSet: "yajasu",
 });
 
 export const useSettings = settingsStore.use;

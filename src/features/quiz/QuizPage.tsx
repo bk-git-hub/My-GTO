@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { CardRow } from "../../components/Cards";
 import { Choices } from "../../components/Choice";
-import { describeStrategy, FreqBar } from "../../components/FreqBar";
-import {
-  GAME_LABEL,
-  POSITIONS,
-  SCENARIOS,
-  actionLabel,
-  scenarioActions,
-  type ActionKey,
-} from "../../data/preflop";
+import { describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
+import { SeatRow, SetPicker } from "../../components/SetPicker";
+import { getSet, scenarioActions } from "../../data/charts";
 import { cardLabel } from "../../poker/cards";
+import { useSettings } from "../../state/settings";
 import { accuracy, recordAnswer, useStats } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 import {
@@ -62,40 +57,53 @@ const GRADE_TEXT: Record<Grade, string> = {
 };
 
 function PreflopQuiz() {
+  const { chartSet } = useSettings();
+  const set = getSet(chartSet);
   const [filter, setFilter] = useState<string>("all");
-  const [q, setQ] = useState<PreflopQuestion>(() => generatePreflop("all"));
-  const [chosen, setChosen] = useState<ActionKey | null>(null);
+  const [q, setQ] = useState<PreflopQuestion>(() => generatePreflop(chartSet, "all"));
+  const [chosen, setChosen] = useState<string | null>(null);
   const stats = useStats();
   const coach = useCoach();
 
-  const strategy = q.scenario.strategy[q.hand];
-  const best = Math.max(strategy.raise, strategy.call, strategy.fold);
-  const grade = chosen ? gradePreflop(strategy[chosen], best) : null;
-
-  function next(f = filter) {
-    setQ(generatePreflop(f));
+  // A different chart set was picked: start over with a question from it.
+  if (q.scenario.setId !== set.id) {
+    setQ(generatePreflop(set.id, "all"));
+    setFilter("all");
     setChosen(null);
   }
 
-  function answer(a: ActionKey) {
+  const s = q.scenario;
+  const strategy = s.strategy[q.hand];
+  const best = Math.max(...Object.values(strategy));
+  const grade = chosen ? gradePreflop(strategy[chosen] ?? 0, best) : null;
+  const stage = set.stages.find((x) => x.id === s.stageId)!;
+
+  function next(f = filter) {
+    setQ(generatePreflop(set.id, f));
+    setChosen(null);
+  }
+
+  function answer(key: string) {
     if (chosen) return;
-    setChosen(a);
-    const g = gradePreflop(strategy[a], best);
-    recordAnswer(["preflop", `preflop:${q.scenario.id}`], g !== "wrong");
+    setChosen(key);
+    const g = gradePreflop(strategy[key] ?? 0, best);
+    recordAnswer(["preflop", `preflop:${s.id}`], g !== "wrong");
   }
 
   function askCoach() {
     if (!chosen || !grade) return;
+    const chosenLabel = scenarioActions(s).find((a) => a.key === chosen)?.label ?? chosen;
     coach.open({
       id: `quiz:${q.uid}`,
-      title: `${q.scenario.title} · ${q.hand}`,
+      title: `${s.title} · ${q.hand}`,
       facts: [
-        `게임: ${GAME_LABEL}`,
-        `상황: ${q.scenario.title} — ${q.scenario.description}`,
-        `레이즈 사이즈: ${q.scenario.raiseLabel}`,
+        `게임: ${set.game}`,
+        `스택 구간: ${stage.label} (${stage.stack}) — ${stage.description}`,
+        `상황: ${s.title} — ${s.description}`,
         `내 핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
-        `차트 빈도(학습용 근사 차트): ${describeStrategy(q.scenario, strategy)}`,
-        `사용자의 선택: ${actionLabel(q.scenario, chosen)} → ${GRADE_TEXT[grade]}`,
+        `차트 빈도: ${describeStrategy(s, strategy)}`,
+        `사용자의 선택: ${chosenLabel} → ${GRADE_TEXT[grade]}`,
+        `차트 출처: ${set.source}`,
       ].join("\n"),
       defaultQuestion:
         grade === "correct"
@@ -104,9 +112,9 @@ function PreflopQuiz() {
     });
   }
 
-  const s = q.scenario;
   return (
     <>
+      <SetPicker />
       <select
         className="select"
         value={filter}
@@ -115,29 +123,31 @@ function PreflopQuiz() {
           next(e.target.value);
         }}
       >
-        <option value="all">전체 시나리오 섞어서</option>
-        {SCENARIOS.map((x) => (
-          <option key={x.id} value={x.id}>
-            {x.title} (정답률 {accuracy(stats.byKey[`preflop:${x.id}`])})
-          </option>
+        <option value="all">모든 상황 섞어서</option>
+        {set.stages.length > 1 &&
+          set.stages.map((st) => (
+            <option key={st.id} value={`stage:${st.id}`}>
+              {st.label} ({st.stack}) 전체
+            </option>
+          ))}
+        {set.stages.map((st) => (
+          <optgroup key={st.id} label={`${st.label} · ${st.stack}`}>
+            {st.scenarios.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.title} (정답률 {accuracy(stats.byKey[`preflop:${x.id}`])})
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
 
       <section className="card-box quiz">
+        <div className="muted small">
+          {stage.label} · {stage.stack}
+        </div>
         <h2>{s.title}</h2>
         <p className="muted small">{s.description}</p>
-        <div className="table-seats">
-          {POSITIONS.map((p) => (
-            <span
-              key={p}
-              className={`seat ${p === s.hero ? "hero" : ""} ${p === s.villain ? "villain" : ""}`}
-            >
-              {p}
-              {p === s.villain && <em>오픈</em>}
-              {p === s.hero && <em>나</em>}
-            </span>
-          ))}
-        </div>
+        <SeatRow positions={set.positions} hero={s.hero} villains={s.villainSeats ?? (s.villain ? [s.villain] : [])} />
         <div className="center">
           <CardRow cards={q.cards} size="lg" />
           <div className="muted small">{q.hand}</div>
@@ -146,12 +156,13 @@ function PreflopQuiz() {
         <div className="actions">
           {scenarioActions(s).map((a) => (
             <button
-              key={a}
-              className={`action ${a} ${chosen === a ? "picked" : ""}`}
+              key={a.key}
+              className={`action ${chosen === a.key ? "picked" : ""}`}
+              style={a.key === "fold" ? undefined : { borderColor: actionColor(a.color) }}
               disabled={!!chosen}
-              onClick={() => answer(a)}
+              onClick={() => answer(a.key)}
             >
-              {a === "raise" ? `${actionLabel(s, a)} (${s.raiseLabel.replace(/^\S+\s/, "")})` : actionLabel(s, a)}
+              {a.label}
             </button>
           ))}
         </div>

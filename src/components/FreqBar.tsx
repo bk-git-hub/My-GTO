@@ -1,27 +1,39 @@
-import { actionLabel, scenarioActions, type HandStrategy, type Scenario } from "../data/preflop";
+import { describeStrategy, FOLD, type ActionColor, type HandStrategy, type ScenarioDef } from "../data/charts";
 
-export const ACTION_COLORS = {
+const COLOR_VAR: Record<ActionColor, string> = {
+  open: "var(--open)",
   raise: "var(--raise)",
+  allin: "var(--allin)",
   call: "var(--call)",
-  fold: "var(--fold)",
-} as const;
+};
 
-export function strategyGradient(s: HandStrategy): string {
-  const r = s.raise * 100;
-  const c = (s.raise + s.call) * 100;
-  return `linear-gradient(to right, var(--raise) 0 ${r}%, var(--call) ${r}% ${c}%, var(--fold) ${c}% 100%)`;
+export function actionColor(color: ActionColor, key?: string): string {
+  return key === "fold" ? "var(--fold)" : COLOR_VAR[color];
 }
 
-export function FreqBar({ scenario, strategy }: { scenario: Scenario; strategy: HandStrategy }) {
-  const actions = scenarioActions(scenario).slice().reverse(); // raise, call, fold
+/** Horizontal bands in action order, fold last. */
+export function strategyGradient(s: ScenarioDef, st: HandStrategy): string {
+  const stops: string[] = [];
+  let at = 0;
+  for (const a of [...s.actions, FOLD]) {
+    const f = (st[a.key] ?? 0) * 100;
+    if (f <= 0) continue;
+    const c = actionColor(a.color, a.key);
+    stops.push(`${c} ${at}% ${at + f}%`);
+    at += f;
+  }
+  return stops.length ? `linear-gradient(to right, ${stops.join(", ")})` : "var(--fold)";
+}
+
+export function FreqBar({ scenario, strategy }: { scenario: ScenarioDef; strategy: HandStrategy }) {
   return (
     <div>
-      <div className="freqbar" style={{ background: strategyGradient(strategy) }} />
+      <div className="freqbar" style={{ background: strategyGradient(scenario, strategy) }} />
       <div className="freq-legend">
-        {actions.map((a) => (
-          <span key={a} className="freq-item">
-            <i style={{ background: ACTION_COLORS[a] }} />
-            {actionLabel(scenario, a)} {Math.round(strategy[a] * 100)}%
+        {[...scenario.actions, FOLD].map((a) => (
+          <span key={a.key} className="freq-item">
+            <i style={{ background: actionColor(a.color, a.key) }} />
+            {a.label} {Math.round((strategy[a.key] ?? 0) * 100)}%
           </span>
         ))}
       </div>
@@ -29,10 +41,4 @@ export function FreqBar({ scenario, strategy }: { scenario: Scenario; strategy: 
   );
 }
 
-export function describeStrategy(scenario: Scenario, s: HandStrategy): string {
-  return scenarioActions(scenario)
-    .slice()
-    .reverse()
-    .map((a) => `${actionLabel(scenario, a)} ${Math.round(s[a] * 100)}%`)
-    .join(" / ");
-}
+export { describeStrategy };

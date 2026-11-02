@@ -13,7 +13,7 @@ import {
 import { countOuts, equityVsHand } from "../../poker/equity";
 import { categoryName, evaluate } from "../../poker/evaluator";
 import { bluffBreakEven, callEV, hitChance, mdf, requiredEquity, ruleOf2and4 } from "../../poker/odds";
-import { SCENARIOS, type Scenario } from "../../data/preflop";
+import { allScenarios, getSet, type Scenario } from "../../data/charts";
 
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const fmtPct = (x: number) => `${Math.round(x * 100)}%`;
@@ -44,7 +44,7 @@ function neighbors(h: HandClass): HandClass[] {
 /** Weight hands toward the interesting ones: mixed, near the range edge. */
 function handWeight(s: Scenario, h: HandClass): number {
   const st = s.strategy[h];
-  const max = Math.max(st.raise, st.call, st.fold);
+  const max = Math.max(...Object.values(st));
   if (max < 0.999) return 3;
   const plays = st.fold < 0.999;
   const edge = neighbors(h).some((n) => (s.strategy[n].fold < 0.999) !== plays);
@@ -52,8 +52,19 @@ function handWeight(s: Scenario, h: HandClass): number {
   return plays ? 0.6 : 0.15;
 }
 
-export function generatePreflop(scenarioId: string | "all"): PreflopQuestion {
-  const scenario = scenarioId === "all" ? pick(SCENARIOS) : SCENARIOS.find((s) => s.id === scenarioId)!;
+/** filter: "all" | "stage:<stageId>" | full scenario id */
+export function quizPool(setId: string, filter: string): Scenario[] {
+  const set = getSet(setId);
+  if (filter.startsWith("stage:")) {
+    const st = set.stages.find((x) => x.id === filter.slice(6));
+    if (st) return st.scenarios;
+  }
+  const one = allScenarios(set).find((x) => x.id === filter);
+  return one ? [one] : allScenarios(set);
+}
+
+export function generatePreflop(setId: string, filter = "all"): PreflopQuestion {
+  const scenario = pick(quizPool(setId, filter));
   const weights = ALL_HANDS.map((h) => handWeight(scenario, h));
   const total = weights.reduce((a, b) => a + b, 0);
   let x = Math.random() * total;

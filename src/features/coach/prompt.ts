@@ -1,5 +1,4 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { GAME_LABEL } from "../../data/preflop";
 import knowledge from "./knowledge.md?raw";
 
 /** What the coach knows about the spot the user is looking at. */
@@ -25,11 +24,11 @@ const COACH_INSTRUCTIONS = `당신은 노리밋 텍사스 홀덤 GTO를 공부�
 
 정확성
 - 아래 <knowledge_base>의 해설집을 기본 근거로 삼으세요.
-- 앱의 프리플랍 차트는 솔버 정확값이 아니라 학습용 근사 차트입니다. 차트 빈도를 솔버 결과처럼 단정하지 말고, 포지션·팟 오즈·도미네이트·플레이어빌리티·블로커 같은 원리로 왜 그런 경향이 나오는지 설명하세요.
+- 앱의 프리플랍 차트는 솔버 정확값이 아닙니다(근사 차트, 또는 사용자와 Claude가 채팅으로 정리한 펍 맞춤 범위). <spot>의 "차트 출처"를 확인하고, 차트 빈도를 솔버 결과처럼 단정하지 말고 포지션·팟 오즈·도미네이트·플레이어빌리티·블로커·스택 깊이·ICM 같은 원리로 왜 그런 경향이 나오는지 설명하세요.
 - 정확한 솔버 빈도나 EV를 모르는 경우(특히 포스트플랍)에는 숫자를 지어내지 말고, 추정이라고 밝힌 뒤 원리로 설명하세요.
 - 사용자가 틀렸다면 무엇을 놓쳤는지 부드럽게 짚어 주세요. 혼합 빈도 핸드라면 두 선택 모두 가능한 핸드라는 점을 알려 주세요.
 
-기본 게임 설정: ${GAME_LABEL}.`;
+게임 설정(캐시/토너먼트, 인원, 스택, 앤티)은 <spot>에 적힌 내용을 기준으로 하세요. 사용자는 주로 서울의 홀덤펍 토너먼트(9인, BB 앤티, 콜이 많은 테이블)에서 플레이합니다.`;
 
 export function buildSystem(userNotes: string): Anthropic.Beta.BetaTextBlockParam[] {
   const blocks: Anthropic.Beta.BetaTextBlockParam[] = [

@@ -21,7 +21,7 @@ describe("quiz generators", () => {
   });
   it("preflop questions pick valid hands", () => {
     for (let i = 0; i < 200; i++) {
-      const q = generatePreflop("all");
+      const q = generatePreflop(i % 2 ? "yajasu" : "cash6", i % 3 ? "all" : "stage:push");
       expect(q.scenario.strategy[q.hand]).toBeDefined();
       expect(q.cards).toHaveLength(2);
     }

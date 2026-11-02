@@ -7,6 +7,8 @@
   --muted: #8b98a5;
   --accent: #4f9cf9;
   --raise: #e5534b;
+  --open: #d29922;
+  --allin: #a371f7;
   --call: #3fb950;
   --fold: #2b3a4a;
   --ok: #3fb950;
@@ -177,9 +179,9 @@ textarea { resize: vertical; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; }
 .legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .legend-item i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-.legend-item.raise i { background: var(--raise); }
-.legend-item.call i { background: var(--call); }
-.legend-item.fold i { background: var(--fold); }
+.set-switch { display: flex; align-items: center; gap: 8px; }
+.set-switch .select { flex: 1; }
+.stage-note { font-size: 0.85rem; color: var(--muted); }
 
 .freqbar { height: 14px; border-radius: 7px; }
 .freq-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; font-size: 0.9rem; }
@@ -189,9 +191,9 @@ textarea { resize: vertical; }
 /* quiz */
 .statline { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); padding: 0 4px; flex-wrap: wrap; }
 .quiz .prompt { font-size: 1.05rem; font-weight: 600; }
-.table-seats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.table-seats { display: grid; grid-template-columns: repeat(var(--seats, 6), 1fr); gap: 3px; }
 .seat {
-  text-align: center; font-size: 0.75rem; font-weight: 700;
+  text-align: center; font-size: clamp(0.55rem, 2.4vw, 0.75rem); font-weight: 700; white-space: nowrap; overflow: hidden;
   background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 0;
   display: flex; flex-direction: column; color: var(--muted);
 }

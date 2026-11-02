@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CardPicker, CardRow } from "../../components/Cards";
-import { GAME_LABEL, NAMED_RANGES } from "../../data/preflop";
+import { getSet, NAMED_RANGES } from "../../data/charts";
+import { useSettings } from "../../state/settings";
 import { cardLabel, type Card } from "../../poker/cards";
 import { equityVsHand, equityVsRange, type EquityResult } from "../../poker/equity";
 import { categoryName, evaluate } from "../../poker/evaluator";
@@ -23,7 +24,12 @@ export function CalcPage() {
   const [board, setBoard] = useState<Card[]>([]);
   const [villainCards, setVillainCards] = useState<Card[]>([]);
   const [villainMode, setVillainMode] = useState<"range" | "hand">("range");
-  const [rangeId, setRangeId] = useState(NAMED_RANGES.find((r) => r.id === "rfi-btn:raise")!.id);
+  const { chartSet } = useSettings();
+  const set = getSet(chartSet);
+  const [rangeId, setRangeId] = useState(
+    (NAMED_RANGES.find((r) => r.id === `${set.id}/${set.stages[0].id}/rfi-btn:open`) ?? NAMED_RANGES[0]).id,
+  );
+  const rangeGroups = [...new Set(NAMED_RANGES.map((r) => r.group))];
   const [target, setTarget] = useState<Target>("hero");
   const [pot, setPot] = useState("10");
   const [bet, setBet] = useState("5");
@@ -77,7 +83,7 @@ export function CalcPage() {
     if (!result) return;
     const { eq, pot: p, bet: b } = result;
     const lines = [
-      `게임: ${GAME_LABEL}`,
+      `게임: ${set.game}`,
       `스트리트: ${STREET[board.length]}`,
       `내 핸드: ${hero.map(cardLabel).join(" ")}`,
       board.length ? `보드: ${board.map(cardLabel).join(" ")}` : "",
@@ -146,10 +152,14 @@ export function CalcPage() {
         {villainMode === "range" && (
           <select className="select" value={rangeId} onChange={(e) => setRangeId(e.target.value)}>
             <option value="all">아무 핸드나 (100%)</option>
-            {NAMED_RANGES.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.label} · {rangePercent(r.range).toFixed(0)}%
-              </option>
+            {rangeGroups.map((g) => (
+              <optgroup key={g} label={g}>
+                {NAMED_RANGES.filter((r) => r.group === g).map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.label} · {rangePercent(r.range).toFixed(0)}%
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         )}

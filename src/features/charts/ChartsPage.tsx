@@ -1,40 +1,34 @@
 import { useMemo, useState } from "react";
-import { describeStrategy, FreqBar, strategyGradient } from "../../components/FreqBar";
-import {
-  GAME_LABEL,
-  SCENARIOS,
-  actionLabel,
-  scenarioActions,
-  type Scenario,
-} from "../../data/preflop";
-import { ALL_HANDS, comboCount, gridHand, type HandClass } from "../../poker/cards";
-import { rangePercent } from "../../poker/range";
+import { describeStrategy, FreqBar, actionColor, strategyGradient } from "../../components/FreqBar";
+import { SeatRow, SetPicker } from "../../components/SetPicker";
+import { actionTotals, FOLD, getSet, KIND_LABEL, type Scenario } from "../../data/charts";
+import { comboCount, gridHand, type HandClass } from "../../poker/cards";
+import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
 
 export function ChartsPage() {
-  const [kind, setKind] = useState<Scenario["kind"]>("rfi");
-  const [scenarioId, setScenarioId] = useState("rfi-utg");
+  const { chartSet } = useSettings();
+  const set = getSet(chartSet);
+  const [stageId, setStageId] = useState(set.stages[0].id);
+  const stage = set.stages.find((s) => s.id === stageId) ?? set.stages[0];
+  const groups = useMemo(() => {
+    const out = new Map<string, Scenario[]>();
+    for (const s of stage.scenarios) {
+      const label = KIND_LABEL[s.kind];
+      out.set(label, [...(out.get(label) ?? []), s]);
+    }
+    return [...out.entries()];
+  }, [stage]);
+  const [group, setGroup] = useState(groups[0][0]);
+  const list = groups.find(([g]) => g === group)?.[1] ?? groups[0][1];
+  const [scenarioId, setScenarioId] = useState(list[0].id);
+  const scenario = list.find((s) => s.id === scenarioId) ?? list[0];
   const [hand, setHand] = useState<HandClass | null>(null);
   const coach = useCoach();
+  const totals = useMemo(() => actionTotals(scenario), [scenario]);
 
-  const scenario = SCENARIOS.find((s) => s.id === scenarioId)!;
-  const list = SCENARIOS.filter((s) => s.kind === kind);
-
-  const totals = useMemo(() => {
-    const out = { raise: 0, call: 0, fold: 0 };
-    for (const h of ALL_HANDS) {
-      const s = scenario.strategy[h];
-      const n = comboCount(h);
-      out.raise += s.raise * n;
-      out.call += s.call * n;
-      out.fold += s.fold * n;
-    }
-    return out;
-  }, [scenario]);
-
-  function pickKind(k: Scenario["kind"]) {
-    setKind(k);
-    setScenarioId(SCENARIOS.find((s) => s.kind === k)!.id);
+  function pickStage(id: string) {
+    setStageId(id);
     setHand(null);
   }
 
@@ -44,40 +38,60 @@ export function ChartsPage() {
       id: `chart:${scenario.id}:${h}`,
       title: `${scenario.title} · ${h}`,
       facts: [
-        `게임: ${GAME_LABEL}`,
+        `게임: ${set.game}`,
+        `스택 구간: ${stage.label} (${stage.stack}) — ${stage.description}`,
         `상황: ${scenario.title} — ${scenario.description}`,
-        `레이즈 사이즈: ${scenario.raiseLabel}`,
         `핸드: ${h} (${comboCount(h)}콤보)`,
-        `차트 빈도(학습용 근사 차트): ${describeStrategy(scenario, s)}`,
-        `이 상황의 전체 ${actionLabel(scenario, "raise")} 레인지: 전체 핸드의 약 ${rangePercent(scenario.raiseRange).toFixed(1)}%` +
-          (scenario.kind === "vsOpen" ? `, 콜 레인지: 약 ${rangePercent(scenario.callRange).toFixed(1)}%` : ""),
+        `차트 빈도: ${describeStrategy(scenario, s)}`,
+        `이 상황 전체: ${[...scenario.actions, FOLD].map((a) => `${a.label} ${(totals[a.key] * 100).toFixed(1)}%`).join(", ")} (전체 핸드 대비)`,
+        `차트 출처: ${set.source}`,
       ].join("\n"),
       defaultQuestion: "이 상황에서 이 핸드를 왜 이렇게 플레이하는지 쉽게 설명해줘.",
     });
   }
 
+  // Keep the selections valid when the set or stage changes.
+  if (!set.stages.some((s) => s.id === stageId)) setStageId(set.stages[0].id);
+  if (!groups.some(([g]) => g === group)) setGroup(groups[0][0]);
+
   return (
     <div className="page">
-      <div className="seg">
-        <button className={kind === "rfi" ? "on" : ""} onClick={() => pickKind("rfi")}>
-          오픈 (RFI)
-        </button>
-        <button className={kind === "vsOpen" ? "on" : ""} onClick={() => pickKind("vsOpen")}>
-          오픈에 대응
-        </button>
-      </div>
+      <SetPicker />
+
+      {set.stages.length > 1 && (
+        <div className="seg">
+          {set.stages.map((st) => (
+            <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
+              {st.label}
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="stage-note">
+        <b>{stage.stack}</b> · {stage.description}
+      </p>
+
+      {groups.length > 1 && (
+        <div className="seg small">
+          {groups.map(([g]) => (
+            <button key={g} className={g === group ? "on" : ""} onClick={() => { setGroup(g); setHand(null); }}>
+              {g}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="chips scroll">
         {list.map((s) => (
           <button
             key={s.id}
-            className={`chip ${s.id === scenarioId ? "on" : ""}`}
+            className={`chip ${s.id === scenario.id ? "on" : ""}`}
             onClick={() => {
               setScenarioId(s.id);
               setHand(null);
             }}
           >
-            {s.kind === "rfi" ? s.hero : `${s.hero} vs ${s.villain}`}
+            {s.chip}
           </button>
         ))}
       </div>
@@ -85,16 +99,14 @@ export function ChartsPage() {
       <section className="card-box">
         <h2>{scenario.title}</h2>
         <p className="muted">{scenario.description}</p>
+        <SeatRow positions={set.positions} hero={scenario.hero} villains={scenario.villainSeats ?? (scenario.villain ? [scenario.villain] : [])} />
         <div className="legend">
-          {scenarioActions(scenario)
-            .slice()
-            .reverse()
-            .map((a) => (
-              <span key={a} className={`legend-item ${a}`}>
-                <i />
-                {a === "raise" ? scenario.raiseLabel : actionLabel(scenario, a)} {((totals[a] / 1326) * 100).toFixed(1)}%
-              </span>
-            ))}
+          {[...scenario.actions, FOLD].map((a) => (
+            <span key={a.key} className="legend-item">
+              <i style={{ background: actionColor(a.color, a.key) }} />
+              {a.label} {(totals[a.key] * 100).toFixed(1)}%
+            </span>
+          ))}
         </div>
       </section>
 
@@ -107,7 +119,7 @@ export function ChartsPage() {
               <button
                 key={h}
                 className={`cell ${hand === h ? "sel" : ""} ${s.fold >= 0.999 ? "folded" : ""}`}
-                style={{ background: strategyGradient(s) }}
+                style={{ background: strategyGradient(scenario, s) }}
                 onClick={() => setHand(h)}
                 title={`${h}: ${describeStrategy(scenario, s)}`}
               >
@@ -135,8 +147,7 @@ export function ChartsPage() {
       )}
 
       <p className="muted small disclaimer">
-        {GAME_LABEL}. 이 차트는 솔버 정확값이 아닌 학습용 근사 차트예요. 직접 구한 솔버 결과로 바꾸려면
-        <code> src/data/preflop.ts</code>의 레인지 문자열만 교체하면 돼요.
+        {set.game}. {set.source}
       </p>
     </div>
   );
