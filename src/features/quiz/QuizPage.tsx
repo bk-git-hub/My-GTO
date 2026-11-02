@@ -52,7 +52,7 @@ export function QuizPage() {
 
 const GRADE_TEXT: Record<Grade, string> = {
   correct: "정답!",
-  mixed: "부분 정답 — 차트에서 섞어 쓰는(혼합) 플레이예요",
+  mixed: "부분 정답 (혼합 빈도)",
   wrong: "오답",
 };
 
@@ -99,7 +99,7 @@ function PreflopQuiz() {
       facts: [
         `게임: ${set.game}`,
         `스택 구간: ${stage.label} (${stage.stack}) — ${stage.description}`,
-        `상황: ${s.title} — ${s.description}`,
+        `상황: ${s.title}${s.description ? ` — ${s.description}` : ""}`,
         `내 핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
         `차트 빈도: ${describeStrategy(s, strategy)}`,
         `사용자의 선택: ${chosenLabel} → ${GRADE_TEXT[grade]}`,
@@ -123,7 +123,7 @@ function PreflopQuiz() {
           next(e.target.value);
         }}
       >
-        <option value="all">모든 상황 섞어서</option>
+        <option value="all">전체</option>
         {set.stages.length > 1 &&
           set.stages.map((st) => (
             <option key={st.id} value={`stage:${st.id}`}>
@@ -146,7 +146,7 @@ function PreflopQuiz() {
           {stage.label} · {stage.stack}
         </div>
         <h2>{s.title}</h2>
-        <p className="muted small">{s.description}</p>
+        {s.description && <p className="muted small">{s.description}</p>}
         <SeatRow positions={set.positions} hero={s.hero} villains={s.villainSeats ?? (s.villain ? [s.villain] : [])} />
         <div className="center">
           <CardRow cards={q.cards} size="lg" />

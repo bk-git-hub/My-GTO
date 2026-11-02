@@ -19,7 +19,7 @@ describe("chart sets", () => {
   });
 
   it("yajasu: later seats never play fewer hands than earlier seats (first-in)", () => {
-    const order = ["UTG", "UTG+1", "MP", "LJ", "HJ", "CO", "BTN"];
+    const order = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
     for (const stage of getSet("yajasu").stages) {
       const rfi = Object.fromEntries(stage.scenarios.filter((s) => s.kind === "rfi").map((s) => [s.hero, s]));
       for (let i = 1; i < order.length; i++) {

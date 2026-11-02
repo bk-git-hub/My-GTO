@@ -148,10 +148,10 @@ export function actionTotals(s: Scenario): Record<string, number> {
 }
 
 export const KIND_LABEL: Record<ScenarioKind, string> = {
-  rfi: "먼저 들어갈 때",
-  vsOpen: "레이즈에 대응",
-  vs3bet: "레이즈에 대응",
-  vsShove: "올인에 대응",
+  rfi: "오픈 (RFI)",
+  vsOpen: "vs 레이즈",
+  vs3bet: "vs 레이즈",
+  vsShove: "vs 올인",
 };
 
 /** Named villain ranges for the calculator, one per (scenario, action). */

@@ -40,7 +40,7 @@ export function ChartsPage() {
       facts: [
         `게임: ${set.game}`,
         `스택 구간: ${stage.label} (${stage.stack}) — ${stage.description}`,
-        `상황: ${scenario.title} — ${scenario.description}`,
+        `상황: ${scenario.title}${scenario.description ? ` — ${scenario.description}` : ""}`,
         `핸드: ${h} (${comboCount(h)}콤보)`,
         `차트 빈도: ${describeStrategy(scenario, s)}`,
         `이 상황 전체: ${[...scenario.actions, FOLD].map((a) => `${a.label} ${(totals[a.key] * 100).toFixed(1)}%`).join(", ")} (전체 핸드 대비)`,
@@ -98,7 +98,7 @@ export function ChartsPage() {
 
       <section className="card-box">
         <h2>{scenario.title}</h2>
-        <p className="muted">{scenario.description}</p>
+        {scenario.description && <p className="muted">{scenario.description}</p>}
         <SeatRow positions={set.positions} hero={scenario.hero} villains={scenario.villainSeats ?? (scenario.villain ? [scenario.villain] : [])} />
         <div className="legend">
           {[...scenario.actions, FOLD].map((a) => (
