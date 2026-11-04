@@ -6,7 +6,7 @@ const ENV = { ANTHROPIC_API_KEY: "sk-server", APP_PASSCODE: "letmein" };
 function req(path: string, init: RequestInit & { passcode?: string } = {}) {
   const headers = new Headers(init.headers);
   if (init.passcode !== undefined) headers.set("x-app-passcode", init.passcode);
-  return new Request(`https://pubaz.vercel.app${path}`, { ...init, headers });
+  return new Request(`https://pubaj.vercel.app${path}`, { ...init, headers });
 }
 
 const messagesBody = JSON.stringify({ model: "claude-opus-5-5", max_tokens: 10, messages: [] });
