@@ -19,14 +19,17 @@ export function createStore<T>(key: string, initial: T) {
     return value;
   }
 
-  function set(next: T | ((prev: T) => T)) {
+  /** Returns false if the value could not be written to localStorage (quota exceeded, blocked storage). */
+  function set(next: T | ((prev: T) => T)): boolean {
     value = typeof next === "function" ? (next as (p: T) => T)(value) : next;
+    let saved = true;
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      /* quota exceeded etc. */
+      saved = false;
     }
     listeners.forEach((l) => l());
+    return saved;
   }
 
   function subscribe(l: () => void) {

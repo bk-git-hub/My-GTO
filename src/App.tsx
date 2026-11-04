@@ -3,6 +3,7 @@ import { CalcPage } from "./features/calc/CalcPage";
 import { ChartsPage } from "./features/charts/ChartsPage";
 import { CoachProvider } from "./features/coach/CoachContext";
 import { HomePage } from "./features/home/HomePage";
+import { LogPage } from "./features/log/LogPage";
 import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
@@ -17,6 +18,7 @@ interface NavItem {
 const NAV: (NavItem | { section: string })[] = [
   { route: "home", label: "홈", icon: "⌂" },
   { route: "play", label: "핸드 플레이", icon: "♠" },
+  { route: "log", label: "핸드 기록", icon: "✎" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
   { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
@@ -108,11 +110,12 @@ export function App() {
           <main>
             {top === "home" && <HomePage go={go} />}
             {top === "play" && <PlayPage />}
+            {top === "log" && <LogPage sub={rest.join("/")} go={go} />}
             {top === "quiz" && <QuizPage key={route} sub={rest.join("/")} />}
             {top === "charts" && <ChartsPage />}
             {top === "calc" && <CalcPage />}
             {top === "settings" && <SettingsPage />}
-            {!["home", "play", "quiz", "charts", "calc", "settings"].includes(top) && <HomePage go={go} />}
+            {!["home", "play", "log", "quiz", "charts", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
         </div>
       </div>

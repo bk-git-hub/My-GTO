@@ -37,6 +37,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
     { route: "quiz/preflop", icon: "?", title: "프리플랍 퀴즈", desc: "RFI · vs 레이즈 · vs 올인", stat: accuracy(by["preflop"]), tone: "red" },
     { route: "quiz/odds", icon: "÷", title: "팟 오즈·EV", desc: "필요 에퀴티, MDF, 아웃츠", stat: accuracy(by["odds"]), tone: "green" },
     { route: "quiz/equity", icon: "%", title: "에퀴티 감각", desc: "핸드 vs 핸드, 플랍 올인", stat: accuracy(by["equity"]), tone: "purple" },
+    { route: "log", icon: "✎", title: "핸드 기록", desc: "펍에서 친 핸드 빠르게 메모 · 상대 쇼다운 모으기", tone: "blue" },
     { route: "charts", icon: "▦", title: "차트", desc: "스택 구간별 레인지 보기", tone: "gray" },
     { route: "calc", icon: "∑", title: "계산기", desc: "에퀴티 · 팟 오즈 · 콜 EV", tone: "gray" },
   ];

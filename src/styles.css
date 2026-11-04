@@ -386,3 +386,26 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tone-purple { --tone: var(--allin); }
 .tone-gray { --tone: #64748b; }
 .next-btn { min-width: 140px; }
+
+/* hand log */
+.log-form { display: flex; flex-direction: column; gap: 14px; }
+.seat-chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.seat-chips .chip { padding: 8px 0; text-align: center; }
+.log-list { display: flex; flex-direction: column; gap: 6px; }
+.log-day { margin: 6px 2px 0; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.log-row {
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; text-align: left;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+.log-row-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.log-seat { min-width: 48px; color: var(--accent); }
+.log-result { margin-left: auto; font-size: 0.78rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--panel-2); }
+.log-result.win { color: var(--call); }
+.log-result.lose { color: var(--raise); }
+.log-note { color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.showdown-box { border: 1px dashed var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; font-weight: 400; }
+.log-form .row-gap > input { flex: 1; min-width: 0; }
+.sign-btn { min-width: 48px; font-size: 1.1rem; padding: 8px 0; }
+.sign-btn.minus { color: var(--raise); }
+.sign-btn.plus { color: var(--call); }
+.ghost.danger { color: var(--err); border-color: var(--err); }
