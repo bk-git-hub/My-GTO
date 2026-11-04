@@ -104,6 +104,11 @@ export function describeError(err: unknown, mode: KeyMode = "own"): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+/** The relay refused the request because the app passcode is missing or wrong. */
+export function isPasscodeError(err: unknown): boolean {
+  return err instanceof Anthropic.APIError && err.status === 401 && (err.type as string | null) === "proxy_error";
+}
+
 export function isAbort(err: unknown): boolean {
   return err instanceof Anthropic.APIUserAbortError;
 }

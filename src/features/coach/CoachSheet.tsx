@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { isCoachConfigured, MODEL_OPTIONS, useSettings } from "../../state/settings";
-import { describeError, isAbort, streamCoachReply, type CoachMessage } from "./client";
+import { isCoachConfigured, MODEL_OPTIONS, settingsStore, useSettings } from "../../state/settings";
+import { describeError, isAbort, isPasscodeError, streamCoachReply, type CoachMessage } from "./client";
 import { firstUserMessage, type SpotContext } from "./prompt";
 import { deleteThread, saveThread, threadsStore, type Thread } from "./threads";
 
@@ -16,6 +16,9 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
   const [streaming, setStreaming] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [input, setInput] = useState("");
+  /** The relay asked for the app passcode: show the inline prompt. */
+  const [needPass, setNeedPass] = useState(false);
+  const [pass, setPass] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const autoSent = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -39,7 +42,9 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
   async function send(question: string) {
     const q = question.trim();
     if (!q || busy) return;
-    if (!configured) return onNeedKey();
+    // Read the store directly: the passcode may have been saved a moment ago in this same handler.
+    const current = settingsStore.get();
+    if (!isCoachConfigured(current)) return onNeedKey();
 
     const before = thread;
     const userContent = before.history.length === 0 ? firstUserMessage(spot, q) : q;
@@ -48,13 +53,14 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
     setThread({ ...before, history, display });
     setInput("");
     setError(null);
+    setNeedPass(false);
     setStreaming("");
 
     const ac = new AbortController();
     abortRef.current = ac;
     try {
       const reply = await streamCoachReply({
-        settings,
+        settings: current,
         history,
         signal: ac.signal,
         onText: (d) => setStreaming((s) => (s ?? "") + d),
@@ -77,7 +83,8 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
       // Nothing was saved for this turn; put the question back so it can be retried.
       setThread(before);
       setInput(q);
-      if (!isAbort(err)) setError(describeError(err, settings.keyMode));
+      if (isPasscodeError(err)) setNeedPass(true);
+      else if (!isAbort(err)) setError(describeError(err, current.keyMode));
     } finally {
       abortRef.current = null;
       setStreaming(null);
@@ -140,6 +147,29 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
           )}
 
           {error && <div className="notice error">{error}</div>}
+
+          {needPass && (
+            <form
+              className="pass-prompt"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!pass.trim()) return;
+                settingsStore.set((s) => ({ ...s, passcode: pass.trim() }));
+                setPass("");
+                setNeedPass(false);
+                void send(input || spot.defaultQuestion);
+              }}
+            >
+              <b>{settings.passcode ? "접속 비밀번호가 틀렸어요." : "AI 코치는 접속 비밀번호가 필요해요."}</b>
+              <span className="muted small">한 번 넣으면 이 기기에 저장돼요. 설정에서 바꿀 수 있어요.</span>
+              <div className="row-gap">
+                <input type="password" autoComplete="current-password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="접속 비밀번호" autoFocus />
+                <button type="submit" className="primary" disabled={!pass.trim()}>
+                  확인
+                </button>
+              </div>
+            </form>
+          )}
 
           {!busy && thread.display.length > 0 && (
             <div className="chips">
