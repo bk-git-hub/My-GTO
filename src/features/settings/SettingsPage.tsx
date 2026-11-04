@@ -157,6 +157,13 @@ export function SettingsPage() {
       </section>
 
       <p className="muted small disclaimer">
+        My GTO는 오픈소스예요 (GNU AGPL-3.0).{" "}
+        <a href="https://github.com/bk-git-hub/My-GTO" target="_blank" rel="noreferrer">
+          소스 코드 보기
+        </a>
+      </p>
+
+      <p className="muted small disclaimer">
         프리플랍 차트는 솔버 정확값이 아닌 학습용 근사 차트예요. 에퀴티·팟 오즈 숫자는 앱이 직접 계산해요
         (플랍·턴·리버 대 핸드는 정확 계산, 프리플랍과 레인지는 시뮬레이션).
       </p>

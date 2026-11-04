@@ -8,6 +8,7 @@ import { cardLabel } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { accuracy, recordAnswer, useStats } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
+import { StackQuiz } from "./StackQuiz";
 import {
   generateEquity,
   generateOdds,
@@ -18,7 +19,7 @@ import {
   type PreflopQuestion,
 } from "./generators";
 
-type Mode = "preflop" | "odds" | "equity";
+type Mode = "preflop" | "stack" | "odds" | "equity";
 
 export function QuizPage() {
   const [mode, setMode] = useState<Mode>("preflop");
@@ -29,11 +30,14 @@ export function QuizPage() {
         <button className={mode === "preflop" ? "on" : ""} onClick={() => setMode("preflop")}>
           프리플랍
         </button>
+        <button className={mode === "stack" ? "on" : ""} onClick={() => setMode("stack")}>
+          레인지 암기
+        </button>
         <button className={mode === "odds" ? "on" : ""} onClick={() => setMode("odds")}>
           팟 오즈·EV
         </button>
         <button className={mode === "equity" ? "on" : ""} onClick={() => setMode("equity")}>
-          에퀴티 감각
+          에퀴티
         </button>
       </div>
       <div className="statline">
@@ -44,6 +48,7 @@ export function QuizPage() {
         <span>연속 정답 {stats.streak} (최고 {stats.bestStreak})</span>
       </div>
       {mode === "preflop" && <PreflopQuiz />}
+      {mode === "stack" && <StackQuiz />}
       {mode === "odds" && <MCQuiz key="odds" statKey="odds" generate={generateOdds} />}
       {mode === "equity" && <MCQuiz key="equity" statKey="equity" generate={generateEquity} />}
     </div>

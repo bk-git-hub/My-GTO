@@ -99,3 +99,11 @@ api/
 - 포스트플랍 퀴즈: [TexasSolver](https://github.com/bupticybee/TexasSolver) 콘솔로 자주 나오는 스팟을 미리 계산해 JSON으로 넣고, 스트리트별(플랍/턴/리버) 결정 퀴즈 + AI 해설
 - 차트 편집/가져오기 화면
 - 틀린 문제 복습 모드
+
+## 라이선스
+
+Copyright (C) 2026 bk-git-hub
+
+이 프로그램은 자유 소프트웨어다. [GNU Affero General Public License](LICENSE) 버전 3 또는 (선택에 따라) 그 이후 버전의 조건에 따라 재배포하거나 수정할 수 있다. 보증은 없다.
+
+AGPL이라서 이 앱을 수정해 웹으로 서비스하면, 그 사용자들에게도 수정한 소스를 제공해야 한다. 앱의 설정 탭에 이 레포 링크를 표시해 두었다. 사용하는 라이브러리는 모두 MIT·Apache-2.0·ISC·Unlicense라 AGPL과 함께 쓸 수 있다.

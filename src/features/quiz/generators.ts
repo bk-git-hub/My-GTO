@@ -63,16 +63,21 @@ export function quizPool(setId: string, filter: string): Scenario[] {
   return one ? [one] : allScenarios(set);
 }
 
-export function generatePreflop(setId: string, filter = "all"): PreflopQuestion {
-  const scenario = pick(quizPool(setId, filter));
+/** A hand drawn toward the edges of the scenario's ranges. */
+export function weightedHand(scenario: Scenario): HandClass {
   const weights = ALL_HANDS.map((h) => handWeight(scenario, h));
   const total = weights.reduce((a, b) => a + b, 0);
   let x = Math.random() * total;
-  let hand = ALL_HANDS[0];
   for (let i = 0; i < ALL_HANDS.length; i++) {
     x -= weights[i];
-    if (x <= 0) { hand = ALL_HANDS[i]; break; }
+    if (x <= 0) return ALL_HANDS[i];
   }
+  return ALL_HANDS[ALL_HANDS.length - 1];
+}
+
+export function generatePreflop(setId: string, filter = "all"): PreflopQuestion {
+  const scenario = pick(quizPool(setId, filter));
+  const hand = weightedHand(scenario);
   return { uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, scenario, hand, cards: randomCombo(hand) };
 }
 

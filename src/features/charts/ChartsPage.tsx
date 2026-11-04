@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { describeStrategy, FreqBar, actionColor, strategyGradient } from "../../components/FreqBar";
+import { describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
+import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
 import { actionTotals, FOLD, getSet, KIND_LABEL, type Scenario } from "../../data/charts";
-import { comboCount, gridHand, type HandClass } from "../../poker/cards";
+import { comboCount, type HandClass } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
 
@@ -110,25 +111,7 @@ export function ChartsPage() {
         </div>
       </section>
 
-      <div className="grid" role="grid">
-        {Array.from({ length: 13 }, (_, r) =>
-          Array.from({ length: 13 }, (_, c) => {
-            const h = gridHand(r, c);
-            const s = scenario.strategy[h];
-            return (
-              <button
-                key={h}
-                className={`cell ${hand === h ? "sel" : ""} ${s.fold >= 0.999 ? "folded" : ""}`}
-                style={{ background: strategyGradient(scenario, s) }}
-                onClick={() => setHand(h)}
-                title={`${h}: ${describeStrategy(scenario, s)}`}
-              >
-                {h}
-              </button>
-            );
-          }),
-        )}
-      </div>
+      <RangeGrid scenario={scenario} selected={hand} onPick={setHand} />
 
       {hand ? (
         <section className="card-box">
