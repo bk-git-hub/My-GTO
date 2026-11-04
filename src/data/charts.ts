@@ -29,6 +29,8 @@ export interface ScenarioDef {
   kind: ScenarioKind;
   /** 내 자리. 좌석이 아닌 설명("뒤 자리" 등)이어도 된다. */
   hero: string;
+  /** 이 상황이 함께 적용되는 자리들 (예: LJ·HJ) */
+  heroSeats?: string[];
   /** 먼저 액션한 사람 (좌석 하나 또는 "UTG~MP" 같은 묶음) */
   villain?: string;
   /** 좌석 그림에서 상대로 표시할 자리들 */

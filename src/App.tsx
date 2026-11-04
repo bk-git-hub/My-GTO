@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CalcPage } from "./features/calc/CalcPage";
 import { ChartsPage } from "./features/charts/ChartsPage";
+import { PlayPage } from "./features/play/PlayPage";
 import { CoachProvider } from "./features/coach/CoachContext";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
@@ -8,6 +9,7 @@ import { SettingsPage } from "./features/settings/SettingsPage";
 const TABS = [
   { id: "charts", label: "차트", icon: "▦" },
   { id: "quiz", label: "퀴즈", icon: "?" },
+  { id: "play", label: "플레이", icon: "♠" },
   { id: "calc", label: "계산기", icon: "%" },
   { id: "settings", label: "설정", icon: "⚙" },
 ] as const;
@@ -42,6 +44,7 @@ export function App() {
       <main>
         {tab === "charts" && <ChartsPage />}
         {tab === "quiz" && <QuizPage />}
+        {tab === "play" && <PlayPage />}
         {tab === "calc" && <CalcPage />}
         {tab === "settings" && <SettingsPage />}
       </main>
