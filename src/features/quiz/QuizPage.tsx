@@ -56,6 +56,7 @@ export function QuizPage({ sub = "" }: { sub?: string }) {
           initialMode={rest[0] === "cash" ? "cash" : "pub"}
           initialStage={rest[1] ?? "all"}
           initialSeat={rest[2] ? decodeURIComponent(rest[2]) : "all"}
+          initialSpot={rest[3] === "vs" || rest[3] === "mix" ? rest[3] : "rfi"}
         />
       )}
       {mode === "odds" && <MCQuiz key="odds" statKey="odds" generate={generateOdds} />}

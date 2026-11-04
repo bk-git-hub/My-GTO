@@ -426,3 +426,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rec-stack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
 .rec-stack-grid label { display: flex; flex-direction: column; gap: 2px; font-weight: 600; }
 .rec-stack-grid input { padding: 6px 8px; min-width: 0; }
+
+/* range drill: facing an open */
+.vs-open { text-align: center; font-size: 1rem; padding: 6px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--raise); }
+.vs-open b { color: var(--raise); }
+.action[class*="3bet"] { border-color: var(--raise); }

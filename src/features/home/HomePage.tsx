@@ -19,6 +19,10 @@ function weakestSpot(byKey: Record<string, Tally>): Weak | null {
     if (m) w = { label: `펍아재 ${STAGE_LABEL[m[1]]} · ${m[2]}`, route: `quiz/stack/pub/${m[1]}/${encodeURIComponent(m[2])}`, t };
     m = key.match(/^stack-cash:100bb:(.+)$/);
     if (m) w = { label: `100bb 캐시 · ${m[1]}`, route: `quiz/stack/cash/all/${encodeURIComponent(m[1])}`, t };
+    m = key.match(/^stack:vs:(deep|mid|short|push):(.+)$/);
+    if (m) w = { label: `펍아재 ${STAGE_LABEL[m[1]]} · ${m[2]} vs 오픈`, route: `quiz/stack/pub/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
+    m = key.match(/^stack-cash:vs:100bb:(.+)$/);
+    if (m) w = { label: `100bb 캐시 · ${m[1]} vs 오픈`, route: `quiz/stack/cash/all/${encodeURIComponent(m[1])}/vs`, t };
     if (w && (!worst || w.t.correct / w.t.attempts < worst.t.correct / worst.t.attempts)) worst = w;
   }
   return worst;

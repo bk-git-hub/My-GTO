@@ -9,19 +9,22 @@ import { accuracy, recordAnswer, useStats } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 import {
   QUIZ_ACTIONS,
+  drillSeats,
   generateStackQuestion,
   gradeStack,
+  questionActions,
+  statKeys,
   statPrefix,
   type DrillMode,
+  type DrillSpot,
   type QuizAction,
   type StackQuestion,
 } from "./stackQuiz";
 
 const SETS = { pub: getSet("pub"), cash: getSet("cash6") };
-const SEATS: Record<DrillMode, string[]> = {
-  pub: ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB"],
-  cash: ["UTG", "HJ", "CO", "BTN", "SB"],
-};
+const SPOT_LABEL: Record<DrillSpot, string> = { rfi: "오픈 (RFI)", vs: "vs 오픈", mix: "섞어서" };
+/** Button label; facing an open, an all-in is a 3-bet shove. */
+const actionLabel = (q: StackQuestion, a: QuizAction) => (a === "shove" && q.opener ? "3벳 올인" : QUIZ_ACTIONS.find((x) => x.key === a)!.label);
 const GRADE_TEXT = { correct: "정답", mixed: "부분 정답 (혼합 빈도)", wrong: "오답" } as const;
 const fmt = (n: number) => n.toLocaleString("ko-KR");
 const bbOf = (chips: number, bb: number) => {
@@ -34,15 +37,18 @@ export function StackQuiz({
   initialMode = "pub",
   initialStage = "all",
   initialSeat = "all",
+  initialSpot = "rfi",
 }: {
   initialMode?: DrillMode;
   initialStage?: string;
   initialSeat?: string;
+  initialSpot?: DrillSpot;
 }) {
   const [mode, setMode] = useState<DrillMode>(initialMode);
+  const [spot, setSpot] = useState<DrillSpot>(initialSpot);
   const [stage, setStage] = useState(initialStage);
   const [seat, setSeat] = useState(initialSeat);
-  const [q, setQ] = useState<StackQuestion>(() => generateStackQuestion(initialStage, initialSeat, initialMode));
+  const [q, setQ] = useState<StackQuestion>(() => generateStackQuestion(initialStage, initialSeat, initialMode, initialSpot));
   const [picked, setPicked] = useState<QuizAction | null>(null);
   const stats = useStats();
   const coach = useCoach();
@@ -51,10 +57,13 @@ export function StackQuiz({
   const prefix = statPrefix(q.mode);
   const result = picked ? gradeStack(q, picked) : null;
   const st = set.stages.find((s) => s.id === q.stageId)!;
-  const actions = q.mode === "cash" ? QUIZ_ACTIONS.filter((a) => a.key !== "shove") : QUIZ_ACTIONS;
+  const actions = questionActions(q);
+  const seats = drillSeats(mode, spot);
+  /** Stat key prefix for the filters: first-in and vs-open spots are tracked apart. */
+  const keyBase = spot === "vs" ? `${statPrefix(mode)}:vs` : statPrefix(mode);
 
-  function next(m = mode, stageF = stage, seatF = seat) {
-    setQ(generateStackQuestion(stageF, seatF, m));
+  function next(m = mode, stageF = stage, seatF = seat, sp = spot) {
+    setQ(generateStackQuestion(stageF, seatF, m, sp));
     setPicked(null);
   }
 
@@ -65,14 +74,18 @@ export function StackQuiz({
     next(m, "all", "all");
   }
 
+  function switchSpot(sp: DrillSpot) {
+    setSpot(sp);
+    const seatF = drillSeats(mode, sp).includes(seat) ? seat : "all";
+    setSeat(seatF);
+    next(mode, stage, seatF, sp);
+  }
+
   function answer(a: QuizAction) {
     if (picked) return;
     setPicked(a);
     const { grade } = gradeStack(q, a);
-    recordAnswer(
-      [prefix, `${prefix}:${q.stageId}`, `${prefix}:${q.stageId}:${q.scenario.hero}`, `${prefix}:seat:${q.scenario.hero}`],
-      grade !== "wrong",
-    );
+    recordAnswer(statKeys(q), grade !== "wrong");
   }
 
   function askCoach() {
@@ -85,17 +98,20 @@ export function StackQuiz({
             `블라인드: Lv${q.level} ${fmt(q.sb)}/${fmt(q.bb)} (BB 앤티 ${fmt(q.bb)})`,
             `내 스택: ${fmt(q.myChips)} (${bbOf(q.myChips, q.bb)}bb), 평균 스택: ${fmt(q.avgChips)} (${bbOf(q.avgChips, q.bb)}bb)`,
           ];
+    const situation = q.opener
+      ? `상황: ${q.opener} 오픈 ${q.mode === "pub" ? `${fmt(q.openTo! * q.bb)} (${q.openTo}bb)` : `${q.openTo}bb`}, 나머지 폴드, 내 자리 ${q.hero}`
+      : `포지션: ${q.hero} (RFI)`;
     coach.open({
       id: `stack:${q.uid}`,
       title: `${q.scenario.title} · ${q.hand}`,
       facts: [
         ...context,
-        `포지션: ${q.scenario.hero} (RFI)`,
+        situation,
         `핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
         `적용 차트: ${st.label} (${st.stack}) ${q.scenario.title}`,
         `차트 빈도: ${describeStrategy(q.scenario, q.scenario.strategy[q.hand])}`,
         `이 자리 레인지: ${q.scenario.actions.map((a) => `${a.label} = ${a.range}`).join(" / ")}`,
-        `사용자의 선택: ${QUIZ_ACTIONS.find((x) => x.key === picked)!.label} → ${GRADE_TEXT[result.grade]}`,
+        `사용자의 선택: ${actionLabel(q, picked)} → ${GRADE_TEXT[result.grade]}`,
         `차트 출처: ${set.source}`,
       ].join("\n"),
       defaultQuestion:
@@ -105,7 +121,7 @@ export function StackQuiz({
     });
   }
 
-  const keyStats = stats.byKey[`${prefix}:${q.stageId}:${q.scenario.hero}`];
+  const keyStats = stats.byKey[q.opener ? `${prefix}:vs:${q.stageId}:${q.hero}` : `${prefix}:${q.stageId}:${q.hero}`];
   return (
     <>
       <div className="seg small">
@@ -115,6 +131,13 @@ export function StackQuiz({
         <button className={mode === "cash" ? "on" : ""} onClick={() => switchMode("cash")}>
           100bb 캐시
         </button>
+      </div>
+      <div className="seg small">
+        {(Object.keys(SPOT_LABEL) as DrillSpot[]).map((sp) => (
+          <button key={sp} className={spot === sp ? "on" : ""} onClick={() => switchSpot(sp)}>
+            {SPOT_LABEL[sp]}
+          </button>
+        ))}
       </div>
 
       <div className="filters">
@@ -130,7 +153,7 @@ export function StackQuiz({
             <option value="all">모든 스택</option>
             {SETS.pub.stages.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.label} · {accuracy(stats.byKey[`stack:${s.id}`])}
+                {s.label} · {accuracy(stats.byKey[`${keyBase}:${s.id}`])}
               </option>
             ))}
           </select>
@@ -144,9 +167,9 @@ export function StackQuiz({
           }}
         >
           <option value="all">모든 자리</option>
-          {SEATS[mode].map((p) => (
+          {seats.map((p) => (
             <option key={p} value={p}>
-              {p} · {accuracy(stats.byKey[stage === "all" ? `${statPrefix(mode)}:seat:${p}` : `${statPrefix(mode)}:${stage}:${p}`])}
+              {p} · {accuracy(stats.byKey[stage === "all" ? `${keyBase}:seat:${p}` : `${keyBase}:${stage}:${p}`])}
             </option>
           ))}
         </select>
@@ -192,7 +215,13 @@ export function StackQuiz({
             </div>
           </div>
         )}
-        <SeatRow positions={set.positions} hero={q.scenario.hero} villains={[]} />
+        {q.opener && (
+          <div className="vs-open">
+            <b>{q.opener}</b> 오픈 {q.mode === "pub" ? `${fmt(q.openTo! * q.bb)} (${q.openTo}bb)` : `${q.openTo}bb`}
+            <span className="muted"> · 내 자리 {q.hero}</span>
+          </div>
+        )}
+        <SeatRow positions={set.positions} hero={q.hero} villains={q.opener ? [q.opener] : []} />
         <div className="center">
           <CardRow cards={q.cards} size="lg" />
           <div className="muted small">{q.hand}</div>
@@ -200,13 +229,8 @@ export function StackQuiz({
 
         <div className="actions">
           {actions.map((a) => (
-            <button
-              key={a.key}
-              className={`action ${a.key} ${picked === a.key ? "picked" : ""}`}
-              disabled={!!picked}
-              onClick={() => answer(a.key)}
-            >
-              {a.label}
+            <button key={a} className={`action ${a} ${picked === a ? "picked" : ""}`} disabled={!!picked} onClick={() => answer(a)}>
+              {actionLabel(q, a)}
             </button>
           ))}
         </div>
@@ -222,12 +246,13 @@ export function StackQuiz({
               </button>
             </div>
             <strong>
-              {GRADE_TEXT[result.grade]} — 오픈 {Math.round(result.freqs.open * 100)}%
-              {q.mode === "pub" ? ` · 올인 ${Math.round(result.freqs.shove * 100)}%` : ""} · 폴드{" "}
-              {Math.round(result.freqs.fold * 100)}%
+              {GRADE_TEXT[result.grade]} —{" "}
+              {[...actions.slice(1), actions[0]].map((a) => `${actionLabel(q, a)} ${Math.round(result.freqs[a] * 100)}%`).join(" · ")}
             </strong>
             <div className="muted small">
-              적용: {st.label}({st.stack}) {q.scenario.title} · 이 자리 정답률 {accuracy(keyStats)}
+              적용: {st.label}({st.stack}) {q.scenario.title}
+              {q.scenario.hero !== "Hero" && !q.scenario.title.includes(q.hero) ? ` (${q.hero}도 같은 차트)` : ""} · 이 자리 정답률{" "}
+              {accuracy(keyStats)}
             </div>
             <div className="range-text">
               {q.scenario.actions.map((a) => (
