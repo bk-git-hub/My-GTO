@@ -485,10 +485,10 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
     const json = exportData(hands);
     const day = new Date().toISOString().slice(0, 10);
     // Share sheets accept plain text files more widely than JSON.
-    const file = new File([json], `pubaz-hands-${day}.txt`, { type: "text/plain" });
+    const file = new File([json], `pubaj-hands-${day}.txt`, { type: "text/plain" });
     try {
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "PubAZ 핸드 기록 백업" });
+        await navigator.share({ files: [file], title: "PubAJ 핸드 기록 백업" });
         return;
       }
     } catch (e) {
@@ -497,7 +497,7 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
     const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `pubaz-hands-${day}.json`;
+    a.download = `pubaj-hands-${day}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }

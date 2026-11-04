@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icons/icon.svg", "icons/apple-touch-icon.png"],
       manifest: {
-        name: "PubAZ 펍아재 — 펍아재 잡는 홀덤 공부",
-        short_name: "PubAZ",
+        name: "PubAJ 펍아재 — 펍아재 잡는 홀덤 공부",
+        short_name: "PubAJ",
         description: "펍아재 잡는 홀덤 공부: 프리플랍 차트, 퀴즈, 핸드 플레이, AI 코치",
         lang: "ko",
         start_url: "./",

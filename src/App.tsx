@@ -38,7 +38,7 @@ function routeFromHash(): string {
 function titleOf(route: string): string {
   const exact = ITEMS.find((i) => i.route === route);
   if (exact) return exact.label;
-  return ITEMS.find((i) => route.startsWith(i.route + "/"))?.label ?? (route.startsWith("quiz") ? "퀴즈" : "PubAZ");
+  return ITEMS.find((i) => route.startsWith(i.route + "/"))?.label ?? (route.startsWith("quiz") ? "퀴즈" : "PubAJ");
 }
 
 export function App() {
@@ -66,7 +66,7 @@ export function App() {
       <button className="brand" onClick={() => go("home")}>
         <img className="brand-chip" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
         <span>
-          <b>PubAZ</b>
+          <b>PubAJ</b>
           <small>펍아재 잡는 홀덤 공부</small>
         </span>
       </button>
@@ -103,7 +103,7 @@ export function App() {
             </button>
             <button className="logo" onClick={() => go("home")}>
               <img className="logo-icon" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
-              PubAZ <small>펍아재</small>
+              PubAJ <small>펍아재</small>
             </button>
             <span className="head-title">{route === "home" ? "" : titleOf(route)}</span>
           </header>

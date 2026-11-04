@@ -192,6 +192,7 @@ export function knownNames(hands: LoggedHand[]): string[] {
 
 // ───────────── backup ─────────────
 
+/** File marker. Keeps the app's old name (PubAZ) so earlier backups still import. */
 const EXPORT_KIND = "pubaz-hand-log";
 
 export function exportData(hands: LoggedHand[]): string {
@@ -241,10 +242,10 @@ export function mergeImport(text: string, current: LoggedHand[]): { hands: Logge
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error("백업 파일을 읽을 수 없어요. PubAZ에서 내보낸 파일인지 확인해 주세요.");
+    throw new Error("백업 파일을 읽을 수 없어요. PubAJ에서 내보낸 파일인지 확인해 주세요.");
   }
   const d = data as { kind?: unknown; hands?: unknown };
-  if (!d || d.kind !== EXPORT_KIND || !Array.isArray(d.hands)) throw new Error("PubAZ 핸드 기록 백업 파일이 아니에요.");
+  if (!d || d.kind !== EXPORT_KIND || !Array.isArray(d.hands)) throw new Error("PubAJ 핸드 기록 백업 파일이 아니에요.");
   const byId = new Map(current.map((h) => [h.id, h]));
   let added = 0, updated = 0;
   for (const raw of d.hands) {

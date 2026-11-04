@@ -56,7 +56,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
       <section className="home-hero">
         <img className="hero-chip" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
         <div>
-          <h1>PubAZ 펍아재</h1>
+          <h1>PubAJ 펍아재</h1>
           <p>펍아재 잡는 홀덤 공부 · 9인 · BB 앤티 · 250bb 시작</p>
         </div>
       </section>
