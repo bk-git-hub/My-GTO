@@ -19,10 +19,13 @@ import {
   type PreflopQuestion,
 } from "./generators";
 
-type Mode = "preflop" | "stack" | "odds" | "equity";
+export type QuizMode = "preflop" | "stack" | "odds" | "equity";
+type Mode = QuizMode;
 
-export function QuizPage() {
-  const [mode, setMode] = useState<Mode>("preflop");
+/** `sub` comes from the route: "stack", "stack/cash", "stack/pub/short/UTG+1", "odds"... */
+export function QuizPage({ sub = "" }: { sub?: string }) {
+  const [first, ...rest] = sub.split("/").filter(Boolean);
+  const [mode, setMode] = useState<Mode>((["preflop", "stack", "odds", "equity"].includes(first) ? first : "stack") as Mode);
   const stats = useStats();
   return (
     <div className="page">
@@ -48,7 +51,13 @@ export function QuizPage() {
         <span>연속 정답 {stats.streak} (최고 {stats.bestStreak})</span>
       </div>
       {mode === "preflop" && <PreflopQuiz />}
-      {mode === "stack" && <StackQuiz />}
+      {mode === "stack" && (
+        <StackQuiz
+          initialMode={rest[0] === "cash" ? "cash" : "pub"}
+          initialStage={rest[1] ?? "all"}
+          initialSeat={rest[2] ? decodeURIComponent(rest[2]) : "all"}
+        />
+      )}
       {mode === "odds" && <MCQuiz key="odds" statKey="odds" generate={generateOdds} />}
       {mode === "equity" && <MCQuiz key="equity" statKey="equity" generate={generateEquity} />}
     </div>
@@ -174,16 +183,16 @@ function PreflopQuiz() {
 
         {chosen && grade && (
           <div className={`result ${grade}`}>
-            <strong>{GRADE_TEXT[grade]}</strong>
-            <FreqBar scenario={s} strategy={strategy} />
             <div className="row-gap">
-              <button className="primary" onClick={askCoach}>
-                AI 해설 요청
-              </button>
-              <button className="ghost" onClick={() => next()}>
+              <button className="primary next-btn" onClick={() => next()}>
                 다음 문제 →
               </button>
+              <button className="ghost" onClick={askCoach}>
+                AI 해설
+              </button>
             </div>
+            <strong>{GRADE_TEXT[grade]}</strong>
+            <FreqBar scenario={s} strategy={strategy} />
           </div>
         )}
       </section>
@@ -248,18 +257,9 @@ function MCQuiz({ statKey, generate }: { statKey: string; generate: () => MCQues
       <Choices options={q.options} answer={q.answer} picked={picked} onPick={onPick} />
       {picked !== null && (
         <div className={`result ${picked === q.answer ? "correct" : "wrong"}`}>
-          <strong>{picked === q.answer ? "정답!" : `오답 — 정답은 ${q.options[q.answer]}`}</strong>
-          <ol className="steps">
-            {q.steps.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ol>
           <div className="row-gap">
-            <button className="primary" onClick={askCoach}>
-              AI 해설 요청
-            </button>
             <button
-              className="ghost"
+              className="primary next-btn"
               onClick={() => {
                 setQ(generate());
                 setPicked(null);
@@ -267,7 +267,16 @@ function MCQuiz({ statKey, generate }: { statKey: string; generate: () => MCQues
             >
               다음 문제 →
             </button>
+            <button className="ghost" onClick={askCoach}>
+              AI 해설
+            </button>
           </div>
+          <strong>{picked === q.answer ? "정답!" : `오답 — 정답은 ${q.options[q.answer]}`}</strong>
+          <ol className="steps">
+            {q.steps.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
         </div>
       )}
     </section>

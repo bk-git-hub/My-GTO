@@ -151,7 +151,7 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
             </div>
           )}
 
-          {!busy && thread.display.length === 0 && configured && (
+          {!busy && thread.display.length === 0 && configured && spot.defaultQuestion && (
             <div className="chips">
               <button className="chip" onClick={() => send(spot.defaultQuestion)}>
                 {spot.defaultQuestion}

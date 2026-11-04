@@ -42,15 +42,20 @@ export type QuizAction = (typeof QUIZ_ACTIONS)[number]["key"];
 
 /** Collapse a chart's actions to fold / open (any raise size) / shove. */
 export function collapse(st: HandStrategy): Record<QuizAction, number> {
-  return {
-    fold: st.fold ?? 0,
-    open: (st.open ?? 0) + (st.small ?? 0),
-    shove: st.shove ?? 0,
-  };
+  const fold = st.fold ?? 0;
+  const shove = st.shove ?? 0;
+  return { fold, open: Math.max(0, 1 - fold - shove), shove };
 }
+
+/** pub: 펍아재 토너먼트 (스택별 차트) · cash: 6맥스 캐시 100bb */
+export type DrillMode = "pub" | "cash";
+
+/** Stat key prefix per mode (pub keeps the original keys). */
+export const statPrefix = (mode: DrillMode) => (mode === "pub" ? "stack" : "stack-cash");
 
 export interface StackQuestion {
   uid: string;
+  mode: DrillMode;
   scenario: Scenario;
   stageId: string;
   hand: HandClass;
@@ -62,7 +67,28 @@ export interface StackQuestion {
   avgChips: number;
 }
 
-export function generateStackQuestion(stageFilter: string, seatFilter: string): StackQuestion {
+function cashQuestion(seatFilter: string): StackQuestion {
+  const stage = getSet("cash6").stages[0];
+  const rfis = stage.scenarios.filter((s) => s.kind === "rfi" && (seatFilter === "all" || s.hero === seatFilter));
+  const scenario = rfis[Math.floor(Math.random() * rfis.length)] ?? stage.scenarios.find((s) => s.kind === "rfi")!;
+  const hand = weightedHand(scenario);
+  return {
+    uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    mode: "cash",
+    scenario,
+    stageId: stage.id,
+    hand,
+    cards: randomCombo(hand),
+    level: 0,
+    sb: 0.5,
+    bb: 1,
+    myChips: 100,
+    avgChips: 100,
+  };
+}
+
+export function generateStackQuestion(stageFilter: string, seatFilter: string, mode: DrillMode = "pub"): StackQuestion {
+  if (mode === "cash") return cashQuestion(seatFilter);
   const set = getSet("pub");
   const stages = set.stages.filter((s) => stageFilter === "all" || s.id === stageFilter);
   const stage = stages[Math.floor(Math.random() * stages.length)];
@@ -77,6 +103,7 @@ export function generateStackQuestion(stageFilter: string, seatFilter: string): 
   const hand = weightedHand(scenario);
   return {
     uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    mode: "pub",
     scenario,
     stageId: stage.id,
     hand,

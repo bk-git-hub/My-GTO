@@ -198,10 +198,16 @@ export function PlayPage() {
         </section>
       )}
 
-      {last && <DecisionCard d={last} />}
-
       {g.done && (
         <section className={`card-box result ${net! > 0 ? "correct" : net! < 0 ? "wrong" : ""}`}>
+          <div className="row-gap">
+            <button className="primary next-btn" onClick={() => newHand()}>
+              다음 핸드 →
+            </button>
+            <button className="ghost" onClick={review}>
+              AI 핸드 리뷰
+            </button>
+          </div>
           <strong>
             {net! > 0 ? `+${net}bb 이겼어요` : net! < 0 ? `${net}bb 졌어요` : "본전"}
             {g.showdown ? " · 쇼다운" : ""}
@@ -217,6 +223,9 @@ export function PlayPage() {
                 ))}
             </div>
           )}
+
+      {last && <DecisionCard d={last} />}
+
           <div className="small">
             내 결정 {s.decisions.length}개:{" "}
             {s.decisions.map((d, i) => (
@@ -225,14 +234,7 @@ export function PlayPage() {
               </span>
             ))}
           </div>
-          <div className="row-gap">
-            <button className="primary" onClick={review}>
-              AI 핸드 리뷰
-            </button>
-            <button className="ghost" onClick={() => newHand()}>
-              다음 핸드 →
-            </button>
-          </div>
+
         </section>
       )}
 
