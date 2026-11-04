@@ -38,7 +38,9 @@ export function App() {
   return (
     <CoachProvider onNeedKey={() => go("settings")}>
       <header className="app-head">
-        <span className="logo">My GTO</span>
+        <span className="logo">
+          PubAZ <small>펍아재</small>
+        </span>
         <span className="muted small">{TABS.find((t) => t.id === tab)?.label}</span>
       </header>
       <main>

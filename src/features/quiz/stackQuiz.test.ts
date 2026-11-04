@@ -7,7 +7,7 @@ describe("stack quiz", () => {
     for (let i = 0; i < 400; i++) {
       const q = generateStackQuestion("all", "all");
       expect(q.scenario.kind).toBe("rfi");
-      expect(q.scenario.setId).toBe("yajasu");
+      expect(q.scenario.setId).toBe("pub");
       const bb = q.myChips / q.bb;
       const [lo, hi] = range[q.stageId];
       expect(bb, `${q.stageId} ${bb}`).toBeGreaterThanOrEqual(lo - 0.5);

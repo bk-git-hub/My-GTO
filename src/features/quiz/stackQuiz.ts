@@ -2,7 +2,7 @@ import { randomCombo, type Card, type HandClass } from "../../poker/cards";
 import { getSet, type HandStrategy, type Scenario } from "../../data/charts";
 import { gradePreflop, weightedHand, type Grade } from "./generators";
 
-/** 야자수 토너먼트 블라인드 구조 (레벨, SB, BB). BB 앤티 = BB. */
+/** 펍 토너먼트 블라인드 구조 (레벨, SB, BB). BB 앤티 = BB. */
 export const BLIND_LEVELS: [number, number, number][] = [
   [1, 100, 200], [2, 200, 300], [3, 200, 400], [4, 300, 500], [5, 300, 600], [6, 400, 800],
   [7, 500, 1000], [8, 600, 1200], [9, 800, 1600], [10, 1000, 2000], [11, 1500, 2500], [12, 2000, 3000],
@@ -63,7 +63,7 @@ export interface StackQuestion {
 }
 
 export function generateStackQuestion(stageFilter: string, seatFilter: string): StackQuestion {
-  const set = getSet("yajasu");
+  const set = getSet("pub");
   const stages = set.stages.filter((s) => stageFilter === "all" || s.id === stageFilter);
   const stage = stages[Math.floor(Math.random() * stages.length)];
   const rfis = stage.scenarios.filter((s) => s.kind === "rfi" && (seatFilter === "all" || s.hero === seatFilter));

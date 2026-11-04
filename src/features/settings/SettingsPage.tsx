@@ -157,7 +157,7 @@ export function SettingsPage() {
       </section>
 
       <p className="muted small disclaimer">
-        My GTO는 오픈소스예요 (GNU AGPL-3.0).{" "}
+        PubAZ(펍아재)는 오픈소스예요 (GNU AGPL-3.0).{" "}
         <a href="https://github.com/bk-git-hub/My-GTO" target="_blank" rel="noreferrer">
           소스 코드 보기
         </a>

@@ -39,7 +39,7 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
   model: "claude-opus-5-5",
   effort: "medium",
   userNotes: "",
-  chartSet: "yajasu",
+  chartSet: "pub",
 });
 
 export const useSettings = settingsStore.use;

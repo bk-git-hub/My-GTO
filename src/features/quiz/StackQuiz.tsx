@@ -15,7 +15,7 @@ import {
   type StackQuestion,
 } from "./stackQuiz";
 
-const SET = getSet("yajasu");
+const SET = getSet("pub");
 const SEATS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB"];
 const GRADE_TEXT = { correct: "정답", mixed: "부분 정답 (혼합 빈도)", wrong: "오답" } as const;
 const fmt = (n: number) => n.toLocaleString("ko-KR");

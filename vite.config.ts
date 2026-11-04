@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icons/icon.svg"],
       manifest: {
-        name: "My GTO — 홀덤 GTO 학습",
-        short_name: "My GTO",
-        description: "프리플랍 차트, 퀴즈, AI 코치로 홀덤 GTO 공부하기",
+        name: "PubAZ 펍아재 — 펍아재 잡는 홀덤 공부",
+        short_name: "PubAZ",
+        description: "펍아재 잡는 홀덤 공부: 프리플랍 차트, 퀴즈, 핸드 플레이, AI 코치",
         lang: "ko",
         start_url: "./",
         scope: "./",

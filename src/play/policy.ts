@@ -14,7 +14,7 @@ export const EARLY_SEATS = ["UTG", "UTG+1", "UTG+2"];
 export const LATE_SEATS = ["HJ", "CO", "BTN", "SB"];
 
 export function playStage(stageId: string): Stage {
-  return getSet("yajasu").stages.find((s) => s.id === stageId)!;
+  return getSet("pub").stages.find((s) => s.id === stageId)!;
 }
 
 /** Starting stack (bb) per chart stage. */

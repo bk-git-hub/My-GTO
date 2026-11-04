@@ -1,7 +1,7 @@
 import type { ActionDef, ChartSetDef, ScenarioDef } from "../charts";
 
 /**
- * 야자수 방이점 토너먼트용 레인지 (9인, BB 앤티, 시작 50,000 = 250bb).
+ * 홀덤펍 토너먼트용 레인지 (9인, BB 앤티, 시작 50,000 = 250bb).
  *
  * 출처: 2026-10-31 bk와 Claude의 채팅("홀덤 대화 기록")에서 정리한 범위를
  * 그대로 옮겼다. "적힌 패보다 높은 패는 다 포함" 표기는 X+ 로 풀었다
@@ -486,9 +486,9 @@ const PUSH: ScenarioDef[] = [
   },
 ];
 
-export const YAJASU: ChartSetDef = {
-  id: "yajasu",
-  label: "야자수 펍 토너먼트",
+export const PUB_TOURNEY: ChartSetDef = {
+  id: "pub",
+  label: "펍 토너먼트 (9인·BB 앤티)",
   game: "홀덤펍 토너먼트 · 9인 테이블 · BB 앤티(빅블라인드가 BB만큼 앤티) · 시작 50,000칩(250bb) · 20분 레벨(15레벨부터 12분) · 리엔트리 14레벨까지 · ITM 12등 · 콜이 많고 멀티웨이가 흔한 테이블",
   source:
     "bk와 Claude의 채팅(2026-10-31)에서 이 펍에 맞춰 정리한 범위예요. 솔버 결과가 아니라 콜이 많은 테이블에 맞춘 단순화 값이에요.",

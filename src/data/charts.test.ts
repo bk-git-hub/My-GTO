@@ -18,9 +18,9 @@ describe("chart sets", () => {
     expect(NAMED_RANGES.length).toBeGreaterThan(50);
   });
 
-  it("yajasu: later seats never play fewer hands than earlier seats (first-in)", () => {
+  it("pub: later seats never play fewer hands than earlier seats (first-in)", () => {
     const order = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
-    for (const stage of getSet("yajasu").stages) {
+    for (const stage of getSet("pub").stages) {
       const rfi = Object.fromEntries(stage.scenarios.filter((s) => s.kind === "rfi").map((s) => [s.hero, s]));
       for (let i = 1; i < order.length; i++) {
         const prev = rfi[order[i - 1]], cur = rfi[order[i]];
@@ -31,8 +31,8 @@ describe("chart sets", () => {
     }
   });
 
-  it("yajasu: shove ranges widen from 17bb to 11bb", () => {
-    const set = getSet("yajasu");
+  it("pub: shove ranges widen from 17bb to 11bb", () => {
+    const set = getSet("pub");
     const short = set.stages.find((s) => s.id === "short")!;
     const push = set.stages.find((s) => s.id === "push")!;
     for (const s of push.scenarios.filter((x) => x.kind === "rfi")) {
@@ -43,8 +43,8 @@ describe("chart sets", () => {
     }
   });
 
-  it("yajasu: spot checks against the chat", () => {
-    const set = getSet("yajasu");
+  it("pub: spot checks against the chat", () => {
+    const set = getSet("pub");
     const sc = (stage: string, id: string) => set.stages.find((s) => s.id === stage)!.scenarios.find((s) => s.id.endsWith(`/${id}`))!;
     // 55bb UTG: "55 / A9s, A5s / KTs / QTs, JTs / AJo, KQo"
     const mUtg = sc("mid", "rfi-utg");

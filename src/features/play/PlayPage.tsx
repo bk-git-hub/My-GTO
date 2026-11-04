@@ -10,7 +10,7 @@ import { heroAct, heroMoves, startHand, type Decision, type PlayState } from "..
 import { recordAnswer } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 
-const SET = getSet("yajasu");
+const SET = getSet("pub");
 const STREET_LABEL: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
 const GRADE_TEXT = { good: "좋은 선택", ok: "괜찮음", mistake: "실수", info: "참고" } as const;
 const ACT_TEXT: Record<string, string> = { fold: "폴드", check: "체크", call: "콜", bet: "벳", raise: "레이즈", post: "블라인드" };
@@ -250,7 +250,7 @@ export function PlayPage() {
       )}
 
       <p className="muted small disclaimer">
-        상대 봇은 프리플랍은 야자수 펍 차트, 플랍 이후는 패 강도 규칙(콜이 많고 블러프가 적은 펍 성향)으로 쳐요. 채점은 이 봇
+        상대는 펍아재 봇이에요. 프리플랍은 펍 토너먼트 차트, 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요. 채점은 이 봇
         규칙으로 좁힌 상대 레인지 기준 EV이고 솔버 답이 아니에요. 체크 EV는 끝까지 체크다운한다고 가정한 근사예요.
       </p>
     </div>

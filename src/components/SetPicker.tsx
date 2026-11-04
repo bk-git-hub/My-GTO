@@ -1,4 +1,4 @@
-import { CHART_SETS } from "../data/charts";
+import { CHART_SETS, getSet } from "../data/charts";
 import { settingsStore, useSettings } from "../state/settings";
 
 /** Chooses which chart set the charts and quizzes use (saved in settings). */
@@ -9,7 +9,7 @@ export function SetPicker() {
       <span className="muted small">차트</span>
       <select
         className="select"
-        value={chartSet}
+        value={getSet(chartSet).id}
         onChange={(e) => settingsStore.set((s) => ({ ...s, chartSet: e.target.value }))}
       >
         {CHART_SETS.map((s) => (
