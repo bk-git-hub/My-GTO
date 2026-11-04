@@ -75,13 +75,14 @@ export function pot(g: Game): number {
   return r1(g.dead + g.players.reduce((s, p) => s + p.total, 0));
 }
 
-export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuffle(fullDeck()), table: TableDef = PUB_TABLE): Game {
+/** `stacks` optionally overrides the starting stack (bb) per seat index. */
+export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuffle(fullDeck()), table: TableDef = PUB_TABLE, stacks?: number[]): Game {
   const d = deck.slice();
   const players: Player[] = table.seats.map((seat, i) => ({
     seat,
     hero: i === heroIdx,
     hole: [d.pop()!, d.pop()!],
-    stack: startStack,
+    stack: stacks?.[i] ?? startStack,
     streetBet: 0,
     total: 0,
     folded: false,

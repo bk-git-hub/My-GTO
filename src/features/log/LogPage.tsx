@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { CardPicker, CardRow } from "../../components/Cards";
 import { cardLabel, type Card } from "../../poker/cards";
+import { legal, pot } from "../../play/engine";
 import { useCoach } from "../coach/CoachContext";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import {
@@ -14,6 +15,7 @@ import {
   hasDetail,
   holeText,
   knownNames,
+  levelInfo,
   levelLabel,
   LOG_SEATS,
   LOG_STREET_LABEL,
@@ -22,20 +24,17 @@ import {
   RESULT_LABEL,
   saveHand,
   stackBb,
+  streetBoard,
+  tableOf,
   villainBook,
   type LoggedHand,
   type Result,
   type ShowdownNote,
 } from "./handLog";
+import { amountLabel, baseStack, raiseVerb, replay, sizeOptions, skipTo, streetLines, undoSteps, upcoming, type LogStep } from "./recorder";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
 const NAMES_LIST_ID = "log-villain-names";
-const ACTION_HINT: Record<string, string> = {
-  preflop: "예) UTG 1,600 오픈, 나 BTN 콜",
-  flop: "예) UTG 2,000 벳, 나 콜",
-  turn: "예) 체크 체크",
-  river: "예) UTG 올인, 나 폴드",
-};
 
 type Msg = { text: string; error?: boolean } | null;
 
@@ -288,10 +287,13 @@ function HandFields({ h, onChange, full = false }: { h: LoggedHand; onChange: (h
         <>
           <CardField label="보드" cards={h.board} max={5} disabled={[...h.hole, ...sdCards]} onChange={(board) => set({ board })} defaultOpen={false} />
 
-          {LOG_STREETS.map((st) => (
+          <ActionRecorder h={h} set={set} />
+
+          {/* Older hands kept street actions as free text. */}
+          {LOG_STREETS.filter((st) => h.actions[st].trim()).map((st) => (
             <label key={st} className="field">
-              {LOG_STREET_LABEL[st]} 액션
-              <input value={h.actions[st]} onChange={(e) => set({ actions: { ...h.actions, [st]: e.target.value } })} placeholder={ACTION_HINT[st]} />
+              {LOG_STREET_LABEL[st]} 메모
+              <input value={h.actions[st]} onChange={(e) => set({ actions: { ...h.actions, [st]: e.target.value } })} />
             </label>
           ))}
 
@@ -316,6 +318,197 @@ function HandFields({ h, onChange, full = false }: { h: LoggedHand; onChange: (h
         </>
       )}
     </div>
+  );
+}
+
+const STREET_NEED: Record<string, number> = { preflop: 0, flop: 3, turn: 4, river: 5 };
+
+/** Record every seat's action street by street; the engine works out turn order, call amounts and the pot. */
+function ActionRecorder({ h, set }: { h: LoggedHand; set: (patch: Partial<LoggedHand>) => void }) {
+  const bbChips = levelInfo(h.level)?.bb ?? null;
+  const fmt = (bb: number) => amountLabel(bb, bbChips);
+  const table = tableOf(h);
+  const { game, applied } = useMemo(() => replay(table, h.steps), [h.steps, h.stacks, h.seat, h.stack, h.level]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [custom, setCustom] = useState("");
+  const valid = h.steps.slice(0, applied);
+  const push = (...steps: LogStep[]) => set({ steps: [...valid, ...steps] });
+
+  const idx = game.done ? null : game.toAct;
+  const actor = idx !== null ? game.players[idx] : null;
+  const L = idx !== null ? legal(game, idx) : null;
+  const lines = streetLines(game, fmt);
+  const next = actor ? upcoming(game) : [];
+  const verb = raiseVerb(game);
+  const need = STREET_NEED[game.street];
+  const sdCards = h.showdowns.flatMap((s) => s.cards);
+
+  function raiseCustom() {
+    const v = Number(custom.replace(/[^0-9.]/g, ""));
+    if (!actor || !(v > 0)) return;
+    push({ s: actor.seat, k: "raise", to: bbChips ? v / bbChips : v });
+    setCustom("");
+  }
+
+  return (
+    <div className="field">
+      <div className="row-between">
+        <span>액션 기록</span>
+        <span className="row-gap">
+          <button type="button" className="ghost small" disabled={!h.steps.length} onClick={() => set({ steps: undoSteps(valid) })}>
+            되돌리기
+          </button>
+          <button type="button" className="ghost small" disabled={!h.steps.length} onClick={() => set({ steps: [] })}>
+            처음부터
+          </button>
+        </span>
+      </div>
+      <span className="muted small">
+        다음에 액션한 자리를 누르고 액션을 고르세요. 그 사이 자리는 폴드(벳이 없으면 체크)로 채워져요. 금액은 그 스트리트에 낸 총액이에요.
+      </span>
+
+      <StacksEditor h={h} set={set} />
+
+      {applied < h.steps.length && (
+        <div className="notice error">
+          <span>스택이나 자리가 바뀌어서 뒤쪽 액션 {h.steps.length - applied}개가 맞지 않아요.</span>
+          <button type="button" className="ghost small" onClick={() => set({ steps: valid })}>
+            지우기
+          </button>
+        </div>
+      )}
+
+      {lines.map((l) => {
+        const cards = streetBoard(h.board, l.street);
+        return (
+          <div key={l.street} className="rec-line small">
+            <b>{LOG_STREET_LABEL[l.street as keyof typeof LOG_STREET_LABEL]}</b>
+            {cards.length > 0 && <CardRow cards={cards} size="sm" />}
+            <span>{l.actions.join(" · ") || "-"}</span>
+            <span className="muted">팟 {fmt(l.pot)}</span>
+          </div>
+        );
+      })}
+
+      {actor && L ? (
+        <div className="rec-turn">
+          {need > h.board.length && (
+            <div className="field">
+              <span className="small">
+                {LOG_STREET_LABEL[game.street as keyof typeof LOG_STREET_LABEL]} 카드 {need - h.board.length}장 (몰라도 계속 기록할 수 있어요)
+              </span>
+              <CardPicker selected={h.board.slice(0, need)} max={need} disabled={[...h.hole, ...sdCards]} onChange={(board) => set({ board })} />
+            </div>
+          )}
+          <div className="seat-chips">
+            {next.map((seat, i) => (
+              <button
+                key={seat}
+                type="button"
+                className={`chip ${i === 0 ? "on" : ""}`}
+                onClick={() => i > 0 && push(...skipTo(game, seat))}
+                aria-pressed={i === 0}
+              >
+                {seat}
+                {seat === h.seat ? "(나)" : ""}
+              </button>
+            ))}
+          </div>
+          <div className="muted small">
+            {actor.seat}
+            {actor.hero ? "(나)" : ""} 차례 · 팟 {fmt(pot(game))}
+            {L.callAmount > 0 ? ` · 콜하려면 ${fmt(L.callAmount)} 더` : ""} · 남은 스택 {fmt(actor.stack)}
+          </div>
+          <div className="rec-actions">
+            {!L.canCheck && (
+              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "fold" })}>
+                폴드
+              </button>
+            )}
+            {L.canCheck ? (
+              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "check" })}>
+                체크
+              </button>
+            ) : (
+              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "call" })}>
+                콜 {fmt(actor.streetBet + L.callAmount)}
+                {L.callAmount >= actor.stack ? " 올인" : ""}
+              </button>
+            )}
+            {sizeOptions(game).map((o) => (
+              <button key={o.to} type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "raise", to: o.to })}>
+                {verb} {fmt(o.to)}
+                {o.label && <small> {o.label}</small>}
+              </button>
+            ))}
+            {L.canRaise && (
+              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "raise", to: L.maxRaiseTo })}>
+                올인 {fmt(L.maxRaiseTo)}
+              </button>
+            )}
+          </div>
+          {L.canRaise && (
+            <div className="row-gap">
+              <input
+                inputMode="decimal"
+                value={custom}
+                onChange={(e) => setCustom(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), raiseCustom())}
+                placeholder={`${verb} 금액 직접 (${bbChips ? "칩" : "bb"}, 총액)`}
+              />
+              <button type="button" className="ghost" disabled={!custom.trim()} onClick={raiseCustom}>
+                {verb}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        h.steps.length > 0 && (
+          <div className="muted small">
+            핸드 끝 · 최종 팟 {fmt(pot(game))}
+            {game.showdown && h.board.length < 5 ? " · 남은 보드는 위 '보드'에서 입력하세요" : ""}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
+/** Starting stacks for seats that differ from mine (BB ante comes out of the BB's stack). */
+function StacksEditor({ h, set }: { h: LoggedHand; set: (patch: Partial<LoggedHand>) => void }) {
+  const bbChips = levelInfo(h.level)?.bb ?? null;
+  const base = baseStack(tableOf(h));
+  const others = LOG_SEATS.filter((s) => s !== h.seat);
+  const changed = others.filter((s) => h.stacks[s] !== undefined).length;
+  return (
+    <details className="rec-stacks">
+      <summary className="small">
+        시작 스택: 모두 {amountLabel(base, bbChips)}
+        {stackBb(h) === null ? " (내 스택·레벨을 넣으면 그 값이 기본)" : " (내 스택과 같게)"}
+        {changed ? ` · ${changed}자리 따로` : ""}
+      </summary>
+      <div className="rec-stack-grid">
+        {others.map((seat) => {
+          const bb = h.stacks[seat];
+          return (
+            <label key={seat} className="small">
+              {seat}
+              <input
+                inputMode="numeric"
+                value={bb === undefined ? "" : bbChips ? Math.round(bb * bbChips).toLocaleString() : String(bb)}
+                placeholder={amountLabel(base, bbChips)}
+                onChange={(e) => {
+                  const v = Number(e.target.value.replace(/[^0-9.]/g, ""));
+                  const stacks = { ...h.stacks };
+                  if (v > 0) stacks[seat] = bbChips ? v / bbChips : v;
+                  else delete stacks[seat];
+                  set({ stacks });
+                }}
+              />
+            </label>
+          );
+        })}
+      </div>
+    </details>
   );
 }
 

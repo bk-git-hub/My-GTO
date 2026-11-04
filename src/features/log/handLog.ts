@@ -1,6 +1,7 @@
 import { cardLabel, handClassOf, type Card } from "../../poker/cards";
 import { createStore } from "../../state/store";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
+import { amountLabel, replay, streetLines, type LogStep, type StepKind, type TableInput } from "./recorder";
 
 /**
  * Hands the user played at the pub, kept in this browser's localStorage only
@@ -42,6 +43,11 @@ export interface LoggedHand {
   /** Chips won (+) or lost (−). */
   net: number | null;
   board: Card[];
+  /** Every seat's actions, replayed through the play engine (see recorder.ts). */
+  steps: LogStep[];
+  /** Starting stacks in bb for seats that differ from mine. */
+  stacks: Record<string, number>;
+  /** Free-text notes per street (older hands were recorded this way). */
   actions: Record<LogStreet, string>;
   showdowns: ShowdownNote[];
 }
@@ -70,6 +76,8 @@ export function emptyHand(level: number | null = handLogStore.get().lastLevel): 
     result: null,
     net: null,
     board: [],
+    steps: [],
+    stacks: {},
     actions: { preflop: "", flop: "", turn: "", river: "" },
     showdowns: [],
   };
@@ -79,12 +87,18 @@ export const emptyShowdown = (): ShowdownNote => ({ name: "", seat: "", cards: [
 
 /** Something worth saving was entered. */
 export function hasContent(h: LoggedHand): boolean {
-  return h.hole.length > 0 || h.note.trim() !== "" || h.board.length > 0 || h.showdowns.length > 0;
+  return h.hole.length > 0 || h.note.trim() !== "" || h.board.length > 0 || h.showdowns.length > 0 || h.steps.length > 0;
 }
 
 /** Board, street actions, showdowns or a chip result were filled in. */
 export function hasDetail(h: LoggedHand): boolean {
-  return h.board.length > 0 || h.showdowns.length > 0 || h.net !== null || LOG_STREETS.some((s) => h.actions[s].trim() !== "");
+  return (
+    h.board.length > 0 ||
+    h.steps.length > 0 ||
+    h.showdowns.length > 0 ||
+    h.net !== null ||
+    LOG_STREETS.some((s) => h.actions[s].trim() !== "")
+  );
 }
 
 /** Insert or update a hand. Returns false if the browser refused to store it (storage full). */
@@ -136,6 +150,19 @@ export function stackBb(h: Pick<LoggedHand, "stack" | "level">): number | null {
 
 export const cardsText = (cs: Card[]) => cs.map(cardLabel).join(" ");
 
+/** The recorder's view of this hand's table. */
+export function tableOf(h: LoggedHand): TableInput {
+  return { heroSeat: h.seat, heroStack: stackBb(h), stacks: h.stacks };
+}
+
+/** Board cards dealt on a street (flop 3, turn 1, river 1). */
+export function streetBoard(board: Card[], street: string): Card[] {
+  if (street === "flop") return board.slice(0, 3);
+  if (street === "turn") return board.slice(3, 4);
+  if (street === "river") return board.slice(4, 5);
+  return [];
+}
+
 export function holeText(cs: Card[]): string {
   if (cs.length === 2) return `${cardsText(cs)} (${handClassOf(cs[0], cs[1])})`;
   return cs.length ? cardsText(cs) : "모름";
@@ -152,7 +179,21 @@ export function handFacts(h: LoggedHand): string {
     `내 스택: ${h.stack !== null ? `${h.stack.toLocaleString()}칩` : "모름"}${bb !== null ? ` (${bb}bb)` : ""}`,
   ];
   if (h.board.length) lines.push(`보드: ${cardsText(h.board)}`);
-  for (const st of LOG_STREETS) if (h.actions[st].trim()) lines.push(`${LOG_STREET_LABEL[st]}: ${h.actions[st].trim()}`);
+  if (h.steps.length) {
+    const t = tableOf(h);
+    const others = Object.entries(h.stacks).filter(([seat]) => seat !== h.seat);
+    const both = (bb: number) => (info ? `${amountLabel(bb, info.bb)}(${Math.round(bb * 10) / 10}bb)` : amountLabel(bb, null));
+    lines.push(
+      `시작 스택: 다른 자리는 ${t.heroStack === null ? "모름(100bb로 가정)" : "나와 같음"}${others.length ? `, 예외 ${others.map(([seat, bb]) => `${seat} ${both(bb)}`).join(", ")}` : ""}`,
+      "액션 기록 (금액은 그 스트리트에서 낸 총액, 언급 없는 자리는 폴드):",
+    );
+    const { game } = replay(t, h.steps);
+    for (const l of streetLines(game, both)) {
+      const cards = streetBoard(h.board, l.street);
+      lines.push(`- ${LOG_STREET_LABEL[l.street as LogStreet]}${cards.length ? ` [${cardsText(cards)}]` : ""}: ${l.actions.join(", ") || "액션 없음"} → 팟 ${both(l.pot)}`);
+    }
+  }
+  for (const st of LOG_STREETS) if (h.actions[st].trim()) lines.push(`${LOG_STREET_LABEL[st]} 메모: ${h.actions[st].trim()}`);
   for (const sd of h.showdowns) {
     const who = [sd.name.trim() || "상대", sd.seat].filter(Boolean).join(" ");
     lines.push(`쇼다운: ${who} ${sd.cards.length ? holeText(sd.cards) : "카드 모름"}${sd.did.trim() ? ` — ${sd.did.trim()}` : ""}`);
@@ -225,6 +266,18 @@ function sanitize(x: unknown): LoggedHand | null {
     result: result in RESULT_LABEL ? (result as Result) : null,
     net: num(r.net),
     board: cardList(r.board, 5),
+    steps: (Array.isArray(r.steps) ? r.steps : []).flatMap((x): LogStep[] => {
+      const o = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
+      const k = str(o.k) as StepKind;
+      if (!LOG_SEATS.includes(str(o.s)) || !["fold", "check", "call", "raise"].includes(k)) return [];
+      const to = num(o.to);
+      return [{ s: str(o.s), k, ...(to !== null ? { to } : {}), ...(o.a ? { a: 1 as const } : {}) }];
+    }),
+    stacks: Object.fromEntries(
+      Object.entries(r.stacks && typeof r.stacks === "object" ? (r.stacks as Record<string, unknown>) : {}).filter(
+        ([seat, v]) => LOG_SEATS.includes(seat) && typeof v === "number" && v > 0,
+      ),
+    ) as Record<string, number>,
     actions: { preflop: str(actions.preflop), flop: str(actions.flop), turn: str(actions.turn), river: str(actions.river) },
     showdowns: (Array.isArray(r.showdowns) ? r.showdowns : []).map((s) => {
       const o = (s && typeof s === "object" ? s : {}) as Record<string, unknown>;
@@ -258,4 +311,12 @@ export function mergeImport(text: string, current: LoggedHand[]): { hands: Logge
     byId.set(h.id, h);
   }
   return { hands: [...byId.values()].sort((a, b) => b.createdAt - a.createdAt), added, updated };
+}
+
+// Hands saved by an earlier version lack newer fields; fill them in once on load.
+{
+  const loaded = handLogStore.get();
+  if (loaded.hands.some((h) => !Array.isArray(h.steps) || !h.stacks || !h.actions)) {
+    handLogStore.set({ ...loaded, hands: loaded.hands.map((h) => sanitize(h)).filter((h): h is LoggedHand => h !== null) });
+  }
 }
