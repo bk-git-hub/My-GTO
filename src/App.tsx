@@ -62,7 +62,7 @@ export function App() {
   const nav = (
     <nav className="side-nav">
       <button className="brand" onClick={() => go("home")}>
-        <span className="brand-chip">AZ</span>
+        <img className="brand-chip" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
         <span>
           <b>PubAZ</b>
           <small>펍아재 잡는 홀덤 공부</small>
@@ -100,6 +100,7 @@ export function App() {
               ☰
             </button>
             <button className="logo" onClick={() => go("home")}>
+              <img className="logo-icon" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
               PubAZ <small>펍아재</small>
             </button>
             <span className="head-title">{route === "home" ? "" : titleOf(route)}</span>

@@ -1,7 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0f1419"/>
-  <circle cx="256" cy="256" r="176" fill="#1a7f37"/>
-  <circle cx="256" cy="256" r="176" fill="none" stroke="#e6edf3" stroke-width="18" stroke-dasharray="46 46"/>
-  <circle cx="256" cy="256" r="128" fill="#0f1419"/>
-  <text x="256" y="308" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="800" fill="#e6edf3">AZ</text>
+  <!-- PubAZ app icon: an A♠ and a J♥ whose court picture is a 펍아재.
+       Source for scripts/make-icons.mjs, which derives the PNG, maskable and
+       apple-touch variants from the #bg and #art elements below.
+       Card indices are outlines of Liberation Sans Bold (SIL OFL 1.1). -->
+  <defs>
+    <path id="spade" d="M0 -40 C 14 -20, 38 -8, 38 14 C 38 30, 22 38, 10 30 C 12 42, 16 48, 24 52 L -24 52 C -16 48, -12 42, -10 30 C -22 38, -38 30, -38 14 C -38 -8, -14 -20, 0 -40 Z"/>
+    <path id="heart" d="M0 44 C -30 16, -40 0, -40 -18 C -40 -38, -20 -48, 0 -30 C 20 -48, 40 -38, 40 -18 C 40 0, 30 16, 0 44 Z"/>
+    <clipPath id="frame"><rect x="-104" y="-150" width="208" height="300" rx="10"/></clipPath>
+    <g id="ajae">
+      <path d="M-78 74 Q -66 40 -26 34 L 26 34 Q 66 40 78 74 Z" fill="#ff4d5a" stroke="#1b1400" stroke-width="4"/>
+      <g fill="#fff" opacity="0.9"><circle cx="-50" cy="58" r="5"/><circle cx="-30" cy="48" r="4"/><circle cx="44" cy="56" r="5"/><circle cx="28" cy="46" r="4"/></g>
+      <path d="M-22 36 Q 0 62 22 36" fill="none" stroke="#fbbf24" stroke-width="6"/>
+      <circle cx="0" cy="58" r="6" fill="#fbbf24" stroke="#1b1400" stroke-width="2"/>
+      <ellipse cx="0" cy="-12" rx="44" ry="48" fill="#f2c48d" stroke="#1b1400" stroke-width="4"/>
+      <ellipse cx="-12" cy="-48" rx="12" ry="6" fill="#fff" opacity="0.7"/>
+      <path d="M-44 -10 C -50 -30, -44 -44, -32 -50 C -36 -38, -38 -24, -36 -6 Z" fill="#3b2a1e"/>
+      <path d="M44 -10 C 50 -30, 44 -44, 32 -50 C 36 -38, 38 -24, 36 -6 Z" fill="#3b2a1e"/>
+      <path d="M-14 -56 q 14 -8 30 2" fill="none" stroke="#3b2a1e" stroke-width="4" stroke-linecap="round"/>
+      <rect x="-36" y="-22" width="30" height="20" rx="7" fill="#0b0f14"/>
+      <rect x="6" y="-22" width="30" height="20" rx="7" fill="#0b0f14"/>
+      <rect x="-8" y="-16" width="16" height="5" fill="#0b0f14"/>
+      <rect x="-31" y="-19" width="10" height="4" rx="2" fill="#fff" opacity="0.55"/>
+      <path d="M0 14 C -8 6, -24 5, -34 14 C -39 19, -46 19, -50 14 C -46 28, -28 31, -14 23 C -7 19, -3 18, 0 21 C 3 18, 7 19, 14 23 C 28 31, 46 28, 50 14 C 46 19, 39 19, 34 14 C 24 5, 8 6, 0 14 Z" fill="#3b2a1e"/>
+    </g>
+  </defs>
+  <rect id="bg" width="512" height="512" rx="112" fill="#0f5132"/>
+  <g id="art">
+    <!-- A♠ -->
+    <g transform="translate(206 268) rotate(-14) scale(0.86)">
+      <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke="#1b1400" stroke-width="8"/>
+      <path transform="translate(-134 -136)" fill="#1b1400" d="M55.7 0L44.3 0L39.4-14.1L18.4-14.1L13.5 0L2.0 0L22.1-55.0L35.7-55.0L55.7 0ZM29.7-43.9L28.9-46.6L28.6-45.7Q28.2-44.3 27.7-42.5Q27.1-40.7 21.0-22.7L21.0-22.7L36.8-22.7L31.4-38.6L29.7-43.9Z"/>
+      <use href="#spade" transform="translate(-105 -96) scale(0.5)" fill="#1b1400"/>
+      <use href="#spade" transform="translate(0 6) scale(2.2)" fill="#1b1400"/>
+    </g>
+    <!-- J♥ with the 아재 as the court picture -->
+    <g transform="translate(316 258) rotate(8) scale(0.86)">
+      <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke="#1b1400" stroke-width="8"/>
+      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="#fff3d6"/>
+      <g clip-path="url(#frame)"><use href="#ajae" transform="translate(0 32) scale(1.6)"/></g>
+      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="none" stroke="#fbbf24" stroke-width="6"/>
+      <path transform="translate(-124 -136)" fill="#d6202f" d="M20.5 0.8L20.5 0.8Q11.9 0.8 7.3-2.9Q2.7-6.6 1.2-14.9L1.2-14.9L12.7-16.6Q13.4-12.3 15.3-10.3Q17.2-8.2 20.5-8.2L20.5-8.2Q24.0-8.2 25.8-10.5Q27.5-12.9 27.5-17.1L27.5-17.1L27.5-46.0L16.6-46.0L16.6-55.0L39.0-55.0L39.0-17.4Q39.0-8.8 34.1-4.0Q29.3 0.8 20.5 0.8Z"/>
+      <use href="#heart" transform="translate(-105 -96) scale(0.5)" fill="#d6202f"/>
+    </g>
+  </g>
 </svg>
