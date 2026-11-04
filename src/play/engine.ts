@@ -4,11 +4,19 @@ import { evaluate } from "../poker/evaluator";
 export type Street = "preflop" | "flop" | "turn" | "river";
 export type ActKind = "fold" | "check" | "call" | "bet" | "raise";
 
-/** 9-handed, seat order = preflop action order. */
-export const SEATS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
-const SB = 7, BB = 8;
+/** Seats in preflop action order (the last two are SB and BB), and whether the BB posts an ante. */
+export interface TableDef {
+  seats: string[];
+  bbAnte: boolean;
+}
+/** Pub tournament: 9-handed, the BB pays a 1bb ante. */
+export const PUB_TABLE: TableDef = { seats: ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"], bbAnte: true };
+/** 6-max cash: no ante. */
+export const CASH_TABLE: TableDef = { seats: ["UTG", "HJ", "CO", "BTN", "SB", "BB"], bbAnte: false };
+export const SEATS = PUB_TABLE.seats;
+
 /** Postflop action order starts at the SB. */
-const POSTFLOP_ORDER = [7, 8, 0, 1, 2, 3, 4, 5, 6];
+const postflopOrder = (n: number) => [n - 2, n - 1, ...Array.from({ length: n - 2 }, (_, i) => i)];
 
 export interface Player {
   seat: string;
@@ -45,7 +53,7 @@ export interface Game {
   players: Player[];
   board: Card[];
   deck: Card[];
-  /** BB ante, dead money in the pot. */
+  /** BB ante, dead money in the pot (0 without an ante). */
   dead: number;
   street: Street;
   currentBet: number;
@@ -67,9 +75,9 @@ export function pot(g: Game): number {
   return r1(g.dead + g.players.reduce((s, p) => s + p.total, 0));
 }
 
-export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuffle(fullDeck())): Game {
+export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuffle(fullDeck()), table: TableDef = PUB_TABLE): Game {
   const d = deck.slice();
-  const players: Player[] = SEATS.map((seat, i) => ({
+  const players: Player[] = table.seats.map((seat, i) => ({
     seat,
     hero: i === heroIdx,
     hole: [d.pop()!, d.pop()!],
@@ -97,15 +105,18 @@ export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuf
     showdown: false,
     payouts: [],
   };
-  // BB ante (dead) + blinds.
-  const ante = Math.min(1, players[BB].stack);
-  players[BB].stack = r1(players[BB].stack - ante);
-  g.dead = ante;
-  post(g, SB, 0.5);
-  post(g, BB, 1);
+  const sb = players.length - 2, bb = players.length - 1;
+  if (table.bbAnte) {
+    // BB ante: dead money, posted before the blind.
+    const ante = Math.min(1, players[bb].stack);
+    players[bb].stack = r1(players[bb].stack - ante);
+    g.dead = ante;
+  }
+  post(g, sb, 0.5);
+  post(g, bb, 1);
   g.currentBet = 1;
-  g.pending = SEATS.map((_, i) => i).filter((i) => canAct(g.players[i]));
-  g.toAct = nextToAct(g, BB);
+  g.pending = players.map((_, i) => i).filter((i) => canAct(g.players[i]));
+  g.toAct = nextToAct(g, bb);
   return g;
 }
 
@@ -124,7 +135,7 @@ const live = (g: Game) => g.players.filter((p) => !p.folded);
 
 /** Next player after `from` (in table order for the street) who still has to act. */
 function nextToAct(g: Game, from: number): number | null {
-  const order = g.street === "preflop" ? SEATS.map((_, i) => i) : POSTFLOP_ORDER;
+  const order = g.street === "preflop" ? g.players.map((_, i) => i) : postflopOrder(g.players.length);
   const start = order.indexOf(from);
   for (let k = 1; k <= order.length; k++) {
     const i = order[(start + k) % order.length];
@@ -234,7 +245,7 @@ function endRound(g: Game) {
   g.currentBet = 0;
   g.minRaise = 1;
   g.lastRaiser = null;
-  g.pending = POSTFLOP_ORDER.filter((i) => canAct(g.players[i]));
+  g.pending = postflopOrder(g.players.length).filter((i) => canAct(g.players[i]));
   g.toAct = g.pending[0] ?? null;
   if (g.toAct === null) endRound(g);
 }

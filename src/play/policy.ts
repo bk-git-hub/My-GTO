@@ -13,17 +13,37 @@ export interface MoveOption {
 export const EARLY_SEATS = ["UTG", "UTG+1", "UTG+2"];
 export const LATE_SEATS = ["HJ", "CO", "BTN", "SB"];
 
-export function playStage(stageId: string): Stage {
-  return getSet("pub").stages.find((s) => s.id === stageId)!;
+/** pub: 9-handed pub tournament with BB ante. cash: 6-max 100bb cash game. */
+export type PlayMode = "pub" | "cash";
+/** Chart set each mode's bots play from. */
+export const MODE_SET: Record<PlayMode, string> = { pub: "pub", cash: "cash6" };
+
+export function playStage(mode: PlayMode, stageId: string): Stage {
+  const set = getSet(MODE_SET[mode]);
+  return set.stages.find((s) => s.id === stageId) ?? set.stages[0];
 }
 
 /** Starting stack (bb) per chart stage. */
-export const STAGE_STACK: Record<string, number> = { deep: 100, mid: 55, short: 17, push: 11 };
-/** Open size (bb) for the "open" action per stage. */
+export const STAGE_STACK: Record<string, number> = { deep: 100, mid: 55, short: 17, push: 11, "100bb": 100 };
+/** Open size (bb) for the "open" action per pub stage. */
 const OPEN_SIZE: Record<string, number> = { deep: 3, mid: 2.5, short: 2, push: 2 };
+
+/** First-in raise size (bb), before adding 1bb per limper. Cash: 2.5bb, 3bb from the SB. */
+export function openSize(mode: PlayMode, stageId: string, seat: string): number {
+  if (mode === "cash") return seat === "SB" ? 3 : 2.5;
+  return OPEN_SIZE[stageId] ?? 2.5;
+}
+
+/** 3-bet size (total bb) over an open of `currentBet`. Cash: 3x in position, 4.4x from the blinds (3x BB vs SB). */
+export function threeBetSize(mode: PlayMode, seat: string, opener: string | undefined, currentBet: number): number {
+  const blinds = seat === "SB" || seat === "BB";
+  if (mode === "cash") return currentBet * (blinds && opener !== "SB" ? 4.4 : 3);
+  return currentBet * (blinds ? 3.5 : 3);
+}
 
 /** What a preflop decision looks like to the chart lookup. */
 export interface PreflopSpot {
+  mode: PlayMode;
   stageId: string;
   seat: string;
   /** Number of voluntary raises so far (0 = unopened). */
@@ -79,21 +99,29 @@ const R = (s: string) => parseRange(s);
 const TIGHT_CONTINUE = R("QQ+, AKs, AKo");
 const PREMIUM = R("KK+, AKs");
 
-/** Find the chart scenario for this seat facing an open from `opener`. */
-const SEAT_ORDER = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
-
-function findVsOpen(stage: Stage, seat: string, opener: string): Scenario | undefined {
+/** Find the chart scenario for this seat facing an open from `opener`. `seats` is the preflop order. */
+function findVsOpen(stage: Stage, seats: string[], seat: string, opener: string): Scenario | undefined {
+  const o = seats.indexOf(opener);
   // Opener acted after me (I limped, then got raised): no chart for that.
-  if (SEAT_ORDER.indexOf(opener) > SEAT_ORDER.indexOf(seat)) return undefined;
+  if (o > seats.indexOf(seat)) return undefined;
   const vs = stage.scenarios.filter((s) => s.kind === "vsOpen");
   const mine = (s: Scenario) => (s.heroSeats ?? [s.hero]).includes(seat);
-  const fits = (s: Scenario) => (s.villainSeats ?? [s.villain]).includes(opener);
-  return (
-    vs.find((s) => mine(s) && fits(s)) ??
-    vs.find((s) => s.hero === "Hero" && fits(s)) ??
-    // Same seat, different opener group: closest charted spot.
-    vs.find((s) => mine(s))
-  );
+  const openers = (s: Scenario) => s.villainSeats ?? (s.villain ? [s.villain] : []);
+  const exact = vs.find((s) => mine(s) && openers(s).includes(opener)) ?? vs.find((s) => s.hero === "Hero" && openers(s).includes(opener));
+  if (exact) return exact;
+  // Uncharted opener: borrow my seat's chart against the closest opener. A chart against an earlier
+  // opener is only a bit tight; one against a later (wider) opener is too loose beyond one seat.
+  let best: Scenario | undefined;
+  let bestD = Infinity;
+  for (const s of vs.filter(mine)) {
+    for (const v of openers(s)) {
+      const i = seats.indexOf(v);
+      if (i < 0) continue;
+      const d = i <= o ? o - i : i - o === 1 ? 1.5 : Infinity;
+      if (d < bestD) [best, bestD] = [s, d];
+    }
+  }
+  return best;
 }
 
 function callRangeVsShove(stage: Stage, shover: string): { sc?: Scenario; range: Range } {
@@ -104,7 +132,8 @@ function callRangeVsShove(stage: Stage, shover: string): { sc?: Scenario; range:
 }
 
 export function preflopDecision(spot: PreflopSpot): PreflopDecision {
-  const stage = playStage(spot.stageId);
+  const stage = playStage(spot.mode, spot.stageId);
+  const seats = getSet(MODE_SET[spot.mode]).positions;
   const allInTo = spot.myBet + spot.myStack;
   const cap = (x: number) => Math.min(x, allInTo);
 
@@ -121,7 +150,7 @@ export function preflopDecision(spot: PreflopSpot): PreflopDecision {
       return { label: "BB 옵션", moves: fromRanges([{ kind: "raise", to, range: R("QQ+, AKs, AKo") }], "check") };
     }
     const sc = stage.scenarios.find((s) => s.kind === "rfi" && s.hero === spot.seat)!;
-    const openTo = cap(OPEN_SIZE[spot.stageId] + spot.limpers);
+    const openTo = cap(openSize(spot.mode, spot.stageId, spot.seat) + spot.limpers);
     return {
       scenario: sc,
       label: sc.title,
@@ -130,8 +159,8 @@ export function preflopDecision(spot: PreflopSpot): PreflopDecision {
   }
 
   if (spot.raises === 1) {
-    const sc = findVsOpen(stage, spot.seat, spot.openerSeat!);
-    const threeBetTo = cap(spot.currentBet * (spot.seat === "SB" || spot.seat === "BB" ? 3.5 : 3));
+    const sc = findVsOpen(stage, seats, spot.seat, spot.openerSeat!);
+    const threeBetTo = cap(threeBetSize(spot.mode, spot.seat, spot.openerSeat, spot.currentBet));
     if (sc) {
       return {
         scenario: sc,
@@ -186,12 +215,21 @@ export interface PostflopSpot {
   aggressor: boolean; // I was the last preflop raiser
   facingRaise: boolean;
   street: "flop" | "turn" | "river";
+  /** Bot tendencies. Defaults to "pub". */
+  style?: BotStyle;
 }
+
+/**
+ * pub: 펍아재. Value-heavy, sticky with any pair, few bluffs.
+ * reg: cash regular. C-bets and barrels more, semi-bluffs draws, folds weak hands to bets.
+ */
+export type BotStyle = "pub" | "reg";
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
-/** Pub-style rules: value-heavy, sticky with pairs, few bluffs. */
+/** Hand-strength rules for bots (and for predicting how they answer hero's bets). */
 export function postflopMoves(f: HandFeatures, s: PostflopSpot): MoveOption[] {
+  const reg = s.style === "reg";
   const allInTo = s.myBet + s.myStack;
   const betTo = (frac: number) => Math.min(allInTo, Math.max(1, Math.round(s.pot * frac * 10) / 10));
   const raiseTo = Math.min(allInTo, Math.round(s.currentBet * 3 * 10) / 10);
@@ -207,6 +245,12 @@ export function postflopMoves(f: HandFeatures, s: PostflopSpot): MoveOption[] {
     else if (t === 1.5) [p, frac] = [0.3, 0.5];
     else if (t === 1) [p, frac] = [s.aggressor && !multi && s.street === "flop" ? 0.35 : 0.1, 0.33];
     else [p, frac] = [s.aggressor && !multi && s.street === "flop" ? 0.4 : 0.08, 0.33];
+    if (reg && s.aggressor && !multi) {
+      // Regulars c-bet small more often and keep barrelling some air and draws.
+      if (s.street === "flop" && t <= 2) p = Math.min(0.75, p + 0.15);
+      if (s.street === "turn" && t <= 1.5) p = Math.max(p, t === 1.5 ? 0.5 : 0.3);
+    }
+    if (reg && t === 1.5) p = Math.max(p, 0.4);
     if (multi && t <= 2) p /= 2;
     // Low SPR: strong hands just get it in.
     const to = t >= 3 && s.myStack <= s.pot * 1.2 ? allInTo : betTo(frac);
@@ -226,9 +270,16 @@ export function postflopMoves(f: HandFeatures, s: PostflopSpot): MoveOption[] {
   else if (t === 1.5) call = s.street === "river" ? 0 : req <= 0.3 ? 0.75 : 0.4;
   else if (t === 1) call = req <= 0.25 ? 0.55 : 0.25; // stations: bottom pair / ace high hang on
   else [call, raise] = [0.05, 0.03];
+  if (reg) {
+    // Regulars give up weak showdown value, and raise some draws and air as bluffs.
+    if (t === 2) call *= 0.85;
+    else if (t === 1) call *= 0.55;
+    else if (t === 1.5) raise = s.street === "river" ? 0 : 0.12;
+    else if (t === 0) [call, raise] = [0.02, s.street === "river" ? 0.03 : 0.06];
+  }
   if (s.facingRaise && t <= 2.5) {
-    // Pub players still call raises fairly often.
-    call *= t >= 2 ? 0.8 : 0.6;
+    // Pub players still call raises fairly often; regulars much less.
+    call *= reg ? (t >= 2 ? 0.65 : 0.35) : t >= 2 ? 0.8 : 0.6;
     raise *= 0.3;
   }
   // Can't raise if calling already puts me all-in.

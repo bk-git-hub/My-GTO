@@ -5,12 +5,18 @@ import { cardLabel, handClassOf } from "../../poker/cards";
 import { equityVs } from "../../play/analysis";
 import { heroNet, pot, toCall, type Game, type LogEntry, type Street } from "../../play/engine";
 import { handFeatures } from "../../play/handInfo";
-import { STAGE_STACK } from "../../play/policy";
+import { MODE_SET, STAGE_STACK, type PlayMode } from "../../play/policy";
 import { heroAct, heroMoves, startHand, type Decision, type PlayState } from "../../play/table";
+import { settingsStore, useSettings } from "../../state/settings";
 import { recordAnswer } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 
-const SET = getSet("pub");
+const PUB_SET = getSet("pub");
+/** How each mode's bots play, for the page note and the AI review. */
+const BOT_TEXT: Record<PlayMode, string> = {
+  pub: "상대는 펍아재 봇이에요. 프리플랍은 펍 토너먼트 차트, 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요.",
+  cash: "상대는 레귤러 봇이에요. 프리플랍은 6맥스 100bb 근사 GTO 차트, 플랍 이후는 패 강도 규칙(c벳·세미블러프가 많고 약한 패는 잘 접는 성향)으로 쳐요.",
+};
 const STREET_LABEL: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
 const GRADE_TEXT = { good: "좋은 선택", ok: "괜찮음", mistake: "실수", info: "참고" } as const;
 const ACT_TEXT: Record<string, string> = { fold: "폴드", check: "체크", call: "콜", bet: "벳", raise: "레이즈", post: "블라인드" };
@@ -33,13 +39,16 @@ function streetLog(g: Game, street: Street): string {
 /** Plain-text hand history + decision analysis for the AI review. */
 function reviewFacts(s: PlayState): string {
   const g = s.game;
-  const stage = SET.stages.find((x) => x.id === s.stageId)!;
+  const set = getSet(MODE_SET[s.mode]);
+  const stage = set.stages.find((x) => x.id === s.stageId)!;
   const hero = g.players[s.heroIdx];
   const lines = [
-    `게임: ${SET.game}`,
-    `스택 구간: ${stage.label} (모두 ${g.startStack}bb 시작, BB 앤티 1bb)`,
+    `게임: ${set.game}`,
+    s.mode === "cash"
+      ? `스택: 모두 ${g.startStack}bb, 블라인드 0.5/1bb, 앤티 없음, ${g.players.length}인`
+      : `스택 구간: ${stage.label} (모두 ${g.startStack}bb 시작, BB 앤티 1bb)`,
     `내 자리: ${hero.seat}, 내 핸드: ${hero.hole.map(cardLabel).join(" ")} (${handClassOf(hero.hole[0], hero.hole[1])})`,
-    `상대 봇: 프리플랍은 위 펍 차트대로, 플랍 이후는 패 강도 규칙(콜이 많고 블러프가 적은 펍 성향)으로 플레이함. 솔버 아님.`,
+    `상대 봇: ${BOT_TEXT[s.mode]} 솔버 아님.`,
   ];
   for (const st of ["preflop", "flop", "turn", "river"] as Street[]) {
     const acts = g.log.filter((e) => e.street === st && e.kind !== "post");
@@ -67,8 +76,9 @@ function reviewFacts(s: PlayState): string {
 }
 
 export function PlayPage() {
+  const { playMode: mode } = useSettings();
   const [stage, setStage] = useState("deep");
-  const [s, setS] = useState<PlayState>(() => startHand("deep"));
+  const [s, setS] = useState<PlayState>(() => startHand(mode, "deep"));
   const [hint, setHint] = useState(false);
   const coach = useCoach();
   const g = s.game;
@@ -89,8 +99,14 @@ export function PlayPage() {
     return equityVs(hero.hole, g.board, opp.map(({ i }) => s.ranges[i]), 2000);
   }, [hint, heroTurn, s, g, hero.hole]);
 
-  function newHand(st = stage) {
-    setS(startHand(st));
+  function newHand(st = stage, m = mode) {
+    setS(startHand(m, st));
+  }
+
+  function switchMode(m: PlayMode) {
+    if (m === mode) return;
+    settingsStore.set((x) => ({ ...x, playMode: m }));
+    newHand(stage, m);
   }
 
   function choose(key: string) {
@@ -116,21 +132,33 @@ export function PlayPage() {
 
   return (
     <div className="page">
+      <div className="seg small">
+        <button className={mode === "pub" ? "on" : ""} onClick={() => switchMode("pub")}>
+          펍아재 (9인 토너먼트)
+        </button>
+        <button className={mode === "cash" ? "on" : ""} onClick={() => switchMode("cash")}>
+          100bb 캐시 (6맥스)
+        </button>
+      </div>
       <div className="filters">
-        <select
-          className="select"
-          value={stage}
-          onChange={(e) => {
-            setStage(e.target.value);
-            newHand(e.target.value);
-          }}
-        >
-          {SET.stages.map((st) => (
-            <option key={st.id} value={st.id}>
-              {st.label} · {STAGE_STACK[st.id]}bb
-            </option>
-          ))}
-        </select>
+        {mode === "pub" ? (
+          <select
+            className="select"
+            value={stage}
+            onChange={(e) => {
+              setStage(e.target.value);
+              newHand(e.target.value);
+            }}
+          >
+            {PUB_SET.stages.map((st) => (
+              <option key={st.id} value={st.id}>
+                {st.label} · {STAGE_STACK[st.id]}bb
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="muted small">6맥스 · 모두 100bb · 앤티 없음</span>
+        )}
         <button className="ghost" onClick={() => newHand()}>
           새 핸드
         </button>
@@ -252,8 +280,8 @@ export function PlayPage() {
       )}
 
       <p className="muted small disclaimer">
-        상대는 펍아재 봇이에요. 프리플랍은 펍 토너먼트 차트, 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요. 채점은 이 봇
-        규칙으로 좁힌 상대 레인지 기준 EV이고 솔버 답이 아니에요. 체크 EV는 끝까지 체크다운한다고 가정한 근사예요.
+        {BOT_TEXT[mode]} 채점은 이 봇 규칙으로 좁힌 상대 레인지 기준 EV이고 솔버 답이 아니에요. 체크 EV는 끝까지 체크다운한다고 가정한
+        근사예요.
       </p>
     </div>
   );

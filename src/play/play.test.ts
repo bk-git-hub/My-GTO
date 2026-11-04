@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseCards } from "../poker/cards";
-import { act, heroNet, newGame, pot } from "./engine";
+import { act, CASH_TABLE, heroNet, newGame, pot } from "./engine";
 import { handFeatures } from "./handInfo";
+import { preflopDecision, type PlayMode, type PreflopSpot } from "./policy";
 import { heroAct, heroMoves, startHand } from "./table";
 
 /** Chips on the table: stacks plus the pot while the hand runs, stacks only once it's paid out. */
@@ -48,12 +49,37 @@ describe("hand features", () => {
   });
 });
 
+describe("cash table", () => {
+  it("6-max posts blinds only, starts with UTG, and the SB acts first postflop", () => {
+    let g = newGame(100, 0, undefined, CASH_TABLE);
+    expect(g.players.map((p) => p.seat)).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
+    expect(pot(g)).toBeCloseTo(1.5);
+    expect(g.dead).toBe(0);
+    expect(g.toAct).toBe(0);
+    for (let i = 0; i < 3; i++) g = act(g, "fold"); // UTG, HJ, CO
+    g = act(g, "raise", 2.5); // BTN opens
+    g = act(g, "call"); // SB
+    g = act(g, "call"); // BB
+    expect(g.street).toBe("flop");
+    expect(pot(g)).toBeCloseTo(7.5);
+    expect(g.toAct).toBe(4);
+  });
+
+  it("everyone folds to the BB: BB wins the blinds", () => {
+    let g = newGame(100, 0, undefined, CASH_TABLE);
+    for (let i = 0; i < 5; i++) g = act(g, "fold");
+    expect(g.done).toBe(true);
+    expect(g.players[5].stack).toBeCloseTo(100.5);
+  });
+});
+
 describe("full hands with bots", () => {
-  it("plays 300 random hands to the end without losing chips", () => {
-    for (const stage of ["deep", "mid", "short", "push"]) {
+  it("plays 375 random hands to the end without losing chips", () => {
+    const runs: [PlayMode, string][] = [["pub", "deep"], ["pub", "mid"], ["pub", "short"], ["pub", "push"], ["cash", "100bb"]];
+    for (const [mode, stage] of runs) {
       for (let n = 0; n < 75; n++) {
-        let s = startHand(stage);
-        const start = s.game.startStack * 9;
+        let s = startHand(mode, stage);
+        const start = s.game.startStack * s.game.players.length;
         let guard = 0;
         while (!s.game.done && guard++ < 60) {
           const moves = heroMoves(s);
@@ -68,4 +94,29 @@ describe("full hands with bots", () => {
       }
     }
   }, 60000);
+});
+
+describe("cash preflop policy", () => {
+  const spot = (o: Partial<PreflopSpot>): PreflopSpot => ({
+    mode: "cash", stageId: "100bb", seat: "BTN", raises: 1, openerSeat: "CO", lastRaiserSeat: "CO",
+    iAmOpener: false, facingAllIn: false, currentBet: 2.5, myBet: 0, myStack: 100, limpers: 0, ...o,
+  });
+
+  it("uses the 6-max charts and sizes", () => {
+    const rfi = preflopDecision(spot({ seat: "CO", raises: 0, openerSeat: undefined, lastRaiserSeat: undefined, currentBet: 1 }));
+    expect(rfi.label).toBe("CO 오픈");
+    expect(rfi.moves("AA")).toEqual([{ kind: "raise", to: 2.5, prob: 1 }]);
+    expect(preflopDecision(spot({})).label).toBe("BTN vs CO 오픈");
+    const bb = preflopDecision(spot({ seat: "BB", openerSeat: "BTN", lastRaiserSeat: "BTN", myBet: 1, myStack: 99 }));
+    expect(bb.moves("AA").find((m) => m.kind === "raise")?.to).toBe(11);
+    const vs3 = preflopDecision(spot({ seat: "CO", raises: 2, iAmOpener: true, lastRaiserSeat: "BTN", currentBet: 7.5, myBet: 2.5, myStack: 97.5 }));
+    expect(vs3.label).toBe("오픈 vs 3벳");
+  });
+
+  it("borrows a nearby chart for uncharted openers, but never a much wider one", () => {
+    // BB vs HJ: no chart, use BB vs UTG (one seat tighter) rather than BB vs CO.
+    expect(preflopDecision(spot({ seat: "BB", openerSeat: "HJ", lastRaiserSeat: "HJ", myBet: 1, myStack: 99 })).label).toBe("BB vs UTG 오픈");
+    // SB vs UTG: the only SB chart is vs BTN, far too wide; fall back to the tight default.
+    expect(preflopDecision(spot({ seat: "SB", openerSeat: "UTG", lastRaiserSeat: "UTG", myBet: 0.5, myStack: 99.5 })).scenario).toBeUndefined();
+  });
 });

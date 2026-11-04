@@ -1,13 +1,16 @@
 import { handClassOf } from "../poker/cards";
 import { describeStrategy } from "../data/charts";
-import { act, legal, newGame, pot, SEATS, toCall, type Game } from "./engine";
+import { act, CASH_TABLE, legal, newGame, pot, PUB_TABLE, toCall, type Game } from "./engine";
 import { COMBOS, handFeatures } from "./handInfo";
 import {
+  openSize,
   postflopMoves,
   preflopDecision,
   sample,
   STAGE_STACK,
+  threeBetSize,
   type MoveOption,
+  type PlayMode,
   type PostflopSpot,
   type PreflopSpot,
 } from "./policy";
@@ -39,6 +42,7 @@ export interface Decision {
 }
 
 export interface PlayState {
+  mode: PlayMode;
   stageId: string;
   heroIdx: number;
   game: Game;
@@ -69,6 +73,7 @@ function preflopSpot(s: PlayState, idx: number): PreflopSpot {
   const firstRaiseAt = pre.findIndex((e) => e.kind === "raise" || e.kind === "bet");
   const limpers = (firstRaiseAt < 0 ? pre : pre.slice(0, firstRaiseAt)).filter((e) => e.kind === "call").length;
   return {
+    mode: s.mode,
     stageId: s.stageId,
     seat: p.seat,
     raises: raises.length,
@@ -98,6 +103,7 @@ function postflopSpot(s: PlayState, idx: number, override?: Partial<PostflopSpot
     aggressor: g.preflopRaiser === idx,
     facingRaise: streetRaises >= 2,
     street: g.street as PostflopSpot["street"],
+    style: s.mode === "cash" ? "reg" : "pub",
     ...override,
   };
 }
@@ -155,9 +161,15 @@ export function runBots(s0: PlayState): PlayState {
   return s;
 }
 
-export function startHand(stageId: string, heroIdx = Math.floor(Math.random() * SEATS.length)): PlayState {
-  const game = newGame(STAGE_STACK[stageId], heroIdx);
-  const s: PlayState = { stageId, heroIdx, game, ranges: SEATS.map(() => fullWeights()), decisions: [], botNotes: {} };
+export const MODE_TABLE = { pub: PUB_TABLE, cash: CASH_TABLE } as const;
+
+/** Deal a new hand. Cash mode has a single 100bb stage. */
+export function startHand(mode: PlayMode, stageId: string, heroIdx?: number): PlayState {
+  const table = MODE_TABLE[mode];
+  const stage = mode === "cash" ? "100bb" : stageId;
+  const hero = heroIdx ?? Math.floor(Math.random() * table.seats.length);
+  const game = newGame(STAGE_STACK[stage], hero, undefined, table);
+  const s: PlayState = { mode, stageId: stage, heroIdx: hero, game, ranges: game.players.map(() => fullWeights()), decisions: [], botNotes: {} };
   return runBots(s);
 }
 
@@ -182,9 +194,9 @@ export function heroMoves(s: PlayState): HeroMove[] {
     const verb = spot.raises === 0 ? (p.seat === "BB" ? "레이즈" : "오픈") : spot.raises === 1 ? "3벳" : spot.raises === 2 ? "4벳" : "레이즈";
     const base =
       spot.raises === 0
-        ? (s.stageId === "deep" ? 3 : s.stageId === "mid" ? 2.5 : 2) + spot.limpers
+        ? (p.seat === "BB" ? 4 : openSize(s.mode, s.stageId, p.seat)) + spot.limpers
         : spot.raises === 1
-          ? g.currentBet * (p.seat === "SB" || p.seat === "BB" ? 3.5 : 3)
+          ? threeBetSize(s.mode, p.seat, spot.openerSeat, g.currentBet)
           : g.currentBet * 2.3;
     if (base < allIn * 0.8) sizes.push({ label: `${verb} ${r1(base)}`, to: r1(Math.max(base, L.minRaiseTo)) });
   } else {
@@ -308,6 +320,7 @@ function analyse(s: PlayState, move: HeroMove): Decision {
           aggressor: g.preflopRaiser === i,
           facingRaise: call > 0,
           street: g.street as PostflopSpot["street"],
+          style: s.mode === "cash" ? "reg" : "pub",
         });
         allFold *= r.foldProb;
         cont.push(r.cont);

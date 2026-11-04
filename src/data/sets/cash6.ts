@@ -176,6 +176,18 @@ export const CASH6: ChartSetDef = {
           { key: "call", label: "콜", color: "call", range: "77:0.2, 66:0.3, 55:0.3, 44:0.3, 33:0.2, 22:0.2" },
         ],
       },
+      {
+        id: "vs-3bet",
+        kind: "vs3bet",
+        hero: "Hero",
+        chip: "vs 3벳",
+        title: "오픈 vs 3벳",
+        description: "내 오픈에 3벳이 들어온 평균적인 상황. 4벳은 약 2.3배, 나머지는 폴드. A5s·A4s는 4벳 블러프.",
+        actions: [
+          { key: "4bet", label: "4벳", color: "raise", range: "KK+, QQ:0.5, AKs, AKo:0.6, A5s:0.5, A4s:0.4" },
+          { key: "call", label: "콜", color: "call", range: "QQ:0.5, JJ-77, 66:0.6, 55:0.5, 44:0.3, AQs, AJs, ATs:0.7, A9s:0.3, A5s:0.3, A4s:0.3, KQs, KJs, KTs:0.6, QJs, QTs:0.6, JTs, T9s:0.8, 98s:0.6, 87s:0.5, 76s:0.5, 65s:0.4, AKo:0.4, AQo:0.6, KQo:0.3" },
+        ],
+      },
       ],
     },
   ],

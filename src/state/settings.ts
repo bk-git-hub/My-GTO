@@ -30,6 +30,8 @@ export interface Settings {
   userNotes: string;
   /** 차트·퀴즈에 쓸 차트 세트 (src/data/sets) */
   chartSet: string;
+  /** 핸드 플레이 모드: 펍아재 토너먼트 or 6맥스 100bb 캐시 */
+  playMode: "pub" | "cash";
 }
 
 export const settingsStore = createStore<Settings>("mygto.settings", {
@@ -40,6 +42,7 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
   effort: "medium",
   userNotes: "",
   chartSet: "pub",
+  playMode: "pub",
 });
 
 export const useSettings = settingsStore.use;
