@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { collapse, drillSeats, generateStackQuestion, gradeStack, questionActions, statKeys, type StackQuestion } from "./stackQuiz";
+import { getSet } from "../../data/charts";
+import { collapse, drillSeats, generateStackQuestion, gradeStack, questionActions, statKeys, vsOpenChart, type StackQuestion } from "./stackQuiz";
 
 describe("stack quiz", () => {
   it("generates first-in spots with stacks that match the chart stage", () => {
@@ -44,7 +45,7 @@ describe("stack quiz", () => {
     for (let i = 0; i < 100; i++) {
       const q = generateStackQuestion("all", "BB", "cash", "vs");
       expect(q.hero).toBe("BB");
-      expect(["UTG", "CO", "BTN", "SB"]).toContain(q.opener);
+      expect(["UTG", "HJ", "CO", "BTN", "SB"]).toContain(q.opener);
       expect(questionActions(q)).toEqual(["fold", "call", "3bet"]);
     }
   });
@@ -64,6 +65,41 @@ describe("stack quiz", () => {
     expect(gradeStack({ ...q, hand: "77" }, "3bet").grade).toBe("wrong");
     expect(gradeStack({ ...q, hand: "72o" }, "fold").grade).toBe("correct");
     expect(statKeys(q)).toContain("stack:vs:deep:BB");
+  });
+
+  it("drills the computed Nash charts: shove or fold, and call or fold vs an all-in", () => {
+    for (let i = 0; i < 200; i++) {
+      const q = generateStackQuestion("all", "all", "nash", "mix");
+      expect(q.scenario.setId).toBe("nash");
+      expect(q.myChips).toBe(parseFloat(q.stageId));
+      if (q.opener) {
+        expect(q.scenario.kind).toBe("vsShove");
+        expect(q.scenario.hero).toBe(q.hero);
+        expect(q.scenario.villain).toBe(q.opener);
+        expect(q.openTo).toBe(q.myChips);
+        expect(questionActions(q)).toEqual(["fold", "call"]);
+      } else {
+        expect(q.scenario.kind).toBe("rfi");
+        expect(questionActions(q)).toEqual(["fold", "shove"]);
+      }
+    }
+    const bb = generateStackQuestion("10bb", "BB", "nash", "rfi");
+    expect(bb.opener).toBeDefined();
+    expect(statKeys(bb)).toContain("stack-nash:vs:10bb:BB");
+    expect(drillSeats("nash", "vs")).toEqual(["UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"]);
+    // 10bb BB vs SB all-in: Nash calls with any ace.
+    let q = generateStackQuestion("10bb", "BB", "nash", "vs");
+    while (q.opener !== "SB") q = generateStackQuestion("10bb", "BB", "nash", "vs");
+    expect(gradeStack({ ...q, hand: "A2o" }, "call").grade).toBe("correct");
+    expect(gradeStack({ ...q, hand: "72o" }, "fold").grade).toBe("correct");
+  });
+
+  it("has a chart for every opener the BB can face in every pub stage and in cash", () => {
+    for (const st of getSet("pub").stages) {
+      for (const op of ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB"]) expect(vsOpenChart(st, "BB", op), `${st.id} ${op}`).toBeDefined();
+    }
+    const cash = getSet("cash6").stages[0];
+    for (const op of ["UTG", "HJ", "CO", "BTN", "SB"]) expect(vsOpenChart(cash, "BB", op), op).toBeDefined();
   });
 
   it("grades against the chart", () => {

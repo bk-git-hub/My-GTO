@@ -59,11 +59,14 @@ export function collapse(sc: Scenario, st: HandStrategy): Record<QuizAction, num
   return out;
 }
 
-/** pub: 펍아재 토너먼트 (스택별 차트) · cash: 6맥스 캐시 100bb */
-export type DrillMode = "pub" | "cash";
+/** pub: 펍아재 토너먼트 (스택별 차트) · cash: 6맥스 캐시 100bb · nash: 계산된 푸시/폴드 내쉬 */
+export type DrillMode = "pub" | "cash" | "nash";
+
+/** Chart set each drill mode asks from. */
+export const DRILL_SET: Record<DrillMode, string> = { pub: "pub", cash: "cash6", nash: "nash" };
 
 /** Stat key prefix per mode (pub keeps the original keys). */
-export const statPrefix = (mode: DrillMode) => (mode === "pub" ? "stack" : "stack-cash");
+export const statPrefix = (mode: DrillMode) => (mode === "pub" ? "stack" : `stack-${mode}`);
 
 export interface StackQuestion {
   uid: string;
@@ -95,14 +98,28 @@ export function vsOpenChart(stage: Stage, hero: string, opener: string): Scenari
   return vs.find((s) => mine(s) && fits(s)) ?? vs.find((s) => s.hero === "Hero" && fits(s));
 }
 
+/** Nash set: the calling chart for `hero` facing an all-in from `shover`. */
+export function vsShoveChart(stage: Stage, hero: string, shover: string): Scenario | undefined {
+  return stage.scenarios.find((s) => s.kind === "vsShove" && s.hero === hero && s.villain === shover);
+}
+
+type Lookup = (stage: Stage, hero: string, opener: string) => Scenario | undefined;
+/** In the Nash set the player in front shoves; in the others, they open. */
+const lookupFor = (mode: DrillMode): Lookup => (mode === "nash" ? vsShoveChart : vsOpenChart);
+
 /** Every charted (my seat, opener) pair in a stage, optionally for one of my seats. */
-export function vsOpenSpots(stage: Stage, positions: string[], seatFilter: string): { hero: string; opener: string; scenario: Scenario }[] {
+export function vsOpenSpots(
+  stage: Stage,
+  positions: string[],
+  seatFilter: string,
+  lookup: Lookup = vsOpenChart,
+): { hero: string; opener: string; scenario: Scenario }[] {
   const out: { hero: string; opener: string; scenario: Scenario }[] = [];
   positions.forEach((hero, h) => {
     if (seatFilter !== "all" && hero !== seatFilter) return;
     for (const opener of positions.slice(0, h)) {
       if (opener === "BB") continue;
-      const scenario = vsOpenChart(stage, hero, opener);
+      const scenario = lookup(stage, hero, opener);
       if (scenario) out.push({ hero, opener, scenario });
     }
   });
@@ -111,10 +128,10 @@ export function vsOpenSpots(stage: Stage, positions: string[], seatFilter: strin
 
 /** Seats the drill can ask about for a spot type. */
 export function drillSeats(mode: DrillMode, spot: DrillSpot): string[] {
-  const set = getSet(mode === "pub" ? "pub" : "cash6");
+  const set = getSet(DRILL_SET[mode]);
   const rfi = set.positions.filter((p) => p !== "BB");
   if (spot === "rfi") return rfi;
-  const vs = set.positions.filter((p) => set.stages.some((st) => vsOpenSpots(st, set.positions, p).length > 0));
+  const vs = set.positions.filter((p) => set.stages.some((st) => vsOpenSpots(st, set.positions, p, lookupFor(mode)).length > 0));
   return spot === "vs" ? vs : set.positions.filter((p) => rfi.includes(p) || vs.includes(p));
 }
 
@@ -124,67 +141,41 @@ function firstIn(stage: Stage, seatFilter: string): { scenario: Scenario; hero: 
   return { scenario, hero: scenario.hero };
 }
 
-/** A vs-open spot in this stage, or null if none fits the seat filter. */
-function facingOpen(mode: DrillMode, stage: Stage, positions: string[], seatFilter: string) {
-  const spots = vsOpenSpots(stage, positions, seatFilter);
+/** Stack depth (bb) of a Nash stage ("10bb" → 10). */
+const nashStack = (stage: Stage) => parseFloat(stage.id);
+
+/** A spot facing an open (or, in the Nash set, an all-in) in this stage, or null if none fits the seat filter. */
+function facing(mode: DrillMode, stage: Stage, positions: string[], seatFilter: string) {
+  const spots = vsOpenSpots(stage, positions, seatFilter, lookupFor(mode));
   if (!spots.length) return null;
   const s = pick(spots);
-  return { ...s, openTo: openSize(mode, stage.id, s.opener) };
-}
-
-function cashQuestion(seatFilter: string, spot: DrillSpot): StackQuestion {
-  const set = getSet("cash6");
-  const stage = set.stages[0];
-  const wantVs = spot === "vs" || (spot === "mix" && Math.random() < 0.5);
-  const vs = wantVs ? facingOpen("cash", stage, set.positions, seatFilter) : null;
-  const { scenario, hero, opener, openTo } = vs ?? firstIn(stage, seatFilter);
-  const hand = weightedHand(scenario);
-  return {
-    uid: uid(),
-    mode: "cash",
-    scenario,
-    hero,
-    opener,
-    openTo,
-    stageId: stage.id,
-    hand,
-    cards: randomCombo(hand),
-    level: 0,
-    sb: 0.5,
-    bb: 1,
-    myChips: 100,
-    avgChips: 100,
-  };
+  return { ...s, openTo: mode === "nash" ? nashStack(stage) : openSize(mode, stage.id, s.opener) };
 }
 
 export function generateStackQuestion(stageFilter: string, seatFilter: string, mode: DrillMode = "pub", spot: DrillSpot = "rfi"): StackQuestion {
-  if (mode === "cash") return cashQuestion(seatFilter, spot);
-  const set = getSet("pub");
-  const stages = set.stages.filter((s) => stageFilter === "all" || s.id === stageFilter);
+  const set = getSet(DRILL_SET[mode]);
+  const filtered = set.stages.filter((s) => stageFilter === "all" || s.id === stageFilter);
+  const stages = filtered.length ? filtered : set.stages;
   // BB never opens and UTG never faces an open: steer the spot type to one that exists for the seat.
-  const canVs = stages.filter((st) => vsOpenSpots(st, set.positions, seatFilter).length > 0);
+  const canVs = stages.filter((st) => vsOpenSpots(st, set.positions, seatFilter, lookupFor(mode)).length > 0);
   const canRfi = seatFilter !== "BB";
   const wantVs = !canRfi || (canVs.length > 0 && (spot === "vs" || (spot === "mix" && Math.random() < 0.5)));
   const stage = pick(wantVs && canVs.length ? canVs : stages);
-  const vs = wantVs ? facingOpen("pub", stage, set.positions, seatFilter) : null;
+  const vs = wantVs ? facing(mode, stage, set.positions, seatFilter) : null;
   const { scenario, hero, opener, openTo } = vs ?? firstIn(stage, seatFilter);
+  const hand = weightedHand(scenario);
+  const base = { uid: uid(), mode, scenario, hero, opener, openTo, stageId: stage.id, hand, cards: randomCombo(hand) };
+  if (mode === "cash") return { ...base, level: 0, sb: 0.5, bb: 1, myChips: 100, avgChips: 100 };
+  // Nash charts assume everyone on the same stack, in bb.
+  if (mode === "nash") return { ...base, level: 0, sb: 0.5, bb: 1, myChips: nashStack(stage), avgChips: nashStack(stage) };
 
   const range = STAGE_SPOTS[stage.id];
   const candidates = BLIND_LEVELS.filter(([lv]) => lv >= range.levels[0] && lv <= range.levels[1]);
   const [level, sb, bb] = candidates[Math.floor(Math.random() * candidates.length)];
   const myChips = roundTo(rand(range.bb[0], range.bb[1]) * bb, 100);
   const avgChips = roundTo(50000 * avgGrowth(level) * rand(0.85, 1.15), 1000);
-  const hand = weightedHand(scenario);
   return {
-    uid: uid(),
-    mode: "pub",
-    scenario,
-    hero,
-    opener,
-    openTo,
-    stageId: stage.id,
-    hand,
-    cards: randomCombo(hand),
+    ...base,
     level,
     sb,
     bb,
@@ -195,7 +186,7 @@ export function generateStackQuestion(stageFilter: string, seatFilter: string, m
 
 /** The buttons a question offers, in display order. */
 export function questionActions(q: StackQuestion): QuizAction[] {
-  if (q.scenario.kind === "rfi") return q.mode === "cash" ? ["fold", "open"] : ["fold", "open", "shove"];
+  if (q.scenario.kind === "rfi") return q.mode === "cash" ? ["fold", "open"] : q.mode === "nash" ? ["fold", "shove"] : ["fold", "open", "shove"];
   const present = new Set(q.scenario.actions.map((a) => bucketOf(q.scenario, a.color)));
   return ["fold", ...(["call", "3bet", "shove"] as const).filter((a) => present.has(a))];
 }

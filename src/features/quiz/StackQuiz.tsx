@@ -21,8 +21,14 @@ import {
   type StackQuestion,
 } from "./stackQuiz";
 
-const SETS = { pub: getSet("pub"), cash: getSet("cash6") };
+const SETS: Record<DrillMode, ReturnType<typeof getSet>> = { pub: getSet("pub"), cash: getSet("cash6"), nash: getSet("nash") };
 const SPOT_LABEL: Record<DrillSpot, string> = { rfi: "오픈 (RFI)", vs: "vs 오픈", mix: "섞어서" };
+const NASH_SPOT_LABEL: Record<DrillSpot, string> = { rfi: "푸시", vs: "vs 올인 (콜)", mix: "섞어서" };
+/** "UTG 오픈 1,500 (3bb)" or, in the Nash drill, "UTG 올인 10bb". */
+function facingText(q: StackQuestion): string {
+  if (q.scenario.kind === "vsShove") return `올인 ${q.openTo}bb`;
+  return `오픈 ${q.mode === "pub" ? `${fmt(q.openTo! * q.bb)} (${q.openTo}bb)` : `${q.openTo}bb`}`;
+}
 /** Button label; facing an open, an all-in is a 3-bet shove. */
 const actionLabel = (q: StackQuestion, a: QuizAction) => (a === "shove" && q.opener ? "3벳 올인" : QUIZ_ACTIONS.find((x) => x.key === a)!.label);
 const GRADE_TEXT = { correct: "정답", mixed: "부분 정답 (혼합 빈도)", wrong: "오답" } as const;
@@ -93,14 +99,14 @@ export function StackQuiz({
     const context =
       q.mode === "cash"
         ? [`게임: ${set.game}`, `스택: 100bb`]
-        : [
+        : q.mode === "nash"
+          ? [`게임: ${set.game}`, `스택: 모두 ${q.myChips}bb, 블라인드 0.5/1bb, BB 앤티 1bb`]
+          : [
             `게임: ${set.game}`,
             `블라인드: Lv${q.level} ${fmt(q.sb)}/${fmt(q.bb)} (BB 앤티 ${fmt(q.bb)})`,
             `내 스택: ${fmt(q.myChips)} (${bbOf(q.myChips, q.bb)}bb), 평균 스택: ${fmt(q.avgChips)} (${bbOf(q.avgChips, q.bb)}bb)`,
           ];
-    const situation = q.opener
-      ? `상황: ${q.opener} 오픈 ${q.mode === "pub" ? `${fmt(q.openTo! * q.bb)} (${q.openTo}bb)` : `${q.openTo}bb`}, 나머지 폴드, 내 자리 ${q.hero}`
-      : `포지션: ${q.hero} (RFI)`;
+    const situation = q.opener ? `상황: ${q.opener} ${facingText(q)}, 사이 자리 폴드, 내 자리 ${q.hero}` : `포지션: ${q.hero} (RFI)`;
     coach.open({
       id: `stack:${q.uid}`,
       title: `${q.scenario.title} · ${q.hand}`,
@@ -131,17 +137,20 @@ export function StackQuiz({
         <button className={mode === "cash" ? "on" : ""} onClick={() => switchMode("cash")}>
           100bb 캐시
         </button>
+        <button className={mode === "nash" ? "on" : ""} onClick={() => switchMode("nash")}>
+          푸시/폴드 내쉬
+        </button>
       </div>
       <div className="seg small">
         {(Object.keys(SPOT_LABEL) as DrillSpot[]).map((sp) => (
           <button key={sp} className={spot === sp ? "on" : ""} onClick={() => switchSpot(sp)}>
-            {SPOT_LABEL[sp]}
+            {(mode === "nash" ? NASH_SPOT_LABEL : SPOT_LABEL)[sp]}
           </button>
         ))}
       </div>
 
       <div className="filters">
-        {mode === "pub" && (
+        {mode !== "cash" && (
           <select
             className="select"
             value={stage}
@@ -151,7 +160,7 @@ export function StackQuiz({
             }}
           >
             <option value="all">모든 스택</option>
-            {SETS.pub.stages.map((s) => (
+            {SETS[mode].stages.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.label} · {accuracy(stats.byKey[`${keyBase}:${s.id}`])}
               </option>
@@ -196,6 +205,24 @@ export function StackQuiz({
               <span>{fmt(q.avgChips)}</span>
             </div>
           </div>
+        ) : q.mode === "nash" ? (
+          <div className="stack-info">
+            <div>
+              <span>블라인드</span>
+              <b>0.5/1bb</b>
+              <span>BB 앤티 1bb</span>
+            </div>
+            <div>
+              <span>스택</span>
+              <b>모두 {q.myChips}bb</b>
+              <span>9인</span>
+            </div>
+            <div>
+              <span>정답 기준</span>
+              <b>내쉬</b>
+              <span>칩EV 계산값</span>
+            </div>
+          </div>
         ) : (
           <div className="stack-info">
             <div>
@@ -217,7 +244,7 @@ export function StackQuiz({
         )}
         {q.opener && (
           <div className="vs-open">
-            <b>{q.opener}</b> 오픈 {q.mode === "pub" ? `${fmt(q.openTo! * q.bb)} (${q.openTo}bb)` : `${q.openTo}bb`}
+            <b>{q.opener}</b> {facingText(q)}
             <span className="muted"> · 내 자리 {q.hero}</span>
           </div>
         )}

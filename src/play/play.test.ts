@@ -114,8 +114,9 @@ describe("cash preflop policy", () => {
   });
 
   it("borrows a nearby chart for uncharted openers, but never a much wider one", () => {
-    // BB vs HJ: no chart, use BB vs UTG (one seat tighter) rather than BB vs CO.
-    expect(preflopDecision(spot({ seat: "BB", openerSeat: "HJ", lastRaiserSeat: "HJ", myBet: 1, myStack: 99 })).label).toBe("BB vs UTG 오픈");
+    // BTN vs HJ: no chart, use BTN vs UTG (one seat tighter) rather than BTN vs CO.
+    expect(preflopDecision(spot({ seat: "BTN", openerSeat: "HJ", lastRaiserSeat: "HJ" })).label).toBe("BTN vs UTG 오픈");
+    expect(preflopDecision(spot({ seat: "BB", openerSeat: "HJ", lastRaiserSeat: "HJ", myBet: 1, myStack: 99 })).label).toBe("BB vs HJ 오픈");
     // SB vs UTG: the only SB chart is vs BTN, far too wide; fall back to the tight default.
     expect(preflopDecision(spot({ seat: "SB", openerSeat: "UTG", lastRaiserSeat: "UTG", myBet: 0.5, myStack: 99.5 })).scenario).toBeUndefined();
   });

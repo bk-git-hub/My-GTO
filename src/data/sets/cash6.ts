@@ -86,6 +86,19 @@ export const CASH6: ChartSetDef = {
         ],
       },
       {
+        id: "bb-vs-hj",
+        kind: "vsOpen",
+        hero: "BB",
+        villain: "HJ",
+        chip: "BB vs HJ",
+        title: "BB vs HJ 오픈",
+        description: "BB vs UTG와 BB vs CO 사이.",
+        actions: [
+          { key: "raise", label: "3벳 11bb", color: "raise", range: "QQ+, JJ:0.3, AKs, AKo:0.85, AQs:0.4, AJs:0.15, A5s:0.6, A4s:0.5, A3s:0.15, KQs:0.3, KJs:0.15, 76s:0.15, 65s:0.2" },
+          { key: "call", label: "콜", color: "call", range: "JJ:0.7, TT-22, AQs:0.6, AJs:0.85, ATs-A6s, A5s:0.4, A4s:0.5, A3s:0.85, A2s, KQs:0.7, KJs:0.85, KTs-K5s, QJs-Q7s, JTs-J7s, T9s-T7s, 98s, 97s, 96s:0.5, 87s, 86s, 85s:0.3, 76s:0.85, 75s, 65s:0.8, 64s:0.5, 54s, 53s:0.3, AKo:0.15, AQo, AJo, ATo:0.85, A9o:0.4, KQo, KJo:0.8, KTo:0.4, QJo:0.7, QTo:0.3, JTo:0.5" },
+        ],
+      },
+      {
         id: "bb-vs-co",
         kind: "vsOpen",
         hero: "BB",
