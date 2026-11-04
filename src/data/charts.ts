@@ -1,6 +1,7 @@
 import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
 import { parseRange, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
+import { NASH } from "./sets/nash";
 import { PUB_TOURNEY } from "./sets/pub";
 
 /**
@@ -118,7 +119,7 @@ function buildSet(def: ChartSetDef): ChartSet {
   };
 }
 
-export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6].map(buildSet);
+export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH].map(buildSet);
 
 export function getSet(id: string): ChartSet {
   return CHART_SETS.find((s) => s.id === id) ?? CHART_SETS[0];

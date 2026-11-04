@@ -59,14 +59,24 @@ export function ChartsPage() {
     <div className="page">
       <SetPicker />
 
-      {set.stages.length > 1 && (
-        <div className="seg">
+      {set.stages.length > 5 ? (
+        <select className="select" value={stage.id} onChange={(e) => pickStage(e.target.value)}>
           {set.stages.map((st) => (
-            <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
+            <option key={st.id} value={st.id}>
               {st.label}
-            </button>
+            </option>
           ))}
-        </div>
+        </select>
+      ) : (
+        set.stages.length > 1 && (
+          <div className="seg">
+            {set.stages.map((st) => (
+              <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
+                {st.label}
+              </button>
+            ))}
+          </div>
+        )
       )}
       <p className="stage-note">
         <b>{stage.stack}</b> · {stage.description}

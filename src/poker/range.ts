@@ -97,3 +97,57 @@ export function rangePercent(range: Range): number {
 }
 
 export const FULL_RANGE: Range = Object.fromEntries(ALL_HANDS.map((h) => [h, 1]));
+
+const fmtFreq = (f: number) => String(Math.round(f * 100) / 100);
+
+/** Runs of consecutive indices (descending order kept) where `full(i)` holds. */
+function runs(idx: number[], full: (i: number) => boolean): number[][] {
+  const out: number[][] = [];
+  let cur: number[] = [];
+  for (const i of idx) {
+    if (full(i)) cur.push(i);
+    else if (cur.length) (out.push(cur), (cur = []));
+  }
+  if (cur.length) out.push(cur);
+  return out;
+}
+
+/**
+ * Write a range back as text, e.g. "TT+, 55:0.5, A2s+, KTs+, ATo+".
+ * Frequencies below `min` are dropped; the result parses back with parseRange.
+ */
+export function rangeToString(range: Range, min = 0.005): string {
+  const f = (h: HandClass) => {
+    const x = range[h] ?? 0;
+    return x < min ? 0 : x > 1 - min ? 1 : x;
+  };
+  const parts: string[] = [];
+  const mixed: string[] = [];
+  const desc = Array.from({ length: 13 }, (_, i) => 12 - i);
+
+  // Pairs
+  const pair = (r: number) => RANKS[r] + RANKS[r];
+  for (const run of runs(desc, (r) => f(pair(r)) === 1)) {
+    const [hi, lo] = [run[0], run[run.length - 1]];
+    if (hi === 12 && run.length > 1) parts.push(`${pair(lo)}+`);
+    else if (run.length > 1) parts.push(`${pair(hi)}-${pair(lo)}`);
+    else parts.push(pair(hi));
+  }
+  for (const r of desc) if (f(pair(r)) > 0 && f(pair(r)) < 1) mixed.push(`${pair(r)}:${fmtFreq(f(pair(r)))}`);
+
+  // Suited, then offsuit, by high card
+  for (const kind of ["s", "o"]) {
+    for (let hi = 12; hi >= 1; hi--) {
+      const kickers = Array.from({ length: hi }, (_, i) => hi - 1 - i);
+      const name = (k: number) => RANKS[hi] + RANKS[k] + kind;
+      for (const run of runs(kickers, (k) => f(name(k)) === 1)) {
+        const [top, low] = [run[0], run[run.length - 1]];
+        if (top === hi - 1 && run.length > 1) parts.push(`${name(low)}+`);
+        else if (run.length > 1) parts.push(`${name(top)}-${name(low)}`);
+        else parts.push(name(top));
+      }
+      for (const k of kickers) if (f(name(k)) > 0 && f(name(k)) < 1) mixed.push(`${name(k)}:${fmtFreq(f(name(k)))}`);
+    }
+  }
+  return [...parts, ...mixed].join(", ");
+}

@@ -144,7 +144,8 @@ function PreflopQuiz() {
               {st.label} ({st.stack}) 전체
             </option>
           ))}
-        {set.stages.map((st) => (
+        {set.stages.reduce((n, st) => n + st.scenarios.length, 0) <= 80 &&
+          set.stages.map((st) => (
           <optgroup key={st.id} label={`${st.label} · ${st.stack}`}>
             {st.scenarios.map((x) => (
               <option key={x.id} value={x.id}>

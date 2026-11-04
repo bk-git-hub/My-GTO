@@ -87,3 +87,34 @@ describe("chart sets", () => {
     }
   });
 });
+
+describe("nash push/fold set", () => {
+  const set = getSet("nash");
+  const pushPct = (stage: (typeof set.stages)[number], seat: string) =>
+    1 - actionTotals(stage.scenarios.find((s) => s.kind === "rfi" && s.hero === seat)!).fold;
+  const callPct = (stage: (typeof set.stages)[number], id: string) => 1 - actionTotals(stage.scenarios.find((s) => s.id.endsWith(`/${id}`))!).fold;
+
+  it("has every stack with 8 shove spots and 36 calling spots", () => {
+    expect(set.stages.map((s) => s.id)).toContain("10bb");
+    for (const st of set.stages) {
+      expect(st.scenarios.filter((s) => s.kind === "rfi")).toHaveLength(8);
+      expect(st.scenarios.filter((s) => s.kind === "vsShove")).toHaveLength(36);
+    }
+  });
+
+  it("shoves wider from later seats and with shorter stacks", () => {
+    for (const st of set.stages) {
+      expect(pushPct(st, "UTG"), st.id).toBeLessThan(pushPct(st, "BTN"));
+      expect(pushPct(st, "BTN"), st.id).toBeLessThan(pushPct(st, "SB"));
+    }
+    const [s5, s15] = ["5bb", "15bb"].map((id) => set.stages.find((s) => s.id === id)!);
+    for (const seat of ["UTG", "CO", "BTN", "SB"]) expect(pushPct(s5, seat), seat).toBeGreaterThan(pushPct(s15, seat));
+  });
+
+  it("calls wider against later shovers", () => {
+    for (const st of set.stages.filter((s) => s.id !== "4bb")) {
+      expect(callPct(st, "call-bb-vs-utg"), st.id).toBeLessThan(callPct(st, "call-bb-vs-btn"));
+      expect(callPct(st, "call-bb-vs-btn"), st.id).toBeLessThan(callPct(st, "call-bb-vs-sb"));
+    }
+  });
+});
