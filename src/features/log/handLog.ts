@@ -1,7 +1,7 @@
 import { cardLabel, handClassOf, type Card } from "../../poker/cards";
 import { createStore } from "../../state/store";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
-import { amountLabel, replay, streetLines, type LogStep, type StepKind, type TableInput } from "./recorder";
+import { amountLabel, positionsFor, POSITIONS, replay, streetLines, type LogStep, type StepKind, type TableInput } from "./recorder";
 
 /**
  * Hands the user played at the pub, kept in this browser's localStorage only
@@ -32,6 +32,10 @@ export interface LoggedHand {
   id: string;
   createdAt: number;
   updatedAt: number;
+  /** Players dealt in (2~10). */
+  players: number;
+  /** The BB posts a BB-sized ante. */
+  bbAnte: boolean;
   /** Blind level number (BLIND_LEVELS), null if not entered. */
   level: number | null;
   seat: string;
@@ -54,8 +58,9 @@ export interface LoggedHand {
 
 interface LogState {
   hands: LoggedHand[];
-  /** Level of the last saved hand, so the next quick entry starts there. */
+  /** Level and table size of the last saved hand, so the next entry starts there. */
   lastLevel: number | null;
+  lastPlayers?: number;
 }
 
 export const handLogStore = createStore<LogState>("mygto.handlog", { hands: [], lastLevel: null });
@@ -68,6 +73,8 @@ export function emptyHand(level: number | null = handLogStore.get().lastLevel): 
     id: newId(),
     createdAt: now,
     updatedAt: now,
+    players: handLogStore.get().lastPlayers ?? 9,
+    bbAnte: true,
     level,
     seat: "",
     hole: [],
@@ -107,7 +114,7 @@ export function saveHand(h: LoggedHand): boolean {
   const saved: LoggedHand = { ...h, updatedAt: Date.now() };
   const others = prev.hands.filter((x) => x.id !== h.id);
   const hands = [saved, ...others].sort((a, b) => b.createdAt - a.createdAt);
-  const ok = handLogStore.set({ hands, lastLevel: h.level ?? prev.lastLevel });
+  const ok = handLogStore.set({ hands, lastLevel: h.level ?? prev.lastLevel, lastPlayers: h.players });
   if (!ok) handLogStore.set(prev);
   else requestPersistence();
   return ok;
@@ -152,7 +159,7 @@ export const cardsText = (cs: Card[]) => cs.map(cardLabel).join(" ");
 
 /** The recorder's view of this hand's table. */
 export function tableOf(h: LoggedHand): TableInput {
-  return { heroSeat: h.seat, heroStack: stackBb(h), stacks: h.stacks };
+  return { heroSeat: h.seat, heroStack: stackBb(h), stacks: h.stacks, seats: positionsFor(h.players), bbAnte: h.bbAnte };
 }
 
 /** Board cards dealt on a street (flop 3, turn 1, river 1). */
@@ -254,10 +261,15 @@ function sanitize(x: unknown): LoggedHand | null {
   const created = num(r.createdAt) ?? Date.now();
   const actions = (r.actions && typeof r.actions === "object" ? r.actions : {}) as Record<string, unknown>;
   const result = str(r.result);
+  const players = num(r.players);
+  const size = players !== null && POSITIONS[players] ? players : 9;
+  const seats = new Set(positionsFor(size));
   return {
     id,
     createdAt: created,
     updatedAt: num(r.updatedAt) ?? created,
+    players: size,
+    bbAnte: typeof r.bbAnte === "boolean" ? r.bbAnte : true,
     level: num(r.level),
     seat: str(r.seat),
     hole: cardList(r.hole, 2),
@@ -269,13 +281,13 @@ function sanitize(x: unknown): LoggedHand | null {
     steps: (Array.isArray(r.steps) ? r.steps : []).flatMap((x): LogStep[] => {
       const o = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
       const k = str(o.k) as StepKind;
-      if (!LOG_SEATS.includes(str(o.s)) || !["fold", "check", "call", "raise"].includes(k)) return [];
+      if (!seats.has(str(o.s)) || !["fold", "check", "call", "raise"].includes(k)) return [];
       const to = num(o.to);
       return [{ s: str(o.s), k, ...(to !== null ? { to } : {}), ...(o.a ? { a: 1 as const } : {}) }];
     }),
     stacks: Object.fromEntries(
       Object.entries(r.stacks && typeof r.stacks === "object" ? (r.stacks as Record<string, unknown>) : {}).filter(
-        ([seat, v]) => LOG_SEATS.includes(seat) && typeof v === "number" && v > 0,
+        ([seat, v]) => seats.has(seat) && typeof v === "number" && v > 0,
       ),
     ) as Record<string, number>,
     actions: { preflop: str(actions.preflop), flop: str(actions.flop), turn: str(actions.turn), river: str(actions.river) },
@@ -316,7 +328,7 @@ export function mergeImport(text: string, current: LoggedHand[]): { hands: Logge
 // Hands saved by an earlier version lack newer fields; fill them in once on load.
 {
   const loaded = handLogStore.get();
-  if (loaded.hands.some((h) => !Array.isArray(h.steps) || !h.stacks || !h.actions)) {
+  if (loaded.hands.some((h) => !Array.isArray(h.steps) || !h.stacks || !h.actions || typeof h.players !== "number")) {
     handLogStore.set({ ...loaded, hands: loaded.hands.map((h) => sanitize(h)).filter((h): h is LoggedHand => h !== null) });
   }
 }

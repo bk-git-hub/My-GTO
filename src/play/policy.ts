@@ -131,7 +131,12 @@ function callRangeVsShove(stage: Stage, shover: string): { sc?: Scenario; range:
   return sc ? { sc, range: sc.ranges.call } : { range: TIGHT_CONTINUE };
 }
 
-export function preflopDecision(spot: PreflopSpot): PreflopDecision {
+/** Seats the 9-handed charts don't have, mapped to the closest charted seat (10-handed MP plays like UTG+2). */
+const CHART_SEAT: Record<string, string> = { MP: "UTG+2" };
+const chartSeat = <T extends string | undefined>(s: T): T => ((s && CHART_SEAT[s]) ?? s) as T;
+
+export function preflopDecision(spot0: PreflopSpot): PreflopDecision {
+  const spot = { ...spot0, seat: chartSeat(spot0.seat), openerSeat: chartSeat(spot0.openerSeat), lastRaiserSeat: chartSeat(spot0.lastRaiserSeat) };
   const stage = playStage(spot.mode, spot.stageId);
   const seats = getSet(MODE_SET[spot.mode]).positions;
   const allInTo = spot.myBet + spot.myStack;

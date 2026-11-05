@@ -64,7 +64,7 @@ const r1 = (x: number) => Math.round(x * 10) / 10;
 
 // ───────────── spots ─────────────
 
-function preflopSpot(s: PlayState, idx: number): PreflopSpot {
+export function preflopSpot(s: PlayState, idx: number): PreflopSpot {
   const g = s.game;
   const p = g.players[idx];
   const pre = g.log.filter((e) => e.street === "preflop" && e.kind !== "post");
@@ -88,7 +88,7 @@ function preflopSpot(s: PlayState, idx: number): PreflopSpot {
   };
 }
 
-function postflopSpot(s: PlayState, idx: number, override?: Partial<PostflopSpot>): PostflopSpot {
+export function postflopSpot(s: PlayState, idx: number, override?: Partial<PostflopSpot>): PostflopSpot {
   const g = s.game;
   const p = g.players[idx];
   const streetRaises = g.log.filter((e) => e.street === g.street && (e.kind === "bet" || e.kind === "raise")).length;
@@ -216,6 +216,13 @@ export function heroMoves(s: PlayState): HeroMove[] {
   return out;
 }
 
+/** The offered moves plus the chosen one if it's a size the buttons don't have (copies, so labels can change). */
+function withChosen(moves: HeroMove[], chosen: HeroMove): HeroMove[] {
+  const out = moves.map((m) => ({ ...m }));
+  if (!out.some((m) => m.key === chosen.key)) out.push({ ...chosen });
+  return out;
+}
+
 function gradeByEV(options: OptionEV[], chosen: string, potSize: number): Grade {
   const evs = options.filter((o) => o.ev !== null) as { key: string; ev: number }[];
   const mine = evs.find((o) => o.key === chosen);
@@ -227,7 +234,8 @@ function gradeByEV(options: OptionEV[], chosen: string, potSize: number): Grade 
   return "mistake";
 }
 
-function analyse(s: PlayState, move: HeroMove): Decision {
+/** Grade a hero move against the chart (preflop) or the bot-response EV of each option (postflop). */
+export function analyse(s: PlayState, move: HeroMove): Decision {
   const g = s.game;
   const idx = s.heroIdx;
   const hero = g.players[idx];
@@ -280,7 +288,7 @@ function analyse(s: PlayState, move: HeroMove): Decision {
     const chartText = dec.scenario
       ? `${dec.scenario.title}: ${describeStrategy(dec.scenario, dec.scenario.strategy[handClassOf(hero.hole[0], hero.hole[1])])}`
       : dec.label;
-    const moves = heroMoves(s);
+    const moves = withChosen(heroMoves(s), move);
     for (const m of moves) options.push({ key: m.key, label: `${m.label} (차트 ${Math.round(freqOf(m) * 100)}%)`, ev: null });
     if (spot.facingAllIn && evCall !== null) {
       options.forEach((o) => {
@@ -297,7 +305,7 @@ function analyse(s: PlayState, move: HeroMove): Decision {
 
   // Postflop
   const heads = villains.length === 1;
-  const moves = heroMoves(s);
+  const moves = withChosen(heroMoves(s), move);
   for (const m of moves) {
     let ev: number | null = null;
     if (m.kind === "fold") ev = 0;

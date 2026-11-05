@@ -15,8 +15,8 @@ export const PUB_TABLE: TableDef = { seats: ["UTG", "UTG+1", "UTG+2", "LJ", "HJ"
 export const CASH_TABLE: TableDef = { seats: ["UTG", "HJ", "CO", "BTN", "SB", "BB"], bbAnte: false };
 export const SEATS = PUB_TABLE.seats;
 
-/** Postflop action order starts at the SB. */
-const postflopOrder = (n: number) => [n - 2, n - 1, ...Array.from({ length: n - 2 }, (_, i) => i)];
+/** Postflop action order starts at the SB. Heads-up the SB is the button, so the BB acts first. */
+const postflopOrder = (n: number) => (n === 2 ? [1, 0] : [n - 2, n - 1, ...Array.from({ length: n - 2 }, (_, i) => i)]);
 
 export interface Player {
   seat: string;

@@ -1,5 +1,22 @@
-import { fullDeck } from "../../poker/cards";
+import { fullDeck, type Card } from "../../poker/cards";
 import { act, legal, newGame, pot, PUB_TABLE, type Game, type Street } from "../../play/engine";
+
+/** Position names by table size, in preflop action order (the last two are SB and BB). */
+export const POSITIONS: Record<number, string[]> = {
+  2: ["SB", "BB"], // heads-up: the SB is the button
+  3: ["BTN", "SB", "BB"],
+  4: ["CO", "BTN", "SB", "BB"],
+  5: ["HJ", "CO", "BTN", "SB", "BB"],
+  6: ["UTG", "HJ", "CO", "BTN", "SB", "BB"],
+  7: ["UTG", "LJ", "HJ", "CO", "BTN", "SB", "BB"],
+  8: ["UTG", "UTG+1", "LJ", "HJ", "CO", "BTN", "SB", "BB"],
+  9: PUB_TABLE.seats,
+  10: ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"],
+};
+export const TABLE_SIZES = Object.keys(POSITIONS).map(Number);
+export const positionsFor = (players: number) => POSITIONS[players] ?? PUB_TABLE.seats;
+/** The seat that has the dealer button. */
+export const buttonSeat = (players: number) => (players === 2 ? "SB" : "BTN");
 
 /**
  * Recording every seat's action in a logged hand. The steps are replayed through
@@ -27,16 +44,22 @@ export interface TableInput {
   heroStack: number | null;
   /** Per-seat starting stacks in bb that differ from the default. */
   stacks: Record<string, number>;
+  /** Positions in preflop order (default: 9-handed). */
+  seats?: string[];
+  /** The BB posts a 1bb ante (default true). */
+  bbAnte?: boolean;
+  /** Deck to deal from, last card first (see handAnalysis deckFor); default: unshuffled. */
+  deck?: Card[];
 }
 
 export const baseStack = (t: TableInput) => t.heroStack ?? DEFAULT_STACK_BB;
 
-function freshGame(t: TableInput): Game {
-  const seats = PUB_TABLE.seats;
+export function freshGame(t: TableInput): Game {
+  const seats = t.seats ?? PUB_TABLE.seats;
   const base = baseStack(t);
   const stacks = seats.map((s) => (s === t.heroSeat ? base : (t.stacks[s] ?? base)));
-  // Unshuffled deck: replays stay deterministic.
-  return newGame(base, seats.indexOf(t.heroSeat), fullDeck(), PUB_TABLE, stacks);
+  // Unshuffled deck unless real cards are given: replays stay deterministic.
+  return newGame(base, seats.indexOf(t.heroSeat), t.deck ?? fullDeck(), { seats, bbAnte: t.bbAnte ?? true }, stacks);
 }
 
 /** Apply one step if it is legal for the player to act; null otherwise. */

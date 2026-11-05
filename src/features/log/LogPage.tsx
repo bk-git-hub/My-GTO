@@ -1,13 +1,11 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CardPicker, CardRow } from "../../components/Cards";
 import { cardLabel, type Card } from "../../poker/cards";
-import { legal, pot } from "../../play/engine";
 import { useCoach } from "../coach/CoachContext";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import {
   deleteHand,
   emptyHand,
-  emptyShowdown,
   exportData,
   handFacts,
   handLogStore,
@@ -15,23 +13,17 @@ import {
   hasDetail,
   holeText,
   knownNames,
-  levelInfo,
   levelLabel,
   LOG_SEATS,
-  LOG_STREET_LABEL,
-  LOG_STREETS,
   mergeImport,
   RESULT_LABEL,
   saveHand,
   stackBb,
-  streetBoard,
-  tableOf,
   villainBook,
   type LoggedHand,
   type Result,
-  type ShowdownNote,
 } from "./handLog";
-import { amountLabel, baseStack, raiseVerb, replay, sizeOptions, skipTo, streetLines, undoSteps, upcoming, type LogStep } from "./recorder";
+import { TableFlow } from "./TableFlow";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
 const NAMES_LIST_ID = "log-villain-names";
@@ -81,12 +73,26 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
     setDraft(emptyHand(draft.level));
   }
 
+  function startTable() {
+    const h = emptyHand();
+    if (!saveHand(h)) return setMsg({ text: FULL_MSG, error: true });
+    go(`log/${h.id}`);
+  }
+
   return (
     <>
+      <button className="cta log-new" onClick={startTable}>
+        <span className="cta-icon">♠</span>
+        <span className="cta-text">
+          <b>새 핸드 기록</b>
+          <span>테이블에서 자리·핸드 고르고, 액션한 자리만 순서대로 · 승률 자동 계산</span>
+        </span>
+        <span className="cta-go">→</span>
+      </button>
       <section className="card-box">
         <div className="row-between">
-          <h2>빠른 기록</h2>
-          <span className="muted small">카드·자리·스택만 찍고 저장</span>
+          <h2>빠른 메모</h2>
+          <span className="muted small">카드·자리·스택만 찍어 두고 나중에 이어서</span>
         </div>
         <HandFields
           h={draft}
@@ -100,7 +106,7 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
             저장
           </button>
           <button className="ghost" disabled={!ready} onClick={() => save(true)}>
-            저장하고 자세히 입력
+            저장하고 테이블로 기록
           </button>
         </div>
         {msg && <div className={`notice ${msg.error ? "error" : ""}`}>{msg.text}</div>}
@@ -153,13 +159,21 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
 
 // ───────────── one hand ─────────────
 
-const comparable = (h: LoggedHand | undefined) => (h ? JSON.stringify({ ...h, updatedAt: 0 }) : "");
-
 function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (route: string) => void }) {
-  const original = hands.find((h) => h.id === id);
-  const [draft, setDraft] = useState<LoggedHand | undefined>(original);
+  const stored = hands.find((h) => h.id === id);
+  const [draft, setDraft] = useState<LoggedHand | undefined>(stored);
   const [msg, setMsg] = useState<Msg>(null);
+  const [memo, setMemo] = useState(false);
   const coach = useCoach();
+
+  // A hand started but left empty (nothing entered) shouldn't clutter the list.
+  useEffect(
+    () => () => {
+      const h = handLogStore.get().hands.find((x) => x.id === id);
+      if (h && !hasContent(h)) deleteHand(id);
+    },
+    [id],
+  );
 
   if (!draft) {
     return (
@@ -171,70 +185,53 @@ function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (rou
       </section>
     );
   }
-  const dirty = comparable(draft) !== comparable(original);
 
-  /** Save the draft if it changed; returns the stored copy, or null if storage is full. */
-  function commit(): LoggedHand | null {
-    if (!draft) return null;
-    if (!dirty && original) return original;
-    if (!saveHand(draft)) {
-      setMsg({ text: FULL_MSG, error: true });
-      return null;
-    }
-    const stored = handLogStore.get().hands.find((h) => h.id === draft.id) ?? draft;
-    setDraft(stored);
-    return stored;
+  /** Every change is saved right away: a hand recorded at the table must not be lost. */
+  function change(h: LoggedHand) {
+    setDraft(h);
+    setMsg(saveHand(h) ? null : { text: FULL_MSG, error: true });
   }
 
-  function review() {
-    const h = commit();
-    if (!h) return;
+  function review(h: LoggedHand, extra: string) {
+    change(h);
     coach.open({
-      id: `log:${h.id}:${h.updatedAt}`,
+      id: `log:${h.id}:${h.updatedAt}:${h.steps.length}:${h.showdowns.map((x) => x.cards.join("-")).join("|")}`,
       title: `기록 리뷰 · ${h.seat || "자리 모름"} ${h.hole.map(cardLabel).join("")}`,
-      facts: handFacts(h),
+      facts: handFacts(h) + extra,
       defaultQuestion:
-        "내가 펍에서 실제로 친 핸드야. 내 플레이가 괜찮았는지, 아쉬운 결정이 있다면 뭐였는지, 이런 펍아재 상대로는 어떻게 조정하면 좋을지 알려줘. 기록에 빠진 정보가 있으면 어떤 가정으로 판단했는지도 말해줘.",
+        "내가 펍에서 실제로 친 핸드야. 스트리트별로 내 결정이 괜찮았는지, 결과와 상관없이 결정 자체가 좋았는지, 아쉬운 결정이 있다면 뭐였는지, 이런 펍아재 상대로는 어떻게 조정하면 좋을지 알려줘.",
     });
   }
 
   return (
     <>
-      <div className="row-gap wrap">
-        <button className="primary" onClick={() => commit() && go("log")}>
-          {dirty ? "저장" : "목록으로"}
-        </button>
-        <button className="ghost" onClick={review} disabled={!hasContent(draft)}>
-          AI 리뷰
-        </button>
-        {dirty && (
-          <button className="ghost" onClick={() => go("log")}>
-            저장 안 하고 닫기
-          </button>
-        )}
-      </div>
       {msg && <div className={`notice ${msg.error ? "error" : ""}`}>{msg.text}</div>}
-      <section className="card-box">
-        <div className="muted small">{`${dayLabel(draft.createdAt)} ${timeLabel(draft.createdAt)}`}</div>
-        <HandFields h={draft} onChange={setDraft} full />
-      </section>
-      <button
-        className="ghost danger"
-        onClick={() => {
-          if (confirm("이 핸드 기록을 지울까요?")) {
-            deleteHand(draft.id);
-            go("log");
-          }
-        }}
-      >
-        이 기록 삭제
-      </button>
+      <TableFlow h={draft} onChange={change} onReview={review} onClose={() => go("log")} />
+      <div className="row-gap wrap">
+        <button className="ghost small" onClick={() => setMemo(!memo)}>
+          메모 {draft.note.trim() ? "✓" : ""}
+        </button>
+        <span className="muted small">{`${dayLabel(draft.createdAt)} ${timeLabel(draft.createdAt)} · 자동 저장`}</span>
+        <button
+          className="ghost small danger"
+          style={{ marginLeft: "auto" }}
+          onClick={() => {
+            if (confirm("이 핸드 기록을 지울까요?")) {
+              deleteHand(draft.id);
+              go("log");
+            }
+          }}
+        >
+          삭제
+        </button>
+      </div>
+      {memo && <textarea rows={3} value={draft.note} onChange={(e) => change({ ...draft, note: e.target.value })} placeholder="예) BTN 아재가 리버에서 오래 고민하다 콜" />}
     </>
   );
 }
 
-/** Quick fields; with `full`, also board, street actions, chip result and showdowns. */
-function HandFields({ h, onChange, full = false }: { h: LoggedHand; onChange: (h: LoggedHand) => void; full?: boolean }) {
+/** Quick memo fields: level, seat, cards, stack, result, note. */
+function HandFields({ h, onChange }: { h: LoggedHand; onChange: (h: LoggedHand) => void }) {
   const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
   const bb = stackBb(h);
   const sdCards = h.showdowns.flatMap((s) => s.cards);
@@ -258,7 +255,7 @@ function HandFields({ h, onChange, full = false }: { h: LoggedHand; onChange: (h
         <SeatChips value={h.seat} onChange={(seat) => set({ seat })} />
       </div>
 
-      <CardField label="내 카드" cards={h.hole} max={2} disabled={[...h.board, ...sdCards]} onChange={(hole) => set({ hole })} defaultOpen={!full || !h.hole.length} />
+      <CardField label="내 카드" cards={h.hole} max={2} disabled={[...h.board, ...sdCards]} onChange={(hole) => set({ hole })} defaultOpen />
 
       <label className="field">
         <span>
@@ -283,232 +280,7 @@ function HandFields({ h, onChange, full = false }: { h: LoggedHand; onChange: (h
         <textarea rows={2} value={h.note} onChange={(e) => set({ note: e.target.value })} placeholder="예) BTN 아재 K9s로 올인 콜, 내 AQo 짐" />
       </label>
 
-      {full && (
-        <>
-          <CardField label="보드" cards={h.board} max={5} disabled={[...h.hole, ...sdCards]} onChange={(board) => set({ board })} defaultOpen={false} />
-
-          <ActionRecorder h={h} set={set} />
-
-          {/* Older hands kept street actions as free text. */}
-          {LOG_STREETS.filter((st) => h.actions[st].trim()).map((st) => (
-            <label key={st} className="field">
-              {LOG_STREET_LABEL[st]} 메모
-              <input value={h.actions[st]} onChange={(e) => set({ actions: { ...h.actions, [st]: e.target.value } })} />
-            </label>
-          ))}
-
-          <NetField h={h} onChange={(net) => set({ net })} />
-
-          <div className="field">
-            상대 쇼다운
-            <span className="muted small">상대 별명을 같게 적으면 '상대별 쇼다운'에 모여요.</span>
-            {h.showdowns.map((sd, i) => (
-              <ShowdownEditor
-                key={i}
-                sd={sd}
-                taken={[...h.hole, ...h.board, ...h.showdowns.filter((_, j) => j !== i).flatMap((s) => s.cards)]}
-                onChange={(next) => set({ showdowns: h.showdowns.map((s, j) => (j === i ? next : s)) })}
-                onRemove={() => set({ showdowns: h.showdowns.filter((_, j) => j !== i) })}
-              />
-            ))}
-            <button type="button" className="ghost small" onClick={() => set({ showdowns: [...h.showdowns, emptyShowdown()] })}>
-              + 쇼다운 추가
-            </button>
-          </div>
-        </>
-      )}
     </div>
-  );
-}
-
-const STREET_NEED: Record<string, number> = { preflop: 0, flop: 3, turn: 4, river: 5 };
-
-/** Record every seat's action street by street; the engine works out turn order, call amounts and the pot. */
-function ActionRecorder({ h, set }: { h: LoggedHand; set: (patch: Partial<LoggedHand>) => void }) {
-  const bbChips = levelInfo(h.level)?.bb ?? null;
-  const fmt = (bb: number) => amountLabel(bb, bbChips);
-  const table = tableOf(h);
-  const { game, applied } = useMemo(() => replay(table, h.steps), [h.steps, h.stacks, h.seat, h.stack, h.level]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [custom, setCustom] = useState("");
-  const valid = h.steps.slice(0, applied);
-  const push = (...steps: LogStep[]) => set({ steps: [...valid, ...steps] });
-
-  const idx = game.done ? null : game.toAct;
-  const actor = idx !== null ? game.players[idx] : null;
-  const L = idx !== null ? legal(game, idx) : null;
-  const lines = streetLines(game, fmt);
-  const next = actor ? upcoming(game) : [];
-  const verb = raiseVerb(game);
-  const need = STREET_NEED[game.street];
-  const sdCards = h.showdowns.flatMap((s) => s.cards);
-
-  function raiseCustom() {
-    const v = Number(custom.replace(/[^0-9.]/g, ""));
-    if (!actor || !(v > 0)) return;
-    push({ s: actor.seat, k: "raise", to: bbChips ? v / bbChips : v });
-    setCustom("");
-  }
-
-  return (
-    <div className="field">
-      <div className="row-between">
-        <span>액션 기록</span>
-        <span className="row-gap">
-          <button type="button" className="ghost small" disabled={!h.steps.length} onClick={() => set({ steps: undoSteps(valid) })}>
-            되돌리기
-          </button>
-          <button type="button" className="ghost small" disabled={!h.steps.length} onClick={() => set({ steps: [] })}>
-            처음부터
-          </button>
-        </span>
-      </div>
-      <span className="muted small">
-        다음에 액션한 자리를 누르고 액션을 고르세요. 그 사이 자리는 폴드(벳이 없으면 체크)로 채워져요. 금액은 그 스트리트에 낸 총액이에요.
-      </span>
-
-      <StacksEditor h={h} set={set} />
-
-      {applied < h.steps.length && (
-        <div className="notice error">
-          <span>스택이나 자리가 바뀌어서 뒤쪽 액션 {h.steps.length - applied}개가 맞지 않아요.</span>
-          <button type="button" className="ghost small" onClick={() => set({ steps: valid })}>
-            지우기
-          </button>
-        </div>
-      )}
-
-      {lines.map((l) => {
-        const cards = streetBoard(h.board, l.street);
-        return (
-          <div key={l.street} className="rec-line small">
-            <b>{LOG_STREET_LABEL[l.street as keyof typeof LOG_STREET_LABEL]}</b>
-            {cards.length > 0 && <CardRow cards={cards} size="sm" />}
-            <span>{l.actions.join(" · ") || "-"}</span>
-            <span className="muted">팟 {fmt(l.pot)}</span>
-          </div>
-        );
-      })}
-
-      {actor && L ? (
-        <div className="rec-turn">
-          {need > h.board.length && (
-            <div className="field">
-              <span className="small">
-                {LOG_STREET_LABEL[game.street as keyof typeof LOG_STREET_LABEL]} 카드 {need - h.board.length}장 (몰라도 계속 기록할 수 있어요)
-              </span>
-              <CardPicker selected={h.board.slice(0, need)} max={need} disabled={[...h.hole, ...sdCards]} onChange={(board) => set({ board })} />
-            </div>
-          )}
-          <div className="seat-chips">
-            {next.map((seat, i) => (
-              <button
-                key={seat}
-                type="button"
-                className={`chip ${i === 0 ? "on" : ""}`}
-                onClick={() => i > 0 && push(...skipTo(game, seat))}
-                aria-pressed={i === 0}
-              >
-                {seat}
-                {seat === h.seat ? "(나)" : ""}
-              </button>
-            ))}
-          </div>
-          <div className="muted small">
-            {actor.seat}
-            {actor.hero ? "(나)" : ""} 차례 · 팟 {fmt(pot(game))}
-            {L.callAmount > 0 ? ` · 콜하려면 ${fmt(L.callAmount)} 더` : ""} · 남은 스택 {fmt(actor.stack)}
-          </div>
-          <div className="rec-actions">
-            {!L.canCheck && (
-              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "fold" })}>
-                폴드
-              </button>
-            )}
-            {L.canCheck ? (
-              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "check" })}>
-                체크
-              </button>
-            ) : (
-              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "call" })}>
-                콜 {fmt(actor.streetBet + L.callAmount)}
-                {L.callAmount >= actor.stack ? " 올인" : ""}
-              </button>
-            )}
-            {sizeOptions(game).map((o) => (
-              <button key={o.to} type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "raise", to: o.to })}>
-                {verb} {fmt(o.to)}
-                {o.label && <small> {o.label}</small>}
-              </button>
-            ))}
-            {L.canRaise && (
-              <button type="button" className="ghost" onClick={() => push({ s: actor.seat, k: "raise", to: L.maxRaiseTo })}>
-                올인 {fmt(L.maxRaiseTo)}
-              </button>
-            )}
-          </div>
-          {L.canRaise && (
-            <div className="row-gap">
-              <input
-                inputMode="decimal"
-                value={custom}
-                onChange={(e) => setCustom(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), raiseCustom())}
-                placeholder={`${verb} 금액 직접 (${bbChips ? "칩" : "bb"}, 총액)`}
-              />
-              <button type="button" className="ghost" disabled={!custom.trim()} onClick={raiseCustom}>
-                {verb}
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        h.steps.length > 0 && (
-          <div className="muted small">
-            핸드 끝 · 최종 팟 {fmt(pot(game))}
-            {game.showdown && h.board.length < 5 ? " · 남은 보드는 위 '보드'에서 입력하세요" : ""}
-          </div>
-        )
-      )}
-    </div>
-  );
-}
-
-/** Starting stacks for seats that differ from mine (BB ante comes out of the BB's stack). */
-function StacksEditor({ h, set }: { h: LoggedHand; set: (patch: Partial<LoggedHand>) => void }) {
-  const bbChips = levelInfo(h.level)?.bb ?? null;
-  const base = baseStack(tableOf(h));
-  const others = LOG_SEATS.filter((s) => s !== h.seat);
-  const changed = others.filter((s) => h.stacks[s] !== undefined).length;
-  return (
-    <details className="rec-stacks">
-      <summary className="small">
-        시작 스택: 모두 {amountLabel(base, bbChips)}
-        {stackBb(h) === null ? " (내 스택·레벨을 넣으면 그 값이 기본)" : " (내 스택과 같게)"}
-        {changed ? ` · ${changed}자리 따로` : ""}
-      </summary>
-      <div className="rec-stack-grid">
-        {others.map((seat) => {
-          const bb = h.stacks[seat];
-          return (
-            <label key={seat} className="small">
-              {seat}
-              <input
-                inputMode="numeric"
-                value={bb === undefined ? "" : bbChips ? Math.round(bb * bbChips).toLocaleString() : String(bb)}
-                placeholder={amountLabel(base, bbChips)}
-                onChange={(e) => {
-                  const v = Number(e.target.value.replace(/[^0-9.]/g, ""));
-                  const stacks = { ...h.stacks };
-                  if (v > 0) stacks[seat] = bbChips ? v / bbChips : v;
-                  else delete stacks[seat];
-                  set({ stacks });
-                }}
-              />
-            </label>
-          );
-        })}
-      </div>
-    </details>
   );
 }
 
@@ -560,49 +332,6 @@ function ChipsInput({ value, onChange, placeholder }: { value: number | null; on
         onChange(digits ? Number(digits) : null);
       }}
     />
-  );
-}
-
-function NetField({ h, onChange }: { h: LoggedHand; onChange: (net: number | null) => void }) {
-  // Phone number pads have no minus key, so the sign is a toggle.
-  const [negative, setNegative] = useState(h.net !== null ? h.net < 0 : h.result === "lose" || h.result === "fold");
-  const amount = h.net !== null ? Math.abs(h.net) : null;
-  const apply = (neg: boolean, a: number | null) => onChange(a === null ? null : neg ? -a : a);
-  return (
-    <label className="field">
-      칩 변동
-      <span className="row-gap">
-        <button
-          type="button"
-          className={`ghost sign-btn ${negative ? "minus" : "plus"}`}
-          onClick={() => {
-            setNegative(!negative);
-            apply(!negative, amount);
-          }}
-        >
-          {negative ? "−" : "+"}
-        </button>
-        <ChipsInput value={amount} onChange={(a) => apply(negative, a)} placeholder="딴 칩 / 잃은 칩" />
-      </span>
-    </label>
-  );
-}
-
-function ShowdownEditor(props: { sd: ShowdownNote; taken: Card[]; onChange: (sd: ShowdownNote) => void; onRemove: () => void }) {
-  const { sd, taken, onChange, onRemove } = props;
-  const set = (patch: Partial<ShowdownNote>) => onChange({ ...sd, ...patch });
-  return (
-    <div className="showdown-box">
-      <div className="row-gap">
-        <input list={NAMES_LIST_ID} value={sd.name} onChange={(e) => set({ name: e.target.value })} placeholder="상대 별명 (예: 빨간모자)" />
-        <button type="button" className="ghost small" onClick={onRemove}>
-          삭제
-        </button>
-      </div>
-      <SeatChips value={sd.seat} onChange={(seat) => set({ seat })} />
-      <CardField label="상대 카드" cards={sd.cards} max={2} disabled={taken} onChange={(cards) => set({ cards })} defaultOpen={!sd.cards.length} />
-      <input value={sd.did} onChange={(e) => set({ did: e.target.value })} placeholder="한 플레이 (예: 올인 콜, 3벳, 림프 콜)" />
-    </div>
   );
 }
 
