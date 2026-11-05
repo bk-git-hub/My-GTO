@@ -127,7 +127,12 @@ export interface Solution {
   node(path: PathStep[]): SolutionNode;
 }
 
-/** Size of a spot before solving it (see `estimateMemory`). */
+/**
+ * Size of a spot before solving it (see `estimateMemory`). The node counts are the game tree's (as buildTree
+ * builds it). When the board and both ranges are symmetric under a permutation of the suits, the solver keeps
+ * one subtree per orbit of cards at its chance nodes (suit isomorphism, docs/solver.md), and `bytes` is for
+ * that reduced tree.
+ */
 export interface MemoryEstimate {
   /**
    * Bytes the solver will hold once built (within about 10% of the measured heap): per-node strategy storage,
@@ -152,7 +157,7 @@ export interface IncrementalSolver {
 }
 
 /**
- * One node of the game tree as built by `buildTree` (no strategy data): a view of the solver's packed tree,
+ * One node of the game tree as built by `buildTree` (no strategy data, every card): a view of a packed tree,
  * made on demand. `children` is built on first access and then kept (the same array and objects every time);
  * it is an own enumerable property, so spreading, JSON and structured clone see it (and build the subtree).
  * Read-only: nodes share frozen arrays with each other (an action list with every node of the same betting

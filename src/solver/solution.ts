@@ -1,6 +1,8 @@
-import { averageStrategy, MODE_AVG, type Engine } from "./cfr";
+import type { Card } from "../poker/cards";
+import { MODE_AVG, type Engine } from "./cfr";
 import { cardMask, compatibleSums, NUM_COMBOS } from "./hands";
-import { NODE_ACTION, NODE_CHANCE } from "./tree";
+import { comboPerm, composePerms, IDENTITY, PERM_INV, permCard } from "./iso";
+import { NODE_ACTION, NODE_CHANCE, NODE_FOLD, NODE_SHOWDOWN, remainingCards, STREETS } from "./tree";
 import type { PathStep, Player, Solution, SolutionNode } from "./types";
 
 /**
@@ -71,9 +73,15 @@ export class SolverSolution implements Solution {
 
     const e = this.e;
     const hands = e.hands;
-    // Reach of each player along the path: initial weight × own action probabilities (cards blocked → 0).
-    const reach: [Float64Array, Float64Array] = [Float64Array.from(e.w[0]), Float64Array.from(e.w[1])];
     const tree = e.tree;
+    // With suit isomorphism the solver holds one subtree per orbit of cards: a path through another card
+    // continues in the representative's subtree, read through the suit permutation that maps it there.
+    // `frame` maps the path's real cards to the cards of the subtree being walked (the identity until a
+    // card off the representatives is dealt); reach is kept in the frame's hand order.
+    let frame = IDENTITY;
+    const board: Card[] = tree.boards[0].slice();
+    // Reach of each player along the path: initial weight × own action probabilities (cards blocked → 0).
+    let reach: [Float64Array, Float64Array] = [Float64Array.from(e.w[0]), Float64Array.from(e.w[1])];
     let node = e.root;
     for (let i = 0; i < path.length; i++) {
       const step = path[i];
@@ -86,60 +94,89 @@ export class SolverSolution implements Solution {
         const q = tree.player(node);
         const n = hands[q].n;
         const sig = new Float64Array(A * n);
-        averageStrategy(e.stratSum, e.off[node], A, n, sig, new Float64Array(n));
+        e.averageStrategyAt(node, sig, new Float64Array(n));
         const r = reach[q], s = step.action * n;
         for (let h = 0; h < n; h++) r[h] *= sig[s + h];
         node = tree.child[node] + step.action;
       } else if (type === NODE_CHANCE) {
-        const cards = tree.cards[tree.board[node]]!;
-        const k = "card" in step ? cards.indexOf(step.card) : -1;
-        if (k < 0) throw new Error(`illegal path at step ${i}: expected a card that can come`);
-        const c = cards[k];
+        // Any card off the board can come (the full tree has a child for each).
+        const card = "card" in step ? step.card : -1;
+        if (!(card >= 0 && card < 52) || board.includes(card)) throw new Error(`illegal path at step ${i}: expected a card that can come`);
+        const c = permCard(frame, card);
         for (const q of [0, 1] as const) {
           const wc = hands[q].withCard[c];
           for (let j = 0; j < wc.length; j++) reach[q][wc[j]] = 0;
         }
+        const b = tree.board[node];
+        let k = tree.cards[b]!.indexOf(c);
+        if (k < 0) {
+          // c = g(rep) for a representative of the solver's tree: continue under rep, in the frame g⁻¹ ∘ frame,
+          // where hand h stands for the hand g(h) of the old frame.
+          const m = tree.members[b]!;
+          const j = m.card.indexOf(c);
+          k = 0;
+          while (m.start[k + 1] <= j) k++;
+          const g = m.perm[j];
+          frame = composePerms(PERM_INV[g], frame);
+          reach = [0, 1].map((q) => {
+            const old = reach[q], hp = e.handPerm[q][g]!;
+            const out = new Float64Array(old.length);
+            for (let h = 0; h < out.length; h++) out[h] = old[hp[h]];
+            return out;
+          }) as [Float64Array, Float64Array];
+        }
+        board.push(card);
         node = tree.child[node] + k;
       } else {
         throw new Error(`illegal path at step ${i}: the hand is over`);
       }
     }
 
-    const result = this.describe(node, reach);
+    const result = this.describe(node, reach, frame, board);
     this.cache.set(key, result);
     return result;
   }
 
-  private describe(id: number, reach: [Float64Array, Float64Array]): SolutionNode {
+  /**
+   * The SolutionNode of node `id` of the solver's tree, reached with these reaches (in the frame's hand order)
+   * along a path that dealt `board` (real cards). Computed in the frame, then mapped back to real combos.
+   */
+  private describe(id: number, reach: [Float64Array, Float64Array], frame: number, board: Card[]): SolutionNode {
     const e = this.e;
     const hands = e.hands;
-    const node = e.tree.view(id);
-    const dead = cardMask(node.board);
+    const tree = e.tree;
+    const d = tree.desc[id];
+    const type = tree.dType[d];
+    // The frame's board: the real board's image, on which the solver's node sits.
+    const dead = cardMask(tree.boards[tree.board[id]]);
     // Hands blocked by cards dealt after the start (the lists already exclude the starting board).
     const blocked = hands.map((hl) => {
       const b = new Uint8Array(hl.n);
       for (let h = 0; h < hl.n; h++) b[h] = dead[hl.c1[h]] | dead[hl.c2[h]];
       return b;
     });
+    // The real combo of each hand of the frame: the frame's combo mapped back by the inverse permutation.
+    const toReal = frame === IDENTITY ? undefined : comboPerm(PERM_INV[frame]);
+    const combo = hands.map((hl) => (toReal ? Int32Array.from(hl.combo, (i) => toReal[i]) : hl.combo));
 
     const ranges = [0, 1].map((q) => {
       const out = new Float32Array(NUM_COMBOS);
-      const hl = hands[q];
-      for (let h = 0; h < hl.n; h++) if (!blocked[q][h]) out[hl.combo[h]] = reach[q][h];
+      const hl = hands[q], at = combo[q];
+      for (let h = 0; h < hl.n; h++) if (!blocked[q][h]) out[at[h]] = reach[q][h];
       return out;
     }) as [Float32Array, Float32Array];
 
     let strategy: Float32Array[] | undefined;
-    if (node.type === NODE_ACTION) {
-      const q = node.player!;
-      const hl = hands[q];
-      const A = e.tree.numChildren(id);
+    if (type === NODE_ACTION) {
+      const q = tree.dPlayer[d];
+      const hl = hands[q], at = combo[q];
+      const A = tree.numChildren(id);
       const sig = new Float64Array(A * hl.n);
-      averageStrategy(e.stratSum, e.off[id], A, hl.n, sig, new Float64Array(hl.n));
+      e.averageStrategyAt(id, sig, new Float64Array(hl.n));
       strategy = [];
       for (let a = 0; a < A; a++) {
         const out = new Float32Array(NUM_COMBOS);
-        for (let h = 0; h < hl.n; h++) if (!blocked[q][h]) out[hl.combo[h]] = sig[a * hl.n + h];
+        for (let h = 0; h < hl.n; h++) if (!blocked[q][h]) out[at[h]] = sig[a * hl.n + h];
         strategy.push(out);
       }
     }
@@ -153,8 +190,9 @@ export class SolverSolution implements Solution {
       if (!(total > 0)) return out;
       e.walk(id, p, MODE_AVG, reach[p], reach[1 - p], e.out, 0);
       const tiny = total * 1e-12; // below this the compatible reach is zero up to rounding
+      const at = combo[p];
       for (let h = 0; h < me.n; h++) {
-        if (!blocked[p][h] && cs[h] > tiny) out[me.combo[h]] = e.out[h] / cs[h];
+        if (!blocked[p][h] && cs[h] > tiny) out[at[h]] = e.out[h] / cs[h];
       }
       return out;
     }) as [Float32Array, Float32Array];
@@ -163,17 +201,17 @@ export class SolverSolution implements Solution {
     // is. Typed arrays with elements can't be frozen: they are documented read-only.
     const freeze = Object.freeze;
     return freeze({
-      kind: node.kind,
-      street: node.street,
-      board: freeze(node.board.slice()),
-      pot: node.pot,
-      bets: freeze([node.bets[0], node.bets[1]]) as [number, number],
-      stacks: freeze([node.stacks[0], node.stacks[1]]) as [number, number],
-      player: node.player as Player | undefined,
-      actions: node.actions && freeze(node.actions.map((a) => freeze({ ...a }))),
+      kind: type === NODE_ACTION ? "action" : type === NODE_CHANCE ? "chance" : "terminal",
+      street: STREETS[board.length - 3],
+      board: freeze(board.slice()),
+      pot: tree.dPot[d],
+      bets: freeze([tree.dBets[2 * d], tree.dBets[2 * d + 1]]) as [number, number],
+      stacks: freeze([tree.dStacks[2 * d], tree.dStacks[2 * d + 1]]) as [number, number],
+      player: type === NODE_ACTION ? (tree.dPlayer[d] as Player) : undefined,
+      actions: type === NODE_ACTION ? freeze(tree.dActions[d]!.map((a) => freeze({ ...a }))) : undefined,
       strategy: strategy && freeze(strategy),
-      cards: node.cards && freeze(node.cards.slice()),
-      terminal: node.terminal,
+      cards: type === NODE_CHANCE ? freeze(remainingCards(board)) : undefined,
+      terminal: type === NODE_FOLD ? "fold" : type === NODE_SHOWDOWN ? "showdown" : undefined,
       ranges: freeze(ranges),
       ev: freeze(ev),
     }) as SolutionNode;

@@ -11,8 +11,9 @@ It is plain TypeScript with no DOM or Node APIs, so the same module runs in a br
 
 - Heads-up only, postflop only, equal effective stacks.
 - No rake, no ante or preflop logic: the solve starts with `pot` in the middle and `stack` behind each player.
-- No card abstraction. Every turn and river card is its own subtree. Suit isomorphism is an optional
-  optimization (see Performance).
+- No card abstraction. Every turn and river card is its own subtree of the game. When the spot is symmetric under
+  a permutation of the suits, the solver stores one of each set of mirror-image subtrees (suit isomorphism, see
+  Algorithm); that changes no result.
 - Bet-size abstraction only: each player has a short list of sizes per street.
 
 ## Conventions
@@ -144,6 +145,42 @@ Discounted CFR (Brown & Sandholm 2019), α = 1.5, β = 0, γ = 2, alternating up
   In floats a spot with nothing to decide can come out a few 1e-14 below 0, so the reported value is clamped at 0
   (the per-player best responses are not).
 
+### Suit isomorphism
+
+A permutation of the four suits σ maps a card to the card of the same rank in the image suit, and a combo to the
+combo of the images of its cards. The spot's **symmetry group** G is the set of σ that map the starting board onto
+itself (as a set) and leave both ranges unchanged: w_p(σ(c)) = w_p(c) for every combo c and both players, with the
+weights the solve uses (combos on the board count as 0) compared exactly, not within a tolerance. G always contains
+the identity and is a group. Examples with suit-symmetric (chart) ranges: a rainbow flop like Ks7d2c has none (the
+free suit has nothing to swap with), a two-tone flop like Ks7s2d swaps the two free suits, a monotone flop permutes
+the other three suits in all 6 ways, and a paired flop like KsKd2c swaps the suits of the pair. When G is the
+identity alone, nothing below applies and the solver is the plain one.
+
+- **Group at a node**: the elements of G that fix every card dealt since the start (so a turn card of a free suit
+  leaves a smaller group, or none). The subtree under a node, with the reaches at that node, is symmetric under it.
+- **Chance node**: the cards that can come fall into orbits under the node's group. The solver keeps a subtree
+  only under the smallest card of each orbit (its representative). The subtree under another card c′ = σ(c) is the
+  image of the one under c, so p's value for hand h under c′ is the representative's value for σ⁻¹(h): the chance
+  node adds, for each card of the orbit, the representative's values gathered through σ⁻¹. This needs both reach
+  vectors at the node to be symmetric under the node's group.
+- **Symmetric strategy reads**: at an action node whose group is not the identity, every read of a strategy (regret
+  matching during training, the average strategy for best responses, evaluation and `Solution.node`) gives each
+  hand the probabilities of the canonical hand of its orbit under that group (the one with the lowest index in the
+  hand list). In exact arithmetic the hands of an orbit have equal regrets anyway; in floats the chance sums round
+  in different orders, and without this, regrets that are 0 up to rounding would let mirror-image hands play
+  differently and break the symmetric reaches the chance step relies on. With it the reaches are symmetric bit for
+  bit, so the reduced solve equals the full one up to float rounding (after one iteration every regret and strategy
+  sum matches the full tree's within 1e-12, and the best response to the same strategy matches within 1e-11).
+  Like any two float orderings (compare pruning), the solves with and without isomorphism then drift apart over
+  many iterations; both converge to the same game value.
+- **Queries**: `Solution.node(path)` accepts every card that can come. A card off the representatives continues in
+  the representative's subtree, read through the suit permutation that maps the real cards there (composed along
+  the path), and the node's `strategy`, `ranges` and `ev` are mapped back to the real combos; `board` and `cards`
+  are the real ones. So a node under 2h and the node under 2d (when h and d are mirror images) are the same arrays
+  with the suits swapped.
+- **Sizes**: `buildTree` doesn't read the ranges and always returns the full game tree; `estimateMemory` counts the
+  full game tree's nodes and gives the bytes of the reduced tree the solver builds.
+
 ### Solution queries
 
 `Solution.node(path)` walks from the root (`{action: i}` at action nodes, `{card}` at chance nodes, where the card
@@ -185,7 +222,8 @@ down, at least 1 (default 25). `targetExploitability` is a number (default 0.5).
 pass of the loop runs at least one iteration and a finite cap always ends the solve. `iterate(n)` runs
 floor(n) iterations and needs a finite n ≥ 0. A `Solution` reads the solver's live arrays: it is valid until the next
 `iterate()`, after which its `node()` throws ("stale solution"). `estimateMemory` must not allocate the per-hand arrays, so the UI can refuse
-a spot that won't fit before building it. It checks the same inputs as `createSolver` except that the ranges give a
+a spot that won't fit before building it, and it accounts for suit isomorphism (its node counts are the game tree's,
+its bytes those of the reduced tree the solver builds). It checks the same inputs as `createSolver` except that the ranges give a
 game, so it also sizes a tree for empty ranges (the tests count nodes that way); `createSolver` rejects such ranges
 at once, before building the tree. Its `bytes` is the solver's steady-state memory (per-hand storage, the packed
 tree, the showdown cache, scratch, hand lists), within 10% of the measured heap on river, turn and flop spots.
@@ -202,7 +240,8 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
 |---|---|
 | `src/solver/types.ts` | Public contract (additive changes only) |
 | `src/solver/hands.ts` | Per-player hand lists, card masks, same-combo maps |
-| `src/solver/tree.ts` | Tree building from the rules above into the packed tree, the `GameNode` view, `estimateMemory` |
+| `src/solver/tree.ts` | Tree building from the rules above into the packed tree (full, or one subtree per orbit of cards), the `GameNode` view, `estimateMemory` |
+| `src/solver/iso.ts` | Suit permutations, the symmetry group of a spot, orbits of cards at a chance node |
 | `src/solver/showdown.ts` | Fold and showdown values, per-board strength cache |
 | `src/solver/cfr.ts` | DCFR iterations |
 | `src/solver/bestResponse.ts` | Best response and exploitability |
@@ -227,7 +266,11 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
    the core's `SolutionNode.strategy`, within a bound derived from the Float32 rounding of those strategies
    (also for 1-iteration and random strategies); `SolutionNode.ev` and `ranges` match the oracle's at the root
    and along random paths; the value intervals [P0 − BR_1, BR_0] of the core and of the oracle's own CFR
-   overlap (both contain the equilibrium value). `SOLVER_CROSSCHECK=1` runs many more seeds and bigger spots.
+   overlap (both contain the equilibrium value). Each section also runs suit-symmetric spots (random boards that
+   a suit permutation maps onto themselves, random weights drawn per orbit of combos, sometimes symmetric under
+   only part of the board's symmetries, and one-suit boards whose full group has three-cycles), on which the core
+   solves one subtree per orbit while the oracle walks every card. `SOLVER_CROSSCHECK=1` runs many more seeds and
+   bigger spots.
 5. **Convergence**: exploitability falls and reaches the target on a realistic river spot.
 6. **Solution API**: path walking, illegal paths (including steps of the wrong shape after the legal ones were
    cached), every legal card as a step, frozen results, a node rebuilt after its buffers were transferred, ranges,
@@ -237,9 +280,19 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
    through both, including ranges that give no game); ranges are checked before the tree is built; fractional
    and infinite iteration counts in `solve` and `iterate`.
 8. **Memory** (`memory.test.ts`): `estimateMemory` within 10% of the heap a solver really holds on a river, a turn
-   and a flop spot (measured with `gc()`, which the test switches on through `node:v8`); the packed tree's 10 bytes
-   per node on the reference flop tree, with descriptors per skeleton node; `buildTree` views built lazily,
-   kept, frozen and visible to spread, JSON and structured clone.
+   and a flop spot, and on a two-tone turn and a monotone flop solved with suit isomorphism (measured with `gc()`,
+   which the test switches on through `node:v8`); the packed tree's 10 bytes per node on the reference flop tree,
+   with descriptors per skeleton node; `buildTree` views built lazily, kept, frozen and visible to spread, JSON and
+   structured clone.
+9. **Suit isomorphism** (`iso.test.ts`): the symmetry group on rainbow, two-tone, monotone and paired boards, weights
+   compared exactly (one bit off breaks a permutation, combos on the board don't count), ranges symmetric under part
+   of the board's symmetries; the reduced tree's chance nodes (one child per orbit) while `buildTree` and the node
+   counts of `estimateMemory` stay the game's; against the solver with isomorphism off on the same spots (monotone
+   and two-tone turns, a monotone flop): after one iteration every node of the full tree has the reduced node's
+   regrets and strategy sums with the hands permuted, the best responses to the same strategy agree, and so do
+   `Solution.node` strategies, ranges and EVs along paths through representatives and the cards mapped onto them;
+   both solves bracket the same game value; asymmetric ranges on the same board give the plain solve bit for bit;
+   nodes under mirror-image cards are each other's arrays with the suits swapped.
 
 ## Performance
 
@@ -251,13 +304,14 @@ Targets in Node on this repo's dev machine (4 cores, one used):
 
 Levers, in order: avoiding allocation in the hot loop (preallocated scratch per depth), Float32Array storage,
 a packed tree, cached sorted orders per river board, skipping zero-reach subtrees, and suit isomorphism at chance
-nodes when the board and both ranges are symmetric under a suit swap (optional; it must pass the oracle cross-check).
+nodes when the board and both ranges are symmetric under a permutation of the suits (see Algorithm; checked by the
+oracle cross-check on symmetric spots).
 
 **Packed tree.** A flop tree has about a million nodes (1.14 million for the reference flop below at raiseLimit 1,
 two thirds of them terminals), so the solver keeps no object per node. The rules build the betting skeleton: the
 tree with every chance node collapsed to one child (643 nodes on the reference flop). Each skeleton node becomes a
 descriptor holding the node type, player, pot, bets, stacks, chips invested and action list. The packed tree
-repeats the skeleton under every card: per node it stores its descriptor (Int32), its board (Uint16, an id into
+repeats the skeleton under every card (with suit isomorphism, under one card per orbit): per node it stores its descriptor (Int32), its board (Uint16, an id into
 the table of boards dealt so far) and its first child (Int32; children are consecutive ids, in action order or in
 the order of the cards that can come). A fold or showdown terminal is a descriptor id like any other node. The
 solver adds a storage offset (Int32 while the storage fits, Float64 beyond) and a last discounted iteration
@@ -268,3 +322,20 @@ Reference flop (100bb 6-max cash, BTN open vs BB call, Ks7d2c, pot 5.5, stack 97
 33% and 75%, turn 66%, river 75%, raises 60%, all-in, raiseLimit 1), measured in Node 22: the solver holds
 5.63 GB, of which 5.58 GB is regrets and strategy sums and 49 MB the tree, per-node arrays and showdown cache (the
 tree as objects took 447 MB); the tree builds in 0.8 s.
+
+**Suit isomorphism.** The same spot on the other flop textures (the chart ranges are suit-symmetric), measured in
+Node 22 on one core of a shared machine, at raiseLimit 1 and 2:
+
+| Flop | Symmetry group | Nodes the solver stores (rl 1) | Memory (rl 1 / rl 2) | Median time per iteration (rl 1 / rl 2) |
+|---|---|---|---|---|
+| Ks7d2c, rainbow | none | 1,142,560 (all) | 5.63 / 7.90 GB | 18.2 / 24.2 s |
+| Ks7s2d, two-tone | h ↔ c | 695,022 (61%) | 3.43 / 4.81 GB | 11.9 / 15.2 s |
+| Ks7s2s, monotone | h, d, c in any order | 329,111 (29%) | 1.63 / 2.28 GB | 5.6 / 7.4 s |
+
+To 1% and 0.5% of pot at raiseLimit 1 (exploitability checked every 10 iterations; wall time with the checks):
+monotone 170 and 240 iterations, 20 and 29 min, in 1.8 GB of resident memory; two-tone 150 and 210 iterations,
+37 and 52 min, in 3.5 GB; rainbow (an earlier run, same cost per iteration) 150 and 220 iterations, 58 and 84 min,
+in 5.9 GB. The rainbow flop solves exactly as without isomorphism, bit for bit and at the same speed. With isomorphism off,
+the two-tone flop takes 5.63 GB and 17.6 s per iteration like the rainbow one. Over all 22,100 flops, with suit-symmetric
+ranges, the solver stores 71% of the river subtrees on average (100% for the 6,864 rainbow flops with distinct ranks, 61–63% for
+two-tone and paired ones, 29–32% for monotone flops and trips).

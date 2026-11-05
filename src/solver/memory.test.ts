@@ -48,7 +48,7 @@ const IP = "22+, A2s+, K2s+, Q2s+, J5s+, T6s+, 96s+, 85s+, 74s+, 64s+, 53s+, A2o
 const sizes = (bet: number[], raise: number[]): [StreetSizes, StreetSizes] => [{ bet, raise }, { bet, raise }];
 
 describe.skipIf(!gc || !memoryUsage)("estimateMemory matches the measured heap", () => {
-  it("within 10% on river, turn and flop solvers", () => {
+  it("within 10% on river, turn and flop solvers, with and without suit isomorphism", () => {
     const spots: [string, SolverInput][] = [
       // About 500 combos each: storage dominates.
       ["river", { board: parseCards("Ks9h5c3d2s"), ranges: [rangeWeights(OOP), rangeWeights(IP)], pot: 10, stack: 100,
@@ -57,8 +57,13 @@ describe.skipIf(!gc || !memoryUsage)("estimateMemory matches the measured heap",
       // A few combos each on a flop: the tree (300k nodes) and the showdown cache dominate.
       ["flop", { board: parseCards("Ks7d2c"), ranges: [rangeWeights("AA, 76s"), rangeWeights("KQs, QJs, 98s")], pot: 5.5, stack: 20,
         sizes: { flop: [{ bet: [], raise: [0.6] }, { bet: [0.33], raise: [] }], turn: sizes([0.66], []), river: sizes([0.75], []) }, raiseLimit: 1 }],
+      // Suit isomorphism: the solver keeps one subtree per orbit of cards (docs/solver.md "Suit isomorphism").
+      ["two-tone turn", { board: parseCards("Ks9s5d3d"), ranges: [rangeWeights(OOP), rangeWeights(IP)], pot: 20, stack: 80 }],
+      ["monotone flop", { board: parseCards("Ks7s2s"), ranges: [rangeWeights("AA, 76s"), rangeWeights("KQs, QJs, 98s")], pot: 5.5, stack: 20,
+        sizes: { flop: [{ bet: [], raise: [0.6] }, { bet: [0.33], raise: [] }], turn: sizes([0.66], []), river: sizes([0.75], []) }, raiseLimit: 1 }],
     ];
     for (const [name, input] of spots) {
+      if (name.startsWith("two-tone") || name.startsWith("monotone")) expect(new Engine(input).group.length, name).toBeGreaterThan(1);
       const est = estimateMemory(input).bytes;
       const measured = measuredEngineBytes(input);
       expect(est / measured, `${name}: estimate ${est} vs measured ${measured}`).toBeGreaterThan(0.9);

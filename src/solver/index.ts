@@ -1,10 +1,19 @@
 import { exploitability } from "./bestResponse";
 import { Engine } from "./cfr";
 import { SolverSolution } from "./solution";
-import type { IncrementalSolver, Solution, SolveOptions, SolverInput } from "./types";
+import { estimateMemory as estimateSolver } from "./tree";
+import type { IncrementalSolver, MemoryEstimate, Solution, SolveOptions, SolverInput } from "./types";
 
 export * from "./types";
-export { buildTree, estimateMemory } from "./tree";
+export { buildTree } from "./tree";
+
+/**
+ * Node counts and the bytes a solver for this spot will hold, without building it (docs/solver.md "API").
+ * The counts are the game tree's; the bytes account for suit isomorphism when the spot is symmetric.
+ */
+export function estimateMemory(input: SolverInput): MemoryEstimate {
+  return estimateSolver(input);
+}
 
 class Solver implements IncrementalSolver {
   private readonly e: Engine;

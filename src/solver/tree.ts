@@ -1,5 +1,6 @@
 import type { Card } from "../poker/cards";
 import { checkRanges, countHands } from "./hands";
+import { cardOrbits, dealCounts, IDENTITY, stabilizer, symmetryGroup } from "./iso";
 import {
   DEFAULT_SIZES,
   type GameTreeNode,
@@ -226,6 +227,12 @@ function stateKey(st: BetState): string {
  * The descriptors are the nodes of the betting skeleton: the tree built from the rules (legalActions,
  * applyAction) with every chance node collapsed to one child. The packed tree repeats that child for
  * each card that can come.
+ *
+ * With a symmetry group (suit permutations under which the board and both ranges are invariant, see
+ * iso.ts and docs/solver.md "Suit isomorphism") a chance node gets a child only for one card per orbit
+ * of the group that is left on its board (`cards[b]` lists those representatives, `members[b]` the other
+ * cards of each orbit and the permutation that maps the representative to them). buildTree always builds
+ * the full tree (identity group); the solver builds the reduced one.
  */
 export class PackedTree {
   /** Number of nodes. */
@@ -239,7 +246,10 @@ export class PackedTree {
 
   /** Per descriptor: NODE_ACTION, NODE_CHANCE, NODE_FOLD or NODE_SHOWDOWN. */
   readonly dType: Uint8Array;
-  /** Per descriptor: the number of children (actions, or cards that can come; 0 at a terminal). */
+  /**
+   * Per descriptor: the number of children (actions, or cards that can come; 0 at a terminal). A chance node of
+   * a tree with a symmetry group has fewer children (`cards[board]`): use numChildren(id).
+   */
   readonly dNum: Int32Array;
   /** Per descriptor: the player to act (action node) or the player who folded (fold); -1 otherwise. */
   readonly dPlayer: Int8Array;
@@ -257,8 +267,25 @@ export class PackedTree {
 
   /** Board id -> its cards (frozen). Id 0 is the starting board; boards are ordered as dealt. */
   readonly boards: Card[][];
-  /** Board id -> the cards that can come next, ascending (frozen), for the boards of chance nodes. */
+  /**
+   * Board id -> the cards dealt at a chance node on it, ascending (frozen): every card that can come, or with a
+   * symmetry group one representative per orbit (the smallest card of each).
+   */
   readonly cards: (Card[] | undefined)[] = [];
+  /**
+   * The symmetry group of the spot (suit permutation indices, see iso.ts; [IDENTITY] for the full tree), and
+   * per board id the part of it that fixes every card dealt since the start: the permutations under which
+   * the subtrees on that board are symmetric. Identical groups are the same array.
+   */
+  readonly group: readonly number[];
+  readonly boardGroup: (readonly number[])[];
+  /**
+   * Board id -> for a chance node on it with a symmetry group: the cards that get no child of their own. The
+   * orbit of cards[b][k] is that card plus card[start[k]..start[k+1]); perm[j] (a suit permutation of
+   * boardGroup[b]) maps cards[b][k] to card[j], and the subtree under card[j] is the image of the subtree
+   * under cards[b][k] by that permutation. Undefined when every card is its own representative.
+   */
+  readonly members: ({ start: Int32Array; card: Uint8Array; perm: Uint8Array } | undefined)[];
 
   readonly actionCount: number;
   readonly chanceCount: number;
@@ -269,31 +296,37 @@ export class PackedTree {
   readonly maxActions: number;
 
   private readonly boardIds = new Map<number, number>();
+  /** members while the tree is built (made dense at the end, so the solver never reads past its end). */
+  private readonly orbitTables: ({ start: Int32Array; card: Uint8Array; perm: Uint8Array } | undefined)[] = [];
+  /** Subgroups by their elements, so equal groups share one array. */
+  private readonly groups = new Map<string, readonly number[]>();
   // Frozen [b0, b1] arrays per descriptor for the GameNode views, made on first use.
   private readonly betsView: ([number, number] | undefined)[] = [];
   private readonly stacksView: ([number, number] | undefined)[] = [];
   private rootView: GameNode | undefined;
 
-  constructor(cfg: TreeConfig) {
+  /**
+   * `group`: the symmetry group (suit permutation indices including IDENTITY, closed under composition; see
+   * symmetryGroup). The default, the identity alone, builds the full tree.
+   */
+  constructor(cfg: TreeConfig, group: readonly number[] = [IDENTITY]) {
     const sk = new Skeleton(cfg);
     const rootDesc = sk.root();
     const D = sk.type.length;
-    // Nodes under each descriptor, children first (a descriptor's children have larger ids).
-    const under = new Float64Array(D);
-    for (let d = D - 1; d >= 0; d--) {
-      const kids = sk.kids[d];
-      let n = 1;
-      if (sk.type[d] === NODE_CHANCE) n += sk.num[d] * under[kids[0]];
-      else for (const k of kids) n += under[k];
-      under[d] = n;
-    }
-    const N = under[rootDesc];
+    // Every skeleton node is repeated once per deal of the cards that come before it: copies[k] times
+    // for a node with k cards dealt since the start (the same for every betting line).
+    const { copies } = dealCounts(cfg.board, group);
+    const len0 = cfg.board.length;
+    let N = 0;
+    for (let d = 0; d < D; d++) N += copies[sk.boardLen[d] - len0];
     if (N > 2 ** 31 - 1) throw new Error(`the game tree has ${N} nodes, more than this solver can index`);
     this.size = N;
     this.desc = new Int32Array(N);
     this.board = new Uint16Array(N);
     this.child = new Int32Array(N);
     this.boards = [Object.freeze(cfg.board.slice()) as Card[]];
+    this.group = this.shared(group);
+    this.boardGroup = [this.group];
 
     this.dType = Uint8Array.from(sk.type);
     this.dNum = Int32Array.from(sk.num);
@@ -337,17 +370,33 @@ export class PackedTree {
       }
     };
     fill(0, rootDesc, 0);
+    // The ids handed out must be the count above (a typed array would drop writes past its end silently).
+    if (next !== N) throw new Error(`internal: the tree filled ${next} nodes, ${N} expected`);
+    this.members = Array.from({ length: this.boards.length }, (_, b) => this.orbitTables[b]);
     this.actionCount = action;
     this.chanceCount = chance;
     this.terminalCount = terminal;
   }
 
-  /** The cards that can come on board b, ascending. */
+  /** The group with these elements, as the one shared array. */
+  private shared(group: readonly number[]): readonly number[] {
+    const key = group.join();
+    let g = this.groups.get(key);
+    if (!g) {
+      g = Object.freeze(group.slice());
+      this.groups.set(key, g);
+    }
+    return g;
+  }
+
+  /** The cards dealt at a chance node on board b, ascending: all that can come, or one per orbit. */
   private cardsOf(b: number): Card[] {
     let cs = this.cards[b];
     if (!cs) {
-      cs = Object.freeze(remainingCards(this.boards[b])) as Card[];
+      const orbits = cardOrbits(this.boards[b], this.boardGroup[b]);
+      cs = Object.freeze(orbits.reps) as Card[];
       this.cards[b] = cs;
+      if (orbits.card.length > 0) this.orbitTables[b] = { start: orbits.start, card: orbits.card, perm: orbits.perm };
     }
     return cs;
   }
@@ -359,6 +408,8 @@ export class PackedTree {
     if (id === undefined) {
       id = this.boards.length;
       this.boards.push(Object.freeze([...this.boards[b], c]) as Card[]);
+      const g = this.boardGroup[b];
+      this.boardGroup.push(g.length === 1 ? g : this.shared(stabilizer(g, c)));
       this.boardIds.set(key, id);
     }
     return id;
@@ -369,9 +420,10 @@ export class PackedTree {
     return this.dType[this.desc[id]];
   }
 
-  /** Number of children of a node. */
+  /** Number of children of a node (at a chance node: the cards in cards[board[id]]). */
   numChildren(id: number): number {
-    return this.dNum[this.desc[id]];
+    const d = this.desc[id];
+    return this.dType[d] === NODE_CHANCE ? this.cards[this.board[id]]!.length : this.dNum[d];
   }
 
   /** The acting player at an action node (the folder at a fold terminal). */
@@ -421,6 +473,8 @@ class Skeleton {
   bets: number[] = [];
   stacks: number[] = [];
   invested: number[] = [];
+  /** Board length (3, 4 or 5) at the node: the cards dealt since the start are boardLen - the starting board's. */
+  boardLen: number[] = [];
   actions: (SolverAction[] | undefined)[] = [];
   /** Skeleton children: one per action; a chance node's single child stands for every card. */
   kids: number[][] = [];
@@ -431,10 +485,11 @@ class Skeleton {
 
   constructor(private cfg: TreeConfig) {}
 
-  private add(type: number, pot: number, bets: readonly number[], stacks: readonly number[], player: number, invested: number, depth: number): number {
+  private add(type: number, len: number, pot: number, bets: readonly number[], stacks: readonly number[], player: number, invested: number, depth: number): number {
     if (depth > this.maxDepth) this.maxDepth = depth;
     const d = this.type.length;
     this.type.push(type);
+    this.boardLen.push(len);
     this.num.push(0);
     this.player.push(player);
     this.pot.push(pot);
@@ -466,7 +521,7 @@ class Skeleton {
 
   private action(st: BetState, depth: number): number {
     const acts = this.actionsFor(st);
-    const d = this.add(NODE_ACTION, st.pot, st.bets, st.stacks, st.player, 0, depth);
+    const d = this.add(NODE_ACTION, st.board.length, st.pot, st.bets, st.stacks, st.player, 0, depth);
     this.actions[d] = acts;
     this.num[d] = acts.length;
     this.maxActions = Math.max(this.maxActions, acts.length);
@@ -483,16 +538,16 @@ class Skeleton {
 
   private fold(st: BetState, folder: Player, depth: number): number {
     // The folder loses what they put in; the winner nets the starting pot plus that.
-    return this.add(NODE_FOLD, st.pot, st.bets, st.stacks, folder, this.cfg.stack0 - st.stacks[folder], depth);
+    return this.add(NODE_FOLD, st.board.length, st.pot, st.bets, st.stacks, folder, this.cfg.stack0 - st.stacks[folder], depth);
   }
 
   private showdown(pot: number, bets: readonly number[], stacks: readonly number[], depth: number): number {
-    return this.add(NODE_SHOWDOWN, pot, bets, stacks, -1, this.cfg.stack0 - stacks[0], depth);
+    return this.add(NODE_SHOWDOWN, 5, pot, bets, stacks, -1, this.cfg.stack0 - stacks[0], depth);
   }
 
   /** A chance node on a board of `len` cards; `child` builds the subtree that follows any card. */
   private chance(len: number, pot: number, bets: readonly number[], stacks: readonly number[], depth: number, child: () => number): number {
-    const d = this.add(NODE_CHANCE, pot, bets, stacks, -1, 0, depth);
+    const d = this.add(NODE_CHANCE, len, pot, bets, stacks, -1, 0, depth);
     this.num[d] = 52 - len;
     this.kids[d] = [child()];
     return d;
@@ -599,9 +654,12 @@ export function remainingCards(board: readonly Card[]): Card[] {
   return out;
 }
 
-/** Build the packed tree the solver uses (`cfg`: the input's treeConfig, if already made). */
-export function buildGameTree(input: SolverInput, cfg: TreeConfig = treeConfig(input)): PackedTree {
-  return new PackedTree(cfg);
+/**
+ * Build the packed tree the solver uses (`cfg`: the input's treeConfig, if already made; `group`: the spot's
+ * symmetry group, by default none, which gives the full tree).
+ */
+export function buildGameTree(input: SolverInput, cfg: TreeConfig = treeConfig(input), group: readonly number[] = [IDENTITY]): PackedTree {
+  return new PackedTree(cfg, group);
 }
 
 /**
@@ -616,12 +674,13 @@ export function buildTree(input: SolverInput): GameNode {
 // ---------------------------------------------------------------------------------------------
 // Counting without building (estimateMemory)
 
+/** Skeleton counts, per number of cards dealt since the start (index 0..2). */
 interface Counts {
-  action: number;
-  chance: number;
-  terminal: number;
-  /** Σ over each player's action nodes of the number of actions. */
-  slots: [number, number];
+  action: number[];
+  chance: number[];
+  terminal: number[];
+  /** Σ over each player's action nodes of the number of actions: slots[k][player]. */
+  slots: [number, number][];
   /** Skeleton nodes (PackedTree descriptors). */
   desc: number;
   /** Distinct action lists (betting states, by stateKey), and their actions. */
@@ -632,63 +691,58 @@ interface Counts {
 }
 
 /**
- * Count the tree under a betting state. The subtree under a chance node has the same shape for every
- * card, so we count one child and multiply by the number of cards (`mult` = how many copies). Each call
- * visits one node of the betting skeleton, which becomes one PackedTree descriptor.
+ * Count the betting skeleton under a betting state, by the number of cards dealt (`k`). The subtree under a
+ * chance node has the same shape for every card, so each skeleton node is counted once here and multiplied
+ * later by the number of deals that lead to it (dealCounts). Each call visits one node of the skeleton,
+ * which becomes one PackedTree descriptor.
  */
-function countAction(cfg: TreeConfig, st: BetState, depth: number, mult: number, c: Counts): void {
+function countAction(cfg: TreeConfig, st: BetState, depth: number, k: number, c: Counts): void {
   c.maxDepth = Math.max(c.maxDepth, depth);
   const acts = legalActions(cfg, st);
-  c.action += mult;
+  c.action[k]++;
   c.desc++;
   const key = stateKey(st);
   if (!c.lists.has(key)) {
     c.lists.add(key);
     c.listActions += acts.length;
   }
-  c.slots[st.player] += mult * acts.length;
+  c.slots[k][st.player] += acts.length;
   c.maxActions = Math.max(c.maxActions, acts.length);
   for (const a of acts) {
     const next = applyAction(st, a);
     if (next.type === "fold") {
-      c.terminal += mult;
+      c.terminal[k]++;
       c.desc++;
       c.maxDepth = Math.max(c.maxDepth, depth + 1);
-    } else if (next.type === "act") countAction(cfg, next.state, depth + 1, mult, c);
-    else countStreetEnd(cfg, next.state, depth + 1, mult, c);
+    } else if (next.type === "act") countAction(cfg, next.state, depth + 1, k, c);
+    else countStreetEnd(cfg, next.state, depth + 1, k, c);
   }
 }
 
-function countRunout(boardLen: number, depth: number, mult: number, c: Counts): void {
+function countRunout(boardLen: number, depth: number, k: number, c: Counts): void {
   c.maxDepth = Math.max(c.maxDepth, depth);
   c.desc++;
   if (boardLen === 5) {
-    c.terminal += mult;
+    c.terminal[k]++;
     return;
   }
-  c.chance += mult;
-  countRunout(boardLen + 1, depth + 1, mult * (52 - boardLen), c);
+  c.chance[k]++;
+  countRunout(boardLen + 1, depth + 1, k + 1, c);
 }
 
-function countStreetEnd(cfg: TreeConfig, st: BetState, depth: number, mult: number, c: Counts): void {
+function countStreetEnd(cfg: TreeConfig, st: BetState, depth: number, k: number, c: Counts): void {
   const len = st.board.length;
-  if (st.stacks[0] === 0 && st.stacks[1] === 0) return countRunout(len, depth, mult, c);
+  if (st.stacks[0] === 0 && st.stacks[1] === 0) return countRunout(len, depth, k, c);
   c.maxDepth = Math.max(c.maxDepth, depth);
   c.desc++;
   if (len === 5) {
-    c.terminal += mult;
+    c.terminal[k]++;
     return;
   }
-  c.chance += mult;
+  c.chance[k]++;
   // The next street's state doesn't depend on which card came; a placeholder board of the right length will do.
   const board = [...st.board, -1];
-  countAction(
-    cfg,
-    { street: st.street + 1, board, pot: st.pot, bets: [0, 0], stacks: st.stacks, player: 0, n: 0, inc: 0 },
-    depth + 1,
-    mult * (52 - len),
-    c,
-  );
+  countAction(cfg, { street: st.street + 1, board, pot: st.pot, bets: [0, 0], stacks: st.stacks, player: 0, n: 0, inc: 0 }, depth + 1, k + 1, c);
 }
 
 /**
@@ -702,7 +756,9 @@ function countStreetEnd(cfg: TreeConfig, st: BetState, depth: number, mult: numb
  *   per action a frozen object, its label and its amount;
  * - per river board of the showdown cache: 14 bytes per hand that doesn't touch it (order, strength,
  *   same: Int32; two cards: Uint8) and 4 per hand that does (about 8% on a flop), and the RiverBoard
- *   object with its 12 typed arrays.
+ *   object with its 12 typed arrays;
+ * - with a symmetry group: per element, a hand permutation per player (Int32 per hand), and per board of the
+ *   tree its card lists and orbit tables (BOARD_BYTES; a small share of a flop).
  */
 const NODE_BYTES = 10 + 12;
 const ACTION_NODE_BYTES = 4;
@@ -711,41 +767,64 @@ const LIST_BYTES = 48;
 const LIST_ACTION_BYTES = 104;
 const RIVER_HAND_BYTES = 13;
 const RIVER_BOARD_BYTES = 2700;
+const BOARD_BYTES = 200;
+
+/**
+ * Whether the solver will use suit isomorphism, and with which group, for an input whose ranges are
+ * checked. `isomorphism: false` (tests) turns it off: the group is then the identity alone.
+ */
+export function solverGroup(board: readonly Card[], ranges: SolverInput["ranges"], isomorphism = true): readonly number[] {
+  return isomorphism ? symmetryGroup(board, ranges) : [IDENTITY];
+}
 
 /**
  * Node counts and a byte estimate for solving this spot, without allocating any per-hand arrays.
  * Bytes = regret + strategy-sum storage (2 × 4 bytes per action per hand of the acting player)
  * + the packed tree and per-node solver arrays + the showdown strength cache + per-depth scratch + hand lists.
+ * The node counts are those of the game tree (as buildTree builds it); the bytes are for the tree the solver
+ * really builds, which with suit isomorphism holds one subtree per orbit of cards at each chance node.
  *
  * It checks the inputs like createSolver, except that the ranges give a game (a hand off the board for each
  * player, a compatible pair): with empty ranges it sizes the tree alone, which is how the tests count nodes.
  * createSolver rejects those ranges before it builds anything, so gating on this estimate costs nothing.
+ * `opts.isomorphism: false` sizes a solver built with isomorphism off (tests).
  */
-export function estimateMemory(input: SolverInput): MemoryEstimate {
+export function estimateMemory(input: SolverInput, opts: { isomorphism?: boolean } = {}): MemoryEstimate {
   const cfg = treeConfig(input);
   checkRanges(input.ranges);
-  const c: Counts = { action: 0, chance: 0, terminal: 0, slots: [0, 0], desc: 0, lists: new Set(), listActions: 0, maxDepth: 0, maxActions: 1 };
+  const c: Counts = {
+    action: [0, 0, 0], chance: [0, 0, 0], terminal: [0, 0, 0], slots: [[0, 0], [0, 0], [0, 0]],
+    desc: 0, lists: new Set(), listActions: 0, maxDepth: 0, maxActions: 1,
+  };
   const len = cfg.board.length;
-  if (cfg.stack0 <= 0) countRunout(len, 0, 1, c);
+  if (cfg.stack0 <= 0) countRunout(len, 0, 0, c);
   else
-    countAction(cfg, { street: len - 3, board: cfg.board, pot: cfg.pot0, bets: [0, 0], stacks: [cfg.stack0, cfg.stack0], player: 0, n: 0, inc: 0 }, 0, 1, c);
+    countAction(cfg, { street: len - 3, board: cfg.board, pot: cfg.pot0, bets: [0, 0], stacks: [cfg.stack0, cfg.stack0], player: 0, n: 0, inc: 0 }, 0, 0, c);
 
+  // The game tree's counts (every card), and the copies the solver holds (one card per orbit).
+  const full = dealCounts(cfg.board, [IDENTITY]).copies;
+  const group = solverGroup(cfg.board, input.ranges, opts.isomorphism ?? true);
+  const iso = dealCounts(cfg.board, group);
+  const times = (xs: number[], m: number[]) => xs.reduce((s, x, k) => s + x * m[k], 0);
   const n0 = countHands(cfg.board, input.ranges[0]);
   const n1 = countHands(cfg.board, input.ranges[1]);
   const nMax = Math.max(n0, n1, 1);
-  const storage = 8 * (c.slots[0] * n0 + c.slots[1] * n1);
-  const nodes = c.action + c.chance + c.terminal;
+  const m = iso.copies;
+  const storage = 8 * (times(c.slots.map((s) => s[0]), m) * n0 + times(c.slots.map((s) => s[1]), m) * n1);
+  const action = times(c.action, m);
+  const nodes = action + times(c.chance, m) + times(c.terminal, m);
   const tree =
-    nodes * NODE_BYTES + c.action * ACTION_NODE_BYTES + c.desc * DESC_BYTES + c.lists.size * LIST_BYTES + c.listActions * LIST_ACTION_BYTES;
-  // One strength order per distinct river board: 1 (river), 48 (turn), C(49, 2) (flop).
-  const riverBoards = len === 5 ? 1 : len === 4 ? 48 : 1176;
-  const cache = riverBoards * ((n0 + n1) * RIVER_HAND_BYTES + RIVER_BOARD_BYTES);
+    nodes * NODE_BYTES + action * ACTION_NODE_BYTES + c.desc * DESC_BYTES + c.lists.size * LIST_BYTES + c.listActions * LIST_ACTION_BYTES;
+  // One strength order per distinct river board the tree reaches: 1 (river), 48 (turn), C(49, 2) (flop)
+  // without isomorphism.
+  const cache = iso.riverBoards * ((n0 + n1) * RIVER_HAND_BYTES + RIVER_BOARD_BYTES);
   const scratch = (c.maxDepth + 2) * (4 + 2 * c.maxActions) * nMax * 8;
   const hands = (n0 + n1) * 64 + 2 * 1326 * 4;
+  const symmetry = group.length > 1 ? (group.length - 1) * (n0 + n1) * 4 + (m[1] + m[2]) * BOARD_BYTES : 0;
   return {
-    bytes: Math.round(storage + tree + cache + scratch + hands),
-    actionNodes: c.action,
-    chanceNodes: c.chance,
-    terminalNodes: c.terminal,
+    bytes: Math.round(storage + tree + cache + scratch + hands + symmetry),
+    actionNodes: times(c.action, full),
+    chanceNodes: times(c.chance, full),
+    terminalNodes: times(c.terminal, full),
   };
 }

@@ -1,6 +1,7 @@
 import { buildHands, pairWeight, type HandList } from "./hands";
+import { comboOf, PERM_INV, permCard } from "./iso";
 import { foldValues, RiverCache, showdownValues, type RiverBoard } from "./showdown";
-import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, NODE_SHOWDOWN, treeConfig, type PackedTree } from "./tree";
+import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, NODE_SHOWDOWN, solverGroup, treeConfig, type PackedTree } from "./tree";
 import type { SolverInput } from "./types";
 
 /** Traversal modes of Engine.walk. */
@@ -64,6 +65,21 @@ export function averageStrategy(S: Float32Array, off: number, A: number, n: numb
 }
 
 /**
+ * The hands of one player whose strategy is read from another hand at a node with a symmetry group: hand
+ * dst[j] plays exactly like src[j], the canonical (lowest-index) hand of its orbit under the group.
+ */
+export interface Canon {
+  dst: Int32Array;
+  src: Int32Array;
+}
+
+/** Copy each canonical hand's probabilities to the other hands of its orbit, in sig[s..s+n). */
+function canonRow(sig: Float64Array, s: number, c: Canon): void {
+  const dst = c.dst, src = c.src;
+  for (let j = 0; j < dst.length; j++) sig[s + dst[j]] = sig[s + src[j]];
+}
+
+/**
  * The solver state: tree, hand lists, per-node storage and scratch buffers, plus the one
  * vectorized traversal used for DCFR updates, best responses and evaluation.
  *
@@ -74,6 +90,13 @@ export function averageStrategy(S: Float32Array, off: number, A: number, n: numb
  * next updated, with the product of the factors of every iteration since its last update. Scaling
  * all of a node's strategy sums (or all positive regrets) by one factor doesn't change the normalized
  * strategy, so reads in between see the right strategy.
+ *
+ * Suit isomorphism (docs/solver.md "Suit isomorphism"): when suit permutations leave the board and both
+ * ranges unchanged (`group`), the tree holds one subtree per orbit of cards at each chance node, and the
+ * chance node adds each other card's value as the representative's value with the hands permuted. That is
+ * exact when every reach is symmetric, so every strategy read (current or average) at a node whose board
+ * has a nontrivial group gives each hand the probabilities of the canonical hand of its orbit (`canon`).
+ * The reaches are then symmetric bit for bit, whatever rounding the regrets picked up.
  */
 export class Engine {
   readonly tree: PackedTree;
@@ -103,6 +126,17 @@ export class Engine {
   readonly riverCache: RiverCache;
   /** Per board id of the tree: its cached strength order, for the river boards that have showdowns. */
   private readonly riverOf: (RiverBoard | undefined)[] = [];
+  /** The suit permutations the spot is symmetric under (iso.ts; [IDENTITY] alone: no isomorphism). */
+  readonly group: readonly number[];
+  /**
+   * handPerm[p][g][h]: the index in p's hand list of the image of hand h under suit permutation g, for every g
+   * of `group` (other entries undefined). The lists are closed under the group: that is what symmetric means.
+   */
+  readonly handPerm: [(Int32Array | undefined)[], (Int32Array | undefined)[]] = [[], []];
+  /** gather[p][g] = handPerm[p][g⁻¹]: the hand of the representative's subtree whose value hand h takes. */
+  private readonly gather: [(Int32Array | undefined)[], (Int32Array | undefined)[]] = [[], []];
+  /** canon[p][board id]: how player p's strategy reads are made symmetric on that board; undefined if not needed. */
+  readonly canon: [(Canon | undefined)[], (Canon | undefined)[]] = [[], []];
   /** Iterations done. */
   t = 0;
   /**
@@ -134,7 +168,8 @@ export class Engine {
   private nf = 1;
   private sf = 1;
 
-  constructor(input: SolverInput) {
+  /** `opts.isomorphism: false` turns suit isomorphism off (tests compare the two). */
+  constructor(input: SolverInput, opts: { isomorphism?: boolean } = {}) {
     // Check every input before building the (possibly big) tree, so a bad one fails fast. That includes
     // the ranges giving a game at all: the hand lists are small (a few KB), so they come first too.
     const cfg = treeConfig(input);
@@ -144,8 +179,10 @@ export class Engine {
     if (!(this.pairTotal > 0)) throw new Error("the ranges have no compatible combos");
     this.w = [Float64Array.from(this.hands[0].weight), Float64Array.from(this.hands[1].weight)];
     this.pot0 = input.pot;
-    const tree = buildGameTree(input, cfg);
+    this.group = solverGroup(cfg.board, input.ranges, opts.isomorphism ?? true);
+    const tree = buildGameTree(input, cfg, this.group);
     this.tree = tree;
+    this.setupSymmetry();
     this.chanceCount = tree.chanceCount;
     this.terminalCount = tree.terminalCount;
     this.nDesc = tree.desc;
@@ -197,6 +234,64 @@ export class Engine {
       this.valBuf.push(vals);
     }
     this.out = new Float64Array(nMax);
+  }
+
+  /**
+   * Hand permutations for the group, and per board of the tree the canonical-hand tables of its group (the
+   * permutations that fix every card dealt since the start), shared by boards with the same group.
+   */
+  private setupSymmetry(): void {
+    // One entry per board even without symmetry, so the hot loops never read past an array's end.
+    const boards = this.tree.boards.length;
+    for (const p of [0, 1] as const) this.canon[p] = new Array<Canon | undefined>(boards).fill(undefined);
+    if (this.group.length === 1) return;
+    for (const p of [0, 1] as const) {
+      const hl = this.hands[p];
+      for (const g of this.group) {
+        const m = new Int32Array(hl.n);
+        for (let h = 0; h < hl.n; h++) {
+          const i = hl.indexOfCombo[comboOf(permCard(g, hl.c1[h]), permCard(g, hl.c2[h]))];
+          if (i < 0) throw new Error("internal: the hand list is not closed under the symmetry group");
+          m[h] = i;
+        }
+        this.handPerm[p][g] = m;
+      }
+      for (const g of this.group) this.gather[p][g] = this.handPerm[p][PERM_INV[g]];
+      const byGroup = new Map<readonly number[], Canon | undefined>();
+      const boardGroup = this.tree.boardGroup;
+      for (let b = 0; b < boardGroup.length; b++) {
+        const H = boardGroup[b];
+        if (!byGroup.has(H)) {
+          let c: Canon | undefined;
+          if (H.length > 1) {
+            const dst: number[] = [], src: number[] = [];
+            for (let h = 0; h < hl.n; h++) {
+              let m = h;
+              for (const g of H) m = Math.min(m, this.handPerm[p][g]![h]);
+              if (m !== h) {
+                dst.push(h);
+                src.push(m);
+              }
+            }
+            if (dst.length > 0) c = { dst: Int32Array.from(dst), src: Int32Array.from(src) };
+          }
+          byGroup.set(H, c);
+        }
+        this.canon[p][b] = byGroup.get(H);
+      }
+    }
+  }
+
+  /**
+   * The average strategy at an action node, sig[a × n + h], made symmetric like every strategy read (the
+   * canonical hand's probabilities for each hand of an orbit). `inv` is scratch.
+   */
+  averageStrategyAt(node: number, sig: Float64Array, inv: Float64Array): void {
+    const q = this.dPlayer[this.nDesc[node]];
+    const n = this.hands[q].n, A = this.dNum[this.nDesc[node]];
+    averageStrategy(this.stratSum, this.off[node], A, n, sig, inv);
+    const c = this.canon[q][this.nBoard[node]];
+    if (c) for (let a = 0; a < A; a++) canonRow(sig, a * n, c);
   }
 
   /** The player to act at an action node. */
@@ -293,14 +388,25 @@ export class Engine {
     // Current strategy by regret matching, computed action by action together with the child reach.
     positiveRegretInv(R, off, A, n, inv);
     const u = 1 / A;
+    const canon = this.canon[p][this.nBoard[node]];
     for (let a = 0; a < A; a++) {
       const s = a * n, b = off + s;
-      for (let h = 0; h < n; h++) {
-        const k = inv[h];
-        const r = R[b + h];
-        const x = k === 0 ? u : r > 0 ? r * k : 0;
-        sig[s + h] = x;
-        crs[h] = rs[h] * x;
+      if (canon === undefined) {
+        for (let h = 0; h < n; h++) {
+          const k = inv[h];
+          const r = R[b + h];
+          const x = k === 0 ? u : r > 0 ? r * k : 0;
+          sig[s + h] = x;
+          crs[h] = rs[h] * x;
+        }
+      } else {
+        for (let h = 0; h < n; h++) {
+          const k = inv[h];
+          const r = R[b + h];
+          sig[s + h] = k === 0 ? u : r > 0 ? r * k : 0;
+        }
+        canonRow(sig, s, canon);
+        for (let h = 0; h < n; h++) crs[h] = rs[h] * sig[s + h];
       }
       this.walk(first + a, p, MODE_CFR, crs, ro, vals[a], d + 1);
     }
@@ -346,7 +452,7 @@ export class Engine {
     const n = this.hands[p].n;
     const sig = this.sigBuf[d];
     const tmp = this.tmpBuf[d];
-    averageStrategy(this.stratSum, this.off[node], A, n, sig, this.invBuf[d]);
+    this.averageStrategyAt(node, sig, this.invBuf[d]);
     for (let h = 0; h < n; h++) out[h] = 0;
     for (let a = 0; a < A; a++) {
       this.walk(first + a, p, MODE_AVG, rs, ro, tmp, d + 1);
@@ -369,7 +475,14 @@ export class Engine {
     const cfr = mode === MODE_CFR;
     const store = cfr ? this.regret : this.stratSum;
     const off = this.off[node];
-    if (cfr) positiveRegretInv(store, off, A, nO, inv);
+    const canon = this.canon[1 - p][this.nBoard[node]];
+    // With a symmetry group on this board, the whole strategy first, made symmetric (see the class comment).
+    const sig = this.sigBuf[d];
+    if (canon !== undefined) {
+      if (cfr) regretMatch(store, off, A, nO, sig, inv);
+      else averageStrategy(store, off, A, nO, sig, inv);
+      for (let a = 0; a < A; a++) canonRow(sig, a * nO, canon);
+    } else if (cfr) positiveRegretInv(store, off, A, nO, inv);
     else strategySumInv(store, off, A, nO, inv);
     const u = 1 / A;
     const cro = this.roBuf[d];
@@ -378,7 +491,14 @@ export class Engine {
     for (let a = 0; a < A; a++) {
       const b = off + a * nO;
       let sum = 0;
-      if (cfr) {
+      if (canon !== undefined) {
+        const s = a * nO;
+        for (let o = 0; o < nO; o++) {
+          const v = ro[o] * sig[s + o];
+          cro[o] = v;
+          sum += v;
+        }
+      } else if (cfr) {
         for (let o = 0; o < nO; o++) {
           const k = inv[o];
           const r = store[b + o];
@@ -415,12 +535,19 @@ export class Engine {
    * 1 / (52 - |board| - 4) (the card's probability given both hands), and add the child's value with
    * p's hands holding the card zeroed. Cards the opponent can't have reach for are handled like
    * unreached actions in opponentNode.
+   *
+   * With suit isomorphism only one card per orbit has a subtree. The subtree under another card c' = g(c) of
+   * the orbit is the image of c's under g, and the reaches here are symmetric under g, so hand h's value
+   * under c' is the value of hand g⁻¹(h) under c: each other card adds the representative's values gathered
+   * through g⁻¹ (hands holding c' map to hands holding c, whose values are already zeroed).
    */
   private chanceNode(node: number, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
     const me = this.hands[p], opp = this.hands[1 - p];
     const nP = me.n, nO = opp.n;
     const b = this.nBoard[node];
     const cards = this.tree.cards[b]!;
+    const members = this.tree.members[b];
+    const gather = this.gather[p];
     const first = this.nChild[node];
     const scale = 1 / (52 - this.tree.boards[b].length - 4);
     const crs = this.rsBuf[d], cro = this.roBuf[d], tmp = this.tmpBuf[d];
@@ -451,6 +578,12 @@ export class Engine {
       this.walk(first + k, p, mode, childRs, cro, tmp, d + 1);
       for (let j = 0; j < mc.length; j++) tmp[mc[j]] = 0;
       for (let h = 0; h < nP; h++) out[h] += tmp[h];
+      if (members !== undefined) {
+        for (let j = members.start[k], end = members.start[k + 1]; j < end; j++) {
+          const m = gather[members.perm[j]]!;
+          for (let h = 0; h < nP; h++) out[h] += tmp[m[h]];
+        }
+      }
     }
   }
 
@@ -474,6 +607,29 @@ export class Engine {
       const off = this.off[node];
       const R = this.regret, S = this.stratSum;
       const inv = this.invBuf[d], crs = this.rsBuf[d];
+      const canon = this.canon[p][this.nBoard[node]];
+      if (canon !== undefined) {
+        // The symmetric strategy first (see the class comment), then the same updates.
+        const sig = this.sigBuf[d];
+        regretMatch(R, off, A, n, sig, inv);
+        for (let a = 0; a < A; a++) canonRow(sig, a * n, canon);
+        this.discount(node);
+        const hs = (this.pf + this.nf) / 2, hd = (this.pf - this.nf) / 2, sf = this.sf;
+        for (let a = 0; a < A; a++) {
+          const b = off + a * n, s = a * n;
+          let sum = 0;
+          for (let h = 0; h < n; h++) {
+            const r = R[b + h];
+            const x = rs[h] * sig[s + h];
+            crs[h] = x;
+            sum += x;
+            R[b + h] = r * hs + Math.abs(r) * hd;
+            S[b + h] = S[b + h] * sf + x;
+          }
+          if (sum > 0) this.sumOnly(first + a, p, crs, d + 1);
+        }
+        return;
+      }
       positiveRegretInv(R, off, A, n, inv);
       this.discount(node);
       const hs = (this.pf + this.nf) / 2, hd = (this.pf - this.nf) / 2, sf = this.sf;

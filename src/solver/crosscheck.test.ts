@@ -368,22 +368,116 @@ function randomRanges(r: Rand, board: Card[], n0: number, n1: number): [Float64A
   return [w0, w1];
 }
 
+// Spots with suit symmetry (docs/solver.md "Suit isomorphism"): the board and both ranges are unchanged by
+// some permutation of the suits, so the core solves one subtree per orbit of cards at its chance nodes and
+// reads its strategies symmetrically, while the oracle walks every card. The permutations are written here
+// from the spec (suit = card % 4), not taken from the core.
+
+/** The 24 permutations of the four suits: perm[s] is the image of suit s. */
+const SUIT_PERMUTATIONS: number[][] = (() => {
+  const out: number[][] = [];
+  const rec = (a: number[]) => {
+    if (a.length === 4) out.push(a.slice());
+    else for (let s = 0; s < 4; s++) if (!a.includes(s)) rec([...a, s]);
+  };
+  rec([]);
+  return out;
+})();
+const mapSuits = (perm: number[], c: Card): Card => c - (c % 4) + perm[c % 4];
+const comboByCards = new Map<number, number>();
+COMBOS.forEach((c, i) => {
+  comboByCards.set(c.cards[0] * 52 + c.cards[1], i);
+  comboByCards.set(c.cards[1] * 52 + c.cards[0], i);
+});
+
+/**
+ * A random board that some suit permutation (other than the identity) maps onto itself. `monotone`: all of
+ * one suit, so the other three suits can be permuted in all 6 ways, three-cycles included (a suit swap is
+ * its own inverse, so only a three-cycle tells a permutation from its inverse).
+ */
+function symmetricBoard(r: Rand, len: number, monotone = false): Card[] {
+  if (monotone) {
+    const suit = randInt(r, 0, 3);
+    const ranks = Array.from({ length: 13 }, (_, i) => i);
+    for (let i = 0; i < len; i++) {
+      const j = i + Math.floor(r() * (13 - i));
+      [ranks[i], ranks[j]] = [ranks[j], ranks[i]];
+    }
+    return ranks.slice(0, len).map((rank) => rank * 4 + suit);
+  }
+  for (;;) {
+    const board = randomBoard(r, len);
+    if (SUIT_PERMUTATIONS.filter((p) => board.every((c) => board.includes(mapSuits(p, c)))).length > 1) return board;
+  }
+}
+
+/**
+ * Random ranges that every permutation of a group fixing the board leaves unchanged: weights are drawn per
+ * orbit of combos. The group is all the board's symmetries, or (unless `full`) sometimes a two-element part
+ * of them, so the core also meets ranges that use only some of the board's symmetry. Like randomRanges,
+ * some of IP's combos are also OOP's, and each range gets a combo on the board, which both ignore.
+ */
+function symmetricRanges(r: Rand, board: Card[], n0: number, n1: number, full = false): [Float64Array, Float64Array] {
+  let group = SUIT_PERMUTATIONS.filter((p) => board.every((c) => board.includes(mapSuits(p, c))));
+  const swaps = group.filter((p) => p.some((x, s) => x !== s) && p.every((x, s) => p[x] === s));
+  if (!full && group.length > 2 && swaps.length > 0 && r() < 0.5) group = [[0, 1, 2, 3], pick(r, swaps)];
+  const live: number[] = [];
+  const dead: number[] = [];
+  COMBOS.forEach((c, i) => (board.includes(c.cards[0]) || board.includes(c.cards[1]) ? dead : live).push(i));
+  const orbit = (i: number) => [...new Set(group.map((p) => comboByCards.get(mapSuits(p, COMBOS[i].cards[0]) * 52 + mapSuits(p, COMBOS[i].cards[1]))!))];
+  const weight = () => (r() < 0.2 ? 1 : 1 - r());
+  const fill = (w: Float64Array, n: number, from: () => number): number[] => {
+    const chosen: number[] = [];
+    while (chosen.length < n) {
+      const i = from();
+      if (w[i] !== 0) continue;
+      const x = weight();
+      for (const j of orbit(i)) {
+        w[j] = x;
+        chosen.push(j);
+      }
+    }
+    return chosen;
+  };
+  const w0 = new Float64Array(1326);
+  const w1 = new Float64Array(1326);
+  const chosen0 = fill(w0, n0, () => pick(r, live));
+  fill(w1, n1, () => (r() < 0.25 ? pick(r, chosen0) : pick(r, live)));
+  w0[pick(r, dead)] = weight();
+  w1[pick(r, dead)] = weight();
+  return [w0, w1];
+}
+
+/**
+ * The core really takes its symmetric code paths on this spot: a nontrivial symmetry group and, when the
+ * spot has chance nodes, at least one of them dealing fewer subtrees than cards.
+ */
+function expectSymmetric(label: string, input: SolverInput): void {
+  const e = new Engine(input);
+  expect(e.group.length, `${label}: symmetry group`).toBeGreaterThan(1);
+  if (input.board.length < 5) expect(e.tree.members.some((m) => m !== undefined), `${label}: a chance node with orbits`).toBe(true);
+}
+
 interface SpotOptions {
   street: "river" | "turn";
   minCombos: number;
   maxCombos: number;
   /** Largest tree (action + chance + terminal nodes) to accept. */
   maxNodes: number;
+  /** A board and ranges with suit symmetry (symmetricBoard, symmetricRanges); "monotone": a one-suit board, full group. */
+  symmetric?: boolean | "monotone";
 }
 
 /** A random small spot; menus are redrawn until the tree fits `maxNodes`. */
 function randomSpot(seed: number, o: SpotOptions): SolverInput {
   const r = rng(seed);
-  const board = randomBoard(r, o.street === "river" ? 5 : 4);
+  const len = o.street === "river" ? 5 : 4;
+  const mono = o.symmetric === "monotone";
+  const board = o.symmetric ? symmetricBoard(r, len, mono) : randomBoard(r, len);
   const pot = r() < 0.7 ? randInt(r, 2, 20) : 2 + r() * 18;
   const n0 = randInt(r, o.minCombos, o.maxCombos);
   const n1 = randInt(r, o.minCombos, o.maxCombos);
-  const ranges = randomRanges(r, board, n0, n1);
+  const ranges = o.symmetric ? symmetricRanges(r, board, n0, n1, mono) : randomRanges(r, board, n0, n1);
   for (let attempt = 0; attempt < 500; attempt++) {
     // After a few misses, fall back to one bet size and no raises.
     const narrow = attempt >= 20;
@@ -490,23 +584,25 @@ const engineNumbers = (e: Engine) => ({ exploitability: exploitability(e), br0: 
 
 // The spots for sections 2 and 4. Turn trees are kept small because the oracle walks the whole
 // tree once per hand and per opponent hand.
-const riverSpot = (seed: number) =>
-  randomSpot(seed, { street: "river", minCombos: 5, maxCombos: 40, maxNodes: HEAVY ? 400 : 150 });
-const turnSpot = (seed: number) =>
-  randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 40 : 25, maxNodes: HEAVY ? 5000 : 1500 });
+const riverSpot = (seed: number, symmetric: SpotOptions["symmetric"] = false) =>
+  randomSpot(seed, { street: "river", minCombos: 5, maxCombos: 40, maxNodes: HEAVY ? 400 : 150, symmetric });
+const turnSpot = (seed: number, symmetric: SpotOptions["symmetric"] = false) =>
+  randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 40 : 25, maxNodes: HEAVY ? 5000 : 1500, symmetric });
 
 /**
  * A flop spot small enough for the oracle: short stacks and no bet sizes, so each street is check or
  * all-in (49 turn cards, 48 river cards, two-card runouts after a flop all-in).
  */
-function flopSpot(seed: number): SolverInput {
+function flopSpot(seed: number, symmetric: SpotOptions["symmetric"] = false): SolverInput {
   const r = rng(seed);
-  const board = randomBoard(r, 3);
+  const mono = symmetric === "monotone";
+  const board = symmetric ? symmetricBoard(r, 3, mono) : randomBoard(r, 3);
   const pot = randInt(r, 4, 20);
   const none: [StreetSizes, StreetSizes] = [{ bet: [], raise: [] }, { bet: [], raise: [] }];
+  const [n0, n1] = [randInt(r, 3, 6), randInt(r, 3, 6)];
   return {
     board,
-    ranges: randomRanges(r, board, randInt(r, 3, 6), randInt(r, 3, 6)),
+    ranges: symmetric ? symmetricRanges(r, board, n0, n1, mono) : randomRanges(r, board, n0, n1),
     pot,
     stack: pot * pick(r, [0.25, 0.5, 1]),
     sizes: { flop: none, turn: none, river: none },
@@ -517,10 +613,19 @@ describe("cross-check: exploitability of the core's strategy", () => {
   const seeds = (base: number, n: number) => Array.from({ length: n }, (_, i) => base + i);
 
   it("matches the oracle's best response after 1, 2 and a modest number of iterations", () => {
+    const symmetric = [
+      ...seeds(1500, HEAVY ? 30 : 3).map((s) => ({ seed: s, input: riverSpot(s, true) })),
+      ...seeds(2300, HEAVY ? 12 : 2).map((s) => ({ seed: s, input: turnSpot(s, true) })),
+      ...seeds(2400, HEAVY ? 6 : 1).map((s) => ({ seed: s, input: turnSpot(s, "monotone") })),
+      ...seeds(2700, HEAVY ? 3 : 0).map((s) => ({ seed: s, input: flopSpot(s, true) })),
+      ...seeds(2800, HEAVY ? 3 : 1).map((s) => ({ seed: s, input: flopSpot(s, "monotone") })),
+    ];
+    for (const { seed, input } of symmetric) expectSymmetric(`seed ${seed}`, input);
     const spots = [
       ...seeds(1000, HEAVY ? 60 : 12).map((s) => ({ seed: s, input: riverSpot(s) })),
       ...seeds(2000, HEAVY ? 25 : 5).map((s) => ({ seed: s, input: turnSpot(s) })),
       ...seeds(2500, HEAVY ? 4 : 1).map((s) => ({ seed: s, input: flopSpot(s) })),
+      ...symmetric,
     ];
     for (const { seed, input } of spots) {
       const game = new OracleGame(input);
@@ -541,9 +646,18 @@ describe("cross-check: exploitability of the core's strategy", () => {
   }, TIMEOUT);
 
   it("matches on random (non-equilibrium) strategies written into the strategy sums", () => {
+    // On symmetric spots the random sums differ between the hands of an orbit; the core reads each hand's
+    // strategy from its orbit's canonical hand, and so does every SolutionNode the oracle reads.
+    const symmetric = [
+      ...seeds(3500, HEAVY ? 30 : 4).map((s) => ({ seed: s, input: riverSpot(s, true) })),
+      ...seeds(4500, HEAVY ? 10 : 2).map((s) => ({ seed: s, input: turnSpot(s, true) })),
+      ...seeds(4600, HEAVY ? 5 : 1).map((s) => ({ seed: s, input: turnSpot(s, "monotone") })),
+    ];
+    for (const { seed, input } of symmetric) expectSymmetric(`seed ${seed}`, input);
     const spots = [
       ...seeds(3000, HEAVY ? 60 : 12).map((s) => ({ seed: s, input: riverSpot(s) })),
       ...seeds(4000, HEAVY ? 20 : 4).map((s) => ({ seed: s, input: turnSpot(s) })),
+      ...symmetric,
     ];
     for (const { seed, input } of spots) {
       const r = rng(seed * 31 + 7);
@@ -591,7 +705,19 @@ describe("cross-check: game value", () => {
         input: randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 12 : 8, maxNodes: HEAVY ? 3000 : 1500 }),
         oracleIters: HEAVY ? 800 : 150,
       })),
+      // Suit-symmetric spots: the core solves one subtree per orbit of river cards.
+      ...Array.from({ length: HEAVY ? 10 : 2 }, (_, i) => 5500 + i).map((seed) => ({
+        seed,
+        input: randomSpot(seed, { street: "river", minCombos: 5, maxCombos: HEAVY ? 20 : 12, maxNodes: HEAVY ? 120 : 60, symmetric: true }),
+        oracleIters: HEAVY ? 3000 : 600,
+      })),
+      ...Array.from({ length: HEAVY ? 6 : 1 }, (_, i) => 6500 + i).map((seed) => ({
+        seed,
+        input: randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 12 : 8, maxNodes: HEAVY ? 3000 : 1500, symmetric: seed % 2 === 0 || "monotone" }),
+        oracleIters: HEAVY ? 800 : 150,
+      })),
     ];
+    for (const { seed, input } of spots.filter((s) => s.seed >= 5500 && s.seed < 6000 || s.seed >= 6500)) expectSymmetric(`seed ${seed}`, input);
     for (const { seed, input, oracleIters } of spots) {
       const P0 = input.pot;
       // Core: solve well past the oracle's accuracy.
@@ -696,9 +822,18 @@ function checkNodes(label: string, input: SolverInput, e: Engine, game: OracleGa
 
 describe("cross-check: SolutionNode ev and ranges", () => {
   it("match the oracle at the root and along random paths", () => {
+    // Symmetric spots: random paths deal cards off the core's representatives, whose nodes it reads from the
+    // representative's subtree with the suits permuted back.
+    const symmetric = [
+      ...Array.from({ length: HEAVY ? 20 : 4 }, (_, i) => ({ seed: 7500 + i, input: riverSpot(7500 + i, true) })),
+      ...Array.from({ length: HEAVY ? 8 : 2 }, (_, i) => ({ seed: 8500 + i, input: turnSpot(8500 + i, true) })),
+      ...Array.from({ length: HEAVY ? 5 : 1 }, (_, i) => ({ seed: 8600 + i, input: turnSpot(8600 + i, "monotone") })),
+    ];
+    for (const { seed, input } of symmetric) expectSymmetric(`seed ${seed}`, input);
     const spots = [
       ...Array.from({ length: HEAVY ? 40 : 10 }, (_, i) => ({ seed: 7000 + i, input: riverSpot(7000 + i) })),
       ...Array.from({ length: HEAVY ? 15 : 4 }, (_, i) => ({ seed: 8000 + i, input: turnSpot(8000 + i) })),
+      ...symmetric,
     ];
     let compared = 0;
     for (const { seed, input } of spots) {
