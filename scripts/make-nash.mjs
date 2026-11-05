@@ -1,51 +1,17 @@
 // Computes the push/fold Nash charts in src/data/sets/nashData.ts.
 // Usage: node scripts/make-nash.mjs   (a few minutes; the equity table is cached in node_modules/.cache)
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { cpus } from "node:os";
-import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
-import { runnerImport } from "vite";
+import { writeFileSync } from "node:fs";
+import { load, loadEquityTable } from "./equity-cache.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
-const load = async (p) => (await runnerImport(root + p)).module;
-const SAMPLES = 12000;
 const STACKS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 20];
 const SEATS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
 
-if (!isMainThread) {
-  const { buildEquityTable, mulberry32 } = await load("src/poker/pushfold.ts");
-  const { k, workers } = workerData;
-  const t = buildEquityTable(SAMPLES, mulberry32(1000 + k), (a) => a % workers === k);
-  parentPort.postMessage(t.eq.buffer, [t.eq.buffer]);
-} else {
+{
   const pf = await load("src/poker/pushfold.ts");
   const { ALL_HANDS, comboCount } = await load("src/poker/cards.ts");
   const { rangeToString } = await load("src/poker/range.ts");
-
-  const cacheDir = root + "node_modules/.cache";
-  const cacheFile = `${cacheDir}/pubaj-equity-${SAMPLES}.json`;
-  let table;
-  if (existsSync(cacheFile)) {
-    const c = JSON.parse(readFileSync(cacheFile, "utf8"));
-    table = { eq: Float64Array.from(c.eq), cnt: Float64Array.from(c.cnt) };
-    console.log("equity table: cached");
-  } else {
-    const workers = Math.max(1, cpus().length);
-    const t0 = Date.now();
-    const parts = await Promise.all(
-      Array.from({ length: workers }, (_, k) =>
-        new Promise((resolve, reject) => {
-          const w = new Worker(new URL(import.meta.url), { workerData: { k, workers } });
-          w.once("message", (buf) => resolve({ eq: new Float64Array(buf), rows: (a) => a % workers === k }));
-          w.once("error", reject);
-        }),
-      ),
-    );
-    const cnt = pf.buildEquityTable(1, pf.mulberry32(1), () => false).cnt;
-    table = pf.mergeEquityRows(parts, cnt);
-    mkdirSync(cacheDir, { recursive: true });
-    writeFileSync(cacheFile, JSON.stringify({ eq: [...table.eq], cnt: [...table.cnt] }));
-    console.log(`equity table: ${((Date.now() - t0) / 1000).toFixed(0)}s on ${workers} workers`);
-  }
+  const table = await loadEquityTable();
 
   // Snap near-pure frequencies; keep genuinely mixed hands to 0.1.
   const snap = (x) => (x < 0.1 ? 0 : x > 0.9 ? 1 : Math.round(x * 10) / 10);

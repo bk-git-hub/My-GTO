@@ -118,3 +118,29 @@ describe("nash push/fold set", () => {
     }
   });
 });
+
+describe("short-stack open / re-jam set", () => {
+  const set = getSet("shortnash");
+  const sc = (stage: string, id: string) => set.stages.find((s) => s.id === stage)!.scenarios.find((s) => s.id.endsWith(`/${id}`))!;
+  const played = (stage: string, id: string) => 1 - actionTotals(sc(stage, id)).fold;
+
+  it("has first-in, vs-open, vs-re-jam and vs-jam spots for every seat pair", () => {
+    for (const st of set.stages) {
+      expect(st.scenarios.filter((s) => s.kind === "rfi")).toHaveLength(8);
+      expect(st.scenarios.filter((s) => s.kind === "vsOpen")).toHaveLength(36);
+      expect(st.scenarios.filter((s) => s.kind === "vs3bet")).toHaveLength(36);
+      expect(st.scenarios.filter((s) => s.kind === "vsShove")).toHaveLength(36);
+    }
+  });
+
+  it("opens wider from later seats and the BB defends wider against them (20~25bb)", () => {
+    for (const st of ["20bb", "25bb"]) {
+      expect(played(st, "rfi-utg"), st).toBeLessThan(played(st, "rfi-co"));
+      expect(played(st, "rfi-co"), st).toBeLessThan(played(st, "rfi-btn"));
+      expect(played(st, "bb-vs-utg-open"), st).toBeLessThan(played(st, "bb-vs-btn-open"));
+      expect(played(st, "bb-vs-btn-open"), st).toBeLessThan(played(st, "bb-vs-sb-open"));
+      // Getting about 4.5:1, the BB defends at least half its hands even against UTG.
+      expect(played(st, "bb-vs-utg-open"), st).toBeGreaterThan(0.45);
+    }
+  });
+});

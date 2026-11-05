@@ -53,7 +53,7 @@ export function QuizPage({ sub = "" }: { sub?: string }) {
       {mode === "preflop" && <PreflopQuiz />}
       {mode === "stack" && (
         <StackQuiz
-          initialMode={rest[0] === "cash" || rest[0] === "nash" ? rest[0] : "pub"}
+          initialMode={rest[0] === "cash" || rest[0] === "nash" || rest[0] === "short" ? rest[0] : "pub"}
           initialStage={rest[1] ?? "all"}
           initialSeat={rest[2] ? decodeURIComponent(rest[2]) : "all"}
           initialSpot={rest[3] === "vs" || rest[3] === "mix" ? rest[3] : "rfi"}

@@ -21,7 +21,8 @@ import {
   type StackQuestion,
 } from "./stackQuiz";
 
-const SETS: Record<DrillMode, ReturnType<typeof getSet>> = { pub: getSet("pub"), cash: getSet("cash6"), nash: getSet("nash") };
+const SETS: Record<DrillMode, ReturnType<typeof getSet>> = { pub: getSet("pub"), cash: getSet("cash6"), nash: getSet("nash"), short: getSet("shortnash") };
+const MODE_LABEL: Record<DrillMode, string> = { pub: "펍아재", cash: "100bb 캐시", nash: "푸시폴드", short: "숏스택" };
 const SPOT_LABEL: Record<DrillSpot, string> = { rfi: "오픈 (RFI)", vs: "vs 오픈", mix: "섞어서" };
 const NASH_SPOT_LABEL: Record<DrillSpot, string> = { rfi: "푸시", vs: "vs 올인 (콜)", mix: "섞어서" };
 /** "UTG 오픈 1,500 (3bb)" or, in the Nash drill, "UTG 올인 10bb". */
@@ -99,7 +100,7 @@ export function StackQuiz({
     const context =
       q.mode === "cash"
         ? [`게임: ${set.game}`, `스택: 100bb`]
-        : q.mode === "nash"
+        : q.mode === "nash" || q.mode === "short"
           ? [`게임: ${set.game}`, `스택: 모두 ${q.myChips}bb, 블라인드 0.5/1bb, BB 앤티 1bb`]
           : [
             `게임: ${set.game}`,
@@ -131,15 +132,11 @@ export function StackQuiz({
   return (
     <>
       <div className="seg small">
-        <button className={mode === "pub" ? "on" : ""} onClick={() => switchMode("pub")}>
-          펍아재 (토너먼트)
-        </button>
-        <button className={mode === "cash" ? "on" : ""} onClick={() => switchMode("cash")}>
-          100bb 캐시
-        </button>
-        <button className={mode === "nash" ? "on" : ""} onClick={() => switchMode("nash")}>
-          푸시/폴드 내쉬
-        </button>
+        {(Object.keys(MODE_LABEL) as DrillMode[]).map((m) => (
+          <button key={m} className={mode === m ? "on" : ""} onClick={() => switchMode(m)}>
+            {MODE_LABEL[m]}
+          </button>
+        ))}
       </div>
       <div className="seg small">
         {(Object.keys(SPOT_LABEL) as DrillSpot[]).map((sp) => (
@@ -205,7 +202,7 @@ export function StackQuiz({
               <span>{fmt(q.avgChips)}</span>
             </div>
           </div>
-        ) : q.mode === "nash" ? (
+        ) : q.mode === "nash" || q.mode === "short" ? (
           <div className="stack-info">
             <div>
               <span>블라인드</span>
@@ -220,7 +217,7 @@ export function StackQuiz({
             <div>
               <span>정답 기준</span>
               <b>내쉬</b>
-              <span>칩EV 계산값</span>
+              <span>{q.mode === "short" ? "오픈 2bb · 계산값" : "칩EV 계산값"}</span>
             </div>
           </div>
         ) : (

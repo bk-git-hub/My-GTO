@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSet } from "../../data/charts";
+import { actionTotals, getSet } from "../../data/charts";
 import { collapse, drillSeats, generateStackQuestion, gradeStack, questionActions, statKeys, vsOpenChart, type StackQuestion } from "./stackQuiz";
 
 describe("stack quiz", () => {
@@ -92,6 +92,21 @@ describe("stack quiz", () => {
     while (q.opener !== "SB") q = generateStackQuestion("10bb", "BB", "nash", "vs");
     expect(gradeStack({ ...q, hand: "A2o" }, "call").grade).toBe("correct");
     expect(gradeStack({ ...q, hand: "72o" }, "fold").grade).toBe("correct");
+  });
+
+  it("drills the computed short-stack charts, skipping opens the equilibrium rarely makes", () => {
+    for (let i = 0; i < 200; i++) {
+      const q = generateStackQuestion("all", "BB", "short", "vs");
+      expect(q.scenario.setId).toBe("shortnash");
+      expect(q.scenario.kind).toBe("vsOpen");
+      expect(q.openTo).toBe(2);
+      const opener = getSet("shortnash").stages.find((s) => s.id === q.stageId)!.scenarios.find((s) => s.kind === "rfi" && s.hero === q.opener)!;
+      expect(1 - actionTotals(opener).fold - (actionTotals(opener).shove ?? 0)).toBeGreaterThanOrEqual(0.05);
+      expect(questionActions(q)).toEqual(["fold", "call", "shove"]);
+    }
+    const first = generateStackQuestion("20bb", "BTN", "short", "rfi");
+    expect(questionActions(first)).toEqual(["fold", "open", "shove"]);
+    expect(statKeys(first)).toContain("stack-short:20bb:BTN");
   });
 
   it("has a chart for every opener the BB can face in every pub stage and in cash", () => {

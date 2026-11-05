@@ -25,6 +25,10 @@ function weakestSpot(byKey: Record<string, Tally>): Weak | null {
     if (m) w = { label: `푸시/폴드 내쉬 ${m[1]} · ${m[2]} 푸시`, route: `quiz/stack/nash/${m[1]}/${encodeURIComponent(m[2])}`, t };
     m = key.match(/^stack-nash:vs:(\d+bb):(.+)$/);
     if (m) w = { label: `푸시/폴드 내쉬 ${m[1]} · ${m[2]} vs 올인`, route: `quiz/stack/nash/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
+    m = key.match(/^stack-short:(\d+bb):(.+)$/);
+    if (m) w = { label: `숏스택 내쉬 ${m[1]} · ${m[2]} 오픈`, route: `quiz/stack/short/${m[1]}/${encodeURIComponent(m[2])}`, t };
+    m = key.match(/^stack-short:vs:(\d+bb):(.+)$/);
+    if (m) w = { label: `숏스택 내쉬 ${m[1]} · ${m[2]} vs 오픈`, route: `quiz/stack/short/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
     m = key.match(/^stack-cash:vs:100bb:(.+)$/);
     if (m) w = { label: `100bb 캐시 · ${m[1]} vs 오픈`, route: `quiz/stack/cash/all/${encodeURIComponent(m[1])}/vs`, t };
     if (w && (!worst || w.t.correct / w.t.attempts < worst.t.correct / worst.t.attempts)) worst = w;
@@ -36,7 +40,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
   const stats = useStats();
   const coach = useCoach();
   const by = stats.byKey;
-  const total = ["preflop", "stack", "stack-cash", "stack-nash", "odds", "equity"].reduce((n, k) => n + (by[k]?.attempts ?? 0), 0);
+  const total = ["preflop", "stack", "stack-cash", "stack-nash", "stack-short", "odds", "equity"].reduce((n, k) => n + (by[k]?.attempts ?? 0), 0);
   const weak = weakestSpot(by);
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [

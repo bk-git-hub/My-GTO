@@ -1,5 +1,6 @@
 import { randomCombo, type Card, type HandClass } from "../../poker/cards";
-import { getSet, type HandStrategy, type Scenario, type Stage } from "../../data/charts";
+import { actionTotals, getSet, type HandStrategy, type Scenario, type Stage } from "../../data/charts";
+import { SHORT_NASH_OPEN } from "../../data/sets/shortNashData";
 import { openSize } from "../../play/policy";
 import { gradePreflop, weightedHand, type Grade } from "./generators";
 
@@ -59,11 +60,14 @@ export function collapse(sc: Scenario, st: HandStrategy): Record<QuizAction, num
   return out;
 }
 
-/** pub: 펍아재 토너먼트 (스택별 차트) · cash: 6맥스 캐시 100bb · nash: 계산된 푸시/폴드 내쉬 */
-export type DrillMode = "pub" | "cash" | "nash";
+/** pub: 펍아재 토너먼트 (스택별 차트) · cash: 6맥스 캐시 100bb · nash: 계산된 푸시/폴드 · short: 계산된 숏스택 오픈/리쉬브 */
+export type DrillMode = "pub" | "cash" | "nash" | "short";
 
 /** Chart set each drill mode asks from. */
-export const DRILL_SET: Record<DrillMode, string> = { pub: "pub", cash: "cash6", nash: "nash" };
+export const DRILL_SET: Record<DrillMode, string> = { pub: "pub", cash: "cash6", nash: "nash", short: "shortnash" };
+
+/** Computed modes: everyone on the same stack, shown in bb. */
+const COMPUTED: DrillMode[] = ["nash", "short"];
 
 /** Stat key prefix per mode (pub keeps the original keys). */
 export const statPrefix = (mode: DrillMode) => (mode === "pub" ? "stack" : `stack-${mode}`);
@@ -104,8 +108,16 @@ export function vsShoveChart(stage: Stage, hero: string, shover: string): Scenar
 }
 
 type Lookup = (stage: Stage, hero: string, opener: string) => Scenario | undefined;
-/** In the Nash set the player in front shoves; in the others, they open. */
-const lookupFor = (mode: DrillMode): Lookup => (mode === "nash" ? vsShoveChart : vsOpenChart);
+
+/** Short-stack set: skip opens that the equilibrium almost never makes (e.g. UTG at 10bb jams instead). */
+function commonOpenChart(stage: Stage, hero: string, opener: string): Scenario | undefined {
+  const rfi = stage.scenarios.find((s) => s.kind === "rfi" && s.hero === opener);
+  if (!rfi || (actionTotals(rfi).open ?? 0) < 0.05) return undefined;
+  return vsOpenChart(stage, hero, opener);
+}
+
+/** In the push/fold set the player in front shoves; in the others, they open. */
+const lookupFor = (mode: DrillMode): Lookup => (mode === "nash" ? vsShoveChart : mode === "short" ? commonOpenChart : vsOpenChart);
 
 /** Every charted (my seat, opener) pair in a stage, optionally for one of my seats. */
 export function vsOpenSpots(
@@ -149,7 +161,7 @@ function facing(mode: DrillMode, stage: Stage, positions: string[], seatFilter: 
   const spots = vsOpenSpots(stage, positions, seatFilter, lookupFor(mode));
   if (!spots.length) return null;
   const s = pick(spots);
-  return { ...s, openTo: mode === "nash" ? nashStack(stage) : openSize(mode, stage.id, s.opener) };
+  return { ...s, openTo: mode === "nash" ? nashStack(stage) : mode === "short" ? SHORT_NASH_OPEN : openSize(mode, stage.id, s.opener) };
 }
 
 export function generateStackQuestion(stageFilter: string, seatFilter: string, mode: DrillMode = "pub", spot: DrillSpot = "rfi"): StackQuestion {
@@ -166,8 +178,8 @@ export function generateStackQuestion(stageFilter: string, seatFilter: string, m
   const hand = weightedHand(scenario);
   const base = { uid: uid(), mode, scenario, hero, opener, openTo, stageId: stage.id, hand, cards: randomCombo(hand) };
   if (mode === "cash") return { ...base, level: 0, sb: 0.5, bb: 1, myChips: 100, avgChips: 100 };
-  // Nash charts assume everyone on the same stack, in bb.
-  if (mode === "nash") return { ...base, level: 0, sb: 0.5, bb: 1, myChips: nashStack(stage), avgChips: nashStack(stage) };
+  // Computed charts assume everyone on the same stack, in bb.
+  if (COMPUTED.includes(mode)) return { ...base, level: 0, sb: 0.5, bb: 1, myChips: nashStack(stage), avgChips: nashStack(stage) };
 
   const range = STAGE_SPOTS[stage.id];
   const candidates = BLIND_LEVELS.filter(([lv]) => lv >= range.levels[0] && lv <= range.levels[1]);
