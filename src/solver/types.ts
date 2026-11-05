@@ -110,3 +110,48 @@ export interface Solution {
   /** The node reached by following `path` from the root. Throws on an illegal path. */
   node(path: PathStep[]): SolutionNode;
 }
+
+/** Size of a spot before solving it (see `estimateMemory`). */
+export interface MemoryEstimate {
+  /** Rough total bytes the solver will hold: per-node strategy storage, tree objects, caches and scratch. */
+  bytes: number;
+  actionNodes: number;
+  chanceNodes: number;
+  terminalNodes: number;
+}
+
+/** Incremental solver (`createSolver`): run a few iterations at a time so a Web Worker stays responsive. */
+export interface IncrementalSolver {
+  /** Run `n` more DCFR iterations (each one updates OOP, then IP). */
+  iterate(n: number): void;
+  /** Iterations run so far. */
+  readonly iteration: number;
+  /** Current exploitability, % of the starting pot (cached until the next iterate()). */
+  exploitability(): number;
+  /** A view of the current average strategy. It goes stale (its node() throws) after the next iterate(). */
+  solution(): Solution;
+}
+
+/** One node of the game tree as built by `buildTree` (no strategy data). */
+export interface GameTreeNode {
+  kind: "action" | "chance" | "terminal";
+  street: SolverStreet;
+  /** The board at this node. At a chance node it is the board before the card is dealt. */
+  board: Card[];
+  /** Total chips in the middle, this street's bets included. */
+  pot: number;
+  /** Each player's bet on the current street (at a chance node or terminal: as the street ended). */
+  bets: [number, number];
+  stacks: [number, number];
+  /** Action node: who acts and what they can do (`children[i]` follows `actions[i]`). */
+  player?: Player;
+  actions?: SolverAction[];
+  /** Chance node: the cards that can come, ascending (`children[i]` follows `cards[i]`). */
+  cards?: Card[];
+  /** Terminal node: how the hand ended. */
+  terminal?: "fold" | "showdown";
+  /** Fold terminal: who folded. */
+  folder?: Player;
+  /** One child per action (action node) or per card (chance node); empty at a terminal. */
+  children: GameTreeNode[];
+}

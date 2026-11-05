@@ -41,26 +41,35 @@ If S = 0 the root is the all-in runout described below.
 Sizes for a player on a street come from `input.sizes[street][player]`, or `DEFAULT_SIZES[player]` when the
 street has no entry. Defaults: `raiseLimit` 2, `addAllIn` true, `allInThreshold` 0.67, `minBet` 1.
 
+Chip amounts are floats, so the rules compare them with a tolerance ε = 1e-9: two amounts within ε are equal.
+Concretely: facing a bet means toCall > ε; a bet or raise becomes the all-in when it puts in at least
+allInThreshold × stack − ε or at least stack − ε; "more than toCall behind" means myStack > toCall + ε; actions
+merge within ε. So a bet never leaves rounding dust behind (in floats 0.7 × 3 = 2.0999999999999996, which
+against a 2.1 stack is the all-in, not a bet leaving 4e-16), and every stack is either exactly 0 (after an
+all-in or a call of one: an all-in sets the stack to 0 and a call copies the opponent's stack) or more than ε
+(given a starting stack S that is 0 or more than ε).
+The "chips behind", `stack > 0` and "both stacks are 0" tests below are therefore exact.
+
 **Not facing a bet** (bets equal; postflop this only happens with bets [0, 0]): actions in this order:
 
 1. `check` (to 0).
 2. A bet for each fraction f in `bet`, ascending: amount = max(minBet, f × pot). If amount ≥ allInThreshold × stack
-   (the bettor's chips behind), or amount ≥ stack, it becomes the all-in instead.
+   (the bettor's chips behind), or amount ≥ stack, it becomes the all-in instead (both up to ε).
    Label "벳 {round(f×100)}%", or "벳 {amount}" if minBet raised it.
 3. `allin` (to = stack) if addAllIn and stack > 0. Label "올인".
 
-**Facing a bet** (toCall = max(bets) − myBet > 0): actions in this order:
+**Facing a bet** (toCall = max(bets) − myBet > ε): actions in this order:
 
 1. `fold` (to 0), label "폴드".
 2. `call` (to = max(bets)), label "콜". Equal stacks mean a call is always complete.
-3. Raises, only if n ≤ raiseLimit, the raiser has more than toCall behind, and the opponent has chips behind:
+3. Raises, only if n ≤ raiseLimit, the raiser has more than toCall + ε behind, and the opponent has chips behind:
    for each f in `raise`, ascending, to = myBet + toCall + f × (pot + toCall), then at least the minimum raise
-   to = max(bets) + inc. If (to − myBet) ≥ allInThreshold × myStack, or ≥ myStack, it becomes the all-in.
+   to = max(bets) + inc. If (to − myBet) ≥ allInThreshold × myStack, or ≥ myStack (both up to ε), it becomes the all-in.
    Label "레이즈 {to rounded to 0.1}".
 4. `allin` (to = myBet + myStack) if addAllIn and the raise conditions hold. An all-in for less than a minimum
    raise is still offered.
 
-Within one node, two actions with the same kind and `to` (within 1e-9) are merged: keep the first. Bets and
+Within one node, two actions with the same kind and `to` (within ε) are merged: keep the first. Bets and
 raises that became all-ins are the `allin` action, kind "allin", which comes last. `to` is always this
 player's street total after the action.
 
@@ -159,12 +168,17 @@ a spot that won't fit before building it.
    the all-in threshold, the raise cap, a short stack where every raise is all-in, `stack = 0`, river vs turn
    street transitions, all-in runouts.
 2. **Toy river game** with a known answer: board 2c3d7h8sKs (no straight or flush possible), OOP holds the 3 KK
-   combos (nuts) and air, IP holds QQ; OOP may check or bet the pot all-in, IP may only check behind or fold/call.
-   Equilibrium: OOP bets every KK, bluffs so bluffs/bets = 1/3, IP calls half the time.
+   combos (nuts) and air, IP holds QQ; OOP may check or bet the pot all-in, IP may only check behind or fold/call
+   (pot = stack, river sizes OOP bet [1] and nothing for IP, raiseLimit 0, and addAllIn false, since otherwise
+   IP could shove after a check). Equilibrium: OOP bets every KK, bluffs so bluffs/bets = 1/3, IP calls half the time.
 3. **Card removal**: fold and showdown values against a brute-force sum over explicit hand pairs, random reaches.
-4. **Oracle cross-check** on random small spots (river and turn, 5–40 combos per range): identical trees;
-   the core's exploitability equals the oracle's best-response exploitability of the same strategy; the
-   equilibrium game values agree within the exploitability bound.
+4. **Oracle cross-check** (`crosscheck.test.ts`, seeded) on random configs and small spots (river and turn, 5–40
+   combos per range, plus a tiny flop): identical trees, node by node, and `estimateMemory` counts equal to the
+   oracle tree's; the core's exploitability and per-player best responses equal the oracle's best response to
+   the core's `SolutionNode.strategy`, within a bound derived from the Float32 rounding of those strategies
+   (also for 1-iteration and random strategies); `SolutionNode.ev` and `ranges` match the oracle's at the root
+   and along random paths; the value intervals [P0 − BR_1, BR_0] of the core and of the oracle's own CFR
+   overlap (both contain the equilibrium value). `SOLVER_CROSSCHECK=1` runs many more seeds and bigger spots.
 5. **Convergence**: exploitability falls and reaches the target on a realistic river spot.
 6. **Solution API**: path walking, illegal paths, ranges, NaN EVs, strategy sums to 1 for in-range combos.
 
