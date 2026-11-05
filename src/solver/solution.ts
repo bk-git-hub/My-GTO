@@ -3,12 +3,29 @@ import { cardMask, compatibleSums, NUM_COMBOS } from "./hands";
 import { NODE_ACTION, NODE_CHANCE, type GameNode } from "./tree";
 import type { PathStep, Player, Solution, SolutionNode } from "./types";
 
-const isAction = (s: PathStep): s is { action: number } => typeof s === "object" && s !== null && "action" in s;
-const isCard = (s: PathStep): s is { card: number } => typeof s === "object" && s !== null && "card" in s;
+/**
+ * The cache key of a step, after checking its shape: `{action: i}` or `{card: c}`, exactly one of the two
+ * keys, with an integer value. Checked before the cache lookup, so `{action: "1"}` can't hit the entry
+ * of `{action: 1}` and `{action: 1, card: 5}` can't stand for either.
+ */
+function stepKey(s: unknown, i: number): string {
+  if (typeof s === "object" && s !== null) {
+    const hasAction = "action" in s, hasCard = "card" in s;
+    if (hasAction !== hasCard) {
+      const v = hasAction ? (s as { action: unknown }).action : (s as { card: unknown }).card;
+      if (Number.isInteger(v)) return `${hasAction ? "a" : "c"}${v as number}`;
+    }
+  }
+  throw new Error(`illegal path at step ${i}: a step is {action: integer} or {card: integer}`);
+}
 
 /**
  * A view of the solver's current average strategy. It reads the solver's live arrays, so it is only
  * valid until the next iterate(); after that node() throws "stale solution".
+ *
+ * node(path) caches its result and returns the same object for the same path. That object and its plain
+ * arrays are frozen; its typed arrays (strategy[a], ranges[p], ev[p]) are shared with later calls, so
+ * callers must treat them as read-only (copy before changing them).
  */
 export class SolverSolution implements Solution {
   readonly iterations: number;
@@ -34,7 +51,8 @@ export class SolverSolution implements Solution {
 
   node(path: PathStep[]): SolutionNode {
     this.checkFresh();
-    const key = path.map((s) => (isAction(s) ? `a${s.action}` : isCard(s) ? `c${s.card}` : "?")).join(".");
+    if (!Array.isArray(path)) throw new Error("illegal path: a path is an array of steps");
+    const key = path.map(stepKey).join(".");
     const hit = this.cache.get(key);
     if (hit) return hit;
 
@@ -45,9 +63,10 @@ export class SolverSolution implements Solution {
     let node: GameNode = e.root;
     for (let i = 0; i < path.length; i++) {
       const step = path[i];
+      // stepKey checked the shape: exactly one of action / card, an integer.
       if (node.type === NODE_ACTION) {
         const A = node.children.length;
-        if (!isAction(step) || !Number.isInteger(step.action) || step.action < 0 || step.action >= A)
+        if (!("action" in step) || step.action < 0 || step.action >= A)
           throw new Error(`illegal path at step ${i}: expected an action index 0..${A - 1}`);
         const q = node.player!;
         const n = hands[q].n;
@@ -57,7 +76,7 @@ export class SolverSolution implements Solution {
         for (let h = 0; h < n; h++) r[h] *= sig[s + h];
         node = node.children[step.action];
       } else if (node.type === NODE_CHANCE) {
-        const k = isCard(step) ? node.cards!.indexOf(step.card) : -1;
+        const k = "card" in step ? node.cards!.indexOf(step.card) : -1;
         if (k < 0) throw new Error(`illegal path at step ${i}: expected a card that can come`);
         const c = node.cards![k];
         for (const q of [0, 1] as const) {
@@ -123,20 +142,23 @@ export class SolverSolution implements Solution {
       return out;
     }) as [Float32Array, Float32Array];
 
-    return {
+    // node() hands out this cached object on every call for the path, so everything that can be frozen
+    // is. Typed arrays with elements can't be frozen: they are documented read-only.
+    const freeze = Object.freeze;
+    return freeze({
       kind: node.kind,
       street: node.street,
-      board: node.board.slice(),
+      board: freeze(node.board.slice()),
       pot: node.pot,
-      bets: [node.bets[0], node.bets[1]],
-      stacks: [node.stacks[0], node.stacks[1]],
+      bets: freeze([node.bets[0], node.bets[1]]) as [number, number],
+      stacks: freeze([node.stacks[0], node.stacks[1]]) as [number, number],
       player: node.player as Player | undefined,
-      actions: node.actions?.map((a) => ({ ...a })),
-      strategy,
-      cards: node.cards?.slice(),
+      actions: node.actions && freeze(node.actions.map((a) => freeze({ ...a }))),
+      strategy: strategy && freeze(strategy),
+      cards: node.cards && freeze(node.cards.slice()),
       terminal: node.terminal,
-      ranges,
-      ev,
-    };
+      ranges: freeze(ranges),
+      ev: freeze(ev),
+    }) as SolutionNode;
   }
 }

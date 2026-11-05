@@ -13,6 +13,7 @@ import {
   bestResponseOnGame,
   createOracleCfr,
   OracleGame,
+  oracleNodeAt,
   oracleNodeInfo,
   oracleTree,
   oracleTreeStats,
@@ -182,6 +183,86 @@ describe("cross-check: trees", () => {
       const ip = root.children[1];
       expect(ip.actions!.map((a) => [a.kind, a.to])).toEqual([["fold", 0], ["call", 1], ["allin", 3.35]]);
       expect(ip.children[2].actions!.map((a) => a.kind)).toEqual(["fold", "call"]);
+    }
+  });
+
+  // docs/solver.md "Inputs": both implementations reject the same inputs and agree on the degenerate
+  // ones that used to recurse forever (a stack under the tolerance offered 0-chip all-ins), let a bet
+  // below the tolerance go uncalled (minBet <= 1e-9), or built "벳 NaN%" from a NaN size.
+  it("both reject the same invalid inputs and build the same trees for degenerate ones", () => {
+    const board = randomBoard(rng(2), 5);
+    const turn = randomBoard(rng(3), 4);
+    const base: SolverInput = { board, ranges: [[], []], pot: 10, stack: 100 };
+    const river = (bet: unknown[], raise: unknown[] = []) =>
+      ({ river: [{ bet, raise }, { bet: [0.5], raise }] }) as unknown as SolverInput["sizes"];
+    const invalid: Partial<SolverInput>[] = [
+      { pot: 0 }, { pot: -2 }, { pot: NaN }, { pot: Infinity }, { stack: -1 }, { stack: NaN }, { stack: Infinity },
+      { minBet: 0 }, { minBet: 1e-9 }, { minBet: -1 }, { minBet: NaN }, { minBet: Infinity },
+      { raiseLimit: -1 }, { raiseLimit: 2.5 }, { raiseLimit: NaN }, { raiseLimit: Infinity }, { addAllIn: 0 as never },
+      { allInThreshold: 0 }, { allInThreshold: -1 }, { allInThreshold: NaN }, { allInThreshold: Infinity },
+      { sizes: river([NaN]) }, { sizes: river([-0.5]) }, { sizes: river([Infinity]) }, { sizes: river(["1"]) },
+      { sizes: river([0.5], [NaN]) }, { sizes: river([0.5], [-1]) },
+      { sizes: { flop: [{ bet: [NaN], raise: [] }, { bet: [], raise: [] }] } },
+      { sizes: { river: [{ bet: [], raise: [] }] } as never },
+      { board: board.slice(0, 2) }, { board: [board[0], board[0], board[1]] }, { board: [0, 1, 52] }, { board: [0, 1, 2.5] },
+    ];
+    for (const over of invalid) {
+      const input = { ...base, ...over };
+      expect(() => buildTree(input), `core ${JSON.stringify(over)}`).toThrow();
+      expect(() => estimateMemory(input), `estimate ${JSON.stringify(over)}`).toThrow();
+      expect(() => oracleTree(input), `oracle ${JSON.stringify(over)}`).toThrow();
+    }
+    const valid: Partial<SolverInput>[] = [
+      { stack: 1e-12 }, { stack: 1e-9 }, { stack: 2e-9 }, { board: turn, stack: 1e-10 }, { board: turn, stack: 3e-9 },
+      { minBet: 2e-9, sizes: river([1e-12, 0], [0]) },
+      { pot: 1, minBet: 1.25 }, { pot: 1, minBet: 0.333 }, { pot: 1, minBet: 0.336 }, { pot: 3, minBet: 2.675 },
+      { sizes: river([0, 0, 0.5], [0, 0.25]), raiseLimit: 3 },
+      { allInThreshold: 1.5, stack: 12 }, { allInThreshold: 1e-6, stack: 30 },
+    ];
+    for (const over of valid) {
+      const input = { ...base, ...over };
+      const orc = oracleTree(input);
+      const errs: string[] = [];
+      compareTrees(buildTree(input), orc, errs);
+      expect(errs, JSON.stringify(over)).toEqual([]);
+      expect(estimateMemory(input), JSON.stringify(over)).toMatchObject(oracleTreeStats(orc));
+    }
+
+    // Ranges: NaN, negative and > 1 weights (also on board combos) and too many entries are rejected by both.
+    const ok = randomRanges(rng(4), board, 4, 4);
+    const onBoard = COMBOS.findIndex((c) => board.includes(c.cards[0]));
+    const live = ok[0].findIndex((w) => w > 0);
+    for (const [i, w] of [[live, NaN], [live, -0.5], [live, 1.5], [live, 50], [onBoard, NaN], [onBoard, 2]]) {
+      const r = Float64Array.from(ok[0]);
+      r[i] = w;
+      const input: SolverInput = { ...base, ranges: [r, ok[1]] };
+      expect(() => createSolver(input), `core ${i} ${w}`).toThrow();
+      expect(() => estimateMemory(input), `estimate ${i} ${w}`).toThrow();
+      expect(() => new OracleGame(input), `oracle ${i} ${w}`).toThrow();
+    }
+    const long: SolverInput = { ...base, ranges: [ok[0], [...ok[1], 0]] };
+    expect(() => createSolver(long)).toThrow();
+    expect(() => new OracleGame(long)).toThrow();
+
+    // Path steps: the same shapes are illegal in both, after the legal forms were looked up.
+    const spot: SolverInput = { ...base, board: turn, ranges: randomRanges(rng(5), turn, 4, 4), stack: 10, raiseLimit: 0,
+      sizes: { turn: [{ bet: [0.5], raise: [] }, { bet: [0.5], raise: [] }], river: [{ bet: [0.5], raise: [] }, { bet: [0.5], raise: [] }] } };
+    const solver = createSolver(spot);
+    solver.iterate(1);
+    const sol = solver.solution();
+    const game = new OracleGame(spot);
+    const card = oracleNodeAt(game.root, [{ action: 0 }, { action: 0 }]).cards![7];
+    const legal: PathStep[][] = [[{ action: 1 }], [{ action: 0 }, { action: 0 }, { card }]];
+    for (const path of legal) {
+      expect(sol.node(path).board).toEqual(oracleNodeAt(game.root, path).board);
+    }
+    const illegal = [
+      [{ action: "1" }], [{ action: 1, card: 5 }], [{}], [null], [{ action: 0.5 }],
+      [{ action: 0 }, { action: 0 }, { card: String(card) }], [{ action: 0 }, { action: 0 }, { action: card }],
+    ] as unknown as PathStep[][];
+    for (const path of illegal) {
+      expect(() => sol.node(path), `core ${JSON.stringify(path)}`).toThrow();
+      expect(() => oracleNodeAt(game.root, path), `oracle ${JSON.stringify(path)}`).toThrow();
     }
   });
 

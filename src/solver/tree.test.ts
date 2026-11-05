@@ -268,3 +268,95 @@ describe("estimateMemory", () => {
     expect(full.bytes - empty.bytes).toBeGreaterThanOrEqual(8 * slots * 1081);
   });
 });
+
+describe("tree: input checks and degenerate inputs", () => {
+  const riverSizes = (bet: unknown[], raise: unknown[] = []) =>
+    ({ river: [{ bet, raise }, { bet: [], raise: [0.75] }] }) as unknown as SolverInput["sizes"];
+
+  it("a stack of at most 1e-9 is 0: straight to the runout instead of endless 0-chip all-ins", () => {
+    for (const stack of [1e-12, 1e-10, 1e-9]) {
+      const river = buildTree(spot({ stack }));
+      expect(river.kind).toBe("terminal");
+      expect(river.terminal).toBe("showdown");
+      expect(river.stacks).toEqual([0, 0]);
+      expect((river as GameNode).invested).toBe(0);
+      const turn = buildTree(spot({ board: TURN, stack }));
+      expect(turn.kind).toBe("chance");
+      expect(turn.children.every((c) => c.terminal === "showdown")).toBe(true);
+      expect(estimateMemory(spot({ board: TURN, stack }))).toMatchObject({ actionNodes: 0, chanceNodes: 1, terminalNodes: 48 });
+    }
+    // Just above the tolerance it is a real (tiny) stack: every bet is the all-in.
+    const tiny = buildTree(spot({ stack: 2e-9 }));
+    const exact = (n: GameTreeNode) => n.actions!.map((a) => [a.kind, a.to]);
+    expect(exact(tiny)).toEqual([["check", 0], ["allin", 2e-9]]);
+    expect(exact(go(tiny, 1))).toEqual([["fold", 0], ["call", 2e-9]]);
+  });
+
+  it("minBet must be more than 1e-9, so a bet below the tolerance can't be left uncalled", () => {
+    for (const minBet of [0, -1, 1e-9, 1e-12, NaN, Infinity])
+      expect(() => buildTree(spot({ minBet, sizes: riverSizes([1e-12]) }))).toThrow(/minBet/);
+    // Just above: the opponent faces the tiny bet (fold / call / raise), it can't check it through.
+    const root = buildTree(spot({ minBet: 2e-9, sizes: riverSizes([1e-12]) }));
+    expect(root.actions!.map((a) => a.kind)).toEqual(["check", "bet", "allin"]);
+    expect(root.children[1].actions!.map((a) => a.kind)).toEqual(["fold", "call", "raise", "allin"]);
+  });
+
+  it("sizes must be finite numbers >= 0; 0 means the smallest bet or raise", () => {
+    for (const bad of [NaN, -0.5, Infinity, -Infinity, "0.5", null])
+      expect(() => buildTree(spot({ sizes: riverSizes([0.5, bad]) }))).toThrow(/sizes\.river\[0\]\.bet/);
+    expect(() => buildTree(spot({ sizes: riverSizes([0.5], [NaN]) }))).toThrow(/sizes\.river\[0\]\.raise/);
+    expect(() => buildTree(spot({ sizes: { river: [{ bet: [0.5] }, { bet: [], raise: [] }] } as never }))).toThrow(/sizes\.river\[0\]\.raise/);
+    expect(() => buildTree(spot({ sizes: { river: [{ bet: [], raise: [] }] } as never }))).toThrow(/sizes\.river/);
+    // An entry for a street the board never reaches is checked too.
+    expect(() => buildTree(spot({ sizes: { flop: [{ bet: [-1], raise: [] }, { bet: [], raise: [] }] } }))).toThrow(/sizes\.flop/);
+    // 0: the min bet, then the min raise (to the bet plus its increment).
+    const root = buildTree(spot({ pot: 2, minBet: 1.5, sizes: { river: [{ bet: [0], raise: [] }, { bet: [], raise: [0] }] } }));
+    expect(acts(root)).toEqual([["check", 0], ["bet", 1.5], ["allin", 100]]);
+    expect(root.actions![1].label).toBe("벳 1.5");
+    expect(acts(go(root, 1))).toEqual([["fold", 0], ["call", 1.5], ["raise", 3], ["allin", 100]]);
+  });
+
+  it("pot, stack, raiseLimit, addAllIn and allInThreshold are checked", () => {
+    const bad: [Partial<SolverInput>, RegExp][] = [
+      [{ pot: 0 }, /pot/], [{ pot: -1 }, /pot/], [{ pot: NaN }, /pot/], [{ pot: Infinity }, /pot/],
+      [{ stack: -1 }, /stack/], [{ stack: NaN }, /stack/], [{ stack: Infinity }, /stack/],
+      [{ raiseLimit: -1 }, /raiseLimit/], [{ raiseLimit: 1.5 }, /raiseLimit/], [{ raiseLimit: NaN }, /raiseLimit/],
+      [{ raiseLimit: Infinity }, /raiseLimit/],
+      [{ addAllIn: "yes" as never }, /addAllIn/],
+      [{ allInThreshold: 0 }, /allInThreshold/], [{ allInThreshold: -0.5 }, /allInThreshold/],
+      [{ allInThreshold: NaN }, /allInThreshold/], [{ allInThreshold: Infinity }, /allInThreshold/],
+      [{ board: [0, 1] }, /board/], [{ board: [0, 1, 1] }, /duplicate/], [{ board: [0, 1, 52] }, /card/],
+    ];
+    for (const [over, re] of bad) {
+      expect(() => buildTree(spot(over)), JSON.stringify(over)).toThrow(re);
+      expect(() => estimateMemory(spot(over)), JSON.stringify(over)).toThrow(re);
+    }
+    // Thresholds above 1 are allowed: only a bet of the whole stack converts.
+    expect(acts(buildTree(spot({ allInThreshold: 1.5, stack: 10 })))).toEqual([["check", 0], ["bet", 3.3], ["bet", 7.5], ["allin", 10]]);
+  });
+
+  it("a bet raised to minBet is labelled with the amount to 0.01, no trailing zeros", () => {
+    const label = (minBet: number) => buildTree(spot({ pot: 1, minBet })).actions![1].label;
+    expect(label(1.25)).toBe("벳 1.25");
+    expect(label(1.5)).toBe("벳 1.5");
+    expect(label(2)).toBe("벳 2");
+    expect(label(0.333)).toBe("벳 0.33");
+    expect(label(0.336)).toBe("벳 0.34");
+    // Raises keep 0.1.
+    expect(go(buildTree(spot({})), 1).actions![2].label).toBe("레이즈 15.8");
+  });
+
+  it("action lists are shared between nodes with the same betting state, so they are frozen", () => {
+    const root = buildTree(spot({ board: TURN }));
+    const chance = go(root, 0, 0);
+    const a = chance.children[0].actions!, b = chance.children[1].actions!;
+    expect(a).toBe(b); // the same river menu under two different cards
+    expect(Object.isFrozen(a)).toBe(true);
+    expect(a.every((x) => Object.isFrozen(x))).toBe(true);
+    expect(() => {
+      a[1].to = 999;
+    }).toThrow(TypeError);
+    expect(() => a.push(a[0])).toThrow(TypeError);
+    expect(b[1].to).toBeCloseTo(3.3, 9);
+  });
+});

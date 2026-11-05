@@ -17,12 +17,29 @@ export interface OracleHand {
   weight: number;
 }
 
+/**
+ * The spec's "Inputs" rule for a range: at most 1326 entries, each a number in [0, 1] (also for combos on
+ * the board); entries past the end are 0.
+ */
+function checkWeights(weights: ArrayLike<number>, player: Player): void {
+  if (typeof weights !== "object" || weights === null) throw new Error(`oracle: ranges[${player}] must be an array-like`);
+  if (weights.length > COMBOS.length) throw new Error(`oracle: ranges[${player}] has more than ${COMBOS.length} entries`);
+  for (let i = 0; i < weights.length; i++) {
+    const w = weights[i];
+    if (typeof w !== "number" || Number.isNaN(w) || w < 0 || w > 1) {
+      throw new Error(`oracle: ranges[${player}][${i}] must be a number in [0, 1]`);
+    }
+  }
+}
+
 /** A player's hands: COMBOS indices with weight > 0 that don't touch the starting board. */
 export function oracleHands(input: SolverInput, player: Player): OracleHand[] {
+  if (!Array.isArray(input.ranges) || input.ranges.length !== 2) throw new Error("oracle: ranges must be a pair");
   const weights = input.ranges[player];
+  checkWeights(weights, player);
   const out: OracleHand[] = [];
   for (let i = 0; i < COMBOS.length; i++) {
-    const w = weights[i];
+    const w = i < weights.length ? weights[i] : 0;
     if (!(w > 0)) continue;
     const [a, b] = COMBOS[i].cards;
     if (input.board.includes(a) || input.board.includes(b)) continue;

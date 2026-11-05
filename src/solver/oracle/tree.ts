@@ -89,17 +89,57 @@ export function streetOfBoard(board: readonly Card[]): SolverStreet {
   throw new Error(`oracle: board must have 3, 4 or 5 cards (got ${board.length})`);
 }
 
+/** A real number: typeof "number", not NaN, not ±Infinity. */
+function isReal(x: unknown): x is number {
+  return typeof x === "number" && x === x && x !== Infinity && x !== -Infinity;
+}
+
+/** The spec's "Inputs" rule for one size list: an array of finite numbers >= 0. */
+function checkSizeList(xs: unknown, what: string): void {
+  if (!Array.isArray(xs)) throw new Error(`oracle: ${what} must be an array`);
+  xs.forEach((f, k) => {
+    if (!isReal(f) || f < 0) throw new Error(`oracle: ${what}[${k}] must be a finite number >= 0`);
+  });
+}
+
+/**
+ * Settings with the spec defaults filled in, after the spec's "Inputs" checks. A starting stack of at
+ * most EPS counts as exactly 0.
+ */
 function configOf(input: SolverInput): Config {
-  if (!(input.pot > 0)) throw new Error("oracle: pot must be > 0");
-  if (!(input.stack >= 0)) throw new Error("oracle: stack must be >= 0");
+  if (!isReal(input.pot) || input.pot <= 0) throw new Error("oracle: pot must be a finite number > 0");
+  if (!isReal(input.stack) || input.stack < 0) throw new Error("oracle: stack must be a finite number >= 0");
+  const raiseLimit = input.raiseLimit ?? 2;
+  if (!Number.isInteger(raiseLimit) || raiseLimit < 0) throw new Error("oracle: raiseLimit must be an integer >= 0");
+  const addAllIn = input.addAllIn ?? true;
+  if (addAllIn !== true && addAllIn !== false) throw new Error("oracle: addAllIn must be a boolean");
+  const allInThreshold = input.allInThreshold ?? 0.67;
+  if (!isReal(allInThreshold) || allInThreshold <= 0) throw new Error("oracle: allInThreshold must be a finite number > 0");
+  const minBet = input.minBet ?? 1;
+  if (!isReal(minBet) || minBet <= EPS) throw new Error("oracle: minBet must be a finite number > 1e-9");
+  if (input.sizes !== undefined) {
+    if (typeof input.sizes !== "object" || input.sizes === null) throw new Error("oracle: sizes must be an object");
+    for (const street of ["flop", "turn", "river"] as const) {
+      const entry = input.sizes[street];
+      // A street without an entry uses the defaults.
+      if (entry === undefined || entry === null) continue;
+      if (!Array.isArray(entry) || entry.length !== 2) throw new Error(`oracle: sizes.${street} must be a pair [OOP, IP]`);
+      for (const p of [0, 1] as const) {
+        const ps = entry[p];
+        if (typeof ps !== "object" || ps === null) throw new Error(`oracle: sizes.${street}[${p}] must be {bet, raise}`);
+        checkSizeList(ps.bet, `sizes.${street}[${p}].bet`);
+        checkSizeList(ps.raise, `sizes.${street}[${p}].raise`);
+      }
+    }
+  }
   return {
     P0: input.pot,
-    S: input.stack,
+    S: input.stack <= EPS ? 0 : input.stack,
     sizes: input.sizes,
-    raiseLimit: input.raiseLimit ?? 2,
-    addAllIn: input.addAllIn ?? true,
-    allInThreshold: input.allInThreshold ?? 0.67,
-    minBet: input.minBet ?? 1,
+    raiseLimit,
+    addAllIn,
+    allInThreshold,
+    minBet,
   };
 }
 
@@ -108,9 +148,14 @@ function sizesFor(cfg: Config, street: SolverStreet, player: Player): StreetSize
   return entry ? entry[player] : DEFAULT_SIZES[player];
 }
 
-/** Round to 0.1 for labels: 9.5 -> "9.5", 10 -> "10". */
-function fmt(x: number): string {
+/** Raise labels: to 0.1, as the spec writes it (15.75 -> "15.8", 10 -> "10"). */
+function raiseLabelAmount(x: number): string {
   return String(Math.round(x * 10) / 10);
+}
+
+/** Labels of bets raised to minBet: to 0.01, as the spec writes it (1.25 -> "1.25", 1.5 -> "1.5", 1 -> "1"). */
+function betLabelAmount(x: number): string {
+  return String(Math.round(x * 100) / 100);
 }
 
 function ascending(xs: readonly number[]): number[] {
@@ -166,7 +211,7 @@ function legalActions(cfg: Config, st: State): OracleAction[] {
         wantAllIn = true;
         continue;
       }
-      const label = cfg.minBet > raw ? `벳 ${fmt(amount)}` : `벳 ${Math.round(f * 100)}%`;
+      const label = cfg.minBet > raw ? `벳 ${betLabelAmount(amount)}` : `벳 ${Math.round(f * 100)}%`;
       list.push({ kind: "bet", to: myBet + amount, label });
     }
     if (cfg.addAllIn) wantAllIn = true;
@@ -185,7 +230,7 @@ function legalActions(cfg: Config, st: State): OracleAction[] {
           wantAllIn = true;
           continue;
         }
-        list.push({ kind: "raise", to, label: `레이즈 ${fmt(to)}` });
+        list.push({ kind: "raise", to, label: `레이즈 ${raiseLabelAmount(to)}` });
       }
       if (cfg.addAllIn) wantAllIn = true;
       if (wantAllIn) list.push({ kind: "allin", to: myBet + myStack, label: "올인" });
@@ -314,6 +359,11 @@ export function oracleNodeAt(root: OracleNode, path: readonly PathStep[]): Oracl
   let node = root;
   for (let k = 0; k < path.length; k++) {
     const step = path[k];
+    // The spec: a step has exactly one of the keys `action` and `card`, with an integer value.
+    if (typeof step !== "object" || step === null) throw new Error(`oracle: step ${k} must be an object`);
+    if ("action" in step === "card" in step) throw new Error(`oracle: step ${k} needs exactly one of action and card`);
+    const value = "action" in step ? step.action : step.card;
+    if (!Number.isInteger(value)) throw new Error(`oracle: step ${k} must have an integer value`);
     if (node.kind === "action") {
       if (!("action" in step)) throw new Error(`oracle: step ${k} must be an action at an action node`);
       const i = step.action;

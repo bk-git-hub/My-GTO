@@ -4,7 +4,7 @@ import { COMBOS } from "../../play/handInfo";
 import type { PathStep, SolverInput } from "../types";
 import { oracleBestResponse, oracleNodeInfo, oracleValue, type StrategyFn } from "./bestResponse";
 import { createOracleCfr, oracleSolve } from "./cfr";
-import { chanceProbability, OracleGame, terminalNet0 } from "./game";
+import { chanceProbability, OracleGame, oracleHands, terminalNet0 } from "./game";
 import { forEachNode, oracleNodeAt, oracleTree, oracleTreeStats, type OracleNode } from "./tree";
 
 // ---------- helpers ----------
@@ -270,6 +270,67 @@ describe("oracle tree rules", () => {
         for (const a of n.actions!) if (a.kind === "allin") expect(a.to).toBeCloseTo(n.bets[n.player!] + n.stacks[n.player!], 9);
       }
     });
+  });
+});
+
+// ---------- inputs (docs/solver.md "Inputs") ----------
+
+describe("oracle input rules", () => {
+  const river = parseCards("2c3d7h8sKs");
+  const base: SolverInput = { board: river, ranges: [[], []], pot: 10, stack: 100 };
+
+  it("a stack of at most 1e-9 counts as 0: the root is the runout", () => {
+    for (const stack of [1e-12, 1e-9]) {
+      const root = oracleTree({ ...base, stack });
+      expect(root.terminal).toBe("showdown");
+      expect(root.stacks).toEqual([0, 0]);
+      expect(root.contributions).toEqual([0, 0]);
+    }
+    const tiny = oracleTree({ ...base, stack: 2e-9 });
+    expect(tiny.actions!.map((a) => [a.kind, a.to])).toEqual([["check", 0], ["allin", 2e-9]]);
+  });
+
+  it("rejects invalid settings and sizes", () => {
+    const sizes = (bet: unknown[]) => ({ river: [{ bet, raise: [] }, { bet: [], raise: [] }] }) as unknown as SolverInput["sizes"];
+    const bad: Partial<SolverInput>[] = [
+      { pot: 0 }, { pot: NaN }, { pot: Infinity }, { stack: -1 }, { stack: NaN }, { stack: Infinity },
+      { minBet: 0 }, { minBet: 1e-9 }, { minBet: NaN }, { minBet: Infinity },
+      { raiseLimit: -1 }, { raiseLimit: 0.5 }, { raiseLimit: Infinity }, { addAllIn: 1 as never },
+      { allInThreshold: 0 }, { allInThreshold: NaN }, { allInThreshold: Infinity },
+      { sizes: sizes([NaN]) }, { sizes: sizes([-0.25]) }, { sizes: sizes([Infinity]) }, { sizes: sizes(["0.5"]) },
+      { sizes: { turn: [{ bet: [-1], raise: [] }, { bet: [], raise: [] }] } },
+      { sizes: { river: [{ bet: [], raise: [] }] } as never },
+    ];
+    for (const over of bad) expect(() => oracleTree({ ...base, ...over }), JSON.stringify(over)).toThrow(/oracle/);
+    // Size 0 and thresholds above 1 are fine.
+    expectActions(oracleTree({ ...base, sizes: sizes([0]), allInThreshold: 1.5 }), [["check", 0], ["bet", 1], ["allin", 100]]);
+  });
+
+  it("labels a bet raised to minBet with the amount to 0.01", () => {
+    const label = (minBet: number) => oracleTree({ ...base, pot: 1, minBet }).actions![1].label;
+    expect(label(1.25)).toBe("벳 1.25");
+    expect(label(1.5)).toBe("벳 1.5");
+    expect(label(2)).toBe("벳 2");
+  });
+
+  it("a path step has exactly one of action and card, with an integer value", () => {
+    const root = oracleTree(base);
+    expect(oracleNodeAt(root, [A(1)]).player).toBe(1);
+    for (const step of [{ action: "1" }, { action: 1, card: 5 }, {}, null, { action: 1.5 }])
+      expect(() => oracleNodeAt(root, [step as PathStep]), JSON.stringify(step)).toThrow(/oracle/);
+  });
+
+  it("range weights must be numbers in [0, 1], at most 1326 of them", () => {
+    const ok = rangeOfCombos({ AhAd: 1, QhQd: 0.5 });
+    for (const w of [NaN, -0.1, 1.5, 100]) {
+      const r = Float64Array.from(ok);
+      r[comboIndex("KsKh")] = w; // on the board, still checked
+      expect(() => oracleHands({ ...base, ranges: [ok, r] }, 1), String(w)).toThrow(/oracle/);
+    }
+    expect(() => oracleHands({ ...base, ranges: [[...ok, 0], ok] }, 0)).toThrow(/oracle/);
+    expect(oracleHands({ ...base, ranges: [Array.from(ok).slice(0, 200), ok] }, 0).map((h) => h.combo)).toEqual(
+      oracleHands({ ...base, ranges: [Float64Array.from(ok).fill(0, 200), ok] }, 0).map((h) => h.combo),
+    );
   });
 });
 

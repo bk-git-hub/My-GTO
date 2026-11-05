@@ -1,6 +1,6 @@
-import { buildHands, pairWeight, type HandList } from "./hands";
+import { buildHands, checkRanges, pairWeight, type HandList } from "./hands";
 import { foldValues, RiverCache, showdownValues } from "./showdown";
-import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, type GameNode } from "./tree";
+import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, treeConfig, type GameNode } from "./tree";
 import type { SolverInput } from "./types";
 
 /** Traversal modes of Engine.walk. */
@@ -110,7 +110,10 @@ export class Engine {
   private sf = 1;
 
   constructor(input: SolverInput) {
-    const tree = buildGameTree(input);
+    // Check every input before building the (possibly big) tree, so a bad one fails fast.
+    const cfg = treeConfig(input);
+    checkRanges(input.ranges);
+    const tree = buildGameTree(input, cfg);
     this.root = tree.root;
     this.actionNodes = tree.actionNodes;
     this.chanceCount = tree.chanceCount;

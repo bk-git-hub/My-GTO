@@ -1,5 +1,5 @@
 import type { Card } from "../poker/cards";
-import { countHands } from "./hands";
+import { checkRanges, countHands } from "./hands";
 import type { RiverBoard } from "./showdown";
 import {
   DEFAULT_SIZES,
@@ -40,7 +40,21 @@ export interface TreeConfig {
   minBet: number;
 }
 
+const isFiniteNumber = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
+
+/** A size list, checked (finite fractions >= 0, docs/solver.md "Inputs") and sorted ascending. */
+function sizeList(xs: unknown, where: string): number[] {
+  if (!Array.isArray(xs)) throw new Error(`${where} must be an array of fractions`);
+  for (const f of xs) {
+    if (!isFiniteNumber(f) || f < 0) throw new Error(`${where}: every size must be a finite number >= 0 (got ${String(f)})`);
+  }
+  return [...(xs as number[])].sort((a, b) => a - b);
+}
+
+/** Checks the tree settings of an input (docs/solver.md "Inputs") and fills in the defaults. */
 export function treeConfig(input: SolverInput): TreeConfig {
+  if (input === null || typeof input !== "object") throw new Error("the solver input must be an object");
+  if (input.board === null || typeof input.board !== "object") throw new Error("board must be an array of 3, 4 or 5 cards");
   const board = Array.from(input.board);
   if (board.length < 3 || board.length > 5) throw new Error("board must have 3, 4 or 5 cards");
   const seen = new Set<number>();
@@ -49,26 +63,35 @@ export function treeConfig(input: SolverInput): TreeConfig {
     if (seen.has(c)) throw new Error(`duplicate board card: ${c}`);
     seen.add(c);
   }
-  if (!(input.pot > 0) || !Number.isFinite(input.pot)) throw new Error("pot must be a positive number");
-  if (!(input.stack >= 0) || !Number.isFinite(input.stack)) throw new Error("stack must be a number >= 0");
+  if (!isFiniteNumber(input.pot) || !(input.pot > 0)) throw new Error("pot must be a finite number > 0");
+  if (!isFiniteNumber(input.stack) || !(input.stack >= 0)) throw new Error("stack must be a finite number >= 0");
   const minBet = input.minBet ?? 1;
-  if (!(minBet > 0)) throw new Error("minBet must be positive");
-  const sorted = (s: StreetSizes): StreetSizes => ({
-    bet: [...s.bet].sort((a, b) => a - b),
-    raise: [...s.raise].sort((a, b) => a - b),
-  });
+  if (!isFiniteNumber(minBet) || !(minBet > EPS)) throw new Error(`minBet must be a finite number > ${EPS}`);
+  const raiseLimit = input.raiseLimit ?? 2;
+  if (!Number.isInteger(raiseLimit) || raiseLimit < 0) throw new Error("raiseLimit must be an integer >= 0");
+  const addAllIn = input.addAllIn ?? true;
+  if (typeof addAllIn !== "boolean") throw new Error("addAllIn must be true or false");
+  const allInThreshold = input.allInThreshold ?? 0.67;
+  if (!isFiniteNumber(allInThreshold) || !(allInThreshold > 0)) throw new Error("allInThreshold must be a finite number > 0");
+  if (input.sizes !== undefined && (input.sizes === null || typeof input.sizes !== "object"))
+    throw new Error("sizes must be an object with optional flop, turn and river entries");
   const sizes = STREETS.map((st) => {
     const s = input.sizes?.[st] ?? DEFAULT_SIZES;
-    return [sorted(s[0]), sorted(s[1])] as [StreetSizes, StreetSizes];
+    if (!Array.isArray(s) || s.length !== 2) throw new Error(`sizes.${st} must be [OOP sizes, IP sizes]`);
+    return s.map((ps: StreetSizes, p) => {
+      if (ps === null || typeof ps !== "object") throw new Error(`sizes.${st}[${p}] must be {bet, raise}`);
+      return { bet: sizeList(ps.bet, `sizes.${st}[${p}].bet`), raise: sizeList(ps.raise, `sizes.${st}[${p}].raise`) };
+    }) as [StreetSizes, StreetSizes];
   });
   return {
     board,
     pot0: input.pot,
-    stack0: input.stack,
+    // A stack within EPS of 0 is 0, so every stack in the tree is exactly 0 or more than EPS.
+    stack0: input.stack <= EPS ? 0 : input.stack,
     sizes,
-    raiseLimit: input.raiseLimit ?? 2,
-    addAllIn: input.addAllIn ?? true,
-    allInThreshold: input.allInThreshold ?? 0.67,
+    raiseLimit,
+    addAllIn,
+    allInThreshold,
     minBet,
   };
 }
@@ -87,8 +110,10 @@ export interface BetState {
   inc: number;
 }
 
-/** Amounts as labels: rounded to 0.1, no trailing ".0". */
-const fmt = (x: number) => String(Math.round(x * 10) / 10);
+/** Raise amounts in labels: rounded to 0.1, no trailing ".0" (15.75 -> "15.8", 10 -> "10"). */
+const fmtRaise = (x: number) => String(Math.round(x * 10) / 10);
+/** A bet raised to minBet: the amount to 0.01, no trailing zeros (1.25 -> "1.25", 1.5 -> "1.5", 1 -> "1"). */
+const fmtBet = (x: number) => String(Math.round(x * 100) / 100);
 
 /** The actions at an action node, in the order and with the merging rules of docs/solver.md. */
 export function legalActions(cfg: TreeConfig, st: BetState): SolverAction[] {
@@ -110,7 +135,7 @@ export function legalActions(cfg: TreeConfig, st: BetState): SolverAction[] {
       const amount = Math.max(cfg.minBet, raw);
       if (amount >= thr * stack - EPS || amount >= stack - EPS) allin = true;
       else {
-        const label = raw < cfg.minBet ? `벳 ${fmt(amount)}` : `벳 ${Math.round(f * 100)}%`;
+        const label = raw < cfg.minBet ? `벳 ${fmtBet(amount)}` : `벳 ${Math.round(f * 100)}%`;
         out.push({ kind: "bet", to: myBet + amount, label });
       }
     }
@@ -123,7 +148,7 @@ export function legalActions(cfg: TreeConfig, st: BetState): SolverAction[] {
         // Raise to: call first, then f × the pot after calling; at least a minimum raise.
         const to = Math.max(myBet + toCall + f * (st.pot + toCall), maxBet + st.inc);
         if (to - myBet >= thr * stack - EPS || to - myBet >= stack - EPS) allin = true;
-        else out.push({ kind: "raise", to, label: `레이즈 ${fmt(to)}` });
+        else out.push({ kind: "raise", to, label: `레이즈 ${fmtRaise(to)}` });
       }
       if (cfg.addAllIn) allin = true;
     }
@@ -277,7 +302,9 @@ class Builder {
     const key = `${st.street}|${st.player}|${st.pot}|${st.bets[0]}|${st.bets[1]}|${st.stacks[0]}|${st.stacks[1]}|${st.n}|${st.inc}`;
     let acts = this.actionCache.get(key);
     if (!acts) {
-      acts = legalActions(this.cfg, st);
+      // Shared by every node with this betting state, so frozen: a caller can't change one node's
+      // menu (or the solver's) by writing into another's.
+      acts = Object.freeze(legalActions(this.cfg, st).map((a) => Object.freeze(a))) as SolverAction[];
       this.actionCache.set(key, acts);
     }
     return acts;
@@ -355,9 +382,9 @@ export function remainingCards(board: Card[]): Card[] {
   return out;
 }
 
-/** Build the full tree with the bookkeeping the solver needs. */
-export function buildGameTree(input: SolverInput): BuiltTree {
-  const b = new Builder(treeConfig(input));
+/** Build the full tree with the bookkeeping the solver needs (`cfg`: the input's treeConfig, if already made). */
+export function buildGameTree(input: SolverInput, cfg: TreeConfig = treeConfig(input)): BuiltTree {
+  const b = new Builder(cfg);
   const root = b.root();
   return {
     root,
@@ -370,7 +397,11 @@ export function buildGameTree(input: SolverInput): BuiltTree {
   };
 }
 
-/** The game tree for a spot (for tests and the UI), without solving. */
+/**
+ * The game tree for a spot (for tests and the UI), without solving. Read-only: nodes share arrays
+ * (an action list with every node of the same betting state, boards, bets and stacks with their
+ * neighbours). Action lists and their actions are frozen.
+ */
 export function buildTree(input: SolverInput): GameNode {
   return buildGameTree(input).root;
 }
@@ -454,6 +485,7 @@ const TERMINAL_NODE_BYTES = 330;
  */
 export function estimateMemory(input: SolverInput): MemoryEstimate {
   const cfg = treeConfig(input);
+  checkRanges(input.ranges);
   const c: Counts = { action: 0, chance: 0, terminal: 0, slots: [0, 0], maxDepth: 0, maxActions: 1 };
   const len = cfg.board.length;
   if (cfg.stack0 <= 0) countRunout(len, 0, 1, c);

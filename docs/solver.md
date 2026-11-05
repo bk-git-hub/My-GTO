@@ -25,9 +25,32 @@ It is plain TypeScript with no DOM or Node APIs, so the same module runs in a br
 - Combos are indexed like `COMBOS` in `src/play/handInfo.ts` (1326 entries). `Card = rank * 4 + suit`
   (`src/poker/cards.ts`). Hand strength comes from `evaluate(cards, n)` in `src/poker/evaluator.ts`
   (higher is better; equal scores tie).
-- Range weights are in 0..1. A combo that shares a card with the board is ignored whatever its weight.
+- Range weights are in 0..1 (see Inputs). A combo that shares a card with the board is ignored whatever its weight.
 - The chance probability of each next card, given both players' hands, is 1 / (52 − |board| − 4).
   A card that is in either player's hand can't come.
+
+## Inputs
+
+`buildTree`, `estimateMemory`, `createSolver` and `solve` check the input first and throw an `Error` that
+names the bad field. Defaults (below) are filled in before the checks.
+
+- `board`: 3, 4 or 5 distinct integer cards in 0..51.
+- `pot`: a finite number > 0. `stack`: a finite number ≥ 0. A `stack` of at most ε (1e-9, see the game tree
+  rules) is treated as exactly 0: the root is the all-in runout, nobody bets, and every net is as with S = 0.
+- `sizes`: each street entry that is given (whether or not the board reaches that street) is a pair
+  [OOP, IP] of `{bet, raise}`, each an array of finite numbers ≥ 0. Order and duplicates don't matter
+  (sizes are sorted and equal actions merge). A size of 0 means the smallest allowed: `minBet` for a bet,
+  the minimum raise for a raise. NaN, ±Infinity, negative or non-number sizes throw.
+- `raiseLimit`: an integer ≥ 0. `addAllIn`: a boolean.
+- `allInThreshold`: a finite number > 0. Above 1 it never applies (a bet of the whole stack is the all-in anyway).
+- `minBet`: a finite number > ε. So every bet, raise and all-in raises the street's top bet by more than ε,
+  and a player facing one always has toCall > ε.
+- `ranges` (`estimateMemory`, `createSolver`, `solve`; `buildTree` doesn't read them): two array-likes of at most
+  1326 weights in COMBOS order; entries past an array's end are 0. Every entry is a number in [0, 1]:
+  NaN, negative and > 1 throw (weights are probabilities, not percentages), also for combos on the board.
+
+Together with the tolerance rules below, these make every tree finite: each bet or raise adds more than ε to
+the top bet, a street has at most `raiseLimit` + 1 of them, and nobody ever acts with an empty stack.
 
 ## Game tree rules
 
@@ -36,7 +59,7 @@ street, `stacks` [s0, s1] behind, the player to act, the number of bets/raises m
 and the last raise increment (`inc`, the size of the last bet or the amount a raise added on top of the bet it raised).
 
 Root: street implied by the board (3 cards = flop, 4 = turn, 5 = river), pot = P0, bets [0, 0], stacks [S, S], OOP to act, n = 0.
-If S = 0 the root is the all-in runout described below.
+If S = 0 (which includes S ≤ ε, see Inputs) the root is the all-in runout described below.
 
 Sizes for a player on a street come from `input.sizes[street][player]`, or `DEFAULT_SIZES[player]` when the
 street has no entry. Defaults: `raiseLimit` 2, `addAllIn` true, `allInThreshold` 0.67, `minBet` 1.
@@ -47,7 +70,7 @@ allInThreshold × stack − ε or at least stack − ε; "more than toCall behin
 merge within ε. So a bet never leaves rounding dust behind (in floats 0.7 × 3 = 2.0999999999999996, which
 against a 2.1 stack is the all-in, not a bet leaving 4e-16), and every stack is either exactly 0 (after an
 all-in or a call of one: an all-in sets the stack to 0 and a call copies the opponent's stack) or more than ε
-(given a starting stack S that is 0 or more than ε).
+(the starting stack S is 0 or more than ε, see Inputs).
 The "chips behind", `stack > 0` and "both stacks are 0" tests below are therefore exact.
 
 **Not facing a bet** (bets equal; postflop this only happens with bets [0, 0]): actions in this order:
@@ -55,7 +78,8 @@ The "chips behind", `stack > 0` and "both stacks are 0" tests below are therefor
 1. `check` (to 0).
 2. A bet for each fraction f in `bet`, ascending: amount = max(minBet, f × pot). If amount ≥ allInThreshold × stack
    (the bettor's chips behind), or amount ≥ stack, it becomes the all-in instead (both up to ε).
-   Label "벳 {round(f×100)}%", or "벳 {amount}" if minBet raised it.
+   Label "벳 {round(f×100)}%", or "벳 {amount}" if minBet raised it (f × pot < minBet), with the amount rounded to
+   0.01 and no trailing zeros: `String(Math.round(amount × 100) / 100)`, so 1.25 → "벳 1.25", 1.5 → "벳 1.5", 1 → "벳 1".
 3. `allin` (to = stack) if addAllIn and stack > 0. Label "올인".
 
 **Facing a bet** (toCall = max(bets) − myBet > ε): actions in this order:
@@ -65,7 +89,7 @@ The "chips behind", `stack > 0` and "both stacks are 0" tests below are therefor
 3. Raises, only if n ≤ raiseLimit, the raiser has more than toCall + ε behind, and the opponent has chips behind:
    for each f in `raise`, ascending, to = myBet + toCall + f × (pot + toCall), then at least the minimum raise
    to = max(bets) + inc. If (to − myBet) ≥ allInThreshold × myStack, or ≥ myStack (both up to ε), it becomes the all-in.
-   Label "레이즈 {to rounded to 0.1}".
+   Label "레이즈 {to}" with `to` rounded to 0.1: `String(Math.round(to × 10) / 10)`, so 15.75 → "레이즈 15.8", 10 → "레이즈 10".
 4. `allin` (to = myBet + myStack) if addAllIn and the raise conditions hold. An all-in for less than a minimum
    raise is still offered.
 
@@ -117,8 +141,10 @@ Discounted CFR (Brown & Sandholm 2019), α = 1.5, β = 0, γ = 2, alternating up
 
 ### Solution queries
 
-`Solution.node(path)` walks from the root (`{action: i}` at action nodes, `{card}` at chance nodes) and returns a
-`SolutionNode`:
+`Solution.node(path)` walks from the root (`{action: i}` at action nodes, `{card}` at chance nodes, where the card
+is any card that can come, listed in the chance node's `cards`) and returns a `SolutionNode`. A step has exactly one
+of the keys `action` and `card`, with an integer value; anything else throws, before any cached result is looked up
+(so `{action: "1"}` never returns the node of `{action: 1}`).
 
 - `strategy`: average strategy per action, COMBOS-indexed, 0 outside the acting player's hand list and for
   hands blocked by the board at this node.
@@ -128,7 +154,10 @@ Discounted CFR (Brown & Sandholm 2019), α = 1.5, β = 0, γ = 2, alternating up
   cfv_p(h) / compatibleSum(h), computed against the opponent's reach at this node. It is a counterfactual value,
   so a combo with zero own reach still gets one. NaN where the combo isn't in p's hand list, is blocked by the
   node's board, or the opponent has no compatible reach here.
-- Computed lazily per node and cached; illegal paths throw.
+- Computed lazily per node and cached; illegal paths throw. The same path returns the same object: it and its plain
+  arrays (`board`, `bets`, `stacks`, `actions` and each action, `cards`, the `strategy` / `ranges` / `ev` lists)
+  are frozen. Its typed arrays can't be frozen and are shared with later calls for that path, so they are
+  read-only by contract: copy before changing them.
 
 ## API (`src/solver/index.ts`)
 
@@ -143,9 +172,15 @@ buildTree(input): the action tree (for tests and the UI), without solving.
 ```
 
 `solve` stops at `iterations`, at `targetExploitability` (checked every `checkEvery` iterations and at the end),
-or when `onProgress` returns false. A `Solution` reads the solver's live arrays: it is valid until the next
+or when `onProgress` returns false. `iterations` is a number ≥ 0 rounded down (default 1000; Infinity runs until
+the target or `onProgress` stops it, and then `checkEvery` must be finite). `checkEvery` is a number > 0 rounded
+down, at least 1 (default 25). `targetExploitability` is a number (default 0.5). Anything else throws, so every
+pass of the loop runs at least one iteration and a finite cap always ends the solve. `iterate(n)` runs
+floor(n) iterations and needs a finite n ≥ 0. A `Solution` reads the solver's live arrays: it is valid until the next
 `iterate()`, after which its `node()` throws ("stale solution"). `estimateMemory` must not allocate the per-hand arrays, so the UI can refuse
-a spot that won't fit before building it.
+a spot that won't fit before building it. `buildTree` returns a read-only tree: nodes share arrays (boards, bets
+and stacks with neighbouring nodes, an action list with every node of the same betting state); action lists and
+their actions are frozen.
 
 ## Files
 
@@ -180,7 +215,11 @@ a spot that won't fit before building it.
    and along random paths; the value intervals [P0 − BR_1, BR_0] of the core and of the oracle's own CFR
    overlap (both contain the equilibrium value). `SOLVER_CROSSCHECK=1` runs many more seeds and bigger spots.
 5. **Convergence**: exploitability falls and reaches the target on a realistic river spot.
-6. **Solution API**: path walking, illegal paths, ranges, NaN EVs, strategy sums to 1 for in-range combos.
+6. **Solution API**: path walking, illegal paths (including steps of the wrong shape after the legal ones were
+   cached), every legal card as a step, frozen results, ranges, NaN EVs, strategy sums to 1 for in-range combos.
+7. **Inputs**: every rule of the Inputs section, in the core and the oracle alike (the cross-check also runs one
+   list of rejected inputs and one of degenerate valid ones, such as stacks ≤ ε and minBet just above it,
+   through both); fractional and infinite iteration counts in `solve` and `iterate`.
 
 ## Performance
 

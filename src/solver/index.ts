@@ -15,8 +15,9 @@ class Solver implements IncrementalSolver {
     this.e = new Engine(input);
   }
 
+  /** Runs floor(n) iterations; n must be a finite number >= 0. */
   iterate(n: number): void {
-    if (!(n >= 0)) throw new Error("iterate(n) needs n >= 0");
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 0) throw new Error(`iterate(n) needs a finite number n >= 0 (got ${String(n)})`);
     this.e.iterate(Math.floor(n));
   }
 
@@ -43,15 +44,32 @@ export function createSolver(input: SolverInput): IncrementalSolver {
 }
 
 /**
+ * The solve options checked and with defaults filled in (docs/solver.md "API"): `iterations` and
+ * `checkEvery` are rounded down, so every pass of solve()'s loop runs at least one iteration.
+ */
+function solveOptions(opts: SolveOptions): { iterations: number; target: number; checkEvery: number } {
+  if (opts === null || typeof opts !== "object") throw new Error("solve options must be an object");
+  const num = (x: unknown): x is number => typeof x === "number" && !Number.isNaN(x);
+  const iterations = opts.iterations ?? 1000;
+  if (!num(iterations) || iterations < 0) throw new Error(`iterations must be a number >= 0 (got ${String(iterations)})`);
+  const target = opts.targetExploitability ?? 0.5;
+  if (!num(target)) throw new Error(`targetExploitability must be a number (got ${String(target)})`);
+  const checkEvery = opts.checkEvery ?? 25;
+  if (!num(checkEvery) || !(checkEvery > 0)) throw new Error(`checkEvery must be a number > 0 (got ${String(checkEvery)})`);
+  if (iterations === Infinity && checkEvery === Infinity) throw new Error("checkEvery must be finite when iterations is Infinity");
+  if (opts.onProgress !== undefined && typeof opts.onProgress !== "function") throw new Error("onProgress must be a function");
+  return { iterations: Math.floor(iterations), target, checkEvery: Math.max(1, Math.floor(checkEvery)) };
+}
+
+/**
  * Solve a spot, blocking. Stops at `iterations`, once exploitability (checked every `checkEvery`
  * iterations and at the end) is at or below `targetExploitability`, or when onProgress returns false.
  */
 export function solve(input: SolverInput, opts: SolveOptions = {}): Solution {
-  const iterations = opts.iterations ?? 1000;
-  const target = opts.targetExploitability ?? 0.5;
-  const checkEvery = Math.max(1, Math.floor(opts.checkEvery ?? 25));
+  const { iterations, target, checkEvery } = solveOptions(opts);
   const s = new Solver(input);
   while (s.iteration < iterations) {
+    // Both are integers here, so the chunk is at least 1 and the loop always gets closer to the cap.
     s.iterate(Math.min(checkEvery, iterations - s.iteration));
     const expl = s.exploitability();
     const keepGoing = opts.onProgress?.({ iteration: s.iteration, exploitability: expl });

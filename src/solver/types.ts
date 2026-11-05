@@ -28,21 +28,27 @@ export interface StreetSizes {
 export interface SolverInput {
   /** 3, 4 or 5 cards. The solve starts at the beginning of the street this board implies, OOP to act. */
   board: Card[];
-  /** [OOP, IP] weights per COMBOS index. Combos that share a card with the board are ignored. */
+  /**
+   * [OOP, IP] weights per COMBOS index: at most 1326 numbers in [0, 1] each (entries past the end are 0;
+   * NaN, negative or > 1 throws). Combos that share a card with the board are ignored.
+   */
   ranges: [ArrayLike<number>, ArrayLike<number>];
-  /** Chips in the middle at the start (bb). */
+  /** Chips in the middle at the start (bb), finite and > 0. */
   pot: number;
-  /** Effective stack behind for both players at the start (bb). */
+  /** Effective stack behind for both players at the start (bb), finite and >= 0; at most 1e-9 counts as 0. */
   stack: number;
-  /** Sizes per street, [OOP, IP]. A street without an entry uses DEFAULT_SIZES. */
+  /** Sizes per street, [OOP, IP]. A street without an entry uses DEFAULT_SIZES. Sizes are finite numbers >= 0. */
   sizes?: Partial<Record<SolverStreet, [StreetSizes, StreetSizes]>>;
-  /** Raises allowed after the first bet on a street (2 = bet, raise, re-raise, then call or fold). Default 2. */
+  /** Raises allowed after the first bet on a street (2 = bet, raise, re-raise, then call or fold). An integer >= 0. Default 2. */
   raiseLimit?: number;
   /** Offer all-in whenever chips remain. Default true. */
   addAllIn?: boolean;
-  /** A bet or raise that would put in at least this share of the remaining stack becomes all-in. Default 0.67. */
+  /**
+   * A bet or raise that would put in at least this share of the remaining stack becomes all-in. A finite
+   * number > 0 (above 1 it never applies; a bet of the whole stack is the all-in anyway). Default 0.67.
+   */
   allInThreshold?: number;
-  /** Smallest opening bet (bb). Default 1. Raises follow no-limit rules (at least the last raise increment). */
+  /** Smallest opening bet (bb), finite and > 1e-9. Default 1. Raises follow no-limit rules (at least the last raise increment). */
   minBet?: number;
 }
 
@@ -52,11 +58,11 @@ export const DEFAULT_SIZES: [StreetSizes, StreetSizes] = [
 ];
 
 export interface SolveOptions {
-  /** Hard cap on iterations. Default 1000. */
+  /** Hard cap on iterations, a number >= 0 rounded down (Infinity: until the target or onProgress stops it). Default 1000. */
   iterations?: number;
   /** Stop once exploitability (% of pot) is at or below this. Default 0.5. */
   targetExploitability?: number;
-  /** Measure exploitability every this many iterations. Default 25. */
+  /** Measure exploitability every this many iterations, a number > 0 rounded down to at least 1. Default 25. */
   checkEvery?: number;
   /** Called after each exploitability check. Return false to stop early. */
   onProgress?: (p: { iteration: number; exploitability: number }) => boolean | void;
@@ -72,9 +78,17 @@ export interface SolverAction {
   label: string;
 }
 
-/** A step from a node: an action index at an action node, or the card dealt at a chance node. */
+/**
+ * A step from a node: an action index at an action node, or the card dealt at a chance node (any card that
+ * can come). Exactly one of the two keys, with an integer value; anything else makes node() throw.
+ */
 export type PathStep = { action: number } | { card: Card };
 
+/**
+ * One node of a solution. node() returns the same cached object for the same path: it and its plain
+ * arrays are frozen, and its typed arrays (strategy, ranges, ev) are shared with later calls, so treat
+ * them as read-only and copy before changing them.
+ */
 export interface SolutionNode {
   kind: "action" | "chance" | "terminal";
   street: SolverStreet;
@@ -122,7 +136,7 @@ export interface MemoryEstimate {
 
 /** Incremental solver (`createSolver`): run a few iterations at a time so a Web Worker stays responsive. */
 export interface IncrementalSolver {
-  /** Run `n` more DCFR iterations (each one updates OOP, then IP). */
+  /** Run floor(n) more DCFR iterations (each one updates OOP, then IP); n must be a finite number >= 0. */
   iterate(n: number): void;
   /** Iterations run so far. */
   readonly iteration: number;
@@ -132,7 +146,10 @@ export interface IncrementalSolver {
   solution(): Solution;
 }
 
-/** One node of the game tree as built by `buildTree` (no strategy data). */
+/**
+ * One node of the game tree as built by `buildTree` (no strategy data). Read-only: nodes share arrays with
+ * each other, and action lists (shared by every node with the same betting state) are frozen.
+ */
 export interface GameTreeNode {
   kind: "action" | "chance" | "terminal";
   street: SolverStreet;

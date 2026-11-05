@@ -1,4 +1,4 @@
-import type { Card } from "../poker/cards";
+import { cardToString, type Card } from "../poker/cards";
 import { COMBOS } from "../play/handInfo";
 
 /** Number of two-card combos (COMBOS.length). */
@@ -32,15 +32,38 @@ export function cardMask(cards: ArrayLike<Card>): Uint8Array {
   return m;
 }
 
-/** The weight a combo gets in the solve: 0 if it touches the board or the weight isn't a positive number. */
+/**
+ * Checks one player's range (docs/solver.md "Inputs"): an array-like of at most 1326 weights in
+ * COMBOS order, each a finite number in [0, 1] (not a percentage). Entries past its length are 0.
+ * Combos on the board are ignored by the solve, but their weights must be valid too.
+ */
+export function checkRange(range: ArrayLike<number>, p: number): void {
+  if (range === null || typeof range !== "object" || typeof range.length !== "number")
+    throw new Error(`ranges[${p}] must be an array of combo weights`);
+  if (range.length > NUM_COMBOS) throw new Error(`ranges[${p}] has ${range.length} weights; at most ${NUM_COMBOS} (COMBOS order)`);
+  for (let i = 0; i < range.length; i++) {
+    const w = range[i];
+    if (typeof w !== "number" || !(w >= 0 && w <= 1))
+      throw new Error(`ranges[${p}][${i}] (${COMBOS[i].cards.map(cardToString).join("")}) is ${String(w)}: weights must be numbers in [0, 1]`);
+  }
+}
+
+/** Checks both ranges of an input. */
+export function checkRanges(ranges: readonly [ArrayLike<number>, ArrayLike<number>]): void {
+  if (!Array.isArray(ranges) || ranges.length !== 2) throw new Error("ranges must be [OOP weights, IP weights]");
+  checkRange(ranges[0], 0);
+  checkRange(ranges[1], 1);
+}
+
+/** The weight a combo gets in the solve (the range is already checked): 0 if it touches the board. */
 function weightOf(range: ArrayLike<number>, i: number, dead: Uint8Array): number {
-  const w = range[i];
-  if (!(w > 0) || !Number.isFinite(w)) return 0;
+  const w = i < range.length ? range[i] : 0;
+  if (!(w > 0)) return 0;
   const [a, b] = COMBOS[i].cards;
   return dead[a] || dead[b] ? 0 : w;
 }
 
-/** How many hands a player's list will have, without building it. */
+/** How many hands a player's list will have, without building it. The range must be checked already. */
 export function countHands(board: ArrayLike<Card>, range: ArrayLike<number>): number {
   const dead = cardMask(board);
   let n = 0;
@@ -68,7 +91,7 @@ function buildOne(range: ArrayLike<number>, dead: Uint8Array): HandList {
     const [a, b] = COMBOS[i].cards;
     list.c1[h] = a;
     list.c2[h] = b;
-    list.weight[h] = range[i];
+    list.weight[h] = weightOf(range, i, dead);
     list.indexOfCombo[i] = h;
     byCard[a].push(h);
     byCard[b].push(h);
@@ -77,8 +100,9 @@ function buildOne(range: ArrayLike<number>, dead: Uint8Array): HandList {
   return list;
 }
 
-/** Both players' hand lists, with the same-combo maps filled in. */
+/** Both players' hand lists, with the same-combo maps filled in. Throws on an invalid range (checkRanges). */
 export function buildHands(board: ArrayLike<Card>, ranges: [ArrayLike<number>, ArrayLike<number>]): [HandList, HandList] {
+  checkRanges(ranges);
   const dead = cardMask(board);
   const h0 = buildOne(ranges[0], dead);
   const h1 = buildOne(ranges[1], dead);

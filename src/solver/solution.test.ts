@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { parseCards } from "../poker/cards";
 import { COMBOS } from "../play/handInfo";
-import { createSolver, solve } from "./index";
+import { Engine } from "./cfr";
+import { createSolver, estimateMemory, solve } from "./index";
 import { comboIndex, rangeWeights } from "./testHelpers";
 import type { PathStep, SolutionNode, SolverInput, StreetSizes } from "./types";
 
@@ -219,5 +220,146 @@ describe("solve options", () => {
 
   it("rejects ranges with nothing to play", () => {
     expect(() => createSolver({ ...input, ranges: [new Float64Array(1326), input.ranges[1]] })).toThrow();
+  });
+});
+
+describe("solve and iterate: iteration counts are checked and rounded down", () => {
+  const input: SolverInput = { ...turnInput, board: parseCards("Ks9h5c3d2s") };
+  /** onProgress that fails the test instead of letting a solve that makes no progress spin forever. */
+  const guard = (max: number) => {
+    let calls = 0;
+    return () => {
+      if (++calls > max) throw new Error("solve made no progress");
+    };
+  };
+
+  it("a fractional iteration cap terminates (iterate(0.5) used to spin forever)", () => {
+    expect(solve(input, { iterations: 0.5, targetExploitability: -1, onProgress: guard(5) }).iterations).toBe(0);
+    expect(solve(input, { iterations: 2.7, targetExploitability: -1, checkEvery: 1, onProgress: guard(5) }).iterations).toBe(2);
+    const seen: number[] = [];
+    const sol = solve(input, { iterations: 7, targetExploitability: -1, checkEvery: 2.5, onProgress: (p) => void seen.push(p.iteration) });
+    expect(seen).toEqual([2, 4, 6, 7]);
+    expect(sol.iterations).toBe(7);
+    // checkEvery below 1 rounds up to every iteration.
+    expect(solve(input, { iterations: 3, targetExploitability: -1, checkEvery: 0.5, onProgress: guard(3) }).iterations).toBe(3);
+  });
+
+  /**
+   * Runs f with the engine refusing a non-finite iteration count, so a missing check fails the test
+   * with that message instead of looping forever.
+   */
+  const noEndlessEngine = (f: () => void) => {
+    const orig = Engine.prototype.iterate;
+    Engine.prototype.iterate = function (this: Engine, n: number) {
+      if (!Number.isFinite(n)) throw new Error("the engine was asked for endless iterations");
+      orig.call(this, n);
+    };
+    try {
+      f();
+    } finally {
+      Engine.prototype.iterate = orig;
+    }
+  };
+
+  it("Infinity runs until the target or onProgress stops it", () => {
+    let calls = 0;
+    const sol = solve(input, { iterations: Infinity, targetExploitability: -1, checkEvery: 4, onProgress: () => ++calls < 2 });
+    expect(sol.iterations).toBe(8);
+    noEndlessEngine(() => expect(() => solve(input, { iterations: Infinity, checkEvery: Infinity })).toThrow(/checkEvery must be finite/));
+  });
+
+  it("rejects counts that aren't numbers >= 0 (> 0 for checkEvery)", () => {
+    for (const iterations of [NaN, -1, "10" as unknown as number]) expect(() => solve(input, { iterations })).toThrow(/iterations/);
+    for (const checkEvery of [0, -1, NaN]) expect(() => solve(input, { checkEvery })).toThrow(/checkEvery/);
+    expect(() => solve(input, { targetExploitability: NaN })).toThrow(/targetExploitability/);
+    const s = createSolver(input);
+    noEndlessEngine(() => {
+      for (const n of [NaN, -1, Infinity]) expect(() => s.iterate(n)).toThrow(/iterate\(n\)/);
+    });
+    s.iterate(1.9);
+    expect(s.iteration).toBe(1);
+  });
+});
+
+describe("range weights are checked", () => {
+  const input: SolverInput = { ...turnInput, board: parseCards("Ks9h5c3d2s") };
+  const withWeight = (p: 0 | 1, i: number, w: number): SolverInput => {
+    const r = Float64Array.from(input.ranges[p]);
+    r[i] = w;
+    return { ...input, ranges: p === 0 ? [r, input.ranges[1]] : [input.ranges[0], r] };
+  };
+
+  it("NaN, negative and > 1 weights throw, also on combos the board blocks", () => {
+    const aa = comboIndex("AsAh"), onBoard = comboIndex("KsKh");
+    for (const w of [NaN, -0.1, 1.5, 100, Infinity]) {
+      for (const p of [0, 1] as const) {
+        expect(() => createSolver(withWeight(p, aa, w)), `${p} ${w}`).toThrow(new RegExp(`ranges\\[${p}\\]\\[${aa}\\]`));
+        expect(() => estimateMemory(withWeight(p, aa, w))).toThrow(/ranges/);
+      }
+      expect(() => solve(withWeight(0, onBoard, w), { iterations: 1 })).toThrow(/ranges\[0\]/);
+    }
+    expect(() => createSolver({ ...input, ranges: [[...Array.from(input.ranges[0]), 0], input.ranges[1]] })).toThrow(/at most 1326/);
+    expect(() => createSolver({ ...input, ranges: [input.ranges[0], ["1" as unknown as number]] })).toThrow(/ranges\[1\]\[0\]/);
+    expect(() => createSolver({ ...input, ranges: [input.ranges[0]] as never })).toThrow(/ranges/);
+  });
+
+  it("0 and 1 are fine, and a short array means 0 for the rest", () => {
+    expect(() => createSolver(withWeight(0, comboIndex("AsAh"), 1))).not.toThrow();
+    expect(() => createSolver(withWeight(0, comboIndex("AsAh"), 0))).not.toThrow();
+    const short = Array.from(input.ranges[1]).slice(0, 1000);
+    const a = estimateMemory({ ...input, ranges: [input.ranges[0], short] });
+    const zeros = Float64Array.from(input.ranges[1]).fill(0, 1000);
+    expect(a).toEqual(estimateMemory({ ...input, ranges: [input.ranges[0], zeros] }));
+  });
+});
+
+describe("Solution.node: step checks, frozen results", () => {
+  const solver = createSolver(turnInput);
+  solver.iterate(10);
+  const sol = solver.solution();
+
+  it("checks a step's shape before the cache, so {action: '1'} can't hit the entry of {action: 1}", () => {
+    const one = sol.node([{ action: 1 }]);
+    expect(sol.node([{ action: 1 }])).toBe(one);
+    const bad: unknown[][] = [
+      [{ action: "1" }],
+      [{ action: 1, card: 5 }],
+      [{}],
+      [null],
+      [1],
+      [{ action: 1 }, { action: "0" }],
+      [{ action: 0 }, { action: 0 }, { card: String(parseCards("2s")[0]) }],
+    ];
+    for (const path of bad) expect(() => sol.node(path as PathStep[]), JSON.stringify(path)).toThrow(/illegal path/);
+    expect(() => sol.node("a1" as never)).toThrow(/illegal path/);
+    // {card} at an action node and {action} at a chance node stay illegal after the legal forms were cached.
+    sol.node([{ action: 0 }, { action: 0 }, { card: parseCards("2s")[0] }]);
+    expect(() => sol.node([{ action: 0 }, { action: 0 }, { action: parseCards("2s")[0] }])).toThrow(/illegal path/);
+  });
+
+  it("every card that can come is a legal step, not only one per suit pattern", () => {
+    const chance = sol.node([{ action: 0 }, { action: 0 }]);
+    for (const c of chance.cards!) {
+      const river = sol.node([{ action: 0 }, { action: 0 }, { card: c }]);
+      expect(river.board).toEqual([...TURN, c]);
+    }
+  });
+
+  it("the cached node and its plain arrays are frozen", () => {
+    const root = sol.node([]);
+    expect(sol.node([])).toBe(root);
+    for (const x of [root, root.board, root.bets, root.stacks, root.actions, root.strategy, root.ranges, root.ev])
+      expect(Object.isFrozen(x)).toBe(true);
+    expect(root.actions!.every((a) => Object.isFrozen(a))).toBe(true);
+    expect(() => {
+      root.actions![0].to = 5;
+    }).toThrow(TypeError);
+    expect(() => {
+      (root as { pot: number }).pot = 1;
+    }).toThrow(TypeError);
+    expect(() => root.board.push(0)).toThrow(TypeError);
+    const chance = sol.node([{ action: 0 }, { action: 0 }]);
+    expect(Object.isFrozen(chance.cards)).toBe(true);
+    expect(sol.node([]).actions![0].to).toBe(0);
   });
 });
