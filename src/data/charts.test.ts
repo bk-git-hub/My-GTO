@@ -144,3 +144,18 @@ describe("short-stack open / re-jam set", () => {
     }
   });
 });
+
+describe("pub BB defense (deep/mid)", () => {
+  const pub = getSet("pub");
+  const defend = (stage: string, opener: string) =>
+    1 - actionTotals(pub.stages.find((s) => s.id === stage)!.scenarios.find((s) => s.id.endsWith(`/bb-vs-${opener}`))!).fold;
+
+  it("has a chart per opener, defending wider against later seats and with smaller opens", () => {
+    for (const stage of ["deep", "mid"]) {
+      expect(defend(stage, "utg"), stage).toBeLessThan(defend(stage, "co"));
+      expect(defend(stage, "co"), stage).toBeLessThan(defend(stage, "btn"));
+      expect(defend(stage, "utg"), stage).toBeGreaterThan(0.25);
+    }
+    for (const op of ["utg", "hj", "btn"]) expect(defend("deep", op), op).toBeLessThan(defend("mid", op)); // 3bb vs 2.5bb opens
+  });
+});

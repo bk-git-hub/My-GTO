@@ -10,32 +10,17 @@ const STACKS = [10, 12, 15, 17, 20, 25];
 const SEATS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
 const OPEN = 2;
 const ITERATIONS = 3000;
-const RANKS = "23456789TJQKA";
-
-/**
- * Share of its equity the BB realizes after flatting an open out of position, before the stack
- * adjustment: pairs and connected or broadway suited hands play well; weak offsuit hands get
- * bet off their equity.
- */
-function baseRealization(h) {
-  if (h.length === 2) return 0.9;
-  const hi = RANKS.indexOf(h[0]), lo = RANKS.indexOf(h[1]);
-  const gap = hi - lo - 1;
-  const broadway = lo >= RANKS.indexOf("T");
-  if (h[2] === "s") return broadway || gap <= 1 ? 0.9 : hi >= RANKS.indexOf("Q") || gap <= 2 ? 0.8 : 0.65;
-  return broadway ? 0.85 : hi === 12 || (gap <= 1 && lo >= RANKS.indexOf("5")) ? 0.72 : 0.55;
-}
-/** Shorter stacks leave less to play after the flop, so the shortfall shrinks (full at 20bb and deeper). */
-const realization = (h, stack) => 1 - (1 - baseRealization(h)) * Math.min(1, (stack - OPEN) / 18);
-const setup = (stack, hands) => ({ players: 9, stack, sb: 0.5, bb: 1, bbAnte: 1, open: OPEN, bbRealization: hands.map((h) => realization(h, stack)) });
+// Realization table: src/poker/realization.ts
+const setup = (stack, hands, realizationAt) => ({ players: 9, stack, sb: 0.5, bb: 1, bbAnte: 1, open: OPEN, bbRealization: hands.map((h) => realizationAt(h, stack, OPEN)) });
 const plain = (x) => (x instanceof Float64Array ? [...x] : x.map(plain));
 
 if (!isMainThread && workerData?.shortNash) {
   const { solveOpenJam } = await load("src/poker/openjam.ts");
   const { ALL_HANDS } = await load("src/poker/cards.ts");
+  const { realizationAt } = await load("src/poker/realization.ts");
   const { eq, cnt, stack } = workerData;
   const t0 = Date.now();
-  const sol = solveOpenJam({ eq, cnt }, setup(stack, ALL_HANDS), ITERATIONS);
+  const sol = solveOpenJam({ eq, cnt }, setup(stack, ALL_HANDS, realizationAt), ITERATIONS);
   const { open, jam, callJam, reJam, bbCall, callReJam, exploitability } = sol;
   const fields = Object.fromEntries(Object.entries({ open, jam, callJam, reJam, bbCall, callReJam }).map(([k, v]) => [k, plain(v)]));
   parentPort.postMessage({ stack, seconds: (Date.now() - t0) / 1000, exploitability, ...fields });

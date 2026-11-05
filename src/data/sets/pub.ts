@@ -1,4 +1,5 @@
 import type { ActionDef, ChartSetDef, ScenarioDef } from "../charts";
+import { PUB_BB_DEFENSE } from "./pubBbDefense";
 
 /**
  * 홀덤펍 토너먼트용 레인지 (9인, BB 앤티, 시작 50,000 = 250bb).
@@ -23,6 +24,23 @@ const small = (range: string): ActionDef => ({ key: "small", label: "2bb 오픈"
 const shove = (range: string, label = "올인"): ActionDef => ({ key: "shove", label, color: "allin", range });
 const threeBet = (range: string, label = "3벳"): ActionDef => ({ key: "3bet", label, color: "raise", range });
 const call = (range: string): ActionDef => ({ key: "call", label: "콜", color: "call", range });
+
+/**
+ * BB vs each opener (deep/mid): computed by scripts/make-bbdefense.mjs from that seat's open range
+ * above, pot odds with the BB ante, and the equity-realization table in src/poker/realization.ts.
+ */
+function bbDefense(stage: "deep" | "mid", size: string): ScenarioDef[] {
+  return Object.entries(PUB_BB_DEFENSE[stage]).map(([opener, r]) => ({
+    id: `bb-vs-${opener.toLowerCase().replace("+", "p")}`,
+    kind: "vsOpen",
+    hero: "BB",
+    villain: opener,
+    chip: `BB vs ${opener}`,
+    title: `BB vs ${opener} 오픈`,
+    description: `${size} 오픈, 콜러 없음 기준 (콜러가 있으면 오프수트 콜은 빼요). 상대가 위 오픈 레인지대로 연다고 보고, 팟 오즈와 에퀴티 실현율로 계산했어요. 펍아재가 더 넓게 열면 더 넓게 방어해요.`,
+    actions: [threeBet(r.threeBet), call(r.call)],
+  }));
+}
 
 function rfi(hero: string, title: string, actions: ActionDef[]): ScenarioDef {
   return {
@@ -141,34 +159,7 @@ const DEEP: ScenarioDef[] = [
     description: "",
     actions: [threeBet("JJ+, AQs+, AQo+"), call("22-TT, KQs")],
   },
-  {
-    id: "bb-vs-early",
-    kind: "vsOpen",
-    hero: "BB",
-    villain: "EP",
-    villainSeats: EARLY,
-    chip: "BB vs EP",
-    title: "BB vs EP 오픈",
-    description: "3bb 오픈, 콜러 없음 기준. 콜러가 있으면 오프수딧 제외.",
-    actions: [
-      threeBet("QQ+, AKs, AKo"),
-      call("22-JJ, A2s-AQs, KTs+, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo, KQo"),
-    ],
-  },
-  {
-    id: "bb-vs-late",
-    kind: "vsOpen",
-    hero: "BB",
-    villain: "MP·LP",
-    villainSeats: ["LJ", "HJ", "CO", "BTN", "SB"],
-    chip: "BB vs MP·LP",
-    title: "BB vs MP·LP 오픈",
-    description: "콜러가 있으면 오프수딧 제외.",
-    actions: [
-      threeBet("TT+, AQs+, AQo+"),
-      call("22-99, A2s-AJs, K5s+, Q7s+, J7s+, T7s+, 96s+, 85s+, 74s+, 64s+, 53s+, A7o-AJo, K9o+, Q9o+, J9o+, T9o"),
-    ],
-  },
+  ...bbDefense("deep", "3~4bb"),
   {
     id: "vs-3bet",
     kind: "vs3bet",
@@ -300,34 +291,7 @@ const MID: ScenarioDef[] = [
     description: "",
     actions: [threeBet("JJ+, AQs+, AQo+"), call("22-TT, KQs")],
   },
-  {
-    id: "bb-vs-early",
-    kind: "vsOpen",
-    hero: "BB",
-    villain: "EP",
-    villainSeats: EARLY,
-    chip: "BB vs EP",
-    title: "BB vs EP 오픈",
-    description: "콜러 없음 기준. 콜러가 있으면 오프수딧 제외.",
-    actions: [
-      threeBet("QQ+, AKs, AKo"),
-      call("22-JJ, A2s-AQs, KTs+, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo, KQo"),
-    ],
-  },
-  {
-    id: "bb-vs-late",
-    kind: "vsOpen",
-    hero: "BB",
-    villain: "MP·LP",
-    villainSeats: ["LJ", "HJ", "CO", "BTN", "SB"],
-    chip: "BB vs MP·LP",
-    title: "BB vs MP·LP 오픈",
-    description: "BTN 오픈이면 A2o까지 콜.",
-    actions: [
-      threeBet("TT+, AQs+, AQo+"),
-      call("22-99, A2s-AJs, K5s+, Q7s+, J7s+, T7s+, 96s+, 85s+, 74s+, 64s+, 53s+, A7o-AJo, K9o+, Q9o+, J9o+, T9o"),
-    ],
-  },
+  ...bbDefense("mid", "2.5bb"),
   {
     id: "vs-3bet",
     kind: "vs3bet",
