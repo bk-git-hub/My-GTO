@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
+import { clearAttempts, useAttempts } from "../../state/attempts";
 import { statsStore } from "../../state/stats";
 import { threadsStore } from "../coach/threads";
 
@@ -12,6 +13,7 @@ const EFFORTS: { id: Effort; label: string; note: string }[] = [
 export function SettingsPage() {
   const settings = useSettings();
   const threads = threadsStore.use();
+  const attempts = useAttempts();
   const [showKey, setShowKey] = useState(false);
   const [keyStatus, setKeyStatus] = useState<{ ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
@@ -143,7 +145,11 @@ export function SettingsPage() {
         <div className="row-gap wrap">
           <button
             className="ghost small"
-            onClick={() => confirm("퀴즈 기록을 모두 지울까요?") && statsStore.set({ byKey: {}, streak: 0, bestStreak: 0 })}
+            onClick={() => {
+              if (!confirm(`퀴즈 기록을 모두 지울까요?\n정답률·연속 정답 합계와 문제별 기록(${attempts.length}개)이 함께 지워지고 되돌릴 수 없어요. 필요하면 먼저 기록 화면에서 내보내기 하세요.`)) return;
+              statsStore.set({ byKey: {}, streak: 0, bestStreak: 0 });
+              clearAttempts();
+            }}
           >
             퀴즈 기록 초기화
           </button>

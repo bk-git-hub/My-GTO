@@ -7,8 +7,11 @@ import { heroNet, pot, toCall, type Game, type LogEntry, type Street } from "../
 import { handFeatures } from "../../play/handInfo";
 import { STAGE_STACK } from "../../play/policy";
 import { heroAct, heroMoves, startHand, type Decision, type PlayState } from "../../play/table";
-import { recordAnswer } from "../../state/stats";
+import type { AttemptGrade } from "../../../shared/contracts";
+import type { AttemptInput } from "../../state/attempts";
+import { recordQuiz } from "../../state/attempts";
 import { useCoach } from "../coach/CoachContext";
+import { chosenOptionLabel, decisionCorrect, decisionEvLoss, playGrade } from "./playAttempt";
 
 const SET = getSet("pub");
 const STREET_LABEL: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
@@ -66,6 +69,43 @@ function reviewFacts(s: PlayState): string {
   return lines.join("\n");
 }
 
+/** One graded hero decision as an attempt (the tallies keep counting everything but "mistake" as correct). */
+function decisionAttempt(s: PlayState, d: Decision, grade: AttemptGrade): AttemptInput {
+  const g = s.game;
+  const stage = SET.stages.find((x) => x.id === s.stageId)!;
+  const hero = g.players[s.heroIdx];
+  const hand = handClassOf(hero.hole[0], hero.hole[1]);
+  const lines = [
+    `게임: ${SET.game}, 스택 구간: ${stage.label} (모두 ${g.startStack}bb 시작, BB 앤티 1bb)`,
+    `내 자리: ${hero.seat}, 내 핸드: ${hero.hole.map(cardLabel).join(" ")} (${hand})`,
+    d.board.length ? `보드: ${d.board.map(cardLabel).join(" ")}` : "",
+  ];
+  for (const st of ["preflop", "flop", "turn", "river"] as Street[]) {
+    const text = streetLog(g, st);
+    if (text) lines.push(`${STREET_LABEL[st]} 액션: ${text}`);
+    if (st === d.street) break;
+  }
+  lines.push(
+    `${STREET_LABEL[d.street]} 팟 ${r1(d.pot)}bb, 콜 금액 ${r1(d.toCall)}bb, 필요 에퀴티 ${pct(d.reqEquity)}, 내 에퀴티 ${pct(d.equity)}, SPR ${r1(d.spr)}`,
+    `선택: ${d.chosenLabel} [${GRADE_TEXT[d.grade]}] ${d.summary}`,
+  );
+  if (d.chart) lines.push(`차트: ${d.chart}`);
+  const evs = d.options.filter((o) => o.ev !== null).map((o) => `${o.label} ${o.ev! >= 0 ? "+" : ""}${r1(o.ev!)}bb`);
+  if (evs.length) lines.push(`선택지 EV: ${evs.join(", ")}`);
+  for (const v of d.villains) if (v.breakdown) lines.push(`${v.seat} 추정 레인지: ${v.breakdown}`);
+  return {
+    kind: "play",
+    keys: ["play", `play:${s.stageId}`],
+    spot: `play:${s.stageId}:${d.street}`,
+    title: `${stage.label} ${STREET_LABEL[d.street]} · ${hero.seat} ${hand}${d.board.length ? ` · ${d.board.map(cardLabel).join("")}` : ""}`,
+    chosen: chosenOptionLabel(d),
+    correct: decisionCorrect(d),
+    grade,
+    evLossBB: decisionEvLoss(d),
+    detail: lines.filter(Boolean).join("\n"),
+  };
+}
+
 export function PlayPage() {
   const [stage, setStage] = useState("deep");
   const [s, setS] = useState<PlayState>(() => startHand("deep"));
@@ -98,7 +138,8 @@ export function PlayPage() {
     if (!m) return;
     const next = heroAct(s, m);
     const d = next.decisions[next.decisions.length - 1];
-    if (d.grade !== "info") recordAnswer(["play", `play:${s.stageId}`], d.grade !== "mistake");
+    const grade = playGrade(d.grade);
+    if (grade) recordQuiz(decisionAttempt(s, d, grade));
     setS(next);
   }
 

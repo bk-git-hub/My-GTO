@@ -5,7 +5,8 @@ import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow } from "../../components/SetPicker";
 import { getSet } from "../../data/charts";
 import { cardLabel } from "../../poker/cards";
-import { accuracy, recordAnswer, useStats } from "../../state/stats";
+import { recordQuiz } from "../../state/attempts";
+import { accuracy, useStats } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 import {
   QUIZ_ACTIONS,
@@ -68,11 +69,31 @@ export function StackQuiz({
   function answer(a: QuizAction) {
     if (picked) return;
     setPicked(a);
-    const { grade } = gradeStack(q, a);
-    recordAnswer(
-      [prefix, `${prefix}:${q.stageId}`, `${prefix}:${q.stageId}:${q.scenario.hero}`, `${prefix}:seat:${q.scenario.hero}`],
-      grade !== "wrong",
-    );
+    const { grade, freqs } = gradeStack(q, a);
+    const label = (k: QuizAction) => QUIZ_ACTIONS.find((x) => x.key === k)!.label;
+    const offered = actions.map((x) => x.key);
+    const bestKey = offered.reduce((b, k) => (freqs[k] > freqs[b] ? k : b), offered[0]);
+    const freqText = offered.map((k) => `${label(k)} ${Math.round(freqs[k] * 100)}%`).join(" · ");
+    const where = q.mode === "pub" ? `펍 ${st.label}` : "100bb 캐시";
+    recordQuiz({
+      kind: "stack",
+      keys: [prefix, `${prefix}:${q.stageId}`, `${prefix}:${q.stageId}:${q.scenario.hero}`, `${prefix}:seat:${q.scenario.hero}`],
+      spot: `stack:${q.mode}:${q.stageId}:${q.scenario.hero}:${q.hand}`,
+      title: `${where} · ${q.scenario.hero} · ${q.hand}`,
+      chosen: `${label(a)} (${Math.round(freqs[a] * 100)}%)`,
+      correct: `${label(bestKey)} (${Math.round(freqs[bestKey] * 100)}%)`,
+      grade,
+      detail: [
+        `게임: ${set.game}`,
+        q.mode === "cash"
+          ? "스택: 100bb"
+          : `블라인드: Lv${q.level} ${fmt(q.sb)}/${fmt(q.bb)} (BB 앤티 ${fmt(q.bb)}), 내 스택 ${fmt(q.myChips)} (${bbOf(q.myChips, q.bb)}bb), 평균 ${fmt(q.avgChips)} (${bbOf(q.avgChips, q.bb)}bb)`,
+        `포지션: ${q.scenario.hero} (RFI)`,
+        `핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
+        `적용 차트: ${st.label} (${st.stack}) ${q.scenario.title}`,
+        `차트 빈도: ${freqText}`,
+      ].join("\n"),
+    });
   }
 
   function askCoach() {

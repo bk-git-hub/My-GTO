@@ -5,6 +5,7 @@ import { CoachProvider } from "./features/coach/CoachContext";
 import { HomePage } from "./features/home/HomePage";
 import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
+import { RecordsPage } from "./features/records/RecordsPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 
 interface NavItem {
@@ -16,6 +17,7 @@ interface NavItem {
 
 const NAV: (NavItem | { section: string })[] = [
   { route: "home", label: "홈", icon: "⌂" },
+  { route: "records", label: "기록", icon: "≡" },
   { route: "play", label: "핸드 플레이", icon: "♠" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
@@ -106,12 +108,13 @@ export function App() {
           </header>
           <main>
             {top === "home" && <HomePage go={go} />}
+            {top === "records" && <RecordsPage go={go} />}
             {top === "play" && <PlayPage />}
             {top === "quiz" && <QuizPage key={route} sub={rest.join("/")} />}
             {top === "charts" && <ChartsPage />}
             {top === "calc" && <CalcPage />}
             {top === "settings" && <SettingsPage />}
-            {!["home", "play", "quiz", "charts", "calc", "settings"].includes(top) && <HomePage go={go} />}
+            {!["home", "records", "play", "quiz", "charts", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
         </div>
       </div>

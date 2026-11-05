@@ -6,7 +6,8 @@ import { SeatRow, SetPicker } from "../../components/SetPicker";
 import { getSet, scenarioActions } from "../../data/charts";
 import { cardLabel } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
-import { accuracy, recordAnswer, useStats } from "../../state/stats";
+import { recordQuiz } from "../../state/attempts";
+import { accuracy, useStats } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 import { StackQuiz } from "./StackQuiz";
 import {
@@ -101,7 +102,25 @@ function PreflopQuiz() {
     if (chosen) return;
     setChosen(key);
     const g = gradePreflop(strategy[key] ?? 0, best);
-    recordAnswer(["preflop", `preflop:${s.id}`], g !== "wrong");
+    const actions = scenarioActions(s);
+    const label = (k: string) => actions.find((a) => a.key === k)?.label ?? k;
+    const bestKey = actions.reduce((b, a) => ((strategy[a.key] ?? 0) > (strategy[b.key] ?? 0) ? a : b), actions[0]).key;
+    recordQuiz({
+      kind: "preflop",
+      keys: ["preflop", `preflop:${s.id}`],
+      spot: `preflop:${s.id}:${q.hand}`,
+      title: `${s.title} · ${stage.label} · ${q.hand}`,
+      chosen: `${label(key)} (${Math.round((strategy[key] ?? 0) * 100)}%)`,
+      correct: `${label(bestKey)} (${Math.round(best * 100)}%)`,
+      grade: g,
+      detail: [
+        `게임: ${set.game}`,
+        `스택 구간: ${stage.label} (${stage.stack})`,
+        `상황: ${s.title}${s.description ? ` — ${s.description}` : ""}`,
+        `내 핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
+        `차트 빈도: ${describeStrategy(s, strategy)}`,
+      ].join("\n"),
+    });
   }
 
   function askCoach() {
@@ -200,14 +219,24 @@ function PreflopQuiz() {
   );
 }
 
-function MCQuiz({ statKey, generate }: { statKey: string; generate: () => MCQuestion }) {
+function MCQuiz({ statKey, generate }: { statKey: "odds" | "equity"; generate: () => MCQuestion }) {
   const [q, setQ] = useState<MCQuestion>(generate);
   const [picked, setPicked] = useState<number | null>(null);
   const coach = useCoach();
 
   function onPick(i: number) {
     setPicked(i);
-    recordAnswer([statKey, `${statKey}:${q.topic}`], i === q.answer);
+    const prompt = q.prompt.length > 70 ? `${q.prompt.slice(0, 69)}…` : q.prompt;
+    recordQuiz({
+      kind: statKey,
+      keys: [statKey, `${statKey}:${q.topic}`],
+      spot: `${statKey}:${q.topic}`,
+      title: `${q.topic} · ${prompt}`,
+      chosen: q.options[i],
+      correct: q.options[q.answer],
+      grade: i === q.answer ? "correct" : "wrong",
+      detail: [q.facts, `문제: ${q.prompt}`, `보기: ${q.options.join(" / ")}`].filter(Boolean).join("\n"),
+    });
   }
 
   function askCoach() {

@@ -1,4 +1,6 @@
+import { useAttempts } from "../../state/attempts";
 import { accuracy, useStats, type Tally } from "../../state/stats";
+import { dayKey } from "../records/summary";
 import { useCoach } from "../coach/CoachContext";
 
 const STAGE_LABEL: Record<string, string> = { deep: "딥", mid: "미들", short: "숏", push: "푸시/폴드" };
@@ -30,6 +32,14 @@ export function HomePage({ go }: { go: (route: string) => void }) {
   const by = stats.byKey;
   const total = ["preflop", "stack", "stack-cash", "odds", "equity"].reduce((n, k) => n + (by[k]?.attempts ?? 0), 0);
   const weak = weakestSpot(by);
+  const attempts = useAttempts();
+  const today = dayKey(Date.now());
+  let todayCount = 0;
+  let todayCorrect = 0;
+  for (let i = attempts.length - 1; i >= 0 && dayKey(attempts[i].at) === today; i--) {
+    todayCount++;
+    if (attempts[i].grade !== "wrong") todayCorrect++;
+  }
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [
     { route: "quiz/stack/pub", icon: "◎", title: "레인지 암기 · 펍아재", desc: "내 스택·평균 스택 보고 폴드/오픈/올인", stat: accuracy(by["stack"]), tone: "gold" },
@@ -79,6 +89,18 @@ export function HomePage({ go }: { go: (route: string) => void }) {
       ) : (
         <div className="weak muted">레인지 암기를 자리마다 5문제 이상 풀면, 가장 약한 자리를 찾아서 여기 띄워 줄게요.</div>
       )}
+
+      <button className="home-records" onClick={() => go("records")}>
+        <span>
+          <b>내 기록</b>{" "}
+          {todayCount
+            ? `오늘 ${todayCount}문제 · 정답률 ${Math.round((todayCorrect / todayCount) * 100)}%`
+            : attempts.length
+              ? `오늘은 아직 0문제 · 지금까지 ${attempts.length}문제 기록`
+              : "푼 문제·오답·약점 스팟을 한눈에"}
+        </span>
+        <span className="cta-go">→</span>
+      </button>
 
       <div className="home-stats">
         <div>

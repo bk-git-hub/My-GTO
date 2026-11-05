@@ -390,3 +390,39 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tone-purple { --tone: var(--allin); }
 .tone-gray { --tone: #64748b; }
 .next-btn { min-width: 140px; }
+
+/* records */
+.home-stats b small { font-size: 0.75rem; font-weight: 600; }
+.rec-empty h2 { color: var(--accent); }
+.rec-file { display: none; }
+.rec-chart { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 3px; align-items: end; }
+.rec-col { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.rec-track { height: 84px; width: 100%; display: flex; align-items: flex-end; background: var(--panel-2); border-radius: 4px; }
+.rec-bar { width: 100%; display: flex; flex-direction: column-reverse; background: var(--err); border-radius: 4px; overflow: hidden; min-height: 3px; }
+.rec-ok { display: block; background: var(--ok); flex-shrink: 0; }
+.rec-count { font-size: 0.62rem; color: var(--muted); min-height: 0.8rem; line-height: 0.8rem; }
+.rec-day { font-size: 0.6rem; color: var(--muted); white-space: nowrap; overflow: hidden; max-width: 100%; }
+.rec-col.today .rec-day { color: var(--accent); font-weight: 700; }
+.rec-col.today .rec-track { box-shadow: 0 0 0 1px var(--accent); }
+.rec-kinds { display: flex; flex-direction: column; gap: 8px; }
+.rec-kind { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+.rec-kind-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); }
+.rec-kind-stats b { color: var(--text); }
+.rec-trend.up { color: var(--ok); }
+.rec-trend.down { color: var(--err); }
+.rec-trend.flat { color: var(--muted); }
+.rec-weak { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.rec-weak li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rec-weak-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rec-weak-text b { word-break: break-word; }
+.rec-weak .ghost { flex-shrink: 0; }
+.rec-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.rec-row { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; }
+.rec-row.open { border-color: var(--accent); }
+.rec-row-head { width: 100%; background: none; border: 0; color: inherit; text-align: left; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.rec-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rec-row-top .grade-chip { margin: 0; }
+.rec-title { font-size: 0.95rem; word-break: break-word; }
+.rec-detail { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.rec-detail pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 0.8rem; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; }
+.home-records { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 12px 14px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 0.9rem; }
