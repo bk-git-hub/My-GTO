@@ -97,6 +97,13 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 
 한 상황에 액션이 여러 개면(예: 작게 열기 → 올인) 위에서부터 채운다. 앞 액션이 100%인 핸드는 뒤 액션에서 빠진다. `src/data/charts.test.ts`가 "뒤 자리가 앞 자리보다 좁지 않은지", "스택이 줄면 올인 범위가 넓어지는지"를 검사한다.
 
+## 솔버 차트 팩
+
+- 우리 솔버(`src/solver/`)로 미리 푼 헤즈업 플랍 전략을 플랍마다 JSON 파일 하나로 `public/packs/`에 둔다 (BTN vs BB 싱글 레이즈드 팟: 캐시 100bb, 펍 미들 55bb. 트리는 단순화: 플랍 BB 체크/체크레이즈, BTN 33%·75% 벳, 턴·리버 66% 벳). 앱은 필요한 플랍 파일만 받아서 전략·레인지·EV를 보여 준다. 형식은 `docs/solver-packs.md`.
+- 시나리오(레인지·팟·벳 사이즈)는 `src/presolve/scenarios.ts`, 플랍 1755종의 우선순위(앞에서부터 잘라도 고르게 퍼진 대표 플랍)는 `src/presolve/flops.ts`.
+- `node scripts/presolve.mjs --scenario all --count 100 --budget-minutes 50`: 없는 플랍만 우선순위대로 풀어서 파일과 `manifest.json`을 쓴다. 한 플랍에 코어 1개, 1.3~1.8GB, 약 10분. `--dry-run`은 계획과 메모리 추정만 보여 준다.
+- GitHub Action(`.github/workflows/presolve.yml`)이 매일 02:23 KST에 50분 예산으로 이어서 풀고 `public/packs/`만 커밋한다. 수동 실행(workflow_dispatch)에서 시나리오·예산·개수를 바꿀 수 있다.
+
 ## 구조
 
 ```

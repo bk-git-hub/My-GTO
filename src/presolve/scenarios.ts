@@ -1,0 +1,239 @@
+/**
+ * Preflop scenarios the presolve pipeline solves on many flops (one pack per scenario).
+ * See docs/solver-packs.md for the pack layout; scripts/presolve.mjs runs the solves.
+ *
+ * Pot and stack are derived from the same rules the play mode uses (src/play/engine.ts, policy.ts):
+ *   - blinds 0.5 / 1, the SB folds and stays dead money in the pot;
+ *   - 6-max cash: no ante, BTN opens 2.5bb (openSize("cash", ...)), 100bb deep;
+ *   - pub tournament: the BB posts a 1bb ante (PUB_TABLE.bbAnte) on top of the blind, the mid stage opens
+ *     2.5bb (openSize("pub", "mid", ...)) and starts at STAGE_STACK.mid = 55bb.
+ * Single raised pot, BB calls: pot = 2 × open + SB + ante, effective stack = start − open − ante (the BB paid the
+ * ante as well, so it is the shorter stack).
+ */
+import { getSet } from "../data/charts";
+import { ALL_HANDS, type HandClass } from "../poker/cards";
+import { rangeToString, type Range } from "../poker/range";
+import { COMBOS } from "../play/handInfo";
+import { CASH_TABLE, PUB_TABLE } from "../play/engine";
+import { openSize, STAGE_STACK } from "../play/policy";
+import type { SolverInput, SolverStreet, StreetSizes } from "../solver/types";
+import { roundChips, type PackTier, type ScenarioMeta } from "./format";
+
+export interface PresolveScenario {
+  /** Pack id, e.g. "srp-btn-bb-100". */
+  id: string;
+  /** Korean pack title. */
+  title: string;
+  /** Pack version: bump it whenever anything that changes the numbers changes (sizes, ranges, targets, solver). */
+  version: number;
+  tier: PackTier;
+  /** Everything written into the manifest's `scenario` block. */
+  meta: ScenarioMeta;
+  /** Starting weights [OOP, IP], COMBOS-indexed (1326), from the charts' effective frequencies. */
+  ranges: [Float32Array, Float32Array];
+  /** Starting stack (bb) before the blinds, for reference. */
+  startStack: number;
+}
+
+// ───────────────────────── ranges from charts ─────────────────────────
+
+/**
+ * A chart ref "<set>/<stage>/<scenario>:<action>" as a hand-class range: the action's effective frequency
+ * (`Scenario.strategy[hand][action]`, so an earlier action that takes a hand first is respected).
+ */
+export function chartRange(ref: string): Range {
+  const m = /^([^/]+)\/([^/]+)\/([^:]+):(.+)$/.exec(ref);
+  if (!m) throw new Error(`invalid chart ref: ${ref}`);
+  const [, setId, stageId, scenarioId, action] = m;
+  const set = getSet(setId);
+  if (set.id !== setId) throw new Error(`unknown chart set: ${setId}`);
+  const stage = set.stages.find((s) => s.id === stageId);
+  if (!stage) throw new Error(`unknown stage: ${setId}/${stageId}`);
+  const sc = stage.scenarios.find((s) => s.id === `${setId}/${stageId}/${scenarioId}`);
+  if (!sc) throw new Error(`unknown scenario: ${setId}/${stageId}/${scenarioId}`);
+  if (!sc.actions.some((a) => a.key === action)) throw new Error(`scenario ${sc.id} has no action ${action}`);
+  const out: Range = {};
+  for (const h of ALL_HANDS) {
+    const f = sc.strategy[h][action] ?? 0;
+    if (f > 0) out[h] = f;
+  }
+  return out;
+}
+
+/** Hand-class range → COMBOS-indexed weights (every combo of a class gets the class frequency). */
+export function rangeWeights(range: Range): Float32Array {
+  const w = new Float32Array(COMBOS.length);
+  COMBOS.forEach((c, i) => (w[i] = range[c.hand as HandClass] ?? 0));
+  return w;
+}
+
+/** Σ weights: weighted combos out of 1326. */
+export function weightedCombos(w: ArrayLike<number>): number {
+  let s = 0;
+  for (let i = 0; i < w.length; i++) s += w[i];
+  return s;
+}
+
+// ───────────────────────── pot and stack ─────────────────────────
+
+export interface SrpSetup {
+  /** Starting stack (bb) of both players before posting. */
+  start: number;
+  /** The opener's raise to (bb). */
+  open: number;
+  /** Dead money the BB posts on top of the blind (pub BB ante); 0 without an ante. */
+  bbAnte: number;
+  sb?: number;
+  bb?: number;
+}
+
+/** Flop pot and effective stack of a single raised pot where the BB calls an open and the SB folded. */
+export function srpPotStack(s: SrpSetup): { pot: number; stack: number } {
+  const sb = s.sb ?? 0.5;
+  if (!(s.open > (s.bb ?? 1))) throw new Error("the open must be bigger than the big blind");
+  const pot = 2 * s.open + sb + s.bbAnte;
+  const stack = Math.min(s.start - s.open, s.start - s.open - s.bbAnte);
+  return { pot: roundChips(pot), stack: roundChips(stack) };
+}
+
+// ───────────────────────── tree presets ─────────────────────────
+
+const both = (oop: StreetSizes, ip: StreetSizes = oop): [StreetSizes, StreetSizes] => [
+  { bet: [...oop.bet], raise: [...oop.raise] },
+  { bet: [...ip.bet], raise: [...ip.raise] },
+];
+
+export type TreeSettings = Pick<ScenarioMeta, "sizes" | "raiseLimit" | "addAllIn" | "allInThreshold" | "minBet">;
+
+/**
+ * The presolve tree for single raised pots, simplified like the default trees of commercial trainers:
+ *   flop   OOP checks (no donk bet) and may raise a bet by 60% of the pot after calling (the check-raise);
+ *          IP bets 33% or 75% and can't re-raise;
+ *   turn   both players bet 66%, no raises;   river  the same.
+ * No all-in button (addAllIn false): a bet of at least 67% of the stack still becomes the all-in.
+ *
+ * A full flop tree multiplies every flop line by 49 turn × 48 river cards, so each extra turn or river size costs
+ * far more than a flop size. Measured on the first 200 priority flops (estimateMemory) and on one core of the
+ * 4-core dev machine:
+ *   cash 100bb (679 / 604 combos on AsKh7d): 1.58–1.78 GB (RSS ~15% more), ~5.5 s per iteration;
+ *   pub 55bb (532 / 420 combos):             1.20–1.36 GB.
+ * Alternatives that were measured: with an OOP donk bet but no raises at all (1.3 GB for cash) the solver donks
+ * about half the time, because IP can't raise a donk: a tree artifact, not a lesson. Flop raises for both players
+ * plus turn raises would need 3.5–8 GB per flop.
+ */
+export const TREE_SRP: TreeSettings = {
+  sizes: {
+    flop: [
+      { bet: [], raise: [0.6] },
+      { bet: [0.33, 0.75], raise: [] },
+    ],
+    turn: both({ bet: [0.66], raise: [] }),
+    river: both({ bet: [0.66], raise: [] }),
+  },
+  raiseLimit: 1,
+  addAllIn: false,
+  allInThreshold: 0.67,
+  minBet: 1,
+};
+
+function copySizes(sizes: Record<SolverStreet, [StreetSizes, StreetSizes]>): Record<SolverStreet, [StreetSizes, StreetSizes]> {
+  const out = {} as Record<SolverStreet, [StreetSizes, StreetSizes]>;
+  for (const st of ["flop", "turn", "river"] as const) out[st] = both(sizes[st][0], sizes[st][1]);
+  return out;
+}
+
+/** The tree settings of a scenario as SolverInput fields (copies; all three streets written out). */
+export function treeInput(meta: TreeSettings): Required<Pick<SolverInput, "sizes" | "raiseLimit" | "addAllIn" | "allInThreshold" | "minBet">> {
+  return { sizes: copySizes(meta.sizes), raiseLimit: meta.raiseLimit, addAllIn: meta.addAllIn, allInThreshold: meta.allInThreshold, minBet: meta.minBet };
+}
+
+/** The solver input for one flop of a scenario. */
+export function solverInput(sc: PresolveScenario, board: number[]): SolverInput {
+  return { board: board.slice(), ranges: [sc.ranges[0], sc.ranges[1]], pot: sc.meta.pot, stack: sc.meta.stack, ...treeInput(sc.meta) };
+}
+
+// ───────────────────────── scenarios ─────────────────────────
+
+interface ScenarioDef {
+  id: string;
+  title: string;
+  version: number;
+  tier: PackTier;
+  format: ScenarioMeta["format"];
+  positions: [string, string];
+  preflop: string;
+  setup: SrpSetup;
+  /** Chart refs [OOP, IP]. */
+  rangeSources: [string, string];
+  tree: TreeSettings;
+  iterations: number;
+  targetExploitability: number;
+  flopSet: string;
+}
+
+function build(d: ScenarioDef): PresolveScenario {
+  const { pot, stack } = srpPotStack(d.setup);
+  const r0 = chartRange(d.rangeSources[0]);
+  const r1 = chartRange(d.rangeSources[1]);
+  const meta: ScenarioMeta = {
+    format: d.format,
+    positions: [d.positions[0], d.positions[1]],
+    preflop: d.preflop,
+    pot,
+    stack,
+    sizes: copySizes(d.tree.sizes),
+    raiseLimit: d.tree.raiseLimit,
+    addAllIn: d.tree.addAllIn,
+    allInThreshold: d.tree.allInThreshold,
+    minBet: d.tree.minBet,
+    iterations: d.iterations,
+    targetExploitability: d.targetExploitability,
+    ranges: [rangeToString(r0), rangeToString(r1)],
+    rangeSources: [d.rangeSources[0], d.rangeSources[1]],
+    flopSet: d.flopSet,
+  };
+  return { id: d.id, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start };
+}
+
+const CASH_OPEN = openSize("cash", "100bb", "BTN"); // 2.5
+const PUB_MID_OPEN = openSize("pub", "mid", "BTN"); // 2.5
+const PUB_MID_START = STAGE_STACK.mid; // 55
+
+export const SCENARIOS: PresolveScenario[] = [
+  build({
+    id: "srp-btn-bb-100",
+    title: "BTN vs BB 싱글 레이즈드 팟 (캐시 100bb)",
+    version: 1,
+    tier: "free",
+    format: "cash",
+    positions: ["BB", "BTN"],
+    preflop: `BTN ${CASH_OPEN}bb 오픈, SB 폴드, BB 콜`,
+    setup: { start: STAGE_STACK["100bb"], open: CASH_OPEN, bbAnte: CASH_TABLE.bbAnte ? 1 : 0 },
+    rangeSources: ["cash6/100bb/bb-vs-btn:call", "cash6/100bb/rfi-btn:raise"],
+    tree: TREE_SRP,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  }),
+  build({
+    id: `pub-srp-btn-bb-${PUB_MID_START}`,
+    title: `BTN vs BB 싱글 레이즈드 팟 (펍 토너먼트 미들 ${PUB_MID_START}bb)`,
+    version: 1,
+    tier: "free",
+    format: "pub",
+    positions: ["BB", "BTN"],
+    preflop: `BTN ${PUB_MID_OPEN}bb 오픈, SB 폴드, BB 콜 (BB 앤티 1bb)`,
+    setup: { start: PUB_MID_START, open: PUB_MID_OPEN, bbAnte: PUB_TABLE.bbAnte ? 1 : 0 },
+    rangeSources: ["pub/mid/bb-vs-btn:call", "pub/mid/rfi-btn:open"],
+    tree: TREE_SRP,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  }),
+];
+
+export function getScenario(id: string): PresolveScenario {
+  const sc = SCENARIOS.find((s) => s.id === id);
+  if (!sc) throw new Error(`unknown presolve scenario: ${id} (known: ${SCENARIOS.map((s) => s.id).join(", ")})`);
+  return sc;
+}

@@ -1,0 +1,101 @@
+# Nightly presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own
+# solver and commits them under public/packs/ (format: docs/solver-packs.md). Each run adds flops in priority
+# order; flops already on disk for a pack's version are skipped, so the packs grow a few flops every night.
+#
+# Minutes: a private repo on the free plan gets 2,000 Actions minutes a month on 2-core runners, so keep the
+# nightly budget around 50 minutes (~1,600 min/month incl. setup). Public repos get unlimited minutes on 4-core
+# runners (16 GB): raise budget_minutes (e.g. 300; jobs may run up to 6 h) and pass --workers 4.
+# One flop needs ~1.3–1.8 GB and ~10 minutes on one core with the default tree (two run in parallel here).
+name: Presolve
+
+on:
+  schedule:
+    - cron: "23 17 * * *" # 17:23 UTC = 02:23 KST, outside the busy 6–9 AM Pacific window
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Pack id (src/presolve/scenarios.ts) or all"
+        default: all
+        type: string
+      budget_minutes:
+        description: "Solving budget in minutes (the script stops cleanly before it)"
+        default: "50"
+        type: string
+      count:
+        description: "Cover the first N flops of the priority order per pack"
+        default: "200"
+        type: string
+
+permissions:
+  contents: write
+
+# Never two runs at once: they would solve the same flops and race on the manifest.
+concurrency:
+  group: presolve
+  cancel-in-progress: false
+
+jobs:
+  presolve:
+    runs-on: ubuntu-latest
+    # The script stops on its own before the budget; this only guards against a hang. Manual runs may use a
+    # bigger budget (public repos), so they get the 6-hour maximum.
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 360 || 90 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so the manifest's solverCommit is the last commit that touched src/solver
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Solve flops
+        id: presolve
+        env:
+          SCENARIO: ${{ inputs.scenario || 'all' }}
+          BUDGET: ${{ inputs.budget_minutes || '50' }}
+          COUNT: ${{ inputs.count || '200' }}
+        run: node scripts/presolve.mjs --scenario "$SCENARIO" --budget-minutes "$BUDGET" --count "$COUNT"
+
+      - name: Commit new flops
+        if: ${{ !cancelled() }}
+        env:
+          NEW_FLOPS: ${{ steps.presolve.outputs.new_flops || '0' }}
+        run: |
+          # presolve.mjs leaves the manifest untouched when nothing but its timestamp would change, so a night
+          # without new flops stages nothing here and makes no commit (and no deploy).
+          git add public/packs
+          if git diff --cached --quiet; then
+            echo "No pack changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Presolve: ${NEW_FLOPS} new flops"
+          for attempt in 1 2 3 4; do
+            if git push; then exit 0; fi
+            echo "Push failed (attempt $attempt), rebasing on the remote branch..."
+            sleep $((attempt * 5))
+            git fetch origin "${GITHUB_REF_NAME}"
+            if ! git rebase "origin/${GITHUB_REF_NAME}"; then
+              git rebase --abort
+              echo "Rebase conflict on public/packs; not pushing."
+              exit 1
+            fi
+          done
+          echo "Could not push after 4 attempts."
+          exit 1
+
+      # Runs after the commit, so the good flops of the night are kept. A flop above the exploitability limit is
+      # never written and would be retried every night: raise the scenario's iterations and bump its version.
+      - name: Fail on solve errors
+        if: ${{ (steps.presolve.outputs.failed != '' && steps.presolve.outputs.failed != '0') || (steps.presolve.outputs.rejected != '' && steps.presolve.outputs.rejected != '0') }}
+        env:
+          FAILED: ${{ steps.presolve.outputs.failed || '0' }}
+          REJECTED: ${{ steps.presolve.outputs.rejected || '0' }}
+        run: |
+          echo "${FAILED} failure(s), ${REJECTED} flop(s) above the exploitability limit; see the Solve flops step."
+          exit 1

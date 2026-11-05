@@ -7,6 +7,7 @@ import { LogPage } from "./features/log/LogPage";
 import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
+import { SolverPage } from "./features/solver/SolverPage";
 
 interface NavItem {
   route: string;
@@ -26,6 +27,7 @@ const NAV: (NavItem | { section: string })[] = [
   { route: "quiz/equity", label: "에퀴티", icon: "%", indent: true },
   { section: "도구" },
   { route: "charts", label: "차트", icon: "▦" },
+  { route: "solver", label: "솔버 차트", icon: "◆" },
   { route: "calc", label: "계산기", icon: "∑" },
   { route: "settings", label: "설정", icon: "⚙" },
 ];
@@ -113,9 +115,10 @@ export function App() {
             {top === "log" && <LogPage sub={rest.join("/")} go={go} />}
             {top === "quiz" && <QuizPage key={route} sub={rest.join("/")} />}
             {top === "charts" && <ChartsPage />}
+            {top === "solver" && <SolverPage sub={rest.join("/")} go={go} />}
             {top === "calc" && <CalcPage />}
             {top === "settings" && <SettingsPage />}
-            {!["home", "play", "log", "quiz", "charts", "calc", "settings"].includes(top) && <HomePage go={go} />}
+            {!["home", "play", "log", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
         </div>
       </div>
