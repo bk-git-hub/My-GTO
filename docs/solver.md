@@ -46,6 +46,8 @@ names the bad field. Defaults (below) are filled in before the checks.
 - `allInThreshold`: a finite number > 0. Above 1 it never applies (a bet of the whole stack is the all-in anyway).
 - `minBet`: a finite number > ε. So every bet, raise and all-in raises the street's top bet by more than ε,
   and a player facing one always has toCall > ε.
+- `compress`: a boolean, default false. True stores the solver's regrets and strategy sums in 16 bits (see
+  Compressed storage under Algorithm): about half the memory, the same game and tree.
 - `ranges` (`estimateMemory`, `createSolver`, `solve`; `buildTree` doesn't read them): two array-likes of at most
   1326 weights in COMBOS order; entries past an array's end are 0. Every entry is a number in [0, 1]:
   NaN, negative and > 1 throw (weights are probabilities, not percentages), also for combos on the board.
@@ -181,6 +183,42 @@ identity alone, nothing below applies and the solver is the plain one.
 - **Sizes**: `buildTree` doesn't read the ranges and always returns the full game tree; `estimateMemory` counts the
   full game tree's nodes and gives the bytes of the reduced tree the solver builds.
 
+### Compressed storage
+
+With `compress: true` every action node's regrets are stored as Int16 and its strategy sums as Uint16 instead of
+Float32, which halves the memory of that storage (nearly all of a flop solve), like established solvers do. Each
+node has three Float32 scales: one for its positive regrets, one for its negative regrets and one for its strategy
+sums. A stored integer q stands for q × the scale of its group: a regret q > 0 for q × the positive scale, q < 0
+for q × the negative scale, a strategy sum for q × the strategy-sum scale. The game, the tree and everything read
+from a strategy (best response, exploitability, `Solution.node`) are as described above.
+
+- **Reads**: regret matching and the average strategy divide a node's stored values by their sum over the actions,
+  per hand, where the scale cancels: they read the integers as they are. So a solution's strategy is exactly what
+  is stored.
+- **Update**: when a node is updated (its player's traversal), its stored values are decoded, discounted (the
+  positive scale times the factor for positive regrets, the negative scale times the factor for negative ones,
+  the strategy-sum scale times the strategy-sum factor), this iteration's v_a − v and reachSelf × σ_a are added in
+  float64, and the node is stored again with fresh scales: each scale is the group's largest magnitude divided by
+  32767 (regrets of one sign) or 65535 (strategy sums), so the largest value of each group is stored as ±32767 or
+  65535. A group that is all 0, or whose scale would underflow Float32, gets scale 0 and is stored as 0.
+- **Rounding**: regrets to the nearest integer (ties to even). Strategy sums stochastically: y is stored as
+  ⌊y⌋ + 1 with probability y − ⌊y⌋ and as ⌊y⌋ otherwise, from a seeded 32-bit generator (every solve of the same
+  input gives the same numbers). With γ = 2 each iteration adds only about 3/t of a node's accumulated strategy
+  sums, so rounding them to nearest drops the increments of every hand below about t / 400 000 of the node's
+  largest sum (1/1300 after 300 iterations); those hands stop moving and exploitability stalls (at about 0.1% of the
+  pot on the benchmark river, where Float32 reaches 0.06% after 300 iterations). Stochastic rounding is unbiased
+  and converges like Float32. For regrets it makes no difference (measured), so they round to nearest.
+- **Discounts without an update**: in a subtree the opponent doesn't reach, the traverser's nodes only discount
+  their regrets, which compressed storage does by multiplying the two regret scales (the integers stay); their
+  strategy sums add the reach and are stored again as above. Lazy discounts (applied when a node is next updated)
+  are products of the scales too.
+- **Precision**: after an update, each stored regret is within half a step (its group's scale) of the value the
+  Float32 solver would compute from the same state, and each strategy sum within one step, with mean error 0.
+- **Memory**: 2 + 2 bytes per action per hand of the acting player instead of 4 + 4, plus the three scales (12
+  bytes) per node; `estimateMemory` counts what the input asks for.
+- **Cost**: the re-encoding is a second pass over each updated node: about 10–15% more time per iteration than
+  Float32, about as many iterations to a target (see Performance).
+
 ### Solution queries
 
 `Solution.node(path)` walks from the root (`{action: i}` at action nodes, `{card}` at chance nodes, where the card
@@ -222,8 +260,8 @@ down, at least 1 (default 25). `targetExploitability` is a number (default 0.5).
 pass of the loop runs at least one iteration and a finite cap always ends the solve. `iterate(n)` runs
 floor(n) iterations and needs a finite n ≥ 0. A `Solution` reads the solver's live arrays: it is valid until the next
 `iterate()`, after which its `node()` throws ("stale solution"). `estimateMemory` must not allocate the per-hand arrays, so the UI can refuse
-a spot that won't fit before building it, and it accounts for suit isomorphism (its node counts are the game tree's,
-its bytes those of the reduced tree the solver builds). It checks the same inputs as `createSolver` except that the ranges give a
+a spot that won't fit before building it (or retry it with `compress: true`), and it accounts for suit isomorphism (its node counts are the game tree's,
+its bytes those of the reduced tree the solver builds) and for compressed storage. It checks the same inputs as `createSolver` except that the ranges give a
 game, so it also sizes a tree for empty ranges (the tests count nodes that way); `createSolver` rejects such ranges
 at once, before building the tree. Its `bytes` is the solver's steady-state memory (per-hand storage, the packed
 tree, the showdown cache, scratch, hand lists), within 10% of the measured heap on river, turn and flop spots.
@@ -243,7 +281,7 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
 | `src/solver/tree.ts` | Tree building from the rules above into the packed tree (full, or one subtree per orbit of cards), the `GameNode` view, `estimateMemory` |
 | `src/solver/iso.ts` | Suit permutations, the symmetry group of a spot, orbits of cards at a chance node |
 | `src/solver/showdown.ts` | Fold and showdown values, per-board strength cache |
-| `src/solver/cfr.ts` | DCFR iterations |
+| `src/solver/cfr.ts` | DCFR iterations, with Float32 or compressed (16-bit) storage |
 | `src/solver/bestResponse.ts` | Best response and exploitability |
 | `src/solver/solution.ts` | `Solution.node(path)`, lazy ranges and EV |
 | `src/solver/index.ts` | `solve`, `createSolver`, `estimateMemory`, `buildTree` |
@@ -269,9 +307,12 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
    overlap (both contain the equilibrium value). Each section also runs suit-symmetric spots (random boards that
    a suit permutation maps onto themselves, random weights drawn per orbit of combos, sometimes symmetric under
    only part of the board's symmetries, and one-suit boards whose full group has three-cycles), on which the core
-   solves one subtree per orbit while the oracle walks every card. `SOLVER_CROSSCHECK=1` runs many more seeds and
-   bigger spots.
-5. **Convergence**: exploitability falls and reaches the target on a realistic river spot.
+   solves one subtree per orbit while the oracle walks every card, and compressed spots (`compress: true`, some of
+   them symmetric too; random strategies are then random 16-bit sums). `SOLVER_CROSSCHECK=1` runs many more seeds
+   and bigger spots.
+5. **Convergence**: exploitability falls and reaches the target on a realistic river spot (0.5%) and a small turn
+   (1%), and with compressed storage too, in at most one check interval more iterations than Float32 (and 0.2% on
+   the river).
 6. **Solution API**: path walking, illegal paths (including steps of the wrong shape after the legal ones were
    cached), every legal card as a step, frozen results, a node rebuilt after its buffers were transferred, ranges,
    NaN EVs, strategy sums to 1 for in-range combos, exploitability exactly 0 with nothing to decide.
@@ -280,7 +321,8 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
    through both, including ranges that give no game); ranges are checked before the tree is built; fractional
    and infinite iteration counts in `solve` and `iterate`.
 8. **Memory** (`memory.test.ts`): `estimateMemory` within 10% of the heap a solver really holds on a river, a turn
-   and a flop spot, and on a two-tone turn and a monotone flop solved with suit isomorphism (measured with `gc()`,
+   and a flop spot, and on a two-tone turn and a monotone flop solved with suit isomorphism, each also with
+   compressed storage but the two-tone turn (measured with `gc()`,
    which the test switches on through `node:v8`); the packed tree's 10 bytes per node on the reference flop tree,
    with descriptors per skeleton node; `buildTree` views built lazily, kept, frozen and visible to spread, JSON and
    structured clone.
@@ -293,6 +335,16 @@ clone (postMessage) see it, and build the whole subtree under the node. Views sh
    `Solution.node` strategies, ranges and EVs along paths through representatives and the cards mapped onto them;
    both solves bracket the same game value; asymmetric ranges on the same board give the plain solve bit for bit;
    nodes under mirror-image cards are each other's arrays with the suits swapped.
+10. **Compressed storage** (`compress.test.ts`): `compress` is checked like every input, and gives Int16 / Uint16
+   storage and per-node scales; `estimateMemory` about halves with the same node counts and `buildTree`; solves are
+   reproducible. One traversal against the Float32 solver holding the same state (the compressed engine's values,
+   with its scales rounded to powers of two so that both read bit-identical strategies), on a turn and a
+   suit-symmetric turn, early (with unreached nodes) and later: the same best responses before; after, every regret
+   within half a step and every strategy sum within one step of the Float32 value, the strategy sums' rounding
+   unbiased (values in the lower half of a step still round up as often as they should), and the same again once
+   the pending discounts are applied to both. Seven planted bugs (a missing discount factor, a discount skipped in
+   unreached subtrees or in the lazy discounts, swapped sign scales, a wrong step, rounding to nearest, a biased
+   stochastic rounding) each fail this test.
 
 ## Performance
 
@@ -300,12 +352,13 @@ Targets in Node on this repo's dev machine (4 cores, one used):
 
 - River, ~500 combos per range, default sizes: 0.5% of pot in < 2 s.
 - Turn, ~500 combos per range, default sizes, SPR ≈ 4: 1% of pot in < 30 s, memory estimate < 300 MB.
-- Flop: allowed when `estimateMemory` fits; it is meant for a server or narrow ranges.
+- Flop: allowed when `estimateMemory` fits; it is meant for a server or narrow ranges. `compress: true` about halves
+  the memory of a flop (see Compressed storage below).
 
 Levers, in order: avoiding allocation in the hot loop (preallocated scratch per depth), Float32Array storage,
-a packed tree, cached sorted orders per river board, skipping zero-reach subtrees, and suit isomorphism at chance
+a packed tree, cached sorted orders per river board, skipping zero-reach subtrees, suit isomorphism at chance
 nodes when the board and both ranges are symmetric under a permutation of the suits (see Algorithm; checked by the
-oracle cross-check on symmetric spots).
+oracle cross-check on symmetric spots), and compressed 16-bit storage when a spot asks for it.
 
 **Packed tree.** A flop tree has about a million nodes (1.14 million for the reference flop below at raiseLimit 1,
 two thirds of them terminals), so the solver keeps no object per node. The rules build the betting skeleton: the
@@ -315,8 +368,9 @@ repeats the skeleton under every card (with suit isomorphism, under one card per
 the table of boards dealt so far) and its first child (Int32; children are consecutive ids, in action order or in
 the order of the cards that can come). A fold or showdown terminal is a descriptor id like any other node. The
 solver adds a storage offset (Int32 while the storage fits, Float64 beyond) and a last discounted iteration
-(Int32) per node, and keeps every action node's regrets and strategy sums in two Float32Array slabs. That is 22
-bytes per node instead of about 450 for an object.
+(Int32) per node, and keeps every action node's regrets and strategy sums in two Float32Array slabs (Int16Array and
+Uint16Array with compressed storage, plus three Float32 scales per node). That is 22 bytes per node (34 compressed)
+instead of about 450 for an object.
 
 Reference flop (100bb 6-max cash, BTN open vs BB call, Ks7d2c, pot 5.5, stack 97.5, 709 / 644 combos; flop IP bets
 33% and 75%, turn 66%, river 75%, raises 60%, all-in, raiseLimit 1), measured in Node 22: the solver holds
@@ -339,3 +393,21 @@ in 5.9 GB. The rainbow flop solves exactly as without isomorphism, bit for bit a
 the two-tone flop takes 5.63 GB and 17.6 s per iteration like the rainbow one. Over all 22,100 flops, with suit-symmetric
 ranges, the solver stores 71% of the river subtrees on average (100% for the 6,864 rainbow flops with distinct ranks, 61–63% for
 two-tone and paired ones, 29–32% for monotone flops and trips).
+
+**Compressed storage.** The same spots with `compress: true` (Node 22, a shared 4-core machine). River nodes hold
+99.4% of the regrets and strategy sums of the reference flop, and 8.1% of the stored hands are blocked by the turn or
+river card of their node.
+
+| Flop | Memory rl 1 / rl 2, Float32 → compressed | Time per iteration, compressed vs Float32 (rl 1, run side by side) | Iterations to 1% / 0.5%, Float32 → compressed (rl 1) | Peak resident memory (rl 1) |
+|---|---|---|---|---|
+| Ks7d2c, rainbow | 5.63 → 2.85 / 7.90 → 4.00 GB | +13% (85.1 vs 75.6 s for 4 iterations) | 150 / 220 → 150 / 220 | 5.9 → 2.9 GB |
+| Ks7s2d, two-tone | 3.43 → 1.74 / 4.81 → 2.44 GB | +12% (55.8 vs 50.0 s for 4) | 150 / 210 → 150 / 210 | 3.5 → 1.9 GB |
+| Ks7s2s, monotone | 1.63 → 0.83 / 2.28 → 1.16 GB | +14% (41.8 vs 36.7 s for 6) | 170 / 240 → 170 / 240 | 1.8 → 1.0 GB |
+
+The exploitability curves match Float32 to within about 1% of their value at every check (for example 0.9817% vs
+0.9832% for the rainbow flop after 150 iterations). Wall time to 1% and 0.5% with compressed storage, checking every 10
+iterations, three solves at once on the machine: rainbow 64 and 93 min, two-tone 42 and 58 min, monotone 23 and 32
+min. `estimateMemory` is within 0.13% of the measured heap on all six spots. On the turn benchmark compressed storage
+costs about 8% per iteration in a process of its own (80 iterations to 1% either way). A process that runs both kinds
+of solve (like the benchmark) pays 4–9% more on whichever comes second, since the hot loops then see two kinds of
+typed array.

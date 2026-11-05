@@ -51,6 +51,12 @@ export interface SolverInput {
   allInThreshold?: number;
   /** Smallest opening bet (bb), finite and > 1e-9. Default 1. Raises follow no-limit rules (at least the last raise increment). */
   minBet?: number;
+  /**
+   * Compressed storage: keep regrets and strategy sums in 16 bits (Int16 / Uint16 with a Float32 scale per node)
+   * instead of Float32, which halves the solver's memory (`estimateMemory` reflects it) at the cost of a little
+   * precision. Meant for flops that would not fit otherwise. A boolean; default false.
+   */
+  compress?: boolean;
 }
 
 export const DEFAULT_SIZES: [StreetSizes, StreetSizes] = [
@@ -135,8 +141,8 @@ export interface Solution {
  */
 export interface MemoryEstimate {
   /**
-   * Bytes the solver will hold once built (within about 10% of the measured heap): per-node strategy storage,
-   * the packed tree, the showdown cache, scratch and hand lists.
+   * Bytes the solver will hold once built (within about 10% of the measured heap): per-node strategy storage
+   * (16-bit with `compress`, Float32 otherwise), the packed tree, the showdown cache, scratch and hand lists.
    */
   bytes: number;
   actionNodes: number;

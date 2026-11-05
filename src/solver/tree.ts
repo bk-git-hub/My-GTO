@@ -38,6 +38,8 @@ export interface TreeConfig {
   addAllIn: boolean;
   allInThreshold: number;
   minBet: number;
+  /** 16-bit storage of regrets and strategy sums (the solver's, not the tree's; checked here with the rest). */
+  compress: boolean;
 }
 
 const isFiniteNumber = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
@@ -73,6 +75,8 @@ export function treeConfig(input: SolverInput): TreeConfig {
   if (typeof addAllIn !== "boolean") throw new Error("addAllIn must be true or false");
   const allInThreshold = input.allInThreshold ?? 0.67;
   if (!isFiniteNumber(allInThreshold) || !(allInThreshold > 0)) throw new Error("allInThreshold must be a finite number > 0");
+  const compress = input.compress ?? false;
+  if (typeof compress !== "boolean") throw new Error("compress must be true or false");
   if (input.sizes !== undefined && (input.sizes === null || typeof input.sizes !== "object"))
     throw new Error("sizes must be an object with optional flop, turn and river entries");
   const sizes = STREETS.map((st) => {
@@ -93,6 +97,7 @@ export function treeConfig(input: SolverInput): TreeConfig {
     addAllIn,
     allInThreshold,
     minBet,
+    compress,
   };
 }
 
@@ -758,7 +763,9 @@ function countStreetEnd(cfg: TreeConfig, st: BetState, depth: number, k: number,
  *   same: Int32; two cards: Uint8) and 4 per hand that does (about 8% on a flop), and the RiverBoard
  *   object with its 12 typed arrays;
  * - with a symmetry group: per element, a hand permutation per player (Int32 per hand), and per board of the
- *   tree its card lists and orbit tables (BOARD_BYTES; a small share of a flop).
+ *   tree its card lists and orbit tables (BOARD_BYTES; a small share of a flop);
+ * - with compressed storage: 2 + 2 bytes per stored regret and strategy sum instead of 4 + 4, and per node its
+ *   three Float32 scales.
  */
 const NODE_BYTES = 10 + 12;
 const ACTION_NODE_BYTES = 4;
@@ -768,6 +775,7 @@ const LIST_ACTION_BYTES = 104;
 const RIVER_HAND_BYTES = 13;
 const RIVER_BOARD_BYTES = 2700;
 const BOARD_BYTES = 200;
+const SCALE_BYTES = 12;
 
 /**
  * Whether the solver will use suit isomorphism, and with which group, for an input whose ranges are
@@ -779,7 +787,8 @@ export function solverGroup(board: readonly Card[], ranges: SolverInput["ranges"
 
 /**
  * Node counts and a byte estimate for solving this spot, without allocating any per-hand arrays.
- * Bytes = regret + strategy-sum storage (2 × 4 bytes per action per hand of the acting player)
+ * Bytes = regret + strategy-sum storage (2 × 4 bytes per action per hand of the acting player, 2 × 2 with
+ * compressed storage, plus its per-node scales)
  * + the packed tree and per-node solver arrays + the showdown strength cache + per-depth scratch + hand lists.
  * The node counts are those of the game tree (as buildTree builds it); the bytes are for the tree the solver
  * really builds, which with suit isomorphism holds one subtree per orbit of cards at each chance node.
@@ -810,9 +819,10 @@ export function estimateMemory(input: SolverInput, opts: { isomorphism?: boolean
   const n1 = countHands(cfg.board, input.ranges[1]);
   const nMax = Math.max(n0, n1, 1);
   const m = iso.copies;
-  const storage = 8 * (times(c.slots.map((s) => s[0]), m) * n0 + times(c.slots.map((s) => s[1]), m) * n1);
   const action = times(c.action, m);
   const nodes = action + times(c.chance, m) + times(c.terminal, m);
+  const slots = times(c.slots.map((s) => s[0]), m) * n0 + times(c.slots.map((s) => s[1]), m) * n1;
+  const storage = cfg.compress ? 4 * slots + SCALE_BYTES * nodes : 8 * slots;
   const tree =
     nodes * NODE_BYTES + action * ACTION_NODE_BYTES + c.desc * DESC_BYTES + c.lists.size * LIST_BYTES + c.listActions * LIST_ACTION_BYTES;
   // One strength order per distinct river board the tree reaches: 1 (river), 48 (turn), C(49, 2) (flop)

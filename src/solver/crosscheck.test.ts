@@ -199,6 +199,7 @@ describe("cross-check: trees", () => {
       { pot: 0 }, { pot: -2 }, { pot: NaN }, { pot: Infinity }, { stack: -1 }, { stack: NaN }, { stack: Infinity },
       { minBet: 0 }, { minBet: 1e-9 }, { minBet: -1 }, { minBet: NaN }, { minBet: Infinity },
       { raiseLimit: -1 }, { raiseLimit: 2.5 }, { raiseLimit: NaN }, { raiseLimit: Infinity }, { addAllIn: 0 as never },
+      { compress: 1 as never }, { compress: "yes" as never },
       { allInThreshold: 0 }, { allInThreshold: -1 }, { allInThreshold: NaN }, { allInThreshold: Infinity },
       { sizes: river([NaN]) }, { sizes: river([-0.5]) }, { sizes: river([Infinity]) }, { sizes: river(["1"]) },
       { sizes: river([0.5], [NaN]) }, { sizes: river([0.5], [-1]) },
@@ -609,6 +610,13 @@ function flopSpot(seed: number, symmetric: SpotOptions["symmetric"] = false): So
   };
 }
 
+/**
+ * The same spot with compressed storage (docs/solver.md "Compressed storage"): the core keeps 16-bit regrets and
+ * strategy sums. The oracle knows nothing of it; the checks are the same, since they read the strategy the core
+ * stores, whatever its precision.
+ */
+const compressed = (input: SolverInput): SolverInput => ({ ...input, compress: true });
+
 describe("cross-check: exploitability of the core's strategy", () => {
   const seeds = (base: number, n: number) => Array.from({ length: n }, (_, i) => base + i);
 
@@ -621,11 +629,25 @@ describe("cross-check: exploitability of the core's strategy", () => {
       ...seeds(2800, HEAVY ? 3 : 1).map((s) => ({ seed: s, input: flopSpot(s, "monotone") })),
     ];
     for (const { seed, input } of symmetric) expectSymmetric(`seed ${seed}`, input);
+    // Compressed storage, also with suit symmetry.
+    const packedSymmetric = [
+      ...seeds(1600, HEAVY ? 10 : 1).map((s) => ({ seed: s, input: compressed(riverSpot(s, true)) })),
+      ...seeds(2450, HEAVY ? 4 : 1).map((s) => ({ seed: s, input: compressed(turnSpot(s, "monotone")) })),
+    ];
+    for (const { seed, input } of packedSymmetric) expectSymmetric(`seed ${seed}`, input);
+    const packed = [
+      ...seeds(1200, HEAVY ? 30 : 4).map((s) => ({ seed: s, input: compressed(riverSpot(s)) })),
+      ...seeds(2100, HEAVY ? 12 : 2).map((s) => ({ seed: s, input: compressed(turnSpot(s)) })),
+      ...seeds(2600, HEAVY ? 3 : 0).map((s) => ({ seed: s, input: compressed(flopSpot(s)) })),
+      ...packedSymmetric,
+    ];
+    for (const { input } of packed) expect(new Engine(input).compressed).toBe(true);
     const spots = [
       ...seeds(1000, HEAVY ? 60 : 12).map((s) => ({ seed: s, input: riverSpot(s) })),
       ...seeds(2000, HEAVY ? 25 : 5).map((s) => ({ seed: s, input: turnSpot(s) })),
       ...seeds(2500, HEAVY ? 4 : 1).map((s) => ({ seed: s, input: flopSpot(s) })),
       ...symmetric,
+      ...packed,
     ];
     for (const { seed, input } of spots) {
       const game = new OracleGame(input);
@@ -648,7 +670,9 @@ describe("cross-check: exploitability of the core's strategy", () => {
   it("matches on random (non-equilibrium) strategies written into the strategy sums", () => {
     // On symmetric spots the random sums differ between the hands of an orbit; the core reads each hand's
     // strategy from its orbit's canonical hand, and so does every SolutionNode the oracle reads.
+    const packedSymmetric = seeds(3600, HEAVY ? 10 : 1).map((s) => ({ seed: s, input: compressed(riverSpot(s, true)) }));
     const symmetric = [
+      ...packedSymmetric,
       ...seeds(3500, HEAVY ? 30 : 4).map((s) => ({ seed: s, input: riverSpot(s, true) })),
       ...seeds(4500, HEAVY ? 10 : 2).map((s) => ({ seed: s, input: turnSpot(s, true) })),
       ...seeds(4600, HEAVY ? 5 : 1).map((s) => ({ seed: s, input: turnSpot(s, "monotone") })),
@@ -658,6 +682,9 @@ describe("cross-check: exploitability of the core's strategy", () => {
       ...seeds(3000, HEAVY ? 60 : 12).map((s) => ({ seed: s, input: riverSpot(s) })),
       ...seeds(4000, HEAVY ? 20 : 4).map((s) => ({ seed: s, input: turnSpot(s) })),
       ...symmetric,
+      // Compressed storage (random 16-bit strategy sums), also with suit symmetry (in `symmetric`).
+      ...seeds(3200, HEAVY ? 30 : 4).map((s) => ({ seed: s, input: compressed(riverSpot(s)) })),
+      ...seeds(4100, HEAVY ? 10 : 2).map((s) => ({ seed: s, input: compressed(turnSpot(s)) })),
     ];
     for (const { seed, input } of spots) {
       const r = rng(seed * 31 + 7);
@@ -671,15 +698,17 @@ describe("cross-check: exploitability of the core's strategy", () => {
 
 /**
  * Random strategy sums: skewed weights, some exact zeros (actions never taken) and some hands with
- * all-zero sums (the average strategy is then uniform).
+ * all-zero sums (the average strategy is then uniform). With compressed storage the sums are 16-bit integers
+ * (they stand for q × the node's scale, which no strategy read depends on): the same draws, scaled and rounded.
  */
 function fillRandomStrategy(r: Rand, e: Engine): void {
+  const toStored = e.compressed ? (x: number) => Math.round(x * 65535) : (x: number) => x;
   for (const node of e.actionNodes) {
     const n = e.hands[e.player(node)].n;
     const A = e.numActions(node);
     for (let h = 0; h < n; h++) {
       const allZero = r() < 0.1;
-      for (let a = 0; a < A; a++) e.stratSum[e.off[node] + a * n + h] = allZero || r() < 0.25 ? 0 : r() ** 2;
+      for (let a = 0; a < A; a++) e.stratSum[e.off[node] + a * n + h] = allZero || r() < 0.25 ? 0 : toStored(r() ** 2);
     }
   }
 }
@@ -714,6 +743,17 @@ describe("cross-check: game value", () => {
       ...Array.from({ length: HEAVY ? 6 : 1 }, (_, i) => 6500 + i).map((seed) => ({
         seed,
         input: randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 12 : 8, maxNodes: HEAVY ? 3000 : 1500, symmetric: seed % 2 === 0 || "monotone" }),
+        oracleIters: HEAVY ? 800 : 150,
+      })),
+      // Compressed storage: the core's 16-bit solve brackets the same value.
+      ...Array.from({ length: HEAVY ? 10 : 3 }, (_, i) => 5200 + i).map((seed) => ({
+        seed,
+        input: compressed(randomSpot(seed, { street: "river", minCombos: 5, maxCombos: HEAVY ? 20 : 12, maxNodes: HEAVY ? 120 : 60 })),
+        oracleIters: HEAVY ? 3000 : 600,
+      })),
+      ...Array.from({ length: HEAVY ? 4 : 1 }, (_, i) => 6200 + i).map((seed) => ({
+        seed,
+        input: compressed(randomSpot(seed, { street: "turn", minCombos: 5, maxCombos: HEAVY ? 12 : 8, maxNodes: HEAVY ? 3000 : 1500 })),
         oracleIters: HEAVY ? 800 : 150,
       })),
     ];
@@ -825,6 +865,8 @@ describe("cross-check: SolutionNode ev and ranges", () => {
     // Symmetric spots: random paths deal cards off the core's representatives, whose nodes it reads from the
     // representative's subtree with the suits permuted back.
     const symmetric = [
+      // Also with compressed storage.
+      ...Array.from({ length: HEAVY ? 5 : 1 }, (_, i) => ({ seed: 8700 + i, input: compressed(turnSpot(8700 + i, true)) })),
       ...Array.from({ length: HEAVY ? 20 : 4 }, (_, i) => ({ seed: 7500 + i, input: riverSpot(7500 + i, true) })),
       ...Array.from({ length: HEAVY ? 8 : 2 }, (_, i) => ({ seed: 8500 + i, input: turnSpot(8500 + i, true) })),
       ...Array.from({ length: HEAVY ? 5 : 1 }, (_, i) => ({ seed: 8600 + i, input: turnSpot(8600 + i, "monotone") })),
@@ -834,6 +876,9 @@ describe("cross-check: SolutionNode ev and ranges", () => {
       ...Array.from({ length: HEAVY ? 40 : 10 }, (_, i) => ({ seed: 7000 + i, input: riverSpot(7000 + i) })),
       ...Array.from({ length: HEAVY ? 15 : 4 }, (_, i) => ({ seed: 8000 + i, input: turnSpot(8000 + i) })),
       ...symmetric,
+      // Compressed storage (also with suit symmetry, in `symmetric`).
+      ...Array.from({ length: HEAVY ? 20 : 3 }, (_, i) => ({ seed: 7200 + i, input: compressed(riverSpot(7200 + i)) })),
+      ...Array.from({ length: HEAVY ? 8 : 1 }, (_, i) => ({ seed: 8100 + i, input: compressed(turnSpot(8100 + i)) })),
     ];
     let compared = 0;
     for (const { seed, input } of spots) {

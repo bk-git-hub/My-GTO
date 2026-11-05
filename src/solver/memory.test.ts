@@ -48,7 +48,7 @@ const IP = "22+, A2s+, K2s+, Q2s+, J5s+, T6s+, 96s+, 85s+, 74s+, 64s+, 53s+, A2o
 const sizes = (bet: number[], raise: number[]): [StreetSizes, StreetSizes] => [{ bet, raise }, { bet, raise }];
 
 describe.skipIf(!gc || !memoryUsage)("estimateMemory matches the measured heap", () => {
-  it("within 10% on river, turn and flop solvers, with and without suit isomorphism", () => {
+  it("within 10% on river, turn and flop solvers, with and without suit isomorphism and compressed storage", () => {
     const spots: [string, SolverInput][] = [
       // About 500 combos each: storage dominates.
       ["river", { board: parseCards("Ks9h5c3d2s"), ranges: [rangeWeights(OOP), rangeWeights(IP)], pot: 10, stack: 100,
@@ -62,8 +62,14 @@ describe.skipIf(!gc || !memoryUsage)("estimateMemory matches the measured heap",
       ["monotone flop", { board: parseCards("Ks7s2s"), ranges: [rangeWeights("AA, 76s"), rangeWeights("KQs, QJs, 98s")], pot: 5.5, stack: 20,
         sizes: { flop: [{ bet: [], raise: [0.6] }, { bet: [0.33], raise: [] }], turn: sizes([0.66], []), river: sizes([0.75], []) }, raiseLimit: 1 }],
     ];
-    for (const [name, input] of spots) {
-      if (name.startsWith("two-tone") || name.startsWith("monotone")) expect(new Engine(input).group.length, name).toBeGreaterThan(1);
+    // Compressed storage (docs/solver.md "Compressed storage"): 16-bit regrets and strategy sums, per-node scales.
+    // Each right after its Float32 twin (so the small river comes before the big spots: memory a bigger spot
+    // is still releasing would blur its measurement).
+    const all = spots.flatMap(([name, input]): [string, SolverInput][] =>
+      name === "two-tone turn" ? [[name, input]] : [[name, input], [`${name}, compressed`, { ...input, compress: true }]],
+    );
+    for (const [name, input] of all) {
+      if (name.includes("two-tone") || name.includes("monotone")) expect(new Engine(input).group.length, name).toBeGreaterThan(1);
       const est = estimateMemory(input).bytes;
       const measured = measuredEngineBytes(input);
       expect(est / measured, `${name}: estimate ${est} vs measured ${measured}`).toBeGreaterThan(0.9);

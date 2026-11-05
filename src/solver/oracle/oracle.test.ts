@@ -296,6 +296,7 @@ describe("oracle input rules", () => {
       { pot: 0 }, { pot: NaN }, { pot: Infinity }, { stack: -1 }, { stack: NaN }, { stack: Infinity },
       { minBet: 0 }, { minBet: 1e-9 }, { minBet: NaN }, { minBet: Infinity },
       { raiseLimit: -1 }, { raiseLimit: 0.5 }, { raiseLimit: Infinity }, { addAllIn: 1 as never },
+      { compress: 1 as never }, { compress: "true" as never },
       { allInThreshold: 0 }, { allInThreshold: NaN }, { allInThreshold: Infinity },
       { sizes: sizes([NaN]) }, { sizes: sizes([-0.25]) }, { sizes: sizes([Infinity]) }, { sizes: sizes(["0.5"]) },
       { sizes: { turn: [{ bet: [-1], raise: [] }, { bet: [], raise: [] }] } },

@@ -25,19 +25,26 @@ function expectFalling(trace: number[]) {
   expect(trace[trace.length - 1]).toBeLessThan(trace[0] / 4);
 }
 
+const river: SolverInput = {
+  board: parseCards("Ks9h5c3d2s"),
+  ranges: [
+    rangeWeights("22+, A2s+, K9s+, QTs+, JTs, T9s, 98s, ATo+, KTo+, QJo"),
+    rangeWeights("22+, A2s+, K5s+, Q8s+, J8s+, T8s+, 98s, 87s, 76s, A9o+, KTo+, QTo+, JTo"),
+  ],
+  pot: 10,
+  stack: 50,
+};
+const turn: SolverInput = {
+  board: parseCards("Qh8d4c2s"),
+  ranges: [rangeWeights("QQ, 88, 44, AQ, KQs, JTs, T9s, 97s, 76s, A5s"), rangeWeights("AA, KK, JJ, AQs, KQ, QJs, J9s, 65s, A3s")],
+  pot: 10,
+  stack: 40,
+};
+
 describe("convergence", () => {
   it("realistic river spot reaches 0.5% of the pot", () => {
-    const board = parseCards("Ks9h5c3d2s");
-    const input: SolverInput = {
-      board,
-      ranges: [
-        rangeWeights("22+, A2s+, K9s+, QTs+, JTs, T9s, 98s, ATo+, KTo+, QJo"),
-        rangeWeights("22+, A2s+, K5s+, Q8s+, J8s+, T8s+, 98s, 87s, 76s, A9o+, KTo+, QTo+, JTo"),
-      ],
-      pot: 10,
-      stack: 50,
-    };
-    const n0 = liveCombos(input.ranges[0], board), n1 = liveCombos(input.ranges[1], board);
+    const input = river;
+    const n0 = liveCombos(input.ranges[0], input.board), n1 = liveCombos(input.ranges[1], input.board);
     expect(n0).toBeGreaterThanOrEqual(150);
     expect(n1).toBeGreaterThanOrEqual(150);
     expect(Math.max(n0, n1)).toBeLessThanOrEqual(300);
@@ -48,16 +55,32 @@ describe("convergence", () => {
   });
 
   it("small turn spot reaches 1% of the pot", () => {
-    const board = parseCards("Qh8d4c2s");
-    const input: SolverInput = {
-      board,
-      ranges: [rangeWeights("QQ, 88, 44, AQ, KQs, JTs, T9s, 97s, 76s, A5s"), rangeWeights("AA, KK, JJ, AQs, KQ, QJs, J9s, 65s, A3s")],
-      pot: 10,
-      stack: 40,
-    };
-    const r = run(input, 1, 10, 500);
+    const r = run(turn, 1, 10, 500);
     expectFalling(r.trace);
     expect(r.trace[r.trace.length - 1]).toBeLessThanOrEqual(1);
     expect(r.ms).toBeLessThan(15000);
+  });
+});
+
+// Compressed storage (docs/solver.md "Compressed storage") reaches the same targets on the same spots, in about
+// as many iterations as Float32 storage (and goes on converging: 0.2% on the river).
+describe("convergence with compressed storage", () => {
+  /** Iterations to reach `target` with Float32 storage and with compressed storage. */
+  function both(input: SolverInput, target: number, every: number, maxIter: number) {
+    const plain = run(input, target, every, maxIter);
+    const packed = run({ ...input, compress: true }, target, every, maxIter);
+    expectFalling(packed.trace);
+    expect(packed.trace[packed.trace.length - 1]).toBeLessThanOrEqual(target);
+    expect(packed.iterations).toBeLessThanOrEqual(plain.iterations + every);
+    return packed;
+  }
+
+  it("realistic river spot reaches 0.5% of the pot, and 0.2%", () => {
+    expect(both(river, 0.5, 20, 2000).ms).toBeLessThan(5000);
+    expect(both(river, 0.2, 20, 2000).ms).toBeLessThan(10000);
+  });
+
+  it("small turn spot reaches 1% of the pot", () => {
+    expect(both(turn, 1, 10, 500).ms).toBeLessThan(15000);
   });
 });

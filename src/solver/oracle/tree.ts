@@ -117,6 +117,9 @@ function configOf(input: SolverInput): Config {
   if (!isReal(allInThreshold) || allInThreshold <= 0) throw new Error("oracle: allInThreshold must be a finite number > 0");
   const minBet = input.minBet ?? 1;
   if (!isReal(minBet) || minBet <= EPS) throw new Error("oracle: minBet must be a finite number > 1e-9");
+  // Compressed storage changes how the solver stores its numbers, not the game: only its type is checked.
+  const compress = input.compress ?? false;
+  if (compress !== true && compress !== false) throw new Error("oracle: compress must be a boolean");
   if (input.sizes !== undefined) {
     if (typeof input.sizes !== "object" || input.sizes === null) throw new Error("oracle: sizes must be an object");
     for (const street of ["flop", "turn", "river"] as const) {

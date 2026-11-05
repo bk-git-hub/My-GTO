@@ -11,8 +11,29 @@ export const MODE_AVG = 2; // evaluation: both players on the average strategy
 
 // DCFR parameters (alpha = 1.5, beta = 0, gamma = 2) appear in Engine.discount.
 
+/**
+ * Per-node storage of regrets or strategy sums: Float32 values, or (compressed storage, docs/solver.md
+ * "Compressed storage") 16-bit integers that stand for q × the node's scale. Strategy reads only ever divide
+ * stored values of one node by their sum over actions, where a node's scale cancels, so they read either kind.
+ */
+export type Store = Float32Array | Int16Array | Uint16Array;
+
+/** Largest stored magnitude of a compressed regret (Int16, symmetric) and strategy sum (Uint16). */
+const Q_REGRET = 32767;
+const Q_SUM = 65535;
+
+/**
+ * x rounded to the nearest integer (ties to even), for |x| < 2^51: adding and subtracting 1.5 × 2^52 leaves no
+ * fraction bits in float64. Branch-free, unlike Math.round, and exact for the 16-bit range used here.
+ */
+const ROUND_MAGIC = 6755399441055744;
+const roundInt = (x: number): number => x + ROUND_MAGIC - ROUND_MAGIC;
+
+/** 2^-32: maps a 32-bit unsigned integer to [0, 1). */
+const U32 = 2 ** -32;
+
 /** inv[h] = 1 / Σ_a max(R[a][h], 0), or 0 when no regret is positive (then the strategy is uniform). */
-function positiveRegretInv(R: Float32Array, off: number, A: number, n: number, inv: Float64Array): void {
+function positiveRegretInv(R: Store, off: number, A: number, n: number, inv: Float64Array): void {
   for (let h = 0; h < n; h++) inv[h] = 0;
   for (let a = 0; a < A; a++) {
     const b = off + a * n;
@@ -25,7 +46,7 @@ function positiveRegretInv(R: Float32Array, off: number, A: number, n: number, i
 }
 
 /** inv[h] = 1 / Σ_a S[a][h], or 0 when the sum is 0 (then the average strategy is uniform). */
-function strategySumInv(S: Float32Array, off: number, A: number, n: number, inv: Float64Array): void {
+function strategySumInv(S: Store, off: number, A: number, n: number, inv: Float64Array): void {
   for (let h = 0; h < n; h++) inv[h] = 0;
   for (let a = 0; a < A; a++) {
     const b = off + a * n;
@@ -38,7 +59,7 @@ function strategySumInv(S: Float32Array, off: number, A: number, n: number, inv:
  * Regret matching for one node: sig[a*n + h] = positive regret share, uniform when none is positive.
  * `inv` is scratch.
  */
-export function regretMatch(R: Float32Array, off: number, A: number, n: number, sig: Float64Array, inv: Float64Array): void {
+export function regretMatch(R: Store, off: number, A: number, n: number, sig: Float64Array, inv: Float64Array): void {
   positiveRegretInv(R, off, A, n, inv);
   const u = 1 / A;
   for (let a = 0; a < A; a++) {
@@ -52,7 +73,7 @@ export function regretMatch(R: Float32Array, off: number, A: number, n: number, 
 }
 
 /** Average strategy for one node: strategy sums normalized per hand, uniform where a hand's sum is 0. */
-export function averageStrategy(S: Float32Array, off: number, A: number, n: number, sig: Float64Array, inv: Float64Array): void {
+export function averageStrategy(S: Store, off: number, A: number, n: number, sig: Float64Array, inv: Float64Array): void {
   strategySumInv(S, off, A, n, inv);
   const u = 1 / A;
   for (let a = 0; a < A; a++) {
@@ -120,9 +141,19 @@ export class Engine {
   readonly off: Int32Array | Float64Array;
   /** Per node: the last iteration whose discount has been applied to an action node's storage. */
   readonly lastT: Int32Array;
-  /** Regrets and strategy sums, every action node's block at off[node]: [action][hand]. */
-  readonly regret: Float32Array;
-  readonly stratSum: Float32Array;
+  /**
+   * Regrets and strategy sums, every action node's block at off[node]: [action][hand]. Float32 values, or with
+   * compressed storage (`compressed`) Int16 regrets and Uint16 strategy sums that stand for q × the node's scale.
+   */
+  readonly regret: Float32Array | Int16Array;
+  readonly stratSum: Float32Array | Uint16Array;
+  /** 16-bit storage with per-node scales (input.compress; docs/solver.md "Compressed storage"). */
+  readonly compressed: boolean;
+  /**
+   * Compressed storage only (empty otherwise), per node id: [3 id] the scale of the node's positive regrets,
+   * [3 id + 1] of its negative regrets and [3 id + 2] of its strategy sums. A stored q stands for q × scale.
+   */
+  readonly scale: Float32Array;
   readonly riverCache: RiverCache;
   /** Per board id of the tree: its cached strength order, for the river boards that have showdowns. */
   private readonly riverOf: (RiverBoard | undefined)[] = [];
@@ -163,6 +194,11 @@ export class Engine {
   private readonly valBuf: Float64Array[][] = [];
   /** Root output buffer for callers. */
   readonly out: Float64Array;
+  /**
+   * State of the 32-bit linear congruential generator behind the stochastic rounding of compressed strategy sums
+   * (seeded the same for every engine, so solves are reproducible).
+   */
+  private rng = 0x2545f491;
   // Discount factors computed by discount().
   private pf = 1;
   private nf = 1;
@@ -218,8 +254,10 @@ export class Engine {
         if (!this.riverOf[b]) this.riverOf[b] = this.riverCache.get(tree.boards[b]);
       }
     }
-    this.regret = new Float32Array(size);
-    this.stratSum = new Float32Array(size);
+    this.compressed = cfg.compress;
+    this.regret = cfg.compress ? new Int16Array(size) : new Float32Array(size);
+    this.stratSum = cfg.compress ? new Uint16Array(size) : new Float32Array(size);
+    this.scale = new Float32Array(cfg.compress ? 3 * N : 0);
 
     const nMax = Math.max(this.hands[0].n, this.hands[1].n);
     const A = tree.maxActions;
@@ -343,11 +381,18 @@ export class Engine {
    * eager implementation would hold. Not needed for solving or for reading strategies.
    */
   syncDiscounts(): void {
-    const R = this.regret, S = this.stratSum;
+    const R = this.regret, S = this.stratSum, sc = this.scale;
     for (const node of this.actionNodes) {
       if (this.lastT[node] === this.t) continue;
       this.discount(node);
       const pf = this.pf, nf = this.nf, sf = this.sf;
+      if (this.compressed) {
+        // Positive and negative regrets have scales of their own, so the discount is three products.
+        sc[3 * node] *= pf;
+        sc[3 * node + 1] *= nf;
+        sc[3 * node + 2] *= sf;
+        continue;
+      }
       const off = this.off[node];
       const end = off + this.numActions(node) * this.hands[this.player(node)].n;
       for (let i = off; i < end; i++) {
@@ -356,6 +401,25 @@ export class Engine {
         S[i] *= sf;
       }
     }
+  }
+
+  /**
+   * An action node's stored regrets and strategy sums as numbers, [action][hand]: the values themselves, or
+   * with compressed storage q × scale. Pending discounts are not applied (syncDiscounts applies them).
+   */
+  storedValues(node: number): { regret: Float64Array; stratSum: Float64Array } {
+    const len = this.numActions(node) * this.hands[this.player(node)].n;
+    const off = this.off[node];
+    const regret = Float64Array.from(this.regret.subarray(off, off + len));
+    const stratSum = Float64Array.from(this.stratSum.subarray(off, off + len));
+    if (this.compressed) {
+      const pos = this.scale[3 * node], neg = this.scale[3 * node + 1], s = this.scale[3 * node + 2];
+      for (let i = 0; i < len; i++) {
+        regret[i] *= regret[i] > 0 ? pos : neg;
+        stratSum[i] *= s;
+      }
+    }
+    return { regret, stratSum };
   }
 
   /** Discount factors for a node whose storage was last discounted at iteration lastT[node]. */
@@ -419,8 +483,12 @@ export class Engine {
     }
     // Discount the stored values (lazily, covering any iterations this node was skipped), then add
     // regret_a += v_a - v and strategySum_a += reachSelf × σ_a.
-    // Branch-free form of (r > 0 ? r × pf : r × nf): r (pf + nf) / 2 + |r| (pf - nf) / 2.
     this.discount(node);
+    if (this.compressed) {
+      this.storeCompressed(node, off, A, n, vals, sig, rs, out);
+      return;
+    }
+    // Branch-free form of (r > 0 ? r × pf : r × nf): r (pf + nf) / 2 + |r| (pf - nf) / 2.
     const hs = (this.pf + this.nf) / 2, hd = (this.pf - this.nf) / 2, sf = this.sf;
     for (let a = 0; a < A; a++) {
       const va = vals[a], s = a * n, b = off + s;
@@ -430,6 +498,62 @@ export class Engine {
         S[b + h] = S[b + h] * sf + rs[h] * sig[s + h];
       }
     }
+  }
+
+  /**
+   * The end of a DCFR update with compressed storage (docs/solver.md "Compressed storage"): the node's stored
+   * values, decoded with their scales times the pending discount factors (positive regrets × pf, negative × nf,
+   * strategy sums × sf), plus this iteration's v_a − v and reachSelf × σ_a, are stored again with fresh scales.
+   * `vals` and `sig` are scratch here: they are overwritten with the new regrets and strategy sums.
+   */
+  private storeCompressed(node: number, off: number, A: number, n: number, vals: Float64Array[], sig: Float64Array, rs: Float64Array, out: Float64Array): void {
+    const R = this.regret, S = this.stratSum, sc = this.scale, k = 3 * node;
+    const pos = sc[k] * this.pf, neg = sc[k + 1] * this.nf, ss = sc[k + 2] * this.sf;
+    // q × (q > 0 ? pos : neg), branch-free: q (pos + neg) / 2 + |q| (pos - neg) / 2.
+    const hs = (pos + neg) / 2, hd = (pos - neg) / 2;
+    let maxR = 0, minR = 0, maxS = 0;
+    for (let a = 0; a < A; a++) {
+      const va = vals[a], s = a * n, b = off + s;
+      for (let h = 0; h < n; h++) {
+        const q = R[b + h];
+        const r = q * hs + Math.abs(q) * hd + va[h] - out[h];
+        va[h] = r;
+        // Math.max / min rather than branches: faster here (measured).
+        maxR = Math.max(maxR, r);
+        minR = Math.min(minR, r);
+        const x = S[b + h] * ss + rs[h] * sig[s + h];
+        sig[s + h] = x;
+        maxS = Math.max(maxS, x);
+      }
+    }
+    const kp = this.setScale(k, maxR, Q_REGRET), kn = this.setScale(k + 1, -minR, Q_REGRET), ks = this.setScale(k + 2, maxS, Q_SUM);
+    // r × (r > 0 ? kp : kn), branch-free as above (the signs are mixed, so a branch would mispredict).
+    const ka = (kp + kn) / 2, kb = (kp - kn) / 2;
+    let x = this.rng;
+    for (let a = 0; a < A; a++) {
+      const va = vals[a], s = a * n, b = off + s;
+      for (let h = 0; h < n; h++) {
+        const r = va[h];
+        R[b + h] = roundInt(r * ka + Math.abs(r) * kb);
+        // Strategy sums round stochastically: floor(y + u) = round(y + u − 1/2), with u uniform in [0, 1) from
+        // the LCG (u is set by its top bits, the good ones). Rounding to nearest would lose every increment
+        // under half a step, which with DCFR's discounting holds the average strategy back (docs/solver.md).
+        x = (Math.imul(x, 1664525) + 1013904223) | 0;
+        S[b + h] = roundInt(sig[s + h] * ks + ((x >>> 0) * U32 - 0.5));
+      }
+    }
+    this.rng = x;
+  }
+
+  /**
+   * Store max / qMax as the scale at scale[i] (Float32) and return the factor that encodes a value of magnitude
+   * up to max as an integer of magnitude up to qMax (to be rounded). 0 when max is 0, or so small that its scale
+   * underflows Float32: then every value of the group is stored as 0.
+   */
+  private setScale(i: number, max: number, qMax: number): number {
+    const s = Math.fround(max / qMax);
+    this.scale[i] = s;
+    return s > 0 ? qMax / max : 0;
   }
 
   /** p's own node in a best response: per-hand maximum over actions. */
@@ -608,6 +732,48 @@ export class Engine {
       const R = this.regret, S = this.stratSum;
       const inv = this.invBuf[d], crs = this.rsBuf[d];
       const canon = this.canon[p][this.nBoard[node]];
+      if (this.compressed) {
+        // The (symmetric) strategy first; the regrets only take their discount, which with a scale per sign
+        // is two products; the strategy sums add reachSelf × σ and are stored again with a fresh scale.
+        const sig = this.sigBuf[d], vals = this.valBuf[d];
+        regretMatch(R, off, A, n, sig, inv);
+        if (canon !== undefined) for (let a = 0; a < A; a++) canonRow(sig, a * n, canon);
+        this.discount(node);
+        const sc = this.scale, k = 3 * node;
+        sc[k] *= this.pf;
+        sc[k + 1] *= this.nf;
+        const ss = sc[k + 2] * this.sf;
+        let maxS = 0;
+        for (let a = 0; a < A; a++) {
+          const va = vals[a], b = off + a * n, s = a * n;
+          for (let h = 0; h < n; h++) {
+            const x = S[b + h] * ss + rs[h] * sig[s + h];
+            va[h] = x;
+            maxS = Math.max(maxS, x);
+          }
+        }
+        const ks = this.setScale(k + 2, maxS, Q_SUM);
+        let x = this.rng;
+        for (let a = 0; a < A; a++) {
+          const va = vals[a], b = off + a * n;
+          for (let h = 0; h < n; h++) {
+            x = (Math.imul(x, 1664525) + 1013904223) | 0; // stochastic rounding, as in storeCompressed
+            S[b + h] = roundInt(va[h] * ks + ((x >>> 0) * U32 - 0.5));
+          }
+        }
+        this.rng = x;
+        for (let a = 0; a < A; a++) {
+          const s = a * n;
+          let sum = 0;
+          for (let h = 0; h < n; h++) {
+            const x = rs[h] * sig[s + h];
+            crs[h] = x;
+            sum += x;
+          }
+          if (sum > 0) this.sumOnly(first + a, p, crs, d + 1);
+        }
+        return;
+      }
       if (canon !== undefined) {
         // The symmetric strategy first (see the class comment), then the same updates.
         const sig = this.sigBuf[d];

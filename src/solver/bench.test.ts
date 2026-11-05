@@ -42,10 +42,18 @@ describe.skipIf(!enabled)("solver benchmark", () => {
     expect(r.expl).toBeLessThanOrEqual(0.5);
   }, 120_000);
 
+  const turn: SolverInput = { board: parseCards("Ks9h5c3d"), ranges: [rangeWeights(OOP), rangeWeights(IP)], pot: 20, stack: 80 };
+
   it("turn, ~500 combos each, default sizes, pot 20 stack 80: 1% of pot", () => {
-    const input: SolverInput = { board: parseCards("Ks9h5c3d"), ranges: [rangeWeights(OOP), rangeWeights(IP)], pot: 20, stack: 80 };
-    const r = bench("turn", input, 1, 10, 1000);
+    const r = bench("turn", turn, 1, 10, 1000);
     expect(r.expl).toBeLessThanOrEqual(1);
-    expect(estimateMemory(input).bytes).toBeLessThan(300e6);
+    expect(estimateMemory(turn).bytes).toBeLessThan(300e6);
+  }, 600_000);
+
+  it("the same turn with compressed storage: 1% of pot in about half the memory", () => {
+    const input: SolverInput = { ...turn, compress: true };
+    const r = bench("turn, compressed", input, 1, 10, 1000);
+    expect(r.expl).toBeLessThanOrEqual(1);
+    expect(estimateMemory(input).bytes).toBeLessThan(0.55 * estimateMemory(turn).bytes);
   }, 600_000);
 });
