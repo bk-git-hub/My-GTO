@@ -1,6 +1,6 @@
 import { buildHands, pairWeight, type HandList } from "./hands";
-import { foldValues, RiverCache, showdownValues } from "./showdown";
-import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, treeConfig, type GameNode } from "./tree";
+import { foldValues, RiverCache, showdownValues, type RiverBoard } from "./showdown";
+import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, NODE_SHOWDOWN, treeConfig, type PackedTree } from "./tree";
 import type { SolverInput } from "./types";
 
 /** Traversal modes of Engine.walk. */
@@ -67,26 +67,42 @@ export function averageStrategy(S: Float32Array, off: number, A: number, n: numb
  * The solver state: tree, hand lists, per-node storage and scratch buffers, plus the one
  * vectorized traversal used for DCFR updates, best responses and evaluation.
  *
+ * Nodes are ids of the PackedTree (`tree`); the root is 0. Per-node solver data lives in arrays indexed
+ * by node id (`off`, `lastT`), and every action node's regrets and strategy sums live in two big slabs.
+ *
  * Discounting is applied lazily: a node's regrets and strategy sums are discounted when the node is
  * next updated, with the product of the factors of every iteration since its last update. Scaling
  * all of a node's strategy sums (or all positive regrets) by one factor doesn't change the normalized
  * strategy, so reads in between see the right strategy.
  */
 export class Engine {
-  readonly root: GameNode;
+  readonly tree: PackedTree;
+  /** The root's node id. */
+  readonly root = 0;
   readonly hands: [HandList, HandList];
   readonly pot0: number;
   /** Initial weights per hand list (the root reach). */
   readonly w: [Float64Array, Float64Array];
   /** Σ over compatible pairs of w0 × w1: the normalizer for best-response values. */
   readonly pairTotal: number;
-  readonly actionNodes: GameNode[];
+  /** Ids of the action nodes, in the order of their storage blocks. */
+  readonly actionNodes: Int32Array;
   readonly chanceCount: number;
   readonly terminalCount: number;
-  /** Regrets and strategy sums, every action node's block at node.off: [action][hand]. */
+  /**
+   * Per node: offset of an action node's block in `regret` / `stratSum`, laid out [action][hand]. Int32 when
+   * every offset fits (up to 2^31 - 1 entries, 8 GB per array), so the hot loops index with small integers
+   * (a Float64Array here costs about 15% on every iteration); Float64 beyond that.
+   */
+  readonly off: Int32Array | Float64Array;
+  /** Per node: the last iteration whose discount has been applied to an action node's storage. */
+  readonly lastT: Int32Array;
+  /** Regrets and strategy sums, every action node's block at off[node]: [action][hand]. */
   readonly regret: Float32Array;
   readonly stratSum: Float32Array;
   readonly riverCache: RiverCache;
+  /** Per board id of the tree: its cached strength order, for the river boards that have showdowns. */
+  private readonly riverOf: (RiverBoard | undefined)[] = [];
   /** Iterations done. */
   t = 0;
   /**
@@ -94,6 +110,15 @@ export class Engine {
    * still updated by sumOnly). Results are the same either way; tests turn it off to check that.
    */
   pruneUnreached = true;
+
+  // The tree's arrays, held directly for the hot loops (see PackedTree).
+  private readonly nDesc: Int32Array;
+  private readonly nBoard: Uint16Array;
+  private readonly nChild: Int32Array;
+  private readonly dType: Uint8Array;
+  private readonly dNum: Int32Array;
+  private readonly dPlayer: Int8Array;
+  private readonly dInvested: Float64Array;
 
   // Scratch, one set per tree depth so the recursion never allocates.
   private readonly rsBuf: Float64Array[] = [];
@@ -120,21 +145,44 @@ export class Engine {
     this.w = [Float64Array.from(this.hands[0].weight), Float64Array.from(this.hands[1].weight)];
     this.pot0 = input.pot;
     const tree = buildGameTree(input, cfg);
-    this.root = tree.root;
-    this.actionNodes = tree.actionNodes;
+    this.tree = tree;
     this.chanceCount = tree.chanceCount;
     this.terminalCount = tree.terminalCount;
+    this.nDesc = tree.desc;
+    this.nBoard = tree.board;
+    this.nChild = tree.child;
+    this.dType = tree.dType;
+    this.dNum = tree.dNum;
+    this.dPlayer = tree.dPlayer;
+    this.dInvested = tree.dInvested;
 
+    // Storage blocks in node order, and the strength order of every river board with a showdown.
+    const N = tree.size;
     let size = 0;
-    for (const node of tree.actionNodes) {
-      node.off = size;
-      size += node.children.length * this.hands[node.player!].n;
+    for (let id = 0; id < N; id++) {
+      const d = this.nDesc[id];
+      if (this.dType[d] === NODE_ACTION) size += this.dNum[d] * this.hands[this.dPlayer[d]].n;
+    }
+    this.off = size <= 2 ** 31 - 1 ? new Int32Array(N) : new Float64Array(N);
+    this.lastT = new Int32Array(N);
+    this.actionNodes = new Int32Array(tree.actionCount);
+    this.riverCache = new RiverCache(this.hands);
+    size = 0;
+    let k = 0;
+    for (let id = 0; id < N; id++) {
+      const d = this.nDesc[id];
+      const type = this.dType[d];
+      if (type === NODE_ACTION) {
+        this.actionNodes[k++] = id;
+        this.off[id] = size;
+        size += this.dNum[d] * this.hands[this.dPlayer[d]].n;
+      } else if (type === NODE_SHOWDOWN) {
+        const b = this.nBoard[id];
+        if (!this.riverOf[b]) this.riverOf[b] = this.riverCache.get(tree.boards[b]);
+      }
     }
     this.regret = new Float32Array(size);
     this.stratSum = new Float32Array(size);
-
-    this.riverCache = new RiverCache(this.hands);
-    for (const node of tree.showdownNodes) node.river = this.riverCache.get(node.board);
 
     const nMax = Math.max(this.hands[0].n, this.hands[1].n);
     const A = tree.maxActions;
@@ -151,13 +199,23 @@ export class Engine {
     this.out = new Float64Array(nMax);
   }
 
+  /** The player to act at an action node. */
+  player(node: number): number {
+    return this.dPlayer[this.nDesc[node]];
+  }
+
+  /** The number of actions at an action node (children at any node). */
+  numActions(node: number): number {
+    return this.dNum[this.nDesc[node]];
+  }
+
   /** Run n DCFR iterations; each updates OOP, then IP (alternating updates). */
   iterate(n: number): void {
     const out = this.out;
     for (let k = 0; k < n; k++) {
       this.t++;
-      this.walk(this.root, 0, MODE_CFR, this.w[0], this.w[1], out, 0);
-      this.walk(this.root, 1, MODE_CFR, this.w[1], this.w[0], out, 0);
+      this.walk(0, 0, MODE_CFR, this.w[0], this.w[1], out, 0);
+      this.walk(0, 1, MODE_CFR, this.w[1], this.w[0], out, 0);
     }
   }
 
@@ -166,19 +224,22 @@ export class Engine {
    * Σ over compatible opponent hands of reachOpp × p's net, chance probabilities folded into reachOpp.
    * `rs` (p's own reach) is only used in MODE_CFR, for the strategy sums.
    */
-  walk(node: GameNode, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
-    const type = node.type;
+  walk(node: number, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+    const desc = this.nDesc[node];
+    const type = this.dType[desc];
     if (type === NODE_ACTION) {
-      if (node.player !== p) this.opponentNode(node, p, mode, rs, ro, out, d);
+      if (this.dPlayer[desc] !== p) this.opponentNode(node, p, mode, rs, ro, out, d);
       else if (mode === MODE_CFR) this.updateNode(node, p, rs, ro, out, d);
       else if (mode === MODE_BR) this.maxNode(node, p, rs, ro, out, d);
       else this.averageNode(node, p, rs, ro, out, d);
     } else if (type === NODE_CHANCE) {
       this.chanceNode(node, p, mode, rs, ro, out, d);
     } else if (type === NODE_FOLD) {
-      foldValues(this.hands[p], this.hands[1 - p], ro, node.foldNet(p, this.pot0), out);
+      // The folder nets -x_f, the winner P0 + x_f.
+      const x = this.dInvested[desc];
+      foldValues(this.hands[p], this.hands[1 - p], ro, p === this.dPlayer[desc] ? 0 - x : this.pot0 + x, out);
     } else {
-      showdownValues(node.river!, p, ro, this.pot0, node.invested, out);
+      showdownValues(this.riverOf[this.nBoard[node]]!, p, ro, this.pot0, this.dInvested[desc], out);
     }
   }
 
@@ -189,11 +250,12 @@ export class Engine {
   syncDiscounts(): void {
     const R = this.regret, S = this.stratSum;
     for (const node of this.actionNodes) {
-      if (node.lastT === this.t) continue;
+      if (this.lastT[node] === this.t) continue;
       this.discount(node);
       const pf = this.pf, nf = this.nf, sf = this.sf;
-      const end = node.off + node.children.length * this.hands[node.player!].n;
-      for (let i = node.off; i < end; i++) {
+      const off = this.off[node];
+      const end = off + this.numActions(node) * this.hands[this.player(node)].n;
+      for (let i = off; i < end; i++) {
         const r = R[i];
         R[i] = r > 0 ? r * pf : r * nf;
         S[i] *= sf;
@@ -201,28 +263,28 @@ export class Engine {
     }
   }
 
-  /** Discount factors for a node whose storage was last discounted at iteration node.lastT. */
-  private discount(node: GameNode): void {
+  /** Discount factors for a node whose storage was last discounted at iteration lastT[node]. */
+  private discount(node: number): void {
     let pf = 1, nf = 1, sf = 1;
-    for (let k = node.lastT + 1; k <= this.t; k++) {
+    for (let k = this.lastT[node] + 1; k <= this.t; k++) {
       const ka = k * Math.sqrt(k); // k^1.5
       pf *= ka / (ka + 1);
       nf *= 0.5;
       const q = k / (k + 1);
       sf *= q * q;
     }
-    node.lastT = this.t;
+    this.lastT[node] = this.t;
     this.pf = pf;
     this.nf = nf;
     this.sf = sf;
   }
 
   /** p's own node in a DCFR update: recurse with reach × σ_a, then update regrets and strategy sums. */
-  private updateNode(node: GameNode, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
-    const children = node.children;
-    const A = children.length;
+  private updateNode(node: number, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+    const first = this.nChild[node];
+    const A = this.dNum[this.nDesc[node]];
     const n = this.hands[p].n;
-    const off = node.off;
+    const off = this.off[node];
     const R = this.regret, S = this.stratSum;
     const sig = this.sigBuf[d];
     const vals = this.valBuf[d];
@@ -240,7 +302,7 @@ export class Engine {
         sig[s + h] = x;
         crs[h] = rs[h] * x;
       }
-      this.walk(children[a], p, MODE_CFR, crs, ro, vals[a], d + 1);
+      this.walk(first + a, p, MODE_CFR, crs, ro, vals[a], d + 1);
     }
     // Node value v = Σ σ_a v_a.
     const v0 = vals[0];
@@ -265,28 +327,29 @@ export class Engine {
   }
 
   /** p's own node in a best response: per-hand maximum over actions. */
-  private maxNode(node: GameNode, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
-    const children = node.children;
+  private maxNode(node: number, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+    const first = this.nChild[node];
+    const A = this.dNum[this.nDesc[node]];
     const n = this.hands[p].n;
     const tmp = this.tmpBuf[d];
-    this.walk(children[0], p, MODE_BR, rs, ro, out, d + 1);
-    for (let a = 1; a < children.length; a++) {
-      this.walk(children[a], p, MODE_BR, rs, ro, tmp, d + 1);
+    this.walk(first, p, MODE_BR, rs, ro, out, d + 1);
+    for (let a = 1; a < A; a++) {
+      this.walk(first + a, p, MODE_BR, rs, ro, tmp, d + 1);
       for (let h = 0; h < n; h++) if (tmp[h] > out[h]) out[h] = tmp[h];
     }
   }
 
   /** p's own node when evaluating the average strategy: v = Σ σ̄_a v_a. */
-  private averageNode(node: GameNode, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
-    const children = node.children;
-    const A = children.length;
+  private averageNode(node: number, p: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+    const first = this.nChild[node];
+    const A = this.dNum[this.nDesc[node]];
     const n = this.hands[p].n;
     const sig = this.sigBuf[d];
     const tmp = this.tmpBuf[d];
-    averageStrategy(this.stratSum, node.off, A, n, sig, this.invBuf[d]);
+    averageStrategy(this.stratSum, this.off[node], A, n, sig, this.invBuf[d]);
     for (let h = 0; h < n; h++) out[h] = 0;
     for (let a = 0; a < A; a++) {
-      this.walk(children[a], p, MODE_AVG, rs, ro, tmp, d + 1);
+      this.walk(first + a, p, MODE_AVG, rs, ro, tmp, d + 1);
       const s = a * n;
       for (let h = 0; h < n; h++) out[h] += sig[s + h] * tmp[h];
     }
@@ -296,22 +359,22 @@ export class Engine {
    * The opponent's node: v = Σ_a cfv(child_a, reachOpp × σ_a). A child the opponent never reaches has
    * value 0 and isn't walked; in a DCFR update only p's strategy sums are refreshed there (sumOnly).
    */
-  private opponentNode(node: GameNode, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
-    const children = node.children;
-    const A = children.length;
+  private opponentNode(node: number, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+    const first = this.nChild[node];
+    const A = this.dNum[this.nDesc[node]];
     const nO = this.hands[1 - p].n;
     const nP = this.hands[p].n;
     const inv = this.invBuf[d];
     // The opponent's strategy: current (regret matching) when training, average otherwise.
     const cfr = mode === MODE_CFR;
     const store = cfr ? this.regret : this.stratSum;
-    const off = node.off;
+    const off = this.off[node];
     if (cfr) positiveRegretInv(store, off, A, nO, inv);
     else strategySumInv(store, off, A, nO, inv);
     const u = 1 / A;
     const cro = this.roBuf[d];
     const tmp = this.tmpBuf[d];
-    let first = true;
+    let started = false;
     for (let a = 0; a < A; a++) {
       const b = off + a * nO;
       let sum = 0;
@@ -333,18 +396,18 @@ export class Engine {
       }
       if (sum <= 0 && this.pruneUnreached) {
         // The opponent never takes this action: p's values below are exactly 0 (reach is never negative).
-        if (cfr) this.sumOnly(children[a], p, rs, d + 1);
+        if (cfr) this.sumOnly(first + a, p, rs, d + 1);
         continue;
       }
-      if (first) {
-        this.walk(children[a], p, mode, rs, cro, out, d + 1);
-        first = false;
+      if (!started) {
+        this.walk(first + a, p, mode, rs, cro, out, d + 1);
+        started = true;
       } else {
-        this.walk(children[a], p, mode, rs, cro, tmp, d + 1);
+        this.walk(first + a, p, mode, rs, cro, tmp, d + 1);
         for (let h = 0; h < nP; h++) out[h] += tmp[h];
       }
     }
-    if (first) for (let h = 0; h < nP; h++) out[h] = 0;
+    if (!started) for (let h = 0; h < nP; h++) out[h] = 0;
   }
 
   /**
@@ -353,12 +416,13 @@ export class Engine {
    * p's hands holding the card zeroed. Cards the opponent can't have reach for are handled like
    * unreached actions in opponentNode.
    */
-  private chanceNode(node: GameNode, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
+  private chanceNode(node: number, p: number, mode: number, rs: Float64Array, ro: Float64Array, out: Float64Array, d: number): void {
     const me = this.hands[p], opp = this.hands[1 - p];
     const nP = me.n, nO = opp.n;
-    const cards = node.cards!;
-    const children = node.children;
-    const scale = 1 / (52 - node.board.length - 4);
+    const b = this.nBoard[node];
+    const cards = this.tree.cards[b]!;
+    const first = this.nChild[node];
+    const scale = 1 / (52 - this.tree.boards[b].length - 4);
     const crs = this.rsBuf[d], cro = this.roBuf[d], tmp = this.tmpBuf[d];
     for (let h = 0; h < nP; h++) out[h] = 0;
     for (let k = 0; k < cards.length; k++) {
@@ -381,10 +445,10 @@ export class Engine {
         childRs = crs;
       }
       if (!any && this.pruneUnreached) {
-        if (mode === MODE_CFR) this.sumOnly(children[k], p, crs, d + 1);
+        if (mode === MODE_CFR) this.sumOnly(first + k, p, crs, d + 1);
         continue;
       }
-      this.walk(children[k], p, mode, childRs, cro, tmp, d + 1);
+      this.walk(first + k, p, mode, childRs, cro, tmp, d + 1);
       for (let j = 0; j < mc.length; j++) tmp[mc[j]] = 0;
       for (let h = 0; h < nP; h++) out[h] += tmp[h];
     }
@@ -396,17 +460,18 @@ export class Engine {
    * reachSelf × σ as in a full traversal (skipping that hurts the average strategy's convergence a lot).
    * No terminal is evaluated, which is what makes this cheaper than the full walk.
    */
-  private sumOnly(node: GameNode, p: number, rs: Float64Array, d: number): void {
-    const type = node.type;
+  private sumOnly(node: number, p: number, rs: Float64Array, d: number): void {
+    const desc = this.nDesc[node];
+    const type = this.dType[desc];
     if (type === NODE_ACTION) {
-      const children = node.children;
-      const A = children.length;
-      if (node.player !== p) {
-        for (let a = 0; a < A; a++) this.sumOnly(children[a], p, rs, d + 1);
+      const first = this.nChild[node];
+      const A = this.dNum[desc];
+      if (this.dPlayer[desc] !== p) {
+        for (let a = 0; a < A; a++) this.sumOnly(first + a, p, rs, d + 1);
         return;
       }
       const n = this.hands[p].n;
-      const off = node.off;
+      const off = this.off[node];
       const R = this.regret, S = this.stratSum;
       const inv = this.invBuf[d], crs = this.rsBuf[d];
       positiveRegretInv(R, off, A, n, inv);
@@ -425,18 +490,19 @@ export class Engine {
           R[b + h] = r * hs + Math.abs(r) * hd;
           S[b + h] = S[b + h] * sf + x;
         }
-        if (sum > 0) this.sumOnly(children[a], p, crs, d + 1);
+        if (sum > 0) this.sumOnly(first + a, p, crs, d + 1);
       }
     } else if (type === NODE_CHANCE) {
       const me = this.hands[p];
       const nP = me.n;
-      const cards = node.cards!;
+      const cards = this.tree.cards[this.nBoard[node]]!;
+      const first = this.nChild[node];
       const crs = this.rsBuf[d];
       for (let k = 0; k < cards.length; k++) {
         for (let h = 0; h < nP; h++) crs[h] = rs[h];
         const mc = me.withCard[cards[k]];
         for (let j = 0; j < mc.length; j++) crs[mc[j]] = 0;
-        this.sumOnly(node.children[k], p, crs, d + 1);
+        this.sumOnly(first + k, p, crs, d + 1);
       }
     }
   }

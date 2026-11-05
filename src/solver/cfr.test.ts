@@ -59,10 +59,11 @@ describe("DCFR iterations", () => {
     b.syncDiscounts();
     let worst = 0;
     for (const node of a.actionNodes) {
-      const len = node.children.length * a.hands[node.player!].n;
+      const len = a.numActions(node) * a.hands[a.player(node)].n;
+      const off = a.off[node];
       for (const [x, y] of [[a.regret, b.regret], [a.stratSum, b.stratSum]]) {
         let scale = 1e-12, diff = 0;
-        for (let i = node.off; i < node.off + len; i++) {
+        for (let i = off; i < off + len; i++) {
           scale = Math.max(scale, Math.abs(y[i]));
           diff = Math.max(diff, Math.abs(x[i] - y[i]));
         }

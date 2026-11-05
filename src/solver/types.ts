@@ -129,7 +129,10 @@ export interface Solution {
 
 /** Size of a spot before solving it (see `estimateMemory`). */
 export interface MemoryEstimate {
-  /** Rough total bytes the solver will hold: per-node strategy storage, tree objects, caches and scratch. */
+  /**
+   * Bytes the solver will hold once built (within about 10% of the measured heap): per-node strategy storage,
+   * the packed tree, the showdown cache, scratch and hand lists.
+   */
   bytes: number;
   actionNodes: number;
   chanceNodes: number;
@@ -149,8 +152,11 @@ export interface IncrementalSolver {
 }
 
 /**
- * One node of the game tree as built by `buildTree` (no strategy data). Read-only: nodes share arrays with
- * each other, and action lists (shared by every node with the same betting state) are frozen.
+ * One node of the game tree as built by `buildTree` (no strategy data): a view of the solver's packed tree,
+ * made on demand. `children` is built on first access and then kept (the same array and objects every time);
+ * it is an own enumerable property, so spreading, JSON and structured clone see it (and build the subtree).
+ * Read-only: nodes share frozen arrays with each other (an action list with every node of the same betting
+ * state, a board with every node on it, bets and stacks across cards), and the actions are frozen.
  */
 export interface GameTreeNode {
   kind: "action" | "chance" | "terminal";

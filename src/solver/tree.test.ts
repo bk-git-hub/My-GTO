@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseCards } from "../poker/cards";
 import { buildTree, estimateMemory } from "./index";
-import { buildGameTree, type GameNode } from "./tree";
+import { buildGameTree, NODE_ACTION, type GameNode } from "./tree";
 import type { GameTreeNode, SolverInput, StreetSizes } from "./types";
 
 const RIVER = parseCards("2c3d7h8sKs");
@@ -240,6 +240,41 @@ describe("tree: streets and all-ins", () => {
   });
 });
 
+describe("buildTree: a read-only view of the packed tree, built as it is walked", () => {
+  it("children are made on first access, kept, frozen, and listed like the other fields", () => {
+    const root = buildTree(spot({ board: TURN, stack: 30 }));
+    const kids = root.children;
+    expect(root.children).toBe(kids); // the same array (and child objects) on every access
+    expect(kids[1].children).toBe(kids[1].children);
+    expect(Object.isFrozen(kids)).toBe(true);
+    for (const arr of [root.board, root.bets, root.stacks, root.actions!]) expect(Object.isFrozen(arr)).toBe(true);
+    expect(() => (kids as GameTreeNode[]).push(kids[0])).toThrow();
+    // An own enumerable property, so spreading, JSON and structured clone (postMessage) see the subtree.
+    expect(Object.keys(root)).toContain("children");
+    expect({ ...root }.children).toBe(kids);
+    const leaf = go(root, 1, 0); // OOP bets, IP folds
+    const json = JSON.parse(JSON.stringify(go(root, 1)));
+    expect(json.children).toHaveLength(go(root, 1).children.length);
+    expect(json.children[0]).toMatchObject({ kind: "terminal", terminal: "fold", folder: 1, children: [] });
+    expect(structuredClone(leaf)).toMatchObject({ kind: "terminal", terminal: "fold", folder: 1, children: [] });
+    const chance = go(root, 0, 0);
+    const clone = structuredClone(chance);
+    expect(clone.children).toHaveLength(48);
+    expect(clone.children[5].board).toEqual([...TURN, chance.cards![5]]);
+    expect(clone.children[5].actions!.map((a) => a.kind)).toEqual(chance.children[5].actions!.map((a) => a.kind));
+  });
+
+  it("nodes on the same betting line share their arrays across cards", () => {
+    const chance = go(buildTree(spot({ board: TURN, stack: 30 })), 0, 0);
+    const [a, b] = [chance.children[0], chance.children[47]];
+    expect(a.board).not.toEqual(b.board);
+    expect(a.actions).toBe(b.actions);
+    expect(a.bets).toBe(b.bets);
+    expect(a.stacks).toBe(b.stacks);
+    expect(go(a, 1, 0).board).toBe(go(a, 1).board); // a board is shared by every node on it
+  });
+});
+
 describe("estimateMemory", () => {
   it("counts the same nodes as the built tree without building it", () => {
     for (const s of [
@@ -264,7 +299,7 @@ describe("estimateMemory", () => {
     // River board removes 5 cards: C(47, 2) = 1081 hands each.
     const t = buildGameTree(spot({}));
     let slots = 0;
-    for (const n of t.actionNodes) slots += n.children.length;
+    for (let id = 0; id < t.size; id++) if (t.type(id) === NODE_ACTION) slots += t.numChildren(id);
     expect(full.bytes - empty.bytes).toBeGreaterThanOrEqual(8 * slots * 1081);
   });
 });

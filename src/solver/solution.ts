@@ -1,6 +1,6 @@
 import { averageStrategy, MODE_AVG, type Engine } from "./cfr";
 import { cardMask, compatibleSums, NUM_COMBOS } from "./hands";
-import { NODE_ACTION, NODE_CHANCE, type GameNode } from "./tree";
+import { NODE_ACTION, NODE_CHANCE } from "./tree";
 import type { PathStep, Player, Solution, SolutionNode } from "./types";
 
 /**
@@ -73,30 +73,33 @@ export class SolverSolution implements Solution {
     const hands = e.hands;
     // Reach of each player along the path: initial weight × own action probabilities (cards blocked → 0).
     const reach: [Float64Array, Float64Array] = [Float64Array.from(e.w[0]), Float64Array.from(e.w[1])];
-    let node: GameNode = e.root;
+    const tree = e.tree;
+    let node = e.root;
     for (let i = 0; i < path.length; i++) {
       const step = path[i];
       // stepKey checked the shape: exactly one of action / card, an integer.
-      if (node.type === NODE_ACTION) {
-        const A = node.children.length;
+      const type = tree.type(node);
+      if (type === NODE_ACTION) {
+        const A = tree.numChildren(node);
         if (!("action" in step) || step.action < 0 || step.action >= A)
           throw new Error(`illegal path at step ${i}: expected an action index 0..${A - 1}`);
-        const q = node.player!;
+        const q = tree.player(node);
         const n = hands[q].n;
         const sig = new Float64Array(A * n);
-        averageStrategy(e.stratSum, node.off, A, n, sig, new Float64Array(n));
+        averageStrategy(e.stratSum, e.off[node], A, n, sig, new Float64Array(n));
         const r = reach[q], s = step.action * n;
         for (let h = 0; h < n; h++) r[h] *= sig[s + h];
-        node = node.children[step.action];
-      } else if (node.type === NODE_CHANCE) {
-        const k = "card" in step ? node.cards!.indexOf(step.card) : -1;
+        node = tree.child[node] + step.action;
+      } else if (type === NODE_CHANCE) {
+        const cards = tree.cards[tree.board[node]]!;
+        const k = "card" in step ? cards.indexOf(step.card) : -1;
         if (k < 0) throw new Error(`illegal path at step ${i}: expected a card that can come`);
-        const c = node.cards![k];
+        const c = cards[k];
         for (const q of [0, 1] as const) {
           const wc = hands[q].withCard[c];
           for (let j = 0; j < wc.length; j++) reach[q][wc[j]] = 0;
         }
-        node = node.children[k];
+        node = tree.child[node] + k;
       } else {
         throw new Error(`illegal path at step ${i}: the hand is over`);
       }
@@ -107,9 +110,10 @@ export class SolverSolution implements Solution {
     return result;
   }
 
-  private describe(node: GameNode, reach: [Float64Array, Float64Array]): SolutionNode {
+  private describe(id: number, reach: [Float64Array, Float64Array]): SolutionNode {
     const e = this.e;
     const hands = e.hands;
+    const node = e.tree.view(id);
     const dead = cardMask(node.board);
     // Hands blocked by cards dealt after the start (the lists already exclude the starting board).
     const blocked = hands.map((hl) => {
@@ -129,9 +133,9 @@ export class SolverSolution implements Solution {
     if (node.type === NODE_ACTION) {
       const q = node.player!;
       const hl = hands[q];
-      const A = node.children.length;
+      const A = e.tree.numChildren(id);
       const sig = new Float64Array(A * hl.n);
-      averageStrategy(e.stratSum, node.off, A, hl.n, sig, new Float64Array(hl.n));
+      averageStrategy(e.stratSum, e.off[id], A, hl.n, sig, new Float64Array(hl.n));
       strategy = [];
       for (let a = 0; a < A; a++) {
         const out = new Float32Array(NUM_COMBOS);
@@ -147,7 +151,7 @@ export class SolverSolution implements Solution {
       const cs = new Float64Array(me.n);
       const total = compatibleSums(me, opp, reach[1 - p], cs);
       if (!(total > 0)) return out;
-      e.walk(node, p, MODE_AVG, reach[p], reach[1 - p], e.out, 0);
+      e.walk(id, p, MODE_AVG, reach[p], reach[1 - p], e.out, 0);
       const tiny = total * 1e-12; // below this the compatible reach is zero up to rounding
       for (let h = 0; h < me.n; h++) {
         if (!blocked[p][h] && cs[h] > tiny) out[me.combo[h]] = e.out[h] / cs[h];

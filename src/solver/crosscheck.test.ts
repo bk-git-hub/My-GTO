@@ -561,11 +561,11 @@ describe("cross-check: exploitability of the core's strategy", () => {
  */
 function fillRandomStrategy(r: Rand, e: Engine): void {
   for (const node of e.actionNodes) {
-    const n = e.hands[node.player!].n;
-    const A = node.children.length;
+    const n = e.hands[e.player(node)].n;
+    const A = e.numActions(node);
     for (let h = 0; h < n; h++) {
       const allZero = r() < 0.1;
-      for (let a = 0; a < A; a++) e.stratSum[node.off + a * n + h] = allZero || r() < 0.25 ? 0 : r() ** 2;
+      for (let a = 0; a < A; a++) e.stratSum[e.off[node] + a * n + h] = allZero || r() < 0.25 ? 0 : r() ** 2;
     }
   }
 }

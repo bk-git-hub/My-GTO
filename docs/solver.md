@@ -187,9 +187,14 @@ floor(n) iterations and needs a finite n ≥ 0. A `Solution` reads the solver's 
 `iterate()`, after which its `node()` throws ("stale solution"). `estimateMemory` must not allocate the per-hand arrays, so the UI can refuse
 a spot that won't fit before building it. It checks the same inputs as `createSolver` except that the ranges give a
 game, so it also sizes a tree for empty ranges (the tests count nodes that way); `createSolver` rejects such ranges
-at once, before building the tree. `buildTree` returns a read-only tree: nodes share arrays (boards, bets
-and stacks with neighbouring nodes, an action list with every node of the same betting state); action lists and
-their actions are frozen.
+at once, before building the tree. Its `bytes` is the solver's steady-state memory (per-hand storage, the packed
+tree, the showdown cache, scratch, hand lists), within 10% of the measured heap on river, turn and flop spots.
+`buildTree` returns a read-only view of the packed tree (see Performance): each node is a `GameNode` object made
+on demand, whose `children` array is built on first access and then kept (the same array and child objects on
+every access). `children` is an own enumerable property like the other fields, so spreading, JSON and structured
+clone (postMessage) see it, and build the whole subtree under the node. Views share frozen arrays: an action list
+(and its frozen actions) with every node of the same betting state, a board with every node on it, `bets` and
+`stacks` with every node of the same betting line under other cards; `children` and `cards` are frozen too.
 
 ## Files
 
@@ -197,7 +202,7 @@ their actions are frozen.
 |---|---|
 | `src/solver/types.ts` | Public contract (additive changes only) |
 | `src/solver/hands.ts` | Per-player hand lists, card masks, same-combo maps |
-| `src/solver/tree.ts` | Tree building from the rules above, `estimateMemory` |
+| `src/solver/tree.ts` | Tree building from the rules above into the packed tree, the `GameNode` view, `estimateMemory` |
 | `src/solver/showdown.ts` | Fold and showdown values, per-board strength cache |
 | `src/solver/cfr.ts` | DCFR iterations |
 | `src/solver/bestResponse.ts` | Best response and exploitability |
@@ -231,6 +236,10 @@ their actions are frozen.
    list of rejected inputs and one of degenerate valid ones, such as stacks ≤ ε and minBet just above it,
    through both, including ranges that give no game); ranges are checked before the tree is built; fractional
    and infinite iteration counts in `solve` and `iterate`.
+8. **Memory** (`memory.test.ts`): `estimateMemory` within 10% of the heap a solver really holds on a river, a turn
+   and a flop spot (measured with `gc()`, which the test switches on through `node:v8`); the packed tree's 10 bytes
+   per node on the reference flop tree, with descriptors per skeleton node; `buildTree` views built lazily,
+   kept, frozen and visible to spread, JSON and structured clone.
 
 ## Performance
 
@@ -241,5 +250,21 @@ Targets in Node on this repo's dev machine (4 cores, one used):
 - Flop: allowed when `estimateMemory` fits; it is meant for a server or narrow ranges.
 
 Levers, in order: avoiding allocation in the hot loop (preallocated scratch per depth), Float32Array storage,
-cached sorted orders per river board, skipping zero-reach subtrees, and suit isomorphism at chance nodes when the
-board and both ranges are symmetric under a suit swap (optional; it must pass the oracle cross-check).
+a packed tree, cached sorted orders per river board, skipping zero-reach subtrees, and suit isomorphism at chance
+nodes when the board and both ranges are symmetric under a suit swap (optional; it must pass the oracle cross-check).
+
+**Packed tree.** A flop tree has about a million nodes (1.14 million for the reference flop below at raiseLimit 1,
+two thirds of them terminals), so the solver keeps no object per node. The rules build the betting skeleton: the
+tree with every chance node collapsed to one child (643 nodes on the reference flop). Each skeleton node becomes a
+descriptor holding the node type, player, pot, bets, stacks, chips invested and action list. The packed tree
+repeats the skeleton under every card: per node it stores its descriptor (Int32), its board (Uint16, an id into
+the table of boards dealt so far) and its first child (Int32; children are consecutive ids, in action order or in
+the order of the cards that can come). A fold or showdown terminal is a descriptor id like any other node. The
+solver adds a storage offset (Int32 while the storage fits, Float64 beyond) and a last discounted iteration
+(Int32) per node, and keeps every action node's regrets and strategy sums in two Float32Array slabs. That is 22
+bytes per node instead of about 450 for an object.
+
+Reference flop (100bb 6-max cash, BTN open vs BB call, Ks7d2c, pot 5.5, stack 97.5, 709 / 644 combos; flop IP bets
+33% and 75%, turn 66%, river 75%, raises 60%, all-in, raiseLimit 1), measured in Node 22: the solver holds
+5.63 GB, of which 5.58 GB is regrets and strategy sums and 49 MB the tree, per-node arrays and showdown cache (the
+tree as objects took 447 MB); the tree builds in 0.8 s.
