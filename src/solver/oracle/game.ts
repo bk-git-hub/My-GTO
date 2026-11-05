@@ -109,6 +109,9 @@ export class OracleGame {
     for (let i0 = 0; i0 < H0.length; i0++) {
       for (let i1 = 0; i1 < H1.length; i1++) this.compat[i0 * H1.length + i1] = compatible(H0[i0], H1[i1]) ? 1 : 0;
     }
+    // The spec's "Inputs": a solve needs a hand for each player and a pair of them that can be dealt together.
+    if (H0.length === 0 || H1.length === 0) throw new Error("oracle: each range needs a combo with weight > 0 off the board");
+    if (!(this.pairWeightSum() > 0)) throw new Error("oracle: no pair of hands can be dealt together");
   }
 
   /** True when p's hand i and the opponent's hand j share no card. */

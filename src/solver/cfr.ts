@@ -1,4 +1,4 @@
-import { buildHands, checkRanges, pairWeight, type HandList } from "./hands";
+import { buildHands, pairWeight, type HandList } from "./hands";
 import { foldValues, RiverCache, showdownValues } from "./showdown";
 import { buildGameTree, NODE_ACTION, NODE_CHANCE, NODE_FOLD, treeConfig, type GameNode } from "./tree";
 import type { SolverInput } from "./types";
@@ -110,20 +110,20 @@ export class Engine {
   private sf = 1;
 
   constructor(input: SolverInput) {
-    // Check every input before building the (possibly big) tree, so a bad one fails fast.
+    // Check every input before building the (possibly big) tree, so a bad one fails fast. That includes
+    // the ranges giving a game at all: the hand lists are small (a few KB), so they come first too.
     const cfg = treeConfig(input);
-    checkRanges(input.ranges);
+    this.hands = buildHands(input.board, input.ranges); // checks the weights (checkRanges)
+    if (this.hands[0].n === 0 || this.hands[1].n === 0) throw new Error("both ranges need at least one combo off the board");
+    this.pairTotal = pairWeight(this.hands);
+    if (!(this.pairTotal > 0)) throw new Error("the ranges have no compatible combos");
+    this.w = [Float64Array.from(this.hands[0].weight), Float64Array.from(this.hands[1].weight)];
+    this.pot0 = input.pot;
     const tree = buildGameTree(input, cfg);
     this.root = tree.root;
     this.actionNodes = tree.actionNodes;
     this.chanceCount = tree.chanceCount;
     this.terminalCount = tree.terminalCount;
-    this.pot0 = input.pot;
-    this.hands = buildHands(input.board, input.ranges);
-    if (this.hands[0].n === 0 || this.hands[1].n === 0) throw new Error("both ranges need at least one combo off the board");
-    this.pairTotal = pairWeight(this.hands);
-    if (!(this.pairTotal > 0)) throw new Error("the ranges have no compatible combos");
-    this.w = [Float64Array.from(this.hands[0].weight), Float64Array.from(this.hands[1].weight)];
 
     let size = 0;
     for (const node of tree.actionNodes) {

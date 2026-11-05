@@ -48,6 +48,9 @@ names the bad field. Defaults (below) are filled in before the checks.
 - `ranges` (`estimateMemory`, `createSolver`, `solve`; `buildTree` doesn't read them): two array-likes of at most
   1326 weights in COMBOS order; entries past an array's end are 0. Every entry is a number in [0, 1]:
   NaN, negative and > 1 throw (weights are probabilities, not percentages), also for combos on the board.
+- The ranges must give a game (`createSolver`, `solve`): each player has a combo with weight > 0 off the board,
+  and Σ over compatible pairs (no shared card) of w0 × w1 is > 0, summed pair by pair so that "no compatible
+  pair" is exactly 0. This is checked before the tree is built. `estimateMemory` doesn't apply this rule (see API).
 
 Together with the tolerance rules below, these make every tree finite: each bet or raise adds more than ε to
 the top bet, a street has at most `raiseLimit` + 1 of them, and nobody ever acts with an empty stack.
@@ -138,6 +141,8 @@ Discounted CFR (Brown & Sandholm 2019), α = 1.5, β = 0, γ = 2, alternating up
   per-hand maximum over actions. BR_p = Σ_h w_p(h) cfv(h) / Σ_{h,o compatible} w_p(h) w_o(o), using the initial
   weights.
 - **Exploitability** (% of pot) = (BR_0 + BR_1 − P0) / 2 / P0 × 100. It is ≥ 0, and 0 exactly at equilibrium.
+  In floats a spot with nothing to decide can come out a few 1e-14 below 0, so the reported value is clamped at 0
+  (the per-player best responses are not).
 
 ### Solution queries
 
@@ -157,7 +162,9 @@ of the keys `action` and `card`, with an integer value; anything else throws, be
 - Computed lazily per node and cached; illegal paths throw. The same path returns the same object: it and its plain
   arrays (`board`, `bets`, `stacks`, `actions` and each action, `cards`, the `strategy` / `ranges` / `ev` lists)
   are frozen. Its typed arrays can't be frozen and are shared with later calls for that path, so they are
-  read-only by contract: copy before changing them.
+  read-only by contract: copy before changing them. Transferring them is fine (a Web Worker's `postMessage` with
+  their buffers in the transfer list): that empties the arrays of the object the caller holds, and the next
+  `node()` for the path builds a new object instead of returning the emptied one.
 
 ## API (`src/solver/index.ts`)
 
@@ -178,7 +185,9 @@ down, at least 1 (default 25). `targetExploitability` is a number (default 0.5).
 pass of the loop runs at least one iteration and a finite cap always ends the solve. `iterate(n)` runs
 floor(n) iterations and needs a finite n ≥ 0. A `Solution` reads the solver's live arrays: it is valid until the next
 `iterate()`, after which its `node()` throws ("stale solution"). `estimateMemory` must not allocate the per-hand arrays, so the UI can refuse
-a spot that won't fit before building it. `buildTree` returns a read-only tree: nodes share arrays (boards, bets
+a spot that won't fit before building it. It checks the same inputs as `createSolver` except that the ranges give a
+game, so it also sizes a tree for empty ranges (the tests count nodes that way); `createSolver` rejects such ranges
+at once, before building the tree. `buildTree` returns a read-only tree: nodes share arrays (boards, bets
 and stacks with neighbouring nodes, an action list with every node of the same betting state); action lists and
 their actions are frozen.
 
@@ -216,10 +225,12 @@ their actions are frozen.
    overlap (both contain the equilibrium value). `SOLVER_CROSSCHECK=1` runs many more seeds and bigger spots.
 5. **Convergence**: exploitability falls and reaches the target on a realistic river spot.
 6. **Solution API**: path walking, illegal paths (including steps of the wrong shape after the legal ones were
-   cached), every legal card as a step, frozen results, ranges, NaN EVs, strategy sums to 1 for in-range combos.
+   cached), every legal card as a step, frozen results, a node rebuilt after its buffers were transferred, ranges,
+   NaN EVs, strategy sums to 1 for in-range combos, exploitability exactly 0 with nothing to decide.
 7. **Inputs**: every rule of the Inputs section, in the core and the oracle alike (the cross-check also runs one
    list of rejected inputs and one of degenerate valid ones, such as stacks ≤ ε and minBet just above it,
-   through both); fractional and infinite iteration counts in `solve` and `iterate`.
+   through both, including ranges that give no game); ranges are checked before the tree is built; fractional
+   and infinite iteration counts in `solve` and `iterate`.
 
 ## Performance
 

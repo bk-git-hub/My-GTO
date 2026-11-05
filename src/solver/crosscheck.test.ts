@@ -244,6 +244,30 @@ describe("cross-check: trees", () => {
     expect(() => createSolver(long)).toThrow();
     expect(() => new OracleGame(long)).toThrow();
 
+    // Ranges that give no game are rejected by both: a player with nothing off the board, or no pair of
+    // hands that can be dealt together (OOP holds one combo, IP only combos sharing a card with it, at
+    // random weights: the core's sum over compatible pairs used to leave rounding noise instead of 0 there).
+    const offBoard = COMBOS.flatMap((c, i) => (board.includes(c.cards[0]) || board.includes(c.cards[1]) ? [] : [i]));
+    const noGame: SolverInput["ranges"][] = [
+      [Float64Array.from(COMBOS, (c) => (board.includes(c.cards[0]) ? 1 : 0)), ok[1]],
+      [ok[0], []],
+    ];
+    const r6 = rng(6);
+    for (let t = 0; t < 12; t++) {
+      const h = offBoard[Math.floor(r6() * offBoard.length)];
+      const [a, b] = COMBOS[h].cards;
+      const r0 = new Float64Array(1326);
+      r0[h] = 0.05 + 0.9 * r6();
+      const r1 = new Float64Array(1326);
+      // Full-mantissa weights, like 0.33 or 0.7 (sums of rng's 32-bit values are exact and hide the noise).
+      for (const i of offBoard) if (COMBOS[i].cards.includes(a) || COMBOS[i].cards.includes(b)) r1[i] = 0.05 + 0.9 * r6();
+      noGame.push([r0, r1]);
+    }
+    for (const [k, ranges] of noGame.entries()) {
+      expect(() => createSolver({ ...base, ranges }), `core no game ${k}`).toThrow();
+      expect(() => new OracleGame({ ...base, ranges }), `oracle no game ${k}`).toThrow();
+    }
+
     // Path steps: the same shapes are illegal in both, after the legal forms were looked up.
     const spot: SolverInput = { ...base, board: turn, ranges: randomRanges(rng(5), turn, 4, 4), stack: 10, raiseLimit: 0,
       sizes: { turn: [{ bet: [0.5], raise: [] }, { bet: [0.5], raise: [] }], river: [{ bet: [0.5], raise: [] }, { bet: [0.5], raise: [] }] } };

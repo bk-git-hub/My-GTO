@@ -20,12 +20,25 @@ function stepKey(s: unknown, i: number): string {
 }
 
 /**
+ * True when a typed array of a cached node has lost its buffer. Transferring a buffer away (a Web Worker's
+ * postMessage with it in the transfer list, structuredClone with `transfer`, ArrayBuffer.transfer) empties
+ * the array in place; every array of a node has NUM_COMBOS entries otherwise.
+ */
+function detached(n: SolutionNode): boolean {
+  for (const list of [n.strategy, n.ranges, n.ev]) {
+    if (list) for (const a of list) if (a.length !== NUM_COMBOS) return true;
+  }
+  return false;
+}
+
+/**
  * A view of the solver's current average strategy. It reads the solver's live arrays, so it is only
  * valid until the next iterate(); after that node() throws "stale solution".
  *
  * node(path) caches its result and returns the same object for the same path. That object and its plain
  * arrays are frozen; its typed arrays (strategy[a], ranges[p], ev[p]) are shared with later calls, so
- * callers must treat them as read-only (copy before changing them).
+ * callers must treat them as read-only (copy before changing them). Transferring them is fine: once one
+ * of them is detached, node() builds that path's node afresh instead of handing back empty arrays.
  */
 export class SolverSolution implements Solution {
   readonly iterations: number;
@@ -54,7 +67,7 @@ export class SolverSolution implements Solution {
     if (!Array.isArray(path)) throw new Error("illegal path: a path is an array of steps");
     const key = path.map(stepKey).join(".");
     const hit = this.cache.get(key);
-    if (hit) return hit;
+    if (hit && !detached(hit)) return hit;
 
     const e = this.e;
     const hands = e.hands;

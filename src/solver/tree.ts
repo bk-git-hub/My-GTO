@@ -482,6 +482,10 @@ const TERMINAL_NODE_BYTES = 330;
  * Node counts and a byte estimate for solving this spot, without allocating any per-hand arrays.
  * Bytes = regret + strategy-sum storage (2 × 4 bytes per action per hand of the acting player)
  * + tree objects + the showdown strength cache + per-depth scratch.
+ *
+ * It checks the inputs like createSolver, except that the ranges give a game (a hand off the board for each
+ * player, a compatible pair): with empty ranges it sizes the tree alone, which is how the tests count nodes.
+ * createSolver rejects those ranges before it builds anything, so gating on this estimate costs nothing.
  */
 export function estimateMemory(input: SolverInput): MemoryEstimate {
   const cfg = treeConfig(input);

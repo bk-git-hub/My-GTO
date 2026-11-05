@@ -138,12 +138,26 @@ export function compatibleSums(me: HandList, opp: HandList, ro: ArrayLike<number
   return total;
 }
 
-/** Σ over compatible pairs (h, o) of w0(h) × w1(o), with the initial weights. */
+/**
+ * Σ over compatible pairs (h, o) of w0(h) × w1(o), with the initial weights: the normalizer of best-response
+ * values, and > 0 exactly when some pair of hands can be dealt together (every term is ≥ 0).
+ *
+ * Summed pair by pair, O(n0 × n1) once per solver, not by inclusion–exclusion like compatibleSums: when no
+ * pair is compatible, total − Σ∋card1 − Σ∋card2 + same comes out as rounding noise (about ±1e-14) instead
+ * of 0, positive half the time, and the solver then accepted a game in which no deal is possible.
+ */
 export function pairWeight(hands: [HandList, HandList]): number {
   const [h0, h1] = hands;
-  const cs = new Float64Array(h0.n);
-  compatibleSums(h0, h1, h1.weight, cs);
+  const oc1 = h1.c1, oc2 = h1.c2, ow = h1.weight;
   let s = 0;
-  for (let h = 0; h < h0.n; h++) s += h0.weight[h] * cs[h];
+  for (let h = 0; h < h0.n; h++) {
+    const a = h0.c1[h], b = h0.c2[h];
+    let row = 0;
+    for (let o = 0; o < h1.n; o++) {
+      const c = oc1[o], d = oc2[o];
+      if (c !== a && c !== b && d !== a && d !== b) row += ow[o];
+    }
+    s += h0.weight[h] * row;
+  }
   return s;
 }

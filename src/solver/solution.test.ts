@@ -3,7 +3,7 @@ import { parseCards } from "../poker/cards";
 import { COMBOS } from "../play/handInfo";
 import { Engine } from "./cfr";
 import { createSolver, estimateMemory, solve } from "./index";
-import { comboIndex, rangeWeights } from "./testHelpers";
+import { comboIndex, rangeWeights, rng } from "./testHelpers";
 import type { PathStep, SolutionNode, SolverInput, StreetSizes } from "./types";
 
 const TURN = parseCards("Ks9h5c3d");
@@ -221,6 +221,57 @@ describe("solve options", () => {
   it("rejects ranges with nothing to play", () => {
     expect(() => createSolver({ ...input, ranges: [new Float64Array(1326), input.ranges[1]] })).toThrow();
   });
+
+  it("rejects ranges in which no pair of hands can be dealt together, however the weights add up", () => {
+    // OOP holds one combo, IP only combos sharing a card with it, at random weights. The sum over compatible
+    // pairs was inclusion–exclusion, which left rounding noise (about ±1e-14) instead of 0 and let about half
+    // of these through; exploitability then came out around -77%.
+    const r = rng(11);
+    const live = COMBOS.flatMap((_, i) => (touches(i, input.board) ? [] : [i]));
+    for (let t = 0; t < 40; t++) {
+      const h = live[Math.floor(r() * live.length)];
+      const [a, b] = COMBOS[h].cards;
+      const r0 = new Float64Array(1326);
+      r0[h] = 0.1 + 0.9 * r();
+      const r1 = new Float64Array(1326);
+      // 0.05 + 0.9 × r() has a full mantissa like real weights (0.33, 0.7); r() alone has 32 bits, and sums of
+      // those are exact, so they hide the noise.
+      for (const i of live) if (COMBOS[i].cards.includes(a) || COMBOS[i].cards.includes(b)) r1[i] = 0.05 + 0.9 * r();
+      expect(() => createSolver({ ...input, ranges: [r0, r1] }), `trial ${t}`).toThrow(/no compatible combos/);
+      // estimateMemory only sizes the tree; it accepts ranges that give no game (docs/solver.md "API").
+      expect(estimateMemory({ ...input, ranges: [r0, r1] }).actionNodes).toBeGreaterThan(0);
+      // One compatible IP combo, however light, is a game.
+      const other = live.find((i) => !COMBOS[i].cards.includes(a) && !COMBOS[i].cards.includes(b))!;
+      r1[other] = 1e-6;
+      expect(() => createSolver({ ...input, ranges: [r0, r1] }), `trial ${t} with a compatible combo`).not.toThrow();
+    }
+  });
+});
+
+describe("exploitability is never below 0", () => {
+  const base: SolverInput = {
+    board: parseCards("Ks9h5c3d2s"),
+    ranges: [rangeWeights("AA,KK,99,AK,AQ,QJs,T8s"), rangeWeights("QQ,JJ,AK,AJ,KQ,JTs,76s")],
+    pot: 10,
+    stack: 50,
+  };
+
+  it("is exactly 0 on spots with nothing to decide (float noise gave -9e-15 on the flop, -4e-14 on the turn)", () => {
+    for (const board of ["Ks9h5c", "Ks9h5c3d", "Ks9h5c3d2s"]) {
+      const s = createSolver({ ...base, board: parseCards(board), stack: 0 });
+      s.iterate(1);
+      // toBe compares with Object.is, so -0 fails too ("-0.00%" in a UI).
+      expect(s.exploitability(), board).toBe(0);
+      expect(s.solution().exploitability, board).toBe(0);
+    }
+    expect(solve({ ...base, board: parseCards("Ks9h5c3d"), stack: 0 }, { iterations: 3 }).exploitability).toBe(0);
+  });
+
+  it("is still positive away from equilibrium", () => {
+    const s = createSolver(base);
+    s.iterate(1);
+    expect(s.exploitability()).toBeGreaterThan(1);
+  });
 });
 
 describe("solve and iterate: iteration counts are checked and rounded down", () => {
@@ -342,6 +393,36 @@ describe("Solution.node: step checks, frozen results", () => {
     for (const c of chance.cards!) {
       const river = sol.node([{ action: 0 }, { action: 0 }, { card: c }]);
       expect(river.board).toEqual([...TURN, c]);
+    }
+  });
+
+  it("a node whose buffers were transferred away (postMessage) is built afresh, not handed back empty", () => {
+    // Its own solver, so the cache entries the other tests look at stay as they are.
+    const solver = createSolver(turnInput);
+    solver.iterate(10);
+    const sol = solver.solution();
+    const arrays = (n: SolutionNode) => [...(n.strategy ?? []), ...n.ranges, ...n.ev];
+    const buffers = (xs: Float32Array[]) => xs.map((a) => a.buffer as ArrayBuffer);
+    // An action node and a chance node (no strategy).
+    for (const path of [[{ action: 1 }], [{ action: 0 }, { action: 0 }]] as PathStep[][]) {
+      const n = sol.node(path);
+      const before = arrays(n).map((a) => a.slice());
+      // What a Web Worker does to post a node without copying it: every typed array's buffer in the
+      // transfer list (structuredClone detaches them the same way postMessage does).
+      const posted = structuredClone(n, { transfer: buffers(arrays(n)) });
+      expect(arrays(posted)).toEqual(before);
+      expect(n.ranges[0].length).toBe(0); // the transfer emptied the cached arrays in place
+      const again = sol.node(path);
+      // (Not .not.toBe: on a mismatch vitest deep-compares, which can't read the detached arrays.)
+      expect(again === n).toBe(false);
+      expect(arrays(again)).toEqual(before);
+      expect(Object.isFrozen(again)).toBe(true);
+      expect(sol.node(path)).toBe(again); // cached again
+      // One transferred buffer is enough.
+      structuredClone(again.ev[1], { transfer: buffers([again.ev[1]]) });
+      const third = sol.node(path);
+      expect(third === again).toBe(false);
+      expect(arrays(third)).toEqual(before);
     }
   });
 

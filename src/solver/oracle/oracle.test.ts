@@ -332,6 +332,18 @@ describe("oracle input rules", () => {
       oracleHands({ ...base, ranges: [Float64Array.from(ok).fill(0, 200), ok] }, 0).map((h) => h.combo),
     );
   });
+
+  it("a game needs a hand for each player and a pair of them that can be dealt together", () => {
+    const qq = rangeOfCombos({ QhQd: 1 });
+    // KsKh touches the board: nothing left for OOP. An empty range: nothing for IP.
+    expect(() => new OracleGame({ ...base, ranges: [rangeOfCombos({ KsKh: 1 }), qq] })).toThrow(/oracle/);
+    expect(() => new OracleGame({ ...base, ranges: [qq, []] })).toThrow(/oracle/);
+    // Every IP hand shares a card with OOP's only hand.
+    expect(() => new OracleGame({ ...base, ranges: [rangeOfCombos({ AhAd: 1 }), rangeOfCombos({ AhQd: 0.3, AdJc: 0.7 })] })).toThrow(
+      /oracle/,
+    );
+    expect(new OracleGame({ ...base, ranges: [rangeOfCombos({ AhAd: 1 }), rangeOfCombos({ AhQd: 0.3, AsJc: 0.7 })] }).pairWeightSum()).toBe(0.7);
+  });
 });
 
 // ---------- game: payoffs and chance ----------

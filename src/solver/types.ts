@@ -30,7 +30,8 @@ export interface SolverInput {
   board: Card[];
   /**
    * [OOP, IP] weights per COMBOS index: at most 1326 numbers in [0, 1] each (entries past the end are 0;
-   * NaN, negative or > 1 throws). Combos that share a card with the board are ignored.
+   * NaN, negative or > 1 throws). Combos that share a card with the board are ignored. createSolver and
+   * solve also need a combo off the board for each player and a pair of them with no card in common.
    */
   ranges: [ArrayLike<number>, ArrayLike<number>];
   /** Chips in the middle at the start (bb), finite and > 0. */
@@ -87,7 +88,8 @@ export type PathStep = { action: number } | { card: Card };
 /**
  * One node of a solution. node() returns the same cached object for the same path: it and its plain
  * arrays are frozen, and its typed arrays (strategy, ranges, ev) are shared with later calls, so treat
- * them as read-only and copy before changing them.
+ * them as read-only and copy before changing them. Transferring their buffers (postMessage) is fine: the
+ * next node() for that path then returns a new object.
  */
 export interface SolutionNode {
   kind: "action" | "chance" | "terminal";
@@ -119,7 +121,7 @@ export interface SolutionNode {
 
 export interface Solution {
   iterations: number;
-  /** % of the starting pot. */
+  /** % of the starting pot, >= 0. */
   exploitability: number;
   /** The node reached by following `path` from the root. Throws on an illegal path. */
   node(path: PathStep[]): SolutionNode;
@@ -140,7 +142,7 @@ export interface IncrementalSolver {
   iterate(n: number): void;
   /** Iterations run so far. */
   readonly iteration: number;
-  /** Current exploitability, % of the starting pot (cached until the next iterate()). */
+  /** Current exploitability, % of the starting pot, >= 0 (cached until the next iterate()). */
   exploitability(): number;
   /** A view of the current average strategy. It goes stale (its node() throws) after the next iterate(). */
   solution(): Solution;
