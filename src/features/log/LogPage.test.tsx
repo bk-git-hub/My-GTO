@@ -1,0 +1,97 @@
+import type { ReactElement } from "react";
+import { renderToString } from "react-dom/server";
+import { afterEach, describe, expect, it } from "vitest";
+import { parseCards } from "../../poker/cards";
+import { emptyHand, handLogStore, putAside, type LoggedHand } from "./handLog";
+import { LogPage } from "./LogPage";
+
+const noop = () => {};
+/** renderToString puts <!-- --> between adjacent text nodes. */
+const render = (el: ReactElement) => renderToString(el).replace(/<!-- -->/g, "");
+const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+const initial = handLogStore.get();
+const put = (hands: LoggedHand[]) => handLogStore.set({ ...initial, hands });
+
+afterEach(() => {
+  handLogStore.set(initial);
+});
+
+describe("hand log first screen (react-dom/server)", () => {
+  it("opens straight onto a new hand's table setup", () => {
+    put([]);
+    const html = render(<LogPage sub="" go={noop} />);
+    const t = text(html);
+    // the seven step tabs, the table step lit
+    const tabs = [...html.matchAll(/<button[^>]*>([^<]*)<\/button>/g)].map((m) => m[1]).filter((x) => ["테이블", "핸드", "프리플랍", "플랍", "턴", "리버", "결과"].includes(x));
+    expect(tabs).toEqual(["테이블", "핸드", "프리플랍", "플랍", "턴", "리버", "결과"]);
+    expect(html).toMatch(/class="on"[^>]*aria-current="step"[^>]*>테이블</);
+    expect(t).toContain("몇 인 테이블?");
+    for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10]) expect(t).toContain(`${n}인`);
+    expect(t).toContain("내 포지션");
+    expect(html).toContain("rt-table compact");
+    expect(t).toContain("블라인드");
+    expect(t).toContain("시작 스택");
+    expect(t).toContain("다음: 내 핸드 →");
+    expect(t).toContain("지난 핸드 ›");
+    // nothing from the list in front of the table
+    expect(t).not.toContain("빠른 메모");
+    expect(t).not.toContain("백업");
+    expect(t).not.toContain("이어서 기록");
+  });
+
+  it("offers to pick up a hand left mid-way on the setup's first line, not in a row of its own", () => {
+    const h: LoggedHand = { ...emptyHand(6), id: "mid", seat: "BTN", hole: parseCards("AdTd"), updatedAt: Date.now() - 60_000 };
+    put([h]);
+    const html = render(<LogPage sub="" go={noop} />);
+    const t = text(html);
+    expect(t).toContain("↺ 이어서");
+    // suits carry U+FE0E so phones draw them as text, not emoji
+    expect(t).toMatch(/↺ 이어서 BTN A♦\uFE0E ?T♦\uFE0E/);
+    expect(html).toContain('aria-label="이어서 기록: BTN A♦T♦ · 프리플랍"');
+    expect(t).toContain("지난 핸드 1개 ›");
+    // same line as "몇 인 테이블?", before the tabs' content and with nothing above the tabs
+    expect(html).toMatch(/<div class="flow-label">몇 인 테이블\?<span class="flow-aside"><button[^>]*class="log-resume"/);
+    expect(html).not.toContain('class="log-top"');
+  });
+
+  it("does not offer a hand again after leaving it with ＋ 새 핸드", () => {
+    const h: LoggedHand = { ...emptyHand(6), id: "mid2", seat: "CO", hole: parseCards("KhKs"), updatedAt: Date.now() - 60_000 };
+    put([h]);
+    expect(text(render(<LogPage sub="" go={noop} />))).toContain("↺ 이어서");
+    // what both "＋ 새 핸드" buttons (on the new-hand screen and on the hand's own screen) do before going to #log
+    putAside("mid2");
+    const t = text(render(<LogPage sub="" go={noop} />));
+    expect(t).not.toContain("이어서");
+    expect(t).toContain("지난 핸드 1개 ›");
+  });
+
+  it("keeps past hands, the quick memo and the backup behind 지난 핸드", () => {
+    const h: LoggedHand = { ...emptyHand(6), id: "old", seat: "CO", hole: parseCards("KhKs"), result: "win" };
+    put([h]);
+    const t = text(render(<LogPage sub="list" go={noop} />));
+    expect(t).toContain("지난 핸드 1");
+    expect(t).toContain("상대별 쇼다운");
+    expect(t).toContain("＋ 새 핸드");
+    expect(t).toContain("빠른 메모");
+    expect(t).toContain("백업");
+    expect(t).toContain("CO");
+    expect(t).toContain("이김");
+    // the quick memo starts folded
+    expect(t).not.toContain("저장하고 테이블로 기록");
+  });
+
+  it("still opens a saved hand and the showdowns by opponent", () => {
+    const h: LoggedHand = { ...emptyHand(6), id: "x1", seat: "SB", note: "SB 아재 림프" };
+    put([h]);
+    const savedHtml = render(<LogPage sub="x1" go={noop} />);
+    const saved = text(savedHtml);
+    expect(saved).toContain("‹ 지난 핸드");
+    expect(saved).toContain("SB");
+    expect(saved).toContain("다음: 프리플랍 →"); // seat in, no cards yet: opens on the hand step
+    expect(savedHtml).toMatch(/class="on"[^>]*aria-current="step"[^>]*>핸드</);
+    const players = text(render(<LogPage sub="players" go={noop} />));
+    expect(players).toContain("아직 쇼다운 기록이 없어요");
+    const missing = text(render(<LogPage sub="gone-123" go={noop} />));
+    expect(missing).toContain("이 기록을 찾을 수 없어요");
+  });
+});

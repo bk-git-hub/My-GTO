@@ -41,6 +41,8 @@ const turn: SolverInput = {
   stack: 40,
 };
 
+// Each solve here takes a few seconds; under parallel test workers that can pass vitest's default 5 s timeout,
+// so the tests carry their own. The ms assertions inside are the actual speed check.
 describe("convergence", () => {
   it("realistic river spot reaches 0.5% of the pot", () => {
     const input = river;
@@ -52,14 +54,14 @@ describe("convergence", () => {
     expectFalling(r.trace);
     expect(r.trace[r.trace.length - 1]).toBeLessThanOrEqual(0.5);
     expect(r.ms).toBeLessThan(5000);
-  });
+  }, 60_000);
 
   it("small turn spot reaches 1% of the pot", () => {
     const r = run(turn, 1, 10, 500);
     expectFalling(r.trace);
     expect(r.trace[r.trace.length - 1]).toBeLessThanOrEqual(1);
     expect(r.ms).toBeLessThan(15000);
-  });
+  }, 60_000);
 });
 
 // Compressed storage (docs/solver.md "Compressed storage") reaches the same targets on the same spots, in about
@@ -78,9 +80,9 @@ describe("convergence with compressed storage", () => {
   it("realistic river spot reaches 0.5% of the pot, and 0.2%", () => {
     expect(both(river, 0.5, 20, 2000).ms).toBeLessThan(5000);
     expect(both(river, 0.2, 20, 2000).ms).toBeLessThan(10000);
-  });
+  }, 60_000);
 
   it("small turn spot reaches 1% of the pot", () => {
     expect(both(turn, 1, 10, 500).ms).toBeLessThan(15000);
-  });
+  }, 60_000);
 });

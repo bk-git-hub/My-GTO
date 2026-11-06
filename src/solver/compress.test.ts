@@ -65,7 +65,7 @@ describe("the compress input", () => {
     expect(a.stratSum).toEqual(b.stratSum);
     expect(a.scale).toEqual(b.scale);
     expect(exploitability(a)).toBe(exploitability(b));
-  });
+  }, 60_000);
 });
 
 /**

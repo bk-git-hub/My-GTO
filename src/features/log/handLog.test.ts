@@ -1,6 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
-import { emptyHand, exportData, handFacts, mergeImport, stackBb, villainBook, type LoggedHand } from "./handLog";
+import {
+  emptyHand,
+  exportData,
+  handFacts,
+  handLogStore,
+  handProgress,
+  hasContent,
+  mergeImport,
+  rememberSetup,
+  RESUME_WINDOW_MS,
+  resumable,
+  stackBb,
+  villainBook,
+  type LoggedHand,
+} from "./handLog";
+import type { LogStep } from "./recorder";
 
 const hand = (over: Partial<LoggedHand>): LoggedHand => ({ ...emptyHand(null), ...over });
 
@@ -64,5 +79,64 @@ describe("hand log", () => {
     expect(r.hands[0].actions).toEqual({ preflop: "", flop: "bet", turn: "", river: "" });
     expect(() => mergeImport("not json", [])).toThrow(/읽을 수 없어요/);
     expect(() => mergeImport(JSON.stringify({ hands: [] }), [])).toThrow(/백업 파일이 아니에요/);
+  });
+});
+
+describe("new hands and resuming", () => {
+  const NOW = 1_800_000_000_000;
+  // 9-handed, me on the BTN: everyone folds to me, I open, the SB folds, the BB calls.
+  const toFlop: LogStep[] = [
+    ...["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"].map((s): LogStep => ({ s, k: "fold", a: 1 })),
+    { s: "BTN", k: "raise", to: 2.5 },
+    { s: "SB", k: "fold" },
+    { s: "BB", k: "call" },
+  ];
+  const recording = (over: Partial<LoggedHand> = {}) =>
+    hand({ seat: "BTN", hole: parseCards("AdTd"), level: 6, stack: 32000, steps: toFlop, updatedAt: NOW - 60_000, ...over });
+
+  it("a table setup alone is not worth saving", () => {
+    expect(hasContent(hand({ seat: "BB", players: 6, level: 6, stack: 32000, bbAnte: false, stacks: { BTN: 20 } }))).toBe(false);
+    expect(hasContent(hand({ hole: parseCards("Ad") }))).toBe(true);
+    expect(hasContent(hand({ note: "BTN 아재 블러프" }))).toBe(true);
+    expect(hasContent(hand({ note: "   " }))).toBe(false);
+  });
+
+  it("knows how far a hand was recorded", () => {
+    expect(handProgress(hand({}))).toBe("setup");
+    expect(handProgress(hand({ seat: "BTN", hole: parseCards("Ad") }))).toBe("hand");
+    expect(handProgress(recording({ steps: [] }))).toBe("preflop");
+    expect(handProgress(recording())).toBe("flop");
+    // the BB folds instead: the hand is over
+    expect(handProgress(recording({ steps: [...toFlop.slice(0, -1), { s: "BB", k: "fold" }] }))).toBe("done");
+  });
+
+  it("offers the last hand left mid-way", () => {
+    const older = recording({ id: "old", updatedAt: NOW - 3_600_000 });
+    expect(resumable([recording({ id: "last" }), older], NOW)?.id).toBe("last");
+    // a quick memo saved without the table counts too: it was meant to be finished later
+    expect(resumable([hand({ id: "memo", hole: parseCards("KhKs"), updatedAt: NOW - 1000 })], NOW)?.id).toBe("memo");
+  });
+
+  it("doesn't offer hands that are finished, empty or stale", () => {
+    expect(resumable([], NOW)).toBeNull();
+    expect(resumable([recording({ result: "win" })], NOW)).toBeNull();
+    expect(resumable([recording({ net: -2400 })], NOW)).toBeNull();
+    expect(resumable([recording({ steps: [...toFlop.slice(0, -1), { s: "BB", k: "fold" }] })], NOW)).toBeNull();
+    expect(resumable([recording({ updatedAt: NOW - RESUME_WINDOW_MS - 1 })], NOW)).toBeNull();
+    expect(resumable([hand({ seat: "BB", updatedAt: NOW })], NOW)).toBeNull();
+    // an empty hand left behind by an older version doesn't hide the one being recorded
+    expect(resumable([hand({ id: "empty", seat: "BB", updatedAt: NOW }), recording({ id: "real" })], NOW)?.id).toBe("real");
+    // only the most recent hand is considered: once a newer hand is finished, an older one isn't brought back
+    expect(resumable([recording({ id: "abandoned", updatedAt: NOW - 7_200_000 }), recording({ id: "done", result: "lose" })], NOW)).toBeNull();
+  });
+
+  it("remembers the level and table size of a hand not saved yet", () => {
+    const before = handLogStore.get();
+    rememberSetup({ level: 9, players: 6 });
+    expect(emptyHand().level).toBe(9);
+    expect(emptyHand().players).toBe(6);
+    rememberSetup({ level: null, players: 6 });
+    expect(emptyHand().level).toBe(9); // "레벨 모름" keeps the last known level
+    handLogStore.set(before);
   });
 });

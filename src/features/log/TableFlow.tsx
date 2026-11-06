@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CardPicker } from "../../components/Cards";
 import { handClassOf, RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { countOuts } from "../../poker/equity";
 import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
+import { flowTabs, initialStep, type FlowStep } from "./flowSteps";
 import { analyseHand, cardText, parseCardText, type HandAnalysis, type StreetView } from "./handAnalysis";
 import { levelInfo, LOG_STREET_LABEL, RESULT_LABEL, stackBb, tableOf, type LoggedHand, type Result } from "./handLog";
 import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoSteps, upcoming, type LogStep } from "./recorder";
@@ -14,65 +15,112 @@ import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb,
  * and at the end a run-out with each player's equity on every street.
  */
 
-type FlowStep = "setup" | "hand" | "play" | "result";
 const NEED: Record<Street, number> = { preflop: 0, flop: 3, turn: 4, river: 5 };
 const pct = (x: number | null | undefined) => (x === null || x === undefined || !Number.isFinite(x) ? "-" : `${Math.round(x * 100)}%`);
 
-export function TableFlow({ h, onChange, onReview, onClose }: { h: LoggedHand; onChange: (h: LoggedHand) => void; onReview: (h: LoggedHand, extra: string) => void; onClose: () => void }) {
-  const [step, setStep] = useState<FlowStep>(() => (!h.seat ? "setup" : h.hole.length < 2 ? "hand" : "play"));
+/**
+ * `startAt` overrides the step a hand opens on (a new hand always opens on the table);
+ * `aside` sits at the right end of the setup's first line (the past-hands link, and a hand to pick up again).
+ */
+export function TableFlow(props: { h: LoggedHand; onChange: (h: LoggedHand) => void; onReview: (h: LoggedHand, extra: string) => void; startAt?: FlowStep; aside?: ReactNode }) {
+  const { h, onChange, onReview, aside } = props;
+  const [step, setStep] = useState<FlowStep>(() => props.startAt ?? initialStep(h));
+  /** Where the result replay starts: a finished hand's street tab opens it at that street. */
+  const [replay, setReplay] = useState<ReplayFrom>({ street: "preflop", n: 0 });
   const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
+  const openResult = (street: Street = "preflop") => {
+    setReplay((r) => ({ street, n: r.n + 1 }));
+    setStep("result");
+  };
   const bbChips = levelInfo(h.level)?.bb ?? null;
   const fmt = (bb: number) => amountLabel(bb, bbChips);
 
   // Light replay for recording (no grading); the result screen runs the full analysis.
   const live = useMemo(() => analyseHand(h, { iterations: 2000 }), [h]);
-  const done = live.game.done;
-  const street = live.game.street;
-
-  const tabs: [FlowStep, string, boolean][] = [
-    ["setup", "테이블", true],
-    ["hand", "핸드", !!h.seat],
-    ["play", step === "play" && !done ? LOG_STREET_LABEL[street] : "액션", !!h.seat && h.hole.length === 2],
-    ["result", "결과", done],
-  ];
+  const tabs = flowTabs(step, { seat: !!h.seat, cards: h.hole.length === 2, street: live.game.street, done: live.game.done });
 
   return (
     <div className="flow">
-      <div className="flow-steps">
-        {tabs.map(([id, label, enabled]) => (
-          <button key={id} type="button" className={step === id ? "on" : ""} disabled={!enabled} onClick={() => setStep(id)}>
-            {label}
+      <nav className="flow-steps" aria-label="기록 단계">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            className={t.on ? "on" : t.passed ? "done" : ""}
+            disabled={!t.enabled}
+            aria-current={t.on ? "step" : undefined}
+            onClick={() => (t.step === "result" ? openResult(t.street ?? "preflop") : setStep(t.step))}
+          >
+            {t.label}
           </button>
         ))}
-        <button type="button" className="flow-close" onClick={onClose} aria-label="목록으로">
-          ✕
-        </button>
-      </div>
-      {step === "setup" && <SetupStep h={h} set={set} fmt={fmt} onNext={() => setStep(h.hole.length === 2 ? "play" : "hand")} />}
+      </nav>
+      {step === "setup" && <SetupStep h={h} set={set} fmt={fmt} aside={aside} onNext={() => setStep(h.hole.length === 2 ? "play" : "hand")} />}
       {step === "hand" && <HandStep h={h} set={set} onNext={() => setStep("play")} />}
-      {step === "play" && <PlayStep h={h} set={set} fmt={fmt} a={live} onResult={() => setStep("result")} />}
-      {step === "result" && <ResultStep h={h} set={set} fmt={fmt} onReview={onReview} />}
+      {step === "play" && <PlayStep h={h} set={set} fmt={fmt} a={live} onResult={() => openResult()} />}
+      {step === "result" && <ResultStep h={h} set={set} fmt={fmt} onReview={onReview} from={replay} />}
     </div>
   );
 }
 
 // ───────────── ① table size and seat ─────────────
 
-function SetupStep({ h, set, fmt, onNext }: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void; fmt: (bb: number) => string; onNext: () => void }) {
+/** What the setup's tap-to-change rows have open: the blinds, or the stack of one seat. */
+type SetupEdit = { kind: "blind" } | { kind: "stack"; seat: string } | null;
+
+function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void; fmt: (bb: number) => string; aside?: ReactNode; onNext: () => void }) {
   const seats = positionsFor(h.players);
-  const bb = stackBb(h);
   const base = baseStack(tableOf(h));
-  const [stacksOpen, setStacksOpen] = useState(Object.keys(h.stacks).length > 0);
-  const bbChips = levelInfo(h.level)?.bb ?? null;
+  const bb = stackBb(h);
+  const info = levelInfo(h.level);
+  const bbChips = info?.bb ?? null;
+  const [edit, setEdit] = useState<SetupEdit>(null);
+  const editRef = useRef<HTMLDivElement>(null);
+  const others = Object.keys(h.stacks).filter((s) => s !== h.seat && seats.includes(s));
+  // No stack typed in: show the assumed 100bb, not a chip count nobody entered.
+  const baseLabel = h.stack === null ? amountLabel(base, null) : fmt(base);
+  /** The seat whose stack is being edited ("" before my seat is picked: my own stack). */
+  const stackSeat = edit?.kind === "stack" ? edit.seat : null;
+  const stackOpen = stackSeat !== null;
+
+  // An editor opened from a seat on the table may sit below the fold.
+  useEffect(() => {
+    if (edit) editRef.current?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
+  }, [edit]);
+
+  const pickSeat = (s: string) => set({ seat: s, steps: h.seat === s ? h.steps : [] });
   const pickPlayers = (n: number) => {
     const next = positionsFor(n);
     // A new table size changes the seats: keep my seat only if it still exists, and start the actions over.
     set({ players: n, seat: next.includes(h.seat) ? h.seat : "", steps: [], stacks: {} });
+    setEdit(null);
   };
+  const levelIdx = BLIND_LEVELS.findIndex(([lv]) => lv === h.level);
+  const stepLevel = (d: number) => {
+    const i = levelIdx < 0 ? (d > 0 ? 0 : -1) : levelIdx + d;
+    if (i >= 0 && i < BLIND_LEVELS.length) set({ level: BLIND_LEVELS[i][0] });
+  };
+  const setSeatStack = (s: string, v: number | null) => {
+    const stacks = { ...h.stacks };
+    if (v && v > 0) stacks[s] = bbChips ? v / bbChips : v;
+    else delete stacks[s];
+    set({ stacks });
+  };
+
+  const blindText = info ? `Lv${h.level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
+  const anteText = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
+  const stackText = h.stack === null ? "안 넣음" : `${others.length ? "나" : "모두"} ${h.stack.toLocaleString()}`;
+  const stackHint = [
+    h.stack === null ? "100bb로 계산" : bb !== null ? `= ${bb}bb` : "레벨을 고르면 bb 계산",
+    others.length ? `${others.length}자리 따로` : h.seat ? "자리 눌러 바꾸기" : "눌러서 입력",
+  ].join(" · ");
+
   return (
-    <div className="flow-body">
-      <div className="flow-label">몇 인 테이블?</div>
-      <div className="flow-chips">
+    <div className="flow-body setup">
+      <div className="flow-label">
+        몇 인 테이블?{aside}
+      </div>
+      <div className="flow-chips one">
         {TABLE_SIZES.map((n) => (
           <button key={n} type="button" className={h.players === n ? "on" : ""} onClick={() => pickPlayers(n)}>
             {n}인
@@ -82,9 +130,9 @@ function SetupStep({ h, set, fmt, onNext }: { h: LoggedHand; set: (p: Partial<Lo
       <div className="flow-label">
         내 포지션 <small>{h.seat || "테이블에서 자리를 눌러도 돼요"}</small>
       </div>
-      <div className="flow-chips tight">
+      <div className={`flow-chips one seats n${seats.length}`}>
         {seats.map((s) => (
-          <button key={s} type="button" className={h.seat === s ? "on" : ""} onClick={() => set({ seat: s, steps: h.seat === s ? h.steps : [] })}>
+          <button key={s} type="button" className={h.seat === s ? "on" : ""} onClick={() => pickSeat(s)}>
             {s}
           </button>
         ))}
@@ -93,60 +141,95 @@ function SetupStep({ h, set, fmt, onNext }: { h: LoggedHand; set: (p: Partial<Lo
         seats={seats}
         hero={h.seat}
         button={buttonSeat(h.players)}
-        stacks={Object.fromEntries(seats.map((s) => [s, fmt(s === h.seat ? base : (h.stacks[s] ?? base))]))}
-        onSeat={(s) => set({ seat: s, steps: h.seat === s ? h.steps : [] })}
+        stacks={Object.fromEntries(seats.map((s) => [s, s !== h.seat && h.stacks[s] !== undefined ? fmt(h.stacks[s]) : baseLabel]))}
+        marked={others}
+        picked={stackSeat ?? undefined}
+        // Until my seat is chosen a tap picks it; after that a tap changes that seat's stack.
+        onSeat={(s) => (h.seat ? setEdit(stackSeat === s ? null : { kind: "stack", seat: s }) : pickSeat(s))}
         compact
       />
       <div className="flow-form">
-        <label className="flow-row">
-          <span>블라인드</span>
-          <select className="select" value={h.level ?? ""} onChange={(e) => set({ level: e.target.value ? Number(e.target.value) : null })}>
-            <option value="">레벨 모름 (bb로 입력)</option>
-            {BLIND_LEVELS.map(([lv, sb, big]) => (
-              <option key={lv} value={lv}>
-                Lv{lv} · {sb.toLocaleString()}/{big.toLocaleString()}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flow-row">
-          <span>
-            내 스택 {bb !== null && <small>= {bb}bb</small>}
-          </span>
-          <ChipsInput value={h.stack} unit="chips" onChange={(stack) => set({ stack })} placeholder={bbChips ? "칩 (예: 32,000)" : "칩 · 레벨을 고르면 bb 계산"} />
-        </label>
-        <label className="flow-row toggle">
-          <span>BB 앤티 (BB가 1bb 더 냄)</span>
-          <input type="checkbox" checked={h.bbAnte} onChange={(e) => set({ bbAnte: e.target.checked, steps: [] })} />
-        </label>
-        <button type="button" className="flow-row link" onClick={() => setStacksOpen(!stacksOpen)}>
-          <span>다른 자리 스택</span>
-          <b>{Object.keys(h.stacks).length ? `${Object.keys(h.stacks).length}자리 따로` : "모두 나와 같게"} ▾</b>
-        </button>
-        {stacksOpen && (
-          <div className="flow-stacks">
-            {seats
-              .filter((s) => s !== h.seat)
-              .map((s) => (
-                <label key={s}>
-                  {s}
-                  <ChipsInput
-                    value={h.stacks[s] !== undefined ? (bbChips ? Math.round(h.stacks[s] * bbChips) : h.stacks[s]) : null}
-                    unit={bbChips ? "chips" : "bb"}
-                    placeholder={fmt(base)}
-                    onChange={(v) => {
-                      const stacks = { ...h.stacks };
-                      if (v && v > 0) stacks[s] = bbChips ? v / bbChips : v;
-                      else delete stacks[s];
-                      set({ stacks });
-                    }}
-                  />
+        <div className={`flow-row-box ${edit?.kind === "blind" ? "open" : ""}`}>
+          <button type="button" className="flow-row" aria-expanded={edit?.kind === "blind"} onClick={() => setEdit(edit?.kind === "blind" ? null : { kind: "blind" })}>
+            <span>블라인드</span>
+            <b>
+              {blindText} <small>{anteText}</small>
+            </b>
+          </button>
+          {edit?.kind === "blind" && (
+            <div className="flow-edit" ref={editRef}>
+              <div className="flow-level">
+                <button type="button" aria-label="레벨 내리기" disabled={levelIdx <= 0} onClick={() => stepLevel(-1)}>
+                  ‹
+                </button>
+                <select className="select" value={h.level ?? ""} onChange={(e) => set({ level: e.target.value ? Number(e.target.value) : null })}>
+                  <option value="">레벨 모름 (bb로 입력)</option>
+                  {BLIND_LEVELS.map(([lv, sb, big]) => (
+                    <option key={lv} value={lv}>
+                      Lv{lv} · {sb.toLocaleString()}/{big.toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" aria-label="레벨 올리기" disabled={levelIdx === BLIND_LEVELS.length - 1} onClick={() => stepLevel(1)}>
+                  ›
+                </button>
+              </div>
+              <label className="flow-check">
+                <span>BB 앤티 (BB가 1bb 더 냄)</span>
+                <input type="checkbox" checked={h.bbAnte} onChange={(e) => set({ bbAnte: e.target.checked, steps: [] })} />
+              </label>
+            </div>
+          )}
+        </div>
+        <div className={`flow-row-box ${stackOpen ? "open" : ""}`}>
+          <button type="button" className="flow-row" aria-expanded={stackOpen} onClick={() => setEdit(stackOpen ? null : { kind: "stack", seat: h.seat || "" })}>
+            <span>시작 스택</span>
+            <b>
+              {stackText} <small>{stackHint}</small>
+            </b>
+          </button>
+          {stackOpen && (
+            <div className="flow-edit" ref={editRef}>
+              {stackSeat === "" || stackSeat === h.seat ? (
+                <label className="flow-stack-in">
+                  <span>내 스택{h.seat ? ` (${h.seat})` : ""}</span>
+                  <ChipsInput value={h.stack} unit="chips" onChange={(stack) => set({ stack })} placeholder={bbChips ? "칩 (예: 32,000)" : "칩 · 레벨을 고르면 bb 계산"} autoFocus />
+                  <small>{bb !== null ? `= ${bb}bb` : ""}</small>
                 </label>
-              ))}
-          </div>
-        )}
+              ) : (
+                <label className="flow-stack-in">
+                  <span>{stackSeat} 스택</span>
+                  <ChipsInput
+                    value={h.stacks[stackSeat] !== undefined ? (bbChips ? Math.round(h.stacks[stackSeat] * bbChips) : h.stacks[stackSeat]) : null}
+                    unit={bbChips ? "chips" : "bb"}
+                    placeholder={`나와 같게 ${baseLabel}`}
+                    onChange={(v) => setSeatStack(stackSeat, v)}
+                    autoFocus
+                  />
+                  {h.stacks[stackSeat] !== undefined && (
+                    <button type="button" className="ghost small" onClick={() => setSeatStack(stackSeat, null)}>
+                      나와 같게
+                    </button>
+                  )}
+                </label>
+              )}
+              <div className="flow-edit-foot">
+                <span>
+                  {others.length
+                    ? others.map((s) => `${s} ${fmt(h.stacks[s])}`).join(" · ")
+                    : h.seat
+                      ? "다른 자리는 테이블에서 그 자리를 누르세요"
+                      : "내 포지션을 고르면 다른 자리도 바꿀 수 있어요"}
+                </span>
+                <button type="button" className="ghost small" onClick={() => setEdit(null)}>
+                  완료
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      <button type="button" className="primary wide" disabled={!h.seat} onClick={onNext}>
+      <button type="button" className="flow-next" disabled={!h.seat} onClick={onNext}>
         다음: 내 핸드 →
       </button>
     </div>
@@ -172,7 +255,7 @@ function HandStep({ h, set, onNext }: { h: LoggedHand; set: (p: Partial<LoggedHa
         hint={h.hole.length === 2 ? `${handClassOf(h.hole[0], h.hole[1])}` : undefined}
       />
       <button type="button" className="primary wide" disabled={h.hole.length !== 2} onClick={onNext}>
-        다음: 액션 기록 →
+        다음: 프리플랍 →
       </button>
     </div>
   );
@@ -454,10 +537,15 @@ function uniqueTo(o: { to: number }, i: number, all: { to: number }[]) {
 
 // ───────────── ④ result: the run-out ─────────────
 
-function ResultStep({ h, set, fmt, onReview }: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void; fmt: (bb: number) => string; onReview: (h: LoggedHand, extra: string) => void }) {
+/** The street the result replay opens on; `n` changes on every request, even for the same street. */
+type ReplayFrom = { street: Street; n: number };
+
+function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void; fmt: (bb: number) => string; onReview: (h: LoggedHand, extra: string) => void; from: ReplayFrom }) {
+  const { h, set, fmt, onReview, from } = props;
   const [a, setA] = useState<HandAnalysis | null>(null);
   const [at, setAt] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const jumped = useRef(-1);
   const seats = positionsFor(h.players);
   const bbChips = levelInfo(h.level)?.bb ?? null;
 
@@ -475,6 +563,13 @@ function ResultStep({ h, set, fmt, onReview }: { h: LoggedHand; set: (p: Partial
     if (h.net !== net || h.result !== result) set({ net, result });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [a]);
+  // Open on the street asked for (a street tab above), once the analysis is in.
+  useEffect(() => {
+    if (!a || jumped.current === from.n) return;
+    jumped.current = from.n;
+    setAt(Math.max(0, a.streets.findIndex((x) => x.street === from.street)));
+    setPlaying(false);
+  }, [a, from]);
   useEffect(() => {
     if (!playing || !a) return;
     if (at >= a.streets.length - 1) return setPlaying(false);
@@ -690,10 +785,14 @@ function RaceTable(props: {
   hands?: Record<string, HandShow>;
   heroCards?: Card[];
   onSeat?: (seat: string) => void;
+  /** Seats whose stack differs from mine. */
+  marked?: string[];
+  /** The seat being edited. */
+  picked?: string;
   compact?: boolean;
 }) {
-  const { seats, hero, button, stacks, bubbles = {}, turn, out = [], board, hot = -1, pot: potText, hands = {}, heroCards, onSeat, compact } = props;
-  const W = 358, RW = compact ? 226 : 240, RH = compact ? 318 : 350, H = RH + 56;
+  const { seats, hero, button, stacks, bubbles = {}, turn, out = [], board, hot = -1, pot: potText, hands = {}, heroCards, onSeat, marked = [], picked, compact } = props;
+  const W = 358, RW = compact ? 224 : 240, RH = compact ? 326 : 350, H = RH + 56;
   const cx = W / 2, cy = H / 2, left = cx - RW / 2, top = cy - RH / 2, r = RW / 2;
   const a = RW / 2 - 7, hh = (RH - RW) / 2, arc = Math.PI * a, P = 2 * arc + 4 * hh;
   const at = (s: number): [number, number, number, number] => {
@@ -716,7 +815,7 @@ function RaceTable(props: {
   const X = (x: number) => `${(x / W) * 100}%`;
   const Y = (y: number) => `${(y / H) * 100}%`;
   return (
-    <div className="rt-table" style={{ aspectRatio: `${W} / ${H}` }}>
+    <div className={`rt-table ${compact ? "compact" : ""}`} style={{ aspectRatio: `${W} / ${H}` }}>
       <div className="rt-rail" style={{ left: X(left), top: Y(top), width: X(RW), height: Y(RH), borderRadius: `${r}px / ${r}px` }} />
       <div className="rt-felt" style={{ left: X(left + 14), top: Y(top + 14), width: X(RW - 28), height: Y(RH - 28), borderRadius: `${r - 14}px` }} />
       <div className="rt-betline" style={{ left: X(left + 48), top: Y(top + 48), width: X(RW - 96), height: Y(RH - 96), borderRadius: `${r - 48}px` }} />
@@ -748,7 +847,7 @@ function RaceTable(props: {
             ) : (
               <button
                 type="button"
-                className={["rt-seat", isHero ? "hero" : "", turn === seat ? "turn" : "", out.includes(seat) ? "out" : "", clickable ? "click" : ""].join(" ")}
+                className={["rt-seat", isHero ? "hero" : "", turn === seat ? "turn" : "", out.includes(seat) ? "out" : "", clickable ? "click" : "", marked.includes(seat) ? "own" : "", picked === seat ? "picked" : ""].join(" ")}
                 style={{ left: X(x), top: Y(y) }}
                 onClick={() => onSeat?.(seat)}
               >
@@ -766,9 +865,9 @@ function RaceTable(props: {
               </div>
             )}
             {seat === button && !hand && (() => {
-              const [dx, dy, dox, doy] = at((k * P) / order.length + P / order.length / 2);
+              const [dx, dy, dox, doy] = at((k * P) / order.length + Math.min(34, P / order.length / 2));
               const dl = Math.hypot(dox - dx, doy - dy) || 1;
-              return <div className="rt-dealer" style={{ left: X(dx + ((dox - dx) / dl) * 14), top: Y(dy + ((doy - dy) / dl) * 14) }}>D</div>;
+              return <div className="rt-dealer" style={{ left: X(dx + ((dox - dx) / dl) * 30), top: Y(dy + ((doy - dy) / dl) * 30) }}>D</div>;
             })()}
             {isHero && heroCards && heroCards.length === 2 && !hand && (
               <div className="rt-herocards" style={{ left: X(x + 50), top: Y(y + 2) }}>
@@ -886,11 +985,12 @@ function CardText(props: { label?: string; cards: Card[]; max: number; taken: Ca
 }
 
 /** A chip count with thousands separators, or a bb amount. */
-function ChipsInput({ value, onChange, placeholder, unit }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string; unit: "chips" | "bb" }) {
+function ChipsInput({ value, onChange, placeholder, unit, autoFocus }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string; unit: "chips" | "bb"; autoFocus?: boolean }) {
   const chips = unit === "chips";
   return (
     <input
       inputMode={chips ? "numeric" : "decimal"}
+      autoFocus={autoFocus}
       value={value === null ? "" : chips ? value.toLocaleString() : String(value)}
       placeholder={placeholder}
       onChange={(e) => {

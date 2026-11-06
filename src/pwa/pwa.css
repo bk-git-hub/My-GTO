@@ -1,0 +1,37 @@
+/* update banner: a compact pill above the home indicator, below sheets and the drawer */
+.pwa-banner {
+  position: fixed; z-index: 15;
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 5px 5px 5px 14px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  font-size: 0.88rem; font-weight: 600; white-space: nowrap;
+  animation: pwa-banner-in 0.2s ease-out;
+}
+.pwa-banner .primary.small { border-radius: 999px; padding: 6px 14px; }
+.pwa-banner-text { overflow: hidden; text-overflow: ellipsis; }
+.pwa-banner-close {
+  width: 30px; height: 30px; flex: none; padding: 0;
+  background: none; border: 0; border-radius: 50%;
+  color: var(--muted); font-size: 1.1rem; line-height: 1;
+}
+.pwa-banner-spacer { height: 64px; }
+
+@keyframes pwa-banner-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-banner { animation: none; }
+}
+
+/* settings: app version */
+.pwa-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 0.9rem; }
+.pwa-facts dt { color: var(--muted); }
+.pwa-facts dd { margin: 0; min-width: 0; }
+.pwa-facts dd.ok-text, .pwa-facts dd.err-text { font-size: inherit; }
+.pwa-accent { color: var(--accent); }

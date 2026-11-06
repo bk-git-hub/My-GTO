@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppVersionSection } from "../../pwa/AppVersionSection";
 import { MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
 import { statsStore } from "../../state/stats";
 import { threadsStore } from "../coach/threads";
@@ -155,6 +156,8 @@ export function SettingsPage() {
           </button>
         </div>
       </section>
+
+      <AppVersionSection />
 
       <p className="muted small disclaimer">
         PubAJ(펍아재)는 오픈소스예요 (GNU AGPL-3.0).{" "}

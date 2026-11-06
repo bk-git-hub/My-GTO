@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { holdUpdates } from "../../pwa/update";
 import { isCoachConfigured, MODEL_OPTIONS, settingsStore, useSettings } from "../../state/settings";
 import { describeError, isAbort, isPasscodeError, streamCoachReply, type CoachMessage } from "./client";
 import { firstUserMessage, type SpotContext } from "./prompt";
@@ -58,6 +59,9 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
 
     const ac = new AbortController();
     abortRef.current = ac;
+    // A reload now would lose the question and the reply (both saved only at the end), so no
+    // automatic app update until it finishes, even if the sheet is closed meanwhile.
+    const release = holdUpdates();
     try {
       const reply = await streamCoachReply({
         settings: current,
@@ -86,6 +90,7 @@ export default function CoachSheet({ spot, onClose, onNeedKey }: { spot: SpotCon
       if (isPasscodeError(err)) setNeedPass(true);
       else if (!isAbort(err)) setError(describeError(err, current.keyMode));
     } finally {
+      release();
       abortRef.current = null;
       setStreaming(null);
     }

@@ -432,32 +432,98 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .vs-open b { color: var(--raise); }
 .action[class*="3bet"] { border-color: var(--raise); }
 
+/* ───────── hand log: page header ───────── */
+.page.log-page { padding-top: 6px; gap: 8px; }
+.log-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 34px; min-width: 0; }
+.log-top-title { font-size: 0.8rem; font-weight: 700; color: var(--muted); padding-left: 2px; }
+.log-link { flex: none; height: 34px; padding: 0 4px; background: none; border: 0; color: #c7d0dd; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
+.log-link.back { padding-left: 0; }
+.log-new-btn { flex: none; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+.log-resume { flex: 0 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; gap: 4px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--text); font-size: 0.76rem; white-space: nowrap; overflow: hidden; }
+.log-resume b { color: var(--accent); font-weight: 800; flex: none; }
+.log-resume span { overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.hole-text { font-weight: 800; }
+.hole-text i { font-style: normal; }
+.hole-text .s-s { color: var(--s); } .hole-text .s-h { color: var(--h); } .hole-text .s-d { color: var(--d); } .hole-text .s-c { color: var(--c); }
+.log-tabs { flex: 1; min-width: 0; }
+.log-tabs button { white-space: nowrap; }
+.log-tabs b { font-weight: 800; margin-left: 2px; }
+.log-memo { padding: 0; gap: 0; }
+.log-memo.open { padding-bottom: 14px; gap: 12px; }
+.log-memo.open > :not(.log-memo-head) { margin: 0 14px; }
+.log-memo-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; background: none; border: 0; text-align: left; color: var(--text); }
+.log-memo-head span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-memo-head em { font-style: normal; color: var(--muted); }
+.log-foot { margin-top: 2px; }
+
 /* ───────── hand log: table flow ───────── */
-.log-new { margin-bottom: 2px; }
 .flow { display: flex; flex-direction: column; gap: 10px; }
-.flow-steps { display: flex; gap: 5px; align-items: center; }
-.flow-steps button { flex: 1; padding: 7px 0; border-radius: 9px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+/* Seven steps on one row: 테이블 · 핸드 · 프리플랍 · 플랍 · 턴 · 리버 · 결과 */
+.flow-steps { display: flex; gap: 4px; }
+.flow-steps button { flex: 1 1 0; min-width: 0; height: 30px; padding: 0; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: clamp(9.5px, 2.75vw, 0.72rem); font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; }
+.flow-steps button.done { color: var(--text); }
 .flow-steps button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.flow-steps button:disabled { opacity: 0.4; }
-.flow-steps .flow-close { flex: 0 0 36px; }
+/* Not reachable yet (or leads nowhere new): as muted as the other tabs, like the mockup; only the border is dimmer. */
+.flow-steps button:disabled { opacity: 1; color: var(--muted); border-color: #222c3a; }
 .flow-body { display: flex; flex-direction: column; gap: 10px; }
-.flow-label { font-size: 0.9rem; font-weight: 800; }
-.flow-label small { color: var(--muted); font-weight: 500; margin-left: 6px; font-size: 0.78rem; }
+.flow-label { font-size: 0.87rem; font-weight: 800; display: flex; align-items: baseline; }
+/* Right end of the setup's first line: "↺ 이어서" (a hand left mid-way) and the past-hands link, without making the line taller. */
+.flow-aside { display: flex; align-items: center; gap: 4px; min-width: 0; margin: -5px 0 -5px auto; padding-left: 8px; align-self: center; }
+.flow-aside .log-link { height: 30px; flex: none; }
+@media (max-width: 374px) {
+  /* Room for the hand's seat and cards on small phones. */
+  .flow-aside { gap: 2px; padding-left: 4px; }
+  .log-resume { padding: 0 7px; }
+  .log-resume ~ .log-link .log-link-n { display: none; }
+}
+.flow-label small { color: var(--muted); font-weight: 500; margin-left: 6px; font-size: 0.75rem; }
 .flow-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.flow-chips button { padding: 6px 10px; border-radius: 9px; background: var(--panel); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.82rem; font-weight: 700; }
+.flow-chips button { padding: 6px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 700; }
 .flow-chips button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.flow-chips.tight { gap: 4px; }
-.flow-chips.tight button { padding: 6px 7px; font-size: 0.78rem; }
+/* One row, never wrapping: equal chips that scroll sideways (inside the row only) if they can't fit. */
+.flow-chips.one { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.flow-chips.one::-webkit-scrollbar { display: none; }
+/* 32px tap targets drawn as a slimmer 28px chip, as compact as the mockup. */
+/* Table sizes: chips about as wide as their text (as in the mockup), not stretched across the row. */
+.flow-chips.one button { position: relative; isolation: isolate; flex: 1 1 0; min-width: max-content; max-width: 36px; height: 32px; padding: 0 5px; background: none; border: 0; color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+.flow-chips.one button::before { content: ""; position: absolute; inset: 2px 0; z-index: -1; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); }
+.flow-chips.one button.on { background: none; color: var(--accent-ink); }
+.flow-chips.one button.on::before { background: var(--accent); border-color: var(--accent); }
+.flow-chips.seats { gap: 3px; }
+/* Seats fill the row (nine already do in the mockup); fewer seats get wider targets. */
+.flow-chips.seats button { max-width: 72px; padding: 0 3px; font-size: 0.7rem; letter-spacing: -0.02em; }
+.flow-chips.seats.n10 button { padding: 0 2px; }
+@media (max-width: 374px) {
+  .flow-chips.one button { font-size: 0.7rem; padding: 0 3px; }
+  .flow-chips.seats button { font-size: 0.64rem; padding: 0 2px; }
+}
+
+/* ① setup: spacing follows the mockup */
+.flow-body.setup { gap: 0; }
+.flow-body.setup > .flow-label { margin: 8px 2px 3px; }
+.flow-body.setup > .flow-label:first-child { margin-top: 2px; white-space: nowrap; }
+.flow-body.setup > .rt-table { margin-top: 2px; }
 .flow-form { display: flex; flex-direction: column; gap: 7px; }
-.flow-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px; font-size: 0.85rem; min-height: 44px; color: var(--text); width: 100%; text-align: left; }
-.flow-row > span { color: var(--muted); white-space: nowrap; }
-.flow-row small { color: var(--muted); margin-left: 4px; }
-.flow-row .select, .flow-row input:not([type="checkbox"]) { max-width: 60%; min-width: 0; text-align: right; }
-.flow-row.toggle input { width: 22px; height: 22px; accent-color: var(--accent); }
-.flow-row.link b { font-weight: 700; color: #c7d0dd; font-size: 0.82rem; }
-.flow-stacks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.flow-stacks label { display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; font-weight: 700; }
-.flow-stacks input { padding: 6px 8px; min-width: 0; }
+.flow-body.setup > .flow-form { margin-top: 4px; }
+.flow-row-box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.flow-row-box.open { border-color: #3a4760; }
+.flow-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 38px; padding: 6px 12px; background: none; border: 0; border-radius: 12px; color: var(--text); font-size: 0.84rem; text-align: left; }
+.flow-row > span { color: var(--muted); font-size: 0.77rem; white-space: nowrap; }
+.flow-row > b { font-weight: 800; text-align: right; min-width: 0; }
+.flow-row > b small { color: var(--muted); font-weight: 600; font-size: 0.7rem; margin-left: 2px; }
+.flow-edit { display: flex; flex-direction: column; gap: 8px; padding: 4px 10px 10px; border-top: 1px solid var(--line); scroll-margin-bottom: 12px; }
+.flow-edit .ghost.small { flex: none; }
+.flow-level { display: flex; gap: 6px; padding-top: 6px; }
+.flow-level button { flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 1.1rem; font-weight: 800; padding: 0; }
+.flow-level .select { flex: 1; min-width: 0; height: 40px; padding: 0 10px; }
+.flow-check { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; font-size: 0.84rem; color: #c7d0dd; }
+.flow-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+.flow-stack-in { display: flex; align-items: center; gap: 8px; padding-top: 6px; font-size: 0.82rem; font-weight: 700; }
+.flow-stack-in > span { flex: none; white-space: nowrap; }
+.flow-stack-in input { flex: 1; min-width: 0; height: 40px; text-align: right; font-weight: 700; }
+.flow-stack-in small { flex: none; color: var(--muted); font-weight: 600; min-width: 3.4em; }
+.flow-edit-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.74rem; color: var(--muted); }
+.flow-next { width: 100%; height: 48px; margin-top: 10px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 1rem; font-weight: 900; }
 .flow-summary { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; color: var(--muted); }
 .flow-summary b { color: var(--text); }
 .flow-wait { padding: 40px 0; text-align: center; color: var(--muted); }
@@ -555,6 +621,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 
 /* racetrack table */
 .rt-table { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
+.rt-table.compact { max-width: 358px; }
 .rt-rail { position: absolute; background: linear-gradient(180deg, #34343c 0%, #17171c 100%); box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65), inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -3px 0 rgba(0, 0, 0, 0.4); }
 .rt-felt { position: absolute; background: radial-gradient(ellipse at 50% 42%, #23935b 0%, #146a41 52%, #0b4529 100%); border: 4px solid #7a4f27; box-shadow: inset 0 0 38px rgba(0, 0, 0, 0.5), 0 0 0 1px #3a2412; }
 .rt-betline { position: absolute; border: 1.5px solid rgba(255, 255, 255, 0.15); }
@@ -567,6 +634,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-seat.hero b { color: var(--accent); }
 .rt-seat.turn { border-color: #ffd166; box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.35), 0 0 22px rgba(255, 209, 102, 0.6); }
 .rt-seat.out { opacity: 0.32; }
+.rt-seat.own i { color: #9fd0ff; }
+.rt-seat.picked { border-color: #9fd0ff; box-shadow: 0 0 0 3px rgba(159, 208, 255, 0.3); }
 .rt-seat .tag { position: absolute; top: -11px; font-size: 0.56rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; background: #ffd166; color: #1b1400; white-space: nowrap; }
 .rt-seat .me { position: absolute; bottom: -9px; font-size: 0.56rem; font-weight: 800; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
 .rt-bub { position: absolute; z-index: 2; font-size: 0.6rem; font-weight: 800; padding: 2px 6px 2px; border-radius: 9px; white-space: nowrap; background: rgba(9, 12, 17, 0.9); border: 1.5px solid #556; color: #b8c2d3; display: flex; flex-direction: column; align-items: center; line-height: 1.12; pointer-events: none; }

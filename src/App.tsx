@@ -8,6 +8,7 @@ import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { SolverPage } from "./features/solver/SolverPage";
+import { UpdateBanner } from "./pwa/UpdateBanner";
 
 interface NavItem {
   route: string;
@@ -120,6 +121,7 @@ export function App() {
             {top === "settings" && <SettingsPage />}
             {!["home", "play", "log", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
+          <UpdateBanner />
         </div>
       </div>
     </CoachProvider>

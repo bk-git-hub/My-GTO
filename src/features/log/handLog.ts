@@ -124,6 +124,54 @@ export function deleteHand(id: string): void {
   handLogStore.set((s) => ({ ...s, hands: s.hands.filter((h) => h.id !== id) }));
 }
 
+/** Keep the level and table size of a hand not saved yet, so the next new hand starts there too. */
+export function rememberSetup(h: Pick<LoggedHand, "level" | "players">): void {
+  const s = handLogStore.get();
+  const lastLevel = h.level ?? s.lastLevel;
+  if (s.lastLevel !== lastLevel || s.lastPlayers !== h.players) handLogStore.set({ ...s, lastLevel, lastPlayers: h.players });
+}
+
+// ───────────── resuming ─────────────
+
+export type HandProgress = "setup" | "hand" | LogStreet | "done";
+
+/** How far the recording got: the first missing piece, the street the action is on, or done. */
+export function handProgress(h: LoggedHand): HandProgress {
+  if (!h.seat) return "setup";
+  if (h.hole.length < 2) return "hand";
+  const { game } = replay(tableOf(h), h.steps);
+  return game.done ? "done" : game.street;
+}
+
+export const PROGRESS_LABEL: Record<HandProgress, string> = { setup: "테이블", hand: "핸드", ...LOG_STREET_LABEL, done: "끝" };
+
+/** A hand left mid-way this long ago is no longer offered for resuming. */
+export const RESUME_WINDOW_MS = 12 * 60 * 60 * 1000;
+
+/**
+ * The hand to offer "이어서 기록" for: the most recently edited hand with something in it,
+ * if it has no result yet, its action isn't over, and it was touched within the last 12 hours.
+ */
+export function resumable(hands: LoggedHand[], now: number): LoggedHand | null {
+  let last: LoggedHand | null = null;
+  for (const h of hands) if (hasContent(h) && (!last || h.updatedAt > last.updatedAt)) last = h;
+  if (!last || now - last.updatedAt > RESUME_WINDOW_MS) return null;
+  if (last.result !== null || last.net !== null) return null;
+  return handProgress(last) === "done" ? null : last;
+}
+
+/** A hand left with "＋ 새 핸드" on purpose: not offered for resuming again this session. */
+let asideId: string | null = null;
+export function putAside(id: string): void {
+  asideId = id;
+}
+
+/** The hand the new-hand screen offers to pick up again, if any. */
+export function resumeOffer(hands: LoggedHand[], now: number): LoggedHand | null {
+  const r = resumable(hands, now);
+  return r && r.id !== asideId ? r : null;
+}
+
 let persistAsked = false;
 /** Ask the browser not to evict our storage under pressure (best effort, no prompt on most browsers). */
 function requestPersistence() {

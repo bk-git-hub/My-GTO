@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CardRow } from "../../components/Cards";
 import { getSet } from "../../data/charts";
 import { cardLabel, handClassOf } from "../../poker/cards";
@@ -10,6 +10,7 @@ import { heroAct, heroMoves, startHand, type Decision, type PlayState } from "..
 import { settingsStore, useSettings } from "../../state/settings";
 import { recordAnswer } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
+import { holdUpdates } from "../../pwa/update";
 
 const PUB_SET = getSet("pub");
 /** How each mode's bots play, for the page note and the AI review. */
@@ -88,6 +89,9 @@ export function PlayPage() {
   const heroTurn = !g.done && g.toAct === s.heroIdx;
   const call = heroTurn ? toCall(g, s.heroIdx) : 0;
   const potNow = pot(g);
+  // A hand I've started acting in would be lost by a reload: no automatic app update until it ends.
+  const midHand = !g.done && s.decisions.length > 0;
+  useEffect(() => (midHand ? holdUpdates() : undefined), [midHand]);
 
   const hintEq = useMemo(() => {
     if (!hint || !heroTurn) return null;
