@@ -51,6 +51,8 @@ export interface LoggedHand {
   /** Free-text notes per street (older hands were recorded this way). */
   actions: Record<LogStreet, string>;
   showdowns: ShowdownNote[];
+  /** Jotted on the quick-record screen: it opens there again until actions are recorded on the table. */
+  quick?: boolean;
 }
 
 interface LogState {
@@ -95,13 +97,104 @@ export function hasContent(h: LoggedHand): boolean {
 }
 
 /**
- * Why the quick memo can't be saved yet, or null when it can. `cardsClean`: the card field shows no
- * typo or half-typed card (otherwise `hole` is an older parse than what is on screen). One card isn't a hand.
+ * A saved hand still holds something worth keeping: cards, a note or table actions, or, for a quick
+ * hand, its seat, stack or result too (so clearing its cards to type them again doesn't drop the rest).
  */
+export function worthKeeping(h: LoggedHand): boolean {
+  return hasContent(h) || (h.quick === true && (h.seat !== "" || h.stack !== null || h.result !== null));
+}
+
+/**
+ * The card field holds cards that can be kept: it is clean (`cardsClean`: no typo or half-typed card,
+ * otherwise `hole` is an older parse than what is on screen) and holds two cards or none. One card isn't a hand.
+ */
+const cardsUsable = (h: LoggedHand, cardsClean: boolean) => cardsClean && h.hole.length !== 1;
+
+/**
+ * What a quick hand on screen puts on file. While the card field is mid-edit (a typo, a half-typed card,
+ * one card alone) its cards don't count: the ones on file stand in (none for a new hand), so the seat,
+ * stack, result and note are still kept.
+ */
+export function quickCopy(stored: LoggedHand | null, shown: LoggedHand, cardsClean: boolean): LoggedHand {
+  return cardsUsable(shown, cardsClean) ? shown : { ...shown, hole: stored ? stored.hole : [] };
+}
+
+/** Why a quick hand with nothing on file isn't saved yet, or null when it can be. */
 export function memoBlocker(h: LoggedHand, cardsClean: boolean): string | null {
-  if (!cardsClean || h.hole.length === 1) return "카드 두 장을 맞게 넣으면 저장할 수 있어요";
-  if (!hasContent(h)) return "카드 두 장이나 메모를 넣으면 저장할 수 있어요";
-  return null;
+  if (hasContent(quickCopy(null, h, cardsClean))) return null;
+  return cardsUsable(h, cardsClean) ? "카드 두 장이나 메모를 넣으면 바로 저장돼요" : "카드 두 장을 맞게 넣으면 저장돼요";
+}
+
+export type QuickSave = "none" | "save" | "delete";
+
+/**
+ * What the quick-record screen does with an edit: `stored` is the copy on file (null if none), `shown`
+ * what the screen shows; a save writes quickCopy(stored, shown, cardsClean). A new hand is saved the
+ * moment it has two clean cards or a note, and every later edit goes to the same hand, even while the
+ * card field is mid-edit (the last good cards stay on file then). It is deleted only once nothing worth
+ * keeping is left in it (untouched hands are never stored).
+ */
+export function quickSaveAction(stored: LoggedHand | null, shown: LoggedHand, cardsClean: boolean): QuickSave {
+  const keep = quickCopy(stored, shown, cardsClean);
+  if (!stored) return hasContent(keep) ? "save" : "none";
+  if (!worthKeeping(keep)) return "delete";
+  return sameHand(stored, keep) ? "none" : "save";
+}
+
+/**
+ * Nothing on the quick screen is waiting to be written: it shows exactly the hand on file (or, with none
+ * on file, nothing worth saving), so it can be left for the next hand or the table without losing an edit.
+ */
+export function quickSettled(stored: LoggedHand | null, shown: LoggedHand, cardsClean: boolean): boolean {
+  if (!cardsClean) return false;
+  return stored ? sameHand(stored, shown) : !hasContent(shown);
+}
+
+/** The same hand apart from when it was last saved (so re-checking an unchanged hand writes nothing). */
+function sameHand(a: LoggedHand, b: LoggedHand): boolean {
+  const ra = a as unknown as Record<string, unknown>;
+  const rb = b as unknown as Record<string, unknown>;
+  const keys = new Set([...Object.keys(ra), ...Object.keys(rb)]);
+  keys.delete("updatedAt");
+  for (const k of keys) if (JSON.stringify(ra[k]) !== JSON.stringify(rb[k])) return false;
+  return true;
+}
+
+/**
+ * A hand jotted on the quick-record screen with nothing recorded on the table yet (no actions, board
+ * or showdowns): it opens on the quick screen again, which shows everything it holds.
+ */
+export function isQuickHand(h: LoggedHand): boolean {
+  return h.quick === true && h.steps.length === 0 && h.board.length === 0 && h.showdowns.length === 0;
+}
+
+/** Where a saved hand opens: the quick screen for a quick hand, the table flow for the rest. */
+export const handRoute = (h: LoggedHand): string => (isQuickHand(h) ? `log/quick/${h.id}` : `log/${h.id}`);
+
+export type LogView =
+  | { kind: "new" }
+  | { kind: "list" }
+  | { kind: "players" }
+  /** `id`: the saved quick hand to continue; null for a new one. */
+  | { kind: "quick"; id: string | null }
+  | { kind: "edit"; id: string };
+
+/**
+ * The screen a "#log/…" route shows: "" a new hand on the table, "list", "players", "quick" a new quick
+ * hand, "quick/<id>" a quick hand to finish, "<id>" a hand on the table.
+ */
+export function logView(sub: string, hands: LoggedHand[]): LogView {
+  if (sub === "" || sub === "new") return { kind: "new" };
+  if (sub === "list" || sub === "players") return { kind: sub };
+  if (sub === "quick") return { kind: "quick", id: null };
+  if (sub.startsWith("quick/")) {
+    const id = sub.slice("quick/".length);
+    const h = hands.find((x) => x.id === id);
+    // Recorded on the table since: it opens there. Deleted meanwhile: a new quick hand.
+    if (h && !isQuickHand(h)) return { kind: "edit", id };
+    return { kind: "quick", id: h ? id : null };
+  }
+  return { kind: "edit", id: sub };
 }
 
 /** Board, street actions, showdowns or a chip result were filled in. */
@@ -350,6 +443,7 @@ function sanitize(x: unknown): LoggedHand | null {
       const o = (s && typeof s === "object" ? s : {}) as Record<string, unknown>;
       return { name: str(o.name), seat: str(o.seat), cards: cardList(o.cards, 2), did: str(o.did) };
     }),
+    ...(r.quick === true ? { quick: true } : {}),
   };
 }
 

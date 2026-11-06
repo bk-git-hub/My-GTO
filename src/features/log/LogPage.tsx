@@ -9,21 +9,28 @@ import {
   handFacts,
   handLogStore,
   handProgress,
+  handRoute,
   hasContent,
   hasDetail,
   holeText,
+  isQuickHand,
   knownNames,
   levelLabel,
+  logView,
   memoBlocker,
   mergeImport,
   PROGRESS_LABEL,
   putAside,
+  quickCopy,
+  quickSaveAction,
+  quickSettled,
   rememberSetup,
   RESULT_LABEL,
   resumeOffer,
   saveHand,
   stackBb,
   villainBook,
+  worthKeeping,
   type LoggedHand,
   type Result,
 } from "./handLog";
@@ -38,12 +45,14 @@ const NAMES_LIST_ID = "log-villain-names";
 type Msg = { text: string; error?: boolean } | null;
 
 /**
- * Routes: "log" (a new hand, straight onto the table), "log/list" (past hands, quick memo, backup),
- * "log/players" (showdowns by opponent), "log/<id>" (one saved hand).
+ * Routes: "log" (a new hand, straight onto the table), "log/quick" (quick record: the hand first, saved
+ * as it is typed), "log/quick/<id>" (a quick hand to finish), "log/list" (past hands, backup),
+ * "log/players" (showdowns by opponent), "log/<id>" (one saved hand on the table).
  */
 export function LogPage({ sub, go }: { sub: string; go: (route: string) => void }) {
   const { hands } = handLogStore.use();
-  const view = sub === "" || sub === "new" ? "new" : sub === "list" ? "list" : sub === "players" ? "players" : "edit";
+  const v = logView(sub, hands);
+  const view = v.kind;
   return (
     <div className="page log-page">
       <datalist id={NAMES_LIST_ID}>
@@ -51,8 +60,10 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
           <option key={n} value={n} />
         ))}
       </datalist>
-      {view === "new" && <NewHandView hands={hands} go={go} />}
-      {view === "edit" && <EditView key={sub} id={sub} hands={hands} go={go} />}
+      {v.kind === "new" && <NewHandView hands={hands} go={go} />}
+      {/* Keyed by the route: saving changes the address bar only, so the screen keeps its hand. */}
+      {v.kind === "quick" && <QuickView key={sub} id={v.id} hands={hands} go={go} />}
+      {v.kind === "edit" && <EditView key={sub} id={v.id} hands={hands} go={go} />}
       {(view === "list" || view === "players") && (
         <>
           <div className="log-top">
@@ -112,24 +123,52 @@ function NewHandView({ hands, go }: { hands: LoggedHand[]; go: (route: string) =
     setH(emptyHand());
   }
 
+  const n = hands.length;
   const listLink = (
-    <button type="button" className="log-link" onClick={() => go("log/list")}>
-      지난 핸드{hands.length ? <span className="log-link-n"> {hands.length}개</span> : null} ›
+    <button type="button" className="log-link" onClick={() => go("log/list")} aria-label={n ? `지난 핸드 ${n}개` : "지난 핸드"}>
+      {/* Narrow screens drop the words in .ll-word: "지난 3 ›". */}
+      지난<span className="ll-word"> 핸드</span>
+      {n ? (
+        <span className="log-link-n">
+          {" "}
+          {n}
+          <span className="ll-word">개</span>
+        </span>
+      ) : null}{" "}
+      ›
     </button>
   );
+  const resumeQuick = resume !== null && isQuickHand(resume);
   // On the first line of the table setup, so the screen still fits one view on a phone.
   const aside = (
-    <span className="flow-aside">
+    <span className={`flow-aside${resume ? " with-resume" : ""}`}>
+      <button type="button" className="log-quick" onClick={() => go("log/quick")} aria-label="빠른 기록: 핸드만 먼저 찍어 두기">
+        {/* The narrowest screens drop "기록" next to the resume pill: "⚡ 빠른". */}
+        ⚡ 빠른<span className="lq-word"> 기록</span>
+      </button>
       {resume && (
         <button
           type="button"
-          className="log-resume"
-          onClick={() => go(`log/${resume.id}`)}
-          aria-label={["이어서 기록:", resume.seat || "자리 전", resume.hole.map(cardLabel).join(""), "·", PROGRESS_LABEL[handProgress(resume)]].filter(Boolean).join(" ")}
+          className={`log-resume${resume.hole.length ? " has-cards" : ""}`}
+          onClick={() => go(handRoute(resume))}
+          aria-label={["이어서 기록:", resume.seat || (resumeQuick ? "" : "자리 전"), resume.hole.map(cardLabel).join(""), "·", resumeQuick ? "빠른 기록" : PROGRESS_LABEL[handProgress(resume)]]
+            .filter(Boolean)
+            .join(" ")}
         >
-          <b>↺ 이어서</b>
+          {/* Narrow screens keep the arrow and the cards: "↺ A♦T♦". */}
+          <b>
+            ↺<span className="rs-word"> 이어서</span>
+          </b>
           <span>
-            {resume.seat || "자리 전"} {resume.hole.length ? <HoleText cards={resume.hole} /> : null}
+            {resume.hole.length ? (
+              <>
+                {/* Long seat names (UTG+1) go first on small phones, then any seat shrinks before the cards. */}
+                {resume.seat && <span className={`rs-seat${resume.seat.length > 3 ? " long" : ""}`}>{resume.seat} </span>}
+                <HoleText cards={resume.hole} />
+              </>
+            ) : (
+              resume.seat || (resumeQuick ? "메모" : "자리 전")
+            )}
           </span>
         </button>
       )}
@@ -176,7 +215,7 @@ function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (rou
   useEffect(
     () => () => {
       const h = handLogStore.get().hands.find((x) => x.id === id);
-      if (h && !hasContent(h)) deleteHand(id);
+      if (h && !worthKeeping(h)) deleteHand(id);
     },
     [id],
   );
@@ -297,7 +336,7 @@ function HoleText({ cards }: { cards: Card[] }) {
   );
 }
 
-// ───────────── past hands + quick memo ─────────────
+// ───────────── past hands ─────────────
 
 function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => void }) {
   const [limit, setLimit] = useState(50);
@@ -305,10 +344,13 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
 
   return (
     <>
-      {/* Open from the start until there is a hand to list. */}
-      <QuickMemo go={go} defaultOpen={hands.length === 0} />
+      <button type="button" className="card-box log-quick-entry" onClick={() => go("log/quick")}>
+        <b>⚡ 빠른 기록</b>
+        <span className="muted small">핸드만 먼저 찍고 나중에 이어 쓰기</span>
+        <em>›</em>
+      </button>
       {hands.length === 0 ? (
-        <p className="muted small">아직 기록이 없어요. ＋ 새 핸드로 테이블에서 기록하거나, 빠른 메모로 카드만 찍어 두세요.</p>
+        <p className="muted small">아직 기록이 없어요. ＋ 새 핸드로 테이블에서 기록하거나, ⚡ 빠른 기록으로 핸드만 먼저 찍어 두세요.</p>
       ) : (
         groups.map((g) => (
           <div key={g.day} className="log-list">
@@ -316,7 +358,7 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
               {g.day} · {g.hands.length}핸드
             </div>
             {g.hands.map((h) => (
-              <HandRow key={h.id} h={h} onClick={() => go(`log/${h.id}`)} />
+              <HandRow key={h.id} h={h} onClick={() => go(handRoute(h))} />
             ))}
           </div>
         ))
@@ -332,66 +374,199 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
   );
 }
 
+// ───────────── quick record ─────────────
+
 const RESULTS = Object.keys(RESULT_LABEL) as Result[];
 
-/**
- * Jot a hand down with the table flow's own inputs (cards as text, one-row seat chips, the blinds row),
- * to pick it up on the table later. Folded away once there are hands to list.
- */
-function QuickMemo({ go, defaultOpen }: { go: (route: string) => void; defaultOpen: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
-  const [draft, setDraft] = useState<LoggedHand>(() => emptyHand());
-  const [msg, setMsg] = useState<Msg>(null);
-  // The card field reports a typo or half-typed card here: saving then would store an older parse.
-  const [cardsClean, setCardsClean] = useState(true);
-  const blocker = memoBlocker(draft, cardsClean);
-  const ready = blocker === null;
+/** A quick hand with nothing worth saving yet, kept so a trip to the list doesn't lose its setup. */
+let quickUntouched: LoggedHand | null = null;
 
-  function save(detail: boolean) {
-    if (!ready) return;
-    if (!saveHand(draft)) return setMsg({ text: FULL_MSG, error: true });
-    if (detail) return go(`log/${draft.id}`);
-    setMsg({ text: "저장했어요." });
-    // The next memo starts at the same level, table size (saved as the last one) and ante.
-    setDraft({ ...emptyHand(draft.level), bbAnte: draft.bbAnte });
+/** A new quick hand. `from`, the hand before it, passes on its level, table size and ante. */
+function newQuickHand(from?: LoggedHand): LoggedHand {
+  const h = emptyHand(from ? from.level : undefined);
+  return { ...h, ...(from ? { players: from.players, bbAnte: from.bbAnte } : {}), quick: true };
+}
+
+/** Point the address bar at the hand on screen without navigating, so a reload opens it again. */
+function showRoute(route: string) {
+  try {
+    if (decodeURIComponent(location.hash.slice(1)) !== route) history.replaceState(history.state, "", `#${route}`);
+  } catch {
+    /* no browser history */
+  }
+}
+
+/** "오후 5:50" */
+const clockLabel = (t: number) => new Date(t).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" });
+
+/**
+ * Quick record: the hand first (cards on the keypad), then seat, blinds, stack, result and a note.
+ * Saved the moment it holds two cards or a note, and every edit after that goes to the same hand (the
+ * other fields even while the card field is mid-edit); ＋ 다음 핸드 starts the next one. A quick hand
+ * opens here again from the past hands until it is carried on to the table.
+ */
+function QuickView({ id, hands, go }: { id: string | null; hands: LoggedHand[]; go: (route: string) => void }) {
+  const [draft, setDraft] = useState<LoggedHand>(() => {
+    const stored = id ? hands.find((x) => x.id === id) : undefined;
+    if (stored) return stored;
+    if (quickUntouched && !hands.some((x) => x.id === quickUntouched!.id)) return quickUntouched;
+    return newQuickHand();
+  });
+  /** The hand on screen, for the card field's late clean/unclean report. */
+  const latest = useRef(draft);
+  /** When the hand on screen was first saved: kept if it is deleted and saved again (its cards typed anew). */
+  const born = useRef<{ id: string; at: number } | null>(hands.some((x) => x.id === draft.id) ? { id: draft.id, at: draft.createdAt } : null);
+  // The card field reports a typo or half-typed card here: its cards aren't saved while it shows one.
+  const [cardsClean, setCardsClean] = useState(true);
+  /** The last save failed (storage full): shown until a save goes through. */
+  const [full, setFull] = useState(false);
+  /** The hand left with ＋ 다음 핸드: named on the status line until the next one has something in it. */
+  const [prev, setPrev] = useState<LoggedHand | null>(null);
+  const stored = hands.find((x) => x.id === draft.id) ?? null;
+  // Leaving now loses nothing: the hand on file is the one on screen.
+  const settled = quickSettled(stored, draft, cardsClean);
+
+  /** Every edit: save, delete or leave the copy on file as it is (see quickSaveAction). */
+  function commit(shown: LoggedHand, clean: boolean) {
+    const onFile = handLogStore.get().hands.find((x) => x.id === shown.id) ?? null;
+    const act = quickSaveAction(onFile, shown, clean);
+    let kept = onFile !== null;
+    if (act === "save") {
+      // Dated from the first save, not from when the screen was opened.
+      if (!onFile) shown = { ...shown, createdAt: born.current?.id === shown.id ? born.current.at : Date.now() };
+      const ok = saveHand(quickCopy(onFile, shown, clean));
+      setFull(!ok);
+      if (ok) {
+        kept = true;
+        born.current = { id: shown.id, at: shown.createdAt };
+        showRoute(`log/quick/${shown.id}`);
+      }
+    } else if (act === "delete") {
+      deleteHand(shown.id);
+      kept = false;
+      showRoute("log/quick");
+    }
+    quickUntouched = kept ? null : shown;
+    if (!kept) rememberSetup(shown);
+    latest.current = shown;
+    setDraft(shown);
+  }
+
+  function nextHand() {
+    // Left on purpose: the table screen doesn't offer it for resuming.
+    if (stored) putAside(stored.id);
+    setPrev(stored);
+    const fresh = newQuickHand(draft);
+    quickUntouched = fresh;
+    latest.current = fresh;
+    setDraft(fresh);
+    setCardsClean(true);
+    showRoute("log/quick");
+    window.scrollTo({ top: 0 });
+  }
+
+  function toTable() {
+    if (stored) return go(`log/${stored.id}`);
+    // Nothing worth saving yet: the setup moves on to a new hand on the table.
+    untouched = { ...draft, quick: undefined };
+    quickUntouched = null;
+    go("log");
+  }
+
+  let tone = "idle";
+  let status: ReactNode = memoBlocker(draft, cardsClean);
+  if (stored) {
+    const saved = <b>✓ 저장됨 · {clockLabel(stored.updatedAt)}</b>;
+    if (cardsClean && draft.hole.length !== 1) {
+      tone = "ok";
+      status = (
+        <>
+          {saved}
+          <span>
+            — <span className="qs-word">나중에 </span>지난 핸드에서 이어 쓸 수 있어요
+          </span>
+        </>
+      );
+    } else {
+      // The card field is mid-edit: the rest is on file, with the last good cards.
+      tone = "wait";
+      status = (
+        <>
+          {saved}
+          <span>
+            —{" "}
+            {draft.hole.length === 2 ? (
+              "카드 칸에 글자가 더 있어요"
+            ) : stored.hole.length ? (
+              <>
+                카드는 <HoleText cards={stored.hole} /> 그대로예요
+              </>
+            ) : (
+              "카드는 두 장 넣으면 저장돼요"
+            )}
+          </span>
+        </>
+      );
+    }
+  } else if (prev && cardsClean && !hasContent(draft)) {
+    tone = "ok";
+    status = (
+      <>
+        <b>✓ 앞 핸드 저장됨</b>
+        <span>
+          {prev.hole.length ? <HoleText cards={prev.hole} /> : null} — 이제 이번 핸드를 넣으세요
+        </span>
+      </>
+    );
   }
 
   return (
-    <section className={`card-box log-memo ${open ? "open" : ""}`}>
-      <button type="button" className="log-memo-head" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <b>빠른 메모</b>
-        <span className="muted small">카드·자리만 찍어 두고 나중에 이어서</span>
-        <em>{open ? "▴" : "▾"}</em>
-      </button>
-      {open && (
-        <>
-          <MemoFields
-            key={draft.id}
-            h={draft}
-            onChange={(h) => {
-              setDraft(h);
-              setMsg(null);
-            }}
-            onCardsClean={setCardsClean}
-          />
-          <div className="memo-actions">
-            <button type="button" className="flow-next" disabled={!ready} onClick={() => save(false)}>
-              저장
-            </button>
-            <button type="button" className="ghost" disabled={!ready} onClick={() => save(true)}>
-              저장하고 테이블로 이어서 →
-            </button>
-            {blocker && !msg && <p className="memo-hint">{blocker}</p>}
-          </div>
-        </>
+    <>
+      <div className="log-top">
+        <h2 className="quick-title">⚡ 빠른 기록</h2>
+        <button type="button" className="log-link" onClick={() => go("log/list")}>
+          지난 핸드{hands.length ? <span className="log-link-n"> {hands.length}개</span> : null} ›
+        </button>
+      </div>
+      {full ? (
+        <div className="notice error" role="alert">
+          {FULL_MSG}
+        </div>
+      ) : (
+        <p className={`quick-status ${tone}`} aria-live="polite">
+          {status}
+        </p>
       )}
-      {msg && <div className={`notice ${msg.error ? "error" : ""}`}>{msg.text}</div>}
-    </section>
+      <QuickFields
+        key={draft.id}
+        h={draft}
+        onChange={(next, clean) => {
+          if (clean !== undefined) setCardsClean(clean);
+          commit(next, clean ?? cardsClean);
+        }}
+        onCardsClean={(ok) => {
+          setCardsClean(ok);
+          commit(latest.current, ok);
+        }}
+      />
+      {/* Only once everything on screen is on file: moving on must not drop an unsaved edit. */}
+      <div className="memo-actions">
+        <button type="button" className="flow-next" disabled={!stored || !settled} onClick={nextHand}>
+          ＋ 다음 핸드
+        </button>
+        <button type="button" className="ghost" disabled={!settled} onClick={toTable}>
+          테이블로 이어서 기록 →
+        </button>
+      </div>
+    </>
   );
 }
 
-/** The memo's fields, in the order they come back to mind: cards, seat, blinds, stack, result, note. */
-function MemoFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (h: LoggedHand) => void; onCardsClean: (ok: boolean) => void }) {
+/**
+ * The quick screen's fields, in the order they come back to mind: cards, seat, blinds, stack, result,
+ * note. `onChange` carries the card field's clean flag with a card edit (undefined for the other fields).
+ */
+function QuickFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (h: LoggedHand, cardsClean?: boolean) => void; onCardsClean: (ok: boolean) => void }) {
   const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
   const [sizes, setSizes] = useState(false);
   const [blinds, setBlinds] = useState(false);
@@ -399,23 +574,20 @@ function MemoFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (h
   const bb = stackBb(h);
 
   const pickPlayers = (n: number) => {
-    // A new table size changes the seat names: keep mine only if it still exists.
-    set({ players: n, seat: positionsFor(n).includes(h.seat) ? h.seat : "" });
+    // A new table size changes the seat names: keep mine only if it still exists (as on the table).
+    if (n !== h.players) set({ players: n, seat: positionsFor(n).includes(h.seat) ? h.seat : "", stacks: {} });
     setSizes(false);
   };
 
   return (
-    <div className="memo-body">
-      {/* No autofocus: opening the memo shouldn't jump the page to the keypad. */}
-      <CardText
-        label="내 핸드"
-        cards={h.hole}
-        max={2}
-        taken={[]}
-        onChange={(hole) => set({ hole })}
-        onValid={onCardsClean}
-        hint={h.hole.length === 2 ? handClassOf(h.hole[0], h.hole[1]) : undefined}
-      />
+    <div className="memo-body quick-body">
+      <div className="quick-hand">
+        <div className="flow-label">
+          내 핸드 {h.hole.length === 2 && <small>{handClassOf(h.hole[0], h.hole[1])}</small>}
+        </div>
+        {/* No autofocus: iOS would pop its keyboard up over the keypad. */}
+        <CardText cards={h.hole} max={2} taken={[]} onChange={(hole, clean) => onChange({ ...h, hole }, clean)} onValid={onCardsClean} />
+      </div>
       <div className="memo-sec">
         <div className="flow-label">
           내 포지션 {h.seat && <small>{h.seat}</small>}
@@ -462,6 +634,8 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
         <b className="log-seat">{h.seat || "-"}</b>
         {h.hole.length ? <CardRow cards={h.hole} size="sm" /> : <span className="muted small">카드 없음</span>}
         {bb !== null && <span className="small">{bb}bb</span>}
+        {/* A quick hand not carried on to the table yet: it opens on the quick screen. */}
+        {isQuickHand(h) && <span className="log-tag">이어 쓰기</span>}
         {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
       </span>
       <span className="muted small">
@@ -518,7 +692,7 @@ function PlayersView({ hands, go }: { hands: LoggedHand[]; go: (route: string) =
             </span>
           </div>
           {entries.map(({ hand, showdown }, i) => (
-            <button key={`${hand.id}:${i}`} className="log-row" onClick={() => go(`log/${hand.id}`)}>
+            <button key={`${hand.id}:${i}`} className="log-row" onClick={() => go(handRoute(hand))}>
               <span className="log-row-main">
                 <b className="log-seat">{showdown.seat || "-"}</b>
                 {showdown.cards.length ? <CardRow cards={showdown.cards} size="sm" /> : <span className="muted small">카드 모름</span>}

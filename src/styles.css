@@ -438,22 +438,46 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-resume { flex: 0 1 auto; min-width: 0; height: 28px; display: flex; align-items: center; gap: 4px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--text); font-size: 0.76rem; white-space: nowrap; overflow: hidden; }
 .log-resume b { color: var(--accent); font-weight: 800; flex: none; }
 .log-resume span { overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+/* With cards, the seat gives way first: the cards (what names the hand) are cut only once it is gone. */
+.log-resume.has-cards > span { display: flex; gap: 0.25em; min-width: 0; }
+.log-resume.has-cards .rs-seat { flex: 0 1000 auto; min-width: 0; }
+.log-resume.has-cards .hole-text { flex: 0 1 auto; min-width: 0; }
 .hole-text { font-weight: 800; }
 .hole-text i { font-style: normal; }
 .hole-text .s-s { color: var(--s); } .hole-text .s-h { color: var(--h); } .hole-text .s-d { color: var(--d); } .hole-text .s-c { color: var(--c); }
 .log-tabs { flex: 1; min-width: 0; }
 .log-tabs button { white-space: nowrap; }
 .log-tabs b { font-weight: 800; margin-left: 2px; }
-.log-memo { padding: 0; gap: 0; }
-.log-memo.open { padding-bottom: 12px; gap: 12px; }
-/* Narrow side margins inside the box, so the card keypad keeps the width it has on the 핸드 step. */
-.log-memo.open > :not(.log-memo-head) { margin: 0 10px; }
-.log-memo-head { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 12px; background: none; border: 0; text-align: left; color: var(--text); }
-.log-memo-head b { flex: none; }
-.log-memo-head span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; }
-.log-memo-head em { flex: none; font-style: normal; color: var(--muted); }
-.log-memo.open .log-memo-head { border-bottom: 1px solid var(--line); }
-/* The memo's fields: the table flow's inputs, spaced like the setup step. */
+/* The past hands' one-line way into quick record. */
+.log-quick-entry { flex-direction: row; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 12px; text-align: left; color: var(--text); }
+.log-quick-entry b { flex: none; }
+.log-quick-entry span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; }
+.log-quick-entry em { flex: none; font-style: normal; color: var(--muted); }
+/* A quick hand not carried on to the table yet. */
+.log-tag { margin-left: auto; flex: none; padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(251, 191, 36, 0.45); color: var(--accent); font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+.log-tag ~ .log-result { margin-left: 0; }
+
+/* ───────── hand log: quick record ───────── */
+.quick-title { margin: 0; font-size: 1.02rem; font-weight: 900; white-space: nowrap; }
+/* One line of fixed height in every state, so saving never moves the keypad under the finger. */
+.quick-status { display: flex; align-items: center; height: 30px; margin: 0; padding: 0 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; white-space: nowrap; overflow: hidden; }
+.quick-status > b { flex: none; font-weight: 800; }
+.quick-status > span { min-width: 0; margin-left: 0.3em; overflow: hidden; text-overflow: ellipsis; }
+.quick-status.ok { border-color: rgba(34, 197, 94, 0.5); background: rgba(34, 197, 94, 0.07); }
+.quick-status.ok > b { color: var(--call); }
+/* Saved, but the card field is mid-edit: the tail points at it. */
+.quick-status.wait { border-color: rgba(251, 191, 36, 0.5); }
+.quick-status.wait > b { color: var(--call); }
+.quick-status.wait > span { color: var(--accent); }
+@media (max-width: 389px) {
+  .quick-status .qs-word { display: none; }
+}
+/* The hand comes first and gets the biggest targets. */
+.quick-body .cardkeys .ranks button { height: 44px; }
+.quick-body .cardkeys .suits button { height: 50px; }
+.quick-hand { display: flex; flex-direction: column; gap: 6px; }
+.quick-hand .flow-label small { color: var(--text); font-weight: 800; }
+/* The quick screen's fields: the table flow's inputs, spaced like the setup step. */
 .memo-body { display: flex; flex-direction: column; gap: 12px; }
 .memo-body .flow-label { margin: 0 2px; }
 .memo-sec { display: flex; flex-direction: column; gap: 4px; }
@@ -465,7 +489,6 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 /* Nothing to save yet: a quiet outline rather than a dimmed gold block. */
 .memo-actions .flow-next:disabled { opacity: 1; background: var(--accent-soft); color: rgba(251, 191, 36, 0.5); }
 .memo-actions .ghost { height: 42px; padding: 0 12px; color: #c7d0dd; font-weight: 700; }
-.memo-hint { margin: 0; text-align: center; font-size: 0.74rem; color: var(--muted); }
 .log-foot { margin-top: 2px; }
 
 /* ───────── hand log: table flow ───────── */
@@ -479,14 +502,27 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-steps button:disabled { opacity: 1; color: var(--muted); border-color: #222c3a; }
 .flow-body { display: flex; flex-direction: column; gap: 10px; }
 .flow-label { font-size: 0.87rem; font-weight: 800; display: flex; align-items: baseline; }
-/* Right end of the setup's first line: "↺ 이어서" (a hand left mid-way) and the past-hands link, without making the line taller. */
+/*
+ * Right end of the setup's first line: "⚡ 빠른 기록", "↺ 이어서" (a hand left mid-way) and the past-hands
+ * link, without making the line taller. It never wraps: the words in .ll-word / .rs-word / .rs-seat go
+ * first on narrow screens (long seat names like UTG+1 below 390px), and the resume pill is the one that
+ * shrinks, its seat before its cards.
+ */
 .flow-aside { display: flex; align-items: center; gap: 4px; min-width: 0; margin: -5px 0 -5px auto; padding-left: 8px; align-self: center; }
 .flow-aside .log-link { height: 30px; flex: none; }
+.log-quick { flex: none; height: 28px; padding: 0 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+.flow-aside.with-resume .rs-word, .flow-aside.with-resume .ll-word { display: none; }
+@media (max-width: 389px) {
+  .flow-aside.with-resume .log-resume.has-cards .rs-seat.long { display: none; }
+}
 @media (max-width: 374px) {
-  /* Room for the hand's seat and cards on small phones. */
   .flow-aside { gap: 2px; padding-left: 4px; }
-  .log-resume { padding: 0 7px; }
-  .log-resume ~ .log-link .log-link-n { display: none; }
+  .log-resume, .log-quick { padding: 0 7px; }
+  .flow-aside.with-resume .log-resume.has-cards .rs-seat { display: none; }
+}
+/* 320px (an SE or a mini with display zoom): "⚡ 빠른", so the cards still fit. */
+@media (max-width: 359px) {
+  .flow-aside.with-resume .lq-word { display: none; }
 }
 .flow-label small { color: var(--muted); font-weight: 500; margin-left: 6px; font-size: 0.75rem; }
 .flow-chips { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -525,7 +561,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-row > span { color: var(--muted); font-size: 0.77rem; white-space: nowrap; }
 .flow-row > b { font-weight: 800; text-align: right; min-width: 0; }
 .flow-row > b small { color: var(--muted); font-weight: 600; font-size: 0.7rem; margin-left: 2px; }
-/* A row box whose value is typed in place (the quick memo's stack). */
+/* A row box whose value is typed in place (the quick screen's stack). */
 .flow-row-in { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 3px 8px 3px 12px; }
 .flow-row-in > span { flex: none; color: var(--muted); font-size: 0.77rem; white-space: nowrap; }
 .flow-row-in input { flex: 1; min-width: 0; height: 32px; padding: 0 10px; border-radius: 8px; text-align: right; font-weight: 800; font-size: 0.9rem; }

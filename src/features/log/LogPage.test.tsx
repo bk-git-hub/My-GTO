@@ -34,10 +34,13 @@ describe("hand log first screen (react-dom/server)", () => {
     expect(t).toContain("시작 스택");
     expect(t).toContain("다음: 내 핸드 →");
     expect(t).toContain("지난 핸드 ›");
+    // quick record is one tap away, on the same first line (it doesn't push the table down)
+    expect(html).toMatch(/<div class="flow-label">몇 인 테이블\?<span class="flow-aside"><button type="button" class="log-quick" aria-label="빠른 기록: 핸드만 먼저 찍어 두기">⚡ 빠른<span class="lq-word"> 기록<\/span><\/button><button[^>]*class="log-link"/);
     // nothing from the list in front of the table
     expect(t).not.toContain("빠른 메모");
     expect(t).not.toContain("백업");
     expect(t).not.toContain("이어서 기록");
+    expect(html).not.toContain("cardkeys");
   });
 
   it("offers to pick up a hand left mid-way on the setup's first line, not in a row of its own", () => {
@@ -49,10 +52,29 @@ describe("hand log first screen (react-dom/server)", () => {
     // suits carry U+FE0E so phones draw them as text, not emoji
     expect(t).toMatch(/↺ 이어서 BTN A♦\uFE0E ?T♦\uFE0E/);
     expect(html).toContain('aria-label="이어서 기록: BTN A♦T♦ · 프리플랍"');
-    expect(t).toContain("지난 핸드 1개 ›");
-    // same line as "몇 인 테이블?", before the tabs' content and with nothing above the tabs
-    expect(html).toMatch(/<div class="flow-label">몇 인 테이블\?<span class="flow-aside"><button[^>]*class="log-resume"/);
+    // the past-hands link keeps its full name for screen readers; narrow screens show "지난 1 ›"
+    expect(html).toMatch(/<button type="button" class="log-link" aria-label="지난 핸드 1개">지난<span class="ll-word"> 핸드<\/span><span class="log-link-n"> 1<span class="ll-word">개<\/span><\/span> ›<\/button>/);
+    // same line as "몇 인 테이블?", after the quick pill, with nothing above the tabs
+    expect(html).toMatch(/<div class="flow-label">몇 인 테이블\?<span class="flow-aside with-resume"><button[^>]*class="log-quick"[^>]*>⚡ 빠른<span class="lq-word"> 기록<\/span><\/button><button[^>]*class="log-resume has-cards"/);
+    // the words that go first on narrow screens: "↺ A♦T♦"
+    expect(html).toMatch(/<b>↺<span class="rs-word"> 이어서<\/span><\/b><span><span class="rs-seat">BTN <\/span><span class="hole-text">/);
     expect(html).not.toContain('class="log-top"');
+  });
+
+  it("marks long seat names in the resume pill, the part that goes first on small phones", () => {
+    const h: LoggedHand = { ...emptyHand(6), id: "utg", seat: "UTG+1", hole: parseCards("KhQh"), updatedAt: Date.now() - 60_000 };
+    put([h]);
+    const html = render(<LogPage sub="" go={noop} />);
+    expect(html).toMatch(/<span class="rs-seat long">UTG\+1 <\/span><span class="hole-text">/);
+    expect(html).toContain('aria-label="이어서 기록: UTG+1 K♥Q♥ · 프리플랍"');
+  });
+
+  it("offers a quick hand for resuming as a quick hand", () => {
+    const q: LoggedHand = { ...emptyHand(6), id: "qq", quick: true, hole: parseCards("AdTd"), updatedAt: Date.now() - 60_000 };
+    put([q]);
+    const html = render(<LogPage sub="" go={noop} />);
+    expect(html).toContain('aria-label="이어서 기록: A♦T♦ · 빠른 기록"');
+    expect(text(html)).toMatch(/↺ 이어서 A♦\uFE0E ?T♦\uFE0E/);
   });
 
   it("does not offer a hand again after leaving it with ＋ 새 핸드", () => {
@@ -61,75 +83,139 @@ describe("hand log first screen (react-dom/server)", () => {
     expect(text(render(<LogPage sub="" go={noop} />))).toContain("↺ 이어서");
     // what both "＋ 새 핸드" buttons (on the new-hand screen and on the hand's own screen) do before going to #log
     putAside("mid2");
-    const t = text(render(<LogPage sub="" go={noop} />));
-    expect(t).not.toContain("이어서");
-    expect(t).toContain("지난 핸드 1개 ›");
+    const html = render(<LogPage sub="" go={noop} />);
+    expect(text(html)).not.toContain("이어서");
+    expect(html).toContain('aria-label="지난 핸드 1개"');
+    expect(html).toContain('class="flow-aside"');
   });
 
-  it("keeps past hands, the quick memo and the backup behind 지난 핸드", () => {
+  it("keeps past hands, a way into quick record and the backup behind 지난 핸드", () => {
     const h: LoggedHand = { ...emptyHand(6), id: "old", seat: "CO", hole: parseCards("KhKs"), result: "win" };
     put([h]);
-    const t = text(render(<LogPage sub="list" go={noop} />));
+    const html = render(<LogPage sub="list" go={noop} />);
+    const t = text(html);
     expect(t).toContain("지난 핸드 1");
     expect(t).toContain("상대별 쇼다운");
     expect(t).toContain("＋ 새 핸드");
-    expect(t).toContain("빠른 메모");
     expect(t).toContain("백업");
     expect(t).toContain("CO");
     expect(t).toContain("이김");
-    // the quick memo starts folded once there are hands to list
-    expect(t).toContain("카드·자리만 찍어 두고 나중에 이어서");
-    expect(t).not.toContain("저장하고 테이블로 이어서");
-    expect(render(<LogPage sub="list" go={noop} />)).toMatch(/class="log-memo-head" aria-expanded="false"/);
+    // one line into the quick screen, not a second form
+    expect(html).toMatch(/<button type="button" class="card-box log-quick-entry"><b>⚡ 빠른 기록<\/b><span class="muted small">핸드만 먼저 찍고 나중에 이어 쓰기<\/span><em>›<\/em><\/button>/);
+    expect(html).not.toContain("cardkeys");
+    expect(html).not.toContain("<textarea");
+    expect(t).not.toContain("빠른 메모");
+    // a hand recorded on the table carries no tag
+    expect(html).not.toContain("log-tag");
   });
 
-  it("opens the quick memo when nothing is saved yet, with the table flow's inputs", () => {
+  it("tags quick hands in the list until they are carried on to the table", () => {
+    const quick: LoggedHand = { ...emptyHand(6), id: "q", quick: true, hole: parseCards("AdTd"), createdAt: 3 };
+    const played: LoggedHand = { ...emptyHand(6), id: "p", quick: true, seat: "BTN", hole: parseCards("KhKs"), steps: [{ s: "UTG", k: "fold" }], createdAt: 2 };
+    const table: LoggedHand = { ...emptyHand(6), id: "t", seat: "CO", hole: parseCards("9h9c"), createdAt: 1 };
+    put([quick, played, table]);
+    const html = render(<LogPage sub="list" go={noop} />);
+    expect(html.match(/<span class="log-tag">이어 쓰기<\/span>/g)).toHaveLength(1);
+    expect(html).toMatch(/<span class="log-tag">이어 쓰기<\/span>/);
+    // with nothing saved, the empty list points at both ways in
     put([]);
-    const out = render(<LogPage sub="list" go={noop} />);
-    const t = text(out);
-    expect(out).toMatch(/class="log-memo-head" aria-expanded="true"/);
-    // 내 핸드: the card text field and its keypad, as on the 핸드 step
-    expect(t).toContain("내 핸드");
-    expect(out).toMatch(/<div class="cardtext-field "><input[^>]*placeholder="예\) AdTd"[^>]*inputMode="none"/);
+    expect(text(render(<LogPage sub="list" go={noop} />))).toContain("⚡ 빠른 기록으로 핸드만 먼저 찍어 두세요");
+  });
+
+  it("opens quick record with the hand first, on the table flow's inputs", () => {
+    put([]);
+    const out = render(<LogPage sub="quick" go={noop} />);
+    expect(out).toContain('<h2 class="quick-title">⚡ 빠른 기록</h2>');
+    // the status line says what saves it (there is no save button)
+    expect(out).toMatch(/<p class="quick-status idle" aria-live="polite">카드 두 장이나 메모를 넣으면 바로 저장돼요<\/p>/);
+    expect(out).not.toMatch(/>저장<\/button>/);
+    // in this order: 내 핸드, 내 포지션, 블라인드, 내 스택, 결과, 메모
+    const order = ['class="flow-label">내 핸드', 'class="flow-label">내 포지션', "<span>블라인드</span>", "<span>내 스택</span>", 'class="flow-label">결과', 'class="flow-label">메모'].map((x) => out.indexOf(x));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // the card field and its keypad come first, nothing else in between
+    expect(out).toMatch(/<div class="quick-hand"><div class="flow-label">내 핸드 <\/div><div class="cardtext  "><div class="cardtext-field "><input[^>]*placeholder="예\) AdTd"[^>]*inputMode="none"[^>]*\/>/);
     expect(out).toContain('class="cardkeys"');
     for (const k of "AKQJT98765432") expect(out).toContain(`<button type="button">${k}</button>`);
-    // ...and no 52-card grid until 표 is tapped
     expect(out).not.toContain('class="picker"');
-    expect(out.match(/class="pick /g)).toBeNull();
     // nothing grabs focus (the phone keyboard stays down)
     expect(out.toLowerCase()).not.toContain("autofocus");
     // one row of seats for the last table size, with the size as a small toggle
     expect(out).toContain('class="flow-chips one seats n9"');
     expect(out).toMatch(/class="memo-size"[^>]*>9인/);
-    expect(t).toContain("내 포지션");
-    // the setup's blinds row, the stack in chips, results as one-row chips, the note
     expect(out).toMatch(/class="flow-row"[^>]*><span>블라인드<\/span>/);
-    expect(t).toContain("내 스택");
     expect(out).toMatch(/<div class="flow-chips one fill"><button[^>]*>이김<\/button><button[^>]*>짐<\/button><button[^>]*>찹<\/button><button[^>]*>폴드<\/button><\/div>/);
     expect(out).toContain("<textarea");
-    // an empty memo can't be saved
-    expect(out).toMatch(/<button type="button" class="flow-next" disabled="">저장<\/button>/);
-    expect(out).toMatch(/<button type="button" class="ghost" disabled="">저장하고 테이블로 이어서 →<\/button>/);
-    expect(t).toContain("카드 두 장이나 메모를 넣으면 저장할 수 있어요");
-    // the old inputs are gone
-    expect(out).not.toContain("seat-chips");
-    expect(out).not.toContain("log-form");
+    // nothing saved yet: no next hand to move on to; the table is open either way
+    expect(out).toMatch(/<button type="button" class="flow-next" disabled="">＋ 다음 핸드<\/button>/);
+    expect(out).toMatch(/<button type="button" class="ghost">테이블로 이어서 기록 →<\/button>/);
   });
 
-  it("lays the memo's seats out for the last table size and level used", () => {
+  it("lays the quick screen out for the last table size and level used", () => {
     handLogStore.set({ ...initial, hands: [], lastPlayers: 6, lastLevel: 6 });
-    const out = render(<LogPage sub="list" go={noop} />);
+    const out = render(<LogPage sub="quick" go={noop} />);
     expect(out).toContain('class="flow-chips one seats n6"');
     expect(out).toMatch(/class="memo-size"[^>]*>6인/);
     expect(text(out)).toContain("Lv6 · 400/800");
     expect(text(out)).toContain("BB 앤티 800");
   });
 
+  it("reopens a saved quick hand on the quick screen, filled in", () => {
+    const q: LoggedHand = { ...emptyHand(6), id: "q1", quick: true, seat: "BTN", hole: parseCards("AdTd"), stack: 32000, result: "lose", note: "BB 올인 콜" };
+    put([q]);
+    const out = render(<LogPage sub="quick/q1" go={noop} />);
+    const t = text(out);
+    expect(out).toContain("quick-title");
+    expect(out).toMatch(/<div class="cardtext-field ok"><input[^>]*value="AdTd"/);
+    expect(out).toMatch(/<div class="flow-label">내 핸드 <small>ATs<\/small><\/div>/);
+    expect(out).toMatch(/<button type="button" class="on">BTN<\/button>/);
+    expect(out).toMatch(/<button type="button" class="on">짐<\/button>/);
+    expect(out).toContain('value="32,000"');
+    expect(t).toContain("= 40bb");
+    expect(out).toContain(">BB 올인 콜</textarea>");
+    expect(out).toMatch(/<p class="quick-status ok" aria-live="polite"><b>✓ 저장됨 · (오전|오후) \d{1,2}:\d\d<\/b>/);
+    expect(t).toContain("지난 핸드에서 이어 쓸 수 있어요");
+    expect(out).toMatch(/<button type="button" class="flow-next">＋ 다음 핸드<\/button>/);
+    expect(t).toContain("테이블로 이어서 기록 →");
+  });
+
+  it("reopens a quick hand kept without its cards (cleared to be typed again) with its seat and result", () => {
+    const q: LoggedHand = { ...emptyHand(6), id: "q2", quick: true, seat: "CO", stack: 32000, result: "win", createdAt: 5, updatedAt: Date.now() };
+    put([q]);
+    const out = render(<LogPage sub="quick/q2" go={noop} />);
+    expect(out).toContain("quick-title");
+    expect(out).toMatch(/<div class="cardtext-field "><input[^>]*value=""/);
+    expect(out).toMatch(/<button type="button" class="on">CO<\/button>/);
+    expect(out).toMatch(/<button type="button" class="on">이김<\/button>/);
+    expect(out).toMatch(/<p class="quick-status ok" aria-live="polite"><b>✓ 저장됨 · /);
+    expect(out).toMatch(/<button type="button" class="flow-next">＋ 다음 핸드<\/button>/);
+    // and in the list, among the hands to finish
+    const list = render(<LogPage sub="list" go={noop} />);
+    expect(list).toContain("카드 없음");
+    expect(list).toMatch(/<span class="log-tag">이어 쓰기<\/span>/);
+  });
+
+  it("opens a hand recorded on the table in the table flow, even from a quick link", () => {
+    const played: LoggedHand = { ...emptyHand(6), id: "p1", quick: true, seat: "BTN", hole: parseCards("AdTd"), steps: [{ s: "UTG", k: "fold" }] };
+    put([played]);
+    for (const sub of ["p1", "quick/p1"]) {
+      const out = render(<LogPage sub={sub} go={noop} />);
+      expect(out).not.toContain("quick-title");
+      expect(text(out)).toContain("‹ 지난 핸드");
+      expect(out).toMatch(/class="on"[^>]*aria-current="step"[^>]*>프리플랍</);
+    }
+    // a quick hand asked for by its plain id ("테이블로 이어서 기록 →") goes to the table too
+    put([{ ...played, steps: [] }]);
+    const out = render(<LogPage sub="p1" go={noop} />);
+    expect(out).not.toContain("quick-title");
+    expect(out).toMatch(/class="on"[^>]*aria-current="step"[^>]*>프리플랍</);
+  });
+
   it("names the blinds picker's no-level option for where the stack is typed", () => {
     const row = (unknownLabel?: string) => render(<BlindRow level={null} bbAnte={false} onLevel={noop} onAnte={noop} open onToggle={noop} unknownLabel={unknownLabel} />);
     // the setup asks for stacks in bb when the level is unknown
     expect(row()).toMatch(/<option value=""[^>]*>레벨 모름 \(bb로 입력\)<\/option>/);
-    // the quick memo always takes chips
+    // the quick screen always takes chips
     expect(row("레벨 모름")).toMatch(/<option value=""[^>]*>레벨 모름<\/option>/);
     expect(row("레벨 모름")).not.toContain("bb로 입력");
   });

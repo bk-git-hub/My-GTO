@@ -6,7 +6,7 @@ import { cardText, parseCardText } from "./handAnalysis";
 import { levelInfo } from "./handLog";
 
 /**
- * The hand recorder's inputs, shared by the table flow and the quick memo on the past-hands page:
+ * The hand recorder's inputs, shared by the table flow and the quick-record screen:
  * cards as text, chip counts, one-row chips, and the tap-to-open rows (the blinds among them).
  */
 
@@ -24,9 +24,10 @@ export function TableCard({ c, small, hot }: { c: Card; small?: boolean; hot?: b
 /**
  * Cards as text ("AdTd") with a rank/suit keypad; a 52-card table is one tap away.
  * `onValid` hears whether the text is clean: false while it has a typo or a half-typed card,
- * when `cards` still holds the last clean parse rather than what is shown.
+ * when `cards` still holds the last clean parse rather than what is shown. `onChange` gets the same
+ * flag with the cards, for a caller that acts on each edit before `onValid` catches up.
  */
-export function CardText(props: { label?: string; cards: Card[]; max: number; taken: Card[]; onChange: (cards: Card[]) => void; onValid?: (ok: boolean) => void; placeholder?: string; hint?: string; autoFocus?: boolean; compact?: boolean; inline?: boolean }) {
+export function CardText(props: { label?: string; cards: Card[]; max: number; taken: Card[]; onChange: (cards: Card[], clean: boolean) => void; onValid?: (ok: boolean) => void; placeholder?: string; hint?: string; autoFocus?: boolean; compact?: boolean; inline?: boolean }) {
   const { label, cards, max, taken, onChange, onValid, placeholder, hint, autoFocus, compact, inline } = props;
   const [text, setText] = useState(() => cardText(cards));
   const [picker, setPicker] = useState(false);
@@ -45,7 +46,7 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
   const update = (t: string) => {
     setText(t);
     const p = parseCardText(t, max, taken);
-    if (!p.error && p.cards.join() !== cards.join()) onChange(p.cards);
+    if (!p.error && p.cards.join() !== cards.join()) onChange(p.cards, !p.pending);
   };
   return (
     <div className={`cardtext ${compact ? "compact" : ""} ${inline ? "inline" : ""}`}>
@@ -100,7 +101,7 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
           max={max}
           disabled={taken}
           onChange={(cs) => {
-            onChange(cs);
+            onChange(cs, true);
             setText(cardText(cs));
           }}
         />
