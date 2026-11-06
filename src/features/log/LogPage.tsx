@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CardPicker, CardRow } from "../../components/Cards";
-import { cardLabel, RANKS, SUIT_SYMBOL, SUITS, type Card } from "../../poker/cards";
+import { CardRow } from "../../components/Cards";
+import { cardLabel, handClassOf, RANKS, SUIT_SYMBOL, SUITS, type Card } from "../../poker/cards";
 import { useCoach } from "../coach/CoachContext";
-import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import {
   deleteHand,
   emptyHand,
@@ -15,7 +14,7 @@ import {
   holeText,
   knownNames,
   levelLabel,
-  LOG_SEATS,
+  memoBlocker,
   mergeImport,
   PROGRESS_LABEL,
   putAside,
@@ -29,6 +28,8 @@ import {
   type Result,
 } from "./handLog";
 import type { FlowStep } from "./flowSteps";
+import { BlindRow, CardText, ChipRow, ChipsInput } from "./inputs";
+import { positionsFor, TABLE_SIZES } from "./recorder";
 import { TableFlow } from "./TableFlow";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
@@ -304,7 +305,8 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
 
   return (
     <>
-      <QuickMemo go={go} />
+      {/* Open from the start until there is a hand to list. */}
+      <QuickMemo go={go} defaultOpen={hands.length === 0} />
       {hands.length === 0 ? (
         <p className="muted small">아직 기록이 없어요. ＋ 새 핸드로 테이블에서 기록하거나, 빠른 메모로 카드만 찍어 두세요.</p>
       ) : (
@@ -330,49 +332,125 @@ function ListView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => v
   );
 }
 
-/** Jot down just the cards, seat and stack; folded away until asked for. */
-function QuickMemo({ go }: { go: (route: string) => void }) {
-  const [open, setOpen] = useState(false);
+const RESULTS = Object.keys(RESULT_LABEL) as Result[];
+
+/**
+ * Jot a hand down with the table flow's own inputs (cards as text, one-row seat chips, the blinds row),
+ * to pick it up on the table later. Folded away once there are hands to list.
+ */
+function QuickMemo({ go, defaultOpen }: { go: (route: string) => void; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const [draft, setDraft] = useState<LoggedHand>(() => emptyHand());
   const [msg, setMsg] = useState<Msg>(null);
-  const ready = hasContent(draft);
+  // The card field reports a typo or half-typed card here: saving then would store an older parse.
+  const [cardsClean, setCardsClean] = useState(true);
+  const blocker = memoBlocker(draft, cardsClean);
+  const ready = blocker === null;
 
   function save(detail: boolean) {
     if (!ready) return;
     if (!saveHand(draft)) return setMsg({ text: FULL_MSG, error: true });
     if (detail) return go(`log/${draft.id}`);
     setMsg({ text: "저장했어요." });
-    setDraft(emptyHand(draft.level));
+    // The next memo starts at the same level, table size (saved as the last one) and ante.
+    setDraft({ ...emptyHand(draft.level), bbAnte: draft.bbAnte });
   }
 
   return (
     <section className={`card-box log-memo ${open ? "open" : ""}`}>
       <button type="button" className="log-memo-head" aria-expanded={open} onClick={() => setOpen(!open)}>
         <b>빠른 메모</b>
-        <span className="muted small">카드·자리·스택만 찍어 두고 나중에 이어서</span>
+        <span className="muted small">카드·자리만 찍어 두고 나중에 이어서</span>
         <em>{open ? "▴" : "▾"}</em>
       </button>
       {open && (
         <>
-          <HandFields
+          <MemoFields
+            key={draft.id}
             h={draft}
             onChange={(h) => {
               setDraft(h);
               setMsg(null);
             }}
+            onCardsClean={setCardsClean}
           />
-          <div className="row-gap wrap">
-            <button className="primary" disabled={!ready} onClick={() => save(false)}>
+          <div className="memo-actions">
+            <button type="button" className="flow-next" disabled={!ready} onClick={() => save(false)}>
               저장
             </button>
-            <button className="ghost" disabled={!ready} onClick={() => save(true)}>
-              저장하고 테이블로 기록
+            <button type="button" className="ghost" disabled={!ready} onClick={() => save(true)}>
+              저장하고 테이블로 이어서 →
             </button>
+            {blocker && !msg && <p className="memo-hint">{blocker}</p>}
           </div>
         </>
       )}
       {msg && <div className={`notice ${msg.error ? "error" : ""}`}>{msg.text}</div>}
     </section>
+  );
+}
+
+/** The memo's fields, in the order they come back to mind: cards, seat, blinds, stack, result, note. */
+function MemoFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (h: LoggedHand) => void; onCardsClean: (ok: boolean) => void }) {
+  const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
+  const [sizes, setSizes] = useState(false);
+  const [blinds, setBlinds] = useState(false);
+  const seats = positionsFor(h.players);
+  const bb = stackBb(h);
+
+  const pickPlayers = (n: number) => {
+    // A new table size changes the seat names: keep mine only if it still exists.
+    set({ players: n, seat: positionsFor(n).includes(h.seat) ? h.seat : "" });
+    setSizes(false);
+  };
+
+  return (
+    <div className="memo-body">
+      {/* No autofocus: opening the memo shouldn't jump the page to the keypad. */}
+      <CardText
+        label="내 핸드"
+        cards={h.hole}
+        max={2}
+        taken={[]}
+        onChange={(hole) => set({ hole })}
+        onValid={onCardsClean}
+        hint={h.hole.length === 2 ? handClassOf(h.hole[0], h.hole[1]) : undefined}
+      />
+      <div className="memo-sec">
+        <div className="flow-label">
+          내 포지션 {h.seat && <small>{h.seat}</small>}
+          <button type="button" className="memo-size" aria-expanded={sizes} aria-label={`테이블 ${h.players}인 · 인원 바꾸기`} onClick={() => setSizes(!sizes)}>
+            {h.players}인 <i>{sizes ? "▴" : "▾"}</i>
+          </button>
+        </div>
+        {sizes && <ChipRow items={TABLE_SIZES} value={h.players} label={(n) => `${n}인`} onPick={pickPlayers} />}
+        <ChipRow items={seats} value={h.seat} onPick={(s) => set({ seat: h.seat === s ? "" : s })} className={`seats n${seats.length}`} />
+      </div>
+      <div className="flow-form">
+        <BlindRow
+          level={h.level}
+          bbAnte={h.bbAnte}
+          onLevel={(level) => set({ level })}
+          onAnte={(bbAnte) => set({ bbAnte })}
+          open={blinds}
+          onToggle={() => setBlinds(!blinds)}
+          unknownLabel="레벨 모름"
+        />
+        <label className="flow-row-box flow-row-in">
+          <span>내 스택</span>
+          <ChipsInput value={h.stack} unit="chips" onChange={(stack) => set({ stack })} placeholder="칩 (예: 32,000)" />
+          <small>{bb !== null ? `= ${bb}bb` : h.stack !== null ? "레벨 고르면 bb" : ""}</small>
+        </label>
+      </div>
+      <div className="memo-sec">
+        <div className="flow-label">결과</div>
+        <ChipRow items={RESULTS} value={h.result} label={(r) => RESULT_LABEL[r]} onPick={(r) => set({ result: h.result === r ? null : r })} className="fill" />
+      </div>
+      <label className="memo-sec">
+        <span className="flow-label">메모</span>
+        <textarea rows={2} value={h.note} onChange={(e) => set({ note: e.target.value })} placeholder="예) BTN 아재 K9s로 올인 콜, 내 AQo 짐" />
+      </label>
+    </div>
   );
 }
 
@@ -393,111 +471,6 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
       </span>
       {h.note.trim() && <span className="log-note small">{h.note.trim()}</span>}
     </button>
-  );
-}
-
-/** Quick memo fields: level, seat, cards, stack, result, note. */
-function HandFields({ h, onChange }: { h: LoggedHand; onChange: (h: LoggedHand) => void }) {
-  const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
-  const bb = stackBb(h);
-  const sdCards = h.showdowns.flatMap((s) => s.cards);
-
-  return (
-    <div className="log-form">
-      <label className="field">
-        레벨
-        <select className="select" value={h.level ?? ""} onChange={(e) => set({ level: e.target.value ? Number(e.target.value) : null })}>
-          <option value="">레벨 모름</option>
-          {BLIND_LEVELS.map(([lv, sb, big]) => (
-            <option key={lv} value={lv}>
-              Lv{lv} · {sb.toLocaleString()}/{big.toLocaleString()}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div className="field">
-        내 자리
-        <SeatChips value={h.seat} onChange={(seat) => set({ seat })} />
-      </div>
-
-      <CardField label="내 카드" cards={h.hole} max={2} disabled={[...h.board, ...sdCards]} onChange={(hole) => set({ hole })} defaultOpen />
-
-      <label className="field">
-        <span>
-          내 스택 (칩) <span className="muted small">{bb !== null ? `= ${bb}bb` : h.stack !== null ? "레벨을 고르면 bb로 보여줘요" : ""}</span>
-        </span>
-        <ChipsInput value={h.stack} onChange={(stack) => set({ stack })} placeholder="예) 34,000" />
-      </label>
-
-      <div className="field">
-        결과
-        <div className="chips">
-          {(Object.keys(RESULT_LABEL) as Result[]).map((r) => (
-            <button key={r} type="button" className={`chip ${h.result === r ? "on" : ""}`} onClick={() => set({ result: h.result === r ? null : r })}>
-              {RESULT_LABEL[r]}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <label className="field">
-        메모
-        <textarea rows={2} value={h.note} onChange={(e) => set({ note: e.target.value })} placeholder="예) BTN 아재 K9s로 올인 콜, 내 AQo 짐" />
-      </label>
-
-    </div>
-  );
-}
-
-function SeatChips({ value, onChange, allowEmpty = true }: { value: string; onChange: (seat: string) => void; allowEmpty?: boolean }) {
-  return (
-    <div className="seat-chips">
-      {LOG_SEATS.map((s) => (
-        <button key={s} type="button" className={`chip ${value === s ? "on" : ""}`} onClick={() => onChange(value === s && allowEmpty ? "" : s)}>
-          {s}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function CardField(props: { label: string; cards: Card[]; max: number; disabled: Card[]; onChange: (cards: Card[]) => void; defaultOpen: boolean }) {
-  const { label, cards, max, disabled, onChange } = props;
-  const [open, setOpen] = useState(props.defaultOpen);
-  return (
-    <div className="field">
-      <div className="row-between">
-        <span>{label}</span>
-        <span className="row-gap">
-          {cards.length ? <CardRow cards={cards} size="sm" /> : <span className="muted small">없음</span>}
-          {cards.length > 0 && (
-            <button type="button" className="ghost small" onClick={() => onChange([])}>
-              지우기
-            </button>
-          )}
-          <button type="button" className="ghost small" onClick={() => setOpen(!open)}>
-            {open ? "접기" : "고르기"}
-          </button>
-        </span>
-      </div>
-      {open && <CardPicker selected={cards} max={max} disabled={disabled} onChange={onChange} />}
-    </div>
-  );
-}
-
-/** Digits-only chip count shown with thousands separators. */
-function ChipsInput({ value, onChange, placeholder }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string }) {
-  return (
-    <input
-      inputMode="numeric"
-      value={value !== null ? value.toLocaleString() : ""}
-      placeholder={placeholder}
-      onChange={(e) => {
-        const digits = e.target.value.replace(/[^0-9]/g, "");
-        onChange(digits ? Number(digits) : null);
-      }}
-    />
   );
 }
 

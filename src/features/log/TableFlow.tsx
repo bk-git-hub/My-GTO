@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CardPicker } from "../../components/Cards";
 import { handClassOf, RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { countOuts } from "../../poker/equity";
 import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
-import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { flowTabs, initialStep, type FlowStep } from "./flowSteps";
-import { analyseHand, cardText, parseCardText, type HandAnalysis, type StreetView } from "./handAnalysis";
+import { analyseHand, type HandAnalysis, type StreetView } from "./handAnalysis";
 import { levelInfo, LOG_STREET_LABEL, RESULT_LABEL, stackBb, tableOf, type LoggedHand, type Result } from "./handLog";
+import { BlindRow, CardText, ChipRow, ChipsInput, RowBox, TableCard } from "./inputs";
 import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoSteps, upcoming, type LogStep } from "./recorder";
 
 /**
@@ -72,8 +71,7 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
   const seats = positionsFor(h.players);
   const base = baseStack(tableOf(h));
   const bb = stackBb(h);
-  const info = levelInfo(h.level);
-  const bbChips = info?.bb ?? null;
+  const bbChips = levelInfo(h.level)?.bb ?? null;
   const [edit, setEdit] = useState<SetupEdit>(null);
   const editRef = useRef<HTMLDivElement>(null);
   const others = Object.keys(h.stacks).filter((s) => s !== h.seat && seats.includes(s));
@@ -95,11 +93,6 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
     set({ players: n, seat: next.includes(h.seat) ? h.seat : "", steps: [], stacks: {} });
     setEdit(null);
   };
-  const levelIdx = BLIND_LEVELS.findIndex(([lv]) => lv === h.level);
-  const stepLevel = (d: number) => {
-    const i = levelIdx < 0 ? (d > 0 ? 0 : -1) : levelIdx + d;
-    if (i >= 0 && i < BLIND_LEVELS.length) set({ level: BLIND_LEVELS[i][0] });
-  };
   const setSeatStack = (s: string, v: number | null) => {
     const stacks = { ...h.stacks };
     if (v && v > 0) stacks[s] = bbChips ? v / bbChips : v;
@@ -107,8 +100,6 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
     set({ stacks });
   };
 
-  const blindText = info ? `Lv${h.level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
-  const anteText = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
   const stackText = h.stack === null ? "안 넣음" : `${others.length ? "나" : "모두"} ${h.stack.toLocaleString()}`;
   const stackHint = [
     h.stack === null ? "100bb로 계산" : bb !== null ? `= ${bb}bb` : "레벨을 고르면 bb 계산",
@@ -120,23 +111,11 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
       <div className="flow-label">
         몇 인 테이블?{aside}
       </div>
-      <div className="flow-chips one">
-        {TABLE_SIZES.map((n) => (
-          <button key={n} type="button" className={h.players === n ? "on" : ""} onClick={() => pickPlayers(n)}>
-            {n}인
-          </button>
-        ))}
-      </div>
+      <ChipRow items={TABLE_SIZES} value={h.players} label={(n) => `${n}인`} onPick={pickPlayers} />
       <div className="flow-label">
         내 포지션 <small>{h.seat || "테이블에서 자리를 눌러도 돼요"}</small>
       </div>
-      <div className={`flow-chips one seats n${seats.length}`}>
-        {seats.map((s) => (
-          <button key={s} type="button" className={h.seat === s ? "on" : ""} onClick={() => pickSeat(s)}>
-            {s}
-          </button>
-        ))}
-      </div>
+      <ChipRow items={seats} value={h.seat} onPick={pickSeat} className={`seats n${seats.length}`} />
       <RaceTable
         seats={seats}
         hero={h.seat}
@@ -149,47 +128,18 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
         compact
       />
       <div className="flow-form">
-        <div className={`flow-row-box ${edit?.kind === "blind" ? "open" : ""}`}>
-          <button type="button" className="flow-row" aria-expanded={edit?.kind === "blind"} onClick={() => setEdit(edit?.kind === "blind" ? null : { kind: "blind" })}>
-            <span>블라인드</span>
-            <b>
-              {blindText} <small>{anteText}</small>
-            </b>
-          </button>
-          {edit?.kind === "blind" && (
-            <div className="flow-edit" ref={editRef}>
-              <div className="flow-level">
-                <button type="button" aria-label="레벨 내리기" disabled={levelIdx <= 0} onClick={() => stepLevel(-1)}>
-                  ‹
-                </button>
-                <select className="select" value={h.level ?? ""} onChange={(e) => set({ level: e.target.value ? Number(e.target.value) : null })}>
-                  <option value="">레벨 모름 (bb로 입력)</option>
-                  {BLIND_LEVELS.map(([lv, sb, big]) => (
-                    <option key={lv} value={lv}>
-                      Lv{lv} · {sb.toLocaleString()}/{big.toLocaleString()}
-                    </option>
-                  ))}
-                </select>
-                <button type="button" aria-label="레벨 올리기" disabled={levelIdx === BLIND_LEVELS.length - 1} onClick={() => stepLevel(1)}>
-                  ›
-                </button>
-              </div>
-              <label className="flow-check">
-                <span>BB 앤티 (BB가 1bb 더 냄)</span>
-                <input type="checkbox" checked={h.bbAnte} onChange={(e) => set({ bbAnte: e.target.checked, steps: [] })} />
-              </label>
-            </div>
-          )}
-        </div>
-        <div className={`flow-row-box ${stackOpen ? "open" : ""}`}>
-          <button type="button" className="flow-row" aria-expanded={stackOpen} onClick={() => setEdit(stackOpen ? null : { kind: "stack", seat: h.seat || "" })}>
-            <span>시작 스택</span>
-            <b>
-              {stackText} <small>{stackHint}</small>
-            </b>
-          </button>
-          {stackOpen && (
-            <div className="flow-edit" ref={editRef}>
+        <BlindRow
+          level={h.level}
+          bbAnte={h.bbAnte}
+          onLevel={(level) => set({ level })}
+          onAnte={(bbAnte) => set({ bbAnte, steps: [] })}
+          open={edit?.kind === "blind"}
+          onToggle={() => setEdit(edit?.kind === "blind" ? null : { kind: "blind" })}
+          editRef={editRef}
+        />
+        <RowBox label="시작 스택" value={stackText} hint={stackHint} open={stackOpen} onToggle={() => setEdit(stackOpen ? null : { kind: "stack", seat: h.seat || "" })} editRef={editRef}>
+          {stackSeat !== null && (
+            <>
               {stackSeat === "" || stackSeat === h.seat ? (
                 <label className="flow-stack-in">
                   <span>내 스택{h.seat ? ` (${h.seat})` : ""}</span>
@@ -225,9 +175,9 @@ function SetupStep({ h, set, fmt, aside, onNext }: { h: LoggedHand; set: (p: Par
                   완료
                 </button>
               </div>
-            </div>
+            </>
           )}
-        </div>
+        </RowBox>
       </div>
       <button type="button" className="flow-next" disabled={!h.seat} onClick={onNext}>
         다음: 내 핸드 →
@@ -890,113 +840,5 @@ function RaceTable(props: {
         </div>
       )}
     </div>
-  );
-}
-
-function TableCard({ c, small, hot }: { c: Card; small?: boolean; hot?: boolean }) {
-  const suit = SUITS[c & 3];
-  return (
-    <span className={`rt-card s-${suit} ${small ? "small" : ""} ${hot ? "hot" : ""}`}>
-      {RANKS[c >> 2]}
-      <small>{SUIT_SYMBOL[suit]}</small>
-    </span>
-  );
-}
-
-// ───────────── inputs ─────────────
-
-/** Cards as text ("AdTd") with a rank/suit keypad; a 52-card table is one tap away. */
-function CardText(props: { label?: string; cards: Card[]; max: number; taken: Card[]; onChange: (cards: Card[]) => void; placeholder?: string; hint?: string; autoFocus?: boolean; compact?: boolean; inline?: boolean }) {
-  const { label, cards, max, taken, onChange, placeholder, hint, autoFocus, compact, inline } = props;
-  const [text, setText] = useState(() => cardText(cards));
-  const [picker, setPicker] = useState(false);
-  const [keys, setKeys] = useState(!inline);
-  // Keep the text in step when the cards change elsewhere (picker, undo).
-  useEffect(() => {
-    if (parseCardText(text, max, taken).cards.join() !== cards.join()) setText(cardText(cards));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards.join()]);
-  const parsed = parseCardText(text, max, taken);
-  const update = (t: string) => {
-    setText(t);
-    const p = parseCardText(t, max, taken);
-    if (!p.error && p.cards.join() !== cards.join()) onChange(p.cards);
-  };
-  return (
-    <div className={`cardtext ${compact ? "compact" : ""} ${inline ? "inline" : ""}`}>
-      {label && <div className="flow-label">{label}</div>}
-      <div className={`cardtext-field ${parsed.error ? "bad" : parsed.cards.length === max ? "ok" : ""}`}>
-        <input
-          value={text}
-          onChange={(e) => update(e.target.value)}
-          onFocus={() => setKeys(true)}
-          placeholder={placeholder ?? (max === 2 ? "예) AdTd" : "카드")}
-          autoFocus={autoFocus}
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          inputMode="none"
-        />
-        <span className="parsed">
-          {parsed.cards.map((c) => (
-            <TableCard key={c} c={c} small />
-          ))}
-        </span>
-      </div>
-      {parsed.error ? <div className="cardtext-msg bad">{parsed.error}</div> : hint ? <div className="cardtext-msg">{hint}</div> : null}
-      {keys && (
-        <div className="cardkeys">
-          <div className="ranks">
-            {"AKQJT98765432".split("").map((k) => (
-              <button key={k} type="button" onClick={() => update(text + k)}>
-                {k}
-              </button>
-            ))}
-          </div>
-          <div className="suits">
-            {SUITS.split("").map((s) => (
-              <button key={s} type="button" className={`s-${s}`} onClick={() => update(text + s)}>
-                {SUIT_SYMBOL[s]}
-                <small>{s}</small>
-              </button>
-            ))}
-            <button type="button" onClick={() => update(text.slice(0, -1))} aria-label="지우기">
-              ⌫
-            </button>
-            <button type="button" onClick={() => setPicker(!picker)}>
-              표
-            </button>
-          </div>
-        </div>
-      )}
-      {picker && (
-        <CardPicker
-          selected={cards}
-          max={max}
-          disabled={taken}
-          onChange={(cs) => {
-            onChange(cs);
-            setText(cardText(cs));
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-/** A chip count with thousands separators, or a bb amount. */
-function ChipsInput({ value, onChange, placeholder, unit, autoFocus }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string; unit: "chips" | "bb"; autoFocus?: boolean }) {
-  const chips = unit === "chips";
-  return (
-    <input
-      inputMode={chips ? "numeric" : "decimal"}
-      autoFocus={autoFocus}
-      value={value === null ? "" : chips ? value.toLocaleString() : String(value)}
-      placeholder={placeholder}
-      onChange={(e) => {
-        const raw = e.target.value.replace(chips ? /[^0-9]/g : /[^0-9.]/g, "");
-        onChange(raw ? Number(raw) : null);
-      }}
-    />
   );
 }

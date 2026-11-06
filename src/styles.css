@@ -388,9 +388,6 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .next-btn { min-width: 140px; }
 
 /* hand log */
-.log-form { display: flex; flex-direction: column; gap: 14px; }
-.seat-chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-.seat-chips .chip { padding: 8px 0; text-align: center; }
 .log-list { display: flex; flex-direction: column; gap: 6px; }
 .log-day { margin: 6px 2px 0; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
 .log-row {
@@ -404,7 +401,6 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-result.lose { color: var(--raise); }
 .log-note { color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
 .showdown-box { border: 1px dashed var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; font-weight: 400; }
-.log-form .row-gap > input { flex: 1; min-width: 0; }
 .sign-btn { min-width: 48px; font-size: 1.1rem; padding: 8px 0; }
 .sign-btn.minus { color: var(--raise); }
 .sign-btn.plus { color: var(--call); }
@@ -449,11 +445,27 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-tabs button { white-space: nowrap; }
 .log-tabs b { font-weight: 800; margin-left: 2px; }
 .log-memo { padding: 0; gap: 0; }
-.log-memo.open { padding-bottom: 14px; gap: 12px; }
-.log-memo.open > :not(.log-memo-head) { margin: 0 14px; }
-.log-memo-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; background: none; border: 0; text-align: left; color: var(--text); }
-.log-memo-head span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.log-memo-head em { font-style: normal; color: var(--muted); }
+.log-memo.open { padding-bottom: 12px; gap: 12px; }
+/* Narrow side margins inside the box, so the card keypad keeps the width it has on the 핸드 step. */
+.log-memo.open > :not(.log-memo-head) { margin: 0 10px; }
+.log-memo-head { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 12px; background: none; border: 0; text-align: left; color: var(--text); }
+.log-memo-head b { flex: none; }
+.log-memo-head span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; }
+.log-memo-head em { flex: none; font-style: normal; color: var(--muted); }
+.log-memo.open .log-memo-head { border-bottom: 1px solid var(--line); }
+/* The memo's fields: the table flow's inputs, spaced like the setup step. */
+.memo-body { display: flex; flex-direction: column; gap: 12px; }
+.memo-body .flow-label { margin: 0 2px; }
+.memo-sec { display: flex; flex-direction: column; gap: 4px; }
+.memo-sec textarea { min-height: 60px; }
+.memo-size { margin-left: auto; align-self: center; height: 24px; padding: 0 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
+.memo-size i { font-style: normal; color: var(--muted); font-size: 0.62rem; margin-left: 1px; }
+.memo-actions { display: flex; flex-direction: column; gap: 8px; }
+.memo-actions .flow-next { margin-top: 0; }
+/* Nothing to save yet: a quiet outline rather than a dimmed gold block. */
+.memo-actions .flow-next:disabled { opacity: 1; background: var(--accent-soft); color: rgba(251, 191, 36, 0.5); }
+.memo-actions .ghost { height: 42px; padding: 0 12px; color: #c7d0dd; font-weight: 700; }
+.memo-hint { margin: 0; text-align: center; font-size: 0.74rem; color: var(--muted); }
 .log-foot { margin-top: 2px; }
 
 /* ───────── hand log: table flow ───────── */
@@ -490,6 +502,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-chips.one button.on { background: none; color: var(--accent-ink); }
 .flow-chips.one button.on::before { background: var(--accent); border-color: var(--accent); }
 .flow-chips.seats { gap: 3px; }
+/* A few choices (results) share the whole row. */
+.flow-chips.one.fill button { max-width: none; }
 /* Seats fill the row (nine already do in the mockup); fewer seats get wider targets. */
 .flow-chips.seats button { max-width: 72px; padding: 0 3px; font-size: 0.7rem; letter-spacing: -0.02em; }
 .flow-chips.seats.n10 button { padding: 0 2px; }
@@ -511,6 +525,11 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-row > span { color: var(--muted); font-size: 0.77rem; white-space: nowrap; }
 .flow-row > b { font-weight: 800; text-align: right; min-width: 0; }
 .flow-row > b small { color: var(--muted); font-weight: 600; font-size: 0.7rem; margin-left: 2px; }
+/* A row box whose value is typed in place (the quick memo's stack). */
+.flow-row-in { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 3px 8px 3px 12px; }
+.flow-row-in > span { flex: none; color: var(--muted); font-size: 0.77rem; white-space: nowrap; }
+.flow-row-in input { flex: 1; min-width: 0; height: 32px; padding: 0 10px; border-radius: 8px; text-align: right; font-weight: 800; font-size: 0.9rem; }
+.flow-row-in small { flex: none; min-width: 3.6em; color: var(--muted); font-size: 0.7rem; font-weight: 600; }
 .flow-edit { display: flex; flex-direction: column; gap: 8px; padding: 4px 10px 10px; border-top: 1px solid var(--line); scroll-margin-bottom: 12px; }
 .flow-edit .ghost.small { flex: none; }
 .flow-level { display: flex; gap: 6px; padding-top: 6px; }

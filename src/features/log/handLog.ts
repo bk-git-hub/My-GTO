@@ -15,9 +15,6 @@ export const LOG_STREETS = ["preflop", "flop", "turn", "river"] as const;
 export type LogStreet = (typeof LOG_STREETS)[number];
 export const LOG_STREET_LABEL: Record<LogStreet, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
 
-/** 9-handed pub seats. */
-export const LOG_SEATS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
-
 /** What an opponent showed down. */
 export interface ShowdownNote {
   /** Nickname for the player ("빨간모자"), "" if unknown. */
@@ -95,6 +92,16 @@ export const emptyShowdown = (): ShowdownNote => ({ name: "", seat: "", cards: [
 /** Something worth saving was entered. */
 export function hasContent(h: LoggedHand): boolean {
   return h.hole.length > 0 || h.note.trim() !== "" || h.board.length > 0 || h.showdowns.length > 0 || h.steps.length > 0;
+}
+
+/**
+ * Why the quick memo can't be saved yet, or null when it can. `cardsClean`: the card field shows no
+ * typo or half-typed card (otherwise `hole` is an older parse than what is on screen). One card isn't a hand.
+ */
+export function memoBlocker(h: LoggedHand, cardsClean: boolean): string | null {
+  if (!cardsClean || h.hole.length === 1) return "카드 두 장을 맞게 넣으면 저장할 수 있어요";
+  if (!hasContent(h)) return "카드 두 장이나 메모를 넣으면 저장할 수 있어요";
+  return null;
 }
 
 /** Board, street actions, showdowns or a chip result were filled in. */

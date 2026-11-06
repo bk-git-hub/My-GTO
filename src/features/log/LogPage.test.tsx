@@ -3,6 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { emptyHand, handLogStore, putAside, type LoggedHand } from "./handLog";
+import { BlindRow } from "./inputs";
 import { LogPage } from "./LogPage";
 
 const noop = () => {};
@@ -76,8 +77,61 @@ describe("hand log first screen (react-dom/server)", () => {
     expect(t).toContain("백업");
     expect(t).toContain("CO");
     expect(t).toContain("이김");
-    // the quick memo starts folded
-    expect(t).not.toContain("저장하고 테이블로 기록");
+    // the quick memo starts folded once there are hands to list
+    expect(t).toContain("카드·자리만 찍어 두고 나중에 이어서");
+    expect(t).not.toContain("저장하고 테이블로 이어서");
+    expect(render(<LogPage sub="list" go={noop} />)).toMatch(/class="log-memo-head" aria-expanded="false"/);
+  });
+
+  it("opens the quick memo when nothing is saved yet, with the table flow's inputs", () => {
+    put([]);
+    const out = render(<LogPage sub="list" go={noop} />);
+    const t = text(out);
+    expect(out).toMatch(/class="log-memo-head" aria-expanded="true"/);
+    // 내 핸드: the card text field and its keypad, as on the 핸드 step
+    expect(t).toContain("내 핸드");
+    expect(out).toMatch(/<div class="cardtext-field "><input[^>]*placeholder="예\) AdTd"[^>]*inputMode="none"/);
+    expect(out).toContain('class="cardkeys"');
+    for (const k of "AKQJT98765432") expect(out).toContain(`<button type="button">${k}</button>`);
+    // ...and no 52-card grid until 표 is tapped
+    expect(out).not.toContain('class="picker"');
+    expect(out.match(/class="pick /g)).toBeNull();
+    // nothing grabs focus (the phone keyboard stays down)
+    expect(out.toLowerCase()).not.toContain("autofocus");
+    // one row of seats for the last table size, with the size as a small toggle
+    expect(out).toContain('class="flow-chips one seats n9"');
+    expect(out).toMatch(/class="memo-size"[^>]*>9인/);
+    expect(t).toContain("내 포지션");
+    // the setup's blinds row, the stack in chips, results as one-row chips, the note
+    expect(out).toMatch(/class="flow-row"[^>]*><span>블라인드<\/span>/);
+    expect(t).toContain("내 스택");
+    expect(out).toMatch(/<div class="flow-chips one fill"><button[^>]*>이김<\/button><button[^>]*>짐<\/button><button[^>]*>찹<\/button><button[^>]*>폴드<\/button><\/div>/);
+    expect(out).toContain("<textarea");
+    // an empty memo can't be saved
+    expect(out).toMatch(/<button type="button" class="flow-next" disabled="">저장<\/button>/);
+    expect(out).toMatch(/<button type="button" class="ghost" disabled="">저장하고 테이블로 이어서 →<\/button>/);
+    expect(t).toContain("카드 두 장이나 메모를 넣으면 저장할 수 있어요");
+    // the old inputs are gone
+    expect(out).not.toContain("seat-chips");
+    expect(out).not.toContain("log-form");
+  });
+
+  it("lays the memo's seats out for the last table size and level used", () => {
+    handLogStore.set({ ...initial, hands: [], lastPlayers: 6, lastLevel: 6 });
+    const out = render(<LogPage sub="list" go={noop} />);
+    expect(out).toContain('class="flow-chips one seats n6"');
+    expect(out).toMatch(/class="memo-size"[^>]*>6인/);
+    expect(text(out)).toContain("Lv6 · 400/800");
+    expect(text(out)).toContain("BB 앤티 800");
+  });
+
+  it("names the blinds picker's no-level option for where the stack is typed", () => {
+    const row = (unknownLabel?: string) => render(<BlindRow level={null} bbAnte={false} onLevel={noop} onAnte={noop} open onToggle={noop} unknownLabel={unknownLabel} />);
+    // the setup asks for stacks in bb when the level is unknown
+    expect(row()).toMatch(/<option value=""[^>]*>레벨 모름 \(bb로 입력\)<\/option>/);
+    // the quick memo always takes chips
+    expect(row("레벨 모름")).toMatch(/<option value=""[^>]*>레벨 모름<\/option>/);
+    expect(row("레벨 모름")).not.toContain("bb로 입력");
   });
 
   it("still opens a saved hand and the showdowns by opponent", () => {

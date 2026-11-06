@@ -7,6 +7,7 @@ import {
   handLogStore,
   handProgress,
   hasContent,
+  memoBlocker,
   mergeImport,
   rememberSetup,
   RESUME_WINDOW_MS,
@@ -20,6 +21,21 @@ import type { LogStep } from "./recorder";
 const hand = (over: Partial<LoggedHand>): LoggedHand => ({ ...emptyHand(null), ...over });
 
 describe("hand log", () => {
+  it("lets the quick memo save two clean cards or a note, never a half-typed hand", () => {
+    const cards = "카드 두 장을 맞게 넣으면 저장할 수 있어요";
+    expect(memoBlocker(hand({}), true)).toBe("카드 두 장이나 메모를 넣으면 저장할 수 있어요");
+    expect(memoBlocker(hand({ seat: "BTN", stack: 32000 }), true)).toBe("카드 두 장이나 메모를 넣으면 저장할 수 있어요");
+    expect(memoBlocker(hand({ hole: parseCards("AdTd") }), true)).toBeNull();
+    expect(memoBlocker(hand({ note: "BTN 올인 콜" }), true)).toBeNull();
+    // "Ad": one card isn't a hand, even with a note
+    expect(memoBlocker(hand({ hole: parseCards("Ad") }), true)).toBe(cards);
+    expect(memoBlocker(hand({ hole: parseCards("Ad"), note: "짐" }), true)).toBe(cards);
+    // "AdAd", "AdT", "AdTdK": the field is red or unfinished, so the hand on file isn't what is shown
+    expect(memoBlocker(hand({ hole: parseCards("Ad") }), false)).toBe(cards);
+    expect(memoBlocker(hand({ hole: parseCards("AdTd") }), false)).toBe(cards);
+    expect(memoBlocker(hand({ note: "메모" }), false)).toBe(cards);
+  });
+
   it("converts my chips to bb with the level's big blind", () => {
     expect(stackBb({ stack: 34000, level: 6 })).toBe(42.5); // Lv6 400/800
     expect(stackBb({ stack: 34000, level: null })).toBeNull();
