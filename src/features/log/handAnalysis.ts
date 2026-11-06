@@ -8,6 +8,7 @@ import { postflopMoves, preflopDecision } from "../../play/policy";
 import { mulberry32 } from "../../poker/pushfold";
 import { analyse, postflopSpot, preflopSpot, type Decision, type HeroMove, type PlayState } from "../../play/table";
 import { tableOf, type LoggedHand } from "./handLog";
+import { stageFor } from "./quickPre";
 import { applyStep, baseStack, freshGame, positionsFor, raiseVerb, streetLines, type LogStep } from "./recorder";
 
 /**
@@ -115,13 +116,8 @@ export function equityKnown(hands: Card[][], board: Card[], iterations = 20000):
 /** Pub players limp wide; the charts never limp, so a limp narrows to this instead. */
 const LIMP_RANGE = parseRange("22+, A2s+, K2s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, A2o+, K8o+, Q9o+, J9o+, T9o, 98o");
 
-/** Stack depth (bb) → the pub chart stage the bot rules use. */
-export function stageFor(bb: number): string {
-  if (bb >= 85) return "deep";
-  if (bb >= 30) return "mid";
-  if (bb >= 12) return "short";
-  return "push";
-}
+/** Stack depth (bb) → the pub chart stage the bot rules use (shared with the quick screen's preflop block). */
+export { stageFor };
 
 /**
  * Multiply seat idx's range by how likely each combo was to take step `st` (bot rules).

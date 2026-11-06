@@ -15,6 +15,7 @@ import {
   holeText,
   isQuickHand,
   knownNames,
+  lastStage,
   levelLabel,
   logView,
   memoBlocker,
@@ -22,6 +23,7 @@ import {
   PROGRESS_LABEL,
   putAside,
   quickCopy,
+  quickPreLine,
   quickSaveAction,
   quickSettled,
   rememberSetup,
@@ -29,6 +31,8 @@ import {
   resumeOffer,
   saveHand,
   stackBb,
+  tableOf,
+  tidyQuick,
   villainBook,
   worthKeeping,
   type LoggedHand,
@@ -36,6 +40,8 @@ import {
 } from "./handLog";
 import type { FlowStep } from "./flowSteps";
 import { BlindRow, CardText, ChipRow, ChipsInput } from "./inputs";
+import { QuickPreBlock } from "./QuickPreBlock";
+import { preSteps } from "./quickPre";
 import { positionsFor, TABLE_SIZES } from "./recorder";
 import { TableFlow } from "./TableFlow";
 
@@ -466,7 +472,20 @@ function QuickView({ id, hands, go }: { id: string | null; hands: LoggedHand[]; 
   }
 
   function toTable() {
-    if (stored) return go(`log/${stored.id}`);
+    // The preflop block becomes the table's first steps (unless the table has steps already: those win).
+    const base = stored ?? draft;
+    const steps = base.steps.length ? [] : preSteps(tableOf(base), base.quickPre);
+    if (stored) {
+      if (steps.length && !saveHand({ ...stored, steps })) return setFull(true);
+      return go(`log/${stored.id}`);
+    }
+    if (steps.length) {
+      // No cards or note yet, but the preflop is in: on the table that is worth keeping.
+      const h = { ...draft, steps, createdAt: Date.now() };
+      if (!saveHand(h)) return setFull(true);
+      quickUntouched = null;
+      return go(`log/${h.id}`);
+    }
     // Nothing worth saving yet: the setup moves on to a new hand on the table.
     untouched = { ...draft, quick: undefined };
     quickUntouched = null;
@@ -563,11 +582,13 @@ function QuickView({ id, hands, go }: { id: string | null; hands: LoggedHand[]; 
 }
 
 /**
- * The quick screen's fields, in the order they come back to mind: cards, seat, blinds, stack, result,
- * note. `onChange` carries the card field's clean flag with a card edit (undefined for the other fields).
+ * The quick screen's fields, in the order they come back to mind: cards, seat, preflop, blinds, stack,
+ * result, note. `onChange` carries the card field's clean flag with a card edit (undefined for the other fields).
  */
 function QuickFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (h: LoggedHand, cardsClean?: boolean) => void; onCardsClean: (ok: boolean) => void }) {
-  const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
+  const last = lastStage();
+  // The preflop block keeps in step with the seat, table size and stack (see tidyQuick).
+  const set = (patch: Partial<LoggedHand>) => onChange(tidyQuick({ ...h, ...patch }, last));
   const [sizes, setSizes] = useState(false);
   const [blinds, setBlinds] = useState(false);
   const seats = positionsFor(h.players);
@@ -598,6 +619,7 @@ function QuickFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (
         {sizes && <ChipRow items={TABLE_SIZES} value={h.players} label={(n) => `${n}인`} onPick={pickPlayers} />}
         <ChipRow items={seats} value={h.seat} onPick={(s) => set({ seat: h.seat === s ? "" : s })} className={`seats n${seats.length}`} />
       </div>
+      <QuickPreBlock h={h} bb={bb} last={last} seats={seats} onChange={(quickPre) => set({ quickPre })} />
       <div className="flow-form">
         <BlindRow
           level={h.level}
@@ -628,6 +650,7 @@ function QuickFields({ h, onChange, onCardsClean }: { h: LoggedHand; onChange: (
 
 function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
   const bb = stackBb(h);
+  const pre = quickPreLine(h);
   return (
     <button className="log-row" onClick={onClick}>
       <span className="log-row-main">
@@ -638,6 +661,7 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
         {isQuickHand(h) && <span className="log-tag">이어 쓰기</span>}
         {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
       </span>
+      {pre && <span className="log-pre small">{pre}</span>}
       <span className="muted small">
         {timeLabel(h.createdAt)} · {levelLabel(h.level)}
         {hasDetail(h) ? " · 자세히" : ""}

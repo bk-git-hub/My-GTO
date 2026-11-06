@@ -110,18 +110,35 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
   );
 }
 
-/** A chip count with thousands separators, or a bb amount. */
-export function ChipsInput({ value, onChange, placeholder, unit, autoFocus }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string; unit: "chips" | "bb"; autoFocus?: boolean }) {
+/** Digits and one decimal point ("," counts as one): what a bb field keeps of what is typed. */
+export const bbText = (t: string) => {
+  const raw = t.replace(/,/g, ".").replace(/[^0-9.]/g, "");
+  const dot = raw.indexOf(".");
+  return dot < 0 ? raw : raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, "");
+};
+const bbValue = (t: string): number | null => (t && t !== "." ? Number(t) : null);
+
+/** A chip count with thousands separators, or a bb amount (decimals allowed: "2." stays while 2.5 is typed). */
+export function ChipsInput({ value, onChange, placeholder, unit, autoFocus, ariaLabel }: { value: number | null; onChange: (v: number | null) => void; placeholder?: string; unit: "chips" | "bb"; autoFocus?: boolean; ariaLabel?: string }) {
   const chips = unit === "chips";
+  const [typed, setTyped] = useState(() => (value === null ? "" : String(value)));
+  // The typed text while it still reads as the value ("2." for 2), else the value as it changed elsewhere.
+  const bbShown = bbValue(typed) === value ? typed : value === null ? "" : String(value);
   return (
     <input
+      aria-label={ariaLabel}
       inputMode={chips ? "numeric" : "decimal"}
       autoFocus={autoFocus}
-      value={value === null ? "" : chips ? value.toLocaleString() : String(value)}
+      value={chips ? (value === null ? "" : value.toLocaleString()) : bbShown}
       placeholder={placeholder}
       onChange={(e) => {
-        const raw = e.target.value.replace(chips ? /[^0-9]/g : /[^0-9.]/g, "");
-        onChange(raw ? Number(raw) : null);
+        if (chips) {
+          const raw = e.target.value.replace(/[^0-9]/g, "");
+          return onChange(raw ? Number(raw) : null);
+        }
+        const t = bbText(e.target.value);
+        setTyped(t);
+        onChange(bbValue(t));
       }}
     />
   );

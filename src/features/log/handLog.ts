@@ -1,6 +1,7 @@
 import { cardLabel, handClassOf, type Card } from "../../poker/cards";
 import { createStore } from "../../state/store";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
+import { actedPreflop, cleanPre, isStage, knownStage, preHasInfo, shoveCap, STAGE_LABEL, summaryOf, summaryOfGame, summaryText, tidyPre, type PreStage, type QuickPre } from "./quickPre";
 import { amountLabel, positionsFor, POSITIONS, replay, streetLines, type LogStep, type StepKind, type TableInput } from "./recorder";
 
 /**
@@ -53,6 +54,11 @@ export interface LoggedHand {
   showdowns: ShowdownNote[];
   /** Jotted on the quick-record screen: it opens there again until actions are recorded on the table. */
   quick?: boolean;
+  /**
+   * The quick screen's preflop block (stage, my action, the open). Kept when the hand is carried on to
+   * the table, where it becomes the first steps; from then on the steps are the record.
+   */
+  quickPre?: QuickPre;
 }
 
 interface LogState {
@@ -60,6 +66,8 @@ interface LogState {
   /** Level and table size of the last saved hand, so the next entry starts there. */
   lastLevel: number | null;
   lastPlayers?: number;
+  /** Stack stage of the last hand that told one (tapped, or from its stack), for the quick screen's preflop block. */
+  lastStage?: PreStage;
 }
 
 export const handLogStore = createStore<LogState>("mygto.handlog", { hands: [], lastLevel: null });
@@ -101,7 +109,7 @@ export function hasContent(h: LoggedHand): boolean {
  * hand, its seat, stack or result too (so clearing its cards to type them again doesn't drop the rest).
  */
 export function worthKeeping(h: LoggedHand): boolean {
-  return hasContent(h) || (h.quick === true && (h.seat !== "" || h.stack !== null || h.result !== null));
+  return hasContent(h) || (h.quick === true && (h.seat !== "" || h.stack !== null || h.result !== null || preHasInfo(h.quickPre)));
 }
 
 /**
@@ -214,7 +222,7 @@ export function saveHand(h: LoggedHand): boolean {
   const saved: LoggedHand = { ...h, updatedAt: Date.now() };
   const others = prev.hands.filter((x) => x.id !== h.id);
   const hands = [saved, ...others].sort((a, b) => b.createdAt - a.createdAt);
-  const ok = handLogStore.set({ hands, lastLevel: h.level ?? prev.lastLevel, lastPlayers: h.players });
+  const ok = handLogStore.set({ hands, lastLevel: h.level ?? prev.lastLevel, lastPlayers: h.players, ...stageMemo(h, prev) });
   if (!ok) handLogStore.set(prev);
   else requestPersistence();
   return ok;
@@ -224,11 +232,34 @@ export function deleteHand(id: string): void {
   handLogStore.set((s) => ({ ...s, hands: s.hands.filter((h) => h.id !== id) }));
 }
 
-/** Keep the level and table size of a hand not saved yet, so the next new hand starts there too. */
-export function rememberSetup(h: Pick<LoggedHand, "level" | "players">): void {
+/** Keep the level, table size and stack stage of a hand not saved yet, so the next new hand starts there too. */
+export function rememberSetup(h: Pick<LoggedHand, "level" | "players"> & Partial<Pick<LoggedHand, "stack" | "quickPre">>): void {
   const s = handLogStore.get();
   const lastLevel = h.level ?? s.lastLevel;
-  if (s.lastLevel !== lastLevel || s.lastPlayers !== h.players) handLogStore.set({ ...s, lastLevel, lastPlayers: h.players });
+  const memo = stageMemo(h, s);
+  if (s.lastLevel !== lastLevel || s.lastPlayers !== h.players || memo.lastStage !== s.lastStage) handLogStore.set({ ...s, lastLevel, lastPlayers: h.players, ...memo });
+}
+
+/** The stage to remember after this hand: the one it tells (tapped, or from its stack), else the one before. */
+function stageMemo(h: Pick<LoggedHand, "level"> & Partial<Pick<LoggedHand, "stack" | "quickPre">>, s: LogState): { lastStage?: PreStage } {
+  const stage = knownStage(h.quickPre, stackBb({ stack: h.stack ?? null, level: h.level })) ?? lastStage(s);
+  return stage ? { lastStage: stage } : {};
+}
+
+/**
+ * A quick hand after an edit, its preflop block kept in step with the rest (see tidyPre): an unpinned
+ * stage follows the stack, an opener must be another seat at this table, an empty block goes away.
+ */
+export function tidyQuick(h: LoggedHand, last: PreStage | null = lastStage()): LoggedHand {
+  const { quickPre: was, ...rest } = h;
+  const quickPre = tidyPre(was, { bb: stackBb(h), seats: positionsFor(h.players), seat: h.seat, last });
+  if (quickPre ? JSON.stringify(quickPre) === JSON.stringify(was) : !("quickPre" in h)) return h;
+  return quickPre ? { ...rest, quickPre } : rest;
+}
+
+/** The stack stage last used, if any (a stored value that isn't one is ignored). */
+export function lastStage(s: LogState = handLogStore.get()): PreStage | null {
+  return isStage(s.lastStage) ? s.lastStage : null;
 }
 
 // ───────────── resuming ─────────────
@@ -318,6 +349,33 @@ export function streetBoard(board: Card[], street: string): Card[] {
   return [];
 }
 
+/** My all-in this hand as a preflop street total in bb (see shoveCap), if my stack is known. */
+export const shoveBb = (h: LoggedHand): number | null => shoveCap(stackBb(h), h.seat, h.bbAnte);
+
+/**
+ * The hand's preflop is still what the quick block says: no table steps, or only the seats before me
+ * (the folds the block filled in, when my own action didn't fit the table).
+ */
+function blockSays(h: LoggedHand): boolean {
+  return !!h.quickPre && (!h.steps.length || !actedPreflop(replay(tableOf(h), h.steps).game, h.seat));
+}
+
+/**
+ * The preflop as one line for the past hands ("CO 2.5bb 오픈 → 콜"), for a hand jotted with the quick
+ * screen's preflop block: from the block, or once the table has my own preflop action, from the table.
+ * The stage leads when the hand has no stack in bb to show ("숏 · CO 올인").
+ */
+export function quickPreLine(h: LoggedHand): string {
+  if (!h.quickPre) return "";
+  if (!blockSays(h)) {
+    const s = summaryOfGame(replay(tableOf(h), h.steps).game, h.seat, shoveBb(h));
+    return s ? summaryText(s) : "";
+  }
+  const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
+  const stage = stackBb(h) === null && h.quickPre.stage ? STAGE_LABEL[h.quickPre.stage] : "";
+  return [stage, s ? summaryText(s) : ""].filter(Boolean).join(" · ");
+}
+
 export function holeText(cs: Card[]): string {
   if (cs.length === 2) return `${cardsText(cs)} (${handClassOf(cs[0], cs[1])})`;
   return cs.length ? cardsText(cs) : "모름";
@@ -334,6 +392,11 @@ export function handFacts(h: LoggedHand): string {
     `내 스택: ${h.stack !== null ? `${h.stack.toLocaleString()}칩` : "모름"}${bb !== null ? ` (${bb}bb)` : ""}`,
   ];
   if (h.board.length) lines.push(`보드: ${cardsText(h.board)}`);
+  if (h.quickPre && blockSays(h)) {
+    const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
+    const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
+    lines.push(`프리플랍 (빠른 기록, 금액은 bb): ${[stage, s ? summaryText(s) : ""].filter(Boolean).join(" · ")}`);
+  }
   if (h.steps.length) {
     const t = tableOf(h);
     const others = Object.entries(h.stacks).filter(([seat]) => seat !== h.seat);
@@ -444,8 +507,11 @@ function sanitize(x: unknown): LoggedHand | null {
       return { name: str(o.name), seat: str(o.seat), cards: cardList(o.cards, 2), did: str(o.did) };
     }),
     ...(r.quick === true ? { quick: true } : {}),
+    ...withPre(cleanPre(r.quickPre, positionsFor(size))),
   };
 }
+
+const withPre = (quickPre: QuickPre | undefined) => (quickPre ? { quickPre } : {});
 
 /**
  * Merge an exported file into the current hands. A hand already here is replaced
@@ -477,7 +543,8 @@ export function mergeImport(text: string, current: LoggedHand[]): { hands: Logge
 // Hands saved by an earlier version lack newer fields; fill them in once on load.
 {
   const loaded = handLogStore.get();
-  if (loaded.hands.some((h) => !Array.isArray(h.steps) || !h.stacks || !h.actions || typeof h.players !== "number")) {
+  const preOff = (h: LoggedHand) => h.quickPre !== undefined && JSON.stringify(cleanPre(h.quickPre, positionsFor(h.players))) !== JSON.stringify(h.quickPre);
+  if (loaded.hands.some((h) => !Array.isArray(h.steps) || !h.stacks || !h.actions || typeof h.players !== "number" || preOff(h))) {
     handLogStore.set({ ...loaded, hands: loaded.hands.map((h) => sanitize(h)).filter((h): h is LoggedHand => h !== null) });
   }
 }

@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { emptyHand, handLogStore, putAside, type LoggedHand } from "./handLog";
-import { BlindRow } from "./inputs";
+import { bbText, BlindRow } from "./inputs";
 import { LogPage } from "./LogPage";
 
 const noop = () => {};
@@ -209,6 +209,63 @@ describe("hand log first screen (react-dom/server)", () => {
     const out = render(<LogPage sub="p1" go={noop} />);
     expect(out).not.toContain("quick-title");
     expect(out).toMatch(/class="on"[^>]*aria-current="step"[^>]*>프리플랍</);
+  });
+
+  it("puts a compact preflop block right after 내 포지션, rows appearing with the action", () => {
+    handLogStore.set({ ...initial, hands: [], lastPlayers: 9, lastLevel: 6, lastStage: "short" });
+    const out = render(<LogPage sub="quick" go={noop} />);
+    const order = ['class="flow-label">내 포지션', 'class="flow-label">프리플랍', "<span>블라인드</span>", "<span>내 스택</span>"].map((x) => out.indexOf(x));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // the stage on the label line: no stack yet, so the last stage used, not marked 자동
+    expect(out).toMatch(/<div class="pre-head"><span class="flow-label">프리플랍<\/span><div class="flow-chips one pre-stage"><button[^>]*>딥<\/button><button[^>]*>미들<\/button><button type="button" class="on">숏<\/button><button[^>]*>푸시<\/button><\/div><span class="pre-auto"><\/span><\/div>/);
+    // my action on one row; nothing else until one is picked
+    expect(out).toMatch(/<div class="flow-chips one fill pre-acts">(<button type="button" class="">[^<]+<\/button>){6}<\/div>/);
+    expect(text(out)).toContain("폴드 림프 오픈 콜 3벳 올인");
+    expect(out).not.toContain('class="pre-line"');
+  });
+
+  it("shows the open, who opened and the chips it came to for a call", () => {
+    const q: LoggedHand = { ...emptyHand(6), id: "qc", quick: true, seat: "BB", hole: parseCards("AdTd"), stack: 32000, quickPre: { stage: "mid", action: "call", openBb: 2.5, openerSeat: "CO" } };
+    put([q]);
+    const out = render(<LogPage sub="quick/qc" go={noop} />);
+    // 40bb: mid, from the stack
+    expect(out).toMatch(/<button type="button" class="on">미들<\/button>/);
+    expect(out).toContain('<span class="pre-auto"><small title="내 스택으로 정해져요">자동</small></span>');
+    expect(out).toMatch(/<button type="button" class="on">콜<\/button>/);
+    expect(out).toMatch(/<span class="pre-k">오픈<\/span><div class="flow-chips one pre-chips"><button type="button" class="">2.2bb<\/button><button type="button" class="on">2.5bb<\/button><button type="button" class="">3bb<\/button><button type="button">직접<\/button><\/div><small class="pre-amt">= 2,000<\/small>/);
+    // every seat but mine, the opener lit
+    expect(out).toMatch(/<span class="pre-k">자리<\/span><div class="flow-chips one seats pre-seats n8">/);
+    expect(out).toMatch(/<button type="button" class="on">CO<\/button>/);
+    expect(out).not.toMatch(/pre-seats[^"]*">(<button[^>]*>[^<]*<\/button>)*<button[^>]*>BB<\/button>/);
+    expect(out).not.toContain('<span class="pre-k">3벳</span>');
+    // the list names it in one line
+    const list = render(<LogPage sub="list" go={noop} />);
+    expect(list).toContain('<span class="log-pre small">CO 2.5bb 오픈 → 콜</span>');
+  });
+
+  it("shows my 3-bet's size, a typed open size, and a pinned stage's way back to 자동", () => {
+    const q: LoggedHand = { ...emptyHand(6), id: "q3", quick: true, seat: "SB", hole: parseCards("AhKh"), stack: 32000, quickPre: { stage: "deep", pinned: true, action: "3bet", openBb: 3, openerSeat: "BTN", threeBetX: 3.5 } };
+    put([q]);
+    const out = render(<LogPage sub="quick/q3" go={noop} />);
+    // pinned to 딥 although 40bb says mid
+    expect(out).toMatch(/<button type="button" class="on">딥<\/button>/);
+    expect(out).toMatch(/<span class="pre-auto"><button type="button" aria-label="[^"]*">자동<\/button><\/span>/);
+    expect(out).toMatch(/<button type="button" class="on">3bb<\/button>/);
+    expect(out).toMatch(/<span class="pre-k">3벳<\/span><div class="flow-chips one pre-chips"><button type="button" class="">×3<\/button><button type="button" class="on">×3.5<\/button><button type="button" class="">×4<\/button><button type="button" class="">올인<\/button><\/div><small class="pre-amt">10.5bb = 8,400<\/small>/);
+    // a size that isn't one of the stage's chips sits in the 직접 field
+    put([{ ...q, quickPre: { stage: "mid", action: "open", openBb: 2.7 } }]);
+    const typed = render(<LogPage sub="quick/q3" go={noop} />);
+    expect(typed).toMatch(/<label class="pre-typed on"><input aria-label="오픈 크기 직접 입력 \(bb\)" inputMode="decimal"[^>]*value="2.7"/);
+    expect(typed).toContain("= 2,160");
+    expect(typed).not.toContain('class="pre-k">자리');
+  });
+
+  it("lets a bb field take decimals as they are typed", () => {
+    expect(bbText("2.")).toBe("2.");
+    expect(bbText("2,5")).toBe("2.5");
+    expect(bbText("2.5.1")).toBe("2.51");
+    expect(bbText("a3 bb")).toBe("3");
   });
 
   it("names the blinds picker's no-level option for where the stack is typed", () => {

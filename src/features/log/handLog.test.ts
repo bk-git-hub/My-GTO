@@ -12,18 +12,24 @@ import {
   logView,
   memoBlocker,
   mergeImport,
+  lastStage,
   quickCopy,
+  quickPreLine,
   quickSaveAction,
   quickSettled,
   rememberSetup,
   RESUME_WINDOW_MS,
   resumable,
+  saveHand,
   stackBb,
+  tableOf,
+  tidyQuick,
   villainBook,
   worthKeeping,
   type LoggedHand,
   type QuickSave,
 } from "./handLog";
+import { preSteps } from "./quickPre";
 import type { LogStep } from "./recorder";
 
 const hand = (over: Partial<LoggedHand>): LoggedHand => ({ ...emptyHand(null), ...over });
@@ -339,5 +345,136 @@ describe("quick record", () => {
     const q = quick({ id: "q1", hole: AdTd, updatedAt: NOW - 60_000 });
     expect(resumable([q], NOW)?.id).toBe("q1");
     expect(resumable([{ ...q, result: "lose" }], NOW)).toBeNull();
+  });
+});
+
+describe("quick record: the preflop block", () => {
+  const quick = (over: Partial<LoggedHand> = {}) => hand({ id: "qp", quick: true, level: 6, ...over });
+  const AdTd = parseCards("AdTd");
+  const call = { stage: "mid" as const, action: "call" as const, openBb: 2.5, openerSeat: "CO" };
+
+  it("goes through a backup, and hands without it (or with a broken one) load as before", () => {
+    const file = exportData([
+      quick({ id: "a", hole: AdTd, seat: "BB", quickPre: call }),
+      quick({ id: "b", hole: AdTd, seat: "SB", quickPre: { stage: "deep", pinned: true, action: "3bet", openBb: 3, openerSeat: "BTN", threeBetX: 3.5 } }),
+      hand({ id: "c", hole: AdTd }),
+    ]);
+    const byId = Object.fromEntries(mergeImport(file, []).hands.map((h) => [h.id, h]));
+    expect(byId.a.quickPre).toEqual(call);
+    expect(byId.b.quickPre).toEqual({ stage: "deep", pinned: true, action: "3bet", openBb: 3, openerSeat: "BTN", threeBetX: 3.5 });
+    expect("quickPre" in byId.c).toBe(false);
+    const odd = JSON.stringify({
+      kind: "pubaz-hand-log",
+      version: 1,
+      hands: [
+        { id: "x", quickPre: "call" },
+        { id: "y", quickPre: { stage: "mid" } },
+        { id: "z", players: 6, quickPre: { action: "call", openerSeat: "UTG+2", openBb: "2.5", threeBetX: 99 } },
+      ],
+    });
+    const r = Object.fromEntries(mergeImport(odd, []).hands.map((h) => [h.id, h]));
+    expect("quickPre" in r.x).toBe(false);
+    expect("quickPre" in r.y).toBe(false);
+    // UTG+2 isn't a seat 6-handed; a size has to be a number
+    expect(r.z.quickPre).toEqual({ action: "call" });
+  });
+
+  it("keeps a quick hand alive like its seat or result do, but doesn't create one", () => {
+    expect(hasContent(quick({ quickPre: call }))).toBe(false);
+    expect(quickSaveAction(null, quick({ seat: "BB", quickPre: call }), true)).toBe("none");
+    // cards cleared to be typed again: the preflop is kept with the hand
+    expect(worthKeeping(quick({ quickPre: call }))).toBe(true);
+    expect(quickSaveAction(quick({ hole: AdTd, quickPre: call }), quick({ quickPre: call }), true)).toBe("save");
+    expect(worthKeeping(hand({ quickPre: call }))).toBe(false);
+    // an edit in the block is saved; the same block again writes nothing
+    const stored = quick({ hole: AdTd, seat: "BB", quickPre: call, updatedAt: 1 });
+    expect(quickSaveAction(stored, { ...stored, quickPre: { ...call, openBb: 3 } }, true)).toBe("save");
+    expect(quickSaveAction(stored, JSON.parse(JSON.stringify(stored)), true)).toBe("none");
+  });
+
+  it("follows the stack, seat and table size as they are edited", () => {
+    // 32,000 at Lv6 = 40bb: mid; 80,000 = 100bb: deep
+    const h = quick({ seat: "BB", stack: 32000, quickPre: { stage: "short", action: "call", openerSeat: "CO" } });
+    expect(tidyQuick(h, null).quickPre).toEqual({ stage: "mid", action: "call", openerSeat: "CO" });
+    expect(tidyQuick({ ...h, stack: 80000 }, null).quickPre?.stage).toBe("deep");
+    // tapped: the stage sticks
+    expect(tidyQuick({ ...h, stack: 80000, quickPre: { stage: "short", pinned: true, action: "call" } }, null).quickPre?.stage).toBe("short");
+    // my seat moved onto the opener's
+    expect(tidyQuick({ ...h, seat: "CO" }, null).quickPre).toEqual({ stage: "mid", action: "call" });
+    // the action cleared: the block goes, key and all
+    const cleared = tidyQuick({ ...h, quickPre: { stage: "mid", openerSeat: "CO" } }, null);
+    expect("quickPre" in cleared).toBe(false);
+    expect("quickPre" in tidyQuick({ ...h, quickPre: undefined }, null)).toBe(false);
+    // nothing to change: the same hand comes back
+    const settled = tidyQuick(h, null);
+    expect(tidyQuick(settled, null)).toBe(settled);
+  });
+
+  it("remembers the stage for the next hand like the level", () => {
+    const before = handLogStore.get();
+    // saveHand reverts when the browser refuses to store: give it storage that takes anything.
+    const g = globalThis as { localStorage?: unknown };
+    const hadStorage = "localStorage" in g;
+    const storage = g.localStorage;
+    g.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+    try {
+      handLogStore.set({ ...before, hands: [], lastStage: undefined });
+      expect(lastStage()).toBeNull();
+      // from the stack of a hand not saved yet
+      rememberSetup({ level: 6, players: 9, stack: 8000 }); // 10bb
+      expect(lastStage()).toBe("push");
+      // a tapped stage
+      rememberSetup({ level: 6, players: 9, stack: null, quickPre: { stage: "deep", pinned: true } });
+      expect(lastStage()).toBe("deep");
+      // a hand that doesn't tell keeps the one before
+      rememberSetup({ level: 6, players: 9, stack: null });
+      expect(lastStage()).toBe("deep");
+      saveHand(quick({ id: "s1", hole: AdTd, stack: 32000 }));
+      expect(lastStage()).toBe("mid");
+      saveHand(quick({ id: "s2", hole: AdTd }));
+      expect(lastStage()).toBe("mid");
+      // junk in storage is ignored
+      handLogStore.set({ ...handLogStore.get(), lastStage: "huge" as never });
+      expect(lastStage()).toBeNull();
+    } finally {
+      handLogStore.set(before);
+      if (hadStorage) g.localStorage = storage;
+      else delete g.localStorage;
+    }
+  });
+
+  it("names the preflop in the past hands, from the block and then from the table's steps", () => {
+    const h = quick({ seat: "BB", hole: AdTd, stack: 32000, quickPre: call });
+    expect(quickPreLine(h)).toBe("CO 2.5bb 오픈 → 콜");
+    expect(quickPreLine(quick({ seat: "UTG", hole: AdTd, stack: 32000, quickPre: { stage: "mid", action: "open", openBb: 2.5 } }))).toBe("UTG 오픈 2.5bb");
+    expect(quickPreLine(quick({ seat: "SB", hole: AdTd, stack: 80000, quickPre: { stage: "deep", action: "3bet", openBb: 3, openerSeat: "BTN", threeBetX: 3 } }))).toBe("BTN 3bb → 3벳 9bb");
+    // no stack shown on the row: the stage leads
+    expect(quickPreLine(quick({ seat: "CO", hole: AdTd, quickPre: { stage: "short", pinned: true, action: "allin" } }))).toBe("숏 · CO 올인");
+    expect(quickPreLine(quick({ seat: "CO", quickPre: { stage: "short", pinned: true } }))).toBe("숏");
+    // carried on to the table: the steps are the record (here the same line)
+    const played = { ...h, steps: preSteps(tableOf(h), h.quickPre) };
+    expect(played.steps.length).toBeGreaterThan(0);
+    expect(isQuickHand(played)).toBe(false);
+    expect(quickPreLine(played)).toBe("CO 2.5bb 오픈 → 콜");
+    // and once the table says otherwise, the table wins
+    const changed = { ...played, steps: [...played.steps.slice(0, -1), { s: "BB", k: "raise" as const, to: 10 }] };
+    expect(quickPreLine(changed)).toBe("CO 2.5bb → 3벳 10bb");
+    // a hand without the block shows nothing new
+    expect(quickPreLine(hand({ seat: "BB", hole: AdTd }))).toBe("");
+    // the table only got the folds before me (the opener sits after me): the block still says it
+    const after = quick({ seat: "CO", hole: AdTd, stack: 32000, quickPre: { stage: "mid", action: "call", openBb: 2.5, openerSeat: "BTN" } });
+    const folded = { ...after, steps: preSteps(tableOf(after), after.quickPre) };
+    expect(folded.steps.length).toBeGreaterThan(0);
+    expect(quickPreLine(folded)).toBe("BTN 2.5bb 오픈 → 콜");
+    expect(handFacts(folded)).toContain("빠른 기록, 금액은 bb): 미들 구간 · BTN 2.5bb 오픈 → 콜");
+    // the BB's shove: the ante is dead money, so it reads as the table records it (12bb stack, 11bb in)
+    expect(quickPreLine(quick({ seat: "BB", hole: AdTd, stack: 9600, quickPre: { stage: "short", action: "allin", openBb: 2, openerSeat: "BTN" } }))).toBe("BTN 2bb → 올인 11bb");
+  });
+
+  it("tells the coach what the block says while there are no table steps", () => {
+    const f = handFacts(quick({ seat: "BB", hole: AdTd, stack: 32000, quickPre: call }));
+    expect(f).toContain("프리플랍 (빠른 기록, 금액은 bb): 미들 구간 · CO 2.5bb 오픈 → 콜");
+    const h = quick({ seat: "BB", hole: AdTd, stack: 32000, quickPre: call });
+    expect(handFacts({ ...h, steps: preSteps(tableOf(h), h.quickPre) })).not.toContain("빠른 기록");
   });
 });

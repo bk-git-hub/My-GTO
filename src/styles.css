@@ -490,6 +490,33 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .memo-actions .flow-next:disabled { opacity: 1; background: var(--accent-soft); color: rgba(251, 191, 36, 0.5); }
 .memo-actions .ghost { height: 42px; padding: 0 12px; color: #c7d0dd; font-weight: 700; }
 .log-foot { margin-top: 2px; }
+/*
+ * The quick screen's preflop block: the stage on the label line, then one row each for my action, the
+ * open's size, who opened and my 3-bet. Every row is one line at 360px (rows only scroll inside themselves).
+ */
+.quick-pre { gap: 3px; }
+.pre-head { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pre-head .flow-label { flex: none; }
+.pre-head .pre-stage { flex: 0 1 220px; min-width: 0; margin-left: auto; }
+.flow-chips.one.pre-stage button { max-width: none; }
+/* Room for "자동" either way, so the stage chips stay put. */
+.pre-auto { flex: none; display: flex; justify-content: center; width: 34px; }
+/* A 32px tap target drawn as a 24px pill, like the chips. */
+.pre-auto button { position: relative; isolation: isolate; height: 32px; padding: 0 6px; border: 0; border-radius: 0; background: none; color: var(--accent); font-size: 0.66rem; font-weight: 800; white-space: nowrap; }
+.pre-auto button::before { content: ""; position: absolute; inset: 4px 0; z-index: -1; border-radius: 999px; border: 1px solid rgba(251, 191, 36, 0.45); }
+.pre-auto small { color: var(--muted); font-size: 0.66rem; font-weight: 700; white-space: nowrap; }
+.pre-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pre-k { flex: none; width: 2.3em; margin-left: 2px; color: var(--muted); font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.pre-line > .flow-chips { flex: 1 1 auto; min-width: 0; }
+.flow-chips.one.pre-chips button { max-width: 64px; }
+.pre-amt { flex: none; min-width: 3.2em; color: var(--muted); font-size: 0.7rem; font-weight: 700; text-align: right; white-space: nowrap; }
+.pre-amt:empty { min-width: 0; }
+/* 직접: a bb field in the chip's place, lit like a picked chip. 16px text so iOS doesn't zoom in. */
+.pre-typed { position: relative; display: flex; align-items: center; flex: 1 0 72px; max-width: 84px; height: 32px; }
+.pre-typed input { width: 100%; height: 28px; padding: 0 18px 0 4px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--text); text-align: right; font-size: 16px; font-weight: 800; }
+.pre-typed i { position: absolute; right: 5px; font-style: normal; font-size: 0.64rem; font-weight: 700; color: var(--muted); pointer-events: none; }
+/* The past hands: the preflop line of a hand jotted with the block. */
+.log-pre { color: #c7d0dd; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ───────── hand log: table flow ───────── */
 .flow { display: flex; flex-direction: column; gap: 10px; }
