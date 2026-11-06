@@ -6,6 +6,7 @@ import { HomePage } from "./features/home/HomePage";
 import { LogPage } from "./features/log/LogPage";
 import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
+import { ScoutPage } from "./features/scout/ScoutPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { SolverPage } from "./features/solver/SolverPage";
 import { UpdateBanner } from "./pwa/UpdateBanner";
@@ -21,6 +22,7 @@ const NAV: (NavItem | { section: string })[] = [
   { route: "home", label: "홈", icon: "⌂" },
   { route: "play", label: "핸드 플레이", icon: "♠" },
   { route: "log", label: "핸드 기록", icon: "✎" },
+  { route: "scout", label: "정보 수집", icon: "◉" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
   { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
@@ -114,12 +116,13 @@ export function App() {
             {top === "home" && <HomePage go={go} />}
             {top === "play" && <PlayPage />}
             {top === "log" && <LogPage sub={rest.join("/")} go={go} />}
+            {top === "scout" && <ScoutPage />}
             {top === "quiz" && <QuizPage key={route} sub={rest.join("/")} />}
             {top === "charts" && <ChartsPage />}
             {top === "solver" && <SolverPage sub={rest.join("/")} go={go} />}
             {top === "calc" && <CalcPage />}
             {top === "settings" && <SettingsPage />}
-            {!["home", "play", "log", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
+            {!["home", "play", "log", "scout", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
           <UpdateBanner />
         </div>
