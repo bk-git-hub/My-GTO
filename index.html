@@ -10,8 +10,200 @@
     <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <title>PubAJ 펍아재</title>
+    <!-- iOS launch images: the splash's first frame, from scripts/make-splash.mjs -->
+    <!-- splash:startup-images -->
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1320x2868.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1260x2736.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1206x2622.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1242x2688.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash/launch-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/launch-1242x2208.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash/launch-750x1334.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash/launch-640x1136.png" />
+    <!-- /splash:startup-images -->
+    <script>
+      // Splash (src/splash): show on a cold start only. A reload in the same session (the PWA
+      // update flow, a manual reload) skips it before it can paint. Mirrors splashDecision().
+      (function () {
+        var seen = false;
+        try { seen = sessionStorage.getItem("pubaj.splash") === "1"; sessionStorage.setItem("pubaj.splash", "1"); } catch (e) {}
+        try { var n = performance.getEntriesByType("navigation")[0]; if (n && n.type === "reload") seen = true; } catch (e) {}
+        document.documentElement.setAttribute("data-splash", seen ? "skip" : "show");
+      })();
+    </script>
+    <style>
+      /* Launch splash (src/splash): pure CSS motion. Default styles are the settled frame (the logo
+         exactly); animations only cover the intro. Timeline: src/splash/splash.ts.
+         The logo is built from HTML boxes, each holding a small SVG: WebKit runs transform/opacity
+         animations of HTML boxes on the compositor but animates SVG content on the main thread,
+         which the app bundle keeps busy for the first few hundred ms. So every beat that must not
+         stutter (pop, shades, brows, fan, snap marks, sheens) moves an HTML box; only garnish (the
+         wink, the lens glint) animates inside an SVG. Every layer that shows at rest fills the logo box
+         and draws with icon.svg's own viewBox (29 53 448 429) and transforms, so the settled frame
+         renders exactly like the icon; the boxes animate only the change from it. Percentages are of
+         the logo box, or of a card box (card units -150..150, -210..210) for the snap marks/sheens.
+         The snap marks and sheens fill backwards (scaleX(0) / parked outside the card clip) so they
+         are painted before their delay ends: an opacity:0 box may not be, and could then only
+         appear once the main thread is free. */
+      html{background:#090c11}
+      #splash{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:#090c11;color:#f4f7fb;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;overflow:hidden;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;animation:spl-bail .25s ease-in 2.4s forwards}
+      html[data-splash=skip] #splash{display:none}
+      #splash.spl-out{animation:spl-out var(--spl-out,.25s) ease-in forwards}
+      .spl-stage{display:flex;flex-direction:column;align-items:center;margin-bottom:5vh}
+      .spl-out .spl-stage{animation:spl-zoom var(--spl-out,.25s) ease-in forwards}
+      .spl-logo{position:relative;width:min(58vw,300px,40vh);aspect-ratio:448/429}
+      .spl-logo::before{content:"";position:absolute;inset:-48% -52%;background:radial-gradient(closest-side,rgba(18,98,61,.62),rgba(15,81,50,.26) 52%,rgba(15,81,50,0));animation:spl-glow .6s cubic-bezier(.2,.7,.3,1) both}
+      .spl-logo div,.spl-logo svg,.spl-logo i,.spl-logo b{position:absolute;display:block}
+      .spl-logo svg{inset:0;width:100%;height:100%;overflow:visible}
+      #splash svg *{transform-origin:0 0}
+      .spl-pop,.spl-a,.spl-j,.spl-shades,.spl-brows{inset:0}
+      .spl-pop{transform-origin:50.66964% 49.65035%;animation:spl-pop .2s cubic-bezier(.3,1.3,.5,1) backwards}
+      .spl-a{transform-origin:39.50893% 50.11655%;animation:spl-fan-a .3s cubic-bezier(.22,1.5,.36,1) .58s backwards}
+      .spl-j{transform-origin:64.0625% 47.78555%;animation:spl-fan-j .3s cubic-bezier(.22,1.5,.36,1) .58s backwards}
+      .spl-shades{transform-origin:63.72053% 50.32654%;animation:spl-shades .48s linear .2s backwards}
+      .spl-brows{animation:spl-brows .48s linear .2s backwards}
+      .spl-card{width:57.58929%;height:84.1958%}
+      .spl-a .spl-card{left:10.71429%;top:8.01865%;transform:rotate(-14deg)}
+      .spl-j .spl-card{left:35.26786%;top:5.68765%;transform:rotate(8deg)}
+      .spl-snap{height:2.14286%}
+      .spl-snap b{inset:0;border-radius:99px;background:#fbbf24;opacity:0;transform-origin:0 50%;animation:spl-snap .3s cubic-bezier(.2,.7,.4,1) .65s backwards}
+      .spl-j .spl-snap b{animation-delay:.67s}
+      .spl-shine{inset:0;overflow:hidden;border-radius:8.66667%/6.19048%}
+      .spl-shine i{left:-3.33333%;top:-11.90476%;width:23.33333%;height:123.80952%;transform-origin:228.57143% 50%;transform:skewX(-18deg);opacity:0;background:linear-gradient(90deg,rgba(255,215,106,0),rgba(255,215,106,.35) 38%,rgba(255,248,224,.9) 50%,rgba(255,215,106,.35) 62%,rgba(255,215,106,0));animation:spl-sheen .28s cubic-bezier(.45,0,.55,1) .74s backwards}
+      .spl-j .spl-shine i{animation-delay:.78s}
+      .spl-blink{animation:spl-blink .14s ease-in-out .33s both}
+      .spl-wink{opacity:0;animation:spl-wink .14s step-end .33s}
+      .spl-glint{opacity:0;animation:spl-glint .26s ease-out .84s}
+      .spl-streak{opacity:0;animation:spl-streak .22s ease-out .86s}
+      .spl-word{margin-top:clamp(16px,4.6vw,24px);display:flex;align-items:baseline;gap:.4em;font-size:clamp(32px,10vw,44px);font-weight:900;line-height:1;letter-spacing:-.015em;color:#fbbf24;animation:spl-rise .28s cubic-bezier(.2,.8,.3,1) .66s both}
+      .spl-word small{font-size:max(15px,.38em);font-weight:800;letter-spacing:.02em;color:#f4f7fb;opacity:.86}
+      .spl-tag{margin-top:10px;font-size:clamp(14px,3.9vw,16px);font-weight:600;letter-spacing:.03em;color:#a7b4c2;animation:spl-rise .28s cubic-bezier(.2,.8,.3,1) .72s both}
+      @keyframes spl-bail{to{opacity:0;visibility:hidden;pointer-events:none}}
+      /* No visibility:hidden here: a finger still down must keep hitting the splash, not the app. */
+      @keyframes spl-out{to{opacity:0}}
+      @keyframes spl-zoom{to{transform:scale(1.05)}}
+      @keyframes spl-fade{from{opacity:0}}
+      @keyframes spl-glow{from{opacity:0;transform:scale(.55)}}
+      @keyframes spl-rise{from{opacity:0;transform:translateY(12px)}}
+      @keyframes spl-pop{from{opacity:0;transform:translate(0,2.331%) scale(.84)}to{opacity:1;transform:translate(0,0) scale(1)}}
+      @keyframes spl-shades{
+        0%{transform:translate(0,0) rotate(0);animation-timing-function:cubic-bezier(.2,.9,.3,1.2)}
+        24%{transform:translate(1.28238%,-9.52873%) rotate(-7deg)}
+        62%{transform:translate(1.28238%,-9.52873%) rotate(-7deg);animation-timing-function:cubic-bezier(.6,0,.9,.6)}
+        80%{transform:translate(-.04275%,.31762%) rotate(.5deg);animation-timing-function:ease-out}
+        90%{transform:translate(.02992%,-.22234%) rotate(0)}
+        100%{transform:translate(0,0) rotate(0)}}
+      @keyframes spl-brows{0%,12%{transform:translate(0,0);animation-timing-function:cubic-bezier(.3,1.6,.5,1)}32%,62%{transform:translate(.38471%,-2.85862%);animation-timing-function:ease-in}74%,100%{transform:translate(0,0)}}
+      @keyframes spl-blink{0%,100%{transform:scale(1,1)}30%,70%{transform:scale(1.1,.08)}}
+      @keyframes spl-wink{30%{opacity:1}70%{opacity:0}}
+      @keyframes spl-fan-a{from{transform:translate(10.04464%,.2331%) rotate(10deg)}to{transform:translate(0,0) rotate(0)}}
+      @keyframes spl-fan-j{from{transform:translate(-12.5%,1.3986%) rotate(-5deg)}to{transform:translate(0,0) rotate(0)}}
+      @keyframes spl-snap{0%{opacity:1;transform:translateX(0) scaleX(0)}35%{opacity:1;transform:translateX(0) scaleX(1)}100%{opacity:0;transform:translateX(60%) scaleX(.4)}}
+      @keyframes spl-sheen{from{opacity:1;transform:translateX(-371.42857%) skewX(-18deg)}to{opacity:1;transform:translateX(742.85714%) skewX(-18deg)}}
+      @keyframes spl-glint{0%{opacity:1;transform:scale(0) rotate(0)}40%{opacity:1;transform:scale(1.15) rotate(45deg)}100%{opacity:0;transform:scale(.2) rotate(90deg)}}
+      @keyframes spl-streak{from{opacity:1;transform:translate(-30px,0)}to{opacity:1;transform:translate(30px,0)}}
+      @media (prefers-reduced-motion:reduce){
+        #splash *,#splash *::before{animation:none!important}
+        #splash .spl-stage{animation:spl-fade .3s ease-out both!important}
+      }
+    </style>
   </head>
   <body>
+    <div id="splash" aria-hidden="true">
+      <div class="spl-stage">
+        <div class="spl-logo">
+          <div class="spl-pop">
+            <!-- A♠ (public/icons/icon.svg) -->
+            <div class="spl-a">
+              <svg viewBox="29 53 448 429" width="448" height="429" xmlns="http://www.w3.org/2000/svg">
+                <defs><path id="spl-spade" d="M0 -40 C 14 -20, 38 -8, 38 14 C 38 30, 22 38, 10 30 C 12 42, 16 48, 24 52 L -24 52 C -16 48, -12 42, -10 30 C -22 38, -38 30, -38 14 C -38 -8, -14 -20, 0 -40 Z"/></defs>
+                <g transform="translate(206 268) rotate(-14) scale(0.86)">
+                  <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke="#1b1400" stroke-width="8"/>
+                  <path transform="translate(-134 -136)" fill="#1b1400" d="M55.7 0L44.3 0L39.4-14.1L18.4-14.1L13.5 0L2.0 0L22.1-55.0L35.7-55.0L55.7 0ZM29.7-43.9L28.9-46.6L28.6-45.7Q28.2-44.3 27.7-42.5Q27.1-40.7 21.0-22.7L21.0-22.7L36.8-22.7L31.4-38.6L29.7-43.9Z"/>
+                  <use href="#spl-spade" transform="translate(-105 -96) scale(0.5)" fill="#1b1400"/>
+                  <use href="#spl-spade" transform="translate(0 6) scale(2.2)" fill="#1b1400"/>
+                </g>
+              </svg>
+              <div class="spl-card">
+                <i class="spl-snap" style="left:-8.83333%;top:10.83333%;width:15.0185%;transform-origin:9.98768% 50%;transform:rotate(-146.30993deg)"><b></b></i>
+                <i class="spl-snap" style="left:-10.16667%;top:24.16667%;width:15%;transform-origin:10% 50%;transform:rotate(180deg)"><b></b></i>
+                <i class="spl-snap" style="left:-8.83333%;top:37.5%;width:15.0185%;transform-origin:9.98768% 50%;transform:rotate(146.30993deg)"><b></b></i>
+                <div class="spl-shine"><i></i></div>
+              </div>
+            </div>
+            <!-- J♥ with the 아재 as the court picture -->
+            <div class="spl-j">
+              <svg viewBox="29 53 448 429" width="448" height="429" xmlns="http://www.w3.org/2000/svg">
+                <defs><clipPath id="spl-frame"><rect x="-104" y="-150" width="208" height="300" rx="10"/></clipPath></defs>
+                <g transform="translate(316 258) rotate(8) scale(0.86)">
+                  <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke="#1b1400" stroke-width="8"/>
+                  <rect x="-104" y="-150" width="208" height="300" rx="10" fill="#fff3d6"/>
+                  <g clip-path="url(#spl-frame)"><g transform="translate(0 32) scale(1.6)">
+                    <path d="M-78 74 Q -66 40 -26 34 L 26 34 Q 66 40 78 74 Z" fill="#ff4d5a" stroke="#1b1400" stroke-width="4"/>
+                    <g fill="#fff" opacity="0.9"><circle cx="-50" cy="58" r="5"/><circle cx="-30" cy="48" r="4"/><circle cx="44" cy="56" r="5"/><circle cx="28" cy="46" r="4"/></g>
+                    <path d="M-22 36 Q 0 62 22 36" fill="none" stroke="#fbbf24" stroke-width="6"/>
+                    <circle cx="0" cy="58" r="6" fill="#fbbf24" stroke="#1b1400" stroke-width="2"/>
+                    <ellipse cx="0" cy="-12" rx="44" ry="48" fill="#f2c48d" stroke="#1b1400" stroke-width="4"/>
+                    <ellipse cx="-12" cy="-48" rx="12" ry="6" fill="#fff" opacity="0.7"/>
+                    <path d="M-44 -10 C -50 -30, -44 -44, -32 -50 C -36 -38, -38 -24, -36 -6 Z" fill="#3b2a1e"/>
+                    <path d="M44 -10 C 50 -30, 44 -44, 32 -50 C 36 -38, 38 -24, 36 -6 Z" fill="#3b2a1e"/>
+                    <path d="M-14 -56 q 14 -8 30 2" fill="none" stroke="#3b2a1e" stroke-width="4" stroke-linecap="round"/>
+                    <!-- eyes: always there, fully covered by the opaque lenses until the shades lift -->
+                    <g transform="translate(-21 -12)">
+                      <ellipse rx="8" ry="7.2" fill="#fff" stroke="#1b1400" stroke-width="2.4"/>
+                      <circle cx="1" cy="1" r="4.2" fill="#1b1400"/><circle cx="2.5" cy="-.8" r="1.4" fill="#fff"/>
+                    </g>
+                    <g transform="translate(21 -12)">
+                      <g class="spl-blink">
+                        <ellipse rx="8" ry="7.2" fill="#fff" stroke="#1b1400" stroke-width="2.4"/>
+                        <circle cx="-1" cy="1" r="4.2" fill="#1b1400"/><circle cx=".5" cy="-.8" r="1.4" fill="#fff"/>
+                      </g>
+                      <path class="spl-wink" d="M-7.5 1.5 Q 0 -5.5 7.5 1.5" fill="none" stroke="#1b1400" stroke-width="3.2" stroke-linecap="round"/>
+                    </g>
+                    <path d="M0 14 C -8 6, -24 5, -34 14 C -39 19, -46 19, -50 14 C -46 28, -28 31, -14 23 C -7 19, -3 18, 0 21 C 3 18, 7 19, 14 23 C 28 31, 46 28, 50 14 C 46 19, 39 19, 34 14 C 24 5, 8 6, 0 14 Z" fill="#3b2a1e"/>
+                  </g></g>
+                  <rect x="-104" y="-150" width="208" height="300" rx="10" fill="none" stroke="#fbbf24" stroke-width="6"/>
+                  <path transform="translate(-124 -136)" fill="#d6202f" d="M20.5 0.8L20.5 0.8Q11.9 0.8 7.3-2.9Q2.7-6.6 1.2-14.9L1.2-14.9L12.7-16.6Q13.4-12.3 15.3-10.3Q17.2-8.2 20.5-8.2L20.5-8.2Q24.0-8.2 25.8-10.5Q27.5-12.9 27.5-17.1L27.5-17.1L27.5-46.0L16.6-46.0L16.6-55.0L39.0-55.0L39.0-17.4Q39.0-8.8 34.1-4.0Q29.3 0.8 20.5 0.8Z"/>
+                  <path transform="translate(-105 -96) scale(0.5)" fill="#d6202f" d="M0 44 C -30 16, -40 0, -40 -18 C -40 -38, -20 -48, 0 -30 C 20 -48, 40 -38, 40 -18 C 40 0, 30 16, 0 44 Z"/>
+                </g>
+              </svg>
+              <!-- raised brows, drawn at rest: tucked under the lenses -->
+              <div class="spl-brows">
+                <svg viewBox="29 53 448 429" width="448" height="429" xmlns="http://www.w3.org/2000/svg"><g transform="translate(316 258) rotate(8) scale(0.86) translate(0 32) scale(1.6)" fill="none" stroke="#3b2a1e" stroke-width="3.6" stroke-linecap="round"><path d="M-29 -14 Q -21 -19.5 -13 -15.5"/><path d="M13 -15.5 Q 21 -19.5 29 -14"/></g></svg>
+              </div>
+              <!-- the shades -->
+              <div class="spl-shades">
+                <svg viewBox="29 53 448 429" width="448" height="429" xmlns="http://www.w3.org/2000/svg">
+                  <defs><clipPath id="spl-lens"><rect x="-36" y="-22" width="30" height="20" rx="7"/></clipPath></defs>
+                  <g transform="translate(316 258) rotate(8) scale(0.86) translate(0 32) scale(1.6)">
+                    <rect x="-36" y="-22" width="30" height="20" rx="7" fill="#0b0f14"/>
+                    <rect x="6" y="-22" width="30" height="20" rx="7" fill="#0b0f14"/>
+                    <rect x="-8" y="-16" width="16" height="5" fill="#0b0f14"/>
+                    <rect x="-31" y="-19" width="10" height="4" rx="2" fill="#fff" opacity="0.55"/>
+                    <g clip-path="url(#spl-lens)"><g class="spl-streak"><rect x="-30" y="-26" width="7" height="28" transform="skewX(-28)" fill="#fff" opacity=".85"/></g></g>
+                    <g transform="translate(-35 -21)"><path class="spl-glint" d="M0 -11 Q 1.4 -1.4 11 0 Q 1.4 1.4 0 11 Q -1.4 1.4 -11 0 Q -1.4 -1.4 0 -11 Z" fill="#fff"/></g>
+                  </g>
+                </svg>
+              </div>
+              <div class="spl-card">
+                <i class="spl-snap" style="left:105.83333%;top:10.83333%;width:15.0185%;transform-origin:9.98768% 50%;transform:rotate(-33.69007deg)"><b></b></i>
+                <i class="spl-snap" style="left:107.16667%;top:24.16667%;width:15%;transform-origin:10% 50%"><b></b></i>
+                <i class="spl-snap" style="left:105.83333%;top:37.5%;width:15.0185%;transform-origin:9.98768% 50%;transform:rotate(33.69007deg)"><b></b></i>
+                <div class="spl-shine"><i></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="spl-word">PubAJ<small>펍아재</small></div>
+        <div class="spl-tag">펍아재 잡는 홀덤 공부</div>
+      </div>
+    </div>
+    <!-- /splash -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

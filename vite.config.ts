@@ -119,6 +119,8 @@ export default defineConfig(async () => ({
       workbox: {
         // No json: solver packs (public/packs, regenerated nightly) are never precached.
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+        // iOS launch images (public/splash) are read once, when the app is added to the Home Screen.
+        globIgnores: ["**/node_modules/**/*", "splash/**"],
         // Navigations to the API or to pack files go to the network, not the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/packs\//],
         // The first install controls the open page right away (same build, nothing to mix up).
