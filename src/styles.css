@@ -720,7 +720,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-seat.picked { border-color: #9fd0ff; box-shadow: 0 0 0 3px rgba(159, 208, 255, 0.3); }
 .rt-seat .tag { position: absolute; top: -11px; font-size: 0.56rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; background: #ffd166; color: #1b1400; white-space: nowrap; }
 .rt-seat .me { position: absolute; bottom: -9px; font-size: 0.56rem; font-weight: 800; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
-.rt-bub { position: absolute; z-index: 2; font-size: 0.6rem; font-weight: 800; padding: 2px 6px 2px; border-radius: 9px; white-space: nowrap; background: rgba(9, 12, 17, 0.9); border: 1.5px solid #556; color: #b8c2d3; display: flex; flex-direction: column; align-items: center; line-height: 1.12; pointer-events: none; }
+.rt-bub { position: absolute; transform: translate(-50%, -50%); z-index: 2; font-size: 0.6rem; font-weight: 800; padding: 2px 6px 2px; border-radius: 9px; white-space: nowrap; background: rgba(9, 12, 17, 0.9); border: 1.5px solid #556; color: #b8c2d3; display: flex; flex-direction: column; align-items: center; line-height: 1.12; pointer-events: none; }
 .rt-bub b { font-size: 0.62rem; color: var(--text); font-weight: 800; }
 .rt-bub em { position: absolute; top: -7px; left: -7px; font-style: normal; width: 14px; height: 14px; border-radius: 50%; background: #2b3445; border: 1px solid #556; color: var(--text); font-size: 0.52rem; display: grid; place-items: center; }
 .rt-bub.call { color: var(--call); border-color: var(--call); }
@@ -728,10 +728,18 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-bub.limp { color: #e9c46a; border-color: #b08a2e; }
 .rt-bub.check { color: #7aa2f7; border-color: #4c6aa8; }
 .rt-bub.allin { color: #c99bff; border-color: var(--allin); }
+/* crowded tables (tableLayout.ts): the action and amount on one line, or the amount alone */
+.rt-bub.row { flex-direction: row; align-items: baseline; gap: 3px; }
+.rt-bub.mini:not(.bare) > span { display: none; }
+.rt-bub.mini { padding: 1px 4px; } .rt-bub.mini b { font-size: 0.56rem; }
+.rt-sizer { position: absolute; left: 0; top: 0; width: 100%; visibility: hidden; pointer-events: none; }
+.rt-sizer .rt-bub { transform: none; }
 .rt-dealer { position: absolute; width: 20px; height: 20px; transform: translate(-50%, -50%); border-radius: 50%; background: #f8f8f0; color: #111; font-size: 0.7rem; font-weight: 900; display: grid; place-items: center; z-index: 4; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); pointer-events: none; }
 .rt-center { position: absolute; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 7px; z-index: 2; pointer-events: none; }
 .rt-pot { font-size: 0.75rem; font-weight: 800; background: rgba(0, 0, 0, 0.45); padding: 3px 10px; border-radius: 999px; white-space: nowrap; color: var(--accent); }
-.rt-board { display: flex; gap: 4px; }
+.rt-board { display: flex; gap: 4px; position: relative; }
+/* card size set by the table layout (tableLayout.ts): smaller only when the board would meet a seat */
+.rt-board .rt-card { width: var(--cw, 30px); height: var(--ch, 42px); font-size: var(--cf, 0.9rem); } .rt-board .rt-card small { font-size: var(--cs, 0.78rem); }
 .rt-card { width: 30px; height: 42px; border-radius: 5px; background: #fffdf7; color: #111; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; line-height: 1; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); position: relative; }
 .rt-card small { font-size: 0.78rem; }
 .rt-card.s-s { color: #111; } .rt-card.s-h { color: #d6202f; } .rt-card.s-d { color: #1d6fd6; } .rt-card.s-c { color: #13893d; }
@@ -740,11 +748,12 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-card.empty { background: rgba(255, 255, 255, 0.05); border: 1.5px dashed rgba(255, 255, 255, 0.25); box-shadow: none; }
 .rt-card.back { background: repeating-linear-gradient(45deg, #b91c1c 0 4px, #7f1d1d 4px 8px); border: 2px solid #fff; }
 .rt-card.hot { box-shadow: 0 0 0 3px #22c55e, 0 0 18px rgba(34, 197, 94, 0.9); }
-.rt-card.hot::after { content: "역전"; position: absolute; top: -17px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 900; color: #04140a; background: #22c55e; padding: 0 5px; border-radius: 999px; white-space: nowrap; }
+/* over the hot card (RaceTable sets left; tableLayout's HOT_LIFT is this top) */
+.rt-hottag { position: absolute; top: -17px; transform: translateX(-50%); font-size: 0.6rem; font-weight: 900; line-height: 1; color: #04140a; background: #22c55e; padding: 0 5px; border-radius: 999px; white-space: nowrap; }
 .rt-herocards { position: absolute; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 4; pointer-events: none; }
 .rt-hand { position: absolute; transform: translate(-50%, -50%); z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; }
 .rt-hand .cards { display: flex; gap: 2px; }
-.rt-hand .rt-card { width: 33px; height: 46px; font-size: 1rem; } .rt-hand .rt-card small { font-size: 0.82rem; }
+.rt-hand .rt-card { width: var(--cw, 33px); height: var(--ch, 46px); font-size: var(--cf, 1rem); } .rt-hand .rt-card small { font-size: var(--cs, 0.82rem); }
 .rt-eq { font-size: 0.95rem; font-weight: 900; padding: 1px 9px 2px; border-radius: 8px; background: rgba(9, 12, 17, 0.92); border: 1.5px solid #4a5568; color: #dbe2ec; white-space: nowrap; line-height: 1.2; text-align: center; }
 .rt-eq small { display: block; font-size: 0.56rem; font-weight: 700; color: var(--muted); }
 .rt-hand.lead .rt-eq { border-color: var(--call); color: var(--call); box-shadow: 0 0 12px rgba(34, 197, 94, 0.45); }

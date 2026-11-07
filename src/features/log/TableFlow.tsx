@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { handClassOf, RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { countOuts } from "../../poker/equity";
 import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
@@ -6,6 +6,7 @@ import { flowTabs, initialStep, type FlowStep } from "./flowSteps";
 import { analyseHand, type HandAnalysis, type StreetView } from "./handAnalysis";
 import { levelInfo, LOG_STREET_LABEL, RESULT_LABEL, stackBb, tableOf, type LoggedHand, type Result } from "./handLog";
 import { BlindRow, CardText, ChipRow, ChipsInput, RowBox, TableCard } from "./inputs";
+import { BUBBLE_FORMS, cardVars, layoutTable, seatSpots, tableGeometry, type BubbleForm, type Size, type TableIn } from "./tableLayout";
 import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoSteps, upcoming, type LogStep } from "./recorder";
 
 /**
@@ -720,7 +721,46 @@ interface HandShow {
   cls: string;
 }
 
-/** Racetrack table: seats spaced evenly along the rail, me at the bottom, then clockwise in action order. */
+/** A seat's bet this street: its order number, the action, and the amount (one line, or the amount alone, when crowded). */
+function BetBubble({ b, form, style, m }: { b: Bubble; form: BubbleForm; style?: CSSProperties; m?: string }) {
+  return (
+    <div className={`rt-bub ${b.cls} ${form} ${b.amount ? "" : "bare"}`} style={style} data-m={m}>
+      <em>{b.num}</em>
+      <span>{b.verb}</span>
+      {b.amount && <b>{b.amount}</b>}
+    </div>
+  );
+}
+
+/** What RaceTable measured on screen: the table's width and the px size of each label, bubble and tag. */
+interface Measured {
+  width: number;
+  sizes: Record<string, Size>;
+}
+
+function remeasure(el: HTMLElement, prev: Measured): Measured {
+  const width = el.getBoundingClientRect().width;
+  const sizes: Record<string, Size> = {};
+  el.querySelectorAll<HTMLElement>("[data-m]").forEach((n) => {
+    const r = n.getBoundingClientRect();
+    sizes[n.dataset.m!] = [r.width, r.height];
+  });
+  const keys = Object.keys(sizes);
+  const same =
+    Math.abs(width - prev.width) < 0.5 &&
+    keys.length === Object.keys(prev.sizes).length &&
+    keys.every((k) => prev.sizes[k] && Math.abs(prev.sizes[k][0] - sizes[k][0]) < 0.5 && Math.abs(prev.sizes[k][1] - sizes[k][1]) < 0.5);
+  return same ? prev : { width, sizes };
+}
+
+/** Sizes to lay out with before anything is measured (server render, first pass). */
+const GUESS: Record<string, Size> = { label: [62, 33], bubble: [50, 28], pot: [80, 23], tag: [30, 15], me: [22, 13], hot: [28, 10] };
+
+/**
+ * Racetrack table: seats spaced evenly along the rail, me at the bottom, then clockwise in action order.
+ * Seats scale with the table; the hands, bubbles, D button, my cards and the board's card size are
+ * placed in px of its measured width (tableLayout.ts), so nothing lands on the board or on each other.
+ */
 function RaceTable(props: {
   seats: string[];
   hero: string;
@@ -742,30 +782,57 @@ function RaceTable(props: {
   compact?: boolean;
 }) {
   const { seats, hero, button, stacks, bubbles = {}, turn, out = [], board, hot = -1, pot: potText, hands = {}, heroCards, onSeat, marked = [], picked, compact } = props;
-  const W = 358, RW = compact ? 224 : 240, RH = compact ? 326 : 350, H = RH + 56;
-  const cx = W / 2, cy = H / 2, left = cx - RW / 2, top = cy - RH / 2, r = RW / 2;
-  const a = RW / 2 - 7, hh = (RH - RW) / 2, arc = Math.PI * a, P = 2 * arc + 4 * hh;
-  const at = (s: number): [number, number, number, number] => {
-    s = ((s % P) + P) % P;
-    const seg = [arc / 2, 2 * hh, arc, 2 * hh, arc / 2];
-    const polar = (oy: number, deg: number): [number, number, number, number] => [cx + a * Math.cos((deg * Math.PI) / 180), oy + a * Math.sin((deg * Math.PI) / 180), cx, oy];
-    let t = s;
-    if (t < seg[0]) return polar(cy + hh, 90 + (t / seg[0]) * 90);
-    t -= seg[0];
-    if (t < seg[1]) return [cx - a, cy + hh - t, cx, cy + hh - t];
-    t -= seg[1];
-    if (t < seg[2]) return polar(cy - hh, 180 + (t / seg[2]) * 180);
-    t -= seg[2];
-    if (t < seg[3]) return [cx + a, cy - hh + t, cx, cy - hh + t];
-    t -= seg[3];
-    return polar(cy + hh, (t / seg[4]) * 90);
-  };
+  const { W, H, RW, RH, cy, left, top, r } = tableGeometry(!!compact);
   const heroIdx = Math.max(0, seats.indexOf(hero || seats[seats.length - 1]));
   const order = [...seats.slice(heroIdx), ...seats.slice(0, heroIdx)];
+  const spots = seatSpots(order.length, !!compact);
   const X = (x: number) => `${(x / W) * 100}%`;
   const Y = (y: number) => `${(y / H) * 100}%`;
+
+  // Measure after every render (labels change from street to street) and whenever the table resizes.
+  const ref = useRef<HTMLDivElement>(null);
+  const [m, setM] = useState<Measured>({ width: 0, sizes: {} });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el) setM((prev) => remeasure(el, prev));
+  });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setM((prev) => remeasure(el, prev)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const size = (key: string, guess: Size): Size => m.sizes[key] ?? guess;
+
+  const showHero = !!heroCards && heroCards.length === 2 && order[0] === hero && !hands[hero];
+  const dealerSlot = order.indexOf(button);
+  // the card that flipped the lead, as a slot on the board row (slots not drawn yet don't count)
+  const hotSlot = board && hot >= 0 && board[hot] != null ? board.slice(0, hot).filter((c) => c !== undefined).length : -1;
+  const input: TableIn = {
+    compact: !!compact,
+    width: m.width,
+    seats: order.map((seat, k) => ({
+      ...(hands[seat] ? { hand: { label: size(`l${k}`, GUESS.label), hero: seat === hero } } : {}),
+      ...(bubbles[seat] && !hands[seat] ? { bubble: BUBBLE_FORMS.map((f) => size(`b${k}${f}`, GUESS.bubble)) } : {}),
+      ...(turn === seat && !hands[seat] ? { tag: size("tag", GUESS.tag) } : {}),
+      ...(seat === hero && !hands[seat] ? { me: size("me", GUESS.me) } : {}),
+    })),
+    dealer: dealerSlot >= 0 && !hands[button] ? dealerSlot : null,
+    heroCards: showHero,
+    pot: potText ? size("pot", GUESS.pot) : null,
+    board: board ? board.filter((c) => c !== undefined).length : null,
+    hot: hotSlot >= 0 ? { slot: hotSlot, tag: size("hot", GUESS.hot) } : null,
+  };
+  const key = JSON.stringify(input);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const lay = useMemo(() => layoutTable(input), [key]);
+  const PX = (x: number) => `${(x / lay.width) * 100}%`;
+  const PY = (y: number) => `${(y / lay.height) * 100}%`;
+  const css = (vars: Record<string, string>) => vars as CSSProperties;
+
   return (
-    <div className={`rt-table ${compact ? "compact" : ""}`} style={{ aspectRatio: `${W} / ${H}` }}>
+    <div ref={ref} className={`rt-table ${compact ? "compact" : ""}`} style={{ aspectRatio: `${W} / ${H}` }}>
       <div className="rt-rail" style={{ left: X(left), top: Y(top), width: X(RW), height: Y(RH), borderRadius: `${r}px / ${r}px` }} />
       <div className="rt-felt" style={{ left: X(left + 14), top: Y(top + 14), width: X(RW - 28), height: Y(RH - 28), borderRadius: `${r - 14}px` }} />
       <div className="rt-betline" style={{ left: X(left + 48), top: Y(top + 48), width: X(RW - 96), height: Y(RH - 96), borderRadius: `${r - 48}px` }} />
@@ -773,23 +840,19 @@ function RaceTable(props: {
         PubAJ
       </div>
       {order.map((seat, k) => {
-        const [x, y, ox, oy] = at((k * P) / order.length);
+        const { x, y } = spots[k];
         const isHero = seat === hero;
         const hand = hands[seat];
+        const hp = lay.hands[k];
         const b = bubbles[seat];
-        const L = Math.hypot(ox - x, oy - y) || 1;
-        const ux = (ox - x) / L, uy = (oy - y) / L;
-        const side = Math.abs(ux) > 0.75;
-        const d = side ? 36 : 58;
-        const bx = x + ux * d, by = y + uy * d;
-        const shift = side ? (ux < 0 ? "translate(-100%,-50%)" : "translate(0,-50%)") : "translate(-50%,-50%)";
+        const bp = lay.bubbles[k];
         const clickable = !!onSeat;
         return (
           <div key={seat}>
-            {hand ? (
-              <div className={`rt-hand ${hand.cls}`} style={{ left: X(x + ux * 16), top: Y(y + uy * 16) }}>
+            {hand && hp ? (
+              <div className={`rt-hand ${hand.cls}`} style={{ left: PX(hp.x), top: PY(hp.y), ...css(cardVars(hp, "hand")) }}>
                 <div className="cards">{hand.cards.length ? hand.cards.map((c) => <TableCard key={c} c={c} />) : [0, 1].map((i) => <span key={i} className="rt-card back" />)}</div>
-                <div className="rt-eq">
+                <div className="rt-eq" data-m={`l${k}`}>
                   <small>{hand.label}</small>
                   {hand.badge}
                 </div>
@@ -801,27 +864,29 @@ function RaceTable(props: {
                 style={{ left: X(x), top: Y(y) }}
                 onClick={() => onSeat?.(seat)}
               >
-                {turn === seat && <span className="tag">차례</span>}
+                {turn === seat && (
+                  <span className="tag" data-m="tag" style={{ top: -lay.tagLift[k] }}>
+                    차례
+                  </span>
+                )}
                 <b>{seat}</b>
                 {stacks[seat] && <i>{stacks[seat]}</i>}
-                {isHero && <span className="me">나</span>}
+                {isHero && (
+                  <span className="me" data-m="me" style={{ bottom: -lay.meDrop[k] }}>
+                    나
+                  </span>
+                )}
               </button>
             )}
-            {b && !hand && (
-              <div className={`rt-bub ${b.cls}`} style={{ left: X(bx), top: Y(by), transform: shift }}>
-                <em>{b.num}</em>
-                <span>{b.verb}</span>
-                {b.amount && <b>{b.amount}</b>}
+            {b && !hand && bp && <BetBubble b={b} form={bp.form} style={{ left: PX(bp.x), top: PY(bp.y) }} />}
+            {k === dealerSlot && lay.dealer && (
+              <div className="rt-dealer" style={{ left: PX(lay.dealer.x), top: PY(lay.dealer.y) }}>
+                D
               </div>
             )}
-            {seat === button && !hand && (() => {
-              const [dx, dy, dox, doy] = at((k * P) / order.length + Math.min(34, P / order.length / 2));
-              const dl = Math.hypot(dox - dx, doy - dy) || 1;
-              return <div className="rt-dealer" style={{ left: X(dx + ((dox - dx) / dl) * 30), top: Y(dy + ((doy - dy) / dl) * 30) }}>D</div>;
-            })()}
-            {isHero && heroCards && heroCards.length === 2 && !hand && (
-              <div className="rt-herocards" style={{ left: X(x + 50), top: Y(y + 2) }}>
-                {heroCards.map((c) => (
+            {k === 0 && showHero && lay.heroCards && (
+              <div className="rt-herocards" style={{ left: PX(lay.heroCards.x), top: PY(lay.heroCards.y) }}>
+                {heroCards!.map((c) => (
                   <TableCard key={c} c={c} small />
                 ))}
               </div>
@@ -829,12 +894,25 @@ function RaceTable(props: {
           </div>
         );
       })}
+      {/* every bubble in each of its forms, unseen, for the layout to measure */}
+      <div className="rt-sizer" aria-hidden="true">
+        {order.map((seat, k) => bubbles[seat] && !hands[seat] && BUBBLE_FORMS.map((f) => <BetBubble key={`${seat}${f}`} b={bubbles[seat]} form={f} m={`b${k}${f}`} />))}
+      </div>
       {(potText || board) && (
-        <div className="rt-center" style={{ top: Y(cy - 4) }}>
-          {potText && <div className="rt-pot">{potText}</div>}
+        <div className="rt-center" style={{ top: PY(lay.center), gap: lay.centerGap }}>
+          {potText && (
+            <div className="rt-pot" data-m="pot">
+              {potText}
+            </div>
+          )}
           {board && (
-            <div className="rt-board">
+            <div className="rt-board" style={{ gap: lay.board.gap, ...css(cardVars(lay.board, "board")) }}>
               {board.map((c, i) => (c === undefined ? null : c === null ? <span key={i} className="rt-card empty" /> : <TableCard key={i} c={c} hot={i === hot} />))}
+              {hotSlot >= 0 && (
+                <span className="rt-hottag" data-m="hot" style={{ left: hotSlot * (lay.board.cw + lay.board.gap) + lay.board.cw / 2 }}>
+                  역전
+                </span>
+              )}
             </div>
           )}
         </div>
