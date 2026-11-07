@@ -44,15 +44,16 @@ export function HomePage({ go }: { go: (route: string) => void }) {
   const weak = weakestSpot(by);
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [
+    { route: "log", icon: "✎", title: "새 기록 작성", desc: "기억나는 핸드부터 · 자리·액션은 나중에 이어서", tone: "blue" },
+    { route: "log/other", icon: "◉", title: "남의 핸드 기록", desc: "누가 뭘로 오픈·콜했는지 모으기", tone: "green" },
+    { route: "log/list", icon: "☰", title: "지난 기록 보기", desc: "내 핸드 · 남의 핸드 따로, 작성 중 이어 쓰기", tone: "gray" },
+    { route: "charts", icon: "▦", title: "차트", desc: "스택 구간별 레인지 보기", tone: "gray" },
+    { route: "solver", icon: "◆", title: "솔버 차트", desc: "미리 푼 플랍 전략 · 핸드별 빈도와 EV", tone: "gray" },
     { route: "quiz/stack/pub", icon: "◎", title: "레인지 암기 · 펍아재", desc: "내 스택·평균 스택 보고 폴드/오픈/올인", stat: accuracy(by["stack"]), tone: "gold" },
     { route: "quiz/stack/cash", icon: "◎", title: "레인지 암기 · 100bb 캐시", desc: "6맥스 100bb 오픈 레인지", stat: accuracy(by["stack-cash"]), tone: "blue" },
     { route: "quiz/preflop", icon: "?", title: "프리플랍 퀴즈", desc: "RFI · vs 레이즈 · vs 올인", stat: accuracy(by["preflop"]), tone: "red" },
     { route: "quiz/odds", icon: "÷", title: "팟 오즈·EV", desc: "필요 에퀴티, MDF, 아웃츠", stat: accuracy(by["odds"]), tone: "green" },
     { route: "quiz/equity", icon: "%", title: "에퀴티 감각", desc: "핸드 vs 핸드, 플랍 올인", stat: accuracy(by["equity"]), tone: "purple" },
-    { route: "log", icon: "✎", title: "새 기록 작성", desc: "기억나는 핸드부터 · 자리·액션은 나중에 이어서", tone: "blue" },
-    { route: "log/other", icon: "◉", title: "남의 핸드 기록", desc: "누가 뭘로 오픈·콜했는지 모으기", tone: "green" },
-    { route: "log/list", icon: "☰", title: "지난 기록 보기", desc: "내 핸드 · 남의 핸드 따로, 작성 중 이어 쓰기", tone: "gray" },
-    { route: "charts", icon: "▦", title: "차트", desc: "스택 구간별 레인지 보기", tone: "gray" },
     { route: "calc", icon: "∑", title: "계산기", desc: "에퀴티 · 팟 오즈 · 콜 EV", tone: "gray" },
   ];
 

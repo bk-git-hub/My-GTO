@@ -14,19 +14,19 @@ export type NavEntry = NavItem | { section: string };
 
 export const NAV: NavEntry[] = [
   { route: "home", label: "홈", icon: "⌂" },
-  { route: "play", label: "핸드 플레이", icon: "♠" },
+  { route: "charts", label: "차트", icon: "▦" },
+  { route: "solver", label: "솔버 차트", icon: "◆" },
   { section: "핸드 기록" },
   { route: "log", label: "새 기록 작성", icon: "✎", indent: true },
   { route: "log/other", label: "남의 핸드 기록", icon: "◉", indent: true },
   { route: "log/list", label: "지난 기록 보기", icon: "☰", indent: true },
+  { route: "play", label: "핸드 플레이", icon: "♠" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
   { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
   { route: "quiz/odds", label: "팟 오즈·EV", icon: "÷", indent: true },
   { route: "quiz/equity", label: "에퀴티", icon: "%", indent: true },
   { section: "도구" },
-  { route: "charts", label: "차트", icon: "▦" },
-  { route: "solver", label: "솔버 차트", icon: "◆" },
   { route: "calc", label: "계산기", icon: "∑" },
   { route: "settings", label: "설정", icon: "⚙" },
 ];
