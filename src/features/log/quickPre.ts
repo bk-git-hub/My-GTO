@@ -53,6 +53,15 @@ export function stageFor(bb: number): PreStage {
   return "push";
 }
 
+/**
+ * The stage a level usually plays at, when no stack says: the pub's average stack (50,000 start, growing
+ * with busts and re-entries) is deep through Lv5, middling through Lv12, short through Lv20, push after.
+ */
+export function levelStage(level: number | null): PreStage | null {
+  if (level === null || !Number.isFinite(level) || level < 1) return null;
+  return level <= 5 ? "deep" : level <= 12 ? "mid" : level <= 20 ? "short" : "push";
+}
+
 export const isStage = (x: unknown): x is PreStage => typeof x === "string" && (PRE_STAGES as readonly string[]).includes(x);
 const isAction = (x: unknown): x is PreAction => typeof x === "string" && (PRE_ACTIONS as readonly string[]).includes(x);
 const r1 = (x: number) => Math.round(x * 10) / 10;
@@ -312,7 +321,7 @@ export function preSteps(t: TableInput, pre: QuickPre | undefined): LogStep[] {
   const raise = (seat: string, to: PreSize): boolean => {
     if (g.toAct === null) return false;
     const L = legal(g, g.toAct);
-    if (to === "allin") return L.canRaise ? push({ s: seat, k: "raise", to: L.maxRaiseTo }) : !L.canCheck && push({ s: seat, k: "call" });
+    if (to === "allin") return L.canRaise ? push({ s: seat, k: "raise", to: L.maxRaiseTo, all: 1 }) : !L.canCheck && push({ s: seat, k: "call" });
     if (!L.canRaise || !(to >= L.minRaiseTo - 1e-9)) return false;
     return push({ s: seat, k: "raise", to: Math.min(to, L.maxRaiseTo) });
   };

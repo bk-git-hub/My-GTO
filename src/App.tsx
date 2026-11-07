@@ -6,44 +6,22 @@ import { HomePage } from "./features/home/HomePage";
 import { LogPage } from "./features/log/LogPage";
 import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
-import { ScoutPage } from "./features/scout/ScoutPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { SolverPage } from "./features/solver/SolverPage";
+import { isActive, NAV, redirectRoute, titleOf } from "./nav";
 import { UpdateBanner } from "./pwa/UpdateBanner";
 
-interface NavItem {
-  route: string;
-  label: string;
-  icon: string;
-  indent?: boolean;
-}
-
-const NAV: (NavItem | { section: string })[] = [
-  { route: "home", label: "홈", icon: "⌂" },
-  { route: "play", label: "핸드 플레이", icon: "♠" },
-  { route: "log", label: "핸드 기록", icon: "✎" },
-  { route: "scout", label: "정보 수집", icon: "◉" },
-  { section: "퀴즈" },
-  { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
-  { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
-  { route: "quiz/odds", label: "팟 오즈·EV", icon: "÷", indent: true },
-  { route: "quiz/equity", label: "에퀴티", icon: "%", indent: true },
-  { section: "도구" },
-  { route: "charts", label: "차트", icon: "▦" },
-  { route: "solver", label: "솔버 차트", icon: "◆" },
-  { route: "calc", label: "계산기", icon: "∑" },
-  { route: "settings", label: "설정", icon: "⚙" },
-];
-const ITEMS = NAV.filter((n): n is NavItem => "route" in n);
-
+/** The route in the address bar; an old route that moved is replaced there by its new place. */
 function routeFromHash(): string {
-  return decodeURIComponent(location.hash.replace(/^#/, "")) || "home";
-}
-
-function titleOf(route: string): string {
-  const exact = ITEMS.find((i) => i.route === route);
-  if (exact) return exact.label;
-  return ITEMS.find((i) => route.startsWith(i.route + "/"))?.label ?? (route.startsWith("quiz") ? "퀴즈" : "PubAJ");
+  const route = decodeURIComponent(location.hash.replace(/^#/, "")) || "home";
+  const moved = redirectRoute(route);
+  if (moved === null) return route;
+  try {
+    history.replaceState(history.state, "", `#${moved}`);
+  } catch {
+    /* no history: the route still changes */
+  }
+  return moved;
 }
 
 export function App() {
@@ -56,15 +34,18 @@ export function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  const go = (r: string) => {
+  /** Every visit starts the hand log afresh, even to the screen already open (a new hand from the menu). */
+  const [visit, setVisit] = useState(0);
+  const go = (to: string) => {
+    const r = redirectRoute(to) ?? to;
     location.hash = r;
     setRoute(r);
+    setVisit((v) => v + 1);
     setDrawer(false);
     window.scrollTo(0, 0);
   };
 
   const [top, ...rest] = route.split("/");
-  const isActive = (r: string) => route === r || (r !== "home" && route.startsWith(r + "/")) || (r === "quiz/stack" && route === "quiz");
 
   const nav = (
     <nav className="side-nav">
@@ -81,7 +62,7 @@ export function App() {
             {n.section}
           </div>
         ) : (
-          <button key={n.route} className={`nav-item ${n.indent ? "indent" : ""} ${isActive(n.route) ? "on" : ""}`} onClick={() => go(n.route)}>
+          <button key={n.route} className={`nav-item ${n.indent ? "indent" : ""} ${isActive(n.route, route) ? "on" : ""}`} onClick={() => go(n.route)}>
             <span className="nav-icon">{n.icon}</span>
             {n.label}
           </button>
@@ -110,19 +91,18 @@ export function App() {
               <img className="logo-icon" src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" />
               PubAJ <small>펍아재</small>
             </button>
-            <span className="head-title">{route === "home" ? "" : titleOf(route)}</span>
+            <span className="head-title">{titleOf(route)}</span>
           </header>
           <main>
             {top === "home" && <HomePage go={go} />}
             {top === "play" && <PlayPage />}
-            {top === "log" && <LogPage sub={rest.join("/")} go={go} />}
-            {top === "scout" && <ScoutPage />}
+            {top === "log" && <LogPage key={visit} sub={rest.join("/")} go={go} />}
             {top === "quiz" && <QuizPage key={route} sub={rest.join("/")} />}
             {top === "charts" && <ChartsPage />}
             {top === "solver" && <SolverPage sub={rest.join("/")} go={go} />}
             {top === "calc" && <CalcPage />}
             {top === "settings" && <SettingsPage />}
-            {!["home", "play", "log", "scout", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
+            {!["home", "play", "log", "quiz", "charts", "solver", "calc", "settings"].includes(top) && <HomePage go={go} />}
           </main>
           <UpdateBanner />
         </div>

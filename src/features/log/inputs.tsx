@@ -1,20 +1,21 @@
-import { useEffect, useState, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { CardPicker } from "../../components/Cards";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { cardText, parseCardText } from "./handAnalysis";
-import { levelInfo } from "./handLog";
+import { estimatedLevel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
+import { estimateLabel } from "./levelClock";
 
 /**
- * The hand recorder's inputs, shared by the table flow and the quick-record screen:
+ * The hand recorder's inputs, shared by the table flow and the screen for another player's hand:
  * cards as text, chip counts, one-row chips, and the tap-to-open rows (the blinds among them).
  */
 
-/** A playing card drawn the way the table draws it. */
-export function TableCard({ c, small, hot }: { c: Card; small?: boolean; hot?: boolean }) {
+/** A playing card drawn the way the table draws it; `guess` marks a suit that was guessed (dashed, faded suit). */
+export function TableCard({ c, small, hot, guess }: { c: Card; small?: boolean; hot?: boolean; guess?: boolean }) {
   const suit = SUITS[c & 3];
   return (
-    <span className={`rt-card s-${suit} ${small ? "small" : ""} ${hot ? "hot" : ""}`}>
+    <span className={`rt-card s-${suit} ${small ? "small" : ""} ${hot ? "hot" : ""}${guess ? " guess" : ""}`}>
       {RANKS[c >> 2]}
       <small>{SUIT_SYMBOL[suit]}</small>
     </span>
@@ -161,9 +162,9 @@ export function ChipRow<T extends string | number>(props: { items: readonly T[];
   );
 }
 
-/** A setting shown as one line ("블라인드 · Lv6 400/800") that opens its editor below when tapped. */
-export function RowBox(props: { label: string; value: ReactNode; hint: ReactNode; open: boolean; onToggle: () => void; editRef?: Ref<HTMLDivElement>; children?: ReactNode }) {
-  const { label, value, hint, open, onToggle, editRef, children } = props;
+/** A setting shown as one line ("블라인드 · Lv6 400/800") that opens its editor below when tapped; `sub` adds a small second line. */
+export function RowBox(props: { label: string; value: ReactNode; hint: ReactNode; open: boolean; onToggle: () => void; editRef?: Ref<HTMLDivElement>; sub?: ReactNode; children?: ReactNode }) {
+  const { label, value, hint, open, onToggle, editRef, sub, children } = props;
   return (
     <div className={`flow-row-box ${open ? "open" : ""}`}>
       <button type="button" className="flow-row" aria-expanded={open} onClick={onToggle}>
@@ -172,6 +173,11 @@ export function RowBox(props: { label: string; value: ReactNode; hint: ReactNode
           {value} <small>{hint}</small>
         </b>
       </button>
+      {sub && (
+        <button type="button" className="flow-row-sub" onClick={onToggle}>
+          {sub}
+        </button>
+      )}
       {open && (
         <div className="flow-edit" ref={editRef}>
           {children}
@@ -181,42 +187,127 @@ export function RowBox(props: { label: string; value: ReactNode; hint: ReactNode
   );
 }
 
+/** Hands whose level was set to 레벨 모름 on purpose this session: the start-time estimate leaves them alone. */
+export const levelDeclined = new Set<string>();
+
+/** The start time to offer in the clock field: the last one set (any day), else 19:00. */
+const lastClock = () => handLogStore.get().startClock?.clock ?? "19:00";
+
 /**
- * The blinds row: level and BB ante on one line; opens a level picker (‹ list ›) and the ante switch.
- * `unknownLabel` names the picker's "no level" option (the setup adds that stacks then go in bb).
+ * The blinds row: level and BB ante on one line. With today's start time set, the level the clock says
+ * for this hand's time is shown under it ("⏱ Lv9 추정 · 19:00 시작 3시간 5분째"); without one, the way to
+ * set it. Opened: the start time (one small field, remembered for the day), every level by its blinds
+ * on one sideways row (800/1,600 can be picked without knowing it is Lv9), 레벨 모름, and the ante.
+ * `onLevel` gets `guessed` true for a level taken from the start time.
  */
-export function BlindRow(props: { level: number | null; bbAnte: boolean; onLevel: (level: number | null) => void; onAnte: (bbAnte: boolean) => void; open: boolean; onToggle: () => void; editRef?: Ref<HTMLDivElement>; unknownLabel?: string }) {
-  const { level, bbAnte, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름 (bb로 입력)" } = props;
-  const info = levelInfo(level);
+export function LevelRow(props: {
+  h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt">;
+  onLevel: (level: number | null, guessed: boolean) => void;
+  onAnte: (bbAnte: boolean) => void;
+  open: boolean;
+  onToggle: () => void;
+  editRef?: Ref<HTMLDivElement>;
+  unknownLabel?: string;
+}) {
+  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름" } = props;
+  const starts = handLogStore.use();
+  const est = levelEstimateAt(h.createdAt, starts);
+  const estLv = estimatedLevel(est);
+  const info = levelInfo(h.level);
   const bbChips = info?.bb ?? null;
-  const levelIdx = BLIND_LEVELS.findIndex(([lv]) => lv === level);
-  const stepLevel = (d: number) => {
-    const i = levelIdx < 0 ? (d > 0 ? 0 : -1) : levelIdx + d;
-    if (i >= 0 && i < BLIND_LEVELS.length) onLevel(BLIND_LEVELS[i][0]);
-  };
-  const blindText = info ? `Lv${level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
-  const anteText = !bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
+  const [clockOpen, setClockOpen] = useState(false);
+  const [clock, setClock] = useState(lastClock);
+  const [msg, setMsg] = useState("");
+  const strip = useRef<HTMLDivElement>(null);
+
+  // The level picked (or the estimate) in view when the row opens, and again when a start time gives
+  // an estimate (the level it picks is far along the row). A level tapped by hand stays where it is.
+  useEffect(() => {
+    const row = strip.current;
+    if (!open || !row) return;
+    const el = row.querySelector<HTMLElement>("button.on") ?? row.querySelector<HTMLElement>("button.est");
+    if (!el) return;
+    const at = el.getBoundingClientRect().left - row.getBoundingClientRect().left + row.scrollLeft;
+    row.scrollLeft = at - (row.clientWidth - el.clientWidth) / 2;
+  }, [open, estLv]);
+
+  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : "레벨 모름";
+  const ante = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
+  const sub = est ? `⏱ ${estimateLabel(est)}` : h.level === null ? "레벨이 기억 안 나면: 시작 시각으로 추정 ›" : null;
+
+  function applyClock() {
+    // The start of this hand's day (last night's hands filled in the next day keep last night's start).
+    if (!setTodayStart(clock, h.createdAt)) return setMsg("시각을 읽을 수 없어요 (예: 19:00)");
+    const e = levelEstimateAt(h.createdAt);
+    const lv = estimatedLevel(e);
+    setClockOpen(false);
+    if (lv !== null) {
+      setMsg("");
+      onLevel(lv, true);
+    } else setMsg(e?.phase === "before" ? "그 시각이면 이 핸드는 시작 전이에요" : "이 핸드 시각에는 맞지 않아요");
+  }
+
   return (
-    <RowBox label="블라인드" value={blindText} hint={anteText} open={open} onToggle={onToggle} editRef={editRef}>
-      <div className="flow-level">
-        <button type="button" aria-label="레벨 내리기" disabled={levelIdx <= 0} onClick={() => stepLevel(-1)}>
-          ‹
+    <RowBox label="블라인드" value={value} hint={ante} open={open} onToggle={onToggle} editRef={editRef} sub={open && !est ? null : sub}>
+      {est && !clockOpen ? (
+        <div className="lv-start">
+          <span>
+            ⏱ <b>{est.startClock}</b> 시작{estLv !== null ? ` · Lv${estLv} 추정` : ""}
+          </span>
+          {estLv !== null && (h.level !== estLv || !h.levelGuess) && (
+            <button type="button" className="ghost small" onClick={() => onLevel(estLv, true)}>
+              Lv{estLv}로
+            </button>
+          )}
+          <button type="button" className="ghost small" onClick={() => (setClock(est.startClock ?? lastClock()), setClockOpen(true))}>
+            시각 바꾸기
+          </button>
+        </div>
+      ) : (
+        <form
+          className="lv-clock"
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyClock();
+          }}
+        >
+          <span>레벨이 기억 안 나면: 시작 시각으로 추정</span>
+          <input type="time" value={clock} onChange={(e) => setClock(e.target.value)} aria-label="토너먼트 시작 시각" />
+          <button type="submit" className="ghost small">
+            추정
+          </button>
+        </form>
+      )}
+      {msg && <div className="cardtext-msg bad">{msg}</div>}
+      <div className="lv-strip" ref={strip} role="listbox" aria-label="블라인드 고르기">
+        <button
+          type="button"
+          role="option"
+          aria-selected={h.level === null}
+          className={h.level === null ? "on" : ""}
+          onClick={() => {
+            levelDeclined.add(h.id);
+            onLevel(null, false);
+          }}
+        >
+          <b>{unknownLabel}</b>
+          <small>bb로 계산</small>
         </button>
-        <select className="select" value={level ?? ""} onChange={(e) => onLevel(e.target.value ? Number(e.target.value) : null)}>
-          <option value="">{unknownLabel}</option>
-          {BLIND_LEVELS.map(([lv, sb, big]) => (
-            <option key={lv} value={lv}>
-              Lv{lv} · {sb.toLocaleString()}/{big.toLocaleString()}
-            </option>
-          ))}
-        </select>
-        <button type="button" aria-label="레벨 올리기" disabled={levelIdx === BLIND_LEVELS.length - 1} onClick={() => stepLevel(1)}>
-          ›
-        </button>
+        {BLIND_LEVELS.map(([lv, sb, big]) => (
+          <button key={lv} type="button" role="option" aria-selected={h.level === lv} className={`${h.level === lv ? "on" : ""}${estLv === lv ? " est" : ""}`} onClick={() => onLevel(lv, false)}>
+            <b>
+              {sb.toLocaleString()}/{big.toLocaleString()}
+            </b>
+            <small>
+              Lv{lv}
+              {estLv === lv ? " 추정" : ""}
+            </small>
+          </button>
+        ))}
       </div>
       <label className="flow-check">
         <span>BB 앤티 (BB가 1bb 더 냄)</span>
-        <input type="checkbox" checked={bbAnte} onChange={(e) => onAnte(e.target.checked)} />
+        <input type="checkbox" checked={h.bbAnte} onChange={(e) => onAnte(e.target.checked)} />
       </label>
     </RowBox>
   );

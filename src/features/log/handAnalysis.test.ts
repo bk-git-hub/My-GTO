@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { equityVsHand } from "../../poker/equity";
 import { emptyHand, tableOf, type LoggedHand } from "./handLog";
-import { analyseHand, deckFor, equityKnown, parseCardText, stageFor } from "./handAnalysis";
+import { analyseHand, deckFor, equityKnown, parseCardText, stageFor, SUIT_GUESS_NOTE } from "./handAnalysis";
 import { replay, skipTo, type LogStep } from "./recorder";
 
 /** Record like the table UI: skip to a seat (the ones between fold or check), then act. */
@@ -98,6 +98,38 @@ describe("analysing a recorded hand", () => {
     expect(turnCall.actual).toBeCloseTo(12 / 44, 6);
     expect(turnCall.actualComplete).toBe(true);
     for (const v of a.streets) expect(v.estimate, v.street).not.toBeNull();
+  });
+
+  it("analyses another player's hand for that player, with the same numbers and grades", () => {
+    const mine = exampleHand();
+    // The same hand watched from UTG: the BB is the subject, I limped and folded the flop.
+    const theirs: LoggedHand = { ...mine, kind: "other", mySeat: "UTG" };
+    const a = analyseHand(mine, { decisions: true, iterations: 1500 });
+    const b = analyseHand(theirs, { decisions: true, iterations: 1500 });
+    expect(b.heroNet).toBe(a.heroNet);
+    expect(b.decisions.map((d) => [d.street, d.verb, d.decision.grade, d.actual])).toEqual(a.decisions.map((d) => [d.street, d.verb, d.decision.grade, d.actual]));
+    expect(b.streets.map((v) => [v.estimate, v.known])).toEqual(a.streets.map((v) => [v.estimate, v.known]));
+    // only the tags differ
+    expect(a.streets[0].actions).toEqual(["UTG 림프 1", "CO 레이즈 3", "BB(나) 콜 3", "UTG 콜 3"]);
+    expect(b.streets[0].actions).toEqual(["UTG(나) 림프 1", "CO 레이즈 3", "BB(상대) 콜 3", "UTG(나) 콜 3"]);
+    expect(b.streets[1].actions).toContain("UTG(나) 폴드");
+    expect(a.suitGuess).toBeNull();
+    expect(a.streets.every((v) => !v.suitGuessed) && a.decisions.every((d) => !d.suitGuessed)).toBe(true);
+  });
+
+  it("flags the streets where guessed suits are in play", () => {
+    // The turn's suit was guessed: the turn and river numbers are approximate, the earlier ones exact.
+    const turn = analyseHand({ ...exampleHand(), guess: { board: [3] } }, { decisions: true, iterations: 600 });
+    expect(turn.suitGuess).toEqual({ hole: false, board: [3] });
+    expect(turn.streets.map((v) => v.suitGuessed)).toEqual([false, false, true, true]);
+    expect(turn.decisions.map((d) => d.suitGuessed)).toEqual([false, false, false, true, true, true]);
+    // guessed hole suits: every street
+    const hole = analyseHand({ ...exampleHand(), guess: { hole: true }, holeKind: "suited" }, { decisions: true, iterations: 600 });
+    expect(hole.suitGuess).toEqual({ hole: true, board: [] });
+    expect(hole.streets.every((v) => v.suitGuessed)).toBe(true);
+    expect(SUIT_GUESS_NOTE).toBe("무늬를 추정한 카드가 있어 플러시 관련 승률은 근사예요");
+    // a marker for a card that isn't on the hand is ignored
+    expect(analyseHand({ ...exampleHand(), board: [], guess: { board: [4] } }, { iterations: 300 }).suitGuess).toBeNull();
   });
 
   it("gives the same numbers and grades every time for the same hand", () => {

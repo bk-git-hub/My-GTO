@@ -211,7 +211,7 @@ describe("quick preflop block: onto the table", () => {
     expect(g.players[g.toAct!].seat).toBe("BB");
     // a 3-bet shove goes in for my whole stack
     const shove = preSteps(t, { action: "3bet", openBb: 3, openerSeat: "BTN", threeBetAllIn: true });
-    expect(shove[shove.length - 1]).toEqual({ s: "SB", k: "raise", to: 100 });
+    expect(shove[shove.length - 1]).toEqual({ s: "SB", k: "raise", to: 100, all: 1 });
     // a 3-bet without a size stops at my turn
     expect(preSteps(t, { action: "3bet", openBb: 3, openerSeat: "BTN" })).toEqual([...folds("UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"), { s: "BTN", k: "raise", to: 3 }]);
   });
@@ -220,7 +220,7 @@ describe("quick preflop block: onto the table", () => {
     const t = table("CO", { heroStack: 12 });
     for (const pre of [{ stage: "short", action: "allin" }, { stage: "short", action: "open", openAllIn: true }] as QuickPre[]) {
       const steps = preSteps(t, pre);
-      expect(steps).toEqual([...folds("UTG", "UTG+1", "UTG+2", "LJ", "HJ"), { s: "CO", k: "raise", to: 12 }]);
+      expect(steps).toEqual([...folds("UTG", "UTG+1", "UTG+2", "LJ", "HJ"), { s: "CO", k: "raise", to: 12, all: 1 }]);
       expect(line(t, steps)).toEqual(["CO(나) 오픈 12bb 올인"]);
     }
     // an open bigger than my stack is an all-in too

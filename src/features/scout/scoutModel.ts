@@ -1,6 +1,7 @@
-import { createStore } from "../../state/store";
-
 /**
+ * Pure data model of 정보 수집 (scout), with no storage side effects (the store lives in scout.ts), so
+ * the hand log can read the old scout data without touching it.
+ *
  * 정보 수집 (scout): a fast per-hand log of what the OTHER players do, to build a pub-player model.
  *
  * Data model (stored under localStorage "mygto.scout"; exported as the same shape):
@@ -71,6 +72,9 @@ export interface ScoutState {
   active: string | null;
   sessions: ScoutSession[];
 }
+
+/** localStorage key of the scout store (scout.ts). */
+export const SCOUT_KEY = "mygto.scout";
 
 export const TABLE_SIZES = [6, 7, 8, 9, 10] as const;
 export const MAX_SESSIONS = 40;
@@ -567,43 +571,4 @@ export function mergeState(ours: ScoutState, theirs: ScoutState): { state: Scout
 /** The export file's content. */
 export function exportJson(st: ScoutState): string {
   return JSON.stringify({ app: "pubaj-scout", v: 1, exported: new Date().toISOString(), active: st.active, sessions: st.sessions });
-}
-
-// ───────────── the store ─────────────
-
-export const SCOUT_KEY = "mygto.scout";
-export const scoutStore = createStore<ScoutState>(SCOUT_KEY, EMPTY_STATE);
-
-// Sanitize what was loaded; keep a copy of the raw text first if cleaning changes anything.
-(() => {
-  const loaded = scoutStore.get();
-  const clean = sanitizeState(loaded);
-  if (JSON.stringify(clean) === JSON.stringify(loaded)) return;
-  try {
-    const raw = localStorage.getItem(SCOUT_KEY);
-    if (raw) localStorage.setItem(SCOUT_KEY + ".bak", raw);
-  } catch {
-    /* no storage */
-  }
-  if (loaded !== EMPTY_STATE) scoutStore.set(clean);
-})();
-
-/** The active session, or null before the first one. */
-export function activeSession(st: ScoutState): ScoutSession | null {
-  return st.sessions.find((s) => s.id === st.active) ?? null;
-}
-
-/** Applies `fn` to the active session. Returns false if storage refused the write. */
-export function updateActive(fn: (s: ScoutSession) => ScoutSession): boolean {
-  return scoutStore.set((st) => ({ ...st, sessions: st.sessions.map((s) => (s.id === st.active ? fn(s) : s)) }));
-}
-
-/** Starts a new session (same table size and my seat as the last one) and makes it active. */
-export function startSession(size?: number, mySeat?: number | null): boolean {
-  const last = activeSession(scoutStore.get());
-  const s = newSession(size ?? last?.size ?? 9, mySeat !== undefined ? mySeat : (last?.mySeat ?? null));
-  return scoutStore.set((st) => {
-    const sessions = [...st.sessions, s].slice(-MAX_SESSIONS);
-    return { ...st, active: s.id, sessions };
-  });
 }

@@ -7,9 +7,10 @@ import { COMBOS, handFeatures } from "../../play/handInfo";
 import { postflopMoves, preflopDecision } from "../../play/policy";
 import { mulberry32 } from "../../poker/pushfold";
 import { analyse, postflopSpot, preflopSpot, type Decision, type HeroMove, type PlayState } from "../../play/table";
-import { tableOf, type LoggedHand } from "./handLog";
+import { holeGuessed, seatTags, tableOf, type LoggedHand } from "./handLog";
 import { stageFor } from "./quickPre";
-import { applyStep, baseStack, freshGame, positionsFor, raiseVerb, streetLines, type LogStep } from "./recorder";
+import { applyStep, baseStack, freshGame, positionsFor, raiseVerb, resolveStep, streetLines, type LogStep } from "./recorder";
+import { cleanGuess } from "./suitGuess";
 
 /**
  * Analysis of a recorded hand, replayed through the play engine with the real cards:
@@ -194,6 +195,8 @@ export interface StreetView {
   known: { seat: string; cards: Card[]; equity: number }[];
   /** My estimated equity against live opponents' narrowed ranges (at my first decision on the street, else at its start). */
   estimate: number | null;
+  /** Cards with guessed suits are in play by this street (my hole cards, or a guessed board card dealt): its numbers are approximate. */
+  suitGuessed: boolean;
 }
 
 export interface HeroDecision {
@@ -207,7 +210,12 @@ export interface HeroDecision {
   actual: number | null;
   /** All live opponents' cards were known, so `actual` is the true number. */
   actualComplete: boolean;
+  /** Graded with guessed suits in play (see StreetView.suitGuessed). */
+  suitGuessed: boolean;
 }
+
+/** What the UI says when guessed suits are in play: the hand class and ranks are real, the suits picked. */
+export const SUIT_GUESS_NOTE = "무늬를 추정한 카드가 있어 플러시 관련 승률은 근사예요";
 
 export interface HandAnalysis {
   game: Game;
@@ -220,6 +228,12 @@ export interface HandAnalysis {
   showdownSeats: string[];
   /** Hero to act now: estimated equity and what a call needs. */
   current: { equity: number | null; need: number | null } | null;
+  /**
+   * Which cards had guessed suits (LoggedHand.guess, limited to the cards on the hand): the subject's
+   * hole cards and board indexes. Null when every suit is known. Equity and grades from a street where
+   * they are in play (StreetView.suitGuessed) are approximate: say SUIT_GUESS_NOTE.
+   */
+  suitGuess: { hole: boolean; board: number[] } | null;
 }
 
 function heroMoveFor(g: Game, st: LogStep): HeroMove {
@@ -280,6 +294,10 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
   let s: PlayState = { mode: "pub", stageId: stageFor(baseStack(t)), heroIdx, game: game0, ranges: game0.players.map(() => fullWeights()), decisions: [], botNotes: {} };
 
   const boardOn = (street: Street) => (h.board.length >= NEED[street] ? h.board.slice(0, NEED[street]) : null);
+  const holeGuess = heroCards !== null && holeGuessed(h);
+  const boardGuess = (cleanGuess(h.guess)?.board ?? []).filter((i) => i < h.board.length);
+  /** Guessed suits are in play by this street. */
+  const guessedBy = (street: Street) => holeGuess || boardGuess.some((i) => i < NEED[street]);
   const views: StreetView[] = [];
   const decisions: HeroDecision[] = [];
 
@@ -303,6 +321,7 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
       endLive: [],
       known: shares ? cards.map((c, k) => ({ ...c, equity: shares[k] })) : [],
       estimate: null,
+      suitGuessed: guessedBy(g.street),
     });
   };
   const stillIn = (g: Game) => g.players.filter((p) => !p.folded).map((p) => p.seat);
@@ -315,10 +334,14 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
     const idx = g.toAct;
     const board = boardOn(g.street);
     const view = views[views.length - 1];
+    // What the step does here: an all-in marker as the seat's whole stack, a shove the stack can't raise as a call.
+    const r = resolveStep(g, st);
+    if (!r) break;
+    const eff: LogStep = { s: st.s, ...r };
     if (idx === heroIdx && heroCards && board) {
       if (view.estimate === null) view.estimate = estimate(s, heroCards, board, iterations);
       if (grade) {
-        const move = heroMoveFor(g, st);
+        const move = heroMoveFor(g, eff);
         const decision = analyse(s, move);
         const cards = knownLive(g);
         const liveVillains = g.players.filter((p, i) => i !== heroIdx && !p.folded).length;
@@ -328,13 +351,14 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
           street: g.street,
           step: st,
           verb: move.label.split(" ")[0],
-          amount: st.k === "call" ? Math.min(g.currentBet, me.streetBet + me.stack) : st.k === "raise" ? (move.to ?? null) : null,
+          amount: eff.k === "call" ? Math.min(g.currentBet, me.streetBet + me.stack) : eff.k === "raise" ? (move.to ?? null) : null,
           decision,
           actual: shares ? shares[cards.findIndex((c) => c.seat === h.seat)] : null,
           actualComplete: cards.length - 1 === liveVillains,
+          suitGuessed: guessedBy(g.street),
         });
       }
-    } else if (idx !== heroIdx) narrow(s, idx, st, !!board);
+    } else if (idx !== heroIdx) narrow(s, idx, eff, !!board);
     const next = applyStep(g, st);
     if (!next) break;
     s = { ...s, game: next };
@@ -355,21 +379,24 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
       const cards = knownLive(g);
       const shares = board && cards.length >= 2 ? exact(cards.map((c) => c.cards), board) : null;
       const live = g.players.filter((p) => !p.folded).map((p) => p.seat);
-      views.push({ street, board, potStart: pot(g), potEnd: pot(g), actions: [], live, endLive: live, known: shares ? cards.map((c, k) => ({ ...c, equity: shares[k] })) : [], estimate: null });
+      views.push({ street, board, potStart: pot(g), potEnd: pot(g), actions: [], live, endLive: live, known: shares ? cards.map((c, k) => ({ ...c, equity: shares[k] })) : [], estimate: null, suitGuessed: guessedBy(street) });
     }
   }
 
   // Actions and pot at the end of each street, from the full log.
-  for (const line of streetLines(g, (bb) => `${r1(bb)}`)) {
+  for (const line of streetLines(g, (bb) => `${r1(bb)}`, seatTags(h))) {
     const v = views.find((x) => x.street === line.street);
     if (v) [v.actions, v.potEnd] = [line.actions, line.pot];
   }
-  // Streets where I never acted: estimate at the street start.
+  // Streets where I never decided against anyone who had acted: estimate at the street start.
   // (Cheap enough for the few streets a hand has; ranges are as narrowed at the end, an approximation.)
+  // Preflop every seat is dealt in at the start, so it is measured against the seats still in when the
+  // preflop action ends (the folded ones don't contest the pot), with the ranges their actions left.
   for (const v of views) {
     if (v.estimate === null && heroCards && v.board && v.live.includes(h.seat) && v.live.length > 1 && heroIdx >= 0) {
-      const villains = v.live.filter((x) => x !== h.seat).map((x) => s.ranges[seats.indexOf(x)]);
-      const eq = equityVs(heroCards, v.board, villains, iterations);
+      const against = (v.street === "preflop" ? v.endLive : v.live).filter((x) => x !== h.seat);
+      if (!against.length) continue;
+      const eq = equityVs(heroCards, v.board, against.map((x) => s.ranges[seats.indexOf(x)]), iterations);
       v.estimate = Number.isFinite(eq) ? eq : null;
     }
   }
@@ -391,5 +418,6 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
       need: call > 0 ? call / (pot(g) + call) : null,
     };
   }
-  return { game: g, applied, streets: views, decisions, heroNet, showdownSeats, current };
+  const suitGuess = holeGuess || boardGuess.length ? { hole: holeGuess, board: boardGuess } : null;
+  return { game: g, applied, streets: views, decisions, heroNet, showdownSeats, current, suitGuess };
 }

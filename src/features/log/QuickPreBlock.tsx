@@ -20,18 +20,25 @@ import {
 } from "./quickPre";
 
 const sizeLabel = (x: PreSize, unit: string) => (x === "allin" ? "올인" : `${x}${unit}`);
+
+/** Another player's action as the entry screen offers it: no 폴드 (it tells nothing about a range), and 올인 콜 (a call of an all-in open). */
+type Choice = PreAction | "allincall";
+const OTHER_ACTIONS: Choice[] = ["open", "limp", "call", "3bet", "allin", "allincall"];
+const CHOICE_LABEL: Record<Choice, string> = { ...ACTION_LABEL, allincall: "올인 콜" };
 const chipsOf = (bb: number, bbChips: number) => Math.round(bb * bbChips).toLocaleString();
 
 /**
- * The quick screen's preflop block, one row each: the stack stage (on the label line), my action, the
- * open's size, who opened, my 3-bet. Rows after the action show only when they apply to it.
- * `onChange` gets the block as edited; the screen tidies it (stage, seats) as it saves.
+ * A preflop block, one row each: the stack stage (on the label line), the subject's action, the open's
+ * size, who opened, the 3-bet. Rows after the action show only when they apply to it. `other`: another
+ * player's hand (actions 오픈 · 림프 · 콜 · 3벳 · 올인 · 올인 콜). `onChange` gets the block as edited;
+ * the screen tidies it (stage, seats) as it saves.
  */
-export function QuickPreBlock({ h, bb, last, seats, onChange }: { h: LoggedHand; bb: number | null; last: PreStage | null; seats: string[]; onChange: (pre: QuickPre) => void }) {
+export function QuickPreBlock({ h, bb, last, seats, onChange, other }: { h: LoggedHand; bb: number | null; last: PreStage | null; seats: string[]; onChange: (pre: QuickPre) => void; other?: boolean }) {
   const p: QuickPre = h.quickPre ?? {};
   const stage = stageOf(h.quickPre, bb, last);
   const bbChips = levelInfo(h.level)?.bb ?? null;
-  const rows = preRows(p);
+  const choice: Choice | null = other && p.action === "call" && p.openAllIn ? "allincall" : (p.action ?? null);
+  const rows = choice === "allincall" ? { ...preRows(p), size: false } : preRows(p);
   const presets = openPresets(stage, p.action);
   /**
    * The bb field stays once it is in use (직접 tapped, focused, or a typed size when the hand opened),
@@ -53,8 +60,12 @@ export function QuickPreBlock({ h, bb, last, seats, onChange }: { h: LoggedHand;
     if (x === "allin") put({ openAllIn: p.openAllIn ? undefined : true, openBb: undefined });
     else put({ openBb: !typedSize && p.openBb === x ? undefined : x, openAllIn: undefined });
   };
-  const pickAction = (a: PreAction) => {
-    const next = withAction({ ...p, stage }, p.action === a ? undefined : a);
+  const pickAction = (a: Choice) => {
+    const off = choice === a;
+    let next = withAction({ ...p, stage }, off ? undefined : a === "allincall" ? "call" : a);
+    // 올인 콜: a call of an all-in open (no size); 콜 after it: an open with a size again.
+    if (!off && a === "allincall") next = { ...next, openAllIn: true, openBb: undefined };
+    else if (!off && a === "call" && choice === "allincall") next = { ...next, openAllIn: undefined };
     // The size went with the old action: the field goes too.
     if (next.openBb === undefined) setCustom(false);
     onChange(next);
@@ -89,15 +100,15 @@ export function QuickPreBlock({ h, bb, last, seats, onChange }: { h: LoggedHand;
         {/* Fixed width either way, so the stage chips never shift. */}
         <span className="pre-auto">
           {p.pinned ? (
-            <button type="button" onClick={() => put({ pinned: undefined })} aria-label="스택 구간 자동으로 (내 스택 따라가기)">
+            <button type="button" onClick={() => put({ pinned: undefined })} aria-label={other ? "스택 구간 자동으로 (스택·레벨 따라가기)" : "스택 구간 자동으로 (내 스택 따라가기)"}>
               자동
             </button>
           ) : bb !== null ? (
-            <small title="내 스택으로 정해져요">자동</small>
+            <small title={other ? "상대 스택으로 정해져요" : "내 스택으로 정해져요"}>자동</small>
           ) : null}
         </span>
       </div>
-      <ChipRow items={PRE_ACTIONS} value={p.action ?? null} label={(a) => ACTION_LABEL[a]} onPick={pickAction} className="fill pre-acts" />
+      <ChipRow<Choice> items={other ? OTHER_ACTIONS : PRE_ACTIONS} value={choice} label={(a) => CHOICE_LABEL[a]} onPick={pickAction} className="fill pre-acts" />
       {rows.size && (
         <div className="pre-line">
           <span className="pre-k">오픈</span>

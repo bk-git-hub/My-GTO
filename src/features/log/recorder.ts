@@ -27,12 +27,17 @@ export const buttonSeat = (players: number) => (players === 2 ? "SB" : "BTN");
 
 export type StepKind = "fold" | "check" | "call" | "raise";
 
-/** One action. `to` is the street bet total after a bet/raise. `a` marks folds/checks filled in by skipping ahead. */
+/**
+ * One action. `to` is the street bet total after a bet/raise. `a` marks folds/checks filled in by
+ * skipping ahead. `all` marks an all-in: it replays as everything the seat has (whatever its stack turns
+ * out to be once the level or the stacks are corrected), and as an all-in call when that can't raise.
+ */
 export interface LogStep {
   s: string;
   k: StepKind;
   to?: number;
   a?: 1;
+  all?: 1;
 }
 
 /** Stack used for every seat when nothing else is known. */
@@ -62,14 +67,28 @@ export function freshGame(t: TableInput): Game {
   return newGame(base, seats.indexOf(t.heroSeat), t.deck ?? fullDeck(), { seats, bbAnte: t.bbAnte ?? true }, stacks);
 }
 
-/** Apply one step if it is legal for the player to act; null otherwise. */
-export function applyStep(g: Game, st: LogStep): Game | null {
+/**
+ * What a step does at this point of the hand, or null when it doesn't fit: an all-in (`all`) raises to
+ * the seat's whole stack, and a raise to all of it or more that the stack can't make (it no longer
+ * covers more than the bet, or nobody is left to respond) is an all-in call.
+ */
+export function resolveStep(g: Game, st: LogStep): { k: StepKind; to?: number } | null {
   if (g.done || g.toAct === null || g.players[g.toAct].seat !== st.s) return null;
   const L = legal(g, g.toAct);
-  if (st.k === "check" && !L.canCheck) return null;
-  if (st.k === "fold" && L.canCheck) return null;
-  if (st.k === "raise" && (!L.canRaise || st.to === undefined || !Number.isFinite(st.to))) return null;
-  return act(g, st.k, st.to);
+  if (st.k === "check") return L.canCheck ? { k: "check" } : null;
+  if (st.k === "fold") return L.canCheck ? null : { k: "fold" };
+  if (st.k === "call") return { k: "call" };
+  const shove = st.all === 1 || (st.to !== undefined && Number.isFinite(st.to) && st.to >= L.maxRaiseTo - 1e-9);
+  if (!L.canRaise) return shove && !L.canCheck ? { k: "call" } : null;
+  if (st.all === 1) return { k: "raise", to: L.maxRaiseTo };
+  if (st.to === undefined || !Number.isFinite(st.to)) return null;
+  return { k: "raise", to: st.to };
+}
+
+/** Apply one step if it is legal for the player to act; null otherwise (see resolveStep). */
+export function applyStep(g: Game, st: LogStep): Game | null {
+  const r = resolveStep(g, st);
+  return r ? act(g, r.k, r.to) : null;
 }
 
 /** Replay steps from the start of the hand, stopping at the first one that no longer fits. */
@@ -171,10 +190,23 @@ export interface StreetLine {
 }
 
 /**
- * Readable actions per street: "CO 오픈 2.5bb", "BB(나) 콜 7.5bb". Folds are listed only for
- * players who had put chips in voluntarily, and for me; the rest are implied.
+ * Tags written after a seat name in action lines: `hero` after the replay's hero (me in my own hand,
+ * the observed player in another player's hand), `seats` after other seats (my seat in another
+ * player's hand). handLog.ts seatTags(h) gives the right ones for a hand.
  */
-export function streetLines(g: Game, fmt: (bb: number) => string): StreetLine[] {
+export interface SeatTags {
+  hero: string;
+  seats?: Record<string, string>;
+}
+
+/** My own hand: the hero is me. */
+export const MY_TAGS: SeatTags = { hero: "(나)" };
+
+/**
+ * Readable actions per street: "CO 오픈 2.5bb", "BB(나) 콜 7.5bb". Folds are listed only for
+ * players who had put chips in voluntarily, for the hero and for tagged seats; the rest are implied.
+ */
+export function streetLines(g: Game, fmt: (bb: number) => string, tags: SeatTags = MY_TAGS): StreetLine[] {
   const lines: StreetLine[] = [];
   const invested = new Set<number>();
   const raises: Record<string, number> = {};
@@ -188,10 +220,11 @@ export function streetLines(g: Game, fmt: (bb: number) => string): StreetLine[] 
     line.pot = e.potAfter;
     if (e.kind === "post") continue;
     const p = g.players[e.idx];
-    const who = `${e.seat}${p.hero ? "(나)" : ""}`;
+    const tag = p.hero ? tags.hero : (tags.seats?.[e.seat] ?? "");
+    const who = `${e.seat}${tag}`;
     let text: string;
     if (e.kind === "fold") {
-      if (!invested.has(e.idx) && !p.hero) continue;
+      if (!invested.has(e.idx) && !p.hero && !tag) continue;
       text = "폴드";
     } else if (e.kind === "check") text = "체크";
     else if (e.kind === "call") {

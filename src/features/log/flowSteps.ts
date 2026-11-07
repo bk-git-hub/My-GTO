@@ -1,16 +1,17 @@
 import type { Street } from "../../play/engine";
-import { LOG_STREET_LABEL, LOG_STREETS, type LoggedHand } from "./handLog";
+import { isOther, LOG_STREET_LABEL, LOG_STREETS, type LoggedHand } from "./handLog";
 
 /**
- * The hand recorder's steps and its seven-tab header: 테이블 · 핸드 · 프리플랍 · 플랍 · 턴 · 리버 · 결과.
- * While the hand is being recorded the four street tabs all stand for the one action step (the one
- * lit is the street being recorded); once the action is over each opens the result replay at its street.
+ * The hand recorder's steps and its seven-tab header: 핸드 · 테이블 · 프리플랍 · 플랍 · 턴 · 리버 · 결과.
+ * The hand comes first (what is remembered best), then the table. While the hand is being recorded the
+ * four street tabs all stand for the one action step (the one lit is the street being recorded); once
+ * the action is over each opens the result replay at its street.
  */
 
-export type FlowStep = "setup" | "hand" | "play" | "result";
+export type FlowStep = "hand" | "setup" | "play" | "result";
 
 export interface FlowTab {
-  key: "setup" | "hand" | Street | "result";
+  key: "hand" | "setup" | Street | "result";
   label: string;
   /** The step the tab opens. */
   step: FlowStep;
@@ -25,9 +26,9 @@ export interface FlowTab {
 }
 
 export interface FlowState {
-  /** My seat is chosen. */
+  /** The subject's seat is chosen. */
   seat: boolean;
-  /** Both my cards are in. */
+  /** Both hole cards are in. */
   cards: boolean;
   /** The street the action is on (the last street once the hand is over). */
   street: Street;
@@ -35,17 +36,24 @@ export interface FlowState {
   done: boolean;
 }
 
-/** Where a hand opens: the first step still missing something. */
-export function initialStep(h: Pick<LoggedHand, "seat" | "hole">): FlowStep {
-  return !h.seat ? "setup" : h.hole.length < 2 ? "hand" : "play";
+/**
+ * Where a hand opens: the first step still missing something (the cards, then the seat). Another
+ * player's hand jotted on the quick screen (cards in, no table actions yet) opens on the table, where
+ * my seat and the stacks go.
+ */
+export function initialStep(h: Pick<LoggedHand, "seat" | "hole"> & Partial<Pick<LoggedHand, "kind" | "steps">>): FlowStep {
+  if (h.hole.length < 2) return "hand";
+  if (!h.seat) return "setup";
+  if (isOther(h) && !h.steps?.length) return "setup";
+  return "play";
 }
 
 export function flowTabs(step: FlowStep, s: FlowState): FlowTab[] {
   const at = LOG_STREETS.indexOf(s.street);
   const playable = s.seat && s.cards;
   const tabs: Omit<FlowTab, "passed">[] = [
+    { key: "hand", label: "핸드", step: "hand", street: null, on: step === "hand", enabled: true },
     { key: "setup", label: "테이블", step: "setup", street: null, on: step === "setup", enabled: true },
-    { key: "hand", label: "핸드", step: "hand", street: null, on: step === "hand", enabled: s.seat },
     ...LOG_STREETS.map((st, i): Omit<FlowTab, "passed"> => {
       const on = step === "play" && i === at;
       const reached = playable && i <= at;

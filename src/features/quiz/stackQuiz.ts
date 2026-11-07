@@ -2,16 +2,14 @@ import { randomCombo, type Card, type HandClass } from "../../poker/cards";
 import { actionTotals, getSet, type HandStrategy, type Scenario, type Stage } from "../../data/charts";
 import { SHORT_NASH_OPEN } from "../../data/sets/shortNashData";
 import { openSize } from "../../play/policy";
+import { PUB_SCHEDULE } from "../log/levelClock";
 import { gradePreflop, weightedHand, type Grade } from "./generators";
 
-/** 펍 토너먼트 블라인드 구조 (레벨, SB, BB). BB 앤티 = BB. */
-export const BLIND_LEVELS: [number, number, number][] = [
-  [1, 100, 200], [2, 200, 300], [3, 200, 400], [4, 300, 500], [5, 300, 600], [6, 400, 800],
-  [7, 500, 1000], [8, 600, 1200], [9, 800, 1600], [10, 1000, 2000], [11, 1500, 2500], [12, 2000, 3000],
-  [13, 2000, 4000], [14, 2500, 5000], [15, 3000, 6000], [16, 4000, 8000], [17, 5000, 10000],
-  [18, 6000, 12000], [19, 8000, 16000], [20, 10000, 20000], [21, 15000, 30000], [22, 20000, 40000],
-  [23, 25000, 50000], [24, 30000, 60000], [25, 40000, 80000],
-];
+/**
+ * 펍 토너먼트 블라인드 구조 (레벨, SB, BB). BB 앤티 = BB. Lv1-30, derived from the level clock's
+ * schedule (levelClock.ts PUB_SCHEDULE), the single source of truth for the blinds.
+ */
+export const BLIND_LEVELS: [number, number, number][] = PUB_SCHEDULE.map((r) => [r.level, r.sb, r.bb]);
 
 /** My stack range (bb) and the levels where that stack is common, per chart stage. */
 const STAGE_SPOTS: Record<string, { bb: [number, number]; levels: [number, number] }> = {

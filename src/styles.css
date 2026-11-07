@@ -448,17 +448,29 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-tabs { flex: 1; min-width: 0; }
 .log-tabs button { white-space: nowrap; }
 .log-tabs b { font-weight: 800; margin-left: 2px; }
-/* The past hands' one-line way into quick record. */
-.log-quick-entry { flex-direction: row; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 12px; text-align: left; color: var(--text); }
-.log-quick-entry b { flex: none; }
-.log-quick-entry span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; }
-.log-quick-entry em { flex: none; font-style: normal; color: var(--muted); }
-/* A quick hand not carried on to the table yet. */
-.log-tag { margin-left: auto; flex: none; padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(251, 191, 36, 0.45); color: var(--accent); font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
-.log-tag ~ .log-result { margin-left: 0; }
+/* Past hands: tags at the row's right end (a hand recorded part of the way, guessed suits), then the result. */
+.log-end { margin-left: auto; display: flex; align-items: center; gap: 4px; flex: none; }
+.log-end:empty { display: none; }
+.log-end .log-result { margin-left: 0; }
+.log-tag { flex: none; padding: 1px 8px; border-radius: 999px; border: 1px solid rgba(251, 191, 36, 0.45); color: var(--accent); font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+.log-tag.soft { border-color: var(--line); color: var(--muted); }
+/* Another player's hand: a small "남" badge before the seat. */
+.log-kind { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.5); color: var(--info); font-size: 0.68rem; font-weight: 800; }
+.log-row.other .log-seat { color: var(--info); min-width: 40px; }
+/* Hole cards known only by class (suits guessed): "ATs". */
+.log-class { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.02em; }
+.log-continue { align-self: flex-end; margin-top: -2px; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
+.log-row.open { border-color: #3a4760; }
+.log-new-row { display: flex; gap: 6px; }
+.log-new-row .log-new-btn { height: 34px; }
+.log-new-btn.other { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.5); color: var(--info); }
+.log-legacy { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.log-legacy .ghost { align-self: flex-start; }
+/* "저장했어요 · 작성 중": a moment at the bottom after 나중에 작성하기. */
+.log-toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; max-width: calc(100vw - 32px); padding: 9px 16px; border-radius: 999px; background: #1f2a3a; border: 1px solid rgba(34, 197, 94, 0.6); color: var(--text); font-size: 0.84rem; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); animation: toast-in 0.18s ease-out; pointer-events: none; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
-/* ───────── hand log: quick record ───────── */
-.quick-title { margin: 0; font-size: 1.02rem; font-weight: 900; white-space: nowrap; }
+/* ───────── hand log: another player's hand (one quick screen) ───────── */
 /* One line of fixed height in every state, so saving never moves the keypad under the finger. */
 .quick-status { display: flex; align-items: center; height: 30px; margin: 0; padding: 0 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; white-space: nowrap; overflow: hidden; }
 .quick-status > b { flex: none; font-weight: 800; }
@@ -473,8 +485,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
   .quick-status .qs-word { display: none; }
 }
 /* The hand comes first and gets the biggest targets. */
-.quick-body .cardkeys .ranks button { height: 44px; }
-.quick-body .cardkeys .suits button { height: 50px; }
+.quick-body .cardkeys .ranks button, .hand-first .cardkeys .ranks button { height: 44px; }
+.quick-body .cardkeys .suits button, .hand-first .cardkeys .suits button { height: 50px; }
 .quick-hand { display: flex; flex-direction: column; gap: 6px; }
 .quick-hand .flow-label small { color: var(--text); font-weight: 800; }
 /* The quick screen's fields: the table flow's inputs, spaced like the setup step. */
@@ -482,14 +494,19 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .memo-body .flow-label { margin: 0 2px; }
 .memo-sec { display: flex; flex-direction: column; gap: 4px; }
 .memo-sec textarea { min-height: 60px; }
-.memo-size { margin-left: auto; align-self: center; height: 24px; padding: 0 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
+.memo-size { margin-left: auto; align-self: center; height: 32px; min-width: 32px; padding: 0 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
 .memo-size i { font-style: normal; color: var(--muted); font-size: 0.62rem; margin-left: 1px; }
+.memo-size + .memo-size { margin-left: 6px; }
+.memo-size.lv { color: var(--text); }
 .memo-actions { display: flex; flex-direction: column; gap: 8px; }
 .memo-actions .flow-next { margin-top: 0; }
 /* Nothing to save yet: a quiet outline rather than a dimmed gold block. */
 .memo-actions .flow-next:disabled { opacity: 1; background: var(--accent-soft); color: rgba(251, 191, 36, 0.5); }
 .memo-actions .ghost { height: 42px; padding: 0 12px; color: #c7d0dd; font-weight: 700; }
 .log-foot { margin-top: 2px; }
+/* The date gives way on narrow phones, so 삭제 stays on the line. */
+.log-foot > .muted { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-foot > button { flex: none; }
 /*
  * The quick screen's preflop block: the stage on the label line, then one row each for my action, the
  * open's size, who opened and my 3-bet. Every row is one line at 360px (rows only scroll inside themselves).
@@ -530,26 +547,23 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-body { display: flex; flex-direction: column; gap: 10px; }
 .flow-label { font-size: 0.87rem; font-weight: 800; display: flex; align-items: baseline; }
 /*
- * Right end of the setup's first line: "⚡ 빠른 기록", "↺ 이어서" (a hand left mid-way) and the past-hands
- * link, without making the line taller. It never wraps: the words in .ll-word / .rs-word / .rs-seat go
+ * Right end of the hand step's first line: "↺ 이어서" (a hand left mid-way) or "＋ 새 핸드", and the
+ * past-hands link, without making the line taller. It never wraps: the words in .ll-word / .rs-word / .rs-seat go
  * first on narrow screens (long seat names like UTG+1 below 390px), and the resume pill is the one that
  * shrinks, its seat before its cards.
  */
-.flow-aside { display: flex; align-items: center; gap: 4px; min-width: 0; margin: -5px 0 -5px auto; padding-left: 8px; align-self: center; }
-.flow-aside .log-link { height: 30px; flex: none; }
-.log-quick { flex: none; height: 28px; padding: 0 9px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+.flow-aside { display: flex; align-items: center; gap: 4px; min-width: 0; margin: -8px 0 -8px auto; padding-left: 8px; align-self: center; }
+.flow-aside .log-link { height: 32px; min-width: 32px; flex: none; }
+.flow-aside .log-resume { height: 32px; }
+.log-new-pill { flex: none; height: 32px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
 .flow-aside.with-resume .rs-word, .flow-aside.with-resume .ll-word { display: none; }
 @media (max-width: 389px) {
   .flow-aside.with-resume .log-resume.has-cards .rs-seat.long { display: none; }
 }
 @media (max-width: 374px) {
   .flow-aside { gap: 2px; padding-left: 4px; }
-  .log-resume, .log-quick { padding: 0 7px; }
+  .log-resume, .log-new-pill { padding: 0 7px; }
   .flow-aside.with-resume .log-resume.has-cards .rs-seat { display: none; }
-}
-/* 320px (an SE or a mini with display zoom): "⚡ 빠른", so the cards still fit. */
-@media (max-width: 359px) {
-  .flow-aside.with-resume .lq-word { display: none; }
 }
 .flow-label small { color: var(--muted); font-weight: 500; margin-left: 6px; font-size: 0.75rem; }
 .flow-chips { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -606,6 +620,77 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-stack-in small { flex: none; color: var(--muted); font-weight: 600; min-width: 3.4em; }
 .flow-edit-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.74rem; color: var(--muted); }
 .flow-next { width: 100%; height: 48px; margin-top: 10px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 1rem; font-weight: 900; }
+/* A step's way on (big) and 나중에 작성하기 (quiet) under it. */
+.flow-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.flow-actions .flow-next { margin-top: 0; }
+.flow-actions .flow-next:disabled, .memo-actions .flow-next:disabled { opacity: 1; background: var(--accent-soft); color: rgba(251, 191, 36, 0.5); }
+.flow-later { width: 100%; height: 42px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.88rem; font-weight: 800; }
+.flow-later:disabled { opacity: 0.5; }
+/* A complete hand: on to the next one. */
+.flow-later.next { background: var(--accent-soft); border-color: rgba(251, 191, 36, 0.55); color: var(--accent); }
+.flow-body > .flow-later { margin-top: 2px; }
+
+/* ① the hand: the keypad first, then the save line (two lines of fixed height: saving never moves the keypad). */
+.flow-body.hand-first { gap: 8px; }
+.flow-body.hand-first > .flow-label { margin: 2px 2px 0; white-space: nowrap; min-height: 22px; }
+.flow-label .hand-cls { color: var(--text); font-weight: 800; }
+.save-line { display: flex; flex-direction: column; justify-content: center; min-height: 46px; margin: 0; padding: 4px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 0.76rem; line-height: 1.35; }
+.save-line > b { font-size: 0.84rem; font-weight: 800; }
+.save-line.ok { border-color: rgba(34, 197, 94, 0.5); background: rgba(34, 197, 94, 0.07); color: #c7d0dd; }
+.save-line.ok > b { color: var(--call); }
+.save-line.wait { border-color: rgba(251, 191, 36, 0.5); }
+.save-line.wait > b { color: var(--call); }
+.save-line.wait > span { color: var(--accent); }
+
+/* 무늬 모름: the ranks on the keypad, then what is remembered about the suits. */
+.suit-toggle { width: 100%; min-height: 36px; padding: 4px 12px; border-radius: 10px; background: none; border: 1px dashed #3a4760; color: #c7d0dd; font-size: 0.82rem; font-weight: 800; }
+.suit-toggle small { color: var(--muted); font-weight: 600; font-size: 0.72rem; margin-left: 4px; }
+.hole-entry { display: flex; flex-direction: column; gap: 6px; }
+.suitless { display: flex; flex-direction: column; gap: 6px; }
+.suitless-field { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 54px; padding: 6px 12px; border: 2px dashed var(--line); border-radius: 12px; background: #0d121a; color: var(--text); text-align: left; }
+.suitless-field.ok { border-color: var(--call); border-style: solid; }
+.suitless .sl-ranks { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.12em; font-family: ui-monospace, "SF Mono", Menlo, monospace; min-width: 0; }
+.suitless .sl-ranks i { font-style: normal; font-size: 1rem; letter-spacing: 0; color: var(--muted); font-family: inherit; font-weight: 700; }
+.suitless-field b { font-size: 1.05rem; font-weight: 900; color: var(--call); }
+.suitless-field small { margin-left: auto; color: var(--muted); font-size: 0.72rem; font-weight: 700; text-align: right; }
+.suitless.board .suitless-field { min-height: 44px; }
+.suitless.board .sl-ranks { font-size: 1.15rem; }
+.cardkeys .kinds { display: grid; grid-template-columns: 1fr 1fr 0.6fr 0.55fr; gap: 5px; }
+.cardkeys .kinds.n3 { grid-template-columns: 1fr 1fr 1fr 0.55fr; }
+.cardkeys .kinds.n2 { grid-template-columns: 1fr 1fr 0.55fr; }
+.cardkeys .kinds button { height: 50px; font-size: 1rem; }
+.cardkeys .kinds button.small { font-size: 0.8rem; color: #c7d0dd; }
+.cardkeys .kinds button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cardkeys button:disabled { opacity: 0.4; }
+.suitless.board .cardkeys .ranks button { height: 40px; }
+.suitless.board .cardkeys .kinds button { height: 44px; font-size: 0.88rem; }
+
+/* Guessed suits near the board: "핸드·플랍 무늬 추정", and for a two-tone flop which two share. */
+.flow-guess { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.74rem; color: var(--muted); font-weight: 700; }
+.flow-guess > span { padding: 2px 9px; border-radius: 999px; border: 1px dashed #4a5870; }
+.flop-pair { display: inline-flex; align-items: center; gap: 4px; }
+.flop-pair > span { margin-right: 2px; }
+.flop-pair button { height: 32px; min-width: 32px; padding: 0 9px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.74rem; font-weight: 800; }
+.flop-pair button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.flow-approx { font-size: 0.74rem; color: var(--muted); padding: 6px 10px; border-radius: 10px; border: 1px dashed #4a5870; }
+
+/* The blinds row's second line (the start-time estimate) and its editor: start time, blinds on one sideways row. */
+.flow-row-sub { display: block; width: 100%; margin-top: -6px; padding: 0 12px 7px; background: none; border: 0; color: #9fb6e8; font-size: 0.72rem; font-weight: 700; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-start, .lv-clock { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 6px; font-size: 0.8rem; color: #c7d0dd; }
+.lv-start > span { flex: 1 1 auto; min-width: 0; }
+.lv-start b { color: var(--text); }
+.lv-clock > span { flex: 1 0 100%; color: var(--muted); font-size: 0.76rem; font-weight: 700; }
+.lv-clock input { flex: 1; min-width: 0; height: 38px; padding: 0 10px; font-size: 16px; font-weight: 800; }
+.lv-clock .ghost.small, .lv-start .ghost.small { height: 34px; }
+.lv-strip { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; padding: 2px 0; }
+.lv-strip::-webkit-scrollbar { display: none; }
+.lv-strip button { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 74px; height: 44px; padding: 0 8px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); line-height: 1.15; }
+.lv-strip button b { font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+.lv-strip button small { font-size: 0.64rem; color: var(--muted); font-weight: 700; white-space: nowrap; }
+.lv-strip button.est { border-color: #4c6aa8; }
+.lv-strip button.est small { color: #9fb6e8; }
+.lv-strip button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.lv-strip button.on small { color: var(--accent-ink); }
 .flow-summary { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 0.85rem; color: var(--muted); }
 .flow-summary b { color: var(--text); }
 .flow-wait { padding: 40px 0; text-align: center; color: var(--muted); }
@@ -643,6 +728,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-amount button:disabled { border-color: var(--line); color: var(--muted); }
 .flow-quick { display: flex; gap: 6px; }
 .flow-quick button { flex: 1; height: 40px; font-size: 0.78rem; color: #c7d0dd; }
+/* The stack stage the first open's sizes follow: tap to change. */
+.flow-quick button.stage { flex: 0 0 auto; padding: 0 9px; border-style: dashed; color: var(--accent); }
 .flow-row2 { display: flex; gap: 7px; }
 .flow-row2 button { flex: 1; height: 38px; font-size: 0.8rem; color: var(--muted); font-weight: 700; }
 .flow-tip { font-size: 0.72rem; color: var(--muted); }
@@ -672,6 +759,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-sd-row { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 7px 9px; }
 .flow-sd-row > b { color: var(--accent); padding-top: 10px; min-width: 40px; }
 .flow-nick { width: 100%; }
+/* My own seat in another player's hand: my cards, no nickname to type. */
+.flow-nick.mine { padding: 2px 2px 0; color: var(--muted); font-size: 0.75rem; font-weight: 700; }
 .flow-streetbar { display: flex; gap: 5px; }
 .flow-streetbar button { flex: 1; padding: 6px 0 5px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); font-size: 0.72rem; font-weight: 700; color: var(--muted); line-height: 1.25; display: flex; flex-direction: column; align-items: center; }
 .flow-streetbar button b { font-size: 1rem; color: var(--text); }
@@ -692,12 +781,12 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-outs .mini { display: flex; flex-wrap: wrap; gap: 2px; }
 .flow-result { display: flex; gap: 8px; }
 .flow-result .net { flex: 1.4; border-radius: 12px; padding: 7px 12px; font-weight: 900; font-size: 1.15rem; border: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; }
-.flow-result .net small { color: var(--muted); font-weight: 600; font-size: 0.7rem; }
+.flow-result .net small { color: var(--muted); font-weight: 600; font-size: 0.7rem; word-break: keep-all; }
 .flow-result .net.win { color: var(--call); border-color: var(--call); background: rgba(34, 197, 94, 0.1); }
 .flow-result .net.lose { color: #ff7b85; border-color: var(--raise); background: rgba(255, 77, 90, 0.08); }
 .flow-result .net.unknown { font-size: 0.9rem; }
 .flow-result-chips { display: flex; gap: 4px; margin-top: 4px; }
-.flow-result-chips button { padding: 3px 8px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.75rem; font-weight: 700; }
+.flow-result-chips button { min-height: 32px; min-width: 32px; padding: 3px 8px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.75rem; font-weight: 700; }
 .flow-result-chips button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .flow-result .go { flex: 1; border-radius: 12px; background: var(--panel-2); border: 1.5px solid var(--line); color: var(--text); font-weight: 800; }
 
@@ -719,7 +808,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-seat.own i { color: #9fd0ff; }
 .rt-seat.picked { border-color: #9fd0ff; box-shadow: 0 0 0 3px rgba(159, 208, 255, 0.3); }
 .rt-seat .tag { position: absolute; top: -11px; font-size: 0.56rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; background: #ffd166; color: #1b1400; white-space: nowrap; }
-.rt-seat .me { position: absolute; bottom: -9px; font-size: 0.56rem; font-weight: 800; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.rt-seat .me { position: absolute; bottom: -9px; font-size: 0.56rem; font-weight: 800; line-height: 1.3; padding: 1px 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); white-space: nowrap; }
+/* My own seat in another player's hand: the same tag, quieter than the subject's. */
+.rt-seat .me.mine { background: #e2e8f0; color: #0b1220; }
 .rt-bub { position: absolute; transform: translate(-50%, -50%); z-index: 2; font-size: 0.6rem; font-weight: 800; padding: 2px 6px 2px; border-radius: 9px; white-space: nowrap; background: rgba(9, 12, 17, 0.9); border: 1.5px solid #556; color: #b8c2d3; display: flex; flex-direction: column; align-items: center; line-height: 1.12; pointer-events: none; }
 .rt-bub b { font-size: 0.62rem; color: var(--text); font-weight: 800; }
 .rt-bub em { position: absolute; top: -7px; left: -7px; font-style: normal; width: 14px; height: 14px; border-radius: 50%; background: #2b3445; border: 1px solid #556; color: var(--text); font-size: 0.52rem; display: grid; place-items: center; }
@@ -748,6 +839,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-card.empty { background: rgba(255, 255, 255, 0.05); border: 1.5px dashed rgba(255, 255, 255, 0.25); box-shadow: none; }
 .rt-card.back { background: repeating-linear-gradient(45deg, #b91c1c 0 4px, #7f1d1d 4px 8px); border: 2px solid #fff; }
 .rt-card.hot { box-shadow: 0 0 0 3px #22c55e, 0 0 18px rgba(34, 197, 94, 0.9); }
+/* A guessed suit: dashed edge, faded suit (same size, so the layout never changes). */
+.rt-card.guess { outline: 1.5px dashed rgba(17, 17, 17, 0.55); outline-offset: -3px; }
+.rt-card.guess small { opacity: 0.5; }
 /* over the hot card (RaceTable sets left; tableLayout's HOT_LIFT is this top) */
 .rt-hottag { position: absolute; top: -17px; transform: translateX(-50%); font-size: 0.6rem; font-weight: 900; line-height: 1; color: #04140a; background: #22c55e; padding: 0 5px; border-radius: 999px; white-space: nowrap; }
 .rt-herocards { position: absolute; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 4; pointer-events: none; }

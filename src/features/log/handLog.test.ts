@@ -267,9 +267,11 @@ describe("quick record", () => {
       expect(quickSaveAction(quick({ hole: AdTd, ...patch }), quick({ ...patch }), true)).toBe("save");
     }
     expect(worthKeeping(quick({ seat: "CO" }))).toBe(true);
-    // a hand recorded on the table needs cards, actions or a note, as before
-    expect(worthKeeping(hand({ seat: "CO", stack: 32000 }))).toBe(false);
+    // the same for a hand recorded on the table, mine or another player's: anything typed into it keeps it
+    expect(worthKeeping(hand({ seat: "CO", stack: 32000 }))).toBe(true);
     expect(worthKeeping(hand({ seat: "CO", hole: AdTd }))).toBe(true);
+    // the level alone doesn't: every new hand starts with one
+    expect(worthKeeping(hand({ level: 6 }))).toBe(false);
   });
 
   it("deletes the hand again once nothing worth keeping is left in it", () => {
@@ -307,39 +309,38 @@ describe("quick record", () => {
     expect(quickSettled(null, quick({ hole: AdTd }), true)).toBe(false);
   });
 
-  it("opens quick hands on the quick screen until actions are recorded on the table", () => {
+  it("opens every saved hand in the table flow (the quick screen is gone)", () => {
     const q = quick({ id: "q1", hole: AdTd });
     expect(isQuickHand(q)).toBe(true);
-    expect(handRoute(q)).toBe("log/quick/q1");
-    // carried on to the table: actions (or a board or showdown) make it a table hand
-    const played = { ...q, steps: [{ s: "UTG", k: "fold" as const }] };
-    expect(isQuickHand(played)).toBe(false);
-    expect(handRoute(played)).toBe("log/q1");
-    expect(isQuickHand({ ...q, board: parseCards("2c7d9h") })).toBe(false);
-    expect(isQuickHand({ ...q, showdowns: [{ name: "", seat: "BB", cards: [], did: "" }] })).toBe(false);
-    // hands recorded on the table, and older memos, open on the table as before
-    const table = hand({ id: "t1", seat: "BTN", hole: AdTd });
-    expect(isQuickHand(table)).toBe(false);
-    expect(handRoute(table)).toBe("log/t1");
+    expect(handRoute(q)).toBe("log/q1");
+    expect(handRoute(hand({ id: "t1", seat: "BTN", hole: AdTd }))).toBe("log/t1");
+    expect(handRoute(hand({ id: "o1", kind: "other", seat: "CO", hole: AdTd }))).toBe("log/o1");
   });
 
   it("maps #log routes to screens", () => {
     const q = quick({ id: "q1", hole: AdTd });
     const played = hand({ id: "p1", quick: true, hole: AdTd, steps: [{ s: "UTG", k: "fold" }] });
-    const hands = [q, played];
+    const other = hand({ id: "o1", kind: "other", seat: "CO", hole: AdTd });
+    const hands = [q, played, other];
     expect(logView("", hands)).toEqual({ kind: "new" });
     expect(logView("new", hands)).toEqual({ kind: "new" });
-    expect(logView("list", hands)).toEqual({ kind: "list" });
+    expect(logView("list", hands)).toEqual({ kind: "list", filter: "all" });
+    expect(logView("list/mine", hands)).toEqual({ kind: "list", filter: "mine" });
+    expect(logView("list/other", hands)).toEqual({ kind: "list", filter: "other" });
     expect(logView("players", hands)).toEqual({ kind: "players" });
-    expect(logView("quick", hands)).toEqual({ kind: "quick", id: null });
-    expect(logView("quick/q1", hands)).toEqual({ kind: "quick", id: "q1" });
-    // an old link to a hand since recorded on the table opens the table flow
+    // another player's hand: a new one, the one saved there, one of mine asked for there, one deleted
+    expect(logView("other", hands)).toEqual({ kind: "other", id: null });
+    expect(logView("other/o1", hands)).toEqual({ kind: "other", id: "o1" });
+    expect(logView("other/q1", hands)).toEqual({ kind: "edit", id: "q1" });
+    expect(logView("other/gone", hands)).toEqual({ kind: "other", id: null });
+    // the old quick-record links: the new hand, or that hand in the table flow
+    expect(logView("quick", hands)).toEqual({ kind: "new" });
+    expect(logView("quick/q1", hands)).toEqual({ kind: "edit", id: "q1" });
     expect(logView("quick/p1", hands)).toEqual({ kind: "edit", id: "p1" });
-    // deleted meanwhile: a new quick hand
-    expect(logView("quick/gone", hands)).toEqual({ kind: "quick", id: null });
-    // "<id>" is always the table flow, a quick hand too ("테이블로 이어서 기록 →")
+    expect(logView("quick/gone", hands)).toEqual({ kind: "new" });
+    // "<id>" is always the table flow
     expect(logView("q1", hands)).toEqual({ kind: "edit", id: "q1" });
-    expect(logView("p1", hands)).toEqual({ kind: "edit", id: "p1" });
+    expect(logView("o1", hands)).toEqual({ kind: "edit", id: "o1" });
   });
 
   it("offers a quick hand for resuming like any other", () => {
@@ -388,7 +389,7 @@ describe("quick record: the preflop block", () => {
     // cards cleared to be typed again: the preflop is kept with the hand
     expect(worthKeeping(quick({ quickPre: call }))).toBe(true);
     expect(quickSaveAction(quick({ hole: AdTd, quickPre: call }), quick({ quickPre: call }), true)).toBe("save");
-    expect(worthKeeping(hand({ quickPre: call }))).toBe(false);
+    expect(worthKeeping(hand({ quickPre: call }))).toBe(true);
     // an edit in the block is saved; the same block again writes nothing
     const stored = quick({ hole: AdTd, seat: "BB", quickPre: call, updatedAt: 1 });
     expect(quickSaveAction(stored, { ...stored, quickPre: { ...call, openBb: 3 } }, true)).toBe("save");
