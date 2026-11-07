@@ -18,6 +18,17 @@ function record(t: TableInput, moves: [string, LogStep["k"], number?][]): LogSte
 }
 
 describe("action recorder", () => {
+  it("keeps a bet typed in chips exact through the bb round trip (5,000 at 800/1600, not 5,008)", () => {
+    // 5,000 / 1,600 = 3.125bb; rounding bb to two decimals used to turn it into 3.13bb = 5,008 chips.
+    for (const [bbChips, chips] of [[1600, 5000], [1200, 5000], [1600, 3300], [2400, 7700], [600, 1850]]) {
+      const t = table({ heroSeat: "BB", heroStack: 40 });
+      const steps = record(t, [["CO", "raise", chips / bbChips], ["BB", "call"]]);
+      const { game } = replay(t, steps);
+      const chipsLabel = (x: number) => amountLabel(x, bbChips);
+      expect(streetLines(game, chipsLabel)[0].actions).toEqual([`CO 오픈 ${chips.toLocaleString()}`, `BB(나) 콜 ${chips.toLocaleString()}`]);
+    }
+  });
+
   it("CO opens, BTN 3-bets, BB (me) calls, CO folds", () => {
     const t = table();
     const steps = record(t, [["CO", "raise", 2.5], ["BTN", "raise", 7.5], ["BB", "call"], ["CO", "fold"]]);

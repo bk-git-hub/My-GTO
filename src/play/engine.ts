@@ -69,7 +69,9 @@ export interface Game {
   payouts: Payout[];
 }
 
-const r1 = (x: number) => Math.round(x * 100) / 100;
+// Amounts are in bb. Round away float dust only: chip amounts typed in the hand log (5,000 at 800/1600 =
+// 3.125bb) must survive the bb round trip, so this keeps six decimals rather than two.
+const r1 = (x: number) => Math.round(x * 1e6) / 1e6;
 
 export function pot(g: Game): number {
   return r1(g.dead + g.players.reduce((s, p) => s + p.total, 0));

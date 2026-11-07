@@ -33,6 +33,7 @@ import { preSteps } from "./quickPre";
 import type { LogStep } from "./recorder";
 
 const hand = (over: Partial<LoggedHand>): LoggedHand => ({ ...emptyHand(null), ...over });
+const CREATED = Date.UTC(2026, 10, 6, 9, 0);
 
 describe("hand log", () => {
   it("lets a new quick hand be saved with two clean cards or a note, never with a half-typed hand alone", () => {
@@ -183,7 +184,8 @@ describe("new hands and resuming", () => {
 });
 
 describe("quick record", () => {
-  const quick = (over: Partial<LoggedHand> = {}) => hand({ id: "q1", quick: true, level: 6, ...over });
+  // A fixed createdAt: two hands built a millisecond apart must still count as the same hand.
+  const quick = (over: Partial<LoggedHand> = {}) => hand({ id: "q1", quick: true, level: 6, createdAt: CREATED, ...over });
   const AdTd = parseCards("AdTd");
 
   it("saves a new hand the moment it has two clean cards or a note", () => {
@@ -349,7 +351,8 @@ describe("quick record", () => {
 });
 
 describe("quick record: the preflop block", () => {
-  const quick = (over: Partial<LoggedHand> = {}) => hand({ id: "qp", quick: true, level: 6, ...over });
+  // A fixed createdAt: two hands built a millisecond apart must still count as the same hand.
+  const quick = (over: Partial<LoggedHand> = {}) => hand({ id: "qp", quick: true, level: 6, createdAt: CREATED, ...over });
   const AdTd = parseCards("AdTd");
   const call = { stage: "mid" as const, action: "call" as const, openBb: 2.5, openerSeat: "CO" };
 
