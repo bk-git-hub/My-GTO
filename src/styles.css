@@ -19,6 +19,10 @@
   --err: #ff5a64;
   --warn: #fbbf24;
   --radius: 14px;
+  /* Keypad keys: 빠른 기록's rank pad and every card entry of the hand log share one size. */
+  --pad-key: 46px;
+  --pad-gap: 5px;
+  --pad-font: 1.3rem;
   color-scheme: dark;
 }
 
@@ -515,9 +519,6 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 @media (max-width: 389px) {
   .quick-status .qs-word { display: none; }
 }
-/* The hand comes first and gets the biggest targets. */
-.quick-body .cardkeys .ranks button, .hand-first .cardkeys .ranks button { height: 44px; }
-.quick-body .cardkeys .suits button, .hand-first .cardkeys .suits button { height: 50px; }
 .quick-hand { display: flex; flex-direction: column; gap: 6px; }
 .quick-hand .flow-label small { color: var(--text); font-weight: 800; }
 /* The quick screen's fields: the table flow's inputs, spaced like the setup step. */
@@ -686,15 +687,14 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .suitless-field small { margin-left: auto; color: var(--muted); font-size: 0.72rem; font-weight: 700; text-align: right; }
 .suitless.board .suitless-field { min-height: 44px; }
 .suitless.board .sl-ranks { font-size: 1.15rem; }
-.cardkeys .kinds { display: grid; grid-template-columns: 1fr 1fr 0.6fr 0.55fr; gap: 5px; }
-.cardkeys .kinds.n3 { grid-template-columns: 1fr 1fr 1fr 0.55fr; }
-.cardkeys .kinds.n2 { grid-template-columns: 1fr 1fr 0.55fr; }
-.cardkeys .kinds button { height: 50px; font-size: 1rem; }
+/* What is remembered of the suits, on one row under the ranks (worded like 빠른 기록's 수딧 / 오프수트). */
+.cardkeys .kinds { display: grid; grid-template-columns: 1fr 1fr 0.6fr; gap: var(--pad-gap); }
+.cardkeys .kinds.n3 { grid-template-columns: repeat(3, 1fr); }
+.cardkeys .kinds.n2 { grid-template-columns: repeat(2, 1fr); }
+.cardkeys .kinds button { font-size: 1rem; font-weight: 800; }
 .cardkeys .kinds button.small { font-size: 0.8rem; color: #c7d0dd; }
 .cardkeys .kinds button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .cardkeys button:disabled { opacity: 0.4; }
-.suitless.board .cardkeys .ranks button { height: 40px; }
-.suitless.board .cardkeys .kinds button { height: 44px; font-size: 0.88rem; }
 
 /* Guessed suits near the board: "핸드·플랍 무늬 추정", and for a two-tone flop which two share. */
 .flow-guess { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.74rem; color: var(--muted); font-weight: 700; }
@@ -775,15 +775,18 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .cardtext-field .parsed { display: flex; gap: 3px; }
 .cardtext-msg { font-size: 0.78rem; color: var(--muted); }
 .cardtext-msg.bad { color: var(--err); }
-.cardkeys { display: flex; flex-direction: column; gap: 5px; }
-.cardkeys .ranks { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; }
-.cardkeys .suits { display: grid; grid-template-columns: repeat(4, 1fr) 0.8fr 0.8fr; gap: 5px; }
-.cardkeys button { height: 40px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-weight: 800; font-size: 0.95rem; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
-.cardkeys .suits button { height: 46px; font-size: 1.25rem; }
-.cardkeys .suits button small { font-size: 0.62rem; color: var(--muted); }
+/*
+ * The card keypad, sized like 빠른 기록's pad (--pad-*): the ranks and ⌫ on two rows of seven, then the
+ * four suits (or, without suits, what is remembered of them) on a row of the same height.
+ */
+.cardkeys { display: flex; flex-direction: column; gap: var(--pad-gap); }
+.cardkeys .ranks { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--pad-gap); }
+.cardkeys .suits { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--pad-gap); }
+.cardkeys button { height: var(--pad-key); border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-weight: 900; font-size: var(--pad-font); padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.cardkeys .ranks .back { color: var(--muted); font-size: 1.1rem; }
+.cardkeys .suits button small { margin-top: 2px; font-size: 0.66rem; color: var(--muted); }
 .cardkeys .s-s { color: var(--suit-s); } .cardkeys .s-h { color: var(--suit-h); } .cardkeys .s-d { color: var(--suit-d); } .cardkeys .s-c { color: var(--suit-c); }
 .cardtext.inline { flex: 1; min-width: 0; }
-.cardtext.inline .cardkeys .ranks button { height: 34px; font-size: 0.8rem; }
 
 /* result */
 .flow-sd { display: flex; flex-direction: column; gap: 7px; }
@@ -1055,8 +1058,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-class small { margin-left: 1px; color: var(--accent); font-size: 1.3rem; }
 .fast-class.done { color: var(--accent); }
 .fast-nudge { min-width: 0; padding: 3px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 0.74rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fast-pad { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-.fast-pad button { height: 46px; padding: 0; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 1.3rem; font-weight: 900; }
+.fast-pad { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--pad-gap); }
+.fast-pad button { height: var(--pad-key); padding: 0; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: var(--pad-font); font-weight: 900; }
 .fast-pad button:active { background: var(--panel-2); }
 .fast-pad .fast-back { color: var(--muted); font-size: 1.1rem; }
 .fast-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }

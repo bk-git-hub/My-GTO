@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { handClassOf, rankOf, RANKS, suitOf, type Card } from "../../poker/cards";
 import { holeClass, holeGuessed, type LoggedHand } from "./handLog";
-import { CardText } from "./inputs";
+import { CardText, RankKeys } from "./inputs";
 import { flopFromRanks, holeFromRanks, nextBoardCard, type FlopTexture, type HoleKind, type NextSuitMode } from "./suitGuess";
 
 /**
@@ -10,7 +10,6 @@ import { flopFromRanks, holeFromRanks, nextBoardCard, type FlopTexture, type Hol
  * 플러시 무늬). suitGuess.ts picks concrete cards that clash with nothing known; the hand marks them as guessed.
  */
 
-const RANK_KEYS = "AKQJT98765432".split("");
 const rankIndex = (k: string) => RANKS.indexOf(k);
 const byRank = (a: number, b: number) => b - a;
 
@@ -145,22 +144,13 @@ export function HoleEntry(props: { h: Pick<LoggedHand, "hole" | "guess" | "holeK
           </button>
           {err && <div className="cardtext-msg bad">{err}</div>}
           <div className="cardkeys">
-            <div className="ranks">
-              {RANK_KEYS.map((k) => (
-                <button key={k} type="button" disabled={ranks.length >= 2} onClick={() => setRanksTo([...ranks, rankIndex(k)])}>
-                  {k}
-                </button>
-              ))}
-            </div>
+            <RankKeys ranksOff={ranks.length >= 2} backOff={!ranks.length} onRank={(k) => setRanksTo([...ranks, rankIndex(k)])} onBack={() => setRanksTo(ranks.slice(0, -1))} />
             <div className="kinds">
               {(["suited", "offsuit", "unknown"] as const).map((k) => (
                 <button key={k} type="button" className={`${k === "unknown" ? "small" : ""}${filled && h.holeKind === k ? " on" : ""}`} disabled={!askKind} onClick={() => fill(ranks, k)}>
                   {KIND_LABEL[k]}
                 </button>
               ))}
-              <button type="button" aria-label="지우기" disabled={!ranks.length} onClick={() => setRanksTo(ranks.slice(0, -1))}>
-                ⌫
-              </button>
             </div>
           </div>
         </div>
@@ -222,13 +212,7 @@ export function BoardRanks(props: { street: "flop" | "turn" | "river"; board: Ca
       </div>
       {err && <div className="cardtext-msg bad">{err}</div>}
       <div className="cardkeys">
-        <div className="ranks">
-          {RANK_KEYS.map((k) => (
-            <button key={k} type="button" disabled={full} onClick={() => (setErr(""), setRanks([...ranks, rankIndex(k)]))}>
-              {k}
-            </button>
-          ))}
-        </div>
+        <RankKeys ranksOff={full} backOff={!ranks.length} onRank={(k) => (setErr(""), setRanks([...ranks, rankIndex(k)]))} onBack={() => (setErr(""), setRanks(ranks.slice(0, -1)))} />
         <div className={`kinds n${flop ? 3 : 2}`}>
           {flop
             ? FLOP_TEXTURES.map(([t, l]) => (
@@ -241,9 +225,6 @@ export function BoardRanks(props: { street: "flop" | "turn" | "river"; board: Ca
                   {l}
                 </button>
               ))}
-          <button type="button" aria-label="지우기" disabled={!ranks.length} onClick={() => (setErr(""), setRanks(ranks.slice(0, -1)))}>
-            ⌫
-          </button>
         </div>
       </div>
     </div>

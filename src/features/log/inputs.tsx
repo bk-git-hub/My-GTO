@@ -21,6 +21,29 @@ export function TableCard({ c, small, hot, guess }: { c: Card; small?: boolean; 
   );
 }
 
+const RANK_KEYS = "AKQJT98765432".split("");
+
+/**
+ * The thirteen rank keys and ⌫ on two rows of seven, like 빠른 기록's pad and sized with it (--pad-* in
+ * styles.css): every card entry of the hand log types its ranks here. `ranksOff` rests the rank keys
+ * (all the ranks are in), `backOff` rests ⌫ (nothing to erase).
+ */
+export function RankKeys(props: { onRank: (rank: string) => void; onBack: () => void; ranksOff?: boolean; backOff?: boolean }) {
+  const { onRank, onBack, ranksOff, backOff } = props;
+  return (
+    <div className="ranks">
+      {RANK_KEYS.map((k) => (
+        <button key={k} type="button" disabled={ranksOff} onClick={() => onRank(k)}>
+          {k}
+        </button>
+      ))}
+      <button type="button" className="back" aria-label="지우기" disabled={backOff} onClick={onBack}>
+        ⌫
+      </button>
+    </div>
+  );
+}
+
 /**
  * Cards as text ("AdTd") with a rank/suit keypad; a 52-card table is one tap away.
  * `onValid` hears whether the text is clean: false while it has a typo or a half-typed card,
@@ -71,13 +94,7 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
       {parsed.error ? <div className="cardtext-msg bad">{parsed.error}</div> : hint ? <div className="cardtext-msg">{hint}</div> : null}
       {keys && (
         <div className="cardkeys">
-          <div className="ranks">
-            {"AKQJT98765432".split("").map((k) => (
-              <button key={k} type="button" onClick={() => update(text + k)}>
-                {k}
-              </button>
-            ))}
-          </div>
+          <RankKeys onRank={(k) => update(text + k)} onBack={() => update(text.slice(0, -1))} backOff={!text} />
           <div className="suits">
             {SUITS.split("").map((s) => (
               <button key={s} type="button" className={`s-${s}`} onClick={() => update(text + s)}>
@@ -85,9 +102,6 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
                 <small>{s}</small>
               </button>
             ))}
-            <button type="button" onClick={() => update(text.slice(0, -1))} aria-label="지우기">
-              ⌫
-            </button>
           </div>
         </div>
       )}

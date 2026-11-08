@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { emptyHand, handLogStore, localDay, putAside, type LoggedHand } from "./handLog";
-import { bbText, LevelRow } from "./inputs";
+import { bbText, CardText, LevelRow } from "./inputs";
 import { ListView, LogPage } from "./LogPage";
 import { BoardRanks, HoleEntry } from "./SuitEntry";
 import { fastHand, fastOtherStore, fastStore, newDraft, pickSuited, startEdit, tapRank, type FastDraft } from "./fastLog";
@@ -119,6 +119,31 @@ describe("무늬 모름 entry (react-dom/server)", () => {
     const turn = render(<BoardRanks street="turn" board={parseCards("Kh9h2d")} taken={[]} onFill={noop} />);
     expect(text(turn)).toContain("턴 숫자 하나");
     expect(turn).toMatch(/<div class="kinds n2"><button type="button" disabled="">새 무늬<\/button><button type="button" disabled="">플러시 무늬<\/button>/);
+  });
+});
+
+describe("card keypads: one rank pad, like 빠른 기록's (react-dom/server)", () => {
+  /** The labels of a keypad's rank grid, and of the row under it. */
+  const grid = (html: string, row: string) => [...(new RegExp(`<div class="${row}">(.*?)</div>`).exec(html)?.[1] ?? "").matchAll(/<button[^>]*>(.*?)<\/button>/g)].map((m) => m[1].replace(/<[^>]+>/g, ""));
+  const RANKS_AND_BACK = [..."AKQJT98765432", "⌫"];
+
+  it("puts ⌫ after the 13 ranks in every card entry, the suits or what is remembered of them on the row below", () => {
+    const exact = render(<CardText cards={[]} max={2} taken={[]} onChange={noop} />);
+    expect(grid(exact, "ranks")).toEqual(RANKS_AND_BACK);
+    expect(grid(exact, "suits")).toEqual(["♠s", "♥h", "♦d", "♣c"]);
+    const hole = render(<HoleEntry h={{ hole: parseCards("AsTs"), guess: { hole: true }, holeKind: "suited" }} taken={[]} onChange={noop} />);
+    expect(grid(hole, "ranks")).toEqual(RANKS_AND_BACK);
+    expect(grid(hole, "kinds")).toEqual(["수딧", "오프수트", "모름"]);
+    const flop = render(<BoardRanks street="flop" board={[]} taken={[]} onFill={noop} />);
+    expect(grid(flop, "ranks")).toEqual(RANKS_AND_BACK);
+    expect(grid(flop, "kinds n3")).toEqual(["레인보우", "투톤", "모노톤"]);
+  });
+
+  it("rests ⌫ while there is nothing to erase", () => {
+    const back = (html: string) => /<button type="button" class="back" aria-label="지우기"( disabled="")?>⌫<\/button>/.exec(html);
+    expect(back(render(<CardText cards={[]} max={2} taken={[]} onChange={noop} />))?.[1]).toBe(' disabled=""');
+    expect(back(render(<CardText cards={parseCards("Ad")} max={2} taken={[]} onChange={noop} />))?.[1]).toBeUndefined();
+    expect(back(render(<BoardRanks street="turn" board={parseCards("Kh9h2d")} taken={[]} onFill={noop} />))?.[1]).toBe(' disabled=""');
   });
 });
 
