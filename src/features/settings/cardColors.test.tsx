@@ -119,7 +119,7 @@ describe("설정 · 카드 색 (react-dom/server)", () => {
     const cards = [...html.matchAll(/<span class="card card-sm suit-([shdc])"><span class="card-rank">([2-9TJQKA])<\/span>/g)].map((m) => m[2] + m[1]);
     expect(cards).toEqual(["As", "Kh", "Qd", "Jc"]);
     expect(html).toMatch(/<span class="hole-text"><i class="s-s">A♠︎<\/i><i class="s-h">K♥︎<\/i><i class="s-d">Q♦︎<\/i><i class="s-c">J♣︎<\/i><\/span>/);
-    expect(text(html)).toContain("무늬마다 색이 달라서 한눈에 구분돼요.");
+    expect(text(html)).toContain("수트마다 색이 달라서 한눈에 구분돼요.");
 
     withColors("two");
     html = page();

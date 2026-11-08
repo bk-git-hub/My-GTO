@@ -62,7 +62,7 @@ export function isCoachConfigured(s: Settings): boolean {
 }
 
 export const CARD_COLOR_OPTIONS: { id: CardColors; label: string; note: string }[] = [
-  { id: "four", label: "4색 (온라인 표준)", note: "무늬마다 색이 달라서 한눈에 구분돼요." },
+  { id: "four", label: "4색 (온라인 표준)", note: "수트마다 색이 달라서 한눈에 구분돼요." },
   { id: "two", label: "2색 (실물 카드)", note: "실물 카드처럼 검정과 빨강 두 색이에요." },
 ];
 

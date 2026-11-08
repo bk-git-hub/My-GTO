@@ -98,7 +98,7 @@ function scoutFile(seats: number): string {
 }
 
 describe("known cards win over guessed ones", () => {
-  // 무늬 모름: A K suited, guessed as A♠K♠
+  // 수딧·오프만: A K suited, guessed as A♠K♠
   const guessedAKs = () => withHole(hand({ seat: "BTN" }), holeFromRanks(12, 11, "suited", [])!, true, "suited");
 
   it("moves a guessed hole card off a real flop card, keeping what was remembered", () => {

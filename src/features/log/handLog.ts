@@ -364,13 +364,13 @@ export function holeClass(h: Pick<LoggedHand, "hole" | "guess" | "holeKind">): s
   return RANKS[hi] + RANKS[lo] + (h.holeKind === "suited" ? "s" : h.holeKind === "offsuit" ? "o" : "");
 }
 
-/** The hand class for labels and grading text: "ATs", or "ATs (무늬 추정)" when the suits were guessed. */
+/** The hand class for labels and grading text: "ATs", or "ATs (수트 추정)" when the suits were guessed. */
 export function holeLabel(h: Pick<LoggedHand, "hole" | "guess" | "holeKind">): string {
   const cls = holeClass(h);
-  return cls && holeGuessed(h) ? `${cls} (무늬 추정)` : cls;
+  return cls && holeGuessed(h) ? `${cls} (수트 추정)` : cls;
 }
 
-/** "플랍·턴 무늬 추정" for guessed board cards, "" when the board's suits are all known. */
+/** "플랍·턴 수트 추정" for guessed board cards, "" when the board's suits are all known. */
 export function boardGuessText(h: Pick<LoggedHand, "board" | "guess">): string {
   return describeGuess({ board: (h.guess?.board ?? []).filter((i) => i < h.board.length) });
 }
@@ -383,7 +383,7 @@ export function hasContent(h: LoggedHand): boolean {
 /**
  * A hand on file still holds something worth keeping: cards, a note or table actions, or anything else
  * typed into it: the seat, a stack (its own or another seat's), the result, the preflop block, my seat
- * in another player's hand, street notes. So clearing its cards to type them again (⌫⌫ in 무늬 모름 too)
+ * in another player's hand, street notes. So clearing its cards to type them again (⌫⌫ in 수딧·오프만 too)
  * doesn't drop the rest. The level isn't counted: every new hand starts with one, typed or not.
  */
 export function worthKeeping(h: LoggedHand): boolean {
@@ -1093,12 +1093,12 @@ export function holeText(cs: Card[]): string {
   return cs.length ? cardsText(cs) : "모름";
 }
 
-/** The subject's hole cards as text: "A♦ T♦ (ATs)", or for guessed suits only what is known, "ATs (무늬 추정)". */
+/** The subject's hole cards as text: "A♦ T♦ (ATs)", or for guessed suits only what is known, "ATs (수트 추정)". */
 export function handHoleText(h: Pick<LoggedHand, "hole" | "guess" | "holeKind">): string {
   return holeGuessed(h) ? holeLabel(h) : holeText(h.hole);
 }
 
-/** The board as text, with which streets' suits were guessed: "K♦ 9♦ 2♠ 6♣ (플랍 무늬 추정)". */
+/** The board as text, with which streets' suits were guessed: "K♦ 9♦ 2♠ 6♣ (플랍 수트 추정)". */
 export function boardText(h: Pick<LoggedHand, "board" | "guess">): string {
   const g = boardGuessText(h);
   return `${cardsText(h.board)}${g ? ` (${g})` : ""}`;
@@ -1133,7 +1133,7 @@ export function handFacts(h: LoggedHand): string {
     `${subjectWord(h, "스택")}: ${h.stack !== null ? `${h.stack.toLocaleString()}칩` : "모름"}${bb !== null ? ` (${bb}bb)` : ""}`,
   ];
   if (other && h.mySeat) lines.push(`내 자리: ${h.mySeat} (같은 테이블에서 지켜봄)`);
-  if (holeGuessed(h) || boardGuessText(h)) lines.push("참고: 무늬를 추정한 카드가 있어 플러시 관련 승률은 근사값");
+  if (holeGuessed(h) || boardGuessText(h)) lines.push("참고: 수트를 추정한 카드가 있어 플러시 관련 승률은 근사값");
   if (h.board.length) lines.push(`보드: ${boardText(h)}`);
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {

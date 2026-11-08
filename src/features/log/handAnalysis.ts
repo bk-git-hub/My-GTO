@@ -37,7 +37,7 @@ export function parseCardText(text: string, max: number, taken: Card[] = []): Pa
     const r = RANKS.indexOf(t[i].toUpperCase());
     const su = SUITS.indexOf(t[i + 1].toLowerCase());
     if (r < 0) return { cards, pending: "", error: `'${t[i]}'는 랭크가 아니에요 (A K Q J T 9…2)` };
-    if (su < 0) return { cards, pending: "", error: `'${t[i + 1]}'는 무늬가 아니에요 (s h d c)` };
+    if (su < 0) return { cards, pending: "", error: `'${t[i + 1]}'는 수트가 아니에요 (s h d c)` };
     const c = r * 4 + su;
     if (cards.includes(c)) return { cards, pending: "", error: `${cardLabel(c)}가 두 번 들어갔어요` };
     if (taken.includes(c)) return { cards, pending: "", error: `${cardLabel(c)}는 이미 다른 곳에 있어요` };
@@ -215,7 +215,7 @@ export interface HeroDecision {
 }
 
 /** What the UI says when guessed suits are in play: the hand class and ranks are real, the suits picked. */
-export const SUIT_GUESS_NOTE = "무늬를 추정한 카드가 있어 플러시 관련 승률은 근사예요";
+export const SUIT_GUESS_NOTE = "수트를 추정한 카드가 있어 플러시 관련 승률은 근사예요";
 
 export interface HandAnalysis {
   game: Game;

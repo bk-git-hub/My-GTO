@@ -222,7 +222,7 @@ export function setHoleGuess(g: SuitGuess | undefined, on: boolean): SuitGuess |
   return cleanGuess({ ...g, hole: on ? true : undefined });
 }
 
-/** Short Korean label for the UI, e.g. "핸드 무늬 추정", "핸드·플랍·턴 무늬 추정"; "" when nothing was guessed. */
+/** Short Korean label for the UI, e.g. "핸드 수트 추정", "핸드·플랍·턴 수트 추정"; "" when nothing was guessed. */
 export function describeGuess(g: SuitGuess | undefined | null): string {
   const clean = cleanGuess(g);
   if (!clean) return "";
@@ -232,5 +232,5 @@ export function describeGuess(g: SuitGuess | undefined | null): string {
   if (idx.some((i) => i <= 2)) parts.push("플랍");
   if (idx.includes(3)) parts.push("턴");
   if (idx.includes(4)) parts.push("리버");
-  return `${parts.join("·")} 무늬 추정`;
+  return `${parts.join("·")} 수트 추정`;
 }

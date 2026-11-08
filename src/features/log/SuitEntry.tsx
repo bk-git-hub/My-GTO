@@ -5,9 +5,10 @@ import { CardText, RankKeys } from "./inputs";
 import { flopFromRanks, holeFromRanks, nextBoardCard, type FlopTexture, type HoleKind, type NextSuitMode } from "./suitGuess";
 
 /**
- * Entering cards whose suits aren't remembered ("무늬 모름"): the ranks on a keypad, then what is
- * remembered about the suits (수딧 / 오프수트, or the flop's 레인보우 / 투톤 / 모노톤, the turn's 새 무늬 /
- * 플러시 무늬). suitGuess.ts picks concrete cards that clash with nothing known; the hand marks them as guessed.
+ * Entering cards whose suits aren't remembered ("수딧·오프만" for the hand, "숫자만" for the board): the
+ * ranks on a keypad, then what is remembered about the suits (수딧 / 오프수트, or the flop's 레인보우 / 투톤 /
+ * 모노톤, the turn's 새 수트 / 플러시 수트). suitGuess.ts picks concrete cards that clash with nothing known;
+ * the hand marks them as guessed.
  */
 
 const rankIndex = (k: string) => RANKS.indexOf(k);
@@ -27,7 +28,7 @@ const MODE_KEY = "pubaj.holeMode";
 
 /**
  * The hole entry's last mode per kind of hand (mine / another player's), so someone collecting hands
- * without suits doesn't tap 무늬 모름 on every new hand. Kept for the session (sessionStorage, which a
+ * without suits doesn't tap 수딧·오프만 on every new hand. Kept for the session (sessionStorage, which a
  * private window may refuse: then for as long as the page is open).
  */
 const lastMode: Record<"mine" | "other", EntryMode> = (() => {
@@ -48,7 +49,7 @@ function rememberMode(kind: "mine" | "other", mode: EntryMode) {
 }
 
 /**
- * The hole cards: exact text on the card keypad, or with "무늬 모름" two ranks and then 수딧 / 오프수트
+ * The hole cards: with 수트 입력 exact text on the card keypad, with 수딧·오프만 two ranks and then 수딧 / 오프수트
  * (모름 if not even that); a pair needs nothing more. `onChange` gets `clean` false while the entry is
  * mid-way (one rank, or two waiting for 수딧/오프수트): the cards on file stay as they are then.
  * `taken`: known cards, which the exact field refuses; `avoid`: guessed cards elsewhere on the hand,
@@ -127,19 +128,19 @@ export function HoleEntry(props: { h: Pick<LoggedHand, "hole" | "guess" | "holeK
             exactClean.current = ok;
             onValid?.(ok);
           }}
-          hint={guessed ? `지금은 ${holeClass(h)} (무늬 추정) · 정확히 넣으면 바뀌어요` : h.hole.length === 2 ? handClassOf(h.hole[0], h.hole[1]) : undefined}
+          hint={guessed ? `지금은 ${holeClass(h)} (수트 추정) · 정확히 넣으면 바뀌어요` : h.hole.length === 2 ? handClassOf(h.hole[0], h.hole[1]) : undefined}
         />
       ) : (
         <div className="suitless">
-          <button type="button" className={`suitless-field${filled ? " ok" : ""}`} onClick={toggle} aria-label="무늬 직접 입력으로 바꾸기">
+          <button type="button" className={`suitless-field${filled ? " ok" : ""}`} onClick={toggle} aria-label="수트 입력으로 바꾸기">
             <span className="sl-ranks">{ranks.length ? ranks.map((r) => RANKS[r]).join(" ") : <i>숫자 두 개</i>}</span>
             {filled ? (
               <>
                 <b>{holeClass(h)}</b>
-                <small>무늬 추정 · 눌러서 고치기</small>
+                <small>수트 추정 · 눌러서 고치기</small>
               </>
             ) : (
-              <small>{askKind ? "수딧? 오프수트?" : "무늬 모름"}</small>
+              <small>{askKind ? "수딧? 오프수트?" : "수트 모름"}</small>
             )}
           </button>
           {err && <div className="cardtext-msg bad">{err}</div>}
@@ -155,14 +156,24 @@ export function HoleEntry(props: { h: Pick<LoggedHand, "hole" | "guess" | "holeK
           </div>
         </div>
       )}
-      <button type="button" className="suit-toggle" onClick={toggle}>
-        {mode === "exact" ? (
-          <>
-            무늬 모름 <small>수딧·오프수트만 기억나요</small>
-          </>
-        ) : (
-          "무늬 알면 직접 입력"
-        )}
+      <SuitModeToggle exact={mode === "exact"} ranksLabel="수딧·오프만" onSwitch={toggle} />
+    </div>
+  );
+}
+
+/**
+ * How a card entry takes the cards: "수트 입력" (the exact cards) or by ranks with what is remembered of
+ * the suits ("수딧·오프만" for the hand, "숫자만" for the board). `onSwitch` runs when the other side is tapped.
+ */
+export function SuitModeToggle(props: { exact: boolean; ranksLabel: string; onSwitch: () => void }) {
+  const { exact, ranksLabel, onSwitch } = props;
+  return (
+    <div className="seg small suit-toggle" role="group" aria-label="카드 입력 방식">
+      <button type="button" className={exact ? "on" : ""} aria-pressed={exact} onClick={() => !exact && onSwitch()}>
+        수트 입력
+      </button>
+      <button type="button" className={exact ? "" : "on"} aria-pressed={!exact} onClick={() => exact && onSwitch()}>
+        {ranksLabel}
       </button>
     </div>
   );
@@ -174,13 +185,13 @@ const FLOP_TEXTURES: [Exclude<FlopTexture, "unknown">, string][] = [
   ["monotone", "모노톤"],
 ];
 const NEXT_MODES: [Exclude<NextSuitMode, "unknown">, string][] = [
-  ["newSuit", "새 무늬"],
-  ["flushSuit", "플러시 무늬"],
+  ["newSuit", "새 수트"],
+  ["flushSuit", "플러시 수트"],
 ];
 
 /**
  * A street's board cards from their ranks alone: the flop's three ranks then 레인보우 / 투톤 / 모노톤,
- * the turn's or river's rank then 새 무늬 / 플러시 무늬. `board` holds the cards before this street;
+ * the turn's or river's rank then 새 수트 / 플러시 수트. `board` holds the cards before this street;
  * `onFill` gets this street's cards (to be marked as guessed).
  */
 export function BoardRanks(props: { street: "flop" | "turn" | "river"; board: Card[]; taken: Card[]; onFill: (cards: Card[]) => void }) {
@@ -208,7 +219,7 @@ export function BoardRanks(props: { street: "flop" | "turn" | "river"; board: Ca
     <div className="suitless board">
       <div className="suitless-field">
         <span className="sl-ranks">{ranks.length ? ranks.map((r) => RANKS[r]).join(" ") : <i>{label}</i>}</span>
-        <small>{full ? (flop ? "무늬는 어땠어요?" : "무늬는?") : "무늬 모름"}</small>
+        <small>{full ? (flop ? "수트는 어땠어요?" : "수트는?") : "수트 모름"}</small>
       </div>
       {err && <div className="cardtext-msg bad">{err}</div>}
       <div className="cardkeys">
@@ -249,7 +260,7 @@ export function FlopPairFix(props: { board: Card[]; guessed: number[]; taken: Ca
   const options = pairs.filter(([i, j]) => ranks[i] !== ranks[j]);
   return (
     <div className="flop-pair">
-      <span>투톤 · 같은 무늬</span>
+      <span>투톤 · 같은 수트</span>
       {options.map(([i, j]) => {
         const on = suits[i] === suits[j];
         return (

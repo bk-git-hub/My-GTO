@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 describe("핸드 복기: the hand first (react-dom/server)", () => {
-  it("opens on the hand step: the card keypad first, 무늬 모름, the save line and the two ways on", () => {
+  it("opens on the hand step: the card keypad first, 수트 입력 | 수딧·오프만, the save line and the two ways on", () => {
     put([]);
     const html = page("");
     const t = text(html);
@@ -36,12 +36,12 @@ describe("핸드 복기: the hand first (react-dom/server)", () => {
     expect(html).toMatch(/<div class="flow-label">내 핸드<span class="flow-aside"><button type="button" class="log-link" aria-label="지난 기록">지난<span class="ll-word"> 기록<\/span> ›<\/button><\/span><\/div>/);
     expect(html).not.toContain("log-quick");
     expect(t).not.toContain("빠른");
-    // the keypad right under it, then 무늬 모름
-    const order = ['class="cardtext-field', 'class="cardkeys"', 'class="suit-toggle"', 'class="save-line idle"', 'class="flow-next"', 'class="flow-later"'].map((x) => html.indexOf(x));
+    // the keypad right under it, then how the cards go in: 수트 입력 (lit) or 수딧·오프만
+    const order = ['class="cardtext-field', 'class="cardkeys"', 'class="seg small suit-toggle"', 'class="save-line idle"', 'class="flow-next"', 'class="flow-later"'].map((x) => html.indexOf(x));
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
-    expect(t).toContain("무늬 모름 수딧·오프수트만 기억나요");
+    expect(html).toContain('<div class="seg small suit-toggle" role="group" aria-label="카드 입력 방식"><button type="button" class="on" aria-pressed="true">수트 입력</button><button type="button" class="" aria-pressed="false">수딧·오프만</button></div>');
     expect(t).toContain("카드 두 장이나 메모를 넣으면 바로 저장돼요");
     // nothing saved yet: neither way on is open; nothing grabs focus (the phone keyboard stays down)
     expect(html).toMatch(/<button type="button" class="flow-next" disabled="">다음: 테이블 →<\/button>/);
@@ -89,14 +89,14 @@ describe("핸드 복기: the hand first (react-dom/server)", () => {
   });
 });
 
-describe("무늬 모름 entry (react-dom/server)", () => {
+describe("수딧·오프만 / 숫자만 entry (react-dom/server)", () => {
   it("shows guessed hole cards by their ranks and class, the remembered kind lit, tap to fix", () => {
     const html = render(<HoleEntry h={{ hole: parseCards("AsTs"), guess: { hole: true }, holeKind: "suited" }} taken={[]} onChange={noop} />);
-    expect(html).toMatch(/<button type="button" class="suitless-field ok" aria-label="무늬 직접 입력으로 바꾸기"><span class="sl-ranks">A T<\/span><b>ATs<\/b><small>무늬 추정 · 눌러서 고치기<\/small><\/button>/);
+    expect(html).toMatch(/<button type="button" class="suitless-field ok" aria-label="수트 입력으로 바꾸기"><span class="sl-ranks">A T<\/span><b>ATs<\/b><small>수트 추정 · 눌러서 고치기<\/small><\/button>/);
     expect(html).toMatch(/<div class="kinds"><button type="button" class=" on">수딧<\/button><button type="button" class="">오프수트<\/button><button type="button" class="small">모름<\/button>/);
     // both ranks in: the rank keys rest
     expect(html).toMatch(/<button type="button" disabled="">A<\/button>/);
-    expect(text(html)).toContain("무늬 알면 직접 입력");
+    expect(html).toContain('<div class="seg small suit-toggle" role="group" aria-label="카드 입력 방식"><button type="button" class="" aria-pressed="false">수트 입력</button><button type="button" class="on" aria-pressed="true">수딧·오프만</button></div>');
   });
 
   it("skips 수딧/오프수트 for a pair", () => {
@@ -118,7 +118,7 @@ describe("무늬 모름 entry (react-dom/server)", () => {
     expect(flop).toMatch(/<div class="kinds n3"><button type="button" disabled="">레인보우<\/button><button type="button" disabled="">투톤<\/button><button type="button" disabled="">모노톤<\/button>/);
     const turn = render(<BoardRanks street="turn" board={parseCards("Kh9h2d")} taken={[]} onFill={noop} />);
     expect(text(turn)).toContain("턴 숫자 하나");
-    expect(turn).toMatch(/<div class="kinds n2"><button type="button" disabled="">새 무늬<\/button><button type="button" disabled="">플러시 무늬<\/button>/);
+    expect(turn).toMatch(/<div class="kinds n2"><button type="button" disabled="">새 수트<\/button><button type="button" disabled="">플러시 수트<\/button>/);
   });
 });
 
@@ -220,14 +220,14 @@ describe("프리플랍 and the board (react-dom/server)", () => {
     expect(html).toMatch(/>딥<small>구간<\/small><\/button><button type="button">3bb<small>1,200<\/small><\/button><button type="button">3.5bb<small>1,400<\/small><\/button><button type="button">4bb<small>1,600<\/small><\/button>/);
   });
 
-  it("marks guessed suits on the table and offers 무늬 모름 for the board", () => {
+  it("marks guessed suits on the table and offers 숫자만 for the board", () => {
     const h: LoggedHand = { ...emptyHand(9), id: "f1", seat: "BTN", hole: parseCards("AsTs"), guess: { hole: true }, holeKind: "suited", stack: 32000, steps: [{ s: "UTG", k: "fold" }, { s: "UTG+1", k: "fold" }, { s: "UTG+2", k: "fold" }, { s: "LJ", k: "fold" }, { s: "HJ", k: "fold" }, { s: "CO", k: "fold" }, { s: "BTN", k: "raise", to: 2.2 }, { s: "SB", k: "fold" }, { s: "BB", k: "call" }] };
     put([h]);
     const html = page("f1");
     expect(lit(html)).toBe("플랍");
-    expect(html).toContain('<div class="flow-guess"><span>핸드 무늬 추정</span></div>');
+    expect(html).toContain('<div class="flow-guess"><span>핸드 수트 추정</span></div>');
     expect(html).toMatch(/class="rt-card s-s small  guess"/);
-    expect(text(html)).toContain("무늬 모름 숫자만 기억나요");
+    expect(html).toContain('<div class="seg small suit-toggle" role="group" aria-label="카드 입력 방식"><button type="button" class="on" aria-pressed="true">수트 입력</button><button type="button" class="" aria-pressed="false">숫자만</button></div>');
     expect(text(html)).toContain("나중에 작성하기");
   });
 });
@@ -260,7 +260,7 @@ describe("지난 기록 보기 (react-dom/server)", () => {
     const html = page("list");
     // another player's: the 남 badge, their seat, the class, the preflop line; collected for its range
     // (cards, seat, what they did) it is complete as it is, not 작성 중
-    expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">CO<\/b><b class="log-class">K9s<\/b><span class="log-end"><span class="log-tag soft">무늬 추정<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 2.5bb<\/span>/);
+    expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">CO<\/b><b class="log-class">K9s<\/b><span class="log-end"><span class="log-tag soft">수트 추정<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 2.5bb<\/span>/);
     // unfinished hands carry 이어서 작성; a finished one doesn't
     expect(html.match(/<span class="log-continue">이어서 작성 ›<\/span>/g)).toHaveLength(1);
     expect(html).toMatch(/<button class="log-row"><span class="log-row-main"><b class="log-seat">CO<\/b><span class="card-row">.*?<span class="log-end"><span class="log-result win">이김<\/span><\/span>/);

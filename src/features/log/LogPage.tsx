@@ -242,7 +242,7 @@ function ConfirmSheet({ title, sub, yes, onYes, onNo }: { title: string; sub?: s
   );
 }
 
-/** The cards on file, as a short label: colored "A♦T♦", or "ATs (무늬 추정)". */
+/** The cards on file, as a short label: colored "A♦T♦", or "ATs (수트 추정)". */
 function HandLabel({ h }: { h: LoggedHand }) {
   return holeGuessed(h) ? <b>{holeLabel(h)}</b> : <CardsText cards={h.hole} />;
 }
@@ -722,7 +722,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
         {bb !== null && <span className="small">{bb}bb</span>}
         <span className="log-end">
           {h.fast && <span className="log-tag fast">빠른</span>}
-          {guessed && !h.fast && <span className="log-tag soft">무늬 추정</span>}
+          {guessed && !h.fast && <span className="log-tag soft">수트 추정</span>}
           {open && <span className="log-tag">작성 중</span>}
           {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
         </span>

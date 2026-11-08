@@ -35,7 +35,7 @@ import {
 } from "./handLog";
 import { CardText, ChipRow, ChipsInput, levelDeclined, LevelRow, TableCard } from "./inputs";
 import { levelStage, OPEN_PRESETS, PRE_STAGES, preSteps, STAGE_LABEL, stageFor, type PreStage } from "./quickPre";
-import { BoardRanks, FlopPairFix, HoleEntry } from "./SuitEntry";
+import { BoardRanks, FlopPairFix, HoleEntry, SuitModeToggle } from "./SuitEntry";
 import { describeGuess } from "./suitGuess";
 import { BUBBLE_FORMS, cardVars, layoutTable, seatSpots, tableGeometry, type BubbleForm, type Size, type TableIn } from "./tableLayout";
 import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoSteps, upcoming, type LogStep } from "./recorder";
@@ -350,7 +350,7 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
   const earlier = lines.filter((l) => l.street !== g.street || g.done);
   const [custom, setCustom] = useState("");
   const [fixBoard, setFixBoard] = useState(false);
-  /** The board goes in by ranks ("무늬 모름"); kept from street to street. */
+  /** The board goes in by ranks ("숫자만"); kept from street to street. */
   const [suitless, setSuitless] = useState(false);
   /** A stage tapped for the first open's sizes (otherwise it follows the stacks, the level, the last one used). */
   const [stagePick, setStagePick] = useState<PreStage | null>(null);
@@ -503,17 +503,7 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
             compact
           />
         ))}
-      {boardMissing && (
-        <button type="button" className="suit-toggle" onClick={() => setSuitless(!suitless)}>
-          {suitless ? (
-            "무늬 알면 직접 입력"
-          ) : (
-            <>
-              무늬 모름 <small>숫자만 기억나요</small>
-            </>
-          )}
-        </button>
-      )}
+      {boardMissing && <SuitModeToggle exact={!suitless} ranksLabel="숫자만" onSwitch={() => setSuitless(!suitless)} />}
       {!boardMissing && h.board.length > 0 && (
         <button type="button" className="ghost small" onClick={() => setFixBoard(!fixBoard)}>
           보드 고치기
@@ -764,7 +754,7 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
     });
     return [
       "",
-      `스트리트별 ${subjectWord(h, "승률")} (공개된 패 기준, 없으면 추정 레인지 기준${a.suitGuess ? ", 무늬 추정 카드가 있어 플러시 관련은 근사" : ""}):`,
+      `스트리트별 ${subjectWord(h, "승률")} (공개된 패 기준, 없으면 추정 레인지 기준${a.suitGuess ? ", 수트 추정 카드가 있어 플러시 관련은 근사" : ""}):`,
       eqLine,
       "",
       `${subjectWord(h, "결정")} 채점 (금액은 bb, 상대 레인지는 액션으로 좁힌 추정):`,

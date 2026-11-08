@@ -674,9 +674,13 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .save-line.wait > b { color: var(--call); }
 .save-line.wait > span { color: var(--accent); }
 
-/* 무늬 모름: the ranks on the keypad, then what is remembered about the suits. */
-.suit-toggle { width: 100%; min-height: 36px; padding: 4px 12px; border-radius: 10px; background: none; border: 1px dashed #3a4760; color: #c7d0dd; font-size: 0.82rem; font-weight: 800; }
-.suit-toggle small { color: var(--muted); font-weight: 600; font-size: 0.72rem; margin-left: 4px; }
+/*
+ * "수트 입력 | 수딧·오프만" (숫자만 for the board) under the keypad: the side in use lit in grey, not gold,
+ * so it stays quieter than the keys above it and 다음 below; both sides a comfortable tap.
+ */
+.seg.suit-toggle button { min-height: 34px; font-weight: 700; }
+.seg.suit-toggle button.on { background: var(--line); color: var(--text); }
+/* 수딧·오프만 / 숫자만: the ranks on the keypad, then what is remembered about the suits. */
 .hole-entry { display: flex; flex-direction: column; gap: 6px; }
 .suitless { display: flex; flex-direction: column; gap: 6px; }
 .suitless-field { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 54px; padding: 6px 12px; border: 2px dashed var(--line); border-radius: 12px; background: #0d121a; color: var(--text); text-align: left; }
@@ -696,7 +700,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .cardkeys .kinds button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .cardkeys button:disabled { opacity: 0.4; }
 
-/* Guessed suits near the board: "핸드·플랍 무늬 추정", and for a two-tone flop which two share. */
+/* Guessed suits near the board: "핸드·플랍 수트 추정", and for a two-tone flop which two share. */
 .flow-guess { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.74rem; color: var(--muted); font-weight: 700; }
 .flow-guess > span { padding: 2px 9px; border-radius: 999px; border: 1px dashed #4a5870; }
 .flop-pair { display: inline-flex; align-items: center; gap: 4px; }

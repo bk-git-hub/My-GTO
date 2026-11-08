@@ -215,7 +215,7 @@ describe("copying the old scout records into other-hands", () => {
     expect(a.streets[0].suitGuessed).toBe(true);
     const facts = handFacts(utg);
     expect(facts).toContain("다른 플레이어(상대)의 핸드");
-    expect(facts).toContain("상대 자리: UTG · 상대 핸드: 77 (무늬 추정)");
+    expect(facts).toContain("상대 자리: UTG · 상대 핸드: 77 (수트 추정)");
     expect(facts).toContain("내 자리: SB (같은 테이블에서 지켜봄)");
     expect(facts).toContain("UTG(상대) 림프 1bb, BTN 림프 1bb, SB(나) 림프 1bb, BB 체크");
     expect(facts).toContain("플러시 관련 승률은 근사");

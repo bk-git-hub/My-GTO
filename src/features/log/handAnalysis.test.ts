@@ -46,7 +46,7 @@ describe("card text", () => {
     expect(parseCardText("10d9c", 2).cards).toEqual(parseCards("Td9c"));
     expect(parseCardText("Kd9d2", 5)).toMatchObject({ cards: parseCards("Kd9d"), pending: "2", error: null });
     expect(parseCardText("AdAd", 2).error).toMatch(/두 번/);
-    expect(parseCardText("Ax", 2).error).toMatch(/무늬/);
+    expect(parseCardText("Ax", 2).error).toMatch(/수트/);
     expect(parseCardText("Zd", 2).error).toMatch(/랭크/);
     expect(parseCardText("Kd", 2, parseCards("Kd")).error).toMatch(/이미/);
   });
@@ -127,7 +127,7 @@ describe("analysing a recorded hand", () => {
     const hole = analyseHand({ ...exampleHand(), guess: { hole: true }, holeKind: "suited" }, { decisions: true, iterations: 600 });
     expect(hole.suitGuess).toEqual({ hole: true, board: [] });
     expect(hole.streets.every((v) => v.suitGuessed)).toBe(true);
-    expect(SUIT_GUESS_NOTE).toBe("무늬를 추정한 카드가 있어 플러시 관련 승률은 근사예요");
+    expect(SUIT_GUESS_NOTE).toBe("수트를 추정한 카드가 있어 플러시 관련 승률은 근사예요");
     // a marker for a card that isn't on the hand is ignored
     expect(analyseHand({ ...exampleHand(), board: [], guess: { board: [4] } }, { iterations: 300 }).suitGuess).toBeNull();
   });

@@ -368,10 +368,10 @@ describe("suit guess marker", () => {
   it("describes what was guessed in Korean", () => {
     expect(describeGuess(undefined)).toBe("");
     expect(describeGuess({})).toBe("");
-    expect(describeGuess({ hole: true })).toBe("핸드 무늬 추정");
-    expect(describeGuess({ board: [0, 1, 2] })).toBe("플랍 무늬 추정");
-    expect(describeGuess({ board: [4] })).toBe("리버 무늬 추정");
-    expect(describeGuess({ hole: true, board: [1, 3] })).toBe("핸드·플랍·턴 무늬 추정");
-    expect(describeGuess({ hole: true, board: [0, 1, 2, 3, 4] })).toBe("핸드·플랍·턴·리버 무늬 추정");
+    expect(describeGuess({ hole: true })).toBe("핸드 수트 추정");
+    expect(describeGuess({ board: [0, 1, 2] })).toBe("플랍 수트 추정");
+    expect(describeGuess({ board: [4] })).toBe("리버 수트 추정");
+    expect(describeGuess({ hole: true, board: [1, 3] })).toBe("핸드·플랍·턴 수트 추정");
+    expect(describeGuess({ hole: true, board: [0, 1, 2, 3, 4] })).toBe("핸드·플랍·턴·리버 수트 추정");
   });
 });

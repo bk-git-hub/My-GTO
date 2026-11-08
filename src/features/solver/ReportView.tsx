@@ -38,7 +38,7 @@ export const DEFAULT_REPORT: ReportState = { chips: [], sort: { key: "board", de
 
 /** Filter rows: chip groups shown together on one line. */
 const GROUPS: { groups: ChipGroup[]; label: string }[] = [
-  { groups: ["suit"], label: "무늬" },
+  { groups: ["suit"], label: "수트" },
   { groups: ["pair", "conn"], label: "모양" },
   { groups: ["high"], label: "하이카드" },
 ];
@@ -272,7 +272,7 @@ export function ReportView({
       {rows.length === 0 && <p className="muted center small sv-none">조건에 맞는 플랍이 없어요.</p>}
 
       <p className="muted small disclaimer">
-        비중 = 이 보드로 대신 보는 실제 플랍의 비율 ({weightScope(pack)}). 보드 무늬는 대표 무늬로 보여요. 평균은 비중으로 가중했어요. 플랍을 누르면 핸드별 전략을 볼 수
+        비중 = 이 보드로 대신 보는 실제 플랍의 비율 ({weightScope(pack)}). 보드 수트는 대표 수트로 보여요. 평균은 비중으로 가중했어요. 플랍을 누르면 핸드별 전략을 볼 수
         있어요.
       </p>
     </div>

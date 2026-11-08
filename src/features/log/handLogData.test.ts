@@ -393,9 +393,9 @@ describe("whose hand", () => {
     expect(streetLines(game, (bb) => `${bb}bb`)[0].actions).toEqual(["CO(나) 오픈 2.5bb"]);
     const facts = handFacts({ ...h, steps });
     expect(facts).toContain("CO(상대) 오픈 2.5bb, BB(나) 폴드");
-    expect(facts).toContain("상대 자리: CO · 상대 핸드: K9s (무늬 추정)");
+    expect(facts).toContain("상대 자리: CO · 상대 핸드: K9s (수트 추정)");
     expect(facts).toContain("내 자리: BB");
-    expect(coachPrompt(h).title).toBe("상대 핸드 리뷰 · CO K9s (무늬 추정)");
+    expect(coachPrompt(h).title).toBe("상대 핸드 리뷰 · CO K9s (수트 추정)");
     expect(coachPrompt(hand({ seat: "BTN", hole: AdTd })).title).toBe("기록 리뷰 · BTN A♦T♦");
   });
 
@@ -412,17 +412,17 @@ describe("whose hand", () => {
 describe("guessed suits", () => {
   it("labels the class as remembered", () => {
     const g = (hole: string, holeKind?: "suited" | "offsuit" | "unknown") => hand({ hole: parseCards(hole), guess: { hole: true }, ...(holeKind ? { holeKind } : {}) });
-    expect(holeLabel(g("AsTs", "suited"))).toBe("ATs (무늬 추정)");
-    expect(holeLabel(g("AsTh", "offsuit"))).toBe("ATo (무늬 추정)");
-    expect(holeLabel(g("AsTh", "unknown"))).toBe("AT (무늬 추정)");
-    expect(holeLabel(g("TsAh"))).toBe("AT (무늬 추정)");
-    expect(holeLabel(g("7s7h"))).toBe("77 (무늬 추정)");
+    expect(holeLabel(g("AsTs", "suited"))).toBe("ATs (수트 추정)");
+    expect(holeLabel(g("AsTh", "offsuit"))).toBe("ATo (수트 추정)");
+    expect(holeLabel(g("AsTh", "unknown"))).toBe("AT (수트 추정)");
+    expect(holeLabel(g("TsAh"))).toBe("AT (수트 추정)");
+    expect(holeLabel(g("7s7h"))).toBe("77 (수트 추정)");
     expect(holeClass(g("AsTh", "unknown"))).toBe("AT");
     expect(holeLabel(hand({ hole: AdTd }))).toBe("ATs");
     expect(holeLabel(hand({}))).toBe("");
-    expect(handHoleText(g("AsTs", "suited"))).toBe("ATs (무늬 추정)");
+    expect(handHoleText(g("AsTs", "suited"))).toBe("ATs (수트 추정)");
     expect(handHoleText(hand({ hole: AdTd }))).toBe("A♦ T♦ (ATs)");
-    expect(boardText(hand({ board: parseCards("Kd9d2s6c"), guess: { board: [0, 1, 2] } }))).toBe("K♦ 9♦ 2♠ 6♣ (플랍 무늬 추정)");
+    expect(boardText(hand({ board: parseCards("Kd9d2s6c"), guess: { board: [0, 1, 2] } }))).toBe("K♦ 9♦ 2♠ 6♣ (플랍 수트 추정)");
     expect(boardText(hand({ board: parseCards("Kd9d2s") }))).toBe("K♦ 9♦ 2♠");
   });
 

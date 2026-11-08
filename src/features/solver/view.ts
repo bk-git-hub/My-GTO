@@ -484,7 +484,7 @@ const FLOP_CLASSES = 1755;
 
 /** What a file's `weight` counts besides the board itself, in Korean, for the report and the flop view. */
 export function weightScope(pack: PackEntry): string {
-  return pack.files.length < FLOP_CLASSES ? "무늬만 다른 플랍과, 아직 계산 안 된 비슷한 플랍 포함" : "무늬만 다른 플랍 포함";
+  return pack.files.length < FLOP_CLASSES ? "수트만 다른 플랍과, 아직 계산 안 된 비슷한 플랍 포함" : "수트만 다른 플랍 포함";
 }
 
 /** Weighted average frequency row of one summary node (`PackEntry.summaryNodes` index) over `rows`. */
