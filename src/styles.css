@@ -1017,14 +1017,15 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .sv-crow { display: grid; grid-template-columns: 4.4rem repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: stretch; padding: 4px 0; border-top: 1px solid var(--line); }
 .sv-crow > span { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 6px; padding: 2px 0; min-width: 0; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .sv-crow > span:first-child { align-items: flex-start; text-align: left; }
-.sv-crow small { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+/* Only the EV lines (each cell's own <small>), so the suit inside a .sv-mc mini card keeps its 카드 색. */
+.sv-crow > span > small { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
 .sv-crow.head { border-top: 0; color: var(--muted); font-weight: 700; font-size: 0.7rem; }
 .sv-crow.head > span { display: block; align-self: end; line-height: 1.2; overflow-wrap: anywhere; }
 .sv-crow.head > span:first-child { align-self: center; }
 .sv-crow.head i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: 0; }
 .sv-crow.avg { background: var(--panel-2); border-radius: 8px; }
 .sv-crow .best { box-shadow: inset 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
-.sv-crow .best small { color: var(--accent); }
+.sv-crow .best > small { color: var(--accent); }
 .sv-crow .zero b { color: #8794a6; font-weight: 600; }
 .sv-crow .best.zero b { color: var(--muted); }
 .sv-combo { gap: 2px; }

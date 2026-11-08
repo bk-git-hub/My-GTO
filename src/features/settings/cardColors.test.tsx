@@ -1,7 +1,12 @@
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildSyntheticPacks } from "../../../tests/fixtures/solverPack";
 import { CardPicker } from "../../components/Cards";
+import { aggregateByHandClass, decodeFlopFile } from "../../presolve/format";
 import { applyCardColors, CARD_COLORS_ATTR, cardColorsOf, settingsStore, startCardColors, type Settings } from "../../state/settings";
+import { ComboDetail } from "../solver/ComboDetail";
+import { DEFAULT_REPORT, ReportView } from "../solver/ReportView";
+import { actionColors, unblockedCounts } from "../solver/view";
 import { SettingsPage } from "./SettingsPage";
 
 // No @types/node here: reach node:fs through an untyped handle (vitest serves an imported .css as empty).
@@ -168,4 +173,77 @@ describe("suit colors in styles.css", () => {
     // spades and hearts are the same in both decks
     for (const v of ["--face-s", "--face-h", "--suit-s", "--suit-h"]) expect(decl(two, v)).toBeUndefined();
   });
+
+  it("leaves the solver's mini cards to .sv-mc.s-*: nothing around them recolors the rank or the suit", async () => {
+    // Both places that show mini cards: the combo rows under a hand class, and the flop list in the report.
+    const { manifest, flops } = await buildSyntheticPacks();
+    const pack = manifest.packs[1];
+    const flop = decodeFlopFile(flops.get(pack.files[0].path)!);
+    const node = flop.node([])!;
+    const agg = aggregateByHandClass(node);
+    const hand = Object.keys(agg).find((h) => agg[h].combos > 2)!;
+    const html =
+      renderToString(<ComboDetail node={node} hand={hand} agg={agg[hand]} colors={actionColors(node.actions, node)} who="BB" unblocked={unblockedCounts(flop.board)[hand]} onClose={() => {}} />) +
+      renderToString(<ReportView pack={pack} state={DEFAULT_REPORT} onState={() => {}} onOpen={() => {}} onBack={() => {}} />);
+    const chains = elementChains(html);
+    const cards = chains.filter((c) => c.at(-1)!.classes.includes("sv-mc"));
+    const suits = chains.filter((c) => c.at(-1)!.tag === "small" && c.at(-2)?.classes.includes("sv-mc"));
+    expect(cards.some((c) => c.some((el) => el.classes.includes("sv-crow")))).toBe(true);
+    expect(cards.some((c) => c.some((el) => el.classes.includes("sv-open")))).toBe(true);
+    expect(suits.length).toBe(cards.length);
+
+    const colorSelectors = rules.filter(([, body]) => decl(body, "color")).flatMap(([sel]) => sel.split(",").map((s) => s.trim()));
+    // The matcher catches the old bug: `.sv-crow small` reached the suit and greyed it in both decks.
+    expect(suits.some((c) => selectorMatches(".sv-crow small", c))).toBe(true);
+    for (const c of suits) expect(colorSelectors.filter((sel) => selectorMatches(sel, c))).toEqual([]);
+    for (const c of cards) {
+      const suit = /\bs-([shdc])\b/.exec(c.at(-1)!.classes.join(" "))![1];
+      expect(colorSelectors.filter((sel) => selectorMatches(sel, c))).toEqual([`.sv-mc.s-${suit}`]);
+    }
+  });
 });
+
+/** One element in rendered markup: its tag and classes. */
+type El = { tag: string; classes: string[] };
+
+/** For every element in server-rendered HTML, the path from the outermost rendered element down to it. */
+function elementChains(html: string): El[][] {
+  const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+  const stack: El[] = [];
+  const chains: El[][] = [];
+  for (const m of html.replace(/<!--[\s\S]*?-->/g, "").matchAll(/<(\/?)([a-z][a-z0-9]*)([^>]*?)(\/?)>/gi)) {
+    const [, close, tag, attrs, selfClose] = m;
+    if (close) {
+      stack.pop();
+      continue;
+    }
+    const el = { tag: tag.toLowerCase(), classes: (/\sclass="([^"]*)"/.exec(attrs)?.[1] ?? "").split(/\s+/).filter(Boolean) };
+    chains.push([...stack, el]);
+    if (!selfClose && !VOID.has(el.tag)) stack.push(el);
+  }
+  return chains;
+}
+
+/**
+ * Whether a CSS selector matches the last element of a chain. Enough for this stylesheet: tags, classes and the
+ * descendant and child combinators. Pseudo-classes and attribute tests are ignored, so they count as a match
+ * (a stricter rule is never missed). Ancestors outside the rendered markup are not modeled.
+ */
+function selectorMatches(selector: string, chain: El[]): boolean {
+  if (/::|[+~#]/.test(selector)) return false; // pseudo-elements and sibling combinators style other boxes
+  const tokens = selector.replace(/:not\([^)]*\)/g, "").replace(/\s*>\s*/g, " > ").trim().split(/\s+/);
+  const compound = (c: string, el: El) => {
+    const bare = c.replace(/:[\w-]+(\([^)]*\))?|\[[^\]]*\]/g, "");
+    const tag = /^[a-z][a-z0-9]*/i.exec(bare)?.[0];
+    if (tag && tag !== el.tag) return false;
+    return [...bare.matchAll(/\.([\w-]+)/g)].every((k) => el.classes.includes(k[1]));
+  };
+  const from = (t: number, at: number): boolean => {
+    if (!compound(tokens[t], chain[at])) return false;
+    if (t === 0) return true;
+    if (tokens[t - 1] === ">") return at > 0 && from(t - 2, at - 1);
+    for (let up = at - 1; up >= 0; up--) if (from(t - 1, up)) return true;
+    return false;
+  };
+  return from(tokens.length - 1, chain.length - 1);
+}
