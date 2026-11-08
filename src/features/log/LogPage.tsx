@@ -13,7 +13,6 @@ import {
   fastVerdictOf,
   freshHand,
   freshLevel,
-  guessedCards,
   handFacts,
   handLevelLabel,
   handLogStore,
@@ -26,9 +25,7 @@ import {
   holeLabel,
   holeText,
   isOther,
-  knownBoard,
   knownNames,
-  lastStage,
   levelLabel,
   logView,
   memoBlocker,
@@ -45,22 +42,15 @@ import {
   scoutImported,
   stackBb,
   tidyHand,
-  tidyQuick,
   unfinished,
   villainBook,
-  withHole,
-  withLevel,
   type ListFilter,
   type LoggedHand,
-  type Result,
 } from "./handLog";
-import { FastView, QuickToggle } from "./FastView";
+import { FastView } from "./FastView";
 import { VERDICT_MARK } from "./fastVerdict";
-import { ChipRow, levelDeclined, LevelRow } from "./inputs";
-import { levelStage, STAGE_LABEL } from "./quickPre";
-import { QuickPreBlock } from "./QuickPreBlock";
-import { positionsFor, TABLE_SIZES } from "./recorder";
-import { HoleEntry } from "./SuitEntry";
+import { levelDeclined } from "./inputs";
+import { STAGE_LABEL } from "./quickPre";
 import { TableFlow } from "./TableFlow";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
@@ -70,10 +60,10 @@ type Msg = { text: string; error?: boolean } | null;
 
 /**
  * Routes: "log" (a new hand of mine: the hand first, then the table), "log/fast" (빠른 기록: every hand
- * of mine, a few taps each, graded against the chart), "log/other" (another player's
- * hand on one quick screen; "log/other/<id>" the one saved there), "log/list" (past hands: all,
- * "log/list/mine", "log/list/other", and the backup), "log/players" (showdowns by opponent),
- * "log/<id>" (a saved hand in the table flow, mine or another player's).
+ * of mine, a few taps each, graded against the chart), "log/other" (남의 핸드: the same screen for hands
+ * other players showed), "log/list" (past hands: all, "log/list/mine", "log/list/other", 편집 to delete
+ * some, and the backup), "log/players" (showdowns by opponent), "log/<id>" (a saved hand in the table
+ * flow, mine or another player's).
  */
 export function LogPage({ sub, go }: { sub: string; go: (route: string) => void }) {
   const { hands } = handLogStore.use();
@@ -86,10 +76,10 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
         ))}
       </datalist>
       {v.kind === "new" && <NewHandView hands={hands} go={go} />}
-      {v.kind === "fast" && <FastView hands={hands} go={go} />}
+      {v.kind === "fast" && <FastView key="mine" hands={hands} go={go} />}
       {/* Keyed by the hand: saving changes the address bar only, so the screen keeps its hand. */}
       {v.kind === "edit" && <EditView key={v.id} id={v.id} hands={hands} go={go} />}
-      {v.kind === "other" && <OtherView key={v.id ?? "new"} id={v.id} hands={hands} go={go} />}
+      {v.kind === "other" && <FastView key="other" mode="other" hands={hands} go={go} />}
       {v.kind === "list" && <ListScreen tab={v.filter} hands={hands} go={go} />}
       {v.kind === "players" && <ListScreen tab="players" hands={hands} go={go} />}
       <Toast />
@@ -98,15 +88,6 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
 }
 
 // ───────────── saving as it is typed ─────────────
-
-/** Point the address bar at the hand on screen without navigating, so a reload opens it again. */
-function showRoute(route: string) {
-  try {
-    if (decodeURIComponent(location.hash.slice(1)) !== route) history.replaceState(history.state, "", `#${route}`);
-  } catch {
-    /* no browser history */
-  }
-}
 
 /**
  * The hand on screen, saved as it is typed: once it holds two clean cards or a note it is stored, and
@@ -215,7 +196,6 @@ function Toast() {
 }
 
 /** "오후 5:50" */
-const clockLabel = (t: number) => new Date(t).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" });
 
 /** The cards on file, as a short label: colored "A♦T♦", or "ATs (무늬 추정)". */
 function HandLabel({ h }: { h: LoggedHand }) {
@@ -514,182 +494,6 @@ function HoleText({ cards }: { cards: Card[] }) {
         </i>
       ))}
     </span>
-  );
-}
-
-// ───────────── another player's hand ─────────────
-
-const RESULTS = Object.keys(RESULT_LABEL) as Result[];
-
-/** Another player's hand with nothing worth saving yet, kept so a trip to the list doesn't lose its setup. */
-let otherUntouched: LoggedHand | null = null;
-
-/** The next hand after `from`: its table size, ante and a stage tapped carry on; the level too unless the start time says. */
-function nextOther(from: LoggedHand): LoggedHand {
-  const h = freshHand("other");
-  const stage = from.quickPre?.pinned && from.quickPre.stage ? { quickPre: { stage: from.quickPre.stage, pinned: true as const } } : {};
-  const level = h.levelGuess ? h : withLevel(h, from.level, from.levelGuess === true);
-  return { ...level, players: from.players, bbAnte: from.bbAnte, ...stage };
-}
-
-/**
- * 남의 핸드 기록: preflop range information from a hand someone else played (not about a named person):
- * their seat, the stack stage, what they did (오픈 · 림프 · 콜 · 3벳 · 올인 · 올인 콜) with the open's size
- * and who opened, and their cards. Saved the moment it holds the cards or a note; ＋ 다음 핸드 starts the
- * next one at the same table; 테이블로 이어서 기록 carries it into the table flow (they are the hero there).
- */
-function OtherView({ id, hands, go }: { id: string | null; hands: LoggedHand[]; go: (route: string) => void }) {
-  const [start] = useState<LoggedHand>(() => {
-    const stored = id ? hands.find((x) => x.id === id && isOther(x)) : undefined;
-    if (stored) return stored;
-    if (otherUntouched && !hands.some((x) => x.id === otherUntouched!.id)) return otherUntouched;
-    return freshHand("other");
-  });
-  const d = useHandDraft(start, (h, kept) => {
-    otherUntouched = kept ? null : h;
-    if (!kept) rememberSetup(h);
-    showRoute(kept ? `log/other/${h.id}` : "log/other");
-  });
-  const { draft: h, stored } = d;
-  /** The hand left with ＋ 다음 핸드: named on the status line until the next one has something in it. */
-  const [prev, setPrev] = useState<LoggedHand | null>(null);
-  const [sizes, setSizes] = useState(false);
-  const [levelOpen, setLevelOpen] = useState(false);
-  // Their stack is rarely known: the stage follows the level's usual one, else the last one used (one tapped carries on).
-  const last = levelStage(h.level) ?? lastStage();
-  // The preflop block keeps in step with the seat and table size (see tidyQuick).
-  const set = (patch: Partial<LoggedHand>) => d.change(tidyQuick({ ...h, ...patch }, last));
-  const seats = positionsFor(h.players);
-  const otherCount = hands.filter(isOther).length;
-  const ready = stored !== null && d.settled;
-
-  function nextHand() {
-    setPrev(stored);
-    const fresh = nextOther(h);
-    otherUntouched = fresh;
-    d.replace(fresh);
-    setSizes(false);
-    setLevelOpen(false);
-    showRoute("log/other");
-    window.scrollTo({ top: 0 });
-  }
-  const pickPlayers = (n: number) => {
-    // A new table size changes the seat names: keep the subject's only if it still exists.
-    if (n !== h.players) set({ players: n, seat: positionsFor(n).includes(h.seat) ? h.seat : "", stacks: {} });
-    setSizes(false);
-  };
-
-  let tone = "idle";
-  let status: ReactNode = d.cardsClean && h.hole.length !== 1 ? "상대 카드 두 장이나 메모를 넣으면 바로 저장돼요" : "카드 두 장을 맞게 넣으면 저장돼요";
-  if (stored) {
-    const savedAt = <b>✓ 저장됨 · {clockLabel(stored.updatedAt)}</b>;
-    if (d.cardsClean && h.hole.length !== 1) {
-      tone = "ok";
-      status = (
-        <>
-          {savedAt}
-          <span>
-            {/* Narrow screens drop " › 남의 핸드": "— 지난 기록에 모여요". */}— 지난 기록<span className="qs-word"> › 남의 핸드</span>에 모여요
-          </span>
-        </>
-      );
-    } else {
-      tone = "wait";
-      status = (
-        <>
-          {savedAt}
-          <span>
-            — {h.hole.length === 2 ? "카드 칸에 글자가 더 있어요" : stored.hole.length ? <>카드는 <HandLabel h={stored} /> 그대로예요</> : "카드는 두 장 넣으면 저장돼요"}
-          </span>
-        </>
-      );
-    }
-  } else if (prev && d.cardsClean && !hasContent(h)) {
-    tone = "ok";
-    status = (
-      <>
-        <b>✓ 앞 핸드 저장됨</b>
-        <span>
-          {prev.hole.length ? <HandLabel h={prev} /> : null} — 이제 이번 핸드를 넣으세요
-        </span>
-      </>
-    );
-  }
-
-  const info = levelLabel(h.level);
-  return (
-    <>
-      <QuickToggle mine={false} go={go} />
-      <div className="log-top">
-        <span className="log-top-title">누가 뭘로 오픈·콜했나 · 레인지 모으기</span>
-        <button type="button" className="log-link" onClick={() => go("log/list/other")}>
-          남의 핸드{otherCount ? <span className="log-link-n"> {otherCount}</span> : null} ›
-        </button>
-      </div>
-      {d.full ? (
-        <div className="notice error" role="alert">
-          {FULL_MSG}
-        </div>
-      ) : (
-        <p className={`quick-status ${tone}`} aria-live="polite">
-          {status}
-        </p>
-      )}
-      <div className="memo-body quick-body other-body">
-        <div className="memo-sec">
-          <div className="flow-label">
-            상대 포지션 {h.seat && <small>{h.seat}</small>}
-            <button type="button" className="memo-size lv" aria-expanded={levelOpen} aria-label={`블라인드 ${info} · 바꾸기`} onClick={() => setLevelOpen(!levelOpen)}>
-              {h.level === null ? "레벨" : `Lv${h.level}`}
-              {h.levelGuess && h.level !== null ? " 추정" : ""} <i>{levelOpen ? "▴" : "▾"}</i>
-            </button>
-            <button type="button" className="memo-size" aria-expanded={sizes} aria-label={`테이블 ${h.players}인 · 인원 바꾸기`} onClick={() => setSizes(!sizes)}>
-              {h.players}인 <i>{sizes ? "▴" : "▾"}</i>
-            </button>
-          </div>
-          {sizes && <ChipRow items={TABLE_SIZES} value={h.players} label={(x) => `${x}인`} onPick={pickPlayers} />}
-          <ChipRow items={seats} value={h.seat} onPick={(s) => set({ seat: h.seat === s ? "" : s })} className={`seats n${seats.length}`} />
-        </div>
-        {levelOpen && (
-          <div className="flow-form">
-            <LevelRow h={h} onLevel={(lv, guessed) => d.change(tidyQuick(withLevel(h, lv, guessed), last))} onAnte={(bbAnte) => set({ bbAnte })} open onToggle={() => setLevelOpen(false)} />
-          </div>
-        )}
-        <QuickPreBlock other h={h} bb={stackBb(h)} last={last} seats={seats} onChange={(quickPre) => set({ quickPre })} />
-        <div className="quick-hand">
-          <div className="flow-label">
-            상대 핸드 {holeClass(h) && <small>{holeClass(h)}</small>}
-          </div>
-          <HoleEntry
-            key={h.id}
-            h={h}
-            taken={[...knownBoard(h), ...h.showdowns.flatMap((x) => x.cards)]}
-            avoid={guessedCards(h).filter((c) => !h.hole.includes(c))}
-            onChange={(v, clean) => d.change(withHole(h, v.hole, v.guessed, v.holeKind), clean)}
-            onValid={d.onCardsClean}
-          />
-        </div>
-        <div className="memo-sec">
-          <div className="flow-label">
-            결과 <small>선택</small>
-          </div>
-          <ChipRow items={RESULTS} value={h.result} label={(r) => RESULT_LABEL[r]} onPick={(r) => set({ result: h.result === r ? null : r })} className="fill" />
-        </div>
-        <label className="memo-sec">
-          <span className="flow-label">메모</span>
-          <textarea rows={2} value={h.note} onChange={(e) => set({ note: e.target.value })} placeholder="예) 리버까지 가서 쇼다운, 오래 고민하고 콜" />
-        </label>
-      </div>
-      {/* Only once everything on screen is on file: moving on must not drop an unsaved edit. */}
-      <div className="memo-actions">
-        <button type="button" className="flow-next" disabled={!ready} onClick={nextHand}>
-          ＋ 다음 핸드
-        </button>
-        <button type="button" className="ghost" disabled={!ready} onClick={() => stored && go(handRoute(stored))}>
-          테이블로 이어서 기록 →
-        </button>
-      </div>
-    </>
   );
 }
 

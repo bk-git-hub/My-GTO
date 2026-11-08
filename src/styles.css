@@ -1115,3 +1115,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-verdict.v-over { color: var(--err); }
 .log-verdict.v-under { color: var(--info); }
 .log-verdict.v-none { color: var(--muted); font-weight: 600; }
+
+/* ───────── 남의 핸드 on the 빠른 기록 screen ───────── */
+.fast-label small { font-size: 0.72rem; font-weight: 700; opacity: 0.8; }
+

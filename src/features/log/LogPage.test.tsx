@@ -6,7 +6,7 @@ import { emptyHand, handLogStore, localDay, putAside, type LoggedHand } from "./
 import { bbText, LevelRow } from "./inputs";
 import { LogPage } from "./LogPage";
 import { BoardRanks, HoleEntry } from "./SuitEntry";
-import { fastHand, fastStore, newDraft, pickSuited, startEdit, tapRank, type FastDraft } from "./fastLog";
+import { fastHand, fastOtherStore, fastStore, newDraft, pickSuited, startEdit, tapRank, type FastDraft } from "./fastLog";
 
 const noop = () => {};
 /** renderToString puts <!-- --> between adjacent text nodes. */
@@ -207,56 +207,6 @@ describe("프리플랍 and the board (react-dom/server)", () => {
   });
 });
 
-describe("남의 핸드 기록 (react-dom/server)", () => {
-  it("is one quick screen: their seat, the preflop (no 폴드, with 올인 콜), their cards, result and note", () => {
-    put([], { lastLevel: 6, lastPlayers: 9 });
-    const html = page("other");
-    const t = text(html);
-    const order = ['class="flow-label">상대 포지션', 'class="flow-label">프리플랍', 'class="flow-label">상대 핸드', 'class="flow-label">결과', 'class="flow-label">메모'].map((x) => html.indexOf(x));
-    expect(order.every((i) => i >= 0)).toBe(true);
-    expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(t).toContain("오픈 림프 콜 3벳 올인 올인 콜");
-    expect(html).not.toMatch(/pre-acts">(<button[^>]*>[^<]*<\/button>)*<button[^>]*>폴드</);
-    expect(html).toMatch(/<p class="quick-status idle" aria-live="polite">상대 카드 두 장이나 메모를 넣으면 바로 저장돼요<\/p>/);
-    // the level and the table size as small toggles on the seat line
-    expect(html).toMatch(/class="memo-size lv"[^>]*>Lv6 <i>▾<\/i><\/button><button type="button" class="memo-size"[^>]*>9인 <i>▾<\/i>/);
-    expect(html).toContain('class="flow-chips one seats n9"');
-    expect(t).toContain("무늬 모름 수딧·오프수트만 기억나요");
-    // nothing saved yet
-    expect(html).toMatch(/<button type="button" class="flow-next" disabled="">＋ 다음 핸드<\/button>/);
-    expect(html).toMatch(/<button type="button" class="ghost" disabled="">테이블로 이어서 기록 →<\/button>/);
-    expect(t).not.toContain("닉");
-  });
-
-  it("takes the stage from the level when their stack is unknown, else the last one used", () => {
-    const stageLit = (html: string) => /<div class="flow-chips one pre-stage">.*?<button type="button" class="on">([^<]+)<\/button>/.exec(html)?.[1];
-    // my last hand was short-stacked, but at Lv3 the table is usually deep: the open sizes follow
-    put([], { lastLevel: 3, lastStage: "short" });
-    expect(stageLit(page("other"))).toBe("딥");
-    put([], { lastLevel: 18, lastStage: "deep" });
-    expect(stageLit(page("other"))).toBe("숏");
-    // no level: the last stage used
-    put([{ ...emptyHand(null), id: "o3", kind: "other", seat: "CO", note: "x", updatedAt: Date.now() }], { lastStage: "push" });
-    expect(stageLit(page("other/o3"))).toBe("푸시");
-  });
-
-  it("reopens a saved one with its open size by stage, and 올인 콜 with the shover's seat only", () => {
-    const o: LoggedHand = { ...emptyHand(6), id: "o2", kind: "other", seat: "CO", hole: parseCards("Kh9h"), guess: { hole: true }, holeKind: "suited", quickPre: { stage: "mid", pinned: true, action: "open", openBb: 2.5 }, updatedAt: Date.now() };
-    put([o]);
-    let html = page("other/o2");
-    expect(html).toMatch(/<button type="button" class="on">오픈<\/button>/);
-    expect(html).toMatch(/<span class="pre-k">오픈<\/span><div class="flow-chips one pre-chips"><button type="button" class="">2.2bb<\/button><button type="button" class="on">2.5bb<\/button><button type="button" class="">3bb<\/button><button type="button">직접<\/button><\/div><small class="pre-amt">= 2,000<\/small>/);
-    expect(html).toMatch(/<p class="quick-status ok" aria-live="polite"><b>✓ 저장됨 · /);
-    expect(html).toMatch(/<button type="button" class="flow-next">＋ 다음 핸드<\/button>/);
-    expect(html).toContain("<b>K9s</b>");
-    put([{ ...o, seat: "BB", quickPre: { stage: "short", pinned: true, action: "call", openAllIn: true, openerSeat: "BTN" } }]);
-    html = page("other/o2");
-    expect(html).toMatch(/<button type="button" class="on">올인 콜<\/button>/);
-    expect(html).not.toContain('<span class="pre-k">오픈</span>');
-    expect(html).toMatch(/<span class="pre-k">자리<\/span>/);
-  });
-});
-
 describe("지난 기록 보기 (react-dom/server)", () => {
   const mine: LoggedHand = { ...emptyHand(6), id: "m1", seat: "CO", hole: parseCards("KhKs"), result: "win", createdAt: 3 };
   const half: LoggedHand = { ...emptyHand(6), id: "m2", hole: parseCards("AsTs"), guess: { hole: true }, holeKind: "suited", createdAt: 2 };
@@ -424,5 +374,93 @@ describe("빠른 기록 (react-dom/server)", () => {
   it("has 남의 핸드 a tap away, and back", () => {
     put([]);
     expect(page("other")).toMatch(/<div class="seg small fast-toggle" role="tablist" aria-label="빠른 기록"><button type="button" role="tab" aria-selected="false" class="">내 핸드<\/button><button type="button" role="tab" aria-selected="true" class="on">남의 핸드<\/button><\/div>/);
+  });
+});
+
+describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/server)", () => {
+  const R = (k: string) => "23456789TJQKA".indexOf(k);
+  const typed = (seat: string, cls: string, extra: Partial<FastDraft> = {}): FastDraft => {
+    let d = tapRank(tapRank(newDraft(seat), R(cls[0])), R(cls[1]));
+    if (cls[2]) d = pickSuited(d, cls[2] === "s");
+    return { ...d, ...extra };
+  };
+  const theirs = (at: number, d: FastDraft, a: Parameters<typeof fastHand>[1]) => fastHand(d, a, { ...emptyHand(null, "other"), id: `o${at}`, createdAt: at, updatedAt: at }, "mid", 9, "other")!;
+  const mine = (at: number, d: FastDraft, a: Parameters<typeof fastHand>[1]) => fastHand(d, a, { ...emptyHand(null), id: `f${at}`, createdAt: at, updatedAt: at }, "mid", 9)!;
+  afterEach(() => {
+    fastStore.set({});
+    fastOtherStore.set({});
+  });
+
+  it("is the 빠른 기록 screen: their seat, the pad, what happened before them, their action", () => {
+    put([], { lastStage: "mid" });
+    const html = page("other");
+    const t = text(html);
+    // the same bar, pad and chips as 빠른 기록
+    expect(html).toContain('<div class="fast-bar"><div class="fast-stages" role="group" aria-label="스택 구간 (차트)">');
+    for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
+    // their seat, 남의 핸드 lit in the toggle
+    expect(html).toMatch(/<div class="fast-label">상대 포지션 <b>BTN<\/b><div class="seg small fast-toggle" role="tablist" aria-label="빠른 기록"><button type="button" role="tab" aria-selected="false" class="">내 핸드<\/button><button type="button" role="tab" aria-selected="true" class="on">남의 핸드<\/button><\/div>/);
+    // what happened before them, worded from their side
+    expect(html).toContain('<div class="fast-label">상황<small>상대 앞에서</small></div>');
+    expect(html).toMatch(/<button type="button" class="on"><span>폴드로<\/span><span>상대에게<\/span><\/button>/);
+    expect(t).not.toContain("나에게");
+    expect(html).toMatch(/<div class="fast-label">상대 액션<\/div><div class="fast-acts n4"><button type="button" class="a-fold" disabled="">폴드<\/button>/);
+    expect(t).toContain("오늘 남의 핸드");
+    expect(t).toContain("아직 오늘 남의 핸드가 없어요");
+    // the old entry screen is gone: no preflop block, no card keyboard, no text fields
+    expect(html).not.toContain("pre-acts");
+    expect(html).not.toContain("quick-status");
+    expect(html).not.toContain("<input");
+    expect(html).not.toContain("<textarea");
+  });
+
+  it("keeps the seat for the next hand, and asks 상대 오픈에 3벳 facing a 3-bet", () => {
+    put([]);
+    fastOtherStore.set({ stage: "mid", players: 9, draft: typed("CO", "AKs") });
+    expect(text(page("other"))).toContain("누르면 바로 저장 · 자리는 CO 그대로");
+    fastOtherStore.set({ stage: "mid", players: 9, draft: typed("CO", "AKs", { spot: "3bet" }) });
+    expect(page("other")).toMatch(/<button type="button" class="on">상대 오픈에 3벳<\/button><button type="button" class="">남끼리 오픈·3벳<\/button>/);
+    // 빠른 기록's own hand isn't here
+    fastStore.set({ stage: "mid", players: 9, draft: typed("HJ", "QQ") });
+    fastOtherStore.set({});
+    expect(page("other")).toMatch(/<span class="fast-class" aria-live="polite">—<\/span>/);
+  });
+
+  it("lists today's other hands only, judged as how they play: 루즈 / 타이트", () => {
+    const now = Date.now();
+    put([
+      mine(now - 30_000, typed("CO", "AJo"), "open"),
+      theirs(now - 60_000, typed("BB", "72o", { spot: "open", opener: "CO" }), "call"),
+      theirs(now - 120_000, typed("BTN", "K9o"), "open"),
+      theirs(now - 180_000, typed("CO", "AQo"), "limp"),
+    ]);
+    const html = page("other");
+    const t = text(html);
+    expect(t).toMatch(/오늘 남의 핸드 3핸드/);
+    expect(t).toMatch(/차트대로 33% \(1\/3\) ⚠ 루즈 1 ▽ 타이트 1 △ 섞음 0/);
+    expect(html.match(/class="fast-item /g)).toHaveLength(3);
+    expect(html).toMatch(/class="fast-item v-over"><span class="fi-time">[^<]+<\/span><b class="fi-seat">BB<\/b><b class="fi-class">72o<\/b><span class="fi-act">CO 오픈 → 콜<\/span><span class="fi-verdict">⚠ 루즈 \(폴드\)<\/span>/);
+    expect(html).toMatch(/class="fast-item v-under">.*?<b class="fi-class">AQo<\/b><span class="fi-act">림프<\/span><span class="fi-verdict">▽ 타이트 \(오픈\)<\/span>/);
+    expect(t).not.toContain("AJo");
+    // and 빠른 기록 doesn't list theirs
+    const fast = page("fast");
+    expect(fast.match(/class="fast-item /g)).toHaveLength(1);
+    expect(text(fast)).toContain("오늘 빠른 기록 1핸드");
+  });
+
+  it("corrects one of theirs with 삭제 and 취소", () => {
+    const h = theirs(Date.now() - 60_000, typed("BB", "72o", { spot: "open", opener: "CO" }), "call");
+    put([h]);
+    fastOtherStore.set(startEdit({ stage: "mid", players: 9, draft: newDraft("BTN"), parked: null }, h, "other"));
+    const html = page("other");
+    expect(text(html)).toMatch(/✎ 수정 중 \d\d:\d\d BB 72o · 액션을 다시 누르면 저장 삭제 취소/);
+    expect(html).toContain('<button type="button" class="a-call on">콜</button>');
+  });
+
+  it("shows in 지난 기록 › 남의 핸드 with the 남 badge, a 빠른 tag and their verdict", () => {
+    put([theirs(5, typed("BB", "72o", { spot: "open", opener: "CO" }), "call")]);
+    const html = page("list/other");
+    expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">BB<\/b><b class="log-class">72o<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 차트보다 루즈 \(차트: 폴드\)<\/span>/);
+    expect(html).not.toContain("log-continue");
   });
 });

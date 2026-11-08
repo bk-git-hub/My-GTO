@@ -11,8 +11,17 @@ import { holeFromRanks } from "./suitGuess";
  * graded against the pub chart the moment the action is tapped. The editor's state (the stage, the
  * table size, the hand being typed) is kept in its own small store so a reload or a trip elsewhere
  * loses nothing; each saved hand is an ordinary LoggedHand (fast: true). Everything here is pure but
- * the store.
+ * the stores.
+ *
+ * 남의 핸드 is the same screen in "other" mode: a hand someone else showed (their seat, their class, what
+ * happened before them, their action), saved as an other-hand (kind "other") and judged against the same
+ * chart as information about how pub players play. Its seat doesn't move on by itself (the player shown
+ * varies), and it has its own editor store and its own today's list.
  */
+
+/** Whose hands the screen takes: mine (빠른 기록) or other players' (남의 핸드). */
+export type FastMode = "mine" | "other";
+const kindFits = (h: Pick<LoggedHand, "kind">, mode: FastMode): boolean => isOther(h) === (mode === "other");
 
 export interface FastDraft {
   seat: string;
@@ -41,6 +50,9 @@ export interface FastState {
 }
 
 export const fastStore = createStore<Partial<FastState>>("mygto.fast", {});
+/** 남의 핸드's editor: its own hand being typed; the stage and table size follow 빠른 기록's (shareTable). */
+export const fastOtherStore = createStore<Partial<FastState>>("mygto.fast.other", {});
+export const storeFor = (mode: FastMode) => (mode === "other" ? fastOtherStore : fastStore);
 
 /** A blank hand at `seat`, nothing happened before me yet. */
 export const newDraft = (seat: string): FastDraft => ({ seat, ranks: [], suited: null, spot: "none", opener: null, editing: null });
@@ -127,9 +139,10 @@ export function draftReady(d: FastDraft, players: number): boolean {
  * fresh hand (its id, time and level) or the saved one being corrected. Its cards come from the class
  * with guessed suits (holeFromRanks; marked guess.hole with holeKind), the stage, my action and the
  * opener go in the preflop block (so 테이블로 이어서 기록 can place them), the spot in `fastSpot`.
- * Null when the draft isn't ready or the action doesn't fit the spot.
+ * In "other" mode it is another player's hand (kind "other"): the seat, the cards and the action are
+ * theirs, and my own seat is left out. Null when the draft isn't ready or the action doesn't fit the spot.
  */
-export function fastHand(d: FastDraft, act: PreAction | undefined, base: LoggedHand, stage: PreStage, players: number): LoggedHand | null {
+export function fastHand(d: FastDraft, act: PreAction | undefined, base: LoggedHand, stage: PreStage, players: number, mode: FastMode = "mine"): LoggedHand | null {
   if (!draftReady(d, players)) return null;
   const acts = actsFor(d.spot, d.seat);
   if (act === undefined ? acts.length > 0 : !acts.includes(act)) return null;
@@ -145,7 +158,7 @@ export function fastHand(d: FastDraft, act: PreAction | undefined, base: LoggedH
   void _was;
   void _kind;
   void _my;
-  const h: LoggedHand = { ...rest, players, seat: d.seat, ...(quickPre ? { quickPre } : {}), fast: true, fastSpot: d.spot };
+  const h: LoggedHand = { ...rest, players, seat: d.seat, ...(quickPre ? { quickPre } : {}), fast: true, fastSpot: d.spot, ...(mode === "other" ? { kind: "other" as const } : {}) };
   return tidyHand(withHole(h, hole, true, pair ? undefined : kind));
 }
 
@@ -161,30 +174,47 @@ export function draftOf(h: LoggedHand): FastDraft {
 
 // ───────────── saving, correcting ─────────────
 
-/** The newest 빠른 기록 hand of mine. */
-const newestFast = (hands: LoggedHand[]): LoggedHand | null => hands.reduce<LoggedHand | null>((b, h) => (h.fast === true && !isOther(h) && (!b || h.createdAt > b.createdAt) ? h : b), null);
+/** The newest 빠른 기록 hand of the mode's kind. */
+const newestFast = (hands: LoggedHand[], mode: FastMode): LoggedHand | null =>
+  hands.reduce<LoggedHand | null>((b, h) => (h.fast === true && kindFits(h, mode) && (!b || h.createdAt > b.createdAt) ? h : b), null);
 
 /**
  * The editor after `saved` went on file (`hands` is the log with it): a new hand clears the editor for
  * the next one at the next seat. A corrected hand gives back the new hand that was put aside; if it was
- * the newest one, the next seat follows its (maybe corrected) seat.
+ * the newest one, the next seat follows its (maybe corrected) seat. In "other" mode the seat stays where
+ * it was picked (the next hand shown is anybody's): a new hand starts at the same seat.
  */
-export function afterSave(s: FastState, saved: LoggedHand, hands: LoggedHand[]): FastState {
+export function afterSave(s: FastState, saved: LoggedHand, hands: LoggedHand[], mode: FastMode = "mine"): FastState {
+  if (mode === "other") {
+    const seat = positionsFor(s.players).includes(saved.seat) ? saved.seat : buttonSeat(s.players);
+    return { ...s, draft: s.draft.editing ? (s.parked ?? newDraft(seat)) : newDraft(seat), parked: null };
+  }
   if (!s.draft.editing) return { ...s, draft: newDraft(nextSeat(s.players, saved.seat)), parked: null };
   const back = s.parked ?? newDraft(nextSeat(s.players, saved.seat));
-  const latest = newestFast(hands)?.id === saved.id;
+  const latest = newestFast(hands, mode)?.id === saved.id;
   return { ...s, draft: latest ? withSeat(back, nextSeat(s.players, saved.seat), s.players) : back, parked: null };
 }
 
-/** A saved hand opened in the editor (되돌리기, or tapped in the list): the new hand on screen is put aside. Only a hand still just a 빠른 기록. */
-export function startEdit(s: FastState, h: LoggedHand): FastState {
-  if (!fastOnly(h) || isOther(h)) return s;
+/** A saved hand opened in the editor (되돌리기, or tapped in the list): the new hand on screen is put aside. Only a hand still just a 빠른 기록, of the mode's kind. */
+export function startEdit(s: FastState, h: LoggedHand, mode: FastMode = "mine"): FastState {
+  if (!fastOnly(h) || !kindFits(h, mode)) return s;
   return { ...s, draft: draftOf(h), parked: s.draft.editing ? s.parked : s.draft };
 }
 
 /** Back to the new hand put aside (the corrected hand stays as it was saved). */
 export function cancelEdit(s: FastState): FastState {
   return { ...s, draft: s.parked ?? newDraft(buttonSeat(s.players)), parked: null };
+}
+
+/**
+ * The stage and table size set on one of the two screens, for the other one too (both are the same
+ * table): its new hand moves to the button only if its seat isn't at a table that size. A hand being
+ * corrected keeps its own.
+ */
+export function shareTable(s: FastState, stage: PreStage, players: number): FastState {
+  if (!isSize(players)) return s;
+  const fit = (d: FastDraft) => (d.editing ? d : withSeat(d, positionsFor(players).includes(d.seat) ? d.seat : buttonSeat(players), players));
+  return { ...s, stage, players, draft: fit(s.draft), parked: s.parked ? fit(s.parked) : null };
 }
 
 // ───────────── stored state ─────────────
@@ -206,10 +236,10 @@ function cleanDraft(x: unknown, players: number): FastDraft {
   return { ...placed, ...(editing && isStage(r.stage) ? { stage: r.stage } : {}), ...(own ? { players: own } : {}) };
 }
 
-/** The stored editor state with valid fields only; `stage` is the fallback stage for a first visit. */
-export function cleanFastState(x: unknown, stage: PreStage = "mid"): FastState {
+/** The stored editor state with valid fields only; `stage` and `size` are the fallbacks for a first visit. */
+export function cleanFastState(x: unknown, stage: PreStage = "mid", size = 9): FastState {
   const r = obj(x);
-  const players = isSize(r.players) ? r.players : 9;
+  const players = isSize(r.players) ? r.players : isSize(size) ? size : 9;
   const draft = cleanDraft(r.draft ?? {}, players);
   const parked = r.parked && draft.editing ? cleanDraft(r.parked, players) : null;
   return { stage: isStage(r.stage) ? r.stage : stage, players, draft, parked: parked && !parked.editing ? parked : null };
@@ -222,9 +252,12 @@ export const SESSION_GAP_MS = 6 * 60 * 60 * 1000;
 /** The newest hand this long ago: no session is on. */
 export const SESSION_IDLE_MS = 12 * 60 * 60 * 1000;
 
-/** Today's session: my 빠른 기록 hands back from the newest until a 6-hour pause, newest first; none if the newest is over 12 hours old. */
-export function sessionOf(hands: LoggedHand[], now: number): LoggedHand[] {
-  const fast = hands.filter((h) => h.fast === true && !isOther(h)).sort((a, b) => b.createdAt - a.createdAt);
+/**
+ * Today's session: the 빠른 기록 hands of the mode's kind (mine, or other players') back from the newest
+ * until a 6-hour pause, newest first; none if the newest is over 12 hours old.
+ */
+export function sessionOf(hands: LoggedHand[], now: number, mode: FastMode = "mine"): LoggedHand[] {
+  const fast = hands.filter((h) => h.fast === true && kindFits(h, mode)).sort((a, b) => b.createdAt - a.createdAt);
   if (!fast.length || now - fast[0].createdAt > SESSION_IDLE_MS) return [];
   const out = [fast[0]];
   for (let i = 1; i < fast.length && out[out.length - 1].createdAt - fast[i].createdAt <= SESSION_GAP_MS; i++) out.push(fast[i]);
@@ -253,7 +286,7 @@ const clock = (t: number) => {
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
-/** One hand as a line: "21:05 미들 CO K9o 오픈 ⚠ 오버플레이 (차트: 폴드)". */
+/** One hand as a line: "21:05 미들 CO K9o 오픈 ⚠ 오버플레이 (차트: 폴드)" (another player's: "⚠ 차트보다 루즈 (차트: 폴드)"). */
 export function fastLineText(h: LoggedHand): string {
   const v = fastVerdictOf(h);
   const stage = h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "";
@@ -262,18 +295,23 @@ export function fastLineText(h: LoggedHand): string {
   return [clock(h.createdAt), stage, h.seat, holeClass(h), act, v && v.text !== act ? v.text : ""].filter(Boolean).join(" ");
 }
 
-/** "오늘 요약 복사": the session in short text, overplays and underplays first, for asking Claude later. */
-export function sessionText(hands: LoggedHand[]): string {
+/**
+ * "오늘 요약 복사": the session in short text, overplays and underplays first, for asking Claude later. In
+ * "other" mode the hands are other players' (남의 핸드): looser and tighter than the chart first.
+ */
+export function sessionText(hands: LoggedHand[], mode: FastMode = "mine"): string {
   if (!hands.length) return "";
   const s = fastStats(hands);
+  const other = mode === "other";
+  const [over, under] = other ? ["차트보다 루즈", "차트보다 타이트"] : ["오버플레이", "언더플레이"];
   const old = [...hands].sort((a, b) => a.createdAt - b.createdAt);
   const day = new Date(old[0].createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" });
   const lines = [
-    `PubAJ 빠른 기록 · ${day} · ${s.total}핸드 (펍 토너먼트, 펍아재 차트 기준)`,
-    `차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · 오버플레이 ${s.by.over} · 언더플레이 ${s.by.under} · 차트 없음 ${s.by.none}`,
+    other ? `PubAJ 남의 핸드 · ${day} · ${s.total}핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)` : `PubAJ 빠른 기록 · ${day} · ${s.total}핸드 (펍 토너먼트, 펍아재 차트 기준)`,
+    `차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · ${over} ${s.by.over} · ${under} ${s.by.under} · 차트 없음 ${s.by.none}`,
   ];
   const kind = (k: VerdictKind) => old.filter((h) => fastVerdictOf(h)?.kind === k);
-  for (const [k, title] of [["over", "오버플레이"], ["under", "언더플레이"]] as const) {
+  for (const [k, title] of [["over", over], ["under", under]] as const) {
     const xs = kind(k);
     if (xs.length) lines.push("", `[${title}]`, ...xs.map((h) => `- ${fastLineText(h)}`));
   }

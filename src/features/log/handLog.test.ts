@@ -328,11 +328,12 @@ describe("quick record", () => {
     expect(logView("list/mine", hands)).toEqual({ kind: "list", filter: "mine" });
     expect(logView("list/other", hands)).toEqual({ kind: "list", filter: "other" });
     expect(logView("players", hands)).toEqual({ kind: "players" });
-    // another player's hand: a new one, the one saved there, one of mine asked for there, one deleted
-    expect(logView("other", hands)).toEqual({ kind: "other", id: null });
-    expect(logView("other/o1", hands)).toEqual({ kind: "other", id: "o1" });
+    // 남의 핸드 is the 빠른 기록 screen in other mode; an old "other/<id>" address opens that hand in the
+    // table flow (another player's or one of mine), or the entry screen when it is gone
+    expect(logView("other", hands)).toEqual({ kind: "other" });
+    expect(logView("other/o1", hands)).toEqual({ kind: "edit", id: "o1" });
     expect(logView("other/q1", hands)).toEqual({ kind: "edit", id: "q1" });
-    expect(logView("other/gone", hands)).toEqual({ kind: "other", id: null });
+    expect(logView("other/gone", hands)).toEqual({ kind: "other" });
     // the old quick-record links: the new hand, or that hand in the table flow
     expect(logView("quick", hands)).toEqual({ kind: "new" });
     expect(logView("quick/q1", hands)).toEqual({ kind: "edit", id: "q1" });

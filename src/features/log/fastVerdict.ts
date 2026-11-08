@@ -228,5 +228,14 @@ export function fastVerdict(i: FastInput, decide: (spot: PreflopSpot) => Preflop
   return { kind: "under", text: `▽ 언더플레이 (차트: ${named(top(more))})`, chart, freq: 0 };
 }
 
+/**
+ * The verdict worded for another player's hand (남의 핸드): information about how pub players play, not
+ * a mistake. An overplay reads "⚠ 차트보다 루즈 (차트: 폴드)", an underplay "▽ 차트보다 타이트 (차트: 오픈)";
+ * the rest (✓ 차트대로, △ 섞는 핸드, 차트 없음) stays as it is.
+ */
+export function theirWords(v: Verdict): Verdict {
+  return { ...v, text: v.text.replace("오버플레이", "차트보다 루즈").replace("언더플레이", "차트보다 타이트") };
+}
+
 /** The verdict's one-word mark for tight lists: ✓ △ ⚠ ▽ or –. */
 export const VERDICT_MARK: Record<VerdictKind, string> = { ok: "✓", mixed: "△", over: "⚠", under: "▽", none: "–" };

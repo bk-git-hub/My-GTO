@@ -5,7 +5,7 @@ import { scoutToHands } from "./legacyScout";
 import { clockText, levelAt, levelRow, parseClock, type LevelEstimate } from "./levelClock";
 import { actedPreflop, cleanPre, isStage, knownStage, preHasInfo, preSteps, shoveCap, STAGE_LABEL, summaryOf, summaryOfGame, summaryText, tidyPre, type PreStage, type QuickPre } from "./quickPre";
 import { amountLabel, MY_TAGS, positionsFor, POSITIONS, replay, streetLines, type LogStep, type SeatTags, type StepKind, type TableInput } from "./recorder";
-import { actLabel, fastVerdict, isFastSpot, type FastInput, type FastSpot, type Verdict } from "./fastVerdict";
+import { actLabel, fastVerdict, isFastSpot, theirWords, type FastInput, type FastSpot, type Verdict } from "./fastVerdict";
 import { cleanGuess, describeGuess, flopFromRanks, holeFromRanks, nextBoardCard, setBoardGuess, setHoleGuess, type FlopTexture, type HoleKind, type SuitGuess } from "./suitGuess";
 
 /**
@@ -495,10 +495,15 @@ export function fastInputOf(h: LoggedHand): FastInput | null {
   };
 }
 
-/** The chart's verdict on a 빠른 기록 hand (null for another hand). */
+/**
+ * The chart's verdict on a 빠른 기록 hand (null for another hand). Another player's hand (kind "other")
+ * is judged the same way but worded from their side: 차트보다 루즈 / 타이트 instead of 오버 / 언더플레이.
+ */
 export function fastVerdictOf(h: LoggedHand): Verdict | null {
   const i = fastInputOf(h);
-  return i ? fastVerdict(i) : null;
+  if (!i) return null;
+  const v = fastVerdict(i);
+  return isOther(h) ? theirWords(v) : v;
 }
 
 /** A 빠른 기록 decision in a few words: "UTG 오픈 → 콜", "림프 → 아이소", "3벳 → 4벳", "오픈", "워크". */
@@ -535,15 +540,15 @@ export type LogView =
   | { kind: "fast" }
   | { kind: "list"; filter: ListFilter }
   | { kind: "players" }
-  /** Another player's hand on the quick entry screen: `id` the saved one on screen, null for a new one. */
-  | { kind: "other"; id: string | null }
+  /** 남의 핸드: another player's hands on the 빠른 기록 screen (other mode). */
+  | { kind: "other" }
   | { kind: "edit"; id: string };
 
 /**
  * The screen a "#log/…" route shows: "" a new hand of mine (the hand first), "fast" 빠른 기록, "list", "list/mine",
- * "list/other", "players", "other" another player's hand on the quick entry screen ("other/<id>" one
- * saved there), "<id>" a saved hand in the table flow. The old quick-record routes ("quick",
- * "quick/<id>") land on the new hand and on that hand in the table flow.
+ * "list/other", "players", "other" 남의 핸드 (빠른 기록 for other players' hands), "<id>" a saved hand in
+ * the table flow. The old addresses "other/<id>" (a hand on the old 남의 핸드 screen) and the quick-record
+ * routes ("quick", "quick/<id>") open that hand in the table flow, or the entry screen if it is gone.
  */
 export function logView(sub: string, hands: LoggedHand[]): LogView {
   if (sub === "" || sub === "new" || sub === "quick") return { kind: "new" };
@@ -552,13 +557,11 @@ export function logView(sub: string, hands: LoggedHand[]): LogView {
   if (sub === "list/mine") return { kind: "list", filter: "mine" };
   if (sub === "list/other") return { kind: "list", filter: "other" };
   if (sub === "players") return { kind: "players" };
-  if (sub === "other") return { kind: "other", id: null };
+  if (sub === "other") return { kind: "other" };
   if (sub.startsWith("other/")) {
     const id = sub.slice("other/".length);
-    const h = hands.find((x) => x.id === id);
-    // One of mine asked for here: it opens in the table flow. Deleted meanwhile: a new one.
-    if (h && !isOther(h)) return { kind: "edit", id };
-    return { kind: "other", id: h ? id : null };
+    // A hand saved on the old 남의 핸드 screen opens in the table flow; deleted meanwhile: the entry screen.
+    return hands.some((x) => x.id === id) ? { kind: "edit", id } : { kind: "other" };
   }
   if (sub.startsWith("quick/")) {
     const id = sub.slice("quick/".length);
@@ -1044,7 +1047,7 @@ export function handFacts(h: LoggedHand): string {
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
-    lines.push(`프리플랍 (빠른 기록, 내 결정 하나): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 펍 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 펍 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
   } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
