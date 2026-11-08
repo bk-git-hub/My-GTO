@@ -8,6 +8,9 @@ import {
   deleteHand,
   exportData,
   exportLegacyScout,
+  fastActText,
+  fastOnly,
+  fastVerdictOf,
   freshHand,
   freshLevel,
   guessedCards,
@@ -51,8 +54,10 @@ import {
   type LoggedHand,
   type Result,
 } from "./handLog";
+import { FastView, QuickToggle } from "./FastView";
+import { VERDICT_MARK } from "./fastVerdict";
 import { ChipRow, levelDeclined, LevelRow } from "./inputs";
-import { levelStage } from "./quickPre";
+import { levelStage, STAGE_LABEL } from "./quickPre";
 import { QuickPreBlock } from "./QuickPreBlock";
 import { positionsFor, TABLE_SIZES } from "./recorder";
 import { HoleEntry } from "./SuitEntry";
@@ -64,7 +69,8 @@ const NAMES_LIST_ID = "log-villain-names";
 type Msg = { text: string; error?: boolean } | null;
 
 /**
- * Routes: "log" (a new hand of mine: the hand first, then the table), "log/other" (another player's
+ * Routes: "log" (a new hand of mine: the hand first, then the table), "log/fast" (빠른 기록: every hand
+ * of mine, a few taps each, graded against the chart), "log/other" (another player's
  * hand on one quick screen; "log/other/<id>" the one saved there), "log/list" (past hands: all,
  * "log/list/mine", "log/list/other", and the backup), "log/players" (showdowns by opponent),
  * "log/<id>" (a saved hand in the table flow, mine or another player's).
@@ -80,6 +86,7 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
         ))}
       </datalist>
       {v.kind === "new" && <NewHandView hands={hands} go={go} />}
+      {v.kind === "fast" && <FastView hands={hands} go={go} />}
       {/* Keyed by the hand: saving changes the address bar only, so the screen keeps its hand. */}
       {v.kind === "edit" && <EditView key={v.id} id={v.id} hands={hands} go={go} />}
       {v.kind === "other" && <OtherView key={v.id ?? "new"} id={v.id} hands={hands} go={go} />}
@@ -612,6 +619,7 @@ function OtherView({ id, hands, go }: { id: string | null; hands: LoggedHand[]; 
   const info = levelLabel(h.level);
   return (
     <>
+      <QuickToggle mine={false} go={go} />
       <div className="log-top">
         <span className="log-top-title">누가 뭘로 오픈·콜했나 · 레인지 모으기</span>
         <button type="button" className="log-link" onClick={() => go("log/list/other")}>
@@ -725,7 +733,7 @@ function ListScreen({ tab, hands, go }: { tab: ListTab; hands: LoggedHand[]; go:
 const EMPTY_TEXT: Record<ListFilter, string> = {
   all: "아직 기록이 없어요. ＋ 새 기록으로 기억나는 핸드부터 넣어 보세요.",
   mine: "아직 내 핸드 기록이 없어요. ＋ 새 기록으로 기억나는 핸드부터 넣어 보세요.",
-  other: "아직 남의 핸드가 없어요. ⚡ 빠른 기록으로 누가 뭘로 오픈·콜했는지 모아 보세요.",
+  other: "아직 남의 핸드가 없어요. ＋ 남의 핸드로 누가 뭘로 오픈·콜했는지 모아 보세요.",
 };
 
 function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go: (route: string) => void }) {
@@ -737,6 +745,11 @@ function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go
         {tab !== "other" && (
           <button type="button" className="log-new-btn" onClick={() => go("log")}>
             ＋ 새 기록
+          </button>
+        )}
+        {tab !== "other" && (
+          <button type="button" className="log-new-btn" onClick={() => go("log/fast")}>
+            ⚡ 빠른 기록
           </button>
         )}
         {tab !== "mine" && (
@@ -776,7 +789,12 @@ function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go
 function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
   const other = isOther(h);
   const bb = stackBb(h);
-  const line = actionLine(h);
+  // A 빠른 기록 hand: its decision and the chart's verdict, until it is carried on to the table.
+  const fast = fastOnly(h);
+  const fv = h.fast ? fastVerdictOf(h) : null;
+  // A walk's line already says 워크.
+  const verdict = fv && fv.text !== "워크" ? fv : null;
+  const line = fast ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : actionLine(h);
   const open = unfinished(h);
   const guessed = holeGuessed(h);
   return (
@@ -791,12 +809,18 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
         {h.hole.length === 2 ? guessed ? <b className="log-class">{holeClass(h)}</b> : <CardRow cards={h.hole} size="sm" /> : <span className="muted small">카드 없음</span>}
         {bb !== null && <span className="small">{bb}bb</span>}
         <span className="log-end">
-          {guessed && <span className="log-tag soft">무늬 추정</span>}
+          {h.fast && <span className="log-tag fast">빠른</span>}
+          {guessed && !h.fast && <span className="log-tag soft">무늬 추정</span>}
           {open && <span className="log-tag">작성 중</span>}
           {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
         </span>
       </span>
       {line && <span className="log-pre small">{line}</span>}
+      {verdict && (
+        <span className={`log-verdict small v-${verdict.kind}`}>
+          {verdict.kind === "none" ? `${VERDICT_MARK.none} ${verdict.text}` : verdict.text}
+        </span>
+      )}
       <span className="muted small">
         {timeLabel(h.createdAt)} · {handLevelLabel(h)}
         {hasDetail(h) ? " · 자세히" : ""}

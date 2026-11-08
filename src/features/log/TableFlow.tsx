@@ -25,6 +25,7 @@ import {
   subjectLabel,
   subjectWord,
   tableOf,
+  tablePre,
   unfinished,
   withBoard,
   withHole,
@@ -325,8 +326,9 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
   const { h, set, update, fmt, a, later, onResult } = props;
   // Into the action: a preflop block jotted on the quick screen becomes the first steps, on the table as it now is.
   useEffect(() => {
-    if (!h.quickPre || h.steps.length || !h.seat || h.hole.length !== 2) return;
-    const steps = preSteps(tableOf(h), h.quickPre);
+    const pre = tablePre(h);
+    if (!pre || h.steps.length || !h.seat || h.hole.length !== 2) return;
+    const steps = preSteps(tableOf(h), pre);
     if (steps.length) update({ ...h, steps });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

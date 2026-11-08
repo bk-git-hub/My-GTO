@@ -1001,3 +1001,117 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .sv-end.allin-runout { border-left-color: #9b1c2c; }
 .sv-soon { text-align: center; padding: 14px 10px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); font-weight: 700; }
 /* ───────── end solver charts ───────── */
+
+/* ───────── 빠른 기록: every hand of mine, a few taps each ───────── */
+.fast { display: flex; flex-direction: column; gap: 6px; }
+/* The stage (for the verdicts) and the table size stay in sight while today's list scrolls. */
+.fast-bar { position: sticky; top: calc(env(safe-area-inset-top) + 57px); z-index: 4; display: flex; gap: 6px; margin: 0 -12px; padding: 6px 12px; background: rgba(9, 12, 17, 0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.fast-stages { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.fast-stages button, .fast-size { height: 44px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.92rem; font-weight: 800; }
+.fast-stages button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fast-size { flex: none; padding: 0 12px; color: var(--text); }
+.fast-size i { font-style: normal; color: var(--muted); font-size: 0.7rem; }
+.fast-sec { display: flex; flex-direction: column; gap: 4px; }
+/* "내 핸드 | 남의 핸드": small, at the right end of the first label line. */
+.fast-label .fast-toggle { margin-left: auto; flex: none; padding: 2px; gap: 2px; }
+.fast-label .fast-toggle button { flex: none; height: 30px; padding: 0 10px; font-size: 0.76rem; }
+.fast-label { display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
+.fast-label > b { color: var(--accent); font-size: 0.86rem; }
+.fast-row { display: flex; gap: 3px; }
+.fast-row button { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 1px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; }
+.fast-row button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fast-row button:disabled { opacity: 0.28; }
+.fast-seats.n8 button, .fast-seats.n9 button, .fast-seats.n10 button { font-size: 0.7rem; }
+@media (max-width: 374px) { .fast-seats.n9 button, .fast-seats.n10 button { font-size: 0.64rem; } }
+.fast-seats .two { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.fast-class { margin-left: auto; min-width: 3.2ch; text-align: right; font-size: 1.9rem; line-height: 1; font-weight: 900; color: var(--text); letter-spacing: 0.02em; }
+.fast-class small { margin-left: 1px; color: var(--accent); font-size: 1.3rem; }
+.fast-class.done { color: var(--accent); }
+.fast-nudge { min-width: 0; padding: 3px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 0.74rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fast-pad { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.fast-pad button { height: 46px; padding: 0; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 1.3rem; font-weight: 900; }
+.fast-pad button:active { background: var(--panel-2); }
+.fast-pad .fast-back { color: var(--muted); font-size: 1.1rem; }
+.fast-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.fast-suits button { height: 44px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 1rem; font-weight: 800; }
+.fast-suits button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fast-suits.ask button { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.fast-suits button:disabled { opacity: 0.3; }
+.fast-spots button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; line-height: 1.15; font-size: 0.76rem; }
+/* Who opened: one row, its label at the left. */
+.fast-opener { display: flex; align-items: center; gap: 6px; }
+.fast-opener .fast-row { flex: 1; min-width: 0; }
+.fast-opener .fast-row button { border-color: rgba(255, 77, 90, 0.45); }
+.fast-sub { flex: none; width: 30px; font-size: 0.7rem; line-height: 1.2; font-weight: 800; color: #ff8a92; }
+.fast-hint { margin: 0; min-height: 1.2em; font-size: 0.72rem; color: var(--muted); }
+.fast-hint.ok { color: var(--ok); }
+.fast-acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fast-acts.n1 { grid-template-columns: 1fr; }
+.fast-acts.n2 { grid-template-columns: repeat(2, 1fr); }
+.fast-acts.n3 { grid-template-columns: repeat(3, 1fr); }
+.fast-acts button { height: 54px; padding: 0 2px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); font-size: 1.1rem; font-weight: 900; white-space: nowrap; }
+.fast-acts .a-fold, .fast-acts .a-walk { background: #1c2532; color: #c7d0dd; }
+.fast-acts .a-limp, .fast-acts .a-call { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.6); color: #7ee2a2; }
+.fast-acts .a-open, .fast-acts .a-3bet { background: rgba(255, 77, 90, 0.15); border-color: rgba(255, 77, 90, 0.6); color: #ff8a92; }
+.fast-acts .a-allin { background: rgba(179, 107, 255, 0.17); border-color: rgba(179, 107, 255, 0.6); color: #cfa6ff; }
+.fast-acts button.on { box-shadow: 0 0 0 2px var(--accent); }
+.fast-acts button:disabled { opacity: 0.32; }
+.fast-editing { display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); font-size: 0.78rem; }
+.fast-editing > span { flex: 1; min-width: 0; }
+.fast-editing b { color: var(--accent); }
+.fast-mini { flex: none; height: 38px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 800; }
+.fast-mini.danger { color: var(--err); }
+/* today's hands */
+.fast-today { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.fast-today-head { display: flex; align-items: baseline; justify-content: space-between; }
+.fast-today-head h2 { margin: 0; }
+.fast-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 0.8rem; font-weight: 700; }
+.fast-stats .v-ok b { color: var(--ok); font-size: 1.1rem; }
+.fast-stats .v-ok small { color: var(--muted); }
+.fast-stats .v-over { color: var(--err); }
+.fast-stats .v-under { color: var(--info); }
+.fast-stats .v-mixed { color: var(--warn); }
+.fast-stats .v-none { color: var(--muted); }
+.fast-list { display: flex; flex-direction: column; gap: 4px; }
+.fast-item { display: flex; align-items: center; gap: 7px; width: 100%; min-height: 44px; padding: 6px 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); text-align: left; font-size: 0.82rem; }
+.fi-time { flex: none; color: var(--muted); font-size: 0.7rem; }
+.fi-seat { flex: none; min-width: 40px; color: var(--accent); }
+.fi-class { flex: none; min-width: 34px; font-weight: 900; }
+.fi-act { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c7d0dd; }
+.fi-verdict { flex: none; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
+.fast-item.v-ok .fi-verdict { color: var(--ok); font-size: 1rem; }
+.fast-item.v-mixed .fi-verdict { color: var(--warn); font-size: 1rem; }
+.fast-item.v-over { border-color: rgba(255, 90, 100, 0.6); background: rgba(255, 90, 100, 0.09); }
+.fast-item.v-over .fi-verdict { color: var(--err); }
+.fast-item.v-under { border-color: rgba(56, 189, 248, 0.55); background: rgba(56, 189, 248, 0.07); }
+.fast-item.v-under .fi-verdict { color: var(--info); }
+.fast-item.v-none .fi-verdict { color: var(--muted); }
+.fast-item.editing { box-shadow: 0 0 0 2px var(--accent); }
+.fast-today-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fast-today-foot .ghost { min-height: 44px; }
+/* The verdict of the hand just saved, with 되돌리기, under the actions where the eyes already are; else the
+   hint. A fixed height so nothing moves, and in the flow so it never covers a key the next hand needs. */
+.fast-result { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 2px; border-radius: 12px; border: 1px solid transparent; }
+.fast-result.shown { padding: 0 3px 0 10px; background: #1f2a3a; border-color: var(--line); animation: fast-result-in 0.16s ease-out; }
+.fr-hint { font-size: 0.74rem; color: var(--muted); }
+.fr-text { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; font-size: 0.84rem; line-height: 1.25; }
+.fr-text b { font-weight: 900; }
+.fr-text small { color: var(--muted); font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
+.fast-result button { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.86rem; font-weight: 800; }
+.fast-result.v-ok { border-color: rgba(34, 197, 94, 0.7); }
+.fast-result.v-ok b { color: var(--ok); }
+.fast-result.v-mixed { border-color: rgba(251, 191, 36, 0.7); }
+.fast-result.v-mixed b { color: var(--warn); }
+.fast-result.v-over { border-color: rgba(255, 90, 100, 0.8); background: rgba(255, 90, 100, 0.1); }
+.fast-result.v-over b { color: var(--err); }
+.fast-result.v-under { border-color: rgba(56, 189, 248, 0.7); background: rgba(56, 189, 248, 0.08); }
+.fast-result.v-under b { color: var(--info); }
+@keyframes fast-result-in { from { opacity: 0; } to { opacity: 1; } }
+/* 지난 기록: a 빠른 기록 hand's tag and verdict. */
+.log-tag.fast { border-color: rgba(34, 197, 94, 0.5); color: var(--ok); }
+.log-verdict { font-weight: 800; }
+.log-verdict.v-ok { color: var(--ok); }
+.log-verdict.v-mixed { color: var(--warn); }
+.log-verdict.v-over { color: var(--err); }
+.log-verdict.v-under { color: var(--info); }
+.log-verdict.v-none { color: var(--muted); font-weight: 600; }

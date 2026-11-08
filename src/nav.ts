@@ -16,7 +16,7 @@ export type NavEntry = NavItem | { section: string } | { pair: [NavItem, NavItem
 export const NAV: NavEntry[] = [
   { pair: [{ route: "charts", label: "펍아재 차트", icon: "▦" }, { route: "solver", label: "솔버 차트", icon: "◆" }] },
   { pair: [{ route: "log", label: "핸드 복기", icon: "✎" }, { route: "log/list", label: "지난 기록 보기", icon: "☰" }] },
-  { route: "log/other", label: "빠른 기록", icon: "⚡" },
+  { route: "log/fast", label: "빠른 기록", icon: "⚡" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
   { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
@@ -45,10 +45,13 @@ export function redirectRoute(route: string): string | null {
   return null;
 }
 
-/** The hand-log item a "log…" route belongs to: the new hand, another player's hand, or the past hands (a saved hand too). */
+/** 남의 핸드 기록 (another player's hand): reached from 빠른 기록's "내 핸드 | 남의 핸드" toggle, so that item is lit there. */
+const isOtherHand = (route: string) => route === "log/other" || route.startsWith("log/other/");
+
+/** The hand-log item a "log…" route belongs to: the new hand, 빠른 기록 (another player's hand too), or the past hands (a saved hand too). */
 function logItem(route: string): string {
   if (route === "log" || route === "log/new") return "log";
-  if (route === "log/other" || route.startsWith("log/other/")) return "log/other";
+  if (route === "log/fast" || isOtherHand(route)) return "log/fast";
   return "log/list";
 }
 
@@ -64,6 +67,7 @@ export function isActive(item: string, route: string): boolean {
 export function titleOf(route: string): string {
   if (route === "home") return "";
   if (route === "log" || route.startsWith("log/")) {
+    if (isOtherHand(route)) return "남의 핸드 기록";
     const item = logItem(route);
     // A saved hand opened from the list: neither new nor the list itself.
     if (item === "log/list" && route !== "log/list" && !route.startsWith("log/list/") && route !== "log/players") return "핸드 기록";

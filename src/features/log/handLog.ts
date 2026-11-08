@@ -5,6 +5,7 @@ import { scoutToHands } from "./legacyScout";
 import { clockText, levelAt, levelRow, parseClock, type LevelEstimate } from "./levelClock";
 import { actedPreflop, cleanPre, isStage, knownStage, preHasInfo, preSteps, shoveCap, STAGE_LABEL, summaryOf, summaryOfGame, summaryText, tidyPre, type PreStage, type QuickPre } from "./quickPre";
 import { amountLabel, MY_TAGS, positionsFor, POSITIONS, replay, streetLines, type LogStep, type SeatTags, type StepKind, type TableInput } from "./recorder";
+import { actLabel, fastVerdict, isFastSpot, type FastInput, type FastSpot, type Verdict } from "./fastVerdict";
 import { cleanGuess, describeGuess, flopFromRanks, holeFromRanks, nextBoardCard, setBoardGuess, setHoleGuess, type FlopTexture, type HoleKind, type SuitGuess } from "./suitGuess";
 
 /**
@@ -80,6 +81,13 @@ export interface LoggedHand {
   holeKind?: HoleKind;
   /** The level came from the tournament start time (levelEstimateAt), not from the user. */
   levelGuess?: true;
+  /**
+   * Saved on 빠른 기록 (one preflop decision of mine: seat, class, what happened before me, my action;
+   * the stage, the action and the opener are in `quickPre`). Kept if the hand is carried on to the table.
+   */
+  fast?: true;
+  /** 빠른 기록: what happened before my decision. Only with `fast`. */
+  fastSpot?: FastSpot;
 }
 
 /** The day's tournament start: the local day the clock time falls on, and the clock ("19:00"). */
@@ -224,6 +232,11 @@ export function tidyHand(h: LoggedHand): LoggedHand {
     const { levelGuess: _l, ...rest } = next;
     void _l;
     next = rest;
+  }
+  // 빠른 기록's marks: the flag only as true, its spot only with it and only a known one.
+  if (("fast" in next && next.fast !== true) || ("fastSpot" in next && (next.fast !== true || !isFastSpot(next.fastSpot)))) {
+    const { fast, fastSpot, ...rest } = next;
+    next = fast === true ? { ...rest, fast, ...(isFastSpot(fastSpot) ? { fastSpot } : {}) } : rest;
   }
   return next;
 }
@@ -461,11 +474,65 @@ export function isQuickHand(h: LoggedHand): boolean {
 /** Where a saved hand opens: the table flow (at its first missing step), mine or another player's. */
 export const handRoute = (h: Pick<LoggedHand, "id">): string => `log/${h.id}`;
 
+// ───────────── 빠른 기록 ─────────────
+
+/** A hand from 빠른 기록 with nothing recorded on the table yet (no steps, board or showdowns). */
+export const fastOnly = (h: LoggedHand): boolean => h.fast === true && h.steps.length === 0 && h.board.length === 0 && h.showdowns.length === 0;
+
+/** A 빠른 기록 hand as the verdict reads it (null for a hand not from there, or without its class). */
+export function fastInputOf(h: LoggedHand): FastInput | null {
+  if (h.fast !== true || h.hole.length !== 2) return null;
+  const cls = holeClass(h);
+  if (cls.length < 2 || (cls.length === 2 && cls[0] !== cls[1])) return null;
+  return {
+    stage: h.quickPre?.stage ?? "mid",
+    players: h.players,
+    seat: h.seat,
+    cls,
+    spot: h.fastSpot ?? "none",
+    ...(h.quickPre?.openerSeat ? { opener: h.quickPre.openerSeat } : {}),
+    ...(h.quickPre?.action ? { act: h.quickPre.action } : {}),
+  };
+}
+
+/** The chart's verdict on a 빠른 기록 hand (null for another hand). */
+export function fastVerdictOf(h: LoggedHand): Verdict | null {
+  const i = fastInputOf(h);
+  return i ? fastVerdict(i) : null;
+}
+
+/** A 빠른 기록 decision in a few words: "UTG 오픈 → 콜", "림프 → 아이소", "3벳 → 4벳", "오픈", "워크". */
+export function fastActText(h: Pick<LoggedHand, "seat" | "fastSpot" | "quickPre">): string {
+  const spot = h.fastSpot ?? "none";
+  const act = h.quickPre?.action;
+  const opener = h.quickPre?.openerSeat ?? "";
+  const mine = act ? actLabel(spot, act, h.seat) : "워크";
+  const before = spot === "limp" ? "림프" : spot === "open" ? `${opener} 오픈` : spot === "shove" ? `${opener} 올인` : spot === "3bet" ? "3벳" : spot === "cold3" ? "오픈·3벳" : "";
+  return before ? `${before} → ${mine}` : mine;
+}
+
+/**
+ * The preflop block as the table should take it (preSteps). A 빠른 기록 hand the block can't place
+ * (facing limps or a 3-bet, whose seats it doesn't know, or a fold facing an open, which the block reads
+ * as a fold first in) places nothing: the table starts from the first seat rather than with folds that
+ * never happened.
+ */
+export function tablePre(h: LoggedHand): QuickPre | undefined {
+  if (h.fast === true) {
+    const spot = h.fastSpot ?? "none";
+    if (spot === "limp" || spot === "3bet" || spot === "cold3") return undefined;
+    if ((spot === "open" || spot === "shove") && h.quickPre?.action === "fold") return undefined;
+  }
+  return h.quickPre;
+}
+
 /** Which hands the past-hands list shows. */
 export type ListFilter = "all" | "mine" | "other";
 
 export type LogView =
   | { kind: "new" }
+  /** 빠른 기록: every hand of mine, a few taps each. */
+  | { kind: "fast" }
   | { kind: "list"; filter: ListFilter }
   | { kind: "players" }
   /** Another player's hand on the quick entry screen: `id` the saved one on screen, null for a new one. */
@@ -473,13 +540,14 @@ export type LogView =
   | { kind: "edit"; id: string };
 
 /**
- * The screen a "#log/…" route shows: "" a new hand of mine (the hand first), "list", "list/mine",
+ * The screen a "#log/…" route shows: "" a new hand of mine (the hand first), "fast" 빠른 기록, "list", "list/mine",
  * "list/other", "players", "other" another player's hand on the quick entry screen ("other/<id>" one
  * saved there), "<id>" a saved hand in the table flow. The old quick-record routes ("quick",
  * "quick/<id>") land on the new hand and on that hand in the table flow.
  */
 export function logView(sub: string, hands: LoggedHand[]): LogView {
   if (sub === "" || sub === "new" || sub === "quick") return { kind: "new" };
+  if (sub === "fast") return { kind: "fast" };
   if (sub === "list") return { kind: "list", filter: "all" };
   if (sub === "list/mine") return { kind: "list", filter: "mine" };
   if (sub === "list/other") return { kind: "list", filter: "other" };
@@ -507,6 +575,8 @@ export function logView(sub: string, hands: LoggedHand[]): LogView {
  */
 export function unfinished(h: LoggedHand): boolean {
   if (h.result !== null || h.net !== null) return false;
+  // One decision jotted on 빠른 기록 is complete as it is, until it is carried on to the table.
+  if (fastOnly(h)) return false;
   if (h.hole.length < 2 || !h.seat) return true;
   if (isOther(h) && h.steps.length === 0) return h.quickPre?.action === undefined && h.note.trim() === "";
   const { game } = replay(tableOf(h), h.steps);
@@ -649,7 +719,7 @@ export const RESUME_WINDOW_MS = 12 * 60 * 60 * 1000;
  */
 export function resumable(hands: LoggedHand[], now: number, kind: HandKind = "mine"): LoggedHand | null {
   let last: LoggedHand | null = null;
-  for (const h of hands) if (isOther(h) === (kind === "other") && hasContent(h) && (!last || h.updatedAt > last.updatedAt)) last = h;
+  for (const h of hands) if (isOther(h) === (kind === "other") && hasContent(h) && !fastOnly(h) && (!last || h.updatedAt > last.updatedAt)) last = h;
   if (!last || now - last.updatedAt > RESUME_WINDOW_MS) return null;
   if (last.result !== null || last.net !== null) return null;
   return handProgress(last) === "done" ? null : last;
@@ -971,7 +1041,11 @@ export function handFacts(h: LoggedHand): string {
   if (other && h.mySeat) lines.push(`내 자리: ${h.mySeat} (같은 테이블에서 지켜봄)`);
   if (holeGuessed(h) || boardGuessText(h)) lines.push("참고: 무늬를 추정한 카드가 있어 플러시 관련 승률은 근사값");
   if (h.board.length) lines.push(`보드: ${boardText(h)}`);
-  if (h.quickPre && blockSays(h)) {
+  const fv = blockSays(h) ? fastVerdictOf(h) : null;
+  if (fv && h.quickPre) {
+    const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
+    lines.push(`프리플랍 (빠른 기록, 내 결정 하나): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 펍 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+  } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
     lines.push(`프리플랍 (빠른 기록, 금액은 bb): ${[stage, s ? summaryText(s) : ""].filter(Boolean).join(" · ")}`);
@@ -1043,7 +1117,7 @@ export function knownNames(hands: LoggedHand[]): string[] {
 export const EXPORT_KIND = "pubaj-hand-log";
 const OLD_EXPORT_KIND = "pubaz-hand-log";
 
-/** The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess) and the start times. */
+/** The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess, fast, fastSpot) and the start times. */
 export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[]): string {
   const sc = cleanStartClock(startClock);
   const days = cleanStartClocks(startClocks);
@@ -1114,6 +1188,7 @@ export function sanitize(x: unknown): LoggedHand | null {
     ...(guess ? { guess } : {}),
     ...(isHoleKind(r.holeKind) ? { holeKind: r.holeKind } : {}),
     ...(r.levelGuess === true && level !== null ? { levelGuess: true as const } : {}),
+    ...(r.fast === true ? { fast: true as const, ...(isFastSpot(r.fastSpot) ? { fastSpot: r.fastSpot } : {}) } : {}),
   };
   return tidyHand(hand);
 }
@@ -1260,6 +1335,7 @@ function needsSanitize(x: unknown): boolean {
   if ("kind" in h && h.kind !== "other") return true;
   if ("mySeat" in h && (h.kind !== "other" || typeof h.mySeat !== "string" || h.mySeat === h.seat || !positionsFor(h.players).includes(h.mySeat))) return true;
   if ("levelGuess" in h && (h.levelGuess !== true || h.level === null)) return true;
+  if (("fast" in h && h.fast !== true) || ("fastSpot" in h && (h.fast !== true || !isFastSpot(h.fastSpot)))) return true;
   if (("guess" in h || "holeKind" in h) && (tidyGuess(h) !== h || ("holeKind" in h && !isHoleKind(h.holeKind)))) return true;
   return false;
 }
