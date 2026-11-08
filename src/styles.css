@@ -677,8 +677,10 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 /*
  * "수트 입력 | 수딧·오프만" (숫자만 for the board) under the keypad: the side in use lit in grey, not gold,
  * so it stays quieter than the keys above it and 다음 below; both sides a comfortable tap.
+ * 38px in all, so the 핸드 step still fits a 390x664 screen once a hand is typed.
  */
-.seg.suit-toggle button { min-height: 34px; font-weight: 700; }
+.seg.suit-toggle { padding: 2px; gap: 2px; }
+.seg.suit-toggle button { min-height: 32px; font-weight: 700; }
 .seg.suit-toggle button.on { background: var(--line); color: var(--text); }
 /* 수딧·오프만 / 숫자만: the ranks on the keypad, then what is remembered about the suits. */
 .hole-entry { display: flex; flex-direction: column; gap: 6px; }
