@@ -26,8 +26,9 @@ const threeBet = (range: string, label = "3벳"): ActionDef => ({ key: "3bet", l
 const call = (range: string): ActionDef => ({ key: "call", label: "콜", color: "call", range });
 
 /**
- * BB vs each opener (deep/mid): computed by scripts/make-bbdefense.mjs from that seat's open range
- * above, pot odds with the BB ante, and the equity-realization table in src/poker/realization.ts.
+ * BB vs each opener (deep/mid): computed by scripts/make-bbdefense.mjs from how pub players open from
+ * that seat (the open range above widened 1.4x), pot odds with the BB ante, and the equity-realization
+ * table in src/poker/realization.ts raised 15% for pub postflop play.
  */
 function bbDefense(stage: "deep" | "mid", size: string): ScenarioDef[] {
   return Object.entries(PUB_BB_DEFENSE[stage]).map(([opener, r]) => ({
@@ -37,7 +38,7 @@ function bbDefense(stage: "deep" | "mid", size: string): ScenarioDef[] {
     villain: opener,
     chip: `BB vs ${opener}`,
     title: `BB vs ${opener} 오픈`,
-    description: `${size} 오픈, 콜러 없음 기준 (콜러가 있으면 오프수트 콜은 빼요). 상대가 위 오픈 레인지대로 연다고 보고, 팟 오즈와 에퀴티 실현율로 계산했어요. 펍아재가 더 넓게 열면 더 넓게 방어해요.`,
+    description: `${size} 오픈, 콜러 없음 기준 (콜러가 있으면 오프수트 콜은 빼요). 펍아재가 우리 오픈 차트보다 넓게(약 1.4배) 연다고 보고, BB 앤티까지 넣은 팟 오즈와 아재 상대 에퀴티 실현율로 계산했어요. 더 넓게 여는 아재면 더 넓게 방어해요.`,
     actions: [threeBet(r.threeBet), call(r.call)],
   }));
 }
