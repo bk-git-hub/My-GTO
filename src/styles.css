@@ -81,6 +81,10 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
 .nav-item:hover { background: var(--panel-2); }
 .nav-item.on { background: var(--accent); color: var(--accent-ink); }
 .nav-icon { width: 20px; text-align: center; font-weight: 800; }
+/* Two menu items side by side (e.g. 펍아재 차트 | 솔버 차트). */
+.nav-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.nav-pair .nav-item { justify-content: center; padding: 11px 6px; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.nav-pair .nav-icon { display: none; }
 .drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.6); }
 .drawer {
   position: absolute; top: 0; bottom: 0; left: 0; width: min(280px, 82vw);

@@ -296,7 +296,7 @@ describe("지난 기록 보기 (react-dom/server)", () => {
   it("says where to start on an empty tab", () => {
     put([]);
     expect(text(page("list"))).toContain("아직 기록이 없어요. ＋ 새 기록으로 기억나는 핸드부터 넣어 보세요.");
-    expect(text(page("list/other"))).toContain("아직 남의 핸드 기록이 없어요.");
+    expect(text(page("list/other"))).toContain("아직 남의 핸드가 없어요.");
   });
 
   it("offers the old 정보 수집 data as a file while it is still stored", () => {

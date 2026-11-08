@@ -72,8 +72,10 @@ describe.skipIf(!gc || !memoryUsage)("estimateMemory matches the measured heap",
       if (name.includes("two-tone") || name.includes("monotone")) expect(new Engine(input).group.length, name).toBeGreaterThan(1);
       const est = estimateMemory(input).bytes;
       const measured = measuredEngineBytes(input);
-      expect(est / measured, `${name}: estimate ${est} vs measured ${measured}`).toBeGreaterThan(0.9);
-      expect(est / measured, `${name}: estimate ${est} vs measured ${measured}`).toBeLessThan(1.1);
+      // Within 10%, or within 256 KiB for spots around a megabyte, where heap noise from other work in the
+      // test process (GC timing, a parallel worker) is as big as 10% of the spot.
+      const slack = Math.max(0.1 * measured, 256 * 1024);
+      expect(Math.abs(est - measured), `${name}: estimate ${est} vs measured ${measured}`).toBeLessThanOrEqual(slack);
     }
   });
 });

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
-import { CardPicker } from "../../components/Cards";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { cardText, parseCardText } from "./handAnalysis";
@@ -31,9 +30,8 @@ export function TableCard({ c, small, hot, guess }: { c: Card; small?: boolean; 
 export function CardText(props: { label?: string; cards: Card[]; max: number; taken: Card[]; onChange: (cards: Card[], clean: boolean) => void; onValid?: (ok: boolean) => void; placeholder?: string; hint?: string; autoFocus?: boolean; compact?: boolean; inline?: boolean }) {
   const { label, cards, max, taken, onChange, onValid, placeholder, hint, autoFocus, compact, inline } = props;
   const [text, setText] = useState(() => cardText(cards));
-  const [picker, setPicker] = useState(false);
   const [keys, setKeys] = useState(!inline);
-  // Keep the text in step when the cards change elsewhere (picker, undo).
+  // Keep the text in step when the cards change elsewhere (undo, a guessed suit re-picked).
   useEffect(() => {
     if (parseCardText(text, max, taken).cards.join() !== cards.join()) setText(cardText(cards));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,22 +88,8 @@ export function CardText(props: { label?: string; cards: Card[]; max: number; ta
             <button type="button" onClick={() => update(text.slice(0, -1))} aria-label="지우기">
               ⌫
             </button>
-            <button type="button" onClick={() => setPicker(!picker)}>
-              표
-            </button>
           </div>
         </div>
-      )}
-      {picker && (
-        <CardPicker
-          selected={cards}
-          max={max}
-          disabled={taken}
-          onChange={(cs) => {
-            onChange(cs, true);
-            setText(cardText(cs));
-          }}
-        />
       )}
     </div>
   );

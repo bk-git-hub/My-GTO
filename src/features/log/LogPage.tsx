@@ -725,7 +725,7 @@ function ListScreen({ tab, hands, go }: { tab: ListTab; hands: LoggedHand[]; go:
 const EMPTY_TEXT: Record<ListFilter, string> = {
   all: "아직 기록이 없어요. ＋ 새 기록으로 기억나는 핸드부터 넣어 보세요.",
   mine: "아직 내 핸드 기록이 없어요. ＋ 새 기록으로 기억나는 핸드부터 넣어 보세요.",
-  other: "아직 남의 핸드 기록이 없어요. ＋ 남의 핸드로 누가 뭘로 오픈·콜했는지 모아 보세요.",
+  other: "아직 남의 핸드가 없어요. ⚡ 빠른 기록으로 누가 뭘로 오픈·콜했는지 모아 보세요.",
 };
 
 function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go: (route: string) => void }) {

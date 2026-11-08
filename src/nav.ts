@@ -10,28 +10,26 @@ export interface NavItem {
   indent?: boolean;
 }
 
-export type NavEntry = NavItem | { section: string };
+/** A section title, one item, or two items side by side on one row. */
+export type NavEntry = NavItem | { section: string } | { pair: [NavItem, NavItem] };
 
 export const NAV: NavEntry[] = [
-  { route: "charts", label: "차트", icon: "▦" },
-  { route: "solver", label: "솔버 차트", icon: "◆" },
-  { route: "home", label: "홈", icon: "⌂" },
-  { section: "핸드 기록" },
-  { route: "log", label: "핸드 복기", icon: "✎", indent: true },
-  { route: "log/other", label: "남의 핸드 기록", icon: "◉", indent: true },
-  { route: "log/list", label: "지난 기록 보기", icon: "☰", indent: true },
-  { route: "play", label: "핸드 플레이", icon: "♠" },
+  { pair: [{ route: "charts", label: "펍아재 차트", icon: "▦" }, { route: "solver", label: "솔버 차트", icon: "◆" }] },
+  { pair: [{ route: "log", label: "핸드 복기", icon: "✎" }, { route: "log/list", label: "지난 기록 보기", icon: "☰" }] },
+  { route: "log/other", label: "빠른 기록", icon: "⚡" },
   { section: "퀴즈" },
   { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
   { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
   { route: "quiz/odds", label: "팟 오즈·EV", icon: "÷", indent: true },
   { route: "quiz/equity", label: "에퀴티", icon: "%", indent: true },
-  { section: "도구" },
-  { route: "calc", label: "계산기", icon: "∑" },
-  { route: "settings", label: "설정", icon: "⚙" },
+  { section: "그외 도구" },
+  { route: "home", label: "홈", icon: "⌂", indent: true },
+  { route: "play", label: "핸드 플레이", icon: "♠", indent: true },
+  { route: "calc", label: "계산기", icon: "∑", indent: true },
+  { route: "settings", label: "설정", icon: "⚙", indent: true },
 ];
 
-export const NAV_ITEMS: NavItem[] = NAV.filter((n): n is NavItem => "route" in n);
+export const NAV_ITEMS: NavItem[] = NAV.flatMap((n) => ("pair" in n ? n.pair : "route" in n ? [n] : []));
 
 /**
  * Where an old route lives now, or null when it hasn't moved: 정보 수집 ("scout…") became 남의 핸드 기록,
