@@ -2,15 +2,50 @@ import { describe, expect, it } from "vitest";
 import { isActive, NAV, NAV_ITEMS, redirectRoute, titleOf } from "./nav";
 
 describe("menu and routes", () => {
-  it("pairs 펍아재 차트·솔버 차트 and 핸드 복기·지난 기록 보기 on top, then 빠른 기록, the quizzes and the other tools", () => {
-    expect(NAV[0]).toEqual({ pair: [{ route: "charts", label: "펍아재 차트", icon: "▦" }, { route: "solver", label: "솔버 차트", icon: "◆" }] });
-    expect(NAV[1]).toEqual({ pair: [{ route: "log", label: "핸드 복기", icon: "✎" }, { route: "log/list", label: "지난 기록 보기", icon: "☰" }] });
-    // 빠른 기록 is my own hands, every one dealt (남의 핸드 is a toggle on that screen)
-    expect(NAV[2]).toEqual({ route: "log/fast", label: "빠른 기록", icon: "⚡" });
+  it("is one column: a section title over every group, then items one per row", () => {
+    // no two items share a row, and no item is set apart (indent, pair)
+    for (const n of NAV) expect(Object.keys(n).sort()).toEqual("section" in n ? ["section"] : ["icon", "label", "route"]);
     const sections = NAV.filter((n): n is { section: string } => "section" in n).map((n) => n.section);
-    expect(sections).toEqual(["퀴즈", "그외 도구"]);
-    expect(NAV_ITEMS.map((i) => i.route)).toEqual(["charts", "solver", "log", "log/list", "log/fast", "quiz/stack", "quiz/preflop", "quiz/odds", "quiz/equity", "home", "play", "calc", "settings"]);
+    expect(sections).toEqual(["차트", "기록", "퀴즈", "그외 도구"]);
+    expect("section" in NAV[0]).toBe(true);
+    // the groups, in the order the user set
+    const groups: Record<string, string[]> = {};
+    let current = "";
+    for (const n of NAV) {
+      if ("section" in n) groups[(current = n.section)] = [];
+      else groups[current].push(n.route);
+    }
+    expect(groups).toEqual({
+      차트: ["charts", "solver"],
+      기록: ["log", "log/list", "log/fast"],
+      퀴즈: ["quiz/stack", "quiz/preflop", "quiz/odds", "quiz/equity"],
+      "그외 도구": ["home", "play", "calc", "settings"],
+    });
+    expect(NAV_ITEMS.map((i) => i.label)).toEqual(["펍아재 차트", "솔버 차트", "핸드 복기", "지난 기록 보기", "빠른 기록", "레인지 암기", "프리플랍 퀴즈", "팟 오즈·EV", "에퀴티", "홈", "핸드 플레이", "계산기", "설정"]);
     expect(NAV_ITEMS.some((i) => i.route === "scout" || i.label === "정보 수집")).toBe(false);
+  });
+
+  it("draws every icon as a plain text glyph, never a color emoji", () => {
+    // A color emoji by default (⚡ was), a request for the emoji form (U+FE0F), or an emoji-capable character
+    // (⚙, ♠: iOS may draw these in color) not followed by U+FE0E, which asks for the text glyph.
+    const colorEmoji = /\p{Emoji_Presentation}|\uFE0F|\p{Emoji}(?!\uFE0E)/u;
+    for (const bad of ["\u26A1", "\u2699", "\u2660", "\u2699\uFE0F", "\u26A0"]) expect(colorEmoji.test(bad), bad).toBe(true);
+    expect(NAV_ITEMS.find((i) => i.route === "log/fast")!.icon).toBe("\u21AF");
+    expect(NAV_ITEMS.find((i) => i.route === "settings")!.icon).toBe("\u2699\uFE0E");
+    expect(NAV_ITEMS.find((i) => i.route === "play")!.icon).toBe("\u2660\uFE0E");
+    for (const i of NAV_ITEMS) {
+      expect(i.icon.length, i.label).toBeGreaterThan(0);
+      expect(colorEmoji.test(i.icon), i.label).toBe(false);
+    }
+  });
+
+  it("reaches every screen from the menu, each item lit on its own screen", () => {
+    expect(new Set(NAV_ITEMS.map((i) => i.route)).size).toBe(NAV_ITEMS.length);
+    for (const i of NAV_ITEMS) {
+      expect(redirectRoute(i.route), i.route).toBeNull();
+      expect(NAV_ITEMS.filter((j) => isActive(j.route, i.route)).map((j) => j.route), i.route).toEqual([i.route]);
+      expect(titleOf(i.route), i.route).toBe(i.route === "home" ? "" : i.label);
+    }
   });
 
   it("lights exactly one hand-log item for each of its screens", () => {

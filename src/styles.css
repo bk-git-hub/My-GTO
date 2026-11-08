@@ -89,30 +89,31 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
 
 /* side navigation: fixed sidebar on wide screens, drawer on phones */
 .sidebar { display: none; }
-.side-nav { display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; }
-.brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; text-align: left; padding: 6px 8px 14px; }
+/* Sized so the whole one-column menu (4 section titles, 13 rows) fits an iPhone 13 home-screen app,
+   between the notch and the home indicator, without scrolling; rows touch so all of each row is tappable. */
+.side-nav { display: flex; flex-direction: column; gap: 0; padding: 14px 10px; }
+.brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; text-align: left; padding: 6px 8px 8px; }
 .brand b { display: block; font-size: 1.2rem; color: var(--accent); }
 .brand small { color: var(--muted); font-size: 0.75rem; }
 .brand-chip, .hero-chip { flex: none; width: 40px; height: 40px; display: block; }
-.nav-section { margin: 12px 10px 4px; font-size: 0.72rem; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; }
+.nav-section { margin: 6px 10px 2px; font-size: 0.72rem; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; }
 .nav-item {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  background: none; border: 0; border-radius: 10px; padding: 11px 12px;
+  background: none; border: 0; border-radius: 10px; padding: 10px 12px;
   color: var(--text); font-weight: 600; text-align: left;
 }
-.nav-item.indent { padding-left: 22px; font-weight: 500; }
-.nav-item:hover { background: var(--panel-2); }
+/* Only where a pointer really hovers: iOS keeps :hover on the last tapped item, which lit 설정 grey. */
+@media (hover: hover) {
+  .nav-item:hover { background: var(--panel-2); }
+}
 .nav-item.on { background: var(--accent); color: var(--accent-ink); }
-.nav-icon { width: 20px; text-align: center; font-weight: 800; }
-/* Two menu items side by side (e.g. 펍아재 차트 | 솔버 차트). */
-.nav-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.nav-pair .nav-item { justify-content: center; padding: 11px 6px; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.nav-pair .nav-icon { display: none; }
+.nav-icon { flex: none; width: 20px; text-align: center; font-weight: 800; }
 .drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.6); }
 .drawer {
   position: absolute; top: 0; bottom: 0; left: 0; width: min(280px, 82vw);
   background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto;
-  padding-top: env(safe-area-inset-top); animation: slide-in 0.18s ease-out;
+  padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+  animation: slide-in 0.18s ease-out;
 }
 @keyframes slide-in { from { transform: translateX(-100%); } to { transform: none; } }
 @media (min-width: 900px) {

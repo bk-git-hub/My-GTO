@@ -8,7 +8,7 @@ import { PlayPage } from "./features/play/PlayPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { SolverPage } from "./features/solver/SolverPage";
-import { isActive, NAV, redirectRoute, titleOf, type NavItem } from "./nav";
+import { isActive, NAV, redirectRoute, titleOf } from "./nav";
 import { UpdateBanner } from "./pwa/UpdateBanner";
 
 /** The route in the address bar; an old route that moved is replaced there by its new place. */
@@ -56,27 +56,18 @@ export function App() {
           <small>펍아재 잡는 홀덤 공부</small>
         </span>
       </button>
-      {NAV.map((n, i) => {
-        if ("section" in n)
-          return (
-            <div key={i} className="nav-section">
-              {n.section}
-            </div>
-          );
-        const item = (it: NavItem) => (
-          <button key={it.route} className={`nav-item ${it.indent ? "indent" : ""} ${isActive(it.route, route) ? "on" : ""}`} onClick={() => go(it.route)}>
-            <span className="nav-icon">{it.icon}</span>
-            {it.label}
-          </button>
-        );
-        return "pair" in n ? (
-          <div key={i} className="nav-pair">
-            {n.pair.map(item)}
+      {NAV.map((n) =>
+        "section" in n ? (
+          <div key={n.section} className="nav-section">
+            {n.section}
           </div>
         ) : (
-          item(n)
-        );
-      })}
+          <button key={n.route} className={`nav-item ${isActive(n.route, route) ? "on" : ""}`} onClick={() => go(n.route)}>
+            <span className="nav-icon">{n.icon}</span>
+            {n.label}
+          </button>
+        ),
+      )}
     </nav>
   );
 

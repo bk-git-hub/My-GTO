@@ -6,30 +6,36 @@
 export interface NavItem {
   route: string;
   label: string;
+  /** A plain one-color text glyph (no color emoji), so every row looks the same. */
   icon: string;
-  indent?: boolean;
 }
 
-/** A section title, one item, or two items side by side on one row. */
-export type NavEntry = NavItem | { section: string } | { pair: [NavItem, NavItem] };
+/** A section title or one item: the menu is a single column, every item the same shape. */
+export type NavEntry = NavItem | { section: string };
 
 export const NAV: NavEntry[] = [
-  { pair: [{ route: "charts", label: "펍아재 차트", icon: "▦" }, { route: "solver", label: "솔버 차트", icon: "◆" }] },
-  { pair: [{ route: "log", label: "핸드 복기", icon: "✎" }, { route: "log/list", label: "지난 기록 보기", icon: "☰" }] },
-  { route: "log/fast", label: "빠른 기록", icon: "⚡" },
+  { section: "차트" },
+  { route: "charts", label: "펍아재 차트", icon: "▦" },
+  { route: "solver", label: "솔버 차트", icon: "◆" },
+  { section: "기록" },
+  { route: "log", label: "핸드 복기", icon: "✎" },
+  { route: "log/list", label: "지난 기록 보기", icon: "☰" },
+  { route: "log/fast", label: "빠른 기록", icon: "↯" },
   { section: "퀴즈" },
-  { route: "quiz/stack", label: "레인지 암기", icon: "◎", indent: true },
-  { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?", indent: true },
-  { route: "quiz/odds", label: "팟 오즈·EV", icon: "÷", indent: true },
-  { route: "quiz/equity", label: "에퀴티", icon: "%", indent: true },
+  { route: "quiz/stack", label: "레인지 암기", icon: "◎" },
+  { route: "quiz/preflop", label: "프리플랍 퀴즈", icon: "?" },
+  { route: "quiz/odds", label: "팟 오즈·EV", icon: "÷" },
+  { route: "quiz/equity", label: "에퀴티", icon: "%" },
   { section: "그외 도구" },
-  { route: "home", label: "홈", icon: "⌂", indent: true },
-  { route: "play", label: "핸드 플레이", icon: "♠", indent: true },
-  { route: "calc", label: "계산기", icon: "∑", indent: true },
-  { route: "settings", label: "설정", icon: "⚙", indent: true },
+  { route: "home", label: "홈", icon: "⌂" },
+  // ♠ and ⚙ carry U+FE0E, which asks for the text glyph: without it iOS may draw them as color emoji
+  // (the cards do the same for their suits, src/components/Cards.tsx).
+  { route: "play", label: "핸드 플레이", icon: "\u2660\uFE0E" },
+  { route: "calc", label: "계산기", icon: "∑" },
+  { route: "settings", label: "설정", icon: "\u2699\uFE0E" },
 ];
 
-export const NAV_ITEMS: NavItem[] = NAV.flatMap((n) => ("pair" in n ? n.pair : "route" in n ? [n] : []));
+export const NAV_ITEMS: NavItem[] = NAV.filter((n): n is NavItem => "route" in n);
 
 /**
  * Where an old route lives now, or null when it hasn't moved: 정보 수집 ("scout…") became 남의 핸드 기록,
