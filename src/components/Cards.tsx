@@ -20,6 +20,22 @@ export function CardRow({ cards, size }: { cards: Card[]; size?: "sm" | "md" | "
   );
 }
 
+/** Cards as short colored text on a dark background ("A♦T♦"), as in the hand lists. */
+export function CardsText({ cards }: { cards: Card[] }) {
+  return (
+    <span className="hole-text">
+      {cards.map((c) => (
+        <i key={c} className={`s-${SUITS[suitOf(c)]}`}>
+          {RANKS[rankOf(c)]}
+          {SUIT_SYMBOL[SUITS[suitOf(c)]]}
+          {/* VS15 keeps the suit a text glyph in the suit color, never an emoji. */}
+          {"\uFE0E"}
+        </i>
+      ))}
+    </span>
+  );
+}
+
 /** Tap-to-select picker over the 52 cards. */
 export function CardPicker({
   selected,
@@ -41,6 +57,11 @@ export function CardPicker({
     <div className="picker">
       {[0, 1, 2, 3].map((s) => (
         <div className="picker-row" key={s}>
+          {/* Each row's suit: in 2색 two rows share a color, so the color alone can't tell them apart. */}
+          <span className={`picker-suit suit-${SUITS[s]}`} aria-hidden="true">
+            {SUIT_SYMBOL[SUITS[s]]}
+            {"\uFE0E"}
+          </span>
           {Array.from({ length: 13 }, (_, i) => 12 - i).map((r) => {
             const c = r * 4 + s;
             const isSel = selected.includes(c);

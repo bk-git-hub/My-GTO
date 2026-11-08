@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CardRow } from "../../components/Cards";
-import { cardLabel, RANKS, SUIT_SYMBOL, SUITS, type Card } from "../../poker/cards";
+import { CardRow, CardsText } from "../../components/Cards";
+import { cardLabel } from "../../poker/cards";
 import { useCoach } from "../coach/CoachContext";
 import {
   actionLine,
@@ -244,7 +244,7 @@ function ConfirmSheet({ title, sub, yes, onYes, onNo }: { title: string; sub?: s
 
 /** The cards on file, as a short label: colored "A♦T♦", or "ATs (무늬 추정)". */
 function HandLabel({ h }: { h: LoggedHand }) {
-  return holeGuessed(h) ? <b>{holeLabel(h)}</b> : <HoleText cards={h.hole} />;
+  return holeGuessed(h) ? <b>{holeLabel(h)}</b> : <CardsText cards={h.hole} />;
 }
 
 /**
@@ -521,28 +521,13 @@ function ResumePill({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
           <>
             {/* Long seat names (UTG+1) go first on small phones, then any seat shrinks before the cards. */}
             {h.seat && <span className={`rs-seat${h.seat.length > 3 ? " long" : ""}`}>{h.seat} </span>}
-            {holeGuessed(h) ? <span className="hole-text">{holeClass(h)}</span> : <HoleText cards={h.hole} />}
+            {holeGuessed(h) ? <span className="hole-text">{holeClass(h)}</span> : <CardsText cards={h.hole} />}
           </>
         ) : (
           h.seat || "메모"
         )}
       </span>
     </button>
-  );
-}
-
-/** Cards as short colored text ("A♦T♦"). */
-function HoleText({ cards }: { cards: Card[] }) {
-  return (
-    <span className="hole-text">
-      {cards.map((c) => (
-        <i key={c} className={`s-${SUITS[c & 3]}`}>
-          {RANKS[c >> 2]}
-          {SUIT_SYMBOL[SUITS[c & 3]]}
-          {"︎"}
-        </i>
-      ))}
-    </span>
   );
 }
 

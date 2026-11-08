@@ -5,9 +5,11 @@ import { App } from "./App";
 import { stopFocusZoomHere } from "./pwa/iosZoom";
 import { startUpdates } from "./pwa/update";
 import { hideSplash, startSplash } from "./splash/splash";
+import { startCardColors } from "./state/settings";
 import "./styles.css";
 
 startSplash();
+startCardColors();
 stopFocusZoomHere();
 startUpdates(registerSW);
 

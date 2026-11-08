@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { CardRow, CardsText } from "../../components/Cards";
+import { parseCards } from "../../poker/cards";
 import { AppVersionSection } from "../../pwa/AppVersionSection";
-import { MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
+import { CARD_COLOR_OPTIONS, cardColorsOf, MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
 import { statsStore } from "../../state/stats";
 import { threadsStore } from "../coach/threads";
 
@@ -9,6 +11,9 @@ const EFFORTS: { id: Effort; label: string; note: string }[] = [
   { id: "medium", label: "보통", note: "기본값" },
   { id: "high", label: "깊게", note: "복잡한 상황을 꼼꼼히 (느리고 비쌈)" },
 ];
+
+/** One card of each suit, for the 카드 색 preview. */
+const PREVIEW = parseCards("AsKhQdJc");
 
 export function SettingsPage() {
   const settings = useSettings();
@@ -33,9 +38,27 @@ export function SettingsPage() {
   }
 
   const server = settings.keyMode === "server";
+  const cardColors = cardColorsOf(settings.cardColors);
 
   return (
     <div className="page">
+      <section className="card-box">
+        <h2>카드 색</h2>
+        <div className="seg small" role="group" aria-label="카드 색">
+          {CARD_COLOR_OPTIONS.map((o) => (
+            <button key={o.id} type="button" className={cardColors === o.id ? "on" : ""} aria-pressed={cardColors === o.id} onClick={() => update({ cardColors: o.id })}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+        {/* The app's own card styles, so the preview is exactly what every screen shows. */}
+        <div className="deck-preview">
+          <CardRow cards={PREVIEW} size="sm" />
+          <CardsText cards={PREVIEW} />
+        </div>
+        <span className="muted small">{CARD_COLOR_OPTIONS.find((o) => o.id === cardColors)?.note}</span>
+      </section>
+
       <section className="card-box">
         <h2>AI 코치 (Claude API)</h2>
         <div className="field">

@@ -18,12 +18,31 @@
   --ok: #22c55e;
   --err: #ff5a64;
   --warn: #fbbf24;
-  --s: #f4f7fb;
-  --h: #ff6b6b;
-  --d: #4dabf7;
-  --c: #51cf66;
   --radius: 14px;
   color-scheme: dark;
+}
+
+/*
+ * Suit colors, for every card in the app. --face-* color a suit on a white card face; --suit-* color
+ * it on the app's dark panels (keys, colored card text), where black is drawn light.
+ * 카드 색 in 설정 sets data-card-colors on <html> (src/state/settings.ts): 4색 is the default here,
+ * 2색 gives clubs the spade's colors and diamonds the heart's, like a real deck.
+ */
+:root {
+  --face-s: #111;
+  --face-h: #d6202f;
+  --face-d: #1d6fd6;
+  --face-c: #13893d;
+  --suit-s: #f4f7fb;
+  --suit-h: #ff6b6b;
+  --suit-d: #4dabf7;
+  --suit-c: #51cf66;
+}
+:root[data-card-colors="two"] {
+  --face-d: var(--face-h);
+  --face-c: var(--face-s);
+  --suit-d: var(--suit-h);
+  --suit-c: var(--suit-s);
 }
 
 * { box-sizing: border-box; }
@@ -163,21 +182,22 @@ textarea { resize: vertical; }
 .card-sm { min-width: 30px; height: 38px; font-size: 0.95rem; padding: 0 3px; }
 .card-md { min-width: 42px; height: 56px; font-size: 1.25rem; padding: 0 4px; }
 .card-lg { min-width: 60px; height: 80px; font-size: 1.8rem; padding: 0 6px; }
-.card.suit-s { color: #1f2328; }
-.card.suit-h { color: #d1242f; }
-.card.suit-d { color: #0969da; }
-.card.suit-c { color: #1a7f37; }
+.card.suit-s { color: var(--face-s); }
+.card.suit-h { color: var(--face-h); }
+.card.suit-d { color: var(--face-d); }
+.card.suit-c { color: var(--face-c); }
 
 .picker { display: flex; flex-direction: column; gap: 3px; }
-.picker-row { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; }
+.picker-row { display: grid; grid-template-columns: 14px repeat(13, 1fr); gap: 3px; }
+.picker-suit { display: grid; place-items: center; font-size: 0.9rem; line-height: 1; }
 .pick {
   aspect-ratio: 0.8; border-radius: 5px; border: 1px solid var(--line);
   background: var(--panel-2); font-weight: 700; font-size: 0.85rem; padding: 0;
 }
-.pick.suit-s { color: var(--s); }
-.pick.suit-h { color: var(--h); }
-.pick.suit-d { color: var(--d); }
-.pick.suit-c { color: var(--c); }
+.pick.suit-s, .picker-suit.suit-s { color: var(--suit-s); }
+.pick.suit-h, .picker-suit.suit-h { color: var(--suit-h); }
+.pick.suit-d, .picker-suit.suit-d { color: var(--suit-d); }
+.pick.suit-c, .picker-suit.suit-c { color: var(--suit-c); }
 .pick.sel { background: var(--text); color: var(--bg); border-color: var(--text); }
 .pick:disabled { opacity: 0.2; }
 
@@ -267,6 +287,9 @@ textarea { resize: vertical; }
 .verdict.bad { color: var(--err); }
 
 .notes { min-height: 120px; }
+/* 설정 · 카드 색: A♠ K♥ Q♦ J♣ as cards and as colored text, in the colors picked. */
+.deck-preview { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
+.deck-preview .hole-text { font-size: 1.05rem; letter-spacing: 0.04em; }
 
 /* coach sheet */
 .sheet-backdrop {
@@ -448,7 +471,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-resume.has-cards .hole-text { flex: 0 1 auto; min-width: 0; }
 .hole-text { font-weight: 800; }
 .hole-text i { font-style: normal; }
-.hole-text .s-s { color: var(--s); } .hole-text .s-h { color: var(--h); } .hole-text .s-d { color: var(--d); } .hole-text .s-c { color: var(--c); }
+.hole-text .s-s { color: var(--suit-s); } .hole-text .s-h { color: var(--suit-h); } .hole-text .s-d { color: var(--suit-d); } .hole-text .s-c { color: var(--suit-c); }
 .log-tabs { flex: 1; min-width: 0; }
 .log-tabs button { white-space: nowrap; }
 .log-tabs b { font-weight: 800; margin-left: 2px; }
@@ -758,7 +781,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .cardkeys button { height: 40px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-weight: 800; font-size: 0.95rem; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
 .cardkeys .suits button { height: 46px; font-size: 1.25rem; }
 .cardkeys .suits button small { font-size: 0.62rem; color: var(--muted); }
-.cardkeys .s-s { color: #e8edf5; } .cardkeys .s-h { color: #ff6b6b; } .cardkeys .s-d { color: #5aa2ff; } .cardkeys .s-c { color: #34d27a; }
+.cardkeys .s-s { color: var(--suit-s); } .cardkeys .s-h { color: var(--suit-h); } .cardkeys .s-d { color: var(--suit-d); } .cardkeys .s-c { color: var(--suit-c); }
 .cardtext.inline { flex: 1; min-width: 0; }
 .cardtext.inline .cardkeys .ranks button { height: 34px; font-size: 0.8rem; }
 
@@ -839,9 +862,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-board { display: flex; gap: 4px; position: relative; }
 /* card size set by the table layout (tableLayout.ts): smaller only when the board would meet a seat */
 .rt-board .rt-card { width: var(--cw, 30px); height: var(--ch, 42px); font-size: var(--cf, 0.9rem); } .rt-board .rt-card small { font-size: var(--cs, 0.78rem); }
-.rt-card { width: 30px; height: 42px; border-radius: 5px; background: #fffdf7; color: #111; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; line-height: 1; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); position: relative; }
+.rt-card { width: 30px; height: 42px; border-radius: 5px; background: #fffdf7; color: var(--face-s); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; line-height: 1; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); position: relative; }
 .rt-card small { font-size: 0.78rem; }
-.rt-card.s-s { color: #111; } .rt-card.s-h { color: #d6202f; } .rt-card.s-d { color: #1d6fd6; } .rt-card.s-c { color: #13893d; }
+.rt-card.s-s { color: var(--face-s); } .rt-card.s-h { color: var(--face-h); } .rt-card.s-d { color: var(--face-d); } .rt-card.s-c { color: var(--face-c); }
 .rt-card.small { width: 23px; height: 32px; font-size: 0.72rem; } .rt-card.small small { font-size: 0.62rem; }
 .rt-card.tiny { width: 18px; height: 25px; font-size: 0.58rem; border-radius: 3px; } .rt-card.tiny small { font-size: 0.5rem; }
 .rt-card.empty { background: rgba(255, 255, 255, 0.05); border: 1.5px dashed rgba(255, 255, 255, 0.25); box-shadow: none; }
@@ -938,7 +961,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
   border-radius: 4px; background: #f5f7fa; font-weight: 800; font-size: 0.82rem; line-height: 25px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 .sv-mc small { font-size: 0.68rem; margin-left: 0.5px; }
-.sv-mc.s-s { color: #1f2328; } .sv-mc.s-h { color: #d1242f; } .sv-mc.s-d { color: #0969da; } .sv-mc.s-c { color: #1a7f37; }
+.sv-mc.s-s { color: var(--face-s); } .sv-mc.s-h { color: var(--face-h); } .sv-mc.s-d { color: var(--face-d); } .sv-mc.s-c { color: var(--face-c); }
 
 /* flop view */
 .sv-board { flex-direction: row; align-items: center; gap: 12px; padding: 10px 12px; }
