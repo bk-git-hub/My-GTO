@@ -40,7 +40,6 @@ export function HomePage({ go }: { go: (route: string) => void }) {
   const stats = useStats();
   const coach = useCoach();
   const by = stats.byKey;
-  const total = ["preflop", "stack", "stack-cash", "stack-nash", "stack-short", "odds", "equity"].reduce((n, k) => n + (by[k]?.attempts ?? 0), 0);
   const weak = weakestSpot(by);
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [
@@ -95,25 +94,6 @@ export function HomePage({ go }: { go: (route: string) => void }) {
       ) : (
         <div className="weak muted">레인지 암기를 자리마다 5문제 이상 풀면, 가장 약한 자리를 찾아서 여기 띄워 줄게요.</div>
       )}
-
-      <div className="home-stats">
-        <div>
-          <b>{total}</b>
-          <span>푼 문제</span>
-        </div>
-        <div>
-          <b>{stats.streak}</b>
-          <span>연속 정답</span>
-        </div>
-        <div>
-          <b>{stats.bestStreak}</b>
-          <span>최고 연속</span>
-        </div>
-        <div>
-          <b>{accuracy(by["play"])}</b>
-          <span>플레이 결정</span>
-        </div>
-      </div>
 
       <div className="home-grid">
         {cards.map((c) => (
