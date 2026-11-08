@@ -44,7 +44,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
   const weak = weakestSpot(by);
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [
-    { route: "log", icon: "✎", title: "새 기록 작성", desc: "기억나는 핸드부터 · 자리·액션은 나중에 이어서", tone: "blue" },
+    { route: "log", icon: "✎", title: "핸드 복기", desc: "기억나는 핸드부터 · 자리·액션은 나중에 이어서", tone: "blue" },
     { route: "log/other", icon: "◉", title: "남의 핸드 기록", desc: "누가 뭘로 오픈·콜했는지 모으기", tone: "green" },
     { route: "log/list", icon: "☰", title: "지난 기록 보기", desc: "내 핸드 · 남의 핸드 따로, 작성 중 이어 쓰기", tone: "gray" },
     { route: "charts", icon: "▦", title: "차트", desc: "스택 구간별 레인지 보기", tone: "gray" },

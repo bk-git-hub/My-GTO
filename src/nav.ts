@@ -13,11 +13,11 @@ export interface NavItem {
 export type NavEntry = NavItem | { section: string };
 
 export const NAV: NavEntry[] = [
-  { route: "home", label: "홈", icon: "⌂" },
   { route: "charts", label: "차트", icon: "▦" },
   { route: "solver", label: "솔버 차트", icon: "◆" },
+  { route: "home", label: "홈", icon: "⌂" },
   { section: "핸드 기록" },
-  { route: "log", label: "새 기록 작성", icon: "✎", indent: true },
+  { route: "log", label: "핸드 복기", icon: "✎", indent: true },
   { route: "log/other", label: "남의 핸드 기록", icon: "◉", indent: true },
   { route: "log/list", label: "지난 기록 보기", icon: "☰", indent: true },
   { route: "play", label: "핸드 플레이", icon: "♠" },

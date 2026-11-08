@@ -24,7 +24,7 @@ afterEach(() => {
   handLogStore.set(initial);
 });
 
-describe("새 기록 작성: the hand first (react-dom/server)", () => {
+describe("핸드 복기: the hand first (react-dom/server)", () => {
   it("opens on the hand step: the card keypad first, 무늬 모름, the save line and the two ways on", () => {
     put([]);
     const html = page("");

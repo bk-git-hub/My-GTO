@@ -6,7 +6,7 @@ describe("menu and routes", () => {
     const at = NAV.findIndex((n) => "section" in n && n.section === "핸드 기록");
     expect(at).toBeGreaterThan(0);
     expect(NAV.slice(at + 1, at + 4)).toEqual([
-      { route: "log", label: "새 기록 작성", icon: "✎", indent: true },
+      { route: "log", label: "핸드 복기", icon: "✎", indent: true },
       { route: "log/other", label: "남의 핸드 기록", icon: "◉", indent: true },
       { route: "log/list", label: "지난 기록 보기", icon: "☰", indent: true },
     ]);
@@ -37,7 +37,7 @@ describe("menu and routes", () => {
 
   it("titles the header by screen", () => {
     expect(titleOf("home")).toBe("");
-    expect(titleOf("log")).toBe("새 기록 작성");
+    expect(titleOf("log")).toBe("핸드 복기");
     expect(titleOf("log/other")).toBe("남의 핸드 기록");
     expect(titleOf("log/other/x")).toBe("남의 핸드 기록");
     expect(titleOf("log/list")).toBe("지난 기록 보기");
