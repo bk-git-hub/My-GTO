@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { flowTabs, initialStep, type FlowState, type FlowTab } from "./flowSteps";
+import { backStep, flowTabs, initialStep, lowerStep, prevStep, reopenStep, type FlowState, type FlowTab } from "./flowSteps";
 
 const state = (over: Partial<FlowState> = {}): FlowState => ({ seat: false, cards: false, street: "preflop", done: false, ...over });
 /** One letter per tab: O on, P passed (tappable), E ahead but tappable, - not reached. */
@@ -61,5 +61,46 @@ describe("hand recorder step tabs", () => {
     // recorded on the table already: back to the action
     expect(initialStep({ seat: "CO", hole: [0, 5], kind: "other", steps: [{ s: "UTG", k: "fold" }] })).toBe("play");
     expect(initialStep({ seat: "CO", hole: [0, 5], steps: [] })).toBe("play");
+  });
+});
+
+describe("the header's back inside the hand recorder", () => {
+  it("the step before each: 결과 → 액션 → 테이블 → 핸드, none before the hand", () => {
+    expect(prevStep("result")).toBe("play");
+    expect(prevStep("play")).toBe("setup");
+    expect(prevStep("setup")).toBe("hand");
+    expect(prevStep("hand")).toBeNull();
+  });
+
+  it("the lower of two steps", () => {
+    expect(lowerStep("play", "setup")).toBe("setup");
+    expect(lowerStep("hand", "result")).toBe("hand");
+    expect(lowerStep("play", "play")).toBe("play");
+  });
+
+  it("from the first screen (opened on the hand) back steps all the way down, then leaves the screen", () => {
+    expect(backStep("result", "hand")).toBe("play");
+    expect(backStep("play", "hand")).toBe("setup");
+    expect(backStep("setup", "hand")).toBe("hand");
+    expect(backStep("hand", "hand")).toBeNull();
+  });
+
+  it("a hand opened further on steps back only through the steps shown, then leaves for the list", () => {
+    // a saved hand opened on its action: back leaves at once; from its result, one step to the action first
+    expect(backStep("play", "play")).toBeNull();
+    expect(backStep("result", "play")).toBe("play");
+    // its table looked at on the way: back goes there before leaving
+    expect(backStep("play", "setup")).toBe("setup");
+    expect(backStep("setup", "setup")).toBeNull();
+  });
+
+  it("a hand stepped back to reopens on the step it was left on, while that step can still show it", () => {
+    const ready = { seat: "BTN", hole: [0, 5] };
+    expect(reopenStep(undefined, ready)).toBeNull();
+    for (const s of ["hand", "setup", "play", "result"] as const) expect(reopenStep(s, ready)).toBe(s);
+    // the seat or the cards gone meanwhile (edited on another screen): the action and the result can't show it
+    expect(reopenStep("play", { seat: "", hole: [0, 5] })).toBeNull();
+    expect(reopenStep("result", { seat: "BTN", hole: [0] })).toBeNull();
+    expect(reopenStep("setup", { seat: "", hole: [] })).toBe("setup");
   });
 });

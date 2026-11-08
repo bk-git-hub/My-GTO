@@ -66,3 +66,40 @@ export function flowTabs(step: FlowStep, s: FlowState): FlowTab[] {
   const current = tabs.findIndex((t) => t.on);
   return tabs.map((t, i) => ({ ...t, passed: t.enabled && i < current }));
 }
+
+/** The step before `step` in the flow: 결과 → 액션 → 테이블 → 핸드. None before the hand. */
+export function prevStep(step: FlowStep): FlowStep | null {
+  if (step === "result") return "play";
+  if (step === "play") return "setup";
+  if (step === "setup") return "hand";
+  return null;
+}
+
+const ORDER: FlowStep[] = ["hand", "setup", "play", "result"];
+
+/** The earlier of two steps in the flow. */
+export function lowerStep(a: FlowStep, b: FlowStep): FlowStep {
+  return ORDER.indexOf(a) <= ORDER.indexOf(b) ? a : b;
+}
+
+/**
+ * The step the header's back (‹) goes to from `step`: the one before it, down to `floor` (the lowest step
+ * shown since the screen opened, or the screen's own start if lower), and none from there: back leaves the
+ * screen. A saved hand opened on its action steps back only through what was looked at, not through a
+ * table and a hand step never opened.
+ */
+export function backStep(step: FlowStep, floor: FlowStep): FlowStep | null {
+  const prev = prevStep(step);
+  return prev && ORDER.indexOf(prev) >= ORDER.indexOf(floor) ? prev : null;
+}
+
+/**
+ * The step a hand opens on again when the screen is stepped back to (the step it was left on), or null
+ * where that step can't show it any more (the action and the result need the seat and both cards: the hand
+ * was changed meanwhile on another screen).
+ */
+export function reopenStep(step: FlowStep | undefined, h: Pick<LoggedHand, "seat" | "hole">): FlowStep | null {
+  if (!step) return null;
+  if ((step === "play" || step === "result") && !(h.seat && h.hole.length === 2)) return null;
+  return step;
+}

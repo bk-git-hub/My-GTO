@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { pushRoute, type Go, type GoHow } from "../../backNav";
 import type { HandClass } from "../../poker/cards";
 import type { FileEntry } from "../../presolve/format";
 import { FlopView, type GridMode } from "./FlopView";
@@ -54,16 +55,23 @@ function Message({ title, children }: { title: string; children?: ReactNode }) {
   );
 }
 
+/** `next` is a line above `path` (a crumb, 처음으로): back up the tree, not a new step down it. */
+function isAbove(next: number[], path: number[]): boolean {
+  return next.length < path.length && next.every((x, i) => x === path[i]);
+}
+
 /**
  * "솔버 차트": precomputed flop strategies (docs/solver-packs.md). Routes under #solver:
  * solver → scenario list, solver/<pack> → flop report, solver/<pack>/<board>[/<path>] → a flop node.
+ * The links back up ("← 시나리오", "← 리포트", a crumb) go back to the screen (GoHow "back"), so the header's
+ * ‹ doesn't lead down again into the screen just left.
  */
-export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?: (route: string) => void; client?: PackClient }) {
+export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?: Go; client?: PackClient }) {
   const client = useMemo(() => given ?? packClient(), [given]);
   const navigate = useCallback(
-    (route: string) => {
-      if (go) go(route);
-      else location.hash = route;
+    (route: string, how?: GoHow) => {
+      if (go) go(route, how);
+      else pushRoute(route);
     },
     [go],
   );
@@ -114,14 +122,14 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
     );
   }
 
-  const toReport = () => navigate(routeOf(pack.id));
+  const toReport = () => navigate(routeOf(pack.id), "back");
   if (!route.board) {
-    return <ReportView pack={pack} state={report} onState={setReport} onOpen={(b) => navigate(routeOf(pack.id, b))} onBack={() => navigate(routeOf())} />;
+    return <ReportView pack={pack} state={report} onState={setReport} onOpen={(b) => navigate(routeOf(pack.id, b))} onBack={() => navigate(routeOf(), "back")} />;
   }
   if (!entry || route.badPath) {
     return (
       <Message title={entry ? "잘못된 라인 주소예요" : "이 보드는 팩에 없어요"}>
-        <button className="ghost small" onClick={entry ? () => navigate(routeOf(pack.id, entry.board)) : toReport}>
+        <button className="ghost small" onClick={entry ? () => navigate(routeOf(pack.id, entry.board), "back") : toReport}>
           {entry ? "플랍 처음으로" : "← 리포트"}
         </button>
       </Message>
@@ -150,7 +158,7 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
       path={route.path}
       selected={selected}
       onSelect={setSelected}
-      onPath={(p) => navigate(routeOf(pack.id, entry.board, p))}
+      onPath={(p) => navigate(routeOf(pack.id, entry.board, p), isAbove(p, route.path) ? "back" : "push")}
       onReport={toReport}
       gridMode={gridMode}
       onGridMode={setGridMode}

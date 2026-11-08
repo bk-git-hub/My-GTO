@@ -80,9 +80,13 @@ h3 { font-size: 1.05rem; margin: 0; }
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
-.menu-btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; font-size: 1.2rem; }
+/* Home: the logo at the left. Elsewhere: ‹ (back) and the screen's name. ☰ always at the right edge. */
+.menu-btn { flex: none; margin-left: auto; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; font-size: 1.2rem; }
+.back-btn { flex: none; display: grid; place-items: center; padding: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; }
+.back-btn svg { display: block; margin-left: -2px; }
 .logo { display: flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; font-weight: 800; font-size: 1.15rem; color: var(--accent); letter-spacing: 0.01em; }
-.head-title { margin-left: auto; color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+/* One line: a long name ends in "…" rather than wrapping (the header keeps its height). */
+.head-title { flex: 1; min-width: 0; color: var(--text); font-size: 1.05rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
 .page { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -109,17 +113,19 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
 .nav-item.on { background: var(--accent); color: var(--accent-ink); }
 .nav-icon { flex: none; width: 20px; text-align: center; font-weight: 800; }
 .drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.6); }
+/* From the right edge, under the ☰ that opens it. */
 .drawer {
-  position: absolute; top: 0; bottom: 0; left: 0; width: min(280px, 82vw);
-  background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto;
+  position: absolute; top: 0; bottom: 0; right: 0; width: min(280px, 82vw);
+  background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto;
   padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
   animation: slide-in 0.18s ease-out;
 }
-@keyframes slide-in { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
 @media (min-width: 900px) {
   .sidebar { display: block; width: 240px; flex: none; position: sticky; top: 0; height: 100dvh; overflow-y: auto; background: var(--panel); border-right: 1px solid var(--line); }
   .menu-btn, .app-head .logo { display: none; }
-  .app-head { min-height: 52px; }
+  /* The height of a header with ‹ in it (the phone's too), so home, whose header is empty here, doesn't move the page. */
+  .app-head { min-height: calc(env(safe-area-inset-top) + 57px); }
 }
 
 .muted { color: var(--muted); }

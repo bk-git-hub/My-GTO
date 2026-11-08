@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { Go } from "../../backNav";
 import { RANKS } from "../../poker/cards";
 import {
   actLabel,
@@ -113,14 +114,14 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-/** "내 핸드 | 남의 핸드" at the top of both quick screens. */
-export function QuickToggle({ mine, go }: { mine: boolean; go: (route: string) => void }) {
+/** "내 핸드 | 남의 핸드" at the top of both quick screens: a toggle, so it takes this screen's place in history. */
+export function QuickToggle({ mine, go }: { mine: boolean; go: Go }) {
   return (
     <div className="seg small fast-toggle" role="tablist" aria-label="빠른 기록">
-      <button type="button" role="tab" aria-selected={mine} className={mine ? "on" : ""} onClick={() => !mine && go("log/fast")}>
+      <button type="button" role="tab" aria-selected={mine} className={mine ? "on" : ""} onClick={() => !mine && go("log/fast", "replace")}>
         내 핸드
       </button>
-      <button type="button" role="tab" aria-selected={!mine} className={!mine ? "on" : ""} onClick={() => mine && go("log/other")}>
+      <button type="button" role="tab" aria-selected={!mine} className={!mine ? "on" : ""} onClick={() => mine && go("log/other", "replace")}>
         남의 핸드
       </button>
     </div>
@@ -146,7 +147,7 @@ interface Saved {
  * from hand to hand), their class, what happened before them, their action. It saves an other-hand and
  * judges it against the same chart, worded as how pub players play (차트보다 루즈 / 타이트).
  */
-export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go: (route: string) => void; mode?: FastMode }) {
+export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go: Go; mode?: FastMode }) {
   const other = mode === "other";
   const store = storeFor(mode);
   // A first visit's stage: the level's usual one (from today's start time), else the last one used.

@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { countOuts } from "../../poker/equity";
 import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
-import { flowTabs, initialStep, type FlowStep } from "./flowSteps";
+import { useBackHandler } from "../../backNav";
+import { backStep, flowTabs, initialStep, lowerStep, type FlowStep } from "./flowSteps";
 import { analyseHand, SUIT_GUESS_NOTE, type HandAnalysis, type StreetView } from "./handAnalysis";
 import {
   estimatedLevel,
@@ -61,6 +62,11 @@ export interface TableFlowProps {
   onReview: (h: LoggedHand, extra: string) => void;
   /** The step the hand opens on, instead of its first missing piece. */
   startAt?: FlowStep;
+  /**
+   * Where the screen starts when opened anew (the first screen: the hand step), the lowest step the header's
+   * back steps down to even when the hand opens further on (stepped back to). Default: its first missing piece.
+   */
+  firstStep?: FlowStep;
   /** At the right end of the hand step's first line (the past-hands link, a hand to pick up again). */
   aside?: ReactNode;
   /** The hand step's save line. */
@@ -75,11 +81,15 @@ export interface TableFlowProps {
   top?: ReactNode;
   /** Under the table step while the hand isn't on file yet: what saves it. */
   unsaved?: ReactNode;
+  /** Hears the step on screen, on opening and on every change (so a step back to the screen can reopen it there). */
+  onStep?: (step: FlowStep) => void;
 }
 
 export function TableFlow(props: TableFlowProps) {
-  const { h, onChange, onCardsClean, onLeaveHand, onReview, aside, status, onLater, laterReady, onNextHand, top, unsaved } = props;
+  const { h, onChange, onCardsClean, onLeaveHand, onReview, aside, status, onLater, laterReady, onNextHand, top, unsaved, onStep } = props;
   const [step, setStepRaw] = useState<FlowStep>(() => props.startAt ?? initialStep(h));
+  /** The lowest step shown since the screen opened (or its own start, if lower): the header's back goes no further. */
+  const [floor, setFloor] = useState<FlowStep>(() => lowerStep(props.startAt ?? initialStep(h), props.firstStep ?? initialStep(h)));
   /** Where the result replay starts: a finished hand's street tab opens it at that street. */
   const [replay, setReplay] = useState<ReplayFrom>({ street: "preflop", n: 0 });
   const set = (patch: Partial<LoggedHand>) => onChange({ ...h, ...patch });
@@ -97,8 +107,17 @@ export function TableFlow(props: TableFlowProps) {
   const setStep = (next: FlowStep) => {
     if (step === "hand" && next !== "hand") onLeaveHand?.();
     setStepRaw(next);
+    setFloor((f) => lowerStep(f, next));
   };
   const toPlay = () => setStep("play");
+  // The header's ‹ steps back through the flow (through setStep, so leaving nothing typed behind), down to
+  // the lowest step shown; from there it leaves the screen.
+  const back = backStep(step, floor);
+  useBackHandler(back ? () => setStep(back) : null);
+  useEffect(() => {
+    onStep?.(step);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
   const openResult = (street: Street = "preflop") => {
     setReplay((r) => ({ street, n: r.n + 1 }));
     setStep("result");

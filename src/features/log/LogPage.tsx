@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { currentPlace, type Go } from "../../backNav";
 import { CardRow, CardsText } from "../../components/Cards";
 import { cardLabel } from "../../poker/cards";
 import { useCoach } from "../coach/CoachContext";
@@ -52,6 +53,7 @@ import {
   type LoggedHand,
 } from "./handLog";
 import { FastView } from "./FastView";
+import { reopenStep, type FlowStep } from "./flowSteps";
 import { VERDICT_MARK } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
 import { STAGE_LABEL } from "./quickPre";
@@ -68,9 +70,10 @@ type Msg = { text: string; error?: boolean } | null;
  * of mine, a few taps each, graded against the chart), "log/other" (남의 핸드: the same screen for hands
  * other players showed), "log/list" (past hands: all, "log/list/mine", "log/list/other", 편집 to delete
  * some, and the backup), "log/players" (showdowns by opponent), "log/<id>" (a saved hand in the table
- * flow, mine or another player's).
+ * flow, mine or another player's). `returned`: reached by a step back or forward (the header's ‹), not opened
+ * anew: a hand screen shows the hand and the step it was left on.
  */
-export function LogPage({ sub, go }: { sub: string; go: (route: string) => void }) {
+export function LogPage({ sub, go, returned = false }: { sub: string; go: Go; returned?: boolean }) {
   const { hands } = handLogStore.use();
   const v = logView(sub, hands);
   return (
@@ -80,14 +83,15 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
           <option key={n} value={n} />
         ))}
       </datalist>
-      {v.kind === "new" && <NewHandView hands={hands} go={go} />}
+      {v.kind === "new" && <NewHandView hands={hands} go={go} returned={returned} />}
       {v.kind === "fast" && <FastView key="mine" hands={hands} go={go} />}
       {/* Keyed by the hand: saving changes the address bar only, so the screen keeps its hand. */}
-      {v.kind === "edit" && <EditView key={v.id} id={v.id} hands={hands} go={go} />}
+      {v.kind === "edit" && <EditView key={v.id} id={v.id} hands={hands} go={go} returned={returned} />}
       {v.kind === "other" && <FastView key="other" mode="other" hands={hands} go={go} />}
       {v.kind === "list" && <ListScreen tab={v.filter} hands={hands} go={go} />}
       {v.kind === "players" && <ListScreen tab="players" hands={hands} go={go} />}
-      <Toast />
+      {/* Per screen: a link back to the list steps back through history, which doesn't open the page afresh. */}
+      <Toast key={`toast:${sub}`} />
       <UndoToast />
     </div>
   );
@@ -290,17 +294,32 @@ function SaveLine({ stored, draft, cardsClean, saved }: { stored: LoggedHand | n
 
 /** A new hand nobody has typed anything worth saving into yet: kept here, so a trip to the list doesn't lose it. */
 let untouched: LoggedHand | null = null;
+/**
+ * The hand left on the first screen (#log), by the history entry it was on (its place: a screen opened on
+ * top takes the place of any entry that was there), and the step each hand was left on: a step back to the
+ * entry reopens them so.
+ */
+const newLeft = new Map<number, string>();
+const stepLeft = new Map<string, FlowStep>();
 
-/** The first screen: a new hand of mine, the hand first. */
-function NewHandView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => void }) {
-  // A blank hand kept from earlier takes the level estimate for now, like a new one.
-  const [start] = useState(() => (untouched && !hands.some((x) => x.id === untouched!.id) ? freshLevel(untouched, Date.now(), levelDeclined.has(untouched.id)) : freshHand()));
-  return <HandScreen start={start} isNew hands={hands} go={go} />;
+/** The first screen: a new hand of mine, the hand first. Stepped back to: the hand left on it, where it was left. */
+function NewHandView({ hands, go, returned }: { hands: LoggedHand[]; go: Go; returned: boolean }) {
+  const [start] = useState(() => {
+    // A blank hand kept from earlier takes the level estimate for now, like a new one.
+    const blank = untouched && !hands.some((x) => x.id === untouched!.id) ? freshLevel(untouched, Date.now(), levelDeclined.has(untouched.id)) : null;
+    const id = returned ? newLeft.get(currentPlace()) : undefined;
+    const left = id ? (hands.find((x) => x.id === id) ?? (blank?.id === id ? blank : null)) : null;
+    const h = left ?? blank ?? freshHand();
+    return { h, step: (left && reopenStep(stepLeft.get(left.id), left)) ?? "hand" };
+  });
+  return <HandScreen start={start.h} startAt={start.step} isNew hands={hands} go={go} />;
 }
 
-function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (route: string) => void }) {
+function EditView({ id, hands, go, returned }: { id: string; hands: LoggedHand[]; go: Go; returned: boolean }) {
   // Taken once: the hand may leave the store while it is on screen (its cards cleared to be typed again).
   const [start, setStart] = useState(() => hands.find((h) => h.id === id) ?? null);
+  // Stepped back to: the step it was left on.
+  const [startAt] = useState(() => (returned && start ? (reopenStep(stepLeft.get(id), start) ?? undefined) : undefined));
   // Not on file when the screen opened (deleted), but back now (되돌리기): show it from here on.
   const back = start ? null : (hands.find((h) => h.id === id) ?? null);
   if (back) setStart(back);
@@ -308,27 +327,28 @@ function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (rou
     return (
       <>
         <div className="log-top">
-          <button type="button" className="log-link back" onClick={() => go("log/list")}>
+          <button type="button" className="log-link back" onClick={() => go("log/list", "back")}>
             ‹ 지난 기록
           </button>
         </div>
         <section className="card-box">
           <p>이 기록을 찾을 수 없어요. 지웠거나 다른 기기에서 만든 기록이에요.</p>
-          <button className="ghost" onClick={() => go("log/list")}>
+          <button className="ghost" onClick={() => go("log/list", "back")}>
             목록으로
           </button>
         </section>
       </>
     );
   }
-  return <HandScreen start={start} isNew={false} hands={hands} go={go} />;
+  return <HandScreen start={start} startAt={startAt} isNew={false} hands={hands} go={go} />;
 }
 
 /**
  * One hand in the table flow (핸드 → 테이블 → 프리플랍 … → 결과), saved as it is typed. `isNew`: the
  * first screen (#log), with the hand to pick up again and the past-hands link on its first line.
+ * `startAt`: the step it opens on (the first screen: the hand step).
  */
-function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boolean; hands: LoggedHand[]; go: (route: string) => void }) {
+function HandScreen({ start, startAt, isNew, hands, go }: { start: LoggedHand; startAt?: FlowStep; isNew: boolean; hands: LoggedHand[]; go: Go }) {
   const d = useHandDraft(start, (h, kept) => {
     if (!isNew) return;
     untouched = kept ? null : h;
@@ -352,7 +372,8 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
     putAside(stored.id);
     if (isNew) untouched = null;
     flash(unfinished(stored) ? "저장했어요 · 작성 중" : "저장했어요");
-    go(listRoute);
+    // Back to the list (the hand left for later isn't a step back from it).
+    go(listRoute, "back");
   }
   /** On to the next hand (this one is complete and on file). */
   function nextHand() {
@@ -407,7 +428,7 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
   // hand is on file the way to the next one.
   const newTop = isNew ? (
     <div className="log-top">
-      <button type="button" className="log-link back" onClick={() => go(listRoute)}>
+      <button type="button" className="log-link back" onClick={() => go(listRoute, "back")}>
         ‹ 지난 기록
       </button>
       {saved && (
@@ -422,7 +443,7 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
     <>
       {!isNew && (
         <div className="log-top">
-          <button type="button" className="log-link back" onClick={() => go(listRoute)}>
+          <button type="button" className="log-link back" onClick={() => go(listRoute, "back")}>
             ‹ 지난 기록
           </button>
           <button
@@ -450,7 +471,12 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
         onCardsClean={d.onCardsClean}
         onLeaveHand={d.settle}
         onReview={review}
-        startAt={isNew ? "hand" : undefined}
+        startAt={startAt ?? (isNew ? "hand" : undefined)}
+        firstStep={isNew ? "hand" : undefined}
+        onStep={(step) => {
+          stepLeft.set(h.id, step);
+          if (isNew) newLeft.set(currentPlace(), h.id);
+        }}
         aside={aside}
         status={<SaveLine stored={stored} draft={h} cardsClean={d.cardsClean} saved="지금 다 안 써도 지난 기록에서 이어서 작성할 수 있어요" />}
         onLater={later}
@@ -468,7 +494,8 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
           // Gone at once, with 되돌리기 at the bottom of the next screen for a few seconds.
           deleteWithUndo([h.id]);
           if (isNew) fresh();
-          else go(listRoute);
+          // Back to the list: no step back to the hand just deleted.
+          else go(listRoute, "back");
         }}
       />
     </>
@@ -537,7 +564,7 @@ type ListTab = ListFilter | "players";
 
 const TAB_ROUTE: Record<ListTab, string> = { all: "log/list", mine: "log/list/mine", other: "log/list/other", players: "log/players" };
 
-function ListScreen({ tab, hands, go }: { tab: ListTab; hands: LoggedHand[]; go: (route: string) => void }) {
+function ListScreen({ tab, hands, go }: { tab: ListTab; hands: LoggedHand[]; go: Go }) {
   const mine = useMemo(() => hands.filter((h) => !isOther(h)), [hands]);
   const others = useMemo(() => hands.filter(isOther), [hands]);
   const tabs: [ListTab, string, number | null][] = [
@@ -550,7 +577,7 @@ function ListScreen({ tab, hands, go }: { tab: ListTab; hands: LoggedHand[]; go:
     <>
       <div className="seg small log-tabs" role="tablist" aria-label="지난 기록">
         {tabs.map(([t, label, count]) => (
-          <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => go(TAB_ROUTE[t])} aria-label={t === "players" ? "상대별 쇼다운" : undefined}>
+          <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => go(TAB_ROUTE[t], "replace")} aria-label={t === "players" ? "상대별 쇼다운" : undefined}>
             {label}
             {count ? <b>{count}</b> : null}
           </button>
@@ -580,7 +607,7 @@ const EMPTY_TEXT: Record<ListFilter, string> = {
  * then deletes with 되돌리기 offered for a few seconds. 완료 (or a new tab) drops the picks.
  * `startPicking` / `startPicks` open it already in 편집 (for tests).
  */
-export function ListView({ tab, hands, go, startPicking = false, startPicks = [] }: { tab: ListFilter; hands: LoggedHand[]; go: (route: string) => void; startPicking?: boolean; startPicks?: string[] }) {
+export function ListView({ tab, hands, go, startPicking = false, startPicks = [] }: { tab: ListFilter; hands: LoggedHand[]; go: Go; startPicking?: boolean; startPicks?: string[] }) {
   const [limit, setLimit] = useState(50);
   const [picking, setPicking] = useState(startPicking);
   const [sel, setSel] = useState<string[]>(startPicks);
@@ -747,7 +774,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
 
 // ───────────── opponents ─────────────
 
-function PlayersView({ hands, go }: { hands: LoggedHand[]; go: (route: string) => void }) {
+function PlayersView({ hands, go }: { hands: LoggedHand[]; go: Go }) {
   const book = useMemo(() => villainBook(hands), [hands]);
   const coach = useCoach();
   if (!book.length) {
