@@ -467,6 +467,10 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .log-row.open { border-color: #3a4760; }
 .log-new-row { display: flex; gap: 6px; }
 .log-new-row .log-new-btn { height: 34px; }
+/* The row's pills look 34px tall but take taps over 44px: an invisible strip above and below
+   (6px past the padding box = 5px past the 1px border). */
+.log-new-row .log-new-btn, .log-edit-btn { position: relative; }
+.log-new-row .log-new-btn::after, .log-edit-btn::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
 .log-new-btn.other { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.5); color: var(--info); }
 .log-legacy { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
 .log-legacy .ghost { align-self: flex-start; }
@@ -1119,3 +1123,33 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 /* ───────── 남의 핸드 on the 빠른 기록 screen ───────── */
 .fast-label small { font-size: 0.72rem; font-weight: 700; opacity: 0.8; }
 
+/* ───────── deleting: 되돌리기 toast, the confirm sheet, picking rows in 지난 기록 ───────── */
+/* "N개 삭제했어요 · 되돌리기": above everything at the bottom, the button a full 44px target. */
+.undo-toast { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 45; display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 32px); min-height: 52px; padding: 4px 4px 4px 16px; border-radius: 14px; background: #1f2a3a; border: 1px solid var(--line); color: var(--text); font-size: 0.88rem; font-weight: 800; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); animation: toast-in 0.18s ease-out; }
+.undo-toast > span { min-width: 0; }
+.undo-toast:not(:has(button)) { padding-right: 16px; border-color: rgba(34, 197, 94, 0.6); }
+.undo-toast.error { border-color: var(--err); }
+.undo-toast button { flex: none; height: 44px; padding: 0 14px; border-radius: 10px; background: var(--accent); border: 0; color: var(--accent-ink); font-size: 0.88rem; font-weight: 900; }
+.confirm-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, 0.6); animation: fast-result-in 0.15s ease-out; }
+.confirm-sheet { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 8px; padding: 18px 16px calc(16px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; background: var(--panel); border: 1px solid var(--line); border-bottom: 0; }
+.confirm-sheet > b { font-size: 1.05rem; }
+.confirm-sheet > p { margin: 0; color: var(--muted); font-size: 0.84rem; }
+.confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.confirm-actions button { height: 50px; border-radius: 12px; font-size: 1rem; font-weight: 800; }
+.confirm-yes { background: var(--err); border: 1px solid var(--err); color: #fff; }
+.log-new-row { flex-wrap: wrap; align-items: center; }
+.log-edit-btn { flex: none; margin-left: auto; height: 34px; min-width: 52px; padding: 0 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; }
+.log-edit-btn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.log-pick-title { font-size: 0.82rem; font-weight: 800; color: var(--muted); }
+/* A row being picked: the check in a 44px column at the left (the whole row toggles it). */
+.log-row.picking { position: relative; padding-left: 52px; }
+.log-check { position: absolute; z-index: 0; left: 0; top: 0; bottom: 0; width: 48px; display: grid; place-items: center; }
+.log-check::before { content: ""; position: absolute; z-index: -1; width: 24px; height: 24px; border-radius: 7px; border: 2px solid #5b6b82; background: var(--bg); }
+.log-row.picked { border-color: var(--err); background: rgba(255, 90, 100, 0.08); }
+.log-row.picked .log-check { color: #fff; font-size: 0.9rem; font-weight: 900; }
+.log-row.picked .log-check::before { background: var(--err); border-color: var(--err); }
+.log-pick-bar { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 6; display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55); }
+.log-pick-bar .ghost { flex: none; height: 44px; padding: 0 12px; font-size: 0.86rem; font-weight: 800; }
+.log-pick-n { flex: 1; min-width: 0; text-align: center; font-size: 0.86rem; font-weight: 800; white-space: nowrap; }
+.log-pick-del { flex: none; height: 44px; padding: 0 14px; border-radius: 10px; background: var(--err); border: 1px solid var(--err); color: #fff; font-size: 0.9rem; font-weight: 900; }
+.log-pick-del:disabled { background: var(--panel-2); border-color: var(--line); color: var(--muted); opacity: 0.7; }

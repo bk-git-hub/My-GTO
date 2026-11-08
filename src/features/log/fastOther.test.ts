@@ -8,6 +8,7 @@ import {
   fastOtherStore,
   fastStats,
   fastStore,
+  forgetHands,
   newDraft,
   pickSuited,
   sessionOf,
@@ -174,4 +175,12 @@ describe("남의 핸드: its editor", () => {
     expect(shared.parked?.seat).toBe("BTN");
   });
 
+  it("lets go of a correction when its hand is deleted, and of nothing else", () => {
+    const h = theirs(1, typed("HJ", "K9s"), "open");
+    const typing = state(typed("SB", "A"));
+    const editing = startEdit(typing, h, "other");
+    expect(forgetHands(editing, [h.id])).toEqual(typing);
+    expect(forgetHands(editing, ["other-id"])).toBe(editing);
+    expect(forgetHands(typing, [h.id])).toBe(typing);
+  });
 });

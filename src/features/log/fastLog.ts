@@ -206,6 +206,12 @@ export function cancelEdit(s: FastState): FastState {
   return { ...s, draft: s.parked ?? newDraft(buttonSeat(s.players)), parked: null };
 }
 
+/** The hands `ids` were deleted: a correction of one of them gives way to the new hand put aside. The same state otherwise. */
+export function forgetHands(s: FastState, ids: Iterable<string>): FastState {
+  const gone = new Set(ids);
+  return s.draft.editing && gone.has(s.draft.editing) ? cancelEdit(s) : s;
+}
+
 /**
  * The stage and table size set on one of the two screens, for the other one too (both are the same
  * table): its new hand moves to the button only if its seat isn't at a table that size. A hand being

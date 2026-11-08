@@ -668,6 +668,97 @@ export function deleteHand(id: string): void {
   handLogStore.set((s) => ({ ...s, hands: s.hands.filter((h) => h.id !== id) }));
 }
 
+// ───────────── deleting with 되돌리기 ─────────────
+
+/** A hand taken out of the log, with the hand it stood right before (null: it was the last), so 되돌리기 can put it back in its place. */
+export interface RemovedHand {
+  hand: LoggedHand;
+  before: string | null;
+}
+
+/** The log without the hands `ids`, and what was taken out, in log order. Every other hand stays as it was, in its order. */
+export function removeHands(hands: LoggedHand[], ids: Iterable<string>): { hands: LoggedHand[]; removed: RemovedHand[] } {
+  const drop = new Set(ids);
+  const kept: LoggedHand[] = [];
+  const removed: RemovedHand[] = [];
+  let run: LoggedHand[] = [];
+  for (const h of hands) {
+    if (drop.has(h.id)) {
+      run.push(h);
+      continue;
+    }
+    for (const r of run) removed.push({ hand: r, before: h.id });
+    run = [];
+    kept.push(h);
+  }
+  for (const r of run) removed.push({ hand: r, before: null });
+  return { hands: kept, removed };
+}
+
+/**
+ * The removed hands back, exactly as they were (same ids, times and content), each right before the hand
+ * it stood before; one whose neighbour is gone too goes by its time (the log is newest first). A hand
+ * already back in the log (same id) is not doubled. Hands saved in the meantime stay where they are.
+ */
+export function restoreHands(hands: LoggedHand[], removed: RemovedHand[]): LoggedHand[] {
+  const out = [...hands];
+  const have = new Set(out.map((h) => h.id));
+  for (const { hand, before } of removed) {
+    if (have.has(hand.id)) continue;
+    let i = before === null ? out.length : out.findIndex((h) => h.id === before);
+    if (i < 0) {
+      i = out.findIndex((h) => h.createdAt < hand.createdAt);
+      if (i < 0) i = out.length;
+    }
+    out.splice(i, 0, hand);
+    have.add(hand.id);
+  }
+  return out;
+}
+
+/** What one delete took out, for 되돌리기: the hands, and whether one of them was the hand put aside from 이어서. */
+export interface Deletion {
+  removed: RemovedHand[];
+  aside: string | null;
+}
+
+/**
+ * Delete the hands `ids` from the log (the rest of the store untouched). A pointer to one of them (the
+ * hand put aside from 이어서) is let go too. Null when none of them was on file.
+ */
+export function deleteHands(ids: Iterable<string>): Deletion | null {
+  const prev = handLogStore.get();
+  const { hands, removed } = removeHands(prev.hands, ids);
+  if (!removed.length) return null;
+  handLogStore.set({ ...prev, hands });
+  const aside = asideId !== null && removed.some((r) => r.hand.id === asideId) ? asideId : null;
+  if (aside) asideId = null;
+  return { removed, aside };
+}
+
+/** 되돌리기: the deleted hands back in their places. False if the browser refused to store them (they stay on screen until reload). */
+export function undoDeletion(d: Deletion): boolean {
+  const prev = handLogStore.get();
+  const ok = handLogStore.set({ ...prev, hands: restoreHands(prev.hands, d.removed) });
+  if (d.aside && asideId === null) asideId = d.aside;
+  if (ok) requestPersistence();
+  return ok;
+}
+
+// ───────────── picking hands in 지난 기록 (편집) ─────────────
+
+/** One hand picked or unpicked. */
+export const toggleId = (sel: readonly string[], id: string): string[] => (sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]);
+
+/** Every one of `ids` is picked (and there is at least one). */
+export const allPicked = (sel: readonly string[], ids: readonly string[]): boolean => ids.length > 0 && ids.every((id) => sel.includes(id));
+
+/** 전체 선택: all of `ids` picked, or, when they all already are, none of them. */
+export const pickAll = (sel: readonly string[], ids: readonly string[]): string[] => (allPicked(sel, ids) ? sel.filter((x) => !ids.includes(x)) : [...sel, ...ids.filter((id) => !sel.includes(id))]);
+
+/** The picks still in the log (a hand deleted elsewhere drops out), in the log's order. */
+export const livePicks = (sel: readonly string[], hands: readonly LoggedHand[]): string[] => hands.filter((h) => sel.includes(h.id)).map((h) => h.id);
+
 /** Keep the level, table size and stack stage of a hand not saved yet, so the next new hand starts there too. */
 export function rememberSetup(h: Pick<LoggedHand, "level" | "players"> & Partial<Pick<LoggedHand, "stack" | "quickPre">>): void {
   const s = handLogStore.get();

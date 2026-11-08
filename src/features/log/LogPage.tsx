@@ -24,12 +24,15 @@ import {
   holeGuessed,
   holeLabel,
   holeText,
+  allPicked,
   isOther,
   knownNames,
   levelLabel,
+  livePicks,
   logView,
   memoBlocker,
   mergeImport,
+  pickAll,
   PROGRESS_LABEL,
   putAside,
   quickCopy,
@@ -41,6 +44,7 @@ import {
   saveHand,
   scoutImported,
   stackBb,
+  toggleId,
   tidyHand,
   unfinished,
   villainBook,
@@ -52,6 +56,7 @@ import { VERDICT_MARK } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
 import { STAGE_LABEL } from "./quickPre";
 import { TableFlow } from "./TableFlow";
+import { deleteWithUndo, dismissUndo, undoLast, useUndoNote } from "./undoDelete";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
 const NAMES_LIST_ID = "log-villain-names";
@@ -83,6 +88,7 @@ export function LogPage({ sub, go }: { sub: string; go: (route: string) => void 
       {v.kind === "list" && <ListScreen tab={v.filter} hands={hands} go={go} />}
       {v.kind === "players" && <ListScreen tab="players" hands={hands} go={go} />}
       <Toast />
+      <UndoToast />
     </div>
   );
 }
@@ -195,7 +201,46 @@ function Toast() {
   ) : null;
 }
 
-/** "오후 5:50" */
+/** "N개 삭제했어요 · 되돌리기" at the bottom for a few seconds after a delete (see undoDelete.ts). */
+function UndoToast() {
+  const n = useUndoNote();
+  useEffect(() => {
+    if (!n) return;
+    const t = setTimeout(() => dismissUndo(n.key), Math.max(0, n.until - Date.now()));
+    return () => clearTimeout(t);
+  }, [n]);
+  if (!n) return null;
+  return (
+    <div className={`undo-toast${n.error ? " error" : ""}`} role="status" aria-live="polite">
+      <span>{n.text}</span>
+      {n.deletion && (
+        <button type="button" onClick={() => undoLast()}>
+          되돌리기
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Asks once before something that can't be taken back by a tap later (a bottom sheet, not the browser's dialog). */
+function ConfirmSheet({ title, sub, yes, onYes, onNo }: { title: string; sub?: string; yes: string; onYes: () => void; onNo: () => void }) {
+  return (
+    <div className="confirm-backdrop" onClick={onNo}>
+      <div className="confirm-sheet" role="alertdialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+        <b>{title}</b>
+        {sub && <p>{sub}</p>}
+        <div className="confirm-actions">
+          <button type="button" className="ghost" onClick={onNo}>
+            취소
+          </button>
+          <button type="button" className="confirm-yes" onClick={onYes}>
+            {yes}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /** The cards on file, as a short label: colored "A♦T♦", or "ATs (무늬 추정)". */
 function HandLabel({ h }: { h: LoggedHand }) {
@@ -255,7 +300,10 @@ function NewHandView({ hands, go }: { hands: LoggedHand[]; go: (route: string) =
 
 function EditView({ id, hands, go }: { id: string; hands: LoggedHand[]; go: (route: string) => void }) {
   // Taken once: the hand may leave the store while it is on screen (its cards cleared to be typed again).
-  const [start] = useState(() => hands.find((h) => h.id === id) ?? null);
+  const [start, setStart] = useState(() => hands.find((h) => h.id === id) ?? null);
+  // Not on file when the screen opened (deleted), but back now (되돌리기): show it from here on.
+  const back = start ? null : (hands.find((h) => h.id === id) ?? null);
+  if (back) setStart(back);
   if (!start) {
     return (
       <>
@@ -417,7 +465,8 @@ function HandScreen({ start, isNew, hands, go }: { start: LoggedHand; isNew: boo
         saved={saved}
         onNote={(note) => d.change({ ...h, note })}
         onDelete={() => {
-          deleteHand(h.id);
+          // Gone at once, with 되돌리기 at the bottom of the next screen for a few seconds.
+          deleteWithUndo([h.id]);
           if (isNew) fresh();
           else go(listRoute);
         }}
@@ -540,28 +589,67 @@ const EMPTY_TEXT: Record<ListFilter, string> = {
   other: "아직 남의 핸드가 없어요. ＋ 남의 핸드로 누가 뭘로 오픈·콜했는지 모아 보세요.",
 };
 
-function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go: (route: string) => void }) {
+/**
+ * The past hands of a tab, newest first by day. 편집 turns the rows into picks (a check at the left), with
+ * a bar at the bottom: 전체 선택 (the rows shown), how many are picked and 선택 삭제, which asks once and
+ * then deletes with 되돌리기 offered for a few seconds. 완료 (or a new tab) drops the picks.
+ * `startPicking` / `startPicks` open it already in 편집 (for tests).
+ */
+export function ListView({ tab, hands, go, startPicking = false, startPicks = [] }: { tab: ListFilter; hands: LoggedHand[]; go: (route: string) => void; startPicking?: boolean; startPicks?: string[] }) {
   const [limit, setLimit] = useState(50);
-  const groups = useMemo(() => groupByDay(hands.slice(0, limit)), [hands, limit]);
+  const [picking, setPicking] = useState(startPicking);
+  const [sel, setSel] = useState<string[]>(startPicks);
+  const [asking, setAsking] = useState(false);
+  const shown = useMemo(() => hands.slice(0, limit), [hands, limit]);
+  const groups = useMemo(() => groupByDay(shown), [shown]);
+  // A hand deleted meanwhile (elsewhere) is no longer picked.
+  const picks = picking ? livePicks(sel, hands) : [];
+  const shownIds = shown.map((h) => h.id);
+  const all = allPicked(picks, shownIds);
+
+  function stop() {
+    setPicking(false);
+    setSel([]);
+    setAsking(false);
+  }
+  function remove() {
+    deleteWithUndo(picks);
+    stop();
+  }
+
   return (
     <>
-      <div className="log-new-row">
-        {tab !== "other" && (
-          <button type="button" className="log-new-btn" onClick={() => go("log")}>
-            ＋ 새 기록
+      {picking ? (
+        <div className="log-new-row log-picking-head">
+          <span className="log-pick-title">지울 기록을 골라 주세요</span>
+          <button type="button" className="log-edit-btn on" onClick={stop}>
+            완료
           </button>
-        )}
-        {tab !== "other" && (
-          <button type="button" className="log-new-btn" onClick={() => go("log/fast")}>
-            ⚡ 빠른 기록
-          </button>
-        )}
-        {tab !== "mine" && (
-          <button type="button" className="log-new-btn other" onClick={() => go("log/other")}>
-            ＋ 남의 핸드
-          </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="log-new-row">
+          {tab !== "other" && (
+            <button type="button" className="log-new-btn" onClick={() => go("log")}>
+              ＋ 새 기록
+            </button>
+          )}
+          {tab !== "other" && (
+            <button type="button" className="log-new-btn" onClick={() => go("log/fast")}>
+              ⚡ 빠른 기록
+            </button>
+          )}
+          {tab !== "mine" && (
+            <button type="button" className="log-new-btn other" onClick={() => go("log/other")}>
+              ＋ 남의 핸드
+            </button>
+          )}
+          {hands.length > 0 && (
+            <button type="button" className="log-edit-btn" onClick={() => setPicking(true)}>
+              편집
+            </button>
+          )}
+        </div>
+      )}
       {hands.length === 0 ? (
         <p className="muted small">{EMPTY_TEXT[tab]}</p>
       ) : (
@@ -570,9 +658,13 @@ function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go
             <div className="log-day">
               {g.day} · {g.hands.length}핸드
             </div>
-            {g.hands.map((h) => (
-              <HandRow key={h.id} h={h} onClick={() => go(handRoute(h))} />
-            ))}
+            {g.hands.map((h) =>
+              picking ? (
+                <HandRow key={h.id} h={h} picked={picks.includes(h.id)} onClick={() => setSel(toggleId(picks, h.id))} />
+              ) : (
+                <HandRow key={h.id} h={h} onClick={() => go(handRoute(h))} />
+              ),
+            )}
           </div>
         ))
       )}
@@ -580,6 +672,28 @@ function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go
         <button className="ghost" onClick={() => setLimit(limit + 100)}>
           더 보기 ({hands.length - limit}개 남음)
         </button>
+      )}
+      {picking && (
+        <div className="log-pick-bar" role="toolbar" aria-label="선택한 기록">
+          <button type="button" className="ghost" onClick={() => setSel(pickAll(picks, shownIds))}>
+            {all ? "전체 해제" : "전체 선택"}
+          </button>
+          <span className="log-pick-n" aria-live="polite">
+            {picks.length}개 선택
+          </span>
+          <button type="button" className="log-pick-del" disabled={!picks.length} onClick={() => setAsking(true)}>
+            선택 삭제
+          </button>
+        </div>
+      )}
+      {asking && picks.length > 0 && (
+        <ConfirmSheet
+          title={`기록 ${picks.length}개를 지울까요?`}
+          sub="지운 뒤 몇 초 동안은 아래 되돌리기로 그대로 살릴 수 있어요."
+          yes={`${picks.length}개 삭제`}
+          onYes={remove}
+          onNo={() => setAsking(false)}
+        />
       )}
     </>
   );
@@ -590,7 +704,7 @@ function ListView({ tab, hands, go }: { tab: ListFilter; hands: LoggedHand[]; go
  * class like "ATs" when the suits were guessed), the preflop line, and for a hand recorded part of the
  * way "작성 중" with 이어서 작성.
  */
-function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
+function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; picked?: boolean }) {
   const other = isOther(h);
   const bb = stackBb(h);
   // A 빠른 기록 hand: its decision and the chart's verdict, until it is carried on to the table.
@@ -602,7 +716,16 @@ function HandRow({ h, onClick }: { h: LoggedHand; onClick: () => void }) {
   const open = unfinished(h);
   const guessed = holeGuessed(h);
   return (
-    <button className={`log-row${other ? " other" : ""}${open ? " open" : ""}`} onClick={onClick}>
+    <button
+      className={`log-row${other ? " other" : ""}${open ? " open" : ""}${picked !== undefined ? ` picking${picked ? " picked" : ""}` : ""}`}
+      onClick={onClick}
+      {...(picked !== undefined ? { role: "checkbox", "aria-checked": picked } : {})}
+    >
+      {picked !== undefined && (
+        <span className="log-check" aria-hidden="true">
+          {picked ? "✓" : ""}
+        </span>
+      )}
       <span className="log-row-main">
         {other && (
           <span className="log-kind" aria-label="남의 핸드">

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { emptyHand, handLogStore, localDay, putAside, type LoggedHand } from "./handLog";
 import { bbText, LevelRow } from "./inputs";
-import { LogPage } from "./LogPage";
+import { ListView, LogPage } from "./LogPage";
 import { BoardRanks, HoleEntry } from "./SuitEntry";
 import { fastHand, fastOtherStore, fastStore, newDraft, pickSuited, startEdit, tapRank, type FastDraft } from "./fastLog";
 
@@ -441,6 +441,7 @@ describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/serve
     expect(html.match(/class="fast-item /g)).toHaveLength(3);
     expect(html).toMatch(/class="fast-item v-over"><span class="fi-time">[^<]+<\/span><b class="fi-seat">BB<\/b><b class="fi-class">72o<\/b><span class="fi-act">CO 오픈 → 콜<\/span><span class="fi-verdict">⚠ 루즈 \(폴드\)<\/span>/);
     expect(html).toMatch(/class="fast-item v-under">.*?<b class="fi-class">AQo<\/b><span class="fi-act">림프<\/span><span class="fi-verdict">▽ 타이트 \(오픈\)<\/span>/);
+    expect(t).toContain("핸드를 누르면 고치거나 지울 수 있어요");
     expect(t).not.toContain("AJo");
     // and 빠른 기록 doesn't list theirs
     const fast = page("fast");
@@ -462,5 +463,43 @@ describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/serve
     const html = page("list/other");
     expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">BB<\/b><b class="log-class">72o<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 차트보다 루즈 \(차트: 폴드\)<\/span>/);
     expect(html).not.toContain("log-continue");
+  });
+});
+
+describe("지난 기록 편집: picking hands to delete (react-dom/server)", () => {
+  const hs: LoggedHand[] = [
+    { ...emptyHand(6), id: "h3", seat: "CO", hole: parseCards("KhKs"), result: "win", createdAt: 3 },
+    { ...emptyHand(6), id: "h2", kind: "other", seat: "BTN", hole: parseCards("Kh9h"), result: "lose", createdAt: 2 },
+    { ...emptyHand(6), id: "h1", seat: "BB", hole: parseCards("AsTs"), result: "fold", createdAt: 1 },
+  ];
+
+  it("has 편집 at the end of the list's top row, rows that open their hand", () => {
+    put(hs);
+    const html = page("list");
+    expect(html).toMatch(/<div class="log-new-row">.*<button type="button" class="log-edit-btn">편집<\/button><\/div>/);
+    expect(html).not.toContain("log-check");
+    expect(html).not.toContain("log-pick-bar");
+    put([]);
+    expect(page("list")).not.toContain("log-edit-btn");
+  });
+
+  it("turns rows into picks with a check at the left, and a bar: 전체 선택, how many, 선택 삭제", () => {
+    put(hs);
+    const html = render(<ListView tab="all" hands={hs} go={noop} startPicking startPicks={["h2", "gone"]} />);
+    const t = text(html);
+    // the top row: what to do, and 완료 (no ways to new hands while picking)
+    expect(html).toMatch(/<div class="log-new-row log-picking-head"><span class="log-pick-title">지울 기록을 골라 주세요<\/span><button type="button" class="log-edit-btn on">완료<\/button><\/div>/);
+    expect(t).not.toContain("＋ 새 기록");
+    // each row a checkbox, the picked one checked and marked
+    expect(html.match(/role="checkbox"/g)).toHaveLength(3);
+    expect(html).toMatch(/<button class="log-row other picking picked" role="checkbox" aria-checked="true"><span class="log-check" aria-hidden="true">✓<\/span><span class="log-row-main">/);
+    expect(html).toMatch(/<button class="log-row picking" role="checkbox" aria-checked="false"><span class="log-check" aria-hidden="true"><\/span><span class="log-row-main"><b class="log-seat">CO<\/b>/);
+    // a pick no longer on file doesn't count
+    expect(html).toMatch(/<div class="log-pick-bar" role="toolbar" aria-label="선택한 기록"><button type="button" class="ghost">전체 선택<\/button><span class="log-pick-n" aria-live="polite">1개 선택<\/span><button type="button" class="log-pick-del">선택 삭제<\/button><\/div>/);
+    // all picked: 전체 해제; none: 선택 삭제 waits
+    expect(render(<ListView tab="all" hands={hs} go={noop} startPicking startPicks={["h1", "h2", "h3"]} />)).toContain('<button type="button" class="ghost">전체 해제</button><span class="log-pick-n" aria-live="polite">3개 선택</span>');
+    expect(render(<ListView tab="all" hands={hs} go={noop} startPicking />)).toContain('<button type="button" class="log-pick-del" disabled="">선택 삭제</button>');
+    // not picking: picks given are ignored
+    expect(render(<ListView tab="all" hands={hs} go={noop} startPicks={["h2"]} />)).not.toContain("picked");
   });
 });

@@ -48,12 +48,12 @@ import {
   holeClass,
   lastStage,
   levelEstimateAt,
-  deleteHand,
   saveHand,
   type LoggedHand,
 } from "./handLog";
 import { levelStage, PRE_STAGES, STAGE_LABEL, type PreAction } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
+import { closeUndoOffer, deleteWithUndo } from "./undoDelete";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
 
@@ -246,6 +246,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     setFull(!ok);
     // Not on file: the hand stays on screen to try again.
     if (!ok) return;
+    // Only one 되돌리기 on screen: the one under the actions, for the hand just saved.
+    closeUndoOffer();
     const v = fastVerdictOf(h);
     set(afterSave(c, h, handLogStore.get().hands, mode));
     setSaved({ id: h.id, kind: v?.kind ?? "none", text: v?.text ?? "", line: `${h.seat} ${holeClass(h)} ${fastActText(h)}` });
@@ -316,8 +318,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             className="fast-mini danger"
             onClick={() => {
               if (!confirm("이 핸드를 지울까요?")) return;
-              deleteHand(editing.id);
-              set(cancelEdit(cur()));
+              // Back to the new hand put aside, with 되돌리기 at the bottom for a few seconds.
+              deleteWithUndo([editing.id]);
             }}
           >
             삭제
@@ -508,7 +510,9 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
                 );
               })}
             </div>
-            {session.length > recent.length && <p className="muted small">최근 {recent.length}핸드만 보여요 · 전부는 지난 기록에서</p>}
+            <p className="muted small">
+              핸드를 누르면 고치거나 지울 수 있어요{session.length > recent.length ? ` · 최근 ${recent.length}핸드만 보여요, 전부는 지난 기록에서` : ""}
+            </p>
             <div className="fast-today-foot">
               <button
                 type="button"
