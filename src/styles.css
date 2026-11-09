@@ -891,6 +891,26 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .rt-card.guess small { opacity: 0.5; }
 /* over the hot card (RaceTable sets left; tableLayout's HOT_LIFT is this top) */
 .rt-hottag { position: absolute; top: -17px; transform: translateX(-50%); font-size: 0.6rem; font-weight: 900; line-height: 1; color: #04140a; background: #22c55e; padding: 0 5px; border-radius: 999px; white-space: nowrap; }
+/*
+ * 되돌리기 on the record table, under the board (tableLayout.ts places it, keeps everything clear of it and sets
+ * its widest): outlined in the turn marker's amber with a drawn arrow, so it reads as a control and not a bet,
+ * and what one tap takes back under the word. RaceTable picks the fullest echo that fits; the shortest goes
+ * in smaller type (.tight) and gives up its end. Copies in .rt-sizer measure each echo's width, so the disabled pill
+ * changes only colours (a lighter weight came out wider than measured and cut 되돌릴 액션 없음). It flashes on change.
+ */
+.rt-undo { position: absolute; transform: translate(-50%, -50%); z-index: 3; box-sizing: border-box; height: 40px; padding: 0 8px; border-radius: 999px; border: 1.5px solid #ffd166; background: rgba(36, 28, 6, 0.86); color: #ffd166; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.15; white-space: nowrap; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); -webkit-tap-highlight-color: transparent; }
+.rt-sizer .rt-undo { transform: none; }
+.rt-undo:active { background: rgba(255, 209, 102, 0.28); }
+.rt-undo b { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 800; }
+.rt-undo svg { width: 16px; height: 16px; flex: none; }
+.rt-undo small { display: block; max-width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; color: #f8ebc6; }
+.rt-undo small .pre { color: rgba(248, 235, 198, 0.7); }
+.rt-undo small.tight { font-size: 0.6rem; letter-spacing: -0.01em; }
+.rt-undo small.flash { animation: rt-undo-flash 0.7s ease-out; }
+@keyframes rt-undo-flash { from { background: rgba(255, 209, 102, 0.45); color: #fff; } to { background: rgba(255, 209, 102, 0); } }
+@media (prefers-reduced-motion: reduce) { .rt-undo small.flash { animation: none; } }
+.rt-undo:disabled { opacity: 1; border-color: rgba(255, 209, 102, 0.3); background: rgba(9, 12, 17, 0.5); color: rgba(255, 209, 102, 0.45); box-shadow: none; }
+.rt-undo:disabled small { color: rgba(167, 180, 194, 0.65); }
 .rt-herocards { position: absolute; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 4; pointer-events: none; }
 .rt-hand { position: absolute; transform: translate(-50%, -50%); z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; }
 .rt-hand .cards { display: flex; gap: 2px; }

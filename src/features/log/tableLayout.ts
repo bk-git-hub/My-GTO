@@ -10,6 +10,10 @@
  * spot is clear a hand takes smaller cards (never mine) and a bubble a tighter form, then the board
  * takes smaller cards. A roomy table looks exactly as before. The "역전" badge over the card that flipped
  * the lead counts as part of the board, and a hand level with the board row keeps a wider gap from it.
+ * So does the record table's 되돌리기 pill under the board: the pot, board and pill are one column in the
+ * middle of the felt, set where the seats leave the board its largest cards. Everything is placed around
+ * the pill as wide as its echo asks; on a table where that leaves something without a clear spot, around
+ * the pill at its narrowest, and then it is drawn as wide as what was placed leaves room for.
  */
 
 /** The table's unit box: positions are laid out in units of a 358-wide table. */
@@ -35,6 +39,15 @@ const HERO_CARDS: Size = [48, 32];
 const CENTER_GAP = 7;
 /** The "역전" badge sits this far above the top of the card that flipped the lead (.rt-hottag top). */
 export const HOT_LIFT = 17;
+/** Gap above the 되돌리기 pill (.rt-undo): under the board row, or under the pot while no card slot is drawn. */
+export const UNDO_GAP = 8;
+/**
+ * The 되돌리기 pill at its narrowest (or its echo's width, when less): the room everything else is placed
+ * around. It is drawn as wide as its echo asks where nothing is in the way, up to a full five-card board.
+ */
+export const UNDO_MIN = 104;
+/** How much further than usual a bubble may go from its seat around the 되돌리기 pill, rather than take a tighter form. */
+const UNDO_REACH = 36;
 /** The D button stays at least this much nearer its own seat than any other, so it reads as that seat's. */
 const DEALER_OWN = 4;
 /** Most placement passes tried for one table. */
@@ -302,6 +315,12 @@ export interface TableIn {
   board: number | null;
   /** The card that flipped the lead (its slot on the board row) and the px size of its "역전" badge; null when none. */
   hot: { slot: number; tag: Size } | null;
+  /**
+   * The 되돌리기 pill under the board (the record table): its px size with all of its echo; none when null or
+   * left out. It is drawn as wide as that where there is room (TableOut.undo), and its spot never depends on
+   * its width: the column stays put for the same seats, whatever the echo says or the bets on the table.
+   */
+  undo?: Size | null;
 }
 
 export interface TableOut {
@@ -311,6 +330,8 @@ export interface TableOut {
   /** y of the pot + board block's center (px), and the gap between the pot and the board row. */
   center: number;
   centerGap: number;
+  /** The 되돌리기 pill's center, the widest it may be drawn and its height (px); null without one. */
+  undo: (Pt & { w: number; h: number }) | null;
   /** Hand centers and their card size, by slot. */
   hands: ((Pt & CardSize) | undefined)[];
   /** Bubble centers and forms, by slot. */
@@ -341,6 +362,8 @@ interface Plan {
   far?: boolean;
   /** Keep a hand level with the board row ROW_GAP from it, not just BOARD_GAP. */
   row?: boolean;
+  /** Place everything around the 되돌리기 pill as wide as its echo asks (as the seats let it be), not at its narrowest. */
+  wide?: boolean;
 }
 
 /** `dealerStray`: how much nearer another seat than its own the D button ended (it only breaks ties between plans). */
@@ -367,12 +390,15 @@ export function layoutTable(t: TableIn): TableOut {
   /** Seats drawn as seats (a seat showing a hand is drawn as the hand). */
   const seats = Array.from({ length: n }, (_, k) => (t.seats[k].hand ? [] : seatShape(k))).flat();
   const seatRoom: Group = { shapes: seats, gap: GAP };
+  /** The same without the "차례" tag, which moves on with every action. */
+  const still = t.undo && t.seats.some((x) => x.tag) ? Array.from({ length: n }, (_, k) => (t.seats[k].hand ? [] : seatShape(k).filter((_, i) => i === 0 || !t.seats[k].tag || i > 1))).flat() : seats;
 
   /**
-   * The pot pill over the board row, and the "역전" badge above the hot card. When the badge would sit
-   * on the pot, the pot rises clear of it and the board stays where it was.
+   * The pot pill over the board row, the "역전" badge above the hot card, and the 되돌리기 pill (`uw` wide)
+   * under them all. When the badge would sit on the pot, the pot rises clear of it and the board stays
+   * where it was. With the pill the column is centred as a whole, then moved `drop` px down (up when less than 0).
    */
-  const block = (cw: number, lift = 0): { shapes: Rect[]; tag: Rect | null; center: number; gap: number; row: Rect | null } => {
+  const block = (cw: number, lift = 0, uw = UNDO_MIN, drop = colDrop): { shapes: Rect[]; tag: Rect | null; center: number; gap: number; row: Rect | null; undo: Rect | null } => {
     const c = boardCard(cw);
     const nb = t.board ?? 0;
     const bw = nb ? nb * c.cw + (nb - 1) * c.gap : 0, bh = nb ? c.ch : 0;
@@ -385,27 +411,64 @@ export function layoutTable(t: TableIn): TableOut {
     const under = !!hot && both && Math.abs(tagX - mid) < (pw + hot.tag[0]) / 2;
     const gap = both ? (under ? Math.max(CENTER_GAP, HOT_LIFT + GAP) : CENTER_GAP) : 0;
     const extra = both ? gap - CENTER_GAP : 0;
-    const total = ph + gap + bh;
-    const center = (g.cy - 4) * s - lift - extra / 2, top = center - total / 2, boardTop = top + ph + gap;
+    const stack = ph + gap + bh;
+    // the 되돌리기 pill hangs under the board row, or under the pot while no card slot is drawn
+    const uh = t.undo ? t.undo[1] : 0, above = nb ? stack : ph;
+    const total = uh ? Math.max(stack, above + UNDO_GAP + uh) : stack;
+    const top = (g.cy - 4) * s - lift - extra / 2 - total / 2 + drop, boardTop = top + ph + gap;
     const shapes: Rect[] = [];
     if (t.pot) shapes.push(rect(mid - pw / 2, top, pw, ph));
     if (nb) shapes.push(rect(bx, boardTop, bw, bh));
+    const undo = uh ? rect(mid - uw / 2, top + above + UNDO_GAP, uw, uh) : null;
+    if (undo) shapes.push(undo);
     const tag = hot ? rect(tagX - hot.tag[0] / 2, boardTop - HOT_LIFT, hot.tag[0], hot.tag[1]) : null;
     const wide = ROW_GAP - BOARD_GAP;
-    return { shapes, tag, center, gap, row: nb ? rect(bx - wide, boardTop, bw + 2 * wide, bh) : null };
+    return { shapes, tag, center: top + stack / 2, gap, row: nb ? rect(bx - wide, boardTop, bw + 2 * wide, bh) : null, undo };
   };
-  // The largest board that clears the seats around it (a seat may touch the badge, not cover it). When
-  // what is in the way doesn't go with a smaller board (a wide pot by a seat), the board stays large.
-  let fit = BOARD_MIN, least = Infinity;
-  for (let cw = BOARD_MAX; cw >= BOARD_MIN; cw--) {
-    const b = block(cw);
-    const c = Math.max(clash(b.shapes, [{ shapes: seats, gap: BOARD_GAP - 2 }]), b.tag ? clash([b.tag], [{ shapes: seats, gap: 0 }]) : 0);
-    if (c === 0) {
-      fit = cw;
-      break;
+  // The column's spot with the 되돌리기 pill: centred, or as near it as gives the board its largest cards
+  // (the pot and board as much as a pill's room lower, or half of one higher). Nearer the middle first,
+  // then lower (more room under the board for the pill).
+  const half = t.undo ? (UNDO_GAP + t.undo[1]) / 2 : 0;
+  const drops = [0];
+  for (let d = 2; d <= 2 * half; d += 2) drops.push(d, ...(d <= half ? [-d] : []));
+  let colDrop = 0;
+  // The largest board that clears the seats around it (a seat may touch the badge, not cover it), with the
+  // 되돌리기 pill at its narrowest. When what is in the way doesn't go with a smaller board (a wide pot by
+  // a seat), the board stays large.
+  const fitIn = (room: Shape[], order = drops): { cw: number; drop: number } => {
+    let fit = { cw: BOARD_MIN, drop: 0 }, least = Infinity;
+    for (let cw = BOARD_MAX; cw >= BOARD_MIN; cw--)
+      for (const drop of order) {
+        const b = block(cw, 0, UNDO_MIN, drop);
+        const c = Math.max(clash(b.shapes, [{ shapes: room, gap: BOARD_GAP - 2 }]), b.tag ? clash([b.tag], [{ shapes: room, gap: 0 }]) : 0);
+        if (c === 0) return { cw, drop };
+        if (c < least - 0.5) (least = c), (fit = { cw, drop });
+      }
+    return fit;
+  };
+  // (the spot is found without the "차례" tag, so it doesn't move with the turn; where the tag is in its way,
+  // the nearest spot clear of it)
+  let { cw: fit, drop: dropAt } = fitIn(still);
+  if (still !== seats) {
+    const b = block(fit, 0, UNDO_MIN, dropAt);
+    if (Math.max(clash(b.shapes, [{ shapes: seats, gap: BOARD_GAP - 2 }]), b.tag ? clash([b.tag], [{ shapes: seats, gap: 0 }]) : 0) > 0) {
+      const from = dropAt;
+      ({ cw: fit, drop: dropAt } = fitIn(seats, drops.slice().sort((a, b) => Math.abs(a - from) - Math.abs(b - from))));
     }
-    if (c < least - 0.5) (least = c), (fit = cw);
   }
+  colDrop = dropAt;
+  /** The 되돌리기 pill at its narrowest, and with this board as wide as its echo asks, up to a full board. */
+  const undoLeast = t.undo ? Math.min(UNDO_MIN, t.undo[0]) : 0;
+  const undoMost = (cw: number) => {
+    const c = boardCard(cw);
+    return Math.max(undoLeast, Math.min(t.undo![0], 5 * c.cw + 4 * c.gap));
+  };
+  /** The widest the pill fits with this board, clear of `room`. */
+  const undoFit = (cw: number, lift: number, room: Group[]): number => {
+    let w = undoMost(cw);
+    while (w > undoLeast && clash([block(cw, lift, w).undo!], room) > 0) w = Math.max(undoLeast, w - 2);
+    return w;
+  };
 
   const handShapes = (k: number, tier: number) => {
     const [lw, lh] = t.seats[k].hand!.label;
@@ -426,6 +489,8 @@ export function layoutTable(t: TableIn): TableOut {
     return forms[Math.min(tier, forms.length - 1)];
   };
 
+  const reachMore = t.undo ? UNDO_REACH : 0;
+
   const memos = new Map<string, Memo>();
   const memo = (key: string, w: Want): Memo => {
     let m = memos.get(key);
@@ -434,8 +499,9 @@ export function layoutTable(t: TableIn): TableOut {
   };
 
   function run(plan: Plan): Run {
-    const { shapes: centerShapes, tag, center: centerY, gap: centerGap, row } = block(plan.boardCw, plan.lift);
-    const ctx = `${plan.boardCw}|${plan.lift ?? 0}|${plan.row ? 1 : 0}`;
+    const placeUw = t.undo && plan.wide ? undoFit(plan.boardCw, plan.lift ?? 0, [{ shapes: seats, gap: BOARD_GAP - 2 }]) : undoLeast;
+    const { shapes: centerShapes, tag, center: centerY, gap: centerGap, row, undo: undoBox } = block(plan.boardCw, plan.lift, placeUw);
+    const ctx = `${plan.boardCw}|${plan.lift ?? 0}|${plan.row ? 1 : 0}|${placeUw}`;
     const center: Group = { shapes: centerShapes, gap: BOARD_GAP };
     // the badge only needs to stay in sight, not to keep the board's room
     const badge: Group = { shapes: tag ? [tag] : [], gap: GAP };
@@ -497,7 +563,8 @@ export function layoutTable(t: TableIn): TableOut {
       placed.push(...at(got.x, got.y));
     }
 
-    // Bet bubbles, inward of their seats; the ones beside the board first.
+    // Bet bubbles, inward of their seats; the ones beside the board first. With the 되돌리기 pill they may go
+    // further (UNDO_REACH): around it, rather than in a tighter form.
     const bubbleSlots = Array.from({ length: n }, (_, k) => k).filter((k) => t.seats[k].bubble);
     const bubblePref = (k: number, b: Size): Pt => {
       const p = spots[k];
@@ -518,7 +585,7 @@ export function layoutTable(t: TableIn): TableOut {
         for (let j = 0; j < n; j++) if (j !== k) other = Math.min(other, Math.hypot(x - px[j].x, y - px[j].y));
         return Math.max(0, own - other);
       };
-      const w: Want = { at, pref: bubblePref(k, size), u: { x: spots[k].ux, y: spots[k].uy }, wIn: 1.5, wOut: 1, reach: plan.far ? 80 : 56, step: 2, stray };
+      const w: Want = { at, pref: bubblePref(k, size), u: { x: spots[k].ux, y: spots[k].uy }, wIn: 1.5, wOut: 1, reach: (plan.far ? 80 : 56) + reachMore, step: 2, stray };
       const got = search(w, [center, badge, seatRoom], [placedRoom], [], width, height, memo(`b${k}|${tier}|${ctx}|${w.reach}`, w));
       bubbles[k] = { x: got.x, y: got.y, form: BUBBLE_FORMS[tier] };
       clashes[k] += got.clash + got.soft;
@@ -551,7 +618,12 @@ export function layoutTable(t: TableIn): TableOut {
       placed.push(...at(got.x, got.y));
     }
 
-    return { width, height, board: boardCard(plan.boardCw), center: centerY, centerGap, hands, bubbles, dealer, heroCards, tagLift, meDrop, clash: hard, soft, clashes, dealerStray };
+    // The 되돌리기 pill, as wide as its echo asks (up to a full board) where that leaves everything its room.
+    const undo = undoBox
+      ? { x: width / 2, y: (undoBox.y0 + undoBox.y1) / 2, w: undoFit(plan.boardCw, plan.lift ?? 0, [{ shapes: seats, gap: BOARD_GAP - 2 }, { shapes: placed, gap: BOARD_GAP }]), h: undoBox.y1 - undoBox.y0 }
+      : null;
+
+    return { width, height, board: boardCard(plan.boardCw), center: centerY, centerGap, undo, hands, bubbles, dealer, heroCards, tagLift, meDrop, clash: hard, soft, clashes, dealerStray };
   }
 
   const tie = (a: number, b: number) => Math.abs(a - b) <= 1e-6;
@@ -585,11 +657,14 @@ export function layoutTable(t: TableIn): TableOut {
   };
 
   // Full-size everything (with the wider room beside the board row, then without), then smaller cards
-  // (or a tighter bubble) for whatever found no clear spot, a step at a time, then for every seat, then
-  // a smaller board.
+  // (or a tighter bubble) for whatever found no clear spot, a step at a time, then for every seat, then a
+  // smaller board. With the 되돌리기 pill a smaller board comes only after the tightest bubbles: the pill
+  // takes its room from neither.
   const tiers = Array<number>(n).fill(0);
   if (t.board && t.seats.some((x) => x.hand) && tryPlan({ boardCw: fit, tiers, order: "near", row: true })) return finish();
-  if (tryPlan({ boardCw: fit, tiers, order: "near" })) return finish();
+  const narrow = !!t.undo;
+  if (tryPlan({ boardCw: fit, tiers, order: "near", wide: narrow })) return finish();
+  if (narrow && last!.undo!.w > undoLeast && tryPlan({ boardCw: fit, tiers, order: "near" }, 1)) return finish();
   const movable = (k: number) => (t.seats[k].hand && !t.seats[k].hand!.hero) || !!t.seats[k].bubble;
   for (let round = 0; round < 4; round++) {
     let grew = false;
@@ -597,12 +672,16 @@ export function layoutTable(t: TableIn): TableOut {
       if (c > 0 && movable(k) && tiers[k] < 2) (tiers[k]++, (grew = true));
     });
     if (!grew) break;
-    if (tryPlan({ boardCw: fit, tiers: tiers.slice(), order: "near" })) return finish();
+    // (with the 되돌리기 pill, also with the ones still stuck placed first: a bubble that ended near another
+    // seat after going around the pill gets its spot before a neighbour takes it)
+    if (tryPlan({ boardCw: fit, tiers: tiers.slice(), order: "near" }, narrow ? 1 : 0)) return finish();
   }
   const smaller = [fit, Math.max(BOARD_MIN, fit - 3), BOARD_MIN].filter((x, i, all) => all.indexOf(x) === i);
-  for (const tier of [1, 2]) {
+  const byTier = (boards: number[]) => [1, 2].flatMap((tier) => boards.map((b) => [tier, b]));
+  const steps = narrow ? [...byTier(smaller.slice(0, 1)), ...byTier(smaller.slice(1))] : byTier(smaller);
+  for (const [tier, boardCw] of steps) {
     const all = tiers.map((x, k) => (movable(k) ? Math.max(x, tier) : x));
-    for (const boardCw of smaller) if (tryPlan({ boardCw, tiers: all, order: "near" }, tier === 2 ? 3 : 1)) return finish();
+    if (tryPlan({ boardCw, tiers: all, order: "near" }, tier === 2 ? 3 : 1)) return finish();
   }
   // Last resort on a crowded table: bubbles may go further, my cards may go after them, the pot and
   // board may sit a little higher; then the other placing order.

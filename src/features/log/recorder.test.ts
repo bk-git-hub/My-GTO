@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { pot } from "../../play/engine";
 import { emptyHand, handFacts, tableOf } from "./handLog";
-import { amountLabel, applyStep, replay, sizeOptions, skipTo, streetLines, undoSteps, upcoming, type LogStep, type TableInput } from "./recorder";
+import { amountLabel, applyStep, replay, sizeOptions, skipTo, streetLines, undoEcho, undoPartText, undoParts, undoSteps, upcoming, type LogStep, type TableInput } from "./recorder";
 
 const table = (over: Partial<TableInput> = {}): TableInput => ({ heroSeat: "BB", heroStack: 40, stacks: {}, ...over });
 const bb = (x: number) => amountLabel(x, null);
@@ -92,5 +92,101 @@ describe("action recorder", () => {
     expect(f).toContain("CO 오픈 2,000(2.5bb)");
     expect(f).toContain("BTN 3벳 6,000(7.5bb)");
     expect(f).toContain("→ 팟 15,200(19bb)");
+  });
+});
+
+describe("undoEcho: what one tap of 되돌리기 takes back", () => {
+  /** The echo for steps, after checking it covers exactly the steps undoSteps drops. */
+  const echo = (t: TableInput, steps: LogStep[], fmt = bb, tags?: Parameters<typeof undoEcho>[3]) => {
+    const { game, applied } = replay(t, steps);
+    expect(applied).toBe(steps.length);
+    return undoEcho(game, steps, fmt, tags);
+  };
+  /** The same steps typed one by one (no seats skipped). */
+  const byHand = (steps: LogStep[]): LogStep[] => steps.map(({ s, k, to }) => (to === undefined ? { s, k } : { s, k, to }));
+
+  it("has nothing to say before the first action", () => {
+    expect(echo(table(), [])).toBeNull();
+  });
+
+  it("names a single action, as the seat and the action word", () => {
+    const t = table();
+    expect(echo(t, [{ s: "UTG", k: "fold" }])).toBe("UTG 폴드");
+    expect(echo(t, [{ s: "UTG", k: "fold" }, { s: "UTG+1", k: "fold" }])).toBe("UTG+1 폴드"); // typed one by one: one at a time
+    expect(echo(t, [{ s: "UTG", k: "call" }])).toBe("UTG 림프 1bb");
+  });
+
+  it("gives a bet or raise its word and amount, in chips when the blinds are known", () => {
+    const t = table();
+    const open = byHand(record(t, [["CO", "raise", 2.5]]));
+    expect(echo(t, open)).toBe("CO 오픈 2.5bb");
+    expect(echo(t, open, (x) => amountLabel(x, 1600))).toBe("CO 오픈 4,000");
+    expect(echo(t, [...open, { s: "BTN", k: "raise", to: 7.5 }])).toBe("BTN 3벳 7.5bb");
+    const short = table({ heroSeat: "BTN", stacks: { CO: 8 } });
+    expect(echo(short, byHand(record(short, [["CO", "raise", 8]])))).toBe("CO 오픈 8bb 올인");
+  });
+
+  it("puts the seats skipped before an action together with it: one tap takes them all back", () => {
+    const t = table();
+    const steps = record(t, [["CO", "raise", 2.5]]); // UTG..HJ folded by tapping CO
+    expect(echo(t, steps)).toBe("UTG~HJ 5명 폴드 · CO 오픈 2.5bb");
+    expect(undoSteps(steps)).toEqual([]);
+  });
+
+  it("counts a batch of folds filled in by 나머지 폴드 or a tapped seat", () => {
+    const t = table();
+    const open = record(t, [["CO", "raise", 2.5]]);
+    const two = [...open, ...skipTo(replay(t, open).game, "BB")];
+    expect(echo(t, two)).toBe("BTN, SB 폴드");
+    const utg = record(t, [["UTG", "raise", 2.5]]);
+    const seven = [...utg, ...skipTo(replay(t, utg).game, "BB")];
+    expect(echo(t, seven)).toBe("UTG+1~SB 7명 폴드");
+    // A fold of mine right after the skipped seats goes back with them: one run of folds.
+    expect(echo(t, [...two, { s: "BB", k: "fold" }])).toBe("BTN~BB(나) 3명 폴드");
+  });
+
+  it("names the street when the undo goes back over the end of a street", () => {
+    const t = table();
+    const pre = record(t, [["CO", "raise", 2.5], ["SB", "call"], ["BB", "call"]]);
+    expect(replay(t, pre).game.street).toBe("flop");
+    expect(echo(t, pre)).toBe("프리플랍 BB(나) 콜 2.5bb");
+    // Checks filled in on two streets (CO closing the flop, SB on the turn): one tap takes both back.
+    const flop: LogStep[] = [...pre, { s: "SB", k: "check" }, { s: "BB", k: "check" }];
+    const across: LogStep[] = [...flop, { s: "CO", k: "check", a: 1 }, { s: "SB", k: "check", a: 1 }];
+    expect(replay(t, across).game.street).toBe("turn");
+    expect(echo(t, across)).toBe("플랍 CO 체크 · 턴 SB 체크");
+    expect(undoSteps(across)).toEqual(flop);
+  });
+
+  it("speaks of the last street of a finished hand without naming it", () => {
+    const t = table({ heroSeat: "BTN", stacks: { CO: 8 } });
+    const all = record(t, [["CO", "raise", 8], ["BTN", "call"], ["BB", "fold"]]);
+    expect(replay(t, all).game.done).toBe(true);
+    expect(echo(t, all)).toBe("SB, BB 폴드");
+  });
+
+  it("gives each run a shorter form for a narrow pill: the count for a run of seats, 프리 for the preflop", () => {
+    const t = table();
+    const steps = record(t, [["CO", "raise", 2.5]]);
+    const parts = undoParts(replay(t, steps).game, steps, bb);
+    expect(parts.map((p) => undoPartText(p))).toEqual(["UTG~HJ 5명 폴드", "CO 오픈 2.5bb"]);
+    expect(parts.map((p) => undoPartText(p, { count: true }))).toEqual(["5명 폴드", "CO 오픈 2.5bb"]);
+    expect(parts.map((p) => p.n)).toEqual([5, 1]);
+    const open = record(t, [["CO", "raise", 2.5]]);
+    const two = [...open, ...skipTo(replay(t, open).game, "BB")];
+    expect(undoParts(replay(t, two).game, two, bb).map((p) => [undoPartText(p), undoPartText(p, { count: true })])).toEqual([["BTN, SB 폴드", "2명 폴드"]]);
+    const pre = record(t, [["CO", "raise", 2.5], ["SB", "call"], ["BB", "call"]]);
+    const [last] = undoParts(replay(t, pre).game, pre, bb);
+    expect(undoPartText(last)).toBe("프리플랍 BB(나) 콜 2.5bb");
+    expect(undoPartText(last, { count: true, short: true })).toBe("프리 BB(나) 콜 2.5bb");
+    expect(undoParts(replay(t, []).game, [], bb)).toEqual([]);
+  });
+
+  it("tags the seats like the action lines in another player's hand", () => {
+    const t = table({ heroSeat: "CO" });
+    const tags = { hero: "(상대)", seats: { BB: "(나)" } };
+    const steps = byHand(record(t, [["CO", "raise", 2.5], ["BB", "call"]]));
+    expect(echo(t, steps.slice(0, 6), bb, tags)).toBe("CO(상대) 오픈 2.5bb"); // UTG..HJ fold, CO opens
+    expect(echo(t, steps, bb, tags)).toBe("프리플랍 BB(나) 콜 2.5bb");
   });
 });

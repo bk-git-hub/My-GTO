@@ -1,5 +1,5 @@
 import { fullDeck, type Card } from "../../poker/cards";
-import { act, legal, newGame, pot, PUB_TABLE, type Game, type Street } from "../../play/engine";
+import { act, legal, newGame, pot, PUB_TABLE, type Game, type LogEntry, type Street } from "../../play/engine";
 
 /** Position names by table size, in preflop action order (the last two are SB and BB). */
 export const POSITIONS: Record<number, string[]> = {
@@ -202,31 +202,27 @@ export interface SeatTags {
 /** My own hand: the hero is me. */
 export const MY_TAGS: SeatTags = { hero: "(나)" };
 
-/**
- * Readable actions per street: "CO 오픈 2.5bb", "BB(나) 콜 7.5bb". Folds are listed only for
- * players who had put chips in voluntarily, for the hero and for tagged seats; the rest are implied.
- */
-export function streetLines(g: Game, fmt: (bb: number) => string, tags: SeatTags = MY_TAGS): StreetLine[] {
-  const lines: StreetLine[] = [];
-  const invested = new Set<number>();
+/** One action from the log in words: who ("BB(나)") and what ("오픈 2.5bb", "콜 7.5bb 올인", "폴드"). */
+interface ActionWords {
+  e: LogEntry;
+  who: string;
+  text: string;
+  /** The hero or a tagged seat: their folds are always listed. */
+  tagged: boolean;
+}
+
+/** Every action in the log in words (the blinds posted are left out), named the way streetLines names them. */
+function actionWords(g: Game, fmt: (bb: number) => string, tags: SeatTags): ActionWords[] {
+  const out: ActionWords[] = [];
   const raises: Record<string, number> = {};
   let limped = false;
   for (const e of g.log) {
-    let line = lines[lines.length - 1];
-    if (!line || line.street !== e.street) {
-      line = { street: e.street, actions: [], pot: e.potAfter };
-      lines.push(line);
-    }
-    line.pot = e.potAfter;
     if (e.kind === "post") continue;
     const p = g.players[e.idx];
     const tag = p.hero ? tags.hero : (tags.seats?.[e.seat] ?? "");
-    const who = `${e.seat}${tag}`;
     let text: string;
-    if (e.kind === "fold") {
-      if (!invested.has(e.idx) && !p.hero && !tag) continue;
-      text = "폴드";
-    } else if (e.kind === "check") text = "체크";
+    if (e.kind === "fold") text = "폴드";
+    else if (e.kind === "check") text = "체크";
     else if (e.kind === "call") {
       const limp = e.street === "preflop" && !raises.preflop;
       if (limp) limped = true;
@@ -237,10 +233,95 @@ export function streetLines(g: Game, fmt: (bb: number) => string, tags: SeatTags
       const verb = e.street === "preflop" ? (n === 0 ? (limped ? "레이즈" : "오픈") : `${n + 2}벳`) : n === 0 ? "벳" : "레이즈";
       text = `${verb} ${fmt(e.amount)}`;
     }
+    out.push({ e, who: `${e.seat}${tag}`, text: `${text}${e.allIn ? " 올인" : ""}`, tagged: p.hero || !!tag });
+  }
+  return out;
+}
+
+/**
+ * Readable actions per street: "CO 오픈 2.5bb", "BB(나) 콜 7.5bb". Folds are listed only for
+ * players who had put chips in voluntarily, for the hero and for tagged seats; the rest are implied.
+ */
+export function streetLines(g: Game, fmt: (bb: number) => string, tags: SeatTags = MY_TAGS): StreetLine[] {
+  const lines: StreetLine[] = [];
+  const invested = new Set<number>();
+  const words = actionWords(g, fmt, tags);
+  let k = 0;
+  for (const e of g.log) {
+    let line = lines[lines.length - 1];
+    if (!line || line.street !== e.street) {
+      line = { street: e.street, actions: [], pot: e.potAfter };
+      lines.push(line);
+    }
+    line.pot = e.potAfter;
+    if (e.kind === "post") continue;
+    const w = words[k++];
+    if (e.kind === "fold" && !invested.has(e.idx) && !w.tagged) continue;
     if (e.kind === "call" || e.kind === "bet" || e.kind === "raise") invested.add(e.idx);
-    line.actions.push(`${who} ${text}${e.allIn ? " 올인" : ""}`);
+    line.actions.push(`${w.who} ${w.text}`);
   }
   return lines;
+}
+
+const STREET_WORD: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
+
+/** One run of what 되돌리기 takes back: an action, or folds or checks in a row put together. */
+export interface UndoPart {
+  /** The street it was on, named when the undo goes back over the end of that street; else null. */
+  street: Street | null;
+  /** Who: "UTG", "BTN, SB" or "UTG~HJ" (a run of three or more). */
+  who: string;
+  /** How many actions the run holds. */
+  n: number;
+  /** What: "폴드", "오픈 2.5bb", "콜 7.5bb 올인". */
+  text: string;
+}
+
+/**
+ * What one tap of 되돌리기 takes back (the steps undoSteps drops), run by run. Folds or checks in a row
+ * are put together; the street is named on the first run of each street when the undo goes back over the end
+ * of a street. `g` is the game after every one of `steps`. Empty with nothing to undo.
+ */
+export function undoParts(g: Game, steps: LogStep[], fmt: (bb: number) => string, tags: SeatTags = MY_TAGS): UndoPart[] {
+  const n = steps.length - undoSteps(steps).length;
+  const gone = n > 0 ? actionWords(g, fmt, tags).slice(-n) : [];
+  if (!gone.length) return [];
+  // The street on screen: a finished hand stays on the street of its last action.
+  const now = g.done ? gone[gone.length - 1].e.street : g.street;
+  const named = gone.some((w) => w.e.street !== now);
+  const parts: UndoPart[] = [];
+  let street: Street | null = null;
+  for (let i = 0; i < gone.length; ) {
+    const w = gone[i];
+    let j = i + 1;
+    if (w.e.kind === "fold" || w.e.kind === "check") while (j < gone.length && gone[j].e.kind === w.e.kind && gone[j].e.street === w.e.street) j++;
+    const run = gone.slice(i, j);
+    const who = run.length === 1 ? w.who : run.length === 2 ? `${w.who}, ${run[1].who}` : `${w.who}~${run[run.length - 1].who}`;
+    parts.push({ street: named && w.e.street !== street ? w.e.street : null, who, n: run.length, text: w.text });
+    street = w.e.street;
+    i = j;
+  }
+  return parts;
+}
+
+/**
+ * One run in words: "UTG~HJ 5명 폴드", "프리플랍 BB(나) 콜 2.5bb". Shorter where room is short: `count` gives
+ * a run of two or more only its count ("5명 폴드"), `short` the preflop its short name ("프리 BB(나) 콜 2.5bb").
+ */
+export function undoPartText(p: UndoPart, opt: { count?: boolean; short?: boolean } = {}): string {
+  const street = p.street ? `${opt.short && p.street === "preflop" ? "프리" : STREET_WORD[p.street]} ` : "";
+  const who = p.n === 1 ? p.who : opt.count ? `${p.n}명` : p.n === 2 ? p.who : `${p.who} ${p.n}명`;
+  return `${street}${who} ${p.text}`;
+}
+
+/**
+ * What one tap of 되돌리기 takes back, in words: "UTG+1 폴드", "BTN 오픈 2.5bb", "UTG~HJ 5명 폴드 · CO 오픈 2.5bb".
+ * Folds or checks in a row are put together ("SB, BB 폴드", "SB~CO 4명 체크"); a street the hand has already
+ * left is named ("프리플랍 BB 체크": the undo goes back to the preflop). Null with nothing to undo.
+ */
+export function undoEcho(g: Game, steps: LogStep[], fmt: (bb: number) => string, tags: SeatTags = MY_TAGS): string | null {
+  const parts = undoParts(g, steps, fmt, tags);
+  return parts.length ? parts.map((p) => undoPartText(p)).join(" · ") : null;
 }
 
 /** Amount label: chips when the big blind in chips is known, otherwise bb. */

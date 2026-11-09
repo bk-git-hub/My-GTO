@@ -39,7 +39,7 @@ import { levelStage, OPEN_PRESETS, PRE_STAGES, preSteps, STAGE_LABEL, stageFor, 
 import { BoardRanks, FlopPairFix, HoleEntry, SuitModeToggle } from "./SuitEntry";
 import { describeGuess } from "./suitGuess";
 import { BUBBLE_FORMS, cardVars, layoutTable, seatSpots, tableGeometry, type BubbleForm, type Size, type TableIn } from "./tableLayout";
-import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoSteps, upcoming, type LogStep } from "./recorder";
+import { amountLabel, applyStep, baseStack, buttonSeat, positionsFor, raiseVerb, sizeOptions, skipTo, streetLines, TABLE_SIZES, undoPartText, undoParts, undoSteps, upcoming, type LogStep } from "./recorder";
 
 /**
  * Recording a hand on a picture of the table: the hole cards first (exact, or ranks with the suits
@@ -384,6 +384,10 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
   const knownTaken = [...knownHole(h), ...sdCards];
   const from = need === 3 ? 0 : need - 1;
   const guessText = describeGuess(h.guess);
+  // 되돌리기 (the pill under the board) drops what undoSteps takes off the steps that fit, and any that no longer fit after them.
+  const unfit = h.steps.length - valid.length;
+  const undoWords: UndoWords[] = undoParts(g, valid, fmt, tags).map((p) => ({ n: p.n, full: undoPartText(p), count: undoPartText(p, { count: true }), short: undoPartText(p, { count: true, short: true }) }));
+  if (unfit > 0) undoWords.push({ n: unfit, full: `맞지 않는 액션 ${unfit}개`, count: `맞지 않는 ${unfit}개`, short: `맞지 않는 ${unfit}개` });
 
   // Bubbles: each seat's latest action this street, numbered like the order chips below the table.
   const bubbles: Record<string, Bubble> = {};
@@ -481,6 +485,7 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
         heroGuessed={holeGuessed(h)}
         boardGuessed={h.guess?.board}
         onSeat={(s) => actor && s !== actor.seat && next.includes(s) && push(...skipTo(g, s))}
+        undo={{ words: undoWords, rev: h.steps.length, onUndo: () => set({ steps: undoSteps(valid) }) }}
       />
       {guessText && (
         <div className="flow-guess">
@@ -539,9 +544,6 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
           </div>
           <button type="button" className="primary wide" onClick={onResult}>
             결과 보기 →
-          </button>
-          <button type="button" className="ghost wide" disabled={!h.steps.length} onClick={() => set({ steps: undoSteps(valid) })}>
-            ↶ 되돌리기
           </button>
         </div>
       ) : actor && L ? (
@@ -611,9 +613,6 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
             </>
           )}
           <div className="flow-row2">
-            <button type="button" disabled={!h.steps.length} onClick={() => set({ steps: undoSteps(valid) })}>
-              ↶ 되돌리기
-            </button>
             <button type="button" disabled={actor.seat === h.seat} onClick={restDefault}>
               {L.canCheck ? "나머지 체크" : "나머지 폴드"}
               <small>{isOther(h) ? "상대 차례까지" : "내 차례까지"}</small>
@@ -969,7 +968,92 @@ function remeasure(el: HTMLElement, prev: Measured): Measured {
 }
 
 /** Sizes to lay out with before anything is measured (server render, first pass). */
-const GUESS: Record<string, Size> = { label: [62, 33], bubble: [50, 28], pot: [80, 23], tag: [30, 15], me: [22, 13], hot: [28, 10] };
+const GUESS: Record<string, Size> = { label: [62, 33], bubble: [50, 28], pot: [80, 23], tag: [30, 15], me: [22, 13], hot: [28, 10], undo: [120, 40] };
+
+/** One run of what 되돌리기 takes back (`n` actions), in words from the fullest to the shortest: "UTG~HJ 5명 폴드", "5명 폴드". */
+interface UndoWords {
+  n: number;
+  full: string;
+  count: string;
+  short: string;
+}
+
+/** The record table's 되돌리기 under the board. */
+interface UndoSlot {
+  /** What one tap takes back, run by run; empty with nothing to undo (the pill stays, disabled). */
+  words: UndoWords[];
+  /** Changes with every edit of the steps: a new value flashes the echo, even when it reads the same. */
+  rev: number;
+  onUndo: () => void;
+}
+
+/** The echo in the pill: the runs before the last (dimmer) and the last one. */
+interface Echo {
+  pre: string;
+  last: string;
+}
+
+/**
+ * The echo from the fullest to the shortest: everything spelled out, then the runs before the last down to
+ * their counts ("5명 폴드 · CO 오픈 2.5bb"), then the last one too, then the preflop named "프리", then the
+ * runs before the last as how many actions they hold ("+5 · CO 오픈 2.5bb"). The pill shows the fullest one
+ * its width takes; the last of them gives up its end if even that doesn't fit.
+ */
+function echoForms(words: UndoWords[]): Echo[] {
+  if (!words.length) return [{ pre: "", last: "되돌릴 액션 없음" }];
+  const before = words.slice(0, -1), end = words[words.length - 1];
+  const form = (pre: "full" | "count" | "short", last: "full" | "count" | "short"): Echo => ({ pre: before.map((w) => w[pre]).join(" · "), last: end[last] });
+  const all = [form("full", "full"), form("count", "full"), form("count", "count"), form("short", "short")];
+  if (before.length) all.push({ pre: `+${before.reduce((a, w) => a + w.n, 0)}`, last: end.short });
+  return all.filter((e, i) => all.findIndex((x) => x.pre === e.pre && x.last === e.last) === i);
+}
+
+/** ↶ drawn as a line (the text glyph comes out tiny in the system font). */
+function UndoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+    </svg>
+  );
+}
+
+/** The pill's face: the word with an arrow, and under it what one tap takes back (`tight`: in smaller type). */
+function UndoFace({ echo, flash, tight }: { echo: Echo; flash?: number; tight?: boolean }) {
+  return (
+    <>
+      <b>
+        <UndoIcon />
+        되돌리기
+      </b>
+      <small key={flash} className={[flash ? "flash" : "", tight ? "tight" : ""].join(" ").trim() || undefined}>
+        {echo.pre && <span className="pre">{echo.pre} · </span>}
+        {echo.last}
+      </small>
+    </>
+  );
+}
+
+/**
+ * 되돌리기 under the board, where tableLayout keeps everything clear of it, showing the fullest echo `width`
+ * takes (`sizes`: each form's measured width); when not even the shortest does, that one in smaller type.
+ * aria-label has all of it. It flashes when it changes, so a mis-tap shows.
+ */
+function UndoPill({ words, rev, onUndo, style, width, sizes }: UndoSlot & { style: CSSProperties; width: number; sizes: number[] }) {
+  const forms = echoForms(words);
+  const pick = forms.findIndex((_, i) => (sizes[i] ?? Infinity) <= width + 0.5);
+  const echo = forms[pick < 0 ? forms.length - 1 : pick];
+  const tight = pick < 0 && words.length > 0;
+  const all = words.map((w) => w.full).join(" · ");
+  const sig = `${rev}|${all}`;
+  const [seen, setSeen] = useState({ sig, n: 0 });
+  if (seen.sig !== sig) setSeen({ sig, n: seen.n + 1 });
+  return (
+    <button type="button" className="rt-undo" style={{ ...style, maxWidth: width }} disabled={!words.length} onClick={onUndo} aria-label={`되돌리기: ${all || "되돌릴 액션 없음"}`}>
+      <UndoFace echo={echo} flash={seen.n} tight={tight} />
+    </button>
+  );
+}
 
 /**
  * Racetrack table: seats spaced evenly along the rail, me at the bottom, then clockwise in action order.
@@ -1003,8 +1087,10 @@ function RaceTable(props: {
   mine?: string;
   /** Board indexes whose suits were guessed. */
   boardGuessed?: number[];
+  /** 되돌리기 under the board (the record table only). */
+  undo?: UndoSlot;
 }) {
-  const { seats, hero, button, stacks, bubbles = {}, turn, out = [], board, hot = -1, pot: potText, hands = {}, heroCards, onSeat, marked = [], picked, compact, meLabel = "나", heroGuessed, boardGuessed = [], mine } = props;
+  const { seats, hero, button, stacks, bubbles = {}, turn, out = [], board, hot = -1, pot: potText, hands = {}, heroCards, onSeat, marked = [], picked, compact, meLabel = "나", heroGuessed, boardGuessed = [], mine, undo } = props;
   const mySeat = mine && mine !== hero ? mine : null;
   const { W, H, RW, RH, cy, left, top, r } = tableGeometry(!!compact);
   const heroIdx = Math.max(0, seats.indexOf(hero || seats[seats.length - 1]));
@@ -1047,6 +1133,8 @@ function RaceTable(props: {
     pot: potText ? size("pot", GUESS.pot) : null,
     board: board ? board.filter((c) => c !== undefined).length : null,
     hot: hotSlot >= 0 ? { slot: hotSlot, tag: size("hot", GUESS.hot) } : null,
+    // as wide as all of its echo: the layout draws it narrower where something else needs the room
+    undo: undo ? size("undo0", GUESS.undo) : null,
   };
   const key = JSON.stringify(input);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1126,6 +1214,12 @@ function RaceTable(props: {
       {/* every bubble in each of its forms, unseen, for the layout to measure */}
       <div className="rt-sizer" aria-hidden="true">
         {order.map((seat, k) => bubbles[seat] && !hands[seat] && BUBBLE_FORMS.map((f) => <BetBubble key={`${seat}${f}`} b={bubbles[seat]} form={f} m={`b${k}${f}`} />))}
+        {undo &&
+          echoForms(undo.words).map((e, i) => (
+            <div key={i} className="rt-undo" data-m={`undo${i}`}>
+              <UndoFace echo={e} />
+            </div>
+          ))}
       </div>
       {(potText || board) && (
         <div className="rt-center" style={{ top: PY(lay.center), gap: lay.centerGap }}>
@@ -1145,6 +1239,9 @@ function RaceTable(props: {
             </div>
           )}
         </div>
+      )}
+      {undo && lay.undo && (
+        <UndoPill {...undo} style={{ left: PX(lay.undo.x), top: PY(lay.undo.y) }} width={lay.undo.w} sizes={echoForms(undo.words).map((_, i) => m.sizes[`undo${i}`]?.[0] ?? Infinity)} />
       )}
     </div>
   );

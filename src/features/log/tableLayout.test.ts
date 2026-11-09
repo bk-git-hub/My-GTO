@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HAND_CARDS, HOT_LIFT, layoutTable, seatSpots, TABLE_W, type SeatIn, type Size, type TableIn, type TableOut } from "./tableLayout";
+import { BUBBLE_FORMS, HAND_CARDS, HOT_LIFT, layoutTable, seatSpots, TABLE_W, UNDO_GAP, UNDO_MIN, type SeatIn, type Size, type TableIn, type TableOut } from "./tableLayout";
 
 /** Table widths from a 320px phone (12px page gutters) up to the 400px cap. */
 const WIDTHS = [296, 336, 366, 390, 400];
@@ -38,6 +38,39 @@ function centerBoxes(t: TableIn, o: TableOut): Box[] {
   }
   return out;
 }
+
+/** The 되돌리기 pill at the widest the layout lets it be drawn. */
+function undoBox(o: TableOut): Box {
+  const u = o.undo!;
+  return { x0: u.x - u.w / 2, y0: u.y - u.h / 2, x1: u.x + u.w / 2, y1: u.y + u.h / 2 };
+}
+/** A bubble in the form it was laid out in, with its order number on the top-left corner. */
+function bubbleBoxes(t: TableIn, o: TableOut, k: number): Box[] {
+  const b = o.bubbles[k]!;
+  const [w, h] = t.seats[k].bubble![BUBBLE_FORMS.indexOf(b.form)];
+  const x0 = b.x - w / 2, y0 = b.y - h / 2;
+  return [{ x0, y0, x1: x0 + w, y1: y0 + h }, { x0: x0 - 5.5, y0: y0 - 5.5, x1: x0 + 8.5, y1: y0 + 8.5 }];
+}
+/** How far a disc and a box are apart (negative: overlap). */
+function discGap(cx: number, cy: number, r: number, b: Box): number {
+  return Math.hypot(cx - Math.max(b.x0, Math.min(cx, b.x1)), cy - Math.max(b.y0, Math.min(cy, b.y1))) - r;
+}
+/** The 되돌리기 pill with a long echo: as wide as it asks, it is a full board's width or more. */
+const PILL: Size = [170, 40];
+/** Recording: every seat betting, the turn and "나" tags, the D button, my cards and the 되돌리기 pill. */
+const recording = (width: number, n: number, board: number, betting: (k: number) => boolean = () => true, turn = 1, pill: Size = PILL): TableIn => ({
+  compact: false,
+  width,
+  seats: Array.from({ length: n }, (_, k): SeatIn => ({ ...(betting(k) ? { bubble: BUB } : {}), ...(k === 0 ? { me: [22, 13] as Size } : {}), ...(k === turn % n ? { tag: [30, 15] as Size } : {}) })),
+  dealer: n - 1,
+  heroCards: true,
+  pot: [96, 23],
+  board,
+  hot: null,
+  undo: pill,
+});
+/** A full five-card board's width at the card size laid out. */
+const fullBoard = (o: TableOut) => 5 * o.board.cw + 4 * o.board.gap;
 
 const result = (width: number, n: number, withHand: number[], board: number): TableIn => ({
   compact: false,
@@ -180,6 +213,94 @@ describe("race table layout", () => {
           const d = (k: number) => Math.hypot(o.dealer!.x - spots[k].x, o.dealer!.y - spots[k].y);
           for (let k = 0; k < n; k++) if (k !== btn) expect(d(btn)).toBeLessThan(d(k));
         }
+  });
+
+  it("keeps every seat, bubble, the D button and my cards clear of the 되돌리기 pill while recording", () => {
+    for (const width of WIDTHS)
+      for (const n of [2, 4, 6, 9, 10])
+        for (const board of [0, 3, 5]) {
+          const t = recording(width, n, board);
+          const o = layoutTable(t);
+          expect(o.clash, `${width} ${n} ${board}`).toBe(0);
+          const u = undoBox(o);
+          expect(inTable(u, o)).toBe(true);
+          const s = width / TABLE_W;
+          seatSpots(n, false).forEach((p, k) => {
+            expect(discGap(p.x * s, p.y * s, 27, u)).toBeGreaterThan(0);
+            for (const b of bubbleBoxes(t, o, k)) expect(apart(b, u)).toBe(true);
+          });
+          expect(discGap(o.dealer!.x, o.dealer!.y, 10, u)).toBeGreaterThan(0);
+          expect(apart({ x0: o.heroCards!.x - 24, y0: o.heroCards!.y - 16, x1: o.heroCards!.x + 24, y1: o.heroCards!.y + 16 }, u)).toBe(true);
+        }
+  });
+
+  it("hangs the pill centred right under the board row (under the pot before the flop), no wider than its echo or a full board", () => {
+    for (const width of WIDTHS)
+      for (const n of [3, 6, 9])
+        for (const board of [0, 3, 4, 5])
+          for (const pill of [PILL, [96, 40] as Size, [130, 40] as Size]) {
+            const t = recording(width, n, board, (k) => k === 1, 1, pill);
+            const o = layoutTable(t);
+            const u = undoBox(o), [pot, row] = centerBoxes(t, o);
+            expect(u.y0 - (board ? row : pot).y1).toBeCloseTo(UNDO_GAP, 6);
+            expect(o.undo!.x).toBeCloseTo(o.width / 2, 6);
+            expect(o.undo!.h).toBeCloseTo(40, 6);
+            expect(o.undo!.w).toBeGreaterThanOrEqual(Math.min(UNDO_MIN, pill[0]));
+            expect(o.undo!.w).toBeLessThanOrEqual(Math.min(pill[0], fullBoard(o)) + 1e-6);
+          }
+  });
+
+  it("keeps the board's full-size cards and draws the pill a full board wide on a phone the width of mine", () => {
+    for (const width of [366, 390, 400])
+      for (let n = 2; n <= 10; n++)
+        for (const board of [3, 4, 5]) {
+          const o = layoutTable(recording(width, n, board, (k) => k === 0 || k === Math.floor(n / 2)));
+          expect(o.board.cw, `${width} ${n} ${board}`).toBe(30);
+          expect(o.undo!.w).toBeCloseTo(fullBoard(o), 6);
+        }
+  });
+
+  it("never gives the board smaller cards than the same table without the pill, on a phone 360px or wider", () => {
+    for (const width of WIDTHS.slice(1))
+      for (let n = 2; n <= 10; n++)
+        for (const board of [3, 4, 5])
+          for (const betting of [() => false, (k: number) => k === 0 || k === Math.floor(n / 2), () => true]) {
+            const t = recording(width, n, board, betting);
+            expect(layoutTable(t).board.cw, `${width} ${n} ${board}`).toBeGreaterThanOrEqual(layoutTable({ ...t, undo: null }).board.cw);
+          }
+  });
+
+  it("keeps the pill (and the pot and board) in one spot whatever its echo says or whose turn it is, on a phone 360px or wider", () => {
+    // (on a 320px phone the "차례" tag can be in the column's way on a few tables: it moves to the nearest clear spot)
+    for (const width of WIDTHS.slice(1))
+      for (const n of [2, 6, 7, 9, 10])
+        for (const board of [0, 3, 5]) {
+          const at = layoutTable(recording(width, n, board, () => false)).undo!;
+          for (let turn = 0; turn < n; turn++)
+            for (const pill of [PILL, [96, 40] as Size]) {
+              const o = layoutTable(recording(width, n, board, () => false, turn, pill));
+              expect(o.undo!.y, `${width} ${n} ${board} ${turn}`).toBeCloseTo(at.y, 6);
+            }
+        }
+  });
+
+  it("doesn't move the pill (or the pot and board) as the bets come in, on a phone 360px or wider", () => {
+    // (on a 320px phone, ten-handed, my own bet can still lift the column a little to make room for my cards)
+    for (const width of WIDTHS.slice(1))
+      for (const n of [2, 6, 9, 10])
+        for (const board of [0, 3, 5]) {
+          const before = layoutTable(recording(width, n, board, () => false));
+          for (let k = 0; k < n; k++) {
+            const o = layoutTable(recording(width, n, board, (j) => j === k));
+            expect(o.undo!.y, `${width} ${n} ${board} ${k}`).toBeCloseTo(before.undo!.y, 6);
+            expect(o.center).toBeCloseTo(before.center, 6);
+          }
+        }
+  });
+
+  it("draws no pill where none is asked for (the result replay, the setup table)", () => {
+    expect(layoutTable(result(366, 9, [0, 7], 5)).undo).toBeNull();
+    expect(layoutTable({ ...recording(366, 9, 3), undo: null }).undo).toBeNull();
   });
 
   it("lays out before the table is measured (server render) at the unit size", () => {
