@@ -378,6 +378,14 @@ textarea { resize: vertical; }
 .grade-chip.good { border-color: var(--ok); color: var(--ok); }
 .grade-chip.ok { border-color: var(--warn); color: var(--warn); }
 .grade-chip.mistake { border-color: var(--err); color: var(--err); }
+/* 핸드 플레이 result: the verdict (decisions) leads; the chips are a secondary line with a small colored number. */
+.verdict-head { font-size: 1.15rem; }
+.verdict-lines { display: flex; flex-direction: column; gap: 2px; font-size: 0.9rem; color: #c7d0dd; }
+.verdict-lines b { color: var(--text); font-weight: 800; }
+.verdict-lines .net.win { color: var(--ok); }
+.verdict-lines .net.loss { color: var(--err); }
+.verdict-note { font-size: 0.86rem; line-height: 1.45; padding: 8px 10px; border-radius: 8px; background: var(--panel); }
+.verdict-session { padding-top: 8px; border-top: 1px solid var(--line); }
 .facts tr.mine th, .facts tr.mine td { color: var(--accent); }
 .logo small { font-weight: 600; font-size: 0.75rem; color: var(--muted); margin-left: -2px; }
 .logo-icon { width: 28px; height: 28px; display: block; }

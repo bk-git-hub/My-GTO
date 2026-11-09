@@ -11,6 +11,19 @@ import { settingsStore, useSettings } from "../../state/settings";
 import { recordAnswer } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 import { holdUpdates } from "../../pwa/update";
+import {
+  addHand,
+  chipResult,
+  EMPTY_SESSION,
+  foldedOnly,
+  handVerdict,
+  mismatchNote,
+  missLine,
+  sessionLine,
+  STREET_LABEL,
+  verdictReviewLines,
+  type SessionTotals,
+} from "./verdict";
 
 const PUB_SET = getSet("pub");
 /** How each mode's bots play, for the page note and the AI review. */
@@ -18,7 +31,6 @@ const BOT_TEXT: Record<PlayMode, string> = {
   pub: "상대는 펍아재 봇이에요. 프리플랍은 펍 토너먼트 차트, 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요.",
   cash: "상대는 레귤러 봇이에요. 프리플랍은 6맥스 100bb 근사 GTO 차트, 플랍 이후는 패 강도 규칙(c벳·세미블러프가 많고 약한 패는 잘 접는 성향)으로 쳐요.",
 };
-const STREET_LABEL: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
 const GRADE_TEXT = { good: "좋은 선택", ok: "괜찮음", mistake: "실수", info: "참고" } as const;
 const ACT_TEXT: Record<string, string> = { fold: "폴드", check: "체크", call: "콜", bet: "벳", raise: "레이즈", post: "블라인드" };
 const r1 = (x: number) => Math.round(x * 10) / 10;
@@ -72,7 +84,8 @@ function reviewFacts(s: PlayState): string {
   const shown = g.showdown
     ? g.players.filter((p) => !p.folded).map((p) => `${p.seat} ${p.hole.map(cardLabel).join(" ")}`).join(", ")
     : "쇼다운 없음";
-  lines.push("", `결과: ${net >= 0 ? "+" : ""}${net}bb · ${shown}`);
+  // Decisions first: the coach should judge the play, not this one hand's chips.
+  lines.push("", ...verdictReviewLines(s.decisions), `결과: ${net >= 0 ? "+" : ""}${net}bb · ${shown}`);
   return lines.join("\n");
 }
 
@@ -80,6 +93,8 @@ export function PlayPage() {
   const { playMode: mode } = useSettings();
   const [stage, setStage] = useState("deep");
   const [s, setS] = useState<PlayState>(() => startHand(mode, "deep"));
+  // This visit's totals: mistakes over graded decisions, next to the chips (luck and skill).
+  const [session, setSession] = useState<SessionTotals>(() => (s.game.done ? withHand(EMPTY_SESSION, s) : EMPTY_SESSION));
   const [hint, setHint] = useState(false);
   const coach = useCoach();
   const g = s.game;
@@ -103,8 +118,14 @@ export function PlayPage() {
     return equityVs(hero.hole, g.board, opp.map(({ i }) => s.ranges[i]), 2000);
   }, [hint, heroTurn, s, g, hero.hole]);
 
+  /** Show a hand; a finished one (bots can end it before I act) joins the session totals. */
+  function show(next: PlayState) {
+    setS(next);
+    if (next.game.done) setSession((t) => withHand(t, next));
+  }
+
   function newHand(st = stage, m = mode) {
-    setS(startHand(m, st));
+    show(startHand(m, st));
   }
 
   function switchMode(m: PlayMode) {
@@ -119,7 +140,7 @@ export function PlayPage() {
     const next = heroAct(s, m);
     const d = next.decisions[next.decisions.length - 1];
     if (d.grade !== "info") recordAnswer(["play", `play:${s.stageId}`], d.grade !== "mistake");
-    setS(next);
+    show(next);
   }
 
   function review() {
@@ -133,6 +154,12 @@ export function PlayPage() {
 
   const feat = g.board.length ? handFeatures(hero.hole, g.board) : null;
   const net = g.done ? heroNet(g) : null;
+  const verdict = handVerdict(s.decisions);
+  // "· 쇼다운" only when I was at the showdown, not when bots showed down after I folded.
+  const chips = chipResult(net ?? 0, g.showdown && !hero.folded);
+  const miss = missLine(s.decisions);
+  const note = net === null ? null : mismatchNote(verdict.kind, net, foldedOnly(s.decisions));
+  const sessionText = session.hands >= 2 ? sessionLine(session) : null;
 
   return (
     <div className="page">
@@ -231,7 +258,7 @@ export function PlayPage() {
       )}
 
       {g.done && (
-        <section className={`card-box result ${net! > 0 ? "correct" : net! < 0 ? "wrong" : ""}`}>
+        <section className={`card-box result ${verdict.cls}`}>
           <div className="row-gap">
             <button className="primary next-btn" onClick={() => newHand()}>
               다음 핸드 →
@@ -240,10 +267,15 @@ export function PlayPage() {
               AI 핸드 리뷰
             </button>
           </div>
-          <strong>
-            {net! > 0 ? `+${net}bb 이겼어요` : net! < 0 ? `${net}bb 졌어요` : "본전"}
-            {g.showdown ? " · 쇼다운" : ""}
-          </strong>
+          <strong className="verdict-head">{verdict.headline}</strong>
+          <div className="verdict-lines">
+            <div>
+              결과 <b className={`net ${chips.tone}`}>{chips.amount}</b>
+              {chips.showdown ? " · 쇼다운" : ""}
+            </div>
+            {miss && <div>{miss}</div>}
+          </div>
+          {note && <div className="verdict-note">{note}</div>}
           {g.showdown && (
             <div className="small">
               {g.players
@@ -256,7 +288,7 @@ export function PlayPage() {
             </div>
           )}
 
-      {last && <DecisionCard d={last} />}
+          {last && <DecisionCard d={last} />}
 
           <div className="small">
             내 결정 {s.decisions.length}개:{" "}
@@ -267,6 +299,7 @@ export function PlayPage() {
             ))}
           </div>
 
+          {sessionText && <div className="verdict-session muted small">{sessionText}</div>}
         </section>
       )}
 
@@ -289,6 +322,11 @@ export function PlayPage() {
       </p>
     </div>
   );
+}
+
+function withHand(t: SessionTotals, hand: PlayState): SessionTotals {
+  const { graded, mistakes } = handVerdict(hand.decisions);
+  return addHand(t, { net: heroNet(hand.game), graded, mistakes });
 }
 
 function DecisionCard({ d }: { d: Decision }) {
