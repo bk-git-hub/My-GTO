@@ -218,7 +218,8 @@ export const SCENARIOS: PresolveScenario[] = [
   build({
     id: `pub-srp-btn-bb-${PUB_MID_START}`,
     title: `BTN vs BB 싱글 레이즈드 팟 (펍 토너먼트 미들 ${PUB_MID_START}bb)`,
-    version: 1,
+    // v2: the BB's calling range widened (56828e8, pub BB defense); v1 was solved against the old one.
+    version: 2,
     tier: "free",
     format: "pub",
     positions: ["BB", "BTN"],
