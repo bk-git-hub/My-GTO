@@ -5,9 +5,9 @@ them: the app downloads one small JSON file per flop and shows the strategy, the
 first flop decisions without solving anything on the device. The numbers come from our own solver
 (`src/solver/`, spec in `docs/solver.md`); no third-party solver code or output is involved.
 
-A GitHub Action re-runs the presolve pipeline every 6 hours, split over parallel jobs. It solves the next flops
-(in priority order) that have no file yet in each pack's current version directory under `public/packs/`, and
-rewrites `public/packs/manifest.json` (see Pipeline below).
+A GitHub Action runs the presolve pipeline back to back while flops are left (and every 6 hours as a backstop),
+split over parallel jobs. It solves the next flops (in priority order) that have no file yet in each pack's current
+version directory under `public/packs/`, and rewrites `public/packs/manifest.json` (see Pipeline below).
 The format lives in `src/presolve/format.ts` (types plus pure encode/decode helpers that run in Node and in the
 browser). The manifest shape matches §9 "솔버 콘텐츠 팩" of `docs/server-design.md` (branch
 `claude/lucid-brown-8ikhmc`) and adds fields to it.
@@ -317,8 +317,13 @@ always conflicts), the push keeps the branch's files, runs `--rebuild-manifest` 
 counts N again. The result is the manifest one unsharded run over the same flops would write: a local 2-shard
 simulation gave byte-identical flop files and an identical manifest apart from `generatedAt`. At ~11
 core-minutes per flop one run solves roughly 1,700 flops, about a whole pack (1,755). A run with work takes
-~5 h 15 min, so while flops are left the runs follow each other almost back to back (a run still going makes
-the next one wait); with nothing left a run ends within minutes.
+~5 h 15 min. While flops are left, a run whose merge pushed new flops starts the next run itself at the end
+(`gh workflow run` with the run's own inputs; a `workflow_dispatch` is one of the two events `GITHUB_TOKEN` may
+trigger), so the runs follow each other back to back (the concurrency group makes the new run wait for the merge
+to finish). A run that pushed nothing does not, so it never loops without progress (for example when only flops
+over `--max-mb` are left), and the 6-hourly schedule stays as the backstop: GitHub sometimes never starts a
+scheduled run (neither the 11:23 nor the 17:23 UTC run of 2026-11-16 started). With nothing left a run ends
+within minutes.
 
 ## Versioning and the presolve job
 

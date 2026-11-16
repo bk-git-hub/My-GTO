@@ -16,9 +16,11 @@
 # jobs" reuses the plan, so a re-run shard starts again from the run's commit (flops it already landed are
 # solved again; only the new ones are committed). Usually it is simpler to let the next run continue.
 #
-# Schedule: every 6 hours. A run with work takes ~5 h 15 min (setup, 300 min of solving, merge), so while a
-# pack has flops left the runs follow each other almost back to back, and a run that is still going makes the
-# next one wait (concurrency below). One run solves roughly 16 × 4 cores × ~290 min / ~11 min ≈ 1,700 flops,
+# Schedule: a run that pushed new flops starts the next run itself while flops are left ("Start the next run"
+# at the end), so the runs follow each other back to back until every pack is full; a run still going makes the
+# next one wait (concurrency below). The 6-hourly schedule is the backstop: GitHub sometimes never starts a
+# scheduled run, and a run that solved nothing does not start another. A run with work takes ~5 h 15 min (setup,
+# 300 min of solving, merge). One run solves roughly 16 × 4 cores × ~290 min / ~11 min ≈ 1,700 flops,
 # about one whole pack (1,755 flops); a new pack version (new ranges, sizes or solver) is re-solved within a
 # day. With nothing left, a run ends within minutes.
 # GitHub's terms ask that Actions serve the project: these packs are the app's own data, and the total work is
@@ -187,6 +189,7 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: write
+      actions: write # "Start the next run" below
     steps:
       # The commit the shards solved from (detached), so the manifest's checks and solverCommit match their files;
       # the push below rebases onto anything pushed to the branch in the meantime.
@@ -246,6 +249,7 @@ jobs:
           node scripts/presolve.mjs --rebuild-manifest --scenario "$SCENARIO" "${hints[@]}"
 
       - name: Commit new flops
+        id: commit
         env:
           NEW_FLOPS: ${{ steps.copy.outputs.new_flops || '0' }}
           SCENARIO: ${{ inputs.scenario || 'all' }}
@@ -265,7 +269,10 @@ jobs:
           remote="origin/${GITHUB_REF_NAME}"
           for attempt in 1 2 3 4; do
             # HEAD is detached at the run's commit, so push to the branch by name.
-            if git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"; then exit 0; fi
+            if git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"; then
+              echo "pushed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "Push failed (attempt $attempt), rebasing onto the remote branch..."
             sleep $((attempt * 5))
             git fetch origin "${GITHUB_REF_NAME}"
@@ -310,3 +317,31 @@ jobs:
           done
           echo "Could not push after 4 attempts."
           exit 1
+
+      # The schedule alone is not enough: GitHub sometimes never starts a scheduled run (on 2026-11-16 neither the
+      # 11:23 nor the 17:23 one started), and a pack then waits another 6 hours or more. So while flops are left,
+      # a run that pushed new flops starts the next one itself; with the concurrency group it begins as soon as
+      # this run ends. A run that pushed nothing (no flop solved, e.g. only flops over --max-mb left) does not, so
+      # this never loops without progress, and the schedule stays as the backstop. workflow_dispatch is one of the
+      # two events GITHUB_TOKEN is allowed to trigger.
+      - name: Start the next run
+        if: ${{ steps.commit.outputs.pushed == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SCENARIO: ${{ inputs.scenario || 'all' }}
+          SHARDS: ${{ inputs.shards || '16' }}
+          BUDGET: ${{ inputs.budget_minutes || '300' }}
+          COUNT: ${{ inputs.count || '1755' }}
+        run: |
+          left=$(node scripts/presolve.mjs --dry-run --scenario "$SCENARIO" --count "$COUNT" | sed -n 's/^dry run: \([0-9][0-9]*\) flops planned.*/\1/p')
+          if ! [[ "$left" =~ ^[0-9]+$ ]]; then
+            echo "::warning::Could not count the flops left; the schedule will start the next run"
+            exit 0
+          fi
+          if (( left == 0 )); then
+            echo "Every pack has its first $COUNT flops; not starting another run."
+            exit 0
+          fi
+          echo "$left flops left; starting the next run."
+          gh workflow run presolve.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" \
+            -f scenario="$SCENARIO" -f shards="$SHARDS" -f budget_minutes="$BUDGET" -f count="$COUNT"
