@@ -197,6 +197,7 @@ function build(d: ScenarioDef): PresolveScenario {
 
 const CASH_OPEN = openSize("cash", "100bb", "BTN"); // 2.5
 const PUB_MID_OPEN = openSize("pub", "mid", "BTN"); // 2.5
+const PUB_MID_OPEN_UTG = openSize("pub", "mid", "UTG"); // 2.5
 const PUB_MID_START = STAGE_STACK.mid; // 55
 
 export const SCENARIOS: PresolveScenario[] = [
@@ -230,6 +231,24 @@ export const SCENARIOS: PresolveScenario[] = [
     preflop: `BTN ${PUB_MID_OPEN}bb 오픈, SB 폴드, BB 콜 (BB 앤티 1bb)`,
     setup: { start: PUB_MID_START, open: PUB_MID_OPEN, bbAnte: PUB_TABLE.bbAnte ? 1 : 0 },
     rangeSources: ["pub/mid/bb-vs-btn:call", "pub/mid/rfi-btn:open"],
+    tree: TREE_SRP,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  }),
+  build({
+    id: `pub-srp-utg-bb-${PUB_MID_START}`,
+    title: `UTG vs BB 싱글 레이즈드 팟 (펍 토너먼트 미들 ${PUB_MID_START}bb)`,
+    // A tight opener against a wide BB call (the chart's 12% UTG open, 46% BB call): the two BTN packs only show
+    // realization against wide ranges, and the preflop solver's realization model (docs/preflop-solver.md §3.7)
+    // needs to see how dominated hands such as Q7s and A4o do against a strong range.
+    version: 1,
+    tier: "free",
+    format: "pub",
+    positions: ["BB", "UTG"],
+    preflop: `UTG ${PUB_MID_OPEN_UTG}bb 오픈, 나머지 폴드, BB 콜 (BB 앤티 1bb)`,
+    setup: { start: PUB_MID_START, open: PUB_MID_OPEN_UTG, bbAnte: PUB_TABLE.bbAnte ? 1 : 0 },
+    rangeSources: ["pub/mid/bb-vs-utg:call", "pub/mid/rfi-utg:open"],
     tree: TREE_SRP,
     iterations: 300,
     targetExploitability: 0.5,

@@ -23,6 +23,11 @@ prefix is left out for 6-max cash.
 |---|---|---|---|---|
 | `srp-btn-bb-100` | 6-max cash, 100bb, no ante | BTN opens 2.5bb, SB folds, BB calls | 5.5 / 97.5 | OOP `cash6/100bb/bb-vs-btn:call`, IP `cash6/100bb/rfi-btn:raise` |
 | `pub-srp-btn-bb-55` | Pub tournament, mid stage (55bb, the play mode's `STAGE_STACK.mid`), 9-handed, 1bb BB ante | BTN opens 2.5bb, SB folds, BB calls | 6.5 / 51.5 | OOP `pub/mid/bb-vs-btn:call`, IP `pub/mid/rfi-btn:open` |
+| `pub-srp-utg-bb-55` | Pub tournament, mid stage (55bb), 9-handed, 1bb BB ante | UTG opens 2.5bb, the others fold, BB calls | 6.5 / 51.5 | OOP `pub/mid/bb-vs-utg:call`, IP `pub/mid/rfi-utg:open` |
+
+The UTG pack pairs a tight opener (12% of hands) with a wide BB call (46%): the BTN packs only show realization
+against wide ranges, and the preflop solver's realization model (`docs/preflop-solver.md` §3.7) also needs
+dominated hands such as Q7s or A4o against a strong range.
 
 The pot counts all dead money (SB, ante): pot = 2 × open + 0.5 + ante, and the effective stack is the BB's,
 start − open − ante (the BB paid the ante too). `src/presolve/scenarios.ts` derives both from the play-mode rules
@@ -252,7 +257,7 @@ script every 6 hours in parallel shards (below).
 - `scenarios.ts`: `SCENARIOS` (one per pack: id, title, version, tier, `meta: ScenarioMeta`, COMBOS-indexed
   starting ranges from the charts' effective frequencies), `chartRange(ref)`, `srpPotStack`, `solverInput(sc, board)`
   and the tree preset. A full flop tree multiplies every flop line by 49 turn × 48 river cards, so the tree is
-  small. `TREE_SRP`, used by both packs: on the flop OOP only checks and may raise IP's bet by 60% of the pot
+  small. `TREE_SRP`, used by every pack: on the flop OOP only checks and may raise IP's bet by 60% of the pot
   after calling (the check-raise), IP bets 33% or 75% and can't re-raise; turn and river: one 66% bet each, no
   raises; no all-in button (`allInThreshold` still turns big bets into all-ins). The root therefore has a
   single action ("체크", frequency 1). By `estimateMemory` over the first 200 priority flops: cash 1.58–1.78 GB,
