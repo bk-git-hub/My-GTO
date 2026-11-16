@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Go } from "../../backNav";
 import { RANKS } from "../../poker/cards";
+import { AJAE_START, ajaeSeen, ajaeStep, type AjaeState } from "./ajae";
+import { AjaeReaction } from "./AjaeReaction";
 import {
   actLabel,
   actsFor,
@@ -179,6 +181,12 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const [sizes, setSizes] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [now] = useState(() => Date.now());
+  /** 빠른 기록's 아재: only a class completed by a tap here reacts (not one restored or opened to correct). */
+  const [ajae, setAjae] = useState<AjaeState>(AJAE_START);
+  // What is left of his reaction with this hand on screen (adjusting state while rendering, React's
+  // pattern for it): a hand saved, opened to correct or put back takes the reaction with it for good.
+  const ajaeNow = other ? ajae : ajaeSeen(ajae, d, stage, players);
+  if (ajaeNow !== ajae) setAjae((a) => ajaeSeen(a, d, stage, players));
   const session = useMemo(() => sessionOf(hands, Math.max(now, ...hands.slice(0, 1).map((h) => h.createdAt)), mode), [hands, now, mode]);
   const stats = useMemo(() => fastStats(session), [session]);
 
@@ -201,9 +209,11 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   // Any change to the hand on screen starts the next hand: the last verdict gives way to the hints.
   const draft = (f: (x: FastState["draft"], p: number) => FastState["draft"]) => {
     const c = cur();
-    set({ ...c, draft: f(c.draft, draftPlayers(c)) });
+    const next = f(c.draft, draftPlayers(c));
+    set({ ...c, draft: next });
     setSaved(null);
     setNudge(null);
+    if (!other) setAjae((a) => ajaeStep(a, c.draft, next, draftStage(c), draftPlayers(c)));
   };
   function rank(k: string) {
     const c = cur();
@@ -353,10 +363,12 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
               {nudge}
             </span>
           )}
-          <span className={`fast-class${classDone(d) ? " done" : ""}`} aria-live="polite">
-            {cls || "—"}
-            {needSuit && d.suited === null ? <small>?</small> : null}
-          </span>
+          <AjaeReaction cue={ajaeNow.cue} seat={d.seat} stage={stage} players={players} off={other}>
+            <span className={`fast-class${classDone(d) ? " done" : ""}`} aria-live="polite">
+              {cls || "—"}
+              {needSuit && d.suited === null ? <small>?</small> : null}
+            </span>
+          </AjaeReaction>
         </div>
         <div className="fast-pad">
           {PAD.map((k) => (

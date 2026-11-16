@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CardRow, CardsText } from "../../components/Cards";
 import { parseCards } from "../../poker/cards";
 import { AppVersionSection } from "../../pwa/AppVersionSection";
-import { CARD_COLOR_OPTIONS, cardColorsOf, MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
+import { ajaeOn, CARD_COLOR_OPTIONS, cardColorsOf, MODEL_OPTIONS, settingsStore, useSettings, type Effort } from "../../state/settings";
 import { statsStore } from "../../state/stats";
 import { threadsStore } from "../coach/threads";
 
@@ -39,6 +39,7 @@ export function SettingsPage() {
 
   const server = settings.keyMode === "server";
   const cardColors = cardColorsOf(settings.cardColors);
+  const ajae = ajaeOn(settings.ajae);
 
   return (
     <div className="page">
@@ -57,6 +58,19 @@ export function SettingsPage() {
           <CardsText cards={PREVIEW} />
         </div>
         <span className="muted small">{CARD_COLOR_OPTIONS.find((o) => o.id === cardColors)?.note}</span>
+      </section>
+
+      <section className="card-box">
+        <h2>빠른 기록 아재 리액션</h2>
+        <div className="seg small" role="group" aria-label="빠른 기록 아재 리액션">
+          <button type="button" className={ajae ? "on" : ""} aria-pressed={ajae} onClick={() => update({ ajae: true })}>
+            켜기
+          </button>
+          <button type="button" className={!ajae ? "on" : ""} aria-pressed={!ajae} onClick={() => update({ ajae: false })}>
+            끄기
+          </button>
+        </div>
+        <span className="muted small">카드 두 장을 넣으면 아재가 반응해요. 옆 사람에게 보일까 걱정되면 끄세요.</span>
       </section>
 
       <section className="card-box">

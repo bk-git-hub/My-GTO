@@ -48,12 +48,12 @@ import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusSh
  * Sensitivity solves (§6.6)
  *  - `SENSITIVITY_VARIANTS`, `stageValuation(fit, features, variant?)`: the shipped model B valuation, or one of the
  *    five sensitivity variants (a) uncalibrated ×0.5, (b) ×1.5, (c) model B on the first 3 features (pair, suited,
- *    hi2) with α held, (d) Product's equity-scaled surplus form (all features) by position on every heads-up flop,
+ *    hi2f5) with α held, (d) Product's equity-scaled surplus form (all 9 features) by position on every heads-up flop,
  *    (e) the old low-SPR rule SPR_ALPHA = 6.
  *
  * Checks on a stage's data (also usable on the committed file)
  *  - `decodeStage(stage)`: per scenario the hero's reach and the effective frequencies (buildScenario's fill).
- *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..8. `stageBands(stage)`: PF-BANDS
+ *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..10. `stageBands(stage)`: PF-BANDS
  *    (published aggregates: printed warnings only, never targets).
  */
 
@@ -566,8 +566,8 @@ export type SensitivityVariant = "a" | "b" | "c" | "d" | "e";
 export const SENSITIVITY_VARIANTS: readonly { id: SensitivityVariant; label: string }[] = [
   { id: "a", label: "uncalibrated priors ×0.5 (c off-context, multiway c_pos and u, α_mw)" },
   { id: "b", label: "uncalibrated priors ×1.5" },
-  { id: "c", label: "model B on 3 features (pair, suited, hi2), α held" },
-  { id: "d", label: "equity-scaled surplus form (6 features) by position on HU flops" },
+  { id: "c", label: "model B on 3 features (pair, suited, hi2f5), α held" },
+  { id: "d", label: "equity-scaled surplus form (9 features) by position on HU flops" },
   { id: "e", label: "old low-SPR rule (SPR_ALPHA = 6)" },
 ];
 
@@ -779,9 +779,9 @@ export function monotoneChains(): [string, string][] {
  * The pairs of PF-SANITY-7's kicker chains, [better, worse]: Ax ≥ Kx with the same kicker 2–9 (suited and offsuit),
  * and in every row the higher kicker ≥ the next lower one (suited and offsuit), except below A6 in the ace row, where
  * the wheel aces may rightly play more than A6–A9. A strong player rejects a chart that breaks these at a glance. The
- * packs' own measured shares put Ax at or above Kx, and the rank-continuous realization features make u the same
- * top-card step for every kicker and monotone in the kicker (θ_lo2 ≥ 0, θ_gap ≤ 0), so the model no longer produces
- * these inversions; a hit can still come from an equity tie against a tight range or from convergence. They warn and
+ * packs' own measured shares put Ax at or above Kx, and the realization features make u the same top-card step for
+ * every kicker (the wheel term aside) and monotone in the kicker (θ_lo2 ≥ 0, θ_gap ≤ 0, θ_gap − θ_suitConn ≤ 0;
+ * features.test.ts walks these pairs on the shipped fit), so the model no longer produces these inversions; a hit can still come from an equity tie against a tight range or from convergence. They warn and
  * badge the spot instead of failing like PF-SANITY-2. (The 5-feature fit, whose weakAce term had no weak-king
  * counterpart, broke them on 5–8 spots per stage.)
  */
@@ -809,6 +809,48 @@ export function topCardChains(): [string, string][] {
   return out;
 }
 
+/**
+ * PF-SANITY-10's chain families, [better, worse] pairs, suited and offsuit:
+ *  - "A>K": Ax ≥ Kx with the same kicker 2–Q (PF-SANITY-7's pairs, plus the kickers T–Q);
+ *  - "K>Q": Kx ≥ Qx with the same kicker 2–J (PF-SANITY-8's pairs);
+ *  - "kicker": in every row the higher kicker ≥ the next lower one, without the wheel aces (PF-SANITY-7's ladder);
+ *  - "same-gap": a non-pair ≥ the one with both cards one rank lower, same gap and suitedness (65s ≥ 54s, T9s ≥ 98s,
+ *    KJo ≥ QTo); the ace row is left out (A-x against K-(x−1) changes the top card's class).
+ */
+export function chainFamilies(): { name: string; pairs: [string, string][] }[] {
+  const ak: [string, string][] = [], same: [string, string][] = [];
+  for (const sfx of ["s", "o"]) for (let k = 0; k <= 10; k++) ak.push([`A${RANKS[k]}${sfx}`, `K${RANKS[k]}${sfx}`]);
+  for (const sfx of ["s", "o"])
+    for (let hi = 11; hi >= 2; hi--) for (let lo = hi - 1; lo >= 1; lo--) same.push([RANKS[hi] + RANKS[lo] + sfx, RANKS[hi - 1] + RANKS[lo - 1] + sfx]);
+  return [
+    { name: "A>K", pairs: ak },
+    { name: "K>Q", pairs: topCardChains() },
+    { name: "kicker", pairs: kickerChains().filter(([a, b]) => a[0] === b[0]) },
+    { name: "same-gap", pairs: same },
+  ];
+}
+
+/** PF-SANITY-9's hands: the low suited connectors and one-gappers, and the suited wheel aces. */
+export const LOW_SUITED_CONNECTORS: readonly string[] = ["43s", "54s", "65s", "53s", "64s"];
+export const SUITED_WHEEL_ACES: readonly string[] = ["A5s", "A4s", "A3s", "A2s"];
+
+/** Tolerance of the "plays" chains (PF-SANITY-2, -7, -8, -10), on 0..1. */
+const CHAIN_TOLERANCE = 0.15;
+
+/** The pairs of `pairs` whose better hand plays (1 − fold) less than the worse by more than CHAIN_TOLERANCE; the worst
+ *  is the largest gap, the first in chain order on a tie. */
+function invertedPairs(d: DecodedScenario, pairs: readonly [string, string][]) {
+  let hits = 0;
+  let worst: { better: string; worse: string; pBetter: number; pWorse: number } | null = null;
+  for (const [a, b] of pairs) {
+    const pa = 1 - d.fold[HAND_INDEX.get(a)!], pb = 1 - d.fold[HAND_INDEX.get(b)!];
+    if (!(pa < pb - CHAIN_TOLERANCE - 1e-9)) continue;
+    hits++;
+    if (!worst || pb - pa > worst.pWorse - worst.pBetter + 1e-12) worst = { better: a, worse: b, pBetter: pa, pWorse: pb };
+  }
+  return { hits, worst };
+}
+
 export interface SanityReport {
   /** Checks whose data test fails (PF-SANITY-1 above 2pp, -2, -3). */
   fails: string[];
@@ -824,8 +866,8 @@ export interface SanityReport {
 const EP_OPENERS = new Set(["UTG", "UTG+1", "UTG+2", "LJ"]);
 
 /**
- * PF-SANITY-1..8 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. PF-SANITY-8 only
- * adds to `warns`: no badge, no confidence change.
+ * PF-SANITY-1..10 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. PF-SANITY-8, -9
+ * and -10 only add to `warns`: no badge, no confidence change.
  */
 export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): SanityReport {
   const rep: SanityReport = { fails: [], warns: [], sanity5: [], sanity6: [], sanity7: [] };
@@ -850,40 +892,24 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
     for (const [a, b] of chains) {
       const ia = HAND_INDEX.get(a)!, ib = HAND_INDEX.get(b)!;
       const pa = 1 - d.fold[ia], pb = 1 - d.fold[ib];
-      if (pa < pb - 0.15 - 1e-9) rep.fails.push(`PF-SANITY-2 ${id}: ${a} plays ${pa.toFixed(2)} < ${b} ${pb.toFixed(2)}`);
+      if (pa < pb - CHAIN_TOLERANCE - 1e-9) rep.fails.push(`PF-SANITY-2 ${id}: ${a} plays ${pa.toFixed(2)} < ${b} ${pb.toFixed(2)}`);
     }
   }
   // PF-SANITY-7 (warning): the kicker chains on the same spots and tolerance; a spot with a hit is badged 낮음 and
   // names its worst pair (the largest gap; the first in chain order on a tie).
   const kickers = kickerChains();
   for (const id of chainIds) {
-    const d = get(id)!;
-    let worst: SanityReport["sanity7"][number] | null = null;
-    let hits = 0;
-    for (const [a, b] of kickers) {
-      const pa = 1 - d.fold[HAND_INDEX.get(a)!], pb = 1 - d.fold[HAND_INDEX.get(b)!];
-      if (!(pa < pb - 0.15 - 1e-9)) continue;
-      hits++;
-      if (!worst || pb - pa > worst.pWorse - worst.pBetter + 1e-12) worst = { id, better: a, worse: b, pBetter: pa, pWorse: pb };
-    }
+    const { hits, worst } = invertedPairs(get(id)!, kickers);
     if (worst) {
       rep.warns.push(`PF-SANITY-7 ${id}: ${hits} kicker pair(s) inverted, worst ${worst.better} plays ${worst.pBetter.toFixed(2)} < ${worst.worse} ${worst.pWorse.toFixed(2)}`);
-      rep.sanity7.push(worst);
+      rep.sanity7.push({ id, ...worst });
     }
   }
   // PF-SANITY-8 (print-only warning): Kx ≥ Qx with the same kicker on the same spots and tolerance.
   const tops = topCardChains();
   for (const id of chainIds) {
-    const d = get(id)!;
-    let worst: { a: string; b: string; pa: number; pb: number } | null = null;
-    let hits = 0;
-    for (const [a, b] of tops) {
-      const pa = 1 - d.fold[HAND_INDEX.get(a)!], pb = 1 - d.fold[HAND_INDEX.get(b)!];
-      if (!(pa < pb - 0.15 - 1e-9)) continue;
-      hits++;
-      if (!worst || pb - pa > worst.pb - worst.pa + 1e-12) worst = { a, b, pa, pb };
-    }
-    if (worst) rep.warns.push(`PF-SANITY-8 ${id}: ${hits} top-card pair(s) inverted, worst ${worst.a} plays ${worst.pa.toFixed(2)} < ${worst.b} ${worst.pb.toFixed(2)}`);
+    const { hits, worst } = invertedPairs(get(id)!, tops);
+    if (worst) rep.warns.push(`PF-SANITY-8 ${id}: ${hits} top-card pair(s) inverted, worst ${worst.better} plays ${worst.pBetter.toFixed(2)} < ${worst.worse} ${worst.pWorse.toFixed(2)}`);
   }
   // PF-SANITY-3: BB defense rises with the opener's seat; BB vs SB ≥ BB vs BTN − 2pp.
   const bbDef = seats.map((o) => ({ seat: o, d: get(`bb-vs-${seatId(o)}-open`) })).filter((x) => x.d).map((x) => ({ seat: x.seat, v: playsOfAll(x.d!) }));
@@ -922,6 +948,49 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
         rep.warns.push(`PF-SANITY-6 ${sc.id}: jam ${f1(sh.shove)}% > small 4-bet ${f1(sh["4bet"])}% + 2`);
         rep.sanity6.push({ id: sc.id, jamPct: sh.shove, fourBetPct: sh["4bet"] });
       }
+    }
+  }
+  // PF-SANITY-9 (print-only warning): 3-bet composition where the hero first faces an open (vs-open and squeeze
+  // spots). The 3-bet frequency (3-bet, squeeze or jam) summed over the low suited connectors may exceed the sum over
+  // the suited wheel aces by at most half a hand class.
+  const first = stage.scenarios.filter((s) => !s.reachFrom?.length);
+  for (const sc of first) {
+    if (sc.kind !== "vsOpen" && sc.kind !== "squeeze") continue;
+    const d = get(sc.id)!;
+    const keys = sc.actions.map((a) => a.key).filter((k) => k === "3bet" || k === "squeeze" || k === "shove");
+    if (!keys.length) continue;
+    const mass = (hands: readonly string[]) => hands.reduce((s, h) => s + keys.reduce((t, k) => t + d.freq[k][HAND_INDEX.get(h)!], 0), 0);
+    const low = mass(LOW_SUITED_CONNECTORS), wheel = mass(SUITED_WHEEL_ACES);
+    if (low > wheel + 0.5 + 1e-9)
+      rep.warns.push(`PF-SANITY-9 ${sc.id}: 3-bets ${LOW_SUITED_CONNECTORS.join("/")} ${low.toFixed(1)} > ${SUITED_WHEEL_ACES.join("/")} ${wheel.toFixed(1)} (hand classes)`);
+  }
+  // PF-SANITY-10 (print-only warning): the chain families of chainFamilies() on every spot where the hero acts first
+  // (no reachFrom), on the same tolerance. On RFI and BB defense only the pairs PF-SANITY-7 and -8 do not check. One
+  // line per family and spot group: the spots with a hit, the pairs inverted, and the worst pair.
+  const checked = new Set([...kickers, ...tops].map(([a, b]) => `${a}>${b}`));
+  const inScope = new Set(chainIds);
+  const groupOf = (s: PreflopScenario) =>
+    s.kind === "vsOpen" ? `vsOpen ${s.hero === "BB" ? "BB" : s.hero === "SB" ? "SB" : "cold"}` : s.kind === "vs3bet" ? "vs3bet cold" : s.kind;
+  const GROUPS = ["rfi", "vsOpen BB", "vsOpen SB", "vsOpen cold", "vs3bet cold", "squeeze", "vsLimp", "vsShove", "vs4bet"];
+  for (const fam of chainFamilies()) {
+    const outside = fam.pairs, inside = fam.pairs.filter(([a, b]) => !checked.has(`${a}>${b}`));
+    const groups = new Map<string, { spots: number; hits: number; worst: { id: string; better: string; worse: string; pBetter: number; pWorse: number } }>();
+    for (const sc of first) {
+      const { hits, worst } = invertedPairs(get(sc.id)!, inScope.has(sc.id) ? inside : outside);
+      if (!worst) continue;
+      const g = groups.get(groupOf(sc));
+      if (!g) groups.set(groupOf(sc), { spots: 1, hits, worst: { id: sc.id, ...worst } });
+      else {
+        g.spots++;
+        g.hits += hits;
+        if (worst.pWorse - worst.pBetter > g.worst.pWorse - g.worst.pBetter + 1e-12) g.worst = { id: sc.id, ...worst };
+      }
+    }
+    for (const name of [...GROUPS, ...[...groups.keys()].filter((k) => !GROUPS.includes(k))]) {
+      const g = groups.get(name);
+      if (!g) continue;
+      const w = g.worst;
+      rep.warns.push(`PF-SANITY-10 ${fam.name} ${name}: ${g.spots} spot(s), ${g.hits} pair(s) inverted, worst ${w.id} ${w.better} plays ${w.pBetter.toFixed(2)} < ${w.worse} ${w.pWorse.toFixed(2)}`);
     }
   }
   return rep;
@@ -1128,7 +1197,7 @@ export function exportStage(input: StageExportInput): StageExport {
     ev: metrics.ev.map((e) => round(e, 4)),
     diag: { evSum: round(metrics.evSum, 4), frozenOccPct: round(metrics.frozenOcc * 100, 3), negativeShares: metrics.negativeShares },
     model: {
-      id: "modelB-rank6",
+      id: "modelB-rank9",
       fitHash: input.fit.sha256,
       sprAlpha: SPR_ALPHA,
       sprSurplus: SPR_SURPLUS,

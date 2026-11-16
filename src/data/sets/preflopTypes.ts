@@ -96,7 +96,7 @@ export interface PreflopStage {
   ev: number[];
   diag: { evSum: number; frozenOccPct: number; negativeShares: number };
   model: {
-    id: "modelB-rank6";
+    id: "modelB-rank9";
     fitHash: string;
     sprAlpha: number;
     sprSurplus: number;

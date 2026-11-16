@@ -10,6 +10,9 @@ import {
   LADDER_START,
   LOW_SPR_CAP_TEXT,
   LADDER_STEPS,
+  LOW_SUITED_CONNECTORS,
+  SUITED_WHEEL_ACES,
+  chainFamilies,
   chooseLadder,
   classifyTree,
   countKinds,
@@ -344,7 +347,7 @@ describe("exportStage (§4.4, §6.2, §6.5, §6.6)", { timeout: 60_000 }, () => 
       occThresholdByKind: thresholdsByKind(ladder.steps),
       occThresholdCold: ladderThresholds(ladder.steps).cold,
       snappedGainMbb: 1.234,
-      model: { id: "modelB-rank6", fitHash: "fit-sha", packs: { "pack-a": { version: 2, flops: 448 } } },
+      model: { id: "modelB-rank9", fitHash: "fit-sha", packs: { "pack-a": { version: 2, flops: 448 } } },
       equityTable: "table-sha",
     });
     expect(stage.brGainMbb).toHaveLength(5);
@@ -449,7 +452,7 @@ describe("checks on a stage's data", () => {
     snappedGainMbb: 0,
     ev: [],
     diag: { evSum: 0, frozenOccPct: 0, negativeShares: 0 },
-    model: { id: "modelB-rank6", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
+    model: { id: "modelB-rank9", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
     equityTable: "",
     scenarios,
   });
@@ -530,6 +533,48 @@ describe("checks on a stage's data", () => {
     expect(rep.fails).toEqual([]);
     expect(rep.warns.filter((w) => !w.startsWith("PF-SANITY-8"))).toEqual([]);
     expect(Object.keys(rep).sort()).toEqual(["fails", "sanity5", "sanity6", "sanity7", "warns"]);
+  });
+
+  it("PF-SANITY-9 prints 3-bet compositions and -10 the chains outside RFI and BB defense; neither changes a badge", () => {
+    expect(LOW_SUITED_CONNECTORS).toEqual(["43s", "54s", "65s", "53s", "64s"]);
+    expect(SUITED_WHEEL_ACES).toEqual(["A5s", "A4s", "A3s", "A2s"]);
+    const fams = Object.fromEntries(chainFamilies().map((f) => [f.name, f.pairs]));
+    expect(Object.keys(fams)).toEqual(["A>K", "K>Q", "kicker", "same-gap"]);
+    // A>K runs to kicker Q (PF-SANITY-7 stops at 9); K>Q is PF-SANITY-8's; the kicker ladder is PF-SANITY-7's.
+    expect(fams["A>K"]).toHaveLength(22);
+    expect(fams["A>K"]).toContainEqual(["ATs", "KTs"]);
+    expect(fams["A>K"]).toContainEqual(["AQo", "KQo"]);
+    expect(fams["K>Q"]).toEqual(topCardChains());
+    expect(fams.kicker).toEqual(kickerChains().filter(([a, b]) => a[0] === b[0]));
+    expect(fams.kicker).not.toContainEqual(["A7s", "K7s"]);
+    // Same gap, both cards one rank lower; no ace row.
+    expect(fams["same-gap"]).toContainEqual(["65s", "54s"]);
+    expect(fams["same-gap"]).toContainEqual(["KJo", "QTo"]);
+    expect(fams["same-gap"]).toContainEqual(["43s", "32s"]);
+    expect(fams["same-gap"].some(([a]) => a.startsWith("A"))).toBe(false);
+    const st = base([
+      scenario("rfi-utg", "rfi", "UTG", [["open", "22+, A2s+, K9s+, QJs, AJo+, KQo, 54s"]]),
+      scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "TT-77"], ["3bet", "JJ+, AK, 43s, 54s, 65s"]], { villain: "UTG" }),
+      scenario("btn-vs-utg-open", "vsOpen", "BTN", [["3bet", "QQ+, A5s, A4s, 54s"]], { villain: "UTG" }),
+      scenario("co-at-utg-open-hj-call", "squeeze", "CO", [["overcall", "99"], ["squeeze", "QQ+, KTs"]]),
+    ]);
+    const rep = stageSanity(st);
+    // The CO 3-bets 43s, 54s and 65s (3 classes) and no wheel ace; the BTN's 54s (1) against A5s and A4s (2) passes.
+    expect(rep.warns.filter((w) => w.startsWith("PF-SANITY-9"))).toEqual([
+      "PF-SANITY-9 co-vs-utg-open: 3-bets 43s/54s/65s/53s/64s 3.0 > A5s/A4s/A3s/A2s 0.0 (hand classes)",
+    ]);
+    // RFI gets only the pairs PF-SANITY-7 and -8 do not check (here the same-gap 65s < 54s); the squeeze folds ATs and
+    // KJs but squeezes KTs; the CO and BTN play 65s or 54s but fold the next connector up. Ordered by family, then group.
+    expect(rep.warns.filter((w) => w.startsWith("PF-SANITY-10"))).toEqual([
+      "PF-SANITY-10 A>K squeeze: 1 spot(s), 1 pair(s) inverted, worst co-at-utg-open-hj-call ATs plays 0.00 < KTs 1.00",
+      "PF-SANITY-10 kicker squeeze: 1 spot(s), 1 pair(s) inverted, worst co-at-utg-open-hj-call KJs plays 0.00 < KTs 1.00",
+      "PF-SANITY-10 same-gap rfi: 1 spot(s), 1 pair(s) inverted, worst rfi-utg 65s plays 0.00 < 54s 1.00",
+      "PF-SANITY-10 same-gap vsOpen cold: 2 spot(s), 2 pair(s) inverted, worst co-vs-utg-open 76s plays 0.00 < 65s 1.00",
+    ]);
+    // Print-only: nothing else fires, nothing fails, and no scenario is flagged for a badge.
+    expect(rep.warns.filter((w) => !/^PF-SANITY-(9|10) /.test(w))).toEqual([]);
+    expect(rep.fails).toEqual([]);
+    expect([rep.sanity5, rep.sanity6, rep.sanity7]).toEqual([[], [], []]);
   });
 });
 

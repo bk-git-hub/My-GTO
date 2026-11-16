@@ -19,8 +19,9 @@
 //                       stage that ships needs an explicit --out, so a subset never replaces the committed file)
 //
 // Every solve runs in its own worker thread; at most --workers run at once. Per stage (§4.6, §5.3): the main solve
-// on the §4.6 schedule with the §5.3 gates; if a gate fails, one re-solve with cold4 "none"; if that fails too, an
-// optional stage (35bb-2) is dropped and a required one fails the run (exit 1, nothing written). 25bb-2 is solved
+// on the §4.6 schedule with the §5.3 gates; if a gate fails, or the gates pass but PF-DATA-1's counts cannot be met
+// on its reach (§2.8), one re-solve with cold4 "none"; if that fails too, an optional stage (35bb-2) is dropped and a
+// required one fails the run (exit 1, nothing written). 25bb-2 is solved
 // only for PF-OVERLAP against shortNash 25bb and never exported. Then PF-TWOSTART and the five 1,000-iteration
 // sensitivity solves, the PF-* checks, the size ladder and the data file. Every output is a pure function of the
 // inputs: no timestamps, fixed ordering, independent of the worker count.
@@ -342,6 +343,18 @@ async function main() {
       r = await solveMain({ cold4: "none" }, "cold4 none");
       st.overrides = { cold4: "none" };
       st.fallback = true;
+    } else if (r.pass && st.status !== "check" && !args.ignoreGates) {
+      // §2.8: a cold-jam solve can pass its gates in a degenerate equilibrium (35bb: UTG opens only by jamming), whose
+      // reach leaves too few spots for PF-DATA-1's counts. That is the same equilibrium the gate failure signals, so
+      // it gets the same single re-solve without cold jams. No gate or count threshold changes.
+      const tree0 = treeM.buildTree(treeM.stageConfig(id, st.overrides));
+      const ch = ex.chooseLadder(tree0, ex.classifyTree(tree0), r.occ, { shared });
+      if (!ch.ok && tree0.cfg.cold4 !== "none") {
+        st.notes.push(`main solve passed its gates at ${r.iterations} but PF-DATA-1 counts cannot be met (${ch.problems.join("; ")}); re-solved with cold4 "none"`);
+        r = await solveMain({ cold4: "none" }, "cold4 none");
+        st.overrides = { cold4: "none" };
+        st.fallback = true;
+      }
     }
     st.main = r;
     st.tree = treeM.buildTree(treeM.stageConfig(id, st.overrides));
