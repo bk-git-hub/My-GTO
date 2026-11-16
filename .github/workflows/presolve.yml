@@ -1,33 +1,52 @@
-# Nightly presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own
-# solver and commits them under public/packs/ (format: docs/solver-packs.md). Each run adds flops in priority
-# order; flops already on disk for a pack's version are skipped, so the packs grow a few flops every night.
+# Daily presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own
+# solver and commits them under public/packs/ (format: docs/solver-packs.md). Flops already on disk for a
+# pack's version are skipped, so every run continues where the last one stopped, in priority order.
 #
-# Minutes: a private repo on the free plan gets 2,000 Actions minutes a month on 2-core runners, so keep the
-# nightly budget around 50 minutes (~1,600 min/month incl. setup). Public repos get unlimited minutes on 4-core
-# runners (16 GB): raise budget_minutes (e.g. 300; jobs may run up to 6 h) and pass --workers 4.
-# One flop needs ~1.3–1.8 GB and ~10 minutes on one core with the default tree (two run in parallel here).
+# The repository is public, so GitHub-hosted standard Linux runners are free with unlimited minutes: 4 vCPU,
+# 16 GB, up to 6 h per job, up to 20 jobs at once for the whole account (so `shards` stops at 16). One scheduled
+# run a day fans out into `shards` parallel "solve" jobs (default 8). Job i solves the flops whose index k in
+# the priority order has k % shards == i (scripts/presolve.mjs --shard i/n), one flop per core (~10–12
+# core-minutes and up to ~2 GB each), until its budget (default 300 min) runs out, and uploads only the flop
+# files it added. The "merge" job copies those
+# files into one checkout, rebuilds manifest.json (--rebuild-manifest) and pushes ONE commit, so a day costs
+# one deploy. Shards that finished are kept when another shard fails or times out.
+# Every job works on the branch head that the "plan" job reads once the run starts (after the concurrency
+# wait), not on github.sha, which is fixed when the run is queued: a run that waited behind another one then
+# starts from that run's commit instead of re-solving its flops. If the push meets a manifest change on the
+# branch, the merge keeps the branch's files, rebuilds manifest.json over both sets and pushes. "Re-run failed
+# jobs" reuses the plan, so a re-run shard starts again from the run's commit (flops it already landed are
+# solved again; only the new ones are committed). Usually it is simpler to let the next day's run continue.
+# A day adds roughly 8 × 4 cores × ~290 min / ~11 min ≈ 800 flops, so the ~3,500 flops left in both packs take
+# about five days; after that each run finds nothing to solve and ends within minutes.
+# GitHub's terms ask that Actions serve the project: these packs are the app's own data. Keep it to one
+# scheduled run a day, not a round-the-clock farm.
 name: Presolve
 
 on:
   schedule:
-    - cron: "23 17 * * *" # 17:23 UTC = 02:23 KST, outside the busy 6–9 AM Pacific window
+    - cron: "23 17 * * *" # 17:23 UTC = 02:23 KST, outside the busy 6–9 AM Pacific window (runs often start hours late)
   workflow_dispatch:
     inputs:
       scenario:
         description: "Pack id (src/presolve/scenarios.ts) or all"
         default: all
         type: string
+      shards:
+        description: "Parallel solve jobs (1–16; the account's 20 concurrent jobs are shared with other workflows)"
+        default: "8"
+        type: string
       budget_minutes:
-        description: "Solving budget in minutes (the script stops cleanly before it)"
-        default: "50"
+        description: "Solving budget per job in minutes (at most 320; the script stops cleanly before it)"
+        default: "300"
         type: string
       count:
-        description: "Cover the first N flops of the priority order per pack"
-        default: "200"
+        description: "Cover the first N flops of the priority order per pack (1755 = all)"
+        default: "1755"
         type: string
 
+# Read-only by default; only the merge job pushes.
 permissions:
-  contents: write
+  contents: read
 
 # Never two runs at once: they would solve the same flops and race on the manifest.
 concurrency:
@@ -35,15 +54,61 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  presolve:
+  plan:
     runs-on: ubuntu-latest
-    # The script stops on its own before the budget; this only guards against a hang. Manual runs may use a
-    # bigger budget (public repos), so they get the 6-hour maximum.
-    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 360 || 90 }}
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+      n: ${{ steps.plan.outputs.n }}
+      sha: ${{ steps.head.outputs.sha }}
+    steps:
+      - id: plan
+        env:
+          SHARDS: ${{ inputs.shards || '8' }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" != branch ]; then
+            echo "::error::Run this workflow on a branch (the merge pushes to it), not on $GITHUB_REF_TYPE $GITHUB_REF_NAME"
+            exit 1
+          fi
+          if ! [[ "$SHARDS" =~ ^[1-9][0-9]*$ ]] || (( SHARDS > 16 )); then
+            echo "::error::shards must be a whole number from 1 to 16, got '$SHARDS'"
+            exit 1
+          fi
+          echo "n=$SHARDS" >> "$GITHUB_OUTPUT"
+          echo "shards=[$(seq -s, 0 $((SHARDS - 1)))]" >> "$GITHUB_OUTPUT"
+
+      # The branch head as it is now, after the concurrency wait (a `ref` without a SHA makes checkout fetch the
+      # branch, not github.sha, which was fixed when the run was queued). Every later job checks out this commit.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          sparse-checkout: .github
+
+      - id: head
+        run: |
+          sha=$(git rev-parse HEAD)
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Could not read the head of ${GITHUB_REF_NAME} (got '$sha')"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Solving from ${GITHUB_REF_NAME} at $sha (github.sha $GITHUB_SHA)"
+
+  solve:
+    needs: plan
+    runs-on: ubuntu-latest
+    # The script stops on its own before its budget (at most 320 min); the step timeout below only guards
+    # against a hang and still leaves time to upload. Setup included, this stays under GitHub's 6-hour limit.
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false # a failing shard must not cancel the others
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # full history, so the manifest's solverCommit is the last commit that touched src/solver
+          ref: ${{ needs.plan.outputs.sha }} # the same commit in every shard and in merge
+          fetch-depth: 0 # full history, so solverCommit (last commit that touched src/solver) is right
 
       - uses: actions/setup-node@v4
         with:
@@ -52,21 +117,134 @@ jobs:
 
       - run: npm ci
 
-      - name: Solve flops
+      - name: Solve shard ${{ matrix.shard }}/${{ needs.plan.outputs.n }}
         id: presolve
+        timeout-minutes: 330
+        env:
+          SHARD: ${{ matrix.shard }}/${{ needs.plan.outputs.n }}
+          SCENARIO: ${{ inputs.scenario || 'all' }}
+          BUDGET: ${{ inputs.budget_minutes || '300' }}
+          COUNT: ${{ inputs.count || '1755' }}
+        run: |
+          if ! [[ "$BUDGET" =~ ^[0-9]+$ ]] || (( 10#$BUDGET < 1 )); then
+            echo "::error::budget_minutes must be a whole number of minutes, got '$BUDGET'"
+            exit 1
+          fi
+          if (( 10#$BUDGET > 320 )); then
+            echo "::warning::budget_minutes $BUDGET is above 320; using 320 so the job ends before its timeout"
+            BUDGET=320
+          fi
+          node scripts/presolve.mjs --scenario "$SCENARIO" --shard "$SHARD" --budget-minutes "$((10#$BUDGET))" \
+            --count "$COUNT" --workers "$(nproc)"
+
+      # Only the flop files this shard added, plus its manifest as shard-manifest.json (the merge job rebuilds
+      # manifest.json and only reads the exact summaries of these files from it). Also runs when solving failed
+      # or timed out: every file on disk was written whole (temp file + rename) after passing the write checks.
+      - name: Collect new flops
+        if: ${{ always() && steps.presolve.outcome != 'skipped' }}
+        run: |
+          mkdir -p shard-out/files
+          git ls-files --others --exclude-standard -- public/packs \
+            | grep -E '^public/packs/[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$' > new-flops.txt || true
+          while IFS= read -r f; do
+            rel="${f#public/packs/}"
+            mkdir -p "shard-out/files/$(dirname "$rel")"
+            cp "$f" "shard-out/files/$rel"
+          done < new-flops.txt
+          cp public/packs/manifest.json shard-out/shard-manifest.json
+          echo "$(wc -l < new-flops.txt) new flop file(s) in shard ${{ matrix.shard }}"
+
+      - name: Upload new flops
+        if: ${{ always() && steps.presolve.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: shard-out/
+          retention-days: 2
+          if-no-files-found: ignore
+
+      # After the upload, so the good flops of the shard are kept. A flop above the exploitability limit is never
+      # written and would be retried every day: raise the scenario's iterations and bump its version.
+      - name: Fail on solve errors
+        if: ${{ (steps.presolve.outputs.failed != '' && steps.presolve.outputs.failed != '0') || (steps.presolve.outputs.rejected != '' && steps.presolve.outputs.rejected != '0') }}
+        env:
+          FAILED: ${{ steps.presolve.outputs.failed || '0' }}
+          REJECTED: ${{ steps.presolve.outputs.rejected || '0' }}
+        run: |
+          echo "${FAILED} failure(s), ${REJECTED} flop(s) above the exploitability limit; see the Solve step."
+          exit 1
+
+  merge:
+    needs: [plan, solve]
+    # Also after a failed or timed-out shard, so the shards that finished are kept; not when the run is cancelled.
+    if: ${{ always() && !cancelled() && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      # The commit the shards solved from (detached), so the manifest's checks and solverCommit match their files;
+      # the push below rebases onto anything pushed to the branch in the meantime.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shard-*
+          path: shards # one folder per shard: shards/shard-<i>/files/<pack>/v<k>/flop-*.json
+
+      - name: Copy the shards' flops
+        id: copy
+        run: |
+          # A file that already exists is never replaced (the files of a version never change): an identical
+          # one is skipped, a different one keeps the existing file and is reported.
+          added=0
+          if [ -d shards ]; then
+            while IFS= read -r src; do
+              rel="${src#shards/*/files/}"
+              if ! [[ "$rel" =~ ^[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$ ]]; then
+                echo "::warning::Skipping unexpected artifact file $src"
+                continue
+              fi
+              dest="public/packs/$rel"
+              if [ -e "$dest" ]; then
+                cmp -s "$src" "$dest" || echo "::warning::$src differs from public/packs/$rel; keeping the existing file"
+                continue
+              fi
+              mkdir -p "$(dirname "$dest")"
+              cp "$src" "$dest"
+              added=$((added + 1))
+            done < <(find shards -type f -path 'shards/*/files/*' | sort)
+          fi
+          echo "new_flops=$added" >> "$GITHUB_OUTPUT"
+          echo "$added new flop file(s) copied into public/packs"
+
+      # The same checks as before writing a solved flop; on a failure it exits 1 and nothing is committed (the
+      # shard artifacts stay for 2 days). Unchanged apart from generatedAt → not rewritten, no commit.
+      - name: Rebuild the manifest
         env:
           SCENARIO: ${{ inputs.scenario || 'all' }}
-          BUDGET: ${{ inputs.budget_minutes || '50' }}
-          COUNT: ${{ inputs.count || '200' }}
-        run: node scripts/presolve.mjs --scenario "$SCENARIO" --budget-minutes "$BUDGET" --count "$COUNT"
+        run: |
+          hints=()
+          for f in shards/*/shard-manifest.json; do
+            if [ -f "$f" ]; then hints+=(--summaries-from "$f"); fi
+          done
+          node scripts/presolve.mjs --rebuild-manifest --scenario "$SCENARIO" "${hints[@]}"
 
       - name: Commit new flops
-        if: ${{ !cancelled() }}
         env:
-          NEW_FLOPS: ${{ steps.presolve.outputs.new_flops || '0' }}
+          NEW_FLOPS: ${{ steps.copy.outputs.new_flops || '0' }}
+          SCENARIO: ${{ inputs.scenario || 'all' }}
         run: |
-          # presolve.mjs leaves the manifest untouched when nothing but its timestamp would change, so a night
-          # without new flops stages nothing here and makes no commit (and no deploy).
           git add public/packs
           if git diff --cached --quiet; then
             echo "No pack changes."
@@ -75,27 +253,55 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Presolve: ${NEW_FLOPS} new flops"
+          hints=()
+          for f in shards/*/shard-manifest.json; do
+            if [ -f "$f" ]; then hints+=(--summaries-from "$f"); fi
+          done
+          remote="origin/${GITHUB_REF_NAME}"
           for attempt in 1 2 3 4; do
-            if git push; then exit 0; fi
-            echo "Push failed (attempt $attempt), rebasing on the remote branch..."
+            # HEAD is detached at the run's commit, so push to the branch by name.
+            if git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"; then exit 0; fi
+            echo "Push failed (attempt $attempt), rebasing onto the remote branch..."
             sleep $((attempt * 5))
             git fetch origin "${GITHUB_REF_NAME}"
-            if ! git rebase "origin/${GITHUB_REF_NAME}"; then
-              git rebase --abort
-              echo "Rebase conflict on public/packs; not pushing."
-              exit 1
+            if ! git rebase "$remote"; then
+              # The commit only touches public/packs. manifest.json is one line of derived data, so any manifest
+              # change on the branch conflicts with ours (e.g. "Re-run failed jobs" after this run's merge already
+              # pushed): keep the branch's files (a version's files never change) and rebuild the manifest over
+              # both sets with the branch's code, as a normal run would.
+              conflicts=$(git diff --name-only --diff-filter=U)
+              if [ -z "$conflicts" ] || grep -qv '^public/packs/' <<< "$conflicts"; then
+                git rebase --abort
+                echo "Rebase conflict outside public/packs; not pushing."
+                exit 1
+              fi
+              while IFS= read -r f; do
+                if [ "$f" != public/packs/manifest.json ]; then
+                  echo "::warning::$f differs from the branch's; keeping the branch's file"
+                fi
+                git checkout --ours -- "$f" # during a rebase, "ours" is the branch being rebased onto
+              done <<< "$conflicts"
+              if ! node scripts/presolve.mjs --rebuild-manifest --scenario "$SCENARIO" "${hints[@]}"; then
+                git rebase --abort
+                echo "Manifest rebuild failed on top of the branch; not pushing."
+                exit 1
+              fi
+              git add public/packs
+              if git diff --cached --quiet HEAD; then
+                git rebase --skip # everything this run adds is already on the branch
+              else
+                GIT_EDITOR=true git rebase --continue
+              fi
+            fi
+            if [ "$(git rev-parse HEAD)" = "$(git rev-parse "$remote")" ]; then
+              echo "Everything this run adds is already on the branch; nothing to push."
+              exit 0
+            fi
+            # Count again: files the branch already had are no longer part of the commit.
+            n=$(git diff --name-only --diff-filter=A "$remote" HEAD -- public/packs | grep -cE '/flop-[^/]+\.json$' || true)
+            if [ "$(git log -1 --format=%s)" != "Presolve: ${n} new flops" ]; then
+              git commit --amend --quiet -m "Presolve: ${n} new flops"
             fi
           done
           echo "Could not push after 4 attempts."
-          exit 1
-
-      # Runs after the commit, so the good flops of the night are kept. A flop above the exploitability limit is
-      # never written and would be retried every night: raise the scenario's iterations and bump its version.
-      - name: Fail on solve errors
-        if: ${{ (steps.presolve.outputs.failed != '' && steps.presolve.outputs.failed != '0') || (steps.presolve.outputs.rejected != '' && steps.presolve.outputs.rejected != '0') }}
-        env:
-          FAILED: ${{ steps.presolve.outputs.failed || '0' }}
-          REJECTED: ${{ steps.presolve.outputs.rejected || '0' }}
-        run: |
-          echo "${FAILED} failure(s), ${REJECTED} flop(s) above the exploitability limit; see the Solve flops step."
           exit 1

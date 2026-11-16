@@ -5,9 +5,9 @@ them: the app downloads one small JSON file per flop and shows the strategy, the
 first flop decisions without solving anything on the device. The numbers come from our own solver
 (`src/solver/`, spec in `docs/solver.md`); no third-party solver code or output is involved.
 
-A GitHub Action re-runs the presolve pipeline every night. It solves the next flops (in priority order) that
-have no file yet in each pack's current version directory under `public/packs/`, and rewrites
-`public/packs/manifest.json` (see Pipeline below).
+A GitHub Action re-runs the presolve pipeline once a day, split over parallel jobs. It solves the next flops
+(in priority order) that have no file yet in each pack's current version directory under `public/packs/`, and
+rewrites `public/packs/manifest.json` (see Pipeline below).
 The format lives in `src/presolve/format.ts` (types plus pure encode/decode helpers that run in Node and in the
 browser). The manifest shape matches §9 "솔버 콘텐츠 팩" of `docs/server-design.md` (branch
 `claude/lucid-brown-8ikhmc`) and adds fields to it.
@@ -247,7 +247,7 @@ the file lists into per-pack index files in a v2 manifest.
 ## Pipeline
 
 `src/presolve/` holds the pipeline; `scripts/presolve.mjs` runs it and `.github/workflows/presolve.yml` runs the
-script every night.
+script once a day in parallel shards (below).
 
 - `scenarios.ts`: `SCENARIOS` (one per pack: id, title, version, tier, `meta: ScenarioMeta`, COMBOS-indexed
   starting ranges from the charts' effective frequencies), `chartRange(ref)`, `srpPotStack`, `solverInput(sc, board)`
@@ -275,21 +275,45 @@ script every night.
   exploitability must be at most 1.5 × the scenario's `targetExploitability` (else it is logged as above the
   limit and not written; `--accept-above-target` overrides), and its summary nodes must match the pack's
   version (else it is not written: the tree or its labels changed, bump the version). The manifest is only
-  rewritten when something other than `generatedAt` changes, so a night that adds nothing leaves no diff and
+  rewritten when something other than `generatedAt` changes, so a run that adds nothing leaves no diff and
   makes no commit. A pack whose files can't be summarized keeps its previous manifest entry; the other packs
   are still updated. It refuses to run when a pack's settings changed without a version bump.
   With the default `--out public/packs` it also refuses `--iterations` / `--target` (they change the numbers
   but are not recorded in the pack; use a scratch `--out` for experiments) and refuses to run while `src/solver`
   has uncommitted changes (`--allow-dirty` overrides), so `solverCommit` always names code that exists.
+- `--shard <i>/<n>` (`shard.ts`): solve only shard i of n. Flop k of `FLOPS_BY_PRIORITY` (its index in the full
+  order, not among the missing flops) belongs to shard k % n, so jobs started from the same commit solve
+  disjoint flops whatever they find on disk; each shard keeps the priority order, the `--count` prefix, the
+  skip-what-exists rule and the budget. No flag is `0/1`, everything.
+- `--rebuild-manifest` solves nothing: it rebuilds `manifest.json` from each pack's current-version files on
+  disk (after copying in the files of several shards) and writes it exactly as a run does (atomically, only when
+  more than `generatedAt` changes, the old version's entry kept until the new version has a file, the same
+  settings-vs-manifest checks). A file the manifest doesn't list yet gets the checks a run applies before
+  writing one: `validateFlopFile`, scenario, version and board as its path says, the size cap, the
+  exploitability limit (`--accept-above-target` overrides) and summary nodes equal to the pack's. When a pack's
+  files fail them its entry is kept as it was and the script exits 1. `--summaries-from <manifest>`
+  (repeatable) takes a new file's summary from another run's manifest when path and sha256 match, i.e. the exact
+  summary of the solve rather than one rebuilt from the quantized file (`summarizeFile`).
 
 Measured run (4-core dev machine, `--count 3 --workers 3`, other jobs sharing the CPU): three
 `srp-btn-bb-100` flops (Qs8h5h, Qs8h5d, 8s5s3h) took 9.2–9.6 min each to reach 0.40–0.46% of the pot in
 80 iterations (~7 s per iteration), plus ~22 s of extraction; estimate 1.66–1.71 GB, 1.75–1.79 GB used per
 worker; files 36–38 KB raw, 18 KB gzip (6 nodes). The strategies look like solver output should: BB checks,
 BTN c-bets ~55% mixing 33% and 75%, BB facing 33% folds ~32%, calls ~52%, check-raises ~16% (sets always).
-On a 2-core CI runner expect about 4–6 new flops per pack-night with a 50-minute budget.
+The daily workflow (public repository: standard runners with 4 vCPU and 16 GB, unlimited minutes, 6 h per
+job) runs 8 `solve` jobs with `--shard i/8 --workers $(nproc) --budget-minutes 300 --count 1755` (4 workers on
+these runners); each uploads the flop files it added (and its manifest, for the summaries). All jobs check out the
+branch head that a first `plan` job reads when the run starts, so a run that waited behind another one continues
+from that run's commit. A `merge` job, which also runs when some shards failed or timed out, copies the files
+into one checkout (an existing file is never replaced), runs `--rebuild-manifest` with the shards' manifests as
+`--summaries-from` and pushes one commit, "Presolve: N new flops" (nothing is committed when the rebuild exits 1;
+the shard artifacts are kept for 2 days). When the branch changed the manifest meanwhile (the one-line manifest
+always conflicts), the push keeps the branch's files, runs `--rebuild-manifest` again on top of the branch and
+counts N again. The result is the manifest one unsharded run over the same flops would write: a local 2-shard
+simulation gave byte-identical flop files and an identical manifest apart from `generatedAt`. At ~11
+core-minutes per flop that is roughly 800 flops a day.
 
-## Versioning and the nightly job
+## Versioning and the daily job
 
 - `version` bumps when anything that changes the numbers changes: solver code (`solverCommit`), scenario
   settings, ranges, or the solve targets. New content goes under `v<version>/`; a file whose bytes are
