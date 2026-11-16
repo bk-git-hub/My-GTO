@@ -13,7 +13,7 @@ import {
 import { countOuts, equityVsHand } from "../../poker/equity";
 import { categoryName, evaluate } from "../../poker/evaluator";
 import { bluffBreakEven, callEV, hitChance, mdf, requiredEquity, ruleOf2and4 } from "../../poker/odds";
-import { allScenarios, getSet, type Scenario } from "../../data/charts";
+import { allScenarios, getSet, inReach, reachOf, type Scenario } from "../../data/charts";
 
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const fmtPct = (x: number) => `${Math.round(x * 100)}%`;
@@ -41,15 +41,49 @@ function neighbors(h: HandClass): HandClass[] {
   return out;
 }
 
-/** Weight hands toward the interesting ones: mixed, near the range edge. */
+/**
+ * The action a hand "doesn't play" with: fold, or where the hero cannot fold (the BB checking behind an SB limp)
+ * the last action, which takes every remaining hand there.
+ */
+function passiveKey(s: Scenario): string {
+  return s.noFold && s.actions.length ? s.actions[s.actions.length - 1].key : "fold";
+}
+
+/**
+ * Weight hands toward the interesting ones: mixed, near the range edge. Only hands that reach the spot count as
+ * neighbors: the edge of the reaching range itself (say, the opening range in a vs-3-bet chart) is not a decision
+ * made here.
+ */
 function handWeight(s: Scenario, h: HandClass): number {
   const st = s.strategy[h];
   const max = Math.max(...Object.values(st));
   if (max < 0.999) return 3;
-  const plays = st.fold < 0.999;
-  const edge = neighbors(h).some((n) => (s.strategy[n].fold < 0.999) !== plays);
+  const passive = passiveKey(s);
+  const plays = (st[passive] ?? 0) < 0.999;
+  const edge = neighbors(h).some((n) => inReach(s, n) && ((s.strategy[n][passive] ?? 0) < 0.999) !== plays);
   if (edge) return 2;
   return plays ? 0.6 : 0.15;
+}
+
+/**
+ * An index drawn with probability proportional to weights[i], from one Math.random() call. Weights that are not
+ * positive never come up; if none is positive, every index is equally likely. With all weights 1 it returns
+ * floor(r·n), exactly pick's index (subtracting 1 from a float is exact here), so a pool without weights draws
+ * the same sequence as before weights existed.
+ */
+function weightedIndex(weights: number[]): number {
+  const w = weights.map((x) => (x > 0 ? x : 0));
+  const total = w.reduce((a, b) => a + b, 0);
+  if (!(total > 0)) return Math.floor(Math.random() * weights.length);
+  let x = Math.random() * total;
+  let last = 0;
+  for (let i = 0; i < w.length; i++) {
+    if (!(w[i] > 0)) continue;
+    if (x < w[i]) return i;
+    x -= w[i];
+    last = i;
+  }
+  return last; // rounding left x at or past the total: the last index that can come up
 }
 
 /** filter: "all" | "stage:<stageId>" | full scenario id */
@@ -63,20 +97,34 @@ export function quizPool(setId: string, filter: string): Scenario[] {
   return one ? [one] : allScenarios(set);
 }
 
-/** A hand drawn toward the edges of the scenario's ranges. */
+/**
+ * A hand drawn toward the edges of the scenario's ranges, times the hero's reach (reachRange): a hand that never
+ * gets here is never dealt, and one that rarely does comes up rarely. Without reachRange every hand keeps its
+ * weight, and the loop below draws exactly as it always has.
+ */
 export function weightedHand(scenario: Scenario): HandClass {
-  const weights = ALL_HANDS.map((h) => handWeight(scenario, h));
+  const weights = ALL_HANDS.map((h) => handWeight(scenario, h) * reachOf(scenario, h));
   const total = weights.reduce((a, b) => a + b, 0);
+  // Nothing reaches the spot (broken data): any hand beats a crash.
+  if (!(total > 0)) return ALL_HANDS[Math.floor(Math.random() * ALL_HANDS.length)];
   let x = Math.random() * total;
+  let last: HandClass = ALL_HANDS[ALL_HANDS.length - 1];
   for (let i = 0; i < ALL_HANDS.length; i++) {
+    if (!(weights[i] > 0)) continue;
+    last = ALL_HANDS[i];
     x -= weights[i];
-    if (x <= 0) return ALL_HANDS[i];
+    if (x <= 0) return last;
   }
-  return ALL_HANDS[ALL_HANDS.length - 1];
+  return last;
+}
+
+/** A scenario of the pool, drawn by weight (1 by default; the solver set favours the spots that come up often). */
+export function pickScenario(pool: Scenario[]): Scenario {
+  return pool[weightedIndex(pool.map((s) => s.weight ?? 1))];
 }
 
 export function generatePreflop(setId: string, filter = "all"): PreflopQuestion {
-  const scenario = pick(quizPool(setId, filter));
+  const scenario = pickScenario(quizPool(setId, filter));
   const hand = weightedHand(scenario);
   return { uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, scenario, hand, cards: randomCombo(hand) };
 }
