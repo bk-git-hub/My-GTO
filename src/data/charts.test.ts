@@ -13,6 +13,7 @@ import {
   buildSet,
   CHART_SETS,
   describeStrategy,
+  displayChips,
   FOLD,
   getSet,
   HERO_FILTER_ABOVE,
@@ -379,7 +380,9 @@ describe("solver-style scenario fields", () => {
     expect(reachShare(none)).toBe(0);
     expect(Object.values(reachTotals(none))).toEqual([0, 0, 0]);
     expect(reachShare(one(rfi("CO")))).toBe(1);
-    for (const s of [one(rfi("CO")), one(LIMP), ...allScenarios()]) {
+    // Spots with a reachRange (the solver set deep in a line) are reach-relative by design; reachTotals equals
+    // actionTotals only where there is no reachRange, as the title says.
+    for (const s of [one(rfi("CO")), one(LIMP), ...allScenarios().filter((x) => !x.reachRange)]) {
       const a = actionTotals(s);
       const r = reachTotals(s);
       expect(Object.keys(r)).toEqual(Object.keys(a));
@@ -460,6 +463,16 @@ describe("solver-style scenario fields", () => {
     expect(texts(html.match(/<div class="chips scroll">(.*?)<\/div>/)![1])).toHaveLength(HERO_FILTER_ABOVE);
     expect(html).not.toContain("도달");
     expect(stripTags(html.match(/<div class="legend">(.*?)<\/div>/)![1])).toBe("올인 0.5%콜 1.1%폴드 98.5%");
+  });
+
+  it("charts page: repeated chips in a list shown without the seat row get their hero in front", () => {
+    // Two heroes on the same public line: identical generic chips, in a group small enough to show at once.
+    const btn: ScenarioDef = { ...COLD_JAM_ANSWER, kind: "vs4bet", id: "btn-at-btn-open-sb-3bet-bb-jam", hero: "BTN", chip: "BTN오픈·SB3벳·BB올인" };
+    const sb: ScenarioDef = { ...COLD_JAM_ANSWER, kind: "vs4bet", id: "sb-at-btn-open-sb-3bet-bb-jam", hero: "SB", chip: "BTN오픈·SB3벳·BB올인" };
+    expect(displayChips([VS_4BET, btn, sb])).toEqual(["BTN vs CO", "BTN: BTN오픈·SB3벳·BB올인", "SB: BTN오픈·SB3벳·BB올인"]);
+    expect(displayChips([VS_4BET, btn])).toEqual(["BTN vs CO", "BTN오픈·SB3벳·BB올인"]);
+    const html = renderPage(solverLike("solver-test", [VS_4BET, btn, sb]));
+    expect(texts(html.match(/<div class="chips scroll">(.*?)<\/div>/)![1])).toEqual(["BTN vs CO", "BTN: BTN오픈·SB3벳·BB올인", "SB: BTN오픈·SB3벳·BB올인"]);
   });
 
   it("charts page: no fold where the hero cannot fold", () => {
@@ -556,6 +569,16 @@ describe("existing chart sets are unchanged", () => {
         expect(render(createElement(RangeGrid, { scenario: s })), s.id).toBe(render(legacyGrid(s)));
       }
     }
+  });
+
+  it("show their chips as they are (no list repeats a chip, so displayChips changes nothing)", () => {
+    for (const set of legacySets())
+      for (const st of set.stages)
+        for (const kind of new Set(st.scenarios.map((s) => s.kind))) {
+          const list = st.scenarios.filter((s) => s.kind === kind);
+          expect(heroFilterSeats(set, list)).toEqual([]);
+          expect(displayChips(list), `${set.id} ${st.id} ${kind}`).toEqual(list.map((s) => s.chip));
+        }
   });
 
   it("show the same charts page: no seat row, no reach, all-hands totals", () => {

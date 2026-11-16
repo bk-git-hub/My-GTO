@@ -38,10 +38,11 @@ import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusSh
  *    reach is the product of its earlier exported decisions' snapped frequencies (exactly what the UI computes from
  *    `reachFrom`), and hands out of reach are written as 0. Ranges are written by `rangeText`, which parseRange
  *    reads back exactly, so buildScenario's "earlier action takes first" fill reproduces the snapped values.
- *    Confidence follows §6.6: the move of the sensitivity solves, lowered to 낮음 by PF-SANITY-5, PF-SANITY-6 or
- *    PF-TWOSTART, and capped at 보통 for vs3bet / vs4bet scenarios of stages of 55bb and more.
- *  - Draft runs (no sensitivity solves, no two-start solve, or gates ignored) write move 0, take the confidence
- *    from the checks that did run, and say so in the descriptions instead of claiming a measured move.
+ *    Confidence follows §6.6: the stored (0.1pp) move of the sensitivity solves, lowered to 낮음 by PF-SANITY-5, -6,
+ *    -7 or PF-TWOSTART, and capped at 보통 for vs3bet / vs4bet scenarios of stages of 55bb and more.
+ *  - Draft runs (no sensitivity solves, no two-start solve, gates ignored, a capped schedule, or a two-start solve
+ *    that failed its gates) are listed as drafts. Without sensitivity solves the move is 0 and never measured, so
+ *    the badge is at most 보통 and the descriptions say so instead of claiming a measured move.
  *  - `rangeText(values)`: compact range text of a per-class vector of tenths.
  *
  * Sensitivity solves (§6.6)
@@ -51,7 +52,7 @@ import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusSh
  *
  * Checks on a stage's data (also usable on the committed file)
  *  - `decodeStage(stage)`: per scenario the hero's reach and the effective frequencies (buildScenario's fill).
- *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..6. `stageBands(stage)`: PF-BANDS
+ *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..7. `stageBands(stage)`: PF-BANDS
  *    (published aggregates: printed warnings only, never targets).
  */
 
@@ -142,7 +143,8 @@ export interface NodeClass {
   villainSeats?: string[];
   chip: string;
   title: string;
-  /** Public line with sizes, e.g. "CO 2.2 · BTN 콜"; "" for a first-in node. */
+  /** Public line with sizes, e.g. "CO 2.2 · BTN 콜" (with the fold of a seat that had put chips in, `shownSteps`); "" for
+   *  a first-in node. */
   line: string;
   /** The same line for the description, with "bb" on sizes; "" for a first-in node. */
   sizedLine: string;
@@ -156,7 +158,26 @@ export interface NodeClass {
   sortKey: number[];
 }
 
+/** The non-fold actions of the line: they make the generic id (§6.4) and the sort key. */
 const publicSteps = (info: NodeInfo): LineStep[] => info.line.filter((l) => l.verb !== "fold");
+
+/**
+ * The line as titles, chips and descriptions show it: every non-fold action, and the fold of a seat that had already
+ * put voluntary chips in (an opener or 3-bettor folding to a jam). Without that fold "CO 오픈 → SB 올인" would read as
+ * if CO were still live beside the hero, while the hero's decision is in fact heads-up with CO's chips dead. Folds of
+ * seats with no voluntary chips (the blinds' forced bets do not count) change nothing and stay out.
+ */
+function shownSteps(info: NodeInfo): LineStep[] {
+  const invested = new Set<number>();
+  const out: LineStep[] = [];
+  for (const l of info.line) {
+    if (l.verb !== "fold") {
+      out.push(l);
+      if (l.verb !== "check") invested.add(l.seat);
+    } else if (invested.has(l.seat)) out.push(l);
+  }
+  return out;
+}
 
 const RAISE_VERBS: ReadonlySet<Verb> = new Set<Verb>(["open", "iso", "3bet", "squeeze", "reraise", "4bet"]);
 
@@ -237,8 +258,9 @@ export function classifyNode(tree: PreflopTree, p: number): NodeClass {
   if (k === null) throw new Error(`node ${p} (${nm(s)}, raises ${info.raises}) matches no §6.4 row`);
 
   const generic = fixed === null;
-  const titleLine = steps.map((l) => `${nm(l.seat)} ${VERB_KO[l.verb]}`).join(" → ");
-  const chipLine = steps.map((l) => `${nm(l.seat)}${VERB_KO[l.verb]}`).join("·");
+  const shown = shownSteps(info);
+  const titleLine = shown.map((l) => `${nm(l.seat)} ${VERB_KO[l.verb]}`).join(" → ");
+  const chipLine = shown.map((l) => `${nm(l.seat)}${VERB_KO[l.verb]}`).join("·");
   // Seats still in that acted voluntarily, in order of their first action: the hero's opponents on this line.
   const opponents: number[] = [];
   for (const l of steps) if (l.seat !== s && info.active.includes(l.seat) && !opponents.includes(l.seat)) opponents.push(l.seat);
@@ -283,8 +305,8 @@ export function classifyNode(tree: PreflopTree, p: number): NodeClass {
     villainSeats,
     chip,
     title,
-    line: steps.map((l) => publicStep(l, nm)).join(" · "),
-    sizedLine: steps.map((l) => (RAISE_VERBS.has(l.verb) ? `${nm(l.seat)} ${VERB_KO[l.verb]} ${fmtBb(l.to)}bb` : `${nm(l.seat)} ${VERB_KO[l.verb]}`)).join(" → "),
+    line: shown.map((l) => publicStep(l, nm)).join(" · "),
+    sizedLine: shown.map((l) => (RAISE_VERBS.has(l.verb) ? `${nm(l.seat)} ${VERB_KO[l.verb]} ${fmtBb(l.to)}bb` : `${nm(l.seat)} ${VERB_KO[l.verb]}`)).join(" → "),
     noFold: tree.foldIdx[p] < 0,
     actions,
     order,
@@ -311,7 +333,9 @@ function actionSpec(a: ActionInfo, ctx: { cold: boolean; overcall: boolean; sbFi
     case "limp":
       return { key: "limp", label: "림프", color: "call" };
     case "open":
-      return ctx.sbFirstIn ? { key: "raise", label: `레이즈 ${size}bb`, color: "raise" } : { key: "open", label: `오픈 ${size}bb`, color: "raise" };
+      // The SB's first-in raise keeps the key "raise" (it sits next to 림프) but reads "오픈", as in cash6 and in every
+      // later spot of its line ("SB 오픈 후 vs BB 3벳", "BB vs SB 오픈").
+      return ctx.sbFirstIn ? { key: "raise", label: `오픈 ${size}bb`, color: "raise" } : { key: "open", label: `오픈 ${size}bb`, color: "raise" };
     case "iso":
       return { key: "raise", label: `레이즈 ${size}bb`, color: "raise" };
     case "3bet":
@@ -746,6 +770,25 @@ export function monotoneChains(): [string, string][] {
   return out;
 }
 
+/**
+ * The pairs of PF-SANITY-7's kicker chains, [better, worse]: Ax ≥ Kx with the same kicker 2–9 (suited and offsuit),
+ * and in every row the higher kicker ≥ the next lower one (suited and offsuit), except below A6 in the ace row, where
+ * the wheel aces may rightly play more than A6–A9. A strong player rejects a chart that breaks these at a glance, and
+ * the realization fit is known to (no weak-king feature; the weak-ace and broadway coefficients are poorly identified),
+ * so they warn and badge the spot instead of failing like PF-SANITY-2.
+ */
+export function kickerChains(): [string, string][] {
+  const out: [string, string][] = [];
+  for (const sfx of ["s", "o"]) for (let k = 0; k <= 7; k++) out.push([RANKS[12] + RANKS[k] + sfx, RANKS[11] + RANKS[k] + sfx]);
+  for (const sfx of ["s", "o"])
+    for (let hi = 12; hi >= 2; hi--)
+      for (let lo = hi - 1; lo >= 1; lo--) {
+        if (hi === 12 && lo - 1 <= 3) continue; // A6x vs A5x and below: the wheel aces
+        out.push([RANKS[hi] + RANKS[lo] + sfx, RANKS[hi] + RANKS[lo - 1] + sfx]);
+      }
+  return out;
+}
+
 export interface SanityReport {
   /** Checks whose data test fails (PF-SANITY-1 above 2pp, -2, -3). */
   fails: string[];
@@ -754,13 +797,15 @@ export interface SanityReport {
    *  %); both are badged 낮음. */
   sanity5: { id: string; callPct: number }[];
   sanity6: { id: string; jamPct: number; fourBetPct: number }[];
+  /** Scenarios flagged by PF-SANITY-7 with their worst pair (plays, 0..1); badged 낮음. */
+  sanity7: { id: string; better: string; worse: string; pBetter: number; pWorse: number }[];
 }
 
 const EP_OPENERS = new Set(["UTG", "UTG+1", "UTG+2", "LJ"]);
 
 /** PF-SANITY-1..6 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. */
 export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): SanityReport {
-  const rep: SanityReport = { fails: [], warns: [], sanity5: [], sanity6: [] };
+  const rep: SanityReport = { fails: [], warns: [], sanity5: [], sanity6: [], sanity7: [] };
   const get = (id: string) => decoded.get(id);
   const rfi = stage.scenarios.filter((s) => s.kind === "rfi");
   const seats = rfi.map((s) => s.hero);
@@ -783,6 +828,24 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
       const ia = HAND_INDEX.get(a)!, ib = HAND_INDEX.get(b)!;
       const pa = 1 - d.fold[ia], pb = 1 - d.fold[ib];
       if (pa < pb - 0.15 - 1e-9) rep.fails.push(`PF-SANITY-2 ${id}: ${a} plays ${pa.toFixed(2)} < ${b} ${pb.toFixed(2)}`);
+    }
+  }
+  // PF-SANITY-7 (warning): the kicker chains on the same spots and tolerance; a spot with a hit is badged 낮음 and
+  // names its worst pair (the largest gap; the first in chain order on a tie).
+  const kickers = kickerChains();
+  for (const id of chainIds) {
+    const d = get(id)!;
+    let worst: SanityReport["sanity7"][number] | null = null;
+    let hits = 0;
+    for (const [a, b] of kickers) {
+      const pa = 1 - d.fold[HAND_INDEX.get(a)!], pb = 1 - d.fold[HAND_INDEX.get(b)!];
+      if (!(pa < pb - 0.15 - 1e-9)) continue;
+      hits++;
+      if (!worst || pb - pa > worst.pWorse - worst.pBetter + 1e-12) worst = { id, better: a, worse: b, pBetter: pa, pWorse: pb };
+    }
+    if (worst) {
+      rep.warns.push(`PF-SANITY-7 ${id}: ${hits} kicker pair(s) inverted, worst ${worst.better} plays ${worst.pBetter.toFixed(2)} < ${worst.worse} ${worst.pWorse.toFixed(2)}`);
+      rep.sanity7.push(worst);
     }
   }
   // PF-SANITY-3: BB defense rises with the opener's seat; BB vs SB ≥ BB vs BTN − 2pp.
@@ -893,6 +956,10 @@ export interface StageExportInput {
   twoStartFlags: ReadonlySet<number> | null;
   /** The gates were ignored (--ignore-gates): a draft. */
   gatesIgnored?: boolean;
+  /** The solves ran on a capped schedule (--iterations below §4.6's): a draft, whatever the gates said. */
+  iterationsCapped?: boolean;
+  /** PF-TWOSTART's second solve did not pass its own gates, so its comparison proves nothing: a draft. */
+  twoStartFailed?: boolean;
   fit: Pick<EqrFit, "sha256" | "packs">;
   equityTable: string;
 }
@@ -903,7 +970,8 @@ export interface StageExport {
   snapped: Float64Array;
   /** The node of each scenario, in scenario order. */
   nodes: number[];
-  /** Why this is a draft ("sensitivity", "twostart", "gates"); empty for a release export. */
+  /** Why this is a draft ("sensitivity", "twostart", "gates", "iterations", "twostartGates"); empty for a release
+   *  export. */
   draft: string[];
   sanity: SanityReport;
   /** Scenario ids PF-TWOSTART flagged. */
@@ -940,6 +1008,8 @@ export function exportStage(input: StageExportInput): StageExport {
   if (!input.moves) draft.push("sensitivity");
   if (!input.twoStartFlags) draft.push("twostart");
   if (input.gatesIgnored) draft.push("gates");
+  if (input.iterationsCapped) draft.push("iterations");
+  if (input.twoStartFailed) draft.push("twostartGates");
 
   if (cfg.allinOrder !== "priority") throw new Error("only the priority all-in order ships");
   const rho = new Float64Array(N);
@@ -1033,18 +1103,27 @@ export function exportStage(input: StageExportInput): StageExport {
   // §6.6 confidence, after the checks that read the exported data.
   const sanity = stageSanity(stage);
   const s5 = new Map(sanity.sanity5.map((x) => [x.id, x.callPct])), s6 = new Set(sanity.sanity6.map((x) => x.id));
+  const s7 = new Map(sanity.sanity7.map((x) => [x.id, x]));
+  const measured = input.moves !== null;
   const twoStart: string[] = [];
   scenarios.forEach((sc, i) => {
     const p = nodes[i];
     const c = classes[p];
+    // The badge follows the stored move (0.1pp), the number the data and the description show, so a stored 8.0 is
+    // never 높음 whatever the raw value was.
     const move = input.moves ? round(input.moves[p], 1) : 0;
     const flagged2 = input.twoStartFlags?.has(p) ?? false;
     if (flagged2) twoStart.push(sc.id);
     let conf: PreflopScenario["confidence"] = move < MOVE_HIGH ? "high" : move <= MOVE_MID ? "mid" : "low";
+    // Without the sensitivity solves nothing was measured: a draft is never 높음.
+    if (!measured && conf === "high") conf = "mid";
     const reasons: string[] = [];
     const callPct = s5.get(sc.id);
     if (callPct !== undefined) reasons.push(`EP 오픈에 콜드콜이 전체 핸드의 ${fmtPct(callPct)}%라 확인이 필요해요.`);
     if (s6.has(sc.id)) reasons.push("4벳 올인이 작은 4벳보다 많아요.");
+    const k7 = s7.get(sc.id);
+    if (k7)
+      reasons.push(`더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: ${k7.better} ${fmtPct(k7.pBetter * 100)}%, ${k7.worse} ${fmtPct(k7.pWorse * 100)}%). 실현율 모델의 알려진 왜곡이에요.`);
     if (flagged2) reasons.push("다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.");
     if (reasons.length) conf = "low";
     const fourBetRule = cfg.S >= 55 && (sc.kind === "vs3bet" || sc.kind === "vs4bet");
@@ -1054,8 +1133,9 @@ export function exportStage(input: StageExportInput): StageExport {
     sc.description = scenarioDescription(c, tree, {
       conf,
       move,
-      measured: input.moves !== null,
+      measured,
       fourBetRule,
+      fourBetSplit: sc.actions.some((a) => a.key === "4bet") && sc.actions.some((a) => a.key === "shove"),
       reasons,
     });
   });
@@ -1067,7 +1147,7 @@ const fmtPct = (x: number) => String(Math.round(x));
 function stageDescription(tree: PreflopTree, draft: string[]): string {
   const c = tree.cfg;
   const parts = [
-    `모두 ${fmtBb(c.S)}bb. 오픈 ${fmtBb(c.open)}bb, SB는 림프·레이즈 ${fmtBb(c.sbRaise)}bb, 3벳 IP ${fmtBb(c.ip3)}배·블라인드 ${fmtBb(c.blind3)}배, 4벳 ${fmtBb(c.fourIP)}~${fmtBb(c.fourOOP)}배.`,
+    `모두 ${fmtBb(c.S)}bb. 오픈 ${fmtBb(c.open)}bb, SB는 림프·오픈 ${fmtBb(c.sbRaise)}bb, 3벳 IP ${fmtBb(c.ip3)}배·블라인드 ${fmtBb(c.blind3)}배, 4벳 ${fmtBb(c.fourIP)}~${fmtBb(c.fourOOP)}배.`,
   ];
   if (c.S <= c.jamMax) parts.push("퍼스트 인 올인과 3벳 올인도 있어요.");
   parts.push("서로 최선인 균형 근사(착취 아님).");
@@ -1077,25 +1157,48 @@ function stageDescription(tree: PreflopTree, draft: string[]): string {
 }
 
 function draftText(draft: string[]): string {
-  const ko: Record<string, string> = { sensitivity: "민감도 풀이", twostart: "두 출발점 검사", gates: "수렴 검사 통과" };
+  const ko: Record<string, string> = {
+    sensitivity: "민감도 풀이",
+    twostart: "두 출발점 검사",
+    gates: "수렴 검사 통과",
+    iterations: "정식 반복 횟수 풀이",
+    twostartGates: "두 출발점 풀이의 수렴",
+  };
   return draft.map((d) => ko[d] ?? d).join("·");
 }
+
+/** "이" after a final consonant, "가" after a vowel (the last Hangul syllable of `word` decides). */
+function subjectParticle(word: string): string {
+  const code = word.charCodeAt(word.length - 1) - 0xac00;
+  return code >= 0 && code < 11172 && code % 28 !== 0 ? "이" : "가";
+}
+
+/** These sentences are matched by src/data/preflopData.test.ts; keep them in step. */
+export const FOUR_BET_SPLIT_TEXT = "작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.";
+export const LOW_SPR_CAP_TEXT = "3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요.";
 
 function scenarioDescription(
   c: NodeClass,
   tree: PreflopTree,
-  o: { conf: PreflopScenario["confidence"]; move: number; measured: boolean; fourBetRule: boolean; reasons: string[] },
+  o: { conf: PreflopScenario["confidence"]; move: number; measured: boolean; fourBetRule: boolean; fourBetSplit: boolean; reasons: string[] },
 ): string {
   const parts: string[] = [];
   if (c.sizedLine) parts.push(`${c.sizedLine}.`);
   else parts.push(tree.seat[c.node] === 0 ? "가장 먼저 액션해요." : "앞에서 모두 폴드했어요.");
-  if (c.noFold) parts.push("BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요.");
+  if (c.noFold) {
+    // Name only the actions this node has: the 100bb and 55bb BB has no jam over a limp.
+    const info = tree.nodes[c.node];
+    const alts = c.order.filter((a) => info.actions[a].verb !== "check").map((a) => VERB_KO[info.actions[a].verb]).join("·");
+    parts.push(`BB는 폴드하지 않아요: ${alts}${subjectParticle(alts)} 아니면 체크해요.`);
+  }
   if (c.cold) parts.push("3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음).");
-  if (o.fourBetRule) parts.push("작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.");
+  // The 55bb+ cap on vs3bet / vs4bet: the split sentence only where the hero has both a small 4-bet and a jam;
+  // elsewhere (cold, call-or-jam and vs-4-bet spots) the plain reason for the cap.
+  if (o.fourBetRule) parts.push(o.fourBetSplit ? FOUR_BET_SPLIT_TEXT : LOW_SPR_CAP_TEXT);
   const badge = `신뢰도 ${CONFIDENCE_KO[o.conf]}`;
   if (!o.measured) parts.push(`${badge}(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.`);
   else if (o.move < 1) parts.push(`${badge}: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.`);
-  else parts.push(`${badge}: 실현율 가정을 바꿔 풀면 이 차트가 약 ${fmtPct(o.move)}%p 움직여요.`);
+  else parts.push(`${badge}: 실현율 가정을 바꿔 풀면 이 차트가 약 ${fmtBb(o.move)}%p 움직여요.`);
   parts.push(...o.reasons);
   return parts.join(" ");
 }

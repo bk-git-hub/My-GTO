@@ -331,6 +331,24 @@ the next one wait); with nothing left a run ends within minutes.
 - Old version directories stay until no manifest from the last few days references them.
 - The job runs `validateFlopFile` on every file and `validateManifest` on the manifest before committing.
 
+## Calibration of the preflop solver
+
+The 9-handed preflop solver (`docs/preflop-solver.md`) does not solve flops: it values them with a realization model
+fitted to these packs. `scripts/fit-realization.mjs` reads every flop file the manifest lists, takes each combo's EV
+at OOP's root and at IP's node after OOP checks, and fits the model to the per-class pot shares. The result,
+`src/poker/preflop/eqrFit.ts`, records each pack's version, flop count and a hash of its file list. For the packs
+this means:
+- New flops change the fit's inputs, but the charts move only when the fit is rerun. The committed fit names the
+  pack state it used (`srp-btn-bb-100` v1 with 468 flops, `pub-srp-btn-bb-55` v2 with 448); the next refit is
+  planned for when both packs cover all 1,755 flop classes.
+- The fit reads IP's root EV at IP's node after OOP's check, which is IP's root only because OOP never bets the flop
+  in these trees (`sizes.flop[0].bet` is `[]`); the opponent's EV at a node is not stored. It stops if OOP checks
+  less than 99.9% of its range at the root, so a pack that gives OOP a donk bet first needs IP's root EV in the flop
+  file.
+- The trees (no OOP donk bet, two IP sizes) and the hand-made chart ranges are the calibration's known biases.
+  Calibration-only packs (a ghost-combo pack at 100bb, then other pot types) are planned in this same file format,
+  outside `public/packs` and never listed by the app.
+
 ## API (`src/presolve/format.ts`)
 
 - Binary: `encodeBase64`/`decodeBase64`, `encodeUint8`/`decodeUint8`, `encodeInt16`/`decodeInt16`,

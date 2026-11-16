@@ -4,6 +4,7 @@ import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
 import {
   actionTotals,
+  displayChips,
   getSet,
   heroFilterSeats,
   inReach,
@@ -46,6 +47,7 @@ export function ChartsPage() {
   const [seatBySet, setSeatBySet] = useState<Record<string, string>>({});
   const seat = seats.includes(seatBySet[set.id]) ? seatBySet[set.id] : seats[0];
   const shown = useMemo(() => (seats.length ? list.filter((s) => s.hero === seat) : list), [list, seats, seat]);
+  const chipTexts = useMemo(() => displayChips(shown), [shown]);
   const [scenarioId, setScenarioId] = useState(list[0].id);
   const scenario = shown.find((s) => s.id === scenarioId) ?? shown[0];
   const [hand, setHand] = useState<HandClass | null>(null);
@@ -105,7 +107,7 @@ export function ChartsPage() {
         </select>
       ) : (
         set.stages.length > 1 && (
-          <div className="seg">
+          <div className="seg stage-row">
             {set.stages.map((st) => (
               <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
                 {st.label}
@@ -119,7 +121,8 @@ export function ChartsPage() {
       </p>
 
       {groups.length > 1 && (
-        <div className="seg small">
+        // More than 6 kinds (the solver's 35bb stage has 7) scroll sideways instead of breaking every label.
+        <div className={`seg small kind-row${groups.length > 6 ? " many" : ""}`}>
           {groups.map(([g]) => (
             <button key={g} className={g === group ? "on" : ""} onClick={() => { setGroup(g); setHand(null); }}>
               {g}
@@ -138,8 +141,10 @@ export function ChartsPage() {
         </div>
       )}
 
-      <div className="chips scroll">
-        {shown.map((s) => (
+      {/* A new list starts scrolled to its start, where the selected (first) chip is; otherwise a seat or group switch
+          keeps the old row's sideways scroll and the selected chip can sit off-screen. */}
+      <div className="chips scroll" key={`${set.id}/${stage.id}/${group}/${seat ?? ""}`}>
+        {shown.map((s, i) => (
           <button
             key={s.id}
             className={`chip ${s.id === scenario.id ? "on" : ""}`}
@@ -148,7 +153,7 @@ export function ChartsPage() {
               setHand(null);
             }}
           >
-            {s.chip}
+            {chipTexts[i]}
           </button>
         ))}
       </div>
@@ -171,7 +176,7 @@ export function ChartsPage() {
             </span>
           )}
         </div>
-        {reach !== null && <p className="muted small">비율은 여기까지 온 핸드 기준이에요. 흐린 칸은 앞에서 이 라인으로 오지 않는 핸드예요.</p>}
+        {reach !== null && <p className="muted small">비율은 여기까지 온 핸드 기준이에요. 빗금 칸은 앞에서 이 라인으로 오지 않는 핸드예요.</p>}
       </section>
 
       <RangeGrid scenario={scenario} selected={hand} onPick={setHand} />

@@ -3,13 +3,16 @@ import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChartsPage } from "../features/charts/ChartsPage";
 import { generatePreflop } from "../features/quiz/generators";
-import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
+import { ALL_HANDS, comboCount, RANKS, type HandClass } from "../poker/cards";
+import { EQR_FIT } from "../poker/preflop/eqrFit";
 import { parseRange } from "../poker/range";
 import { settingsStore } from "../state/settings";
 import {
   actionTotals,
   CHART_SETS,
+  displayChips,
   getSet,
+  heroFilterSeats,
   inReach,
   KIND_LABEL,
   legendActions,
@@ -31,8 +34,8 @@ import type { PreflopKind, PreflopScenario, PreflopStage } from "./sets/preflopT
  * checks (src/poker/preflop/export.ts), so a bug there cannot hide itself here.
  *
  * Severity follows §5.2: PF-DATA-1, PF-SANITY-1 above 2pp, -2, -3 and PF-SIZE-1 fail; PF-SANITY-1 between 0.5
- * and 2pp, -4, -5 and -6 only warn (console.warn). PF-SANITY-5 and -6 hits must carry the 낮음 badge, which is a
- * data fact the generator writes, so a hit without it fails. The thresholds are the main session's decision 2:
+ * and 2pp, -4, -5, -6 and -7 only warn (console.warn). PF-SANITY-5, -6 and -7 hits must carry the 낮음 badge, which
+ * is a data fact the generator writes, so a hit without it fails. The thresholds are the main session's decision 2:
  * per kind, rfi / vsOpen / non-cold vs3bet / vsLimp at 0.1%, the ladder group (squeeze, vs4bet, vsShove and the
  * cold vs3bet spots) raised through 0.1 → 0.2 → 0.5 → 1%.
  */
@@ -53,6 +56,11 @@ const STAGE_LABELS: Record<string, string> = {
   "35bb-2": "35bb · 오픈 2bb",
 };
 const REQUIRED = ["100bb-2.2", "100bb-3", "55bb-2.2"];
+/** §4.6: the gates are first read at 1,500 iterations, never earlier. */
+const MIN_ITERATIONS = 1500;
+/** The 55bb+ cap sentences (§6.6): the small-4-bet split where the hero has both, the plain reason elsewhere. */
+const FOUR_BET_SPLIT = "작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.";
+const LOW_SPR_CAP = "3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요.";
 const LADDER = [0.1, 0.2, 0.5, 1];
 const LIMITS = { rfi: 8, vsOpen: [30, 36], vsLimp: [1, 6], otherMax: 72, total: 180 } as const;
 const GZIP_LIMIT = 80_000; // PF-SIZE-1, the same reading as the generator (80 KB as 80,000 bytes)
@@ -118,19 +126,35 @@ describe("solver chart set: registration and texts", () => {
       expect(b.label).toBe(st.label);
       expect(b.stack).toBe(`모두 ${st.stack}bb`);
       expect(st.id.startsWith(`${st.stack}bb-${st.open}`), st.id).toBe(true);
-      expect(b.description).toBe(st.description);
+      // The page prints the stack right before the description, so the data's leading "모두 Nbb. " is dropped.
+      expect(b.description.startsWith("모두"), st.id).toBe(false);
+      expect(st.description, st.id).toBe(st.description.startsWith(`${b.stack}. `) ? `${b.stack}. ${b.description}` : b.description);
       expect(st.description, st.id).toContain("서로 최선인 균형 근사(착취 아님)");
       expect(b.scenarios.length).toBe(st.scenarios.length);
     }
   });
 
-  it("marks draft stages in their descriptions; a draft has not measured any move", () => {
+  it("marks draft stages in their descriptions; an unmeasured move is never badged 높음; a release ran the full schedule", () => {
     const ids = PREFLOP_STAGES.map((s) => s.id);
     for (const id of PREFLOP_DRAFT_STAGES) expect(ids).toContain(id);
     for (const st of PREFLOP_STAGES) {
       const draft = PREFLOP_DRAFT_STAGES.includes(st.id);
       expect(st.description.includes("초안"), st.id).toBe(draft);
-      if (draft) expect(st.scenarios.every((s) => s.move === 0), st.id).toBe(true);
+      // A stage without sensitivity solves says so in every spot, with move 0 and at most 보통.
+      for (const s of st.scenarios.filter((x) => x.description.includes("(초안): 민감도 풀이를 아직 안 해서"))) {
+        expect(draft, s.id).toBe(true);
+        expect(s.move, s.id).toBe(0);
+        expect(s.confidence, s.id).not.toBe("high");
+      }
+      // §4.6: a stage that is not a draft stopped no earlier than 1,500 iterations.
+      if (!draft) expect(st.iterations, st.id).toBeGreaterThanOrEqual(MIN_ITERATIONS);
+    }
+  });
+
+  it("was made with the committed fit and the equity table the fit was made with", () => {
+    for (const st of PREFLOP_STAGES) {
+      expect(st.model.fitHash, st.id).toBe(EQR_FIT.sha256);
+      expect(st.equityTable, st.id).toBe(EQR_FIT.equityTable);
     }
   });
 
@@ -291,8 +315,12 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       const b = sc(s.id)!;
       expect(b.title).toBe(s.title);
       expect(b.description).toBe(s.description);
-      expect(b.weight, s.id).toBe(Math.min(s.occ, 5));
-      expect(b.weight!, s.id).toBeGreaterThan(0);
+      // Quiz weight min(occ, 5), except the fold-or-jam cold spots of 55bb+ stages, which the quiz leaves out.
+      if (isCold(s) && st.stack >= 55) expect(b.weight, s.id).toBe(0);
+      else {
+        expect(b.weight, s.id).toBe(Math.min(s.occ, 5));
+        expect(b.weight!, s.id).toBeGreaterThan(0);
+      }
       const ranges = s.actions.map((a) => parseRange(a.range));
       for (const h of ALL_HANDS) {
         const st0 = b.strategy[h];
@@ -318,6 +346,23 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       expect(s.noFold, s.id).toBeUndefined();
       expect(s.actions.map((a) => a.key), s.id).not.toContain("check");
     }
+    // Its text names only the actions it has: no 올인 where the BB cannot jam over the limp.
+    const jam = limp.actions.some((a) => a.key === "shove");
+    expect(limp.description).toContain(jam ? "BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요." : "BB는 폴드하지 않아요: 레이즈가 아니면 체크해요.");
+  });
+
+  it("the line names every seat with chips in: each opponent, and the fold of any seat that left", () => {
+    for (const s of st.scenarios) {
+      const steps = s.line ? s.line.split(" · ").map((t) => ({ seat: t.split(" ")[0], what: t.split(" ").slice(1).join(" ") })) : [];
+      for (const x of steps) expect(POS, `${s.id}: ${s.line}`).toContain(x.seat);
+      const folded = new Set(steps.filter((x) => x.what === "폴드").map((x) => x.seat));
+      const acted = new Set(steps.filter((x) => x.what !== "폴드").map((x) => x.seat));
+      const villains = s.villainSeats ?? [];
+      for (const v of villains) expect(acted.has(v) && !folded.has(v), `${s.id}: villain ${v} in ${s.line}`).toBe(true);
+      // A seat that put chips in and is not an opponent must show its fold, or the spot reads as if it were live.
+      for (const seat of acted) if (seat !== s.hero) expect(folded.has(seat) || villains.includes(seat), `${s.id}: ${seat} in ${s.line}`).toBe(true);
+      if (folded.size) expect(s.title, s.id).toContain("폴드");
+    }
   });
 
   it("chips tell spots apart within a kind group and hero seat (the seat-filtered chip row)", () => {
@@ -326,6 +371,18 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       const k = `${s.kind} ${s.hero} ${s.chip}`;
       expect(seen.has(k), k).toBe(false);
       seen.add(k);
+    }
+  });
+
+  it("chips are unique in every list the charts page shows, with or without the seat row", () => {
+    const groups = new Map<string, Scenario[]>();
+    for (const s of stage.scenarios) groups.set(s.kind, [...(groups.get(s.kind) ?? []), s]);
+    for (const [kind, list] of groups) {
+      const seats = heroFilterSeats(solver, list);
+      for (const shown of seats.length ? seats.map((p) => list.filter((s) => s.hero === p)) : [list]) {
+        const chips = displayChips(shown);
+        expect(new Set(chips).size, `${kind}: ${chips.join(" | ")}`).toBe(chips.length);
+      }
     }
   });
 
@@ -409,12 +466,20 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
   });
 
   it("PF-SANITY-6 (warning, ≥ 55bb): 4-bet jams vs small 4-bets; a hit is badged 낮음, every 3-/4-bet spot at most 보통", () => {
-    if (st.stack < 55) return;
+    if (st.stack < 55) {
+      for (const s of st.scenarios) expect(s.description.includes(FOUR_BET_SPLIT) || s.description.includes(LOW_SPR_CAP), s.id).toBe(false);
+      return;
+    }
     const warns: string[] = [];
     for (const s of st.scenarios) {
+      const split = s.actions.some((a) => a.key === "4bet") && s.actions.some((a) => a.key === "shove");
       if (s.kind === "vs3bet" || s.kind === "vs4bet") {
         expect(s.confidence, `${s.id} (55bb+ cap)`).not.toBe("high");
-        expect(s.description, s.id).toContain("작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.");
+        // The split sentence only where the hero chooses between a small 4-bet and a jam; the plain reason elsewhere.
+        expect(s.description.includes(FOUR_BET_SPLIT), s.id).toBe(split);
+        expect(s.description.includes(LOW_SPR_CAP), s.id).toBe(!split);
+      } else {
+        expect(s.description.includes(FOUR_BET_SPLIT) || s.description.includes(LOW_SPR_CAP), s.id).toBe(false);
       }
       // Cold spots have no small 4-bet, so the check says nothing about them.
       if (s.kind !== "vs3bet" || !s.actions.some((a) => a.key === "4bet") || !s.actions.some((a) => a.key === "shove")) continue;
@@ -427,6 +492,27 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       }
     }
     warnAll(stageId, "PF-SANITY-6", warns);
+  });
+
+  it("PF-SANITY-7 (warning): kickers in RFI and BB defense (Ax ≥ Kx, higher kicker ≥ lower); a hit is badged 낮음", () => {
+    // [better, worse]: Ax ≥ Kx with kicker 2–9, and in each row the higher kicker ≥ the next lower one, except below A6
+    // in the ace row (the wheel aces may play more than A6–A9). Suited and offsuit. Tolerance 0.15, as PF-SANITY-2.
+    const R = RANKS; // "23456789TJQKA"
+    const chains: [string, string][] = [];
+    for (const x of ["s", "o"]) {
+      for (let k = 0; k <= 7; k++) chains.push([`A${R[k]}${x}`, `K${R[k]}${x}`]);
+      for (let hi = 12; hi >= 2; hi--) for (let lo = hi - 1; lo >= 1; lo--) if (!(hi === 12 && lo <= 4)) chains.push([R[hi] + R[lo] + x, R[hi] + R[lo - 1] + x]);
+    }
+    const warns: string[] = [];
+    for (const d of st.scenarios.filter((x) => x.kind === "rfi" || (x.kind === "vsOpen" && x.hero === "BB"))) {
+      const s = sc(d.id)!;
+      const bad = chains.filter(([a, b]) => 1 - s.strategy[a].fold < 1 - s.strategy[b].fold - 0.15 - 1e-9);
+      if (!bad.length) continue;
+      warns.push(`${d.id}: ${bad.map(([a, b]) => `${a} ${(1 - s.strategy[a].fold).toFixed(1)} < ${b} ${(1 - s.strategy[b].fold).toFixed(1)}`).join(", ")}`);
+      expect(d.confidence, `${d.id} (PF-SANITY-7)`).toBe("low");
+      expect(d.description, d.id).toContain("더 좋은 핸드를 덜 플레이하는 칸이 있어요");
+    }
+    warnAll(stageId, "PF-SANITY-7", warns);
   });
 
   it("§6.6: no spot is badged better than its measured move allows", () => {
@@ -474,6 +560,9 @@ describe("solver data: size and app smoke tests", () => {
       const q = generatePreflop("solver", "all");
       expect(q.scenario.setId).toBe("solver");
       expect(inReach(q.scenario, q.hand as HandClass), `${q.scenario.id} ${q.hand}`).toBe(true);
+      // Fold-or-jam cold spots of 55bb+ stages are tree artifacts and never asked.
+      const st = PREFLOP_STAGES.find((x) => q.scenario.stageId === x.id)!;
+      expect(isCold({ kind: q.scenario.kind, id: q.scenario.id.split("/")[2] }) && st.stack >= 55, q.scenario.id).toBe(false);
       expect(scenarioActions(q.scenario).some((a) => a.key === "fold"), q.scenario.id).toBe(!q.scenario.noFold);
       stages.add(q.scenario.stageId);
       kinds.add(q.scenario.kind);

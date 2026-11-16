@@ -252,6 +252,18 @@ export function heroFilterSeats(set: Pick<ChartSetDef, "heroFilter" | "positions
   return seats.length > 1 ? seats : [];
 }
 
+/**
+ * Chip texts as the charts page shows them for `shown`: a chip that occurs more than once in the list gets its hero
+ * in front ("SB: BTN오픈·SB3벳·BB올인"). A generic solver chip names the line, not the hero, which is enough once the
+ * seat row has picked the hero, but a small group shows every seat at once. Every other chip is left as it is, so a
+ * list without repeats (every hand-made set) is unchanged.
+ */
+export function displayChips(shown: ScenarioDef[]): string[] {
+  const count = new Map<string, number>();
+  for (const s of shown) count.set(s.chip, (count.get(s.chip) ?? 0) + 1);
+  return shown.map((s) => (count.get(s.chip)! > 1 ? `${s.hero}: ${s.chip}` : s.chip));
+}
+
 /** Named villain ranges for the calculator, one per (scenario, action). */
 export interface NamedRange {
   id: string;

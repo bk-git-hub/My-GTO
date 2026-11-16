@@ -4,17 +4,19 @@
 // Usage: node scripts/make-preflop.mjs [flags]
 //   --stages a,b,...    stages to solve (default: 100bb-2.2,100bb-3,55bb-2.2,35bb-2,25bb-2)
 //   --iterations N      cap the schedule at N iterations (start min(1500, N), max N) and the sensitivity solves at
-//                       min(1000, N): quick tests. Gates still apply.
+//                       min(1000, N): quick tests. Gates still apply, but any N other than §4.6's 4,000 is a DRAFT.
 //   --check             print every check, run the determinism check (35bb-2 twice at 300 iterations) and compare
 //                       the output with the committed data file; exit 1 if it would change. Writes no data file.
 //   --no-sensitivity    skip the five sensitivity solves per stage (§6.6)  } a DRAFT: move 0, confidence from the
 //   --no-twostart       skip PF-TWOSTART (§5.4)                            } checks that ran, PREFLOP_DRAFT_STAGES
-//   --ignore-gates      export stages that fail their gates, as drafts (development only; no cold4 fallback)
+//   --ignore-gates      export stages that fail their gates, as drafts (development only; no cold4 fallback); also
+//                       lets a PF-SANITY-1/2/3 failure or an equity table the fit was not made with through
 //   --dump DIR          write per stage DIR/<stage>/{config.json, sigma.f32, nodes.json} for reviewers
 //   --summary-dir DIR   where summary-<stage>.txt goes (default node_modules/.cache/preflop)
 //   --workers N         solves at once (default min(4, CPUs)); the output does not depend on it
 //   --ladder MODE       "per-group" (default) or "shared": how the §6.5 size ladder raises its groups
-//   --out FILE          data file to write (default src/data/sets/preflopData.ts)
+//   --out FILE          data file to write (default src/data/sets/preflopData.ts; a run whose --stages leave out a
+//                       stage that ships needs an explicit --out, so a subset never replaces the committed file)
 //
 // Every solve runs in its own worker thread; at most --workers run at once. Per stage (§4.6, §5.3): the main solve
 // on the §4.6 schedule with the §5.3 gates; if a gate fails, one re-solve with cold4 "none"; if that fails too, an
@@ -30,10 +32,13 @@ import { gzipSync } from "node:zlib";
 import { equityTableSha256, load, loadEquityTable } from "./equity-cache.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
+const DEFAULT_OUT = root + "src/data/sets/preflopData.ts";
 const N = 169;
 /** PF-SIZE-1: gzip (Node's default level) of the data file, bytes. 80,000 rather than 80 KiB, to stay on the safe side. */
 const GZIP_LIMIT = 80_000;
 const SENS_ITERATIONS = 1000;
+/** §4.6's last iteration (runSchedule's default max): --iterations N with any other N is not the release schedule. */
+const SCHEDULE_MAX = 4000;
 const TWOSTART_WARMUP = 50;
 const DET_STAGE = "35bb-2";
 const DET_ITERATIONS = 300;
@@ -183,7 +188,7 @@ function parseArgs(argv) {
     summaryDir: root + "node_modules/.cache/preflop",
     workers: Math.max(1, Math.min(4, cpus().length)),
     ladder: "per-group",
-    out: root + "src/data/sets/preflopData.ts",
+    out: DEFAULT_OUT,
   };
   for (let i = 0; i < argv.length; i++) {
     const f = argv[i];
@@ -271,7 +276,12 @@ async function main() {
   const { SHORT_NASH_OPEN, SHORT_NASH_STAGES } = await load("src/data/sets/shortNashData.ts");
   const table = await loadEquityTable();
   const tableSha = equityTableSha256(table);
-  if (tableSha !== EQR_FIT.equityTable) console.log(`WARNING: the equity table (${tableSha.slice(0, 12)}) is not the one eqrFit.ts was fitted on (${EQR_FIT.equityTable.slice(0, 12)})`);
+  if (tableSha !== EQR_FIT.equityTable) {
+    // The fit's coefficients were measured with that table's equities; charts from another table mix two models.
+    const msg = `the equity table (${tableSha.slice(0, 12)}) is not the one eqrFit.ts was fitted on (${EQR_FIT.equityTable.slice(0, 12)})`;
+    if (!args.ignoreGates) throw new Error(`${msg}; refit (scripts/fit-realization.mjs) or pass --ignore-gates for a development run`);
+    console.log(`WARNING: ${msg}`);
+  }
   const features = valueM.featureMatrix(N, handFeatures);
   const cw = solveM.comboWeights();
 
@@ -279,6 +289,12 @@ async function main() {
   const wanted = args.stages ?? presets.map((p) => p.id);
   for (const id of wanted) if (!presets.some((p) => p.id === id)) throw new Error(`unknown stage ${id}`);
   const stageIds = presets.map((p) => p.id).filter((id) => wanted.includes(id));
+  // The committed file is the full set: a subset run may compare (--check) but writes only to an explicit --out.
+  const leftOut = presets.filter((p) => p.status !== "check" && !stageIds.includes(p.id)).map((p) => p.id);
+  if (leftOut.length && args.out === DEFAULT_OUT && !args.check)
+    throw new Error(`--stages leaves out ${leftOut.join(", ")}: pass --out FILE so the committed ${DEFAULT_OUT.replace(root, "")} is not replaced by a subset`);
+  // §4.6's schedule is start 1,500, step 250, max 4,000 and 1,000-iteration sensitivity solves; anything else is a draft.
+  const iterationsCapped = args.iterations !== null && args.iterations !== SCHEDULE_MAX;
   const schedule = args.iterations ? { start: Math.min(1500, args.iterations), step: 250, max: args.iterations } : {};
   const sensIterations = Math.min(SENS_ITERATIONS, args.iterations ?? SENS_ITERATIONS);
   const shared = args.ladder === "shared";
@@ -428,7 +444,7 @@ async function main() {
         console.log(`\n${st.id}: ${st.status === "optional" ? "DROPPED" : "FAILED"} — ${why}`);
       } else steps.set(st.id, ch.steps);
     }
-    const shipped = shippable.filter((s) => !s.dropped && !s.failed);
+    let shipped = shippable.filter((s) => !s.dropped && !s.failed);
     let exports = null, text = null, gz = 0, draftIds = [];
     const build = () => {
       exports = shipped.map((st) => {
@@ -456,6 +472,8 @@ async function main() {
           moves: st.moves,
           twoStartFlags: st.twoStart ? st.twoStart.flags : null,
           gatesIgnored: !st.main.pass,
+          iterationsCapped,
+          twoStartFailed: st.twoStart ? !st.twoStart.result.pass : false,
           fit: EQR_FIT,
           equityTable: tableSha,
         });
@@ -467,29 +485,52 @@ async function main() {
       text = dataFileText(exports.map((e) => e.stage), draftIds);
       gz = gzipSync(text).length;
     };
-    if (shipped.length) {
+    /** The gzip ladder: every group of every stage one step up until the file fits; false if it never does. */
+    const fitGzip = () => {
       build();
       while (gz > GZIP_LIMIT) {
         const next = shipped.map((st) => ex.raiseAll(steps.get(st.id)));
         if (next.every((x) => x === null)) {
           console.log(`\nPF-SIZE-1 FAILED: gzip ${gz} bytes > ${GZIP_LIMIT} with every ladder group at ${ex.LADDER_STEPS.at(-1) * 100}%`);
-          exitCode = 1;
-          break;
+          return false;
         }
         console.log(`gzip ${gz} bytes > ${GZIP_LIMIT}: raising every ladder group one step`);
         shipped.forEach((st, i) => next[i] && steps.set(st.id, next[i]));
         build();
       }
+      return true;
+    };
+    // The snapped-gain gate again on the final export sets (a gzip step changes them), with §4.6's per-stage rule: an
+    // optional stage over it is dropped and the others start again from their count ladders (their gzip steps were
+    // for a bigger file); a required one fails the run. There is no cold4 re-solve at this point.
+    for (;;) {
+      if (!shipped.length) {
+        exports = null;
+        break;
+      }
+      if (!fitGzip()) {
+        exitCode = 1;
+        break;
+      }
+      const over = args.ignoreGates ? [] : exports.filter((e) => e.stage.snappedGainMbb > solveM.DEFAULT_GATES.snappedGainMbb);
+      if (!over.length) break;
+      for (const e of over) {
+        const st = states.get(e.stage.id);
+        const why = `snapped gain ${e.stage.snappedGainMbb} mbb on the final export set (gate ${solveM.DEFAULT_GATES.snappedGainMbb})`;
+        if (st.status === "optional") st.dropped = why;
+        else st.failed = why;
+        console.log(`\n${st.id}: ${st.status === "optional" ? "DROPPED" : "FAILED"} — ${why}`);
+      }
+      if (all.some((x) => x.failed)) break; // nothing is written; the summaries still show the last export
+      shipped = shipped.filter((x) => !x.dropped);
+      for (const st of shipped) steps.set(st.id, st.countLadder.steps);
     }
 
-    // ── gate re-check on the final export sets, and the self-checks of the written data ──
+    // ── the self-checks of the written data ──
     for (const e of exports ?? []) {
       const st = states.get(e.stage.id);
-      if (e.stage.snappedGainMbb > solveM.DEFAULT_GATES.snappedGainMbb && !args.ignoreGates) {
-        console.log(`${st.id}: FAILED — snapped gain ${e.stage.snappedGainMbb} mbb on the final export set`);
-        exitCode = 1;
-      }
-      const problems = [...ex.dataChecks(e.stage), ...reproductionProblems(e, st)];
+      // PF-SANITY-1/2/3 failures fail the data tests, so they stop the run too (unless the gates are ignored).
+      const problems = [...ex.dataChecks(e.stage), ...reproductionProblems(e, st), ...(args.ignoreGates ? [] : e.sanity.fails)];
       if (problems.length) {
         console.log(`${st.id}: DATA SELF-CHECK FAILED:\n  ${problems.slice(0, 20).join("\n  ")}`);
         exitCode = 1;
@@ -505,7 +546,7 @@ async function main() {
       console.log("\n" + lines.join("\n"));
       writeFileSync(`${args.summaryDir}/summary-${st.id}.txt`, lines.join("\n") + "\n");
     }
-    if (shipped.length && exports) console.log(`\ndata file: ${exports.length} stage(s), ${exports.reduce((a, e) => a + e.stage.scenarios.length, 0)} scenarios, ${text.length} bytes, gzip ${gz} bytes (limit ${GZIP_LIMIT})${draftIds.length ? `; DRAFT stages: ${draftIds.join(", ")}` : ""}`);
+    if (shipped.length && exports) console.log(`\ndata file: ${exports.length} stage(s), ${exports.reduce((a, e) => a + e.stage.scenarios.length, 0)} scenarios, ${Buffer.byteLength(text)} bytes, gzip ${gz} bytes (limit ${GZIP_LIMIT})${draftIds.length ? `; DRAFT stages: ${draftIds.join(", ")}` : ""}`);
 
     // ── dumps ──
     if (args.dump) for (const st of all) if (st.main) writeDump(st, exports?.find((x) => x.stage.id === st.id) ?? null);
@@ -674,10 +715,10 @@ export const PREFLOP_STAGES: PreflopStage[] = ${JSON.stringify(stages, null, 1)}
       L.push(`exported ${c.total}: rfi ${c.rfi}, vsOpen ${c.vsOpen}, vs3bet ${c.vs3bet} (cold ${c.cold}), vs4bet ${c.vs4bet}, squeeze ${c.squeeze}, vsLimp ${c.vsLimp}, vsShove ${c.vsShove}`);
       L.push(`thresholds (% of hands): base 0.1; squeeze ${th.squeeze}, vs4bet ${th.vs4bet}, vsShove ${th.vsShove}, cold vs3bet ${th.cold}${e.set.omitted.length ? `; ${e.set.omitted.length} node(s) omitted for an unexported hero ancestor` : ""}`);
       const stageText = JSON.stringify(e.stage, null, 1);
-      L.push(`stage size: ${stageText.length} bytes, gzip ${gzipSync(stageText).length} bytes on its own`);
+      L.push(`stage size: ${Buffer.byteLength(stageText)} bytes, gzip ${gzipSync(stageText).length} bytes on its own`);
       const conf = { high: 0, mid: 0, low: 0 };
       for (const s of e.stage.scenarios) conf[s.confidence]++;
-      const draftWhy = { sensitivity: "no sensitivity solves", twostart: "no two-start solve", gates: "gates ignored" };
+      const draftWhy = { sensitivity: "no sensitivity solves", twostart: "no two-start solve", gates: "gates ignored", iterations: "not the §4.6 schedule (--iterations)", twostartGates: "the two-start solve failed its gates" };
       L.push(`confidence: high ${conf.high}, mid ${conf.mid}, low ${conf.low}${e.draft.length ? ` (DRAFT: ${e.draft.map((d) => draftWhy[d] ?? d).join(", ")})` : ""}`);
       for (const b of ex.stageBands(e.stage)) L.push(`PF-BANDS ${b.ok ? "ok  " : "WARN"} ${b.name}: ${b.value} (band ${b.lo}–${b.hi}; a warning only, never a target)`);
       for (const f of e.sanity.fails) L.push(`SANITY FAIL (the data test fails): ${f}`);

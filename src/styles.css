@@ -165,6 +165,14 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
  */
 .seg.seat-filter { overflow-x: auto; scrollbar-width: none; }
 .seg.seat-filter button { flex: 1 0 auto; }
+/*
+ * Charts page stage row: labels like "100bb · 오픈 2.2bb" wrap between words, never inside "오픈". The kind row with
+ * more than 6 groups (the solver's 35bb stage) scrolls sideways like the seat row, since keep-all would make its
+ * "스퀴즈·오버콜" one unbreakable word and squeezing breaks every label.
+ */
+.seg.stage-row button { word-break: keep-all; }
+.seg.kind-row.many { overflow-x: auto; scrollbar-width: none; }
+.seg.kind-row.many button { flex: 1 0 auto; white-space: nowrap; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips.scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
@@ -239,9 +247,20 @@ textarea { resize: vertical; }
 }
 .cell.folded { color: #627387; text-shadow: none; }
 .cell.sel { outline: 2px solid #fff; outline-offset: -2px; }
-/* A hand that never reaches the spot (scenario.reachRange): no colors, and dimmer than a fold. */
-.cell.out { background: var(--panel); color: #3a4757; text-shadow: none; opacity: 0.55; }
-.legend-item i.out { background: var(--panel); border: 1px solid var(--line); opacity: 0.8; }
+/*
+ * A hand that never reaches the spot (scenario.reachRange): no fill, a faint diagonal hatch and a thin outline, so it
+ * reads as an empty slot next to a folded hand's solid dark fill even on a dim screen in a dim room (a plain darker
+ * fill was only 1.2:1 from the fold color).
+ */
+.cell.out {
+  background: repeating-linear-gradient(135deg, transparent 0 3px, rgba(167, 180, 194, 0.16) 3px 4px);
+  box-shadow: inset 0 0 0 1px rgba(167, 180, 194, 0.14);
+  color: #3a4757; text-shadow: none;
+}
+.legend-item i.out {
+  background: repeating-linear-gradient(135deg, transparent 0 3px, rgba(167, 180, 194, 0.16) 3px 4px);
+  box-shadow: inset 0 0 0 1px rgba(167, 180, 194, 0.14);
+}
 
 .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; }
 .legend-item { display: inline-flex; align-items: center; gap: 6px; }

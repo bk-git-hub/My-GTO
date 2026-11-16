@@ -6,7 +6,9 @@ import { parseRange } from "../range";
 import { EQR_FIT } from "./eqrFit";
 import {
   DATA_LIMITS,
+  FOUR_BET_SPLIT_TEXT,
   LADDER_START,
+  LOW_SPR_CAP_TEXT,
   LADDER_STEPS,
   chooseLadder,
   classifyTree,
@@ -15,6 +17,7 @@ import {
   decodeStage,
   exportSet,
   exportStage,
+  kickerChains,
   ladderThresholds,
   moveAt,
   productFormHu,
@@ -86,7 +89,9 @@ describe("scenario mapping (§6.4)", () => {
     expect(labels(byId(c100, "rfi-utg"))).toEqual(["오픈 2.2bb"]);
     const sb = byId(c100, "rfi-sb");
     expect(keys(sb)).toEqual(["limp", "raise"]);
-    expect(labels(sb)).toEqual(["림프", "레이즈 3bb"]);
+    // Key "raise" next to 림프, but it reads 오픈 like every later spot of its line ("SB 오픈 후 vs BB 3벳").
+    expect(labels(sb)).toEqual(["림프", "오픈 3bb"]);
+    expect(byId(c100, "sb-open-vs-bb-3bet").title).toBe("SB 오픈 후 vs BB 3벳");
     const bbBtn = byId(c100, "bb-vs-btn-open");
     expect(bbBtn.kind).toBe("vsOpen");
     expect(labels(bbBtn)).toEqual(["콜", "3벳 8.8bb"]);
@@ -137,6 +142,37 @@ describe("scenario mapping (§6.4)", () => {
     // A cold seat answering a 3-bet jam after the opener folded.
     const sh = byId(c35, "sb-at-co-open-btn-jam");
     expect([sh.kind, ...keys(sh)]).toEqual(["vsShove", "call"]);
+  });
+
+  it("shows the fold of a seat that had put chips in, so the line says who is still live (the id stays)", () => {
+    // 35bb: CO opens, SB jams, CO (R1 priority) folds, then the BB decides heads-up against the SB.
+    const bb = byId(c35, "bb-at-co-open-sb-jam");
+    expect([bb.title, bb.chip, bb.line, bb.sizedLine, bb.villainSeats]).toEqual([
+      "BB — CO 오픈 → SB 올인 → CO 폴드",
+      "CO오픈·SB올인·CO폴드",
+      "CO 2 · SB 올인 · CO 폴드",
+      "CO 오픈 2bb → SB 올인 → CO 폴드",
+      ["SB"],
+    ]);
+    // 100bb: the 3-bettor folds to the BB's jam before the opener decides.
+    const btn = byId(c100, "btn-at-btn-open-sb-3bet-bb-jam");
+    expect([btn.title, btn.chip]).toEqual(["BTN — BTN 오픈 → SB 3벳 → BB 올인 → SB 폴드", "BTN오픈·SB3벳·BB올인·SB폴드"]);
+    expect(byId(c100, "sb-at-btn-open-sb-3bet-bb-jam").title).toBe("SB — BTN 오픈 → SB 3벳 → BB 올인");
+    // Folds of seats without voluntary chips stay out (the SB and BB folding to the CO-BTN 3-bet).
+    expect(byId(c100, "co-open-vs-btn-3bet").line).toBe("CO 2.2 · BTN 3벳 6.6");
+    // Every shown fold is by a seat that acted voluntarily earlier on the line, and the id ignores folds.
+    for (const [tree, classes] of [
+      [tree100, c100],
+      [tree35, c35],
+    ] as const)
+      for (const c of classes) {
+        const line = tree.nodes[c.node].line;
+        line.forEach((l, i) => {
+          if (l.verb !== "fold") return;
+          const invested = line.slice(0, i).some((m) => m.seat === l.seat && m.verb !== "fold" && m.verb !== "check");
+          expect(c.line.includes(`${["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"][l.seat]} 폴드`)).toBe(invested);
+        });
+      }
   });
 });
 
@@ -310,14 +346,14 @@ describe("exportStage (§4.4, §6.2, §6.5, §6.6)", { timeout: 60_000 }, () => 
       equityTable: "table-sha",
     });
     expect(stage.brGainMbb).toHaveLength(5);
-    expect(stage.description).toContain("모두 100bb. 오픈 2.2bb, SB는 림프·레이즈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배.");
+    expect(stage.description).toContain("모두 100bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배.");
     expect(stage.description).not.toContain("초안");
     expect(out.draft).toEqual([]);
   });
 
   it("badges confidence by §6.6 and says why", () => {
     const sanity = stageSanity(stage);
-    const low = new Set([...sanity.sanity5.map((x) => x.id), ...sanity.sanity6.map((x) => x.id), ...out.twoStart]);
+    const low = new Set([...sanity.sanity5.map((x) => x.id), ...sanity.sanity6.map((x) => x.id), ...sanity.sanity7.map((x) => x.id), ...out.twoStart]);
     expect(out.twoStart).toEqual([classes[[...flagged][0]].id]);
     stage.scenarios.forEach((sc, i) => {
       const move = Math.round(moves[out.nodes[i]] * 10) / 10;
@@ -328,11 +364,26 @@ describe("exportStage (§4.4, §6.2, §6.5, §6.6)", { timeout: 60_000 }, () => 
       if (fourBet && want === "high") want = "mid";
       expect(sc.confidence).toBe(want);
       expect(sc.description).toContain(`신뢰도 ${{ high: "높음", mid: "보통", low: "낮음" }[want]}`);
-      expect(sc.description.includes("작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.")).toBe(fourBet);
-      if (move >= 1) expect(sc.description).toContain(`약 ${Math.round(move)}%p 움직여요`);
+      // The split sentence only where the hero has both a small 4-bet and a jam; the plain cap reason elsewhere.
+      const split = sc.actions.some((a) => a.key === "4bet") && sc.actions.some((a) => a.key === "shove");
+      expect(sc.description.includes(FOUR_BET_SPLIT_TEXT), sc.id).toBe(fourBet && split);
+      expect(sc.description.includes(LOW_SPR_CAP_TEXT), sc.id).toBe(fourBet && !split);
+      // One decimal, the stored value the badge was decided on.
+      if (move >= 1) expect(sc.description).toContain(`약 ${String(move)}%p 움직여요`);
       else expect(sc.description).toContain("거의 안 움직여요");
     });
     expect(stage.scenarios.find((sc) => out.twoStart.includes(sc.id))!.description).toContain("다른 시작점에서 풀면");
+    // The BB facing a limp names only its own actions (no jam at 100bb).
+    expect(stage.scenarios.find((sc) => sc.id === "bb-vs-sb-limp")!.description).toContain("BB는 폴드하지 않아요: 레이즈가 아니면 체크해요.");
+  });
+
+  it("badges on the stored move: a raw 7.95 is stored as 8 and is not 높음", () => {
+    const p = out.nodes[stage.scenarios.findIndex((sc) => sc.kind === "rfi")];
+    const m = Float64Array.from(moves);
+    m[p] = 7.95;
+    const sc = exportStage(input({ moves: m })).stage.scenarios.find((x) => x.id === classes[p].id)!;
+    expect([sc.move, sc.confidence]).toEqual([8, sc.description.includes("왜곡") ? "low" : "mid"]);
+    expect(sc.description).toContain("약 8%p 움직여요");
   });
 
   it("writes a draft without a measured move when the sensitivity and two-start solves did not run", () => {
@@ -341,11 +392,21 @@ describe("exportStage (§4.4, §6.2, §6.5, §6.6)", { timeout: 60_000 }, () => 
     expect(d.stage.description).toContain("초안이에요: 민감도 풀이·두 출발점 검사 전이라");
     for (const sc of d.stage.scenarios) {
       expect(sc.move).toBe(0);
+      // Nothing measured: never 높음.
+      expect(sc.confidence).not.toBe("high");
       expect(sc.description).not.toContain("움직여요");
       expect(sc.description).toContain("(초안): 민감도 풀이를 아직 안 해서");
     }
     // Same ranges and reach as the release export: only the confidence texts differ.
     expect(d.stage.scenarios.map((x) => [x.id, x.reachFrom, x.actions])).toEqual(stage.scenarios.map((x) => [x.id, x.reachFrom, x.actions]));
+  });
+
+  it("lists a capped schedule and a two-start solve that failed its gates as draft reasons", () => {
+    const d = exportStage(input({ iterationsCapped: true, twoStartFailed: true }));
+    expect(d.draft).toEqual(["iterations", "twostartGates"]);
+    expect(d.stage.description).toContain("초안이에요: 정식 반복 횟수 풀이·두 출발점 풀이의 수렴 전이라");
+    // The moves were measured, so the badges and texts are the release ones.
+    expect(d.stage.scenarios.map((x) => [x.confidence, x.description])).toEqual(stage.scenarios.map((x) => [x.confidence, x.description]));
   });
 
   it("is deterministic", () => {
@@ -416,11 +477,37 @@ describe("checks on a stage's data", () => {
     expect(rep.sanity5.map((x) => x.id)).toEqual(["hj-vs-utg-open"]);
     expect(rep.sanity6.map((x) => x.id)).toEqual(["utg-open-vs-hj-3bet"]);
     expect(stageSanity({ ...st, stack: 35 }).sanity6).toEqual([]);
+    expect(rep.sanity7).toEqual([]);
     const sh = reachShares(decodeStage(st).get("utg-open-vs-hj-3bet")!);
     // Reach: 22+ (78 combos), A2s+ (48), K2s+ (44) = 170 combos.
     expect(sh.call).toBeCloseTo((78 / 170) * 100, 9);
     expect(sh.shove).toBeCloseTo((48 / 170) * 100, 9);
     expect(sh.fold).toBeCloseTo((44 / 170) * 100, 9);
+  });
+
+  it("PF-SANITY-7 warns on inverted kickers in RFI and BB defense and names the worst pair", () => {
+    const chains = kickerChains();
+    expect(chains).toContainEqual(["A7s", "K7s"]);
+    expect(chains).toContainEqual(["KTo", "K9o"]);
+    // No kicker ladder below A6 in the ace row: the wheel aces may play more than A6–A9.
+    expect(chains).not.toContainEqual(["A6s", "A5s"]);
+    expect(chains).not.toContainEqual(["A5o", "A4o"]);
+    expect(chains).toContainEqual(["A2s", "K2s"]);
+    const st = base([
+      scenario("rfi-utg", "rfi", "UTG", [["open", "22+, A8s+, K7s+, KTo+, ATo+"]]),
+      scenario("rfi-hj", "rfi", "HJ", [["open", "22+, A2s+, K9s+, JTs, J9s, ATo+, KTo+, J9o, JTo:0.5"]]),
+      scenario("bb-vs-utg-open", "vsOpen", "BB", [["call", "22+, A2s+, K2s+"]], { villain: "UTG" }),
+      scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "K7s"]], { villain: "UTG" }),
+    ]);
+    const rep = stageSanity(st);
+    // UTG plays K7s but folds A7s (the worst gap, 1.0; A6s–A2s are not asked against A7s); HJ plays J9o fully and
+    // JTo half. The CO is not in PF-SANITY-7's scope.
+    expect(rep.sanity7).toEqual([
+      { id: "rfi-utg", better: "A7s", worse: "K7s", pBetter: 0, pWorse: 1 },
+      { id: "rfi-hj", better: "JTo", worse: "J9o", pBetter: 0.5, pWorse: 1 },
+    ]);
+    expect(rep.fails).toEqual([]);
+    expect(rep.warns.filter((w) => w.startsWith("PF-SANITY-7"))).toHaveLength(2);
   });
 });
 

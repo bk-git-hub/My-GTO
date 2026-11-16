@@ -15,7 +15,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "100bb-2.2",
   "label": "100bb · 오픈 2.2bb",
-  "description": "모두 100bb. 오픈 2.2bb, SB는 림프·레이즈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 100bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
   "stack": 100,
   "open": 2.2,
   "sizes": {
@@ -99,12 +99,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A7s 0%, K7s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -121,12 +121,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 84.841,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -143,12 +143,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A4s 0%, K4s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 70.759,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -165,12 +165,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A9o 0%, K9o 60%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 57.609,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -187,12 +187,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2s 0%, K2s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 45.104,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -209,12 +209,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 32.999,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -231,12 +231,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2o 0%, K2o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 20.976,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -253,12 +253,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 9.324,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -269,7 +269,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      },
      {
       "key": "raise",
-      "label": "레이즈 3bb",
+      "label": "오픈 3bb",
       "color": "raise",
       "range": "JJ-TT, 66-22, A9s-A7s, K6s+, Q6s+, J9s+, T8s+, 98s, 87s, AKo, A6o, KJo, K8o, K6o-K2o, QJo, Q9o-Q6o, 97o, 87o, 77:0.9, K4s:0.9, 88:0.8, 42s:0.8, J8o:0.8, 86o:0.8, AQo:0.7, A7o:0.7, K9o:0.7, K7o:0.7, KK:0.6, A4s:0.6, K5s:0.6, QQ:0.5, 99:0.5, A3s:0.5, 76s:0.5, KTo:0.5, J9o:0.5, K3s:0.4, KQo:0.4, AKs:0.3, A6s:0.3, QTo:0.3, A5s:0.2, 98o:0.2, ATs:0.1, Q5o:0.1"
      }
@@ -285,12 +285,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 15.159,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -317,12 +317,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 13.816,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -349,12 +349,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 14.082,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -381,12 +381,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 12.506,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -413,12 +413,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 12.679,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -445,12 +445,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 13.15,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -477,12 +477,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 11.184,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -509,12 +509,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 11.251,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -541,12 +541,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 11.647,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -573,12 +573,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 12.505,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -605,12 +605,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 9.861,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -637,12 +637,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 9.81,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -669,12 +669,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 10.082,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -701,12 +701,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 10.729,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -733,12 +733,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 12.105,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -765,12 +765,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 8.509,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -797,12 +797,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 8.41,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -893,12 +893,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 9.866,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -925,12 +925,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 12.023,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -957,12 +957,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 7.084,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -989,12 +989,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 6.913,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1021,12 +1021,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 6.775,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1053,12 +1053,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 7.022,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1085,12 +1085,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 7.709,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1117,12 +1117,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 8.968,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1149,12 +1149,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
     "occ": 11.652,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1181,12 +1181,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 5.771,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1213,12 +1213,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 5.419,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1245,12 +1245,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 5.172,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1277,12 +1277,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 5.189,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1309,12 +1309,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 5.378,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1341,12 +1341,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 6.005,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1373,12 +1373,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
     "occ": 7.044,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -1405,12 +1405,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3",
     "reachPct": 100,
     "occ": 3.1,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -2504,7 +2504,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "HJ — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.159,
@@ -2695,7 +2695,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "CO — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.129,
@@ -2722,7 +2722,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ3벳",
     "title": "CO — UTG+2 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.043,
@@ -2749,7 +2749,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "CO — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.265,
@@ -2899,7 +2899,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "BTN — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.099,
@@ -2926,7 +2926,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ3벳",
     "title": "BTN — UTG+2 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.016,
@@ -2953,7 +2953,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "BTN — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.231,
@@ -2980,7 +2980,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "BTN — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.083,
@@ -3007,7 +3007,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.62,
@@ -3116,7 +3116,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "SB — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.069,
@@ -3143,7 +3143,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "SB — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.197,
@@ -3170,7 +3170,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "SB — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.053,
@@ -3197,7 +3197,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.566,
@@ -3224,7 +3224,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.405,
@@ -3251,7 +3251,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 2.162,
@@ -3319,7 +3319,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "BB — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.04,
@@ -3346,7 +3346,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "BB — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.159,
@@ -3373,7 +3373,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "BB — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.018,
@@ -3400,7 +3400,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.513,
@@ -3427,7 +3427,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "BB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.348,
@@ -3454,7 +3454,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 2.063,
@@ -3481,7 +3481,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
     "occ": 1.171,
@@ -3508,7 +3508,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
     "occ": 1.992,
@@ -3534,7 +3534,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG 4벳",
     "title": "UTG+1 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb → UTG 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · UTG+1 3벳 6.6 · UTG 4벳 16.5",
     "reachFrom": [
      "utgp1-vs-utg-open:3bet"
@@ -3569,7 +3569,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG 4벳",
     "title": "UTG+2 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · UTG+2 3벳 6.6 · UTG 4벳 16.5",
     "reachFrom": [
      "utgp2-vs-utg-open:3bet"
@@ -3604,7 +3604,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1 4벳",
     "title": "UTG+2 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG+1 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · UTG+2 3벳 6.6 · UTG+1 4벳 16.5",
     "reachFrom": [
      "utgp2-vs-utgp1-open:3bet"
@@ -3639,7 +3639,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG 4벳",
     "title": "LJ 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb → UTG 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · LJ 3벳 6.6 · UTG 4벳 16.5",
     "reachFrom": [
      "lj-vs-utg-open:3bet"
@@ -3674,7 +3674,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1 4벳",
     "title": "LJ 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · LJ 3벳 6.6 · UTG+1 4벳 16.5",
     "reachFrom": [
      "lj-vs-utgp1-open:3bet"
@@ -3709,7 +3709,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2 4벳",
     "title": "LJ 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
@@ -3744,7 +3744,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1 4벳",
     "title": "HJ 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · HJ 3벳 6.6 · UTG+1 4벳 16.5",
     "reachFrom": [
      "hj-vs-utgp1-open:3bet"
@@ -3779,7 +3779,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2 4벳",
     "title": "HJ 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
@@ -3814,7 +3814,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳",
     "title": "HJ 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
@@ -3849,7 +3849,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1 4벳",
     "title": "CO 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb → UTG+1 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 3벳 6.6 · UTG+1 4벳 16.5",
     "reachFrom": [
      "co-vs-utgp1-open:3bet"
@@ -3884,7 +3884,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2 4벳",
     "title": "CO 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
@@ -3919,7 +3919,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳",
     "title": "CO 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "co-vs-lj-open:3bet"
@@ -3954,7 +3954,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳",
     "title": "CO 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6 · HJ 4벳 16.5",
     "reachFrom": [
      "co-vs-hj-open:3bet"
@@ -3989,7 +3989,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2 4벳",
     "title": "BTN 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
@@ -4024,7 +4024,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳",
     "title": "BTN 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
@@ -4059,7 +4059,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳",
     "title": "BTN 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6 · HJ 4벳 16.5",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
@@ -4094,7 +4094,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳",
     "title": "BTN 3벳 후 vs CO 4벳",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 4벳 16.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · CO 4벳 16.5",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -4129,7 +4129,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳 올인",
     "title": "BTN 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · CO 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -4159,7 +4159,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳·BB올인",
     "title": "BTN — CO 오픈 → BTN 3벳 → BB 올인",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · BB 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -4186,10 +4186,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "BB"
     ],
-    "chip": "BTN오픈·SB3벳·BB올인",
-    "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인",
+    "chip": "BTN오픈·SB3벳·BB올인·SB폴드",
+    "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인 → SB 폴드",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인 · SB 폴드",
     "reachFrom": [
      "rfi-btn:open"
     ],
@@ -4217,7 +4217,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳",
     "title": "SB 3벳 후 vs BTN 4벳",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 4벳 20.2bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BTN 4벳 20.2",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -4253,7 +4253,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -4282,7 +4282,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳",
     "title": "BB 3벳 후 vs BTN 4벳",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 4벳 20.2bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · BB 3벳 8.8 · BTN 4벳 20.2",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
@@ -4318,12 +4318,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "HJ vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
     "occ": 0.563,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4351,12 +4351,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "CO vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
     "occ": 0.522,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4384,12 +4384,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.592,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4417,12 +4417,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "CO vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.573,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4450,12 +4450,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "CO vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.522,
     "regret": 0.0018,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4483,12 +4483,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.511,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4516,12 +4516,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BTN vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.541,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4549,12 +4549,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.639,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4582,12 +4582,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BTN vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 0.521,
     "regret": 0.001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4615,12 +4615,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.661,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4648,12 +4648,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.632,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4681,12 +4681,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.674,
     "regret": 0.0012,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4714,12 +4714,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.618,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4747,7 +4747,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜·BB스퀴즈",
     "title": "BTN — BTN 오픈 → SB 콜 → BB 스퀴즈",
-    "description": "BTN 오픈 2.2bb → SB 콜 → BB 스퀴즈 11.6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜 → BB 스퀴즈 11.6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 콜 · BB 스퀴즈 11.6",
     "reachFrom": [
      "rfi-btn:open"
@@ -4755,7 +4755,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 55.5,
     "occ": 0.537,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4783,12 +4783,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "SB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.574,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4816,12 +4816,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.817,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4849,12 +4849,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "SB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.591,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4882,12 +4882,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.779,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4915,12 +4915,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "SB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.56,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4948,12 +4948,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.92,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -4981,12 +4981,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.589,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5014,12 +5014,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.979,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5047,12 +5047,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.537,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5080,12 +5080,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.752,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5113,12 +5113,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.893,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5146,12 +5146,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.505,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5179,12 +5179,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.712,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5212,12 +5212,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·SB콜",
     "title": "BB vs UTG 오픈 + SB 콜",
-    "description": "UTG 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 0.92,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5245,12 +5245,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.517,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5278,12 +5278,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "BB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.67,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5311,12 +5311,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·SB콜",
     "title": "BB vs UTG+1 오픈 + SB 콜",
-    "description": "UTG+1 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.063,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5344,12 +5344,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "BB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.763,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5377,12 +5377,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.162,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5410,12 +5410,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 0.501,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5443,12 +5443,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.81,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5476,12 +5476,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.248,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5509,12 +5509,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.596,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5542,12 +5542,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.523,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5575,12 +5575,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 0.679,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5608,12 +5608,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.792,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5641,12 +5641,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 2.616,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5673,7 +5673,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
@@ -5681,7 +5681,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49.7,
     "occ": 2.374,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5708,13 +5708,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
     "occ": 4.63,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5741,7 +5741,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
@@ -5749,7 +5749,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 51.3,
     "occ": 0.402,
     "regret": 0.0046,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -5771,7 +5771,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "100bb-3",
   "label": "100bb · 펍 사이즈 오픈 3bb",
-  "description": "모두 100bb. 오픈 3bb, SB는 림프·레이즈 3.5bb, 3벳 IP 3배·블라인드 3.5배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 100bb. 오픈 3bb, SB는 림프·오픈 3.5bb, 3벳 IP 3배·블라인드 3.5배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
   "stack": 100,
   "open": 3,
   "sizes": {
@@ -5855,12 +5855,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A7s 0%, K7s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5877,12 +5877,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 85.785,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5899,12 +5899,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 71.839,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5921,12 +5921,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A3s 0%, K3s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 58.993,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5943,12 +5943,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: KTo 0%, K9o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 46.602,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5965,12 +5965,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 34.328,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -5987,12 +5987,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 21.959,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6009,12 +6009,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 10.422,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6025,7 +6025,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      },
      {
       "key": "raise",
-      "label": "레이즈 3.5bb",
+      "label": "오픈 3.5bb",
       "color": "raise",
       "range": "TT, 77-66, 44-22, A9s-A7s, K6s+, Q8s+, J9s+, T8s+, 98s, 87s, AQo+, A7o, KJo, K9o-K8o, K6o-K2o, Q8o-Q7o, 97o, 87o, JJ:0.9, 88:0.9, A4s:0.9, Q7s:0.9, 42s:0.9, A6o:0.9, A2o:0.9, K7o:0.9, QJo:0.9, A6s:0.8, 86o:0.8, KK:0.7, 55:0.7, A3s:0.6, KTo:0.6, J8o:0.6, QQ:0.5, 99:0.5, A5s:0.5, Q9o:0.4, T8o:0.4, AKs:0.3, ATs:0.3, 98o:0.3, K4s:0.2, 43s:0.2, 76s:0.1, KQo:0.1"
      }
@@ -6041,12 +6041,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 14.215,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6073,12 +6073,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 13.134,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6105,12 +6105,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 13.946,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6137,12 +6137,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 12.012,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6169,12 +6169,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 12.713,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6201,12 +6201,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 12.846,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6233,12 +6233,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 10.921,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6265,12 +6265,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 11.476,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6297,12 +6297,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 11.45,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6329,12 +6329,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
     "occ": 12.391,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6361,12 +6361,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 9.852,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6393,12 +6393,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 10.205,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6425,12 +6425,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 10.093,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6457,12 +6457,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
     "occ": 10.792,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6489,12 +6489,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
     "occ": 12.274,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6521,12 +6521,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 8.722,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6553,12 +6553,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 8.887,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6585,12 +6585,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 8.768,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6617,12 +6617,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
     "occ": 9.195,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6649,12 +6649,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
     "occ": 10.268,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6681,12 +6681,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
     "occ": 12.369,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6713,12 +6713,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 7.537,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6745,12 +6745,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 7.573,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6777,12 +6777,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 7.326,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6809,12 +6809,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
     "occ": 7.557,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6841,12 +6841,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
     "occ": 8.188,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6873,12 +6873,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
     "occ": 9.463,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6905,12 +6905,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3",
     "reachPct": 100,
     "occ": 11.537,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -6937,12 +6937,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: K6s 0%, K5s 30%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 6.76,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -6969,12 +6969,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
     "occ": 6.671,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7001,12 +7001,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 6.384,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7033,12 +7033,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
     "occ": 6.397,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7065,12 +7065,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
     "occ": 6.628,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7097,12 +7097,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
     "occ": 7.354,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7129,12 +7129,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3",
     "reachPct": 100,
     "occ": 8.086,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -7161,12 +7161,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3.5bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: J6o 0%, J5o 20%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "SB 3.5",
     "reachPct": 100,
     "occ": 3.351,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -8547,7 +8547,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
     "occ": 1.213,
@@ -8656,7 +8656,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
     "occ": 1.175,
@@ -8683,7 +8683,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachPct": 100,
     "occ": 1.073,
@@ -8710,7 +8710,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
     "occ": 1.601,
@@ -8778,7 +8778,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
     "occ": 1.137,
@@ -8805,7 +8805,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "BB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachPct": 100,
     "occ": 1.032,
@@ -8832,7 +8832,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
     "occ": 1.532,
@@ -8859,7 +8859,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · SB 3벳 10.5",
     "reachPct": 100,
     "occ": 1.133,
@@ -8886,7 +8886,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 3벳 10.5",
     "reachPct": 100,
     "occ": 1.849,
@@ -8912,7 +8912,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳",
     "title": "CO 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb → HJ 4벳 22.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb → HJ 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9 · HJ 4벳 22.5",
     "reachFrom": [
      "co-vs-hj-open:3bet"
@@ -8947,7 +8947,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳",
     "title": "BTN 3벳 후 vs CO 4벳",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb → CO 4벳 22.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb → CO 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 3벳 9 · CO 4벳 22.5",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -8980,10 +8980,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "BB"
     ],
-    "chip": "BTN오픈·SB3벳·BB올인",
-    "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 3 · SB 3벳 10.5 · BB 올인",
+    "chip": "BTN오픈·SB3벳·BB올인·SB폴드",
+    "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인 → SB 폴드",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "BTN 3 · SB 3벳 10.5 · BB 올인 · SB 폴드",
     "reachFrom": [
      "rfi-btn:open"
     ],
@@ -9011,7 +9011,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BTN 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 3벳 10.5 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -9041,7 +9041,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 3벳 10.5 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -9070,7 +9070,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳 올인",
     "title": "BB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 3bb → BB 3벳 10.5bb → BTN 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → BB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · BB 3벳 10.5 · BTN 올인",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
@@ -9100,12 +9100,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · UTG+2 콜",
     "reachPct": 100,
     "occ": 0.528,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9133,12 +9133,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · UTG+2 콜",
     "reachPct": 100,
     "occ": 0.512,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9166,12 +9166,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "HJ vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.543,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9199,12 +9199,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "HJ vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.538,
     "regret": 0.0072,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9232,12 +9232,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "HJ vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.572,
     "regret": 0.0013,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9265,12 +9265,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "CO vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.509,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9298,12 +9298,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.556,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9331,12 +9331,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "CO vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.503,
     "regret": 0.0025,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9364,12 +9364,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "CO vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.634,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9397,12 +9397,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "CO vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
     "occ": 0.53,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9430,12 +9430,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "CO vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.587,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9463,12 +9463,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.674,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9496,12 +9496,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BTN vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.516,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9529,12 +9529,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.652,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9562,12 +9562,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BTN vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.588,
     "regret": 0.0013,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9595,12 +9595,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.697,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9628,12 +9628,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "BTN vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.54,
     "regret": 0.0016,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9661,12 +9661,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.662,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9694,12 +9694,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "BTN vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.619,
     "regret": 0.0009,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9727,12 +9727,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.769,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9760,12 +9760,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.793,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9793,12 +9793,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "SB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.597,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9826,12 +9826,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.728,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9859,12 +9859,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "SB vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.537,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9892,12 +9892,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "SB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.635,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9925,12 +9925,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.775,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9958,12 +9958,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "SB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.603,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -9991,12 +9991,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.839,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10024,12 +10024,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "SB vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.561,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10057,12 +10057,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.689,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10090,12 +10090,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.881,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10123,12 +10123,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.704,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10156,12 +10156,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
     "occ": 1.007,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10189,12 +10189,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
     "occ": 1.305,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10222,12 +10222,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.548,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10255,12 +10255,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.66,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10288,12 +10288,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.578,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10321,12 +10321,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "BB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.698,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10354,12 +10354,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.548,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10387,12 +10387,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "BB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.752,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10420,12 +10420,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "BB vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.508,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10453,12 +10453,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.615,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10486,12 +10486,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.775,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10519,12 +10519,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 3bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · SB 콜",
     "reachPct": 100,
     "occ": 0.526,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10552,12 +10552,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.621,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10585,12 +10585,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
     "occ": 0.866,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10618,12 +10618,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 3bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · SB 콜",
     "reachPct": 100,
     "occ": 0.771,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10651,12 +10651,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
     "occ": 1.102,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10684,12 +10684,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 3bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · SB 콜",
     "reachPct": 100,
     "occ": 0.977,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10717,12 +10717,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 3bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 콜",
     "reachPct": 100,
     "occ": 1.602,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10749,7 +10749,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
@@ -10757,7 +10757,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49.8,
     "occ": 2.757,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10784,13 +10784,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
     "occ": 5.188,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10817,7 +10817,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
@@ -10825,7 +10825,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 53.2,
     "occ": 0.457,
     "regret": 0.0014,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10847,7 +10847,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "55bb-2.2",
   "label": "55bb · 오픈 2.2bb",
-  "description": "모두 55bb. 오픈 2.2bb, SB는 림프·레이즈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 55bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
   "stack": 55,
   "open": 2.2,
   "sizes": {
@@ -10931,12 +10931,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -10953,12 +10953,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 83.924,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -10975,12 +10975,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 68.843,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -10997,12 +10997,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A9o 0%, K9o 70%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 54.901,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -11019,12 +11019,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A8o 0%, K8o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 41.974,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -11041,12 +11041,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 29.242,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -11063,12 +11063,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2o 0%, K2o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 18.241,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -11085,12 +11085,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 8.689,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11101,7 +11101,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      },
      {
       "key": "raise",
-      "label": "레이즈 3bb",
+      "label": "오픈 3bb",
       "color": "raise",
       "range": "JJ, 99, 66-22, AKs, A8s-A5s, K4s+, Q6s+, J9s, T8s+, 98s, A4o, KJo+, K9o-K2o, QTo+, Q8o-Q5o, J9o-J8o, 87o, A4s:0.9, AKo:0.9, A7o:0.9, Q9o:0.9, 88-77:0.8, K3s:0.8, AQo:0.8, QQ:0.7, AQs:0.7, ATo:0.6, A6o:0.6, A3o:0.6, 97o:0.6, 76o:0.6, KK:0.5, TT:0.5, A2o:0.5, 87s:0.4, A9o:0.4, 86o:0.4, A9s:0.3, JTs:0.3, KTo:0.3, A8o:0.2, A5o:0.1"
      }
@@ -11117,12 +11117,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 16.076,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11149,12 +11149,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 14.49,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11181,12 +11181,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 15.081,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11213,12 +11213,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 12.979,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11245,12 +11245,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 13.316,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11277,12 +11277,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 13.941,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11309,12 +11309,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 11.483,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11341,12 +11341,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 11.675,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11373,12 +11373,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 12.221,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11405,12 +11405,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 12.927,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11437,12 +11437,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 9.989,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11469,12 +11469,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 10.083,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11501,12 +11501,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 10.513,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11565,12 +11565,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 12.733,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11725,12 +11725,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 10.25,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11757,12 +11757,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 11.001,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11789,12 +11789,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 6.978,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11821,12 +11821,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 6.775,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11853,12 +11853,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 6.882,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11885,12 +11885,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 6.959,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11917,12 +11917,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 7.624,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11949,12 +11949,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 7.92,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -11981,12 +11981,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
     "occ": 9.552,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12013,12 +12013,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
     "occ": 5.651,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12045,12 +12045,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
     "occ": 5.274,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12077,12 +12077,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
     "occ": 5.238,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12109,12 +12109,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
     "occ": 5.008,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12141,12 +12141,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
     "occ": 5.259,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12173,12 +12173,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
     "occ": 5.164,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12205,12 +12205,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
     "occ": 5.655,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12237,12 +12237,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3",
     "reachPct": 100,
     "occ": 3.335,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -12515,7 +12515,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
@@ -12550,7 +12550,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
@@ -12790,7 +12790,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -12825,7 +12825,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -13024,7 +13024,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -13059,7 +13059,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -13217,7 +13217,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
@@ -13252,7 +13252,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
@@ -13369,7 +13369,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
@@ -13404,7 +13404,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
@@ -13480,7 +13480,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
@@ -13515,7 +13515,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
@@ -13551,7 +13551,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.143,
@@ -13577,7 +13577,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
@@ -13612,7 +13612,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
@@ -13648,7 +13648,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.098,
@@ -13675,7 +13675,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.017,
@@ -13702,7 +13702,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.24,
@@ -13728,7 +13728,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 3bb → BB 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb → BB 3벳 9bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3 · BB 3벳 9",
     "reachFrom": [
      "rfi-sb:raise"
@@ -13764,7 +13764,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
     "occ": 1.053,
@@ -13791,7 +13791,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.17,
@@ -13818,7 +13818,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
     "occ": 1.015,
@@ -13845,7 +13845,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
     "occ": 1.601,
@@ -13871,7 +13871,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2 4벳 올인",
     "title": "HJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6 · UTG+2 올인",
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
@@ -13900,7 +13900,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳 올인",
     "title": "HJ 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
@@ -13929,7 +13929,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2 4벳 올인",
     "title": "CO 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 3벳 6.6 · UTG+2 올인",
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
@@ -13958,7 +13958,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳 올인",
     "title": "CO 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "co-vs-lj-open:3bet"
@@ -13987,7 +13987,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳 올인",
     "title": "CO 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6 · HJ 올인",
     "reachFrom": [
      "co-vs-hj-open:3bet"
@@ -14016,7 +14016,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2 4벳 올인",
     "title": "BTN 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 3벳 6.6 · UTG+2 올인",
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
@@ -14045,7 +14045,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳 올인",
     "title": "BTN 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
@@ -14074,7 +14074,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳 올인",
     "title": "BTN 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6 · HJ 올인",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
@@ -14103,7 +14103,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳 올인",
     "title": "BTN 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · CO 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -14132,7 +14132,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ 4벳 올인",
     "title": "SB 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb → HJ 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 3벳 8.8 · HJ 올인",
     "reachFrom": [
      "sb-vs-hj-open:3bet"
@@ -14161,7 +14161,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO 4벳 올인",
     "title": "SB 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb → CO 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8 · CO 올인",
     "reachFrom": [
      "sb-vs-co-open:3bet"
@@ -14190,7 +14190,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -14220,7 +14220,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -14249,7 +14249,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳 올인",
     "title": "BB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 올인. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · BB 3벳 8.8 · BTN 올인",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
@@ -14279,12 +14279,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
     "occ": 1.007,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14312,12 +14312,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 콜",
     "reachPct": 100,
     "occ": 1.072,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14345,12 +14345,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 1.035,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14378,12 +14378,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 1.133,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14411,12 +14411,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 1.34,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14444,12 +14444,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.024,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14477,12 +14477,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.088,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14510,12 +14510,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.191,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14543,12 +14543,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.123,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14576,12 +14576,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
     "occ": 1.142,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14609,12 +14609,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.608,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14642,12 +14642,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.841,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14675,12 +14675,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.093,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14708,12 +14708,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.356,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14741,12 +14741,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.198,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14774,12 +14774,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.598,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14807,12 +14807,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.312,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14840,12 +14840,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.74,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14873,12 +14873,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 2.296,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14905,7 +14905,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
@@ -14913,7 +14913,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 45.4,
     "occ": 1.987,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14940,13 +14940,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
     "occ": 3.962,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -14973,7 +14973,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
@@ -14981,7 +14981,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 50.4,
     "occ": 0.336,
     "regret": 0.0029,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15003,7 +15003,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "35bb-2",
   "label": "35bb · 오픈 2bb",
-  "description": "모두 35bb. 오픈 2bb, SB는 림프·레이즈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 35bb. 오픈 2bb, SB는 림프·오픈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
   "stack": 35,
   "open": 2,
   "sizes": {
@@ -15087,12 +15087,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -15115,12 +15115,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A4s 0%, K4s 20%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 82.526,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -15143,12 +15143,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 66.761,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15171,12 +15171,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 52.647,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -15199,12 +15199,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 39.587,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -15227,12 +15227,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
     "line": "",
     "reachPct": 100,
     "occ": 27.491,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
@@ -15255,12 +15255,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 17.161,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15283,12 +15283,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 8.752,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15299,7 +15299,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      },
      {
       "key": "raise",
-      "label": "레이즈 2.5bb",
+      "label": "오픈 2.5bb",
       "color": "raise",
       "range": "KK-JJ, 99, AQs+, A8s-A7s, KJs+, K9s-K3s, Q6s+, J9s, T8s, AKo, KJo, K9o-K2o, QJo, Q9o-Q4o, J9o, J7o, Q5s:0.8, TT:0.7, 88:0.7, J8s:0.7, 44:0.5, 87s:0.5, A6o:0.5, J8o:0.5, 86o+:0.5, 76o:0.5, AA:0.4, 77-66:0.4, ATs:0.4, KQo:0.4, 55:0.3, 33:0.3, 54s:0.3, A7o:0.3, 22:0.2, 97o:0.2, A6s:0.1"
      },
@@ -15321,12 +15321,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 17.474,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15359,12 +15359,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 15.526,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15397,12 +15397,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 15.765,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15435,12 +15435,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 13.761,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15473,12 +15473,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 13.921,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15511,12 +15511,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
     "occ": 14.114,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15549,12 +15549,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 12.811,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15587,12 +15587,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 12.209,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15625,12 +15625,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
     "occ": 12.359,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15663,12 +15663,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
     "occ": 13.06,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15701,12 +15701,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 11.045,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15739,12 +15739,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 10.505,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -15853,12 +15853,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
     "occ": 12.096,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16043,12 +16043,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
     "occ": 9.821,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16081,12 +16081,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
     "occ": 10.331,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16119,12 +16119,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 7.499,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16157,12 +16157,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 7.04,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16195,12 +16195,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
     "occ": 6.97,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16233,12 +16233,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
     "occ": 6.989,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16271,12 +16271,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
     "occ": 7.472,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16309,12 +16309,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
     "occ": 7.842,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16347,12 +16347,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2",
     "reachPct": 100,
     "occ": 8.409,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16385,12 +16385,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 5.391,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16423,12 +16423,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
     "occ": 4.941,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16461,12 +16461,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
     "occ": 4.849,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16499,12 +16499,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
     "occ": 4.648,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16537,12 +16537,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
     "occ": 4.758,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16575,12 +16575,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
     "occ": 4.736,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16613,12 +16613,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2",
     "reachPct": 100,
     "occ": 5.06,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16651,12 +16651,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 2.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 2.5",
     "reachPct": 100,
     "occ": 2.722,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16689,7 +16689,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+1 3벳",
     "title": "UTG 오픈 후 vs UTG+1 3벳",
-    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+1 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16697,7 +16697,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.576,
     "regret": 0.0011,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16724,7 +16724,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+2 3벳",
     "title": "UTG 오픈 후 vs UTG+2 3벳",
-    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+2 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16732,7 +16732,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.595,
     "regret": 0.0035,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16759,7 +16759,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs LJ 3벳",
     "title": "UTG 오픈 후 vs LJ 3벳",
-    "description": "UTG 오픈 2bb → LJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16767,7 +16767,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.801,
     "regret": 0.0009,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16794,7 +16794,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 2bb → HJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16802,7 +16802,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.611,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16829,7 +16829,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 2bb → CO 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16837,7 +16837,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.595,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16864,7 +16864,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BTN 3벳",
     "title": "UTG 오픈 후 vs BTN 3벳",
-    "description": "UTG 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
@@ -16872,7 +16872,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.564,
     "regret": 0.0017,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16899,7 +16899,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utg:open"
@@ -16907,7 +16907,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.371,
     "regret": 0.0025,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16934,7 +16934,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 올인",
     "title": "UTG 오픈 후 vs SB 3벳 올인",
-    "description": "UTG 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · SB 올인",
     "reachFrom": [
      "rfi-utg:open"
@@ -16942,7 +16942,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.112,
     "regret": 0.0013,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16963,7 +16963,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utg:open"
@@ -16971,7 +16971,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 17.5,
     "occ": 0.288,
     "regret": 0.0058,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -16998,7 +16998,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · UTG+2 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17006,7 +17006,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.62,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17033,7 +17033,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17041,7 +17041,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.652,
     "regret": 0.0018,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17068,7 +17068,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs HJ 3벳",
     "title": "UTG+1 오픈 후 vs HJ 3벳",
-    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17076,7 +17076,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.631,
     "regret": 0.0019,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17103,7 +17103,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs CO 3벳",
     "title": "UTG+1 오픈 후 vs CO 3벳",
-    "description": "UTG+1 오픈 2bb → CO 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17111,7 +17111,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.619,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17138,7 +17138,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17146,7 +17146,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.57,
     "regret": 0.0019,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17173,7 +17173,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17181,7 +17181,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.385,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17208,7 +17208,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utgp1:open"
@@ -17216,7 +17216,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 19.1,
     "occ": 0.274,
     "regret": 0.0035,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17243,7 +17243,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs LJ 3벳",
     "title": "UTG+2 오픈 후 vs LJ 3벳",
-    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17251,7 +17251,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.706,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17278,7 +17278,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs HJ 3벳",
     "title": "UTG+2 오픈 후 vs HJ 3벳",
-    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17286,7 +17286,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.705,
     "regret": 0.0027,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17313,7 +17313,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs CO 3벳",
     "title": "UTG+2 오픈 후 vs CO 3벳",
-    "description": "UTG+2 오픈 2bb → CO 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17321,7 +17321,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.657,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17348,7 +17348,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BTN 3벳",
     "title": "UTG+2 오픈 후 vs BTN 3벳",
-    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17356,7 +17356,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.587,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17383,7 +17383,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17391,7 +17391,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.395,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17418,7 +17418,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 올인",
     "title": "UTG+2 오픈 후 vs SB 3벳 올인",
-    "description": "UTG+2 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · SB 올인",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17426,7 +17426,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.101,
     "regret": 0.0024,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17447,7 +17447,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17455,7 +17455,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.279,
     "regret": 0.006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17482,7 +17482,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 올인",
     "title": "UTG+2 오픈 후 vs BB 3벳 올인",
-    "description": "UTG+2 오픈 2bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BB 올인",
     "reachFrom": [
      "rfi-utgp2:open"
@@ -17490,7 +17490,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 21.1,
     "occ": 0.102,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17511,7 +17511,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs HJ 3벳",
     "title": "LJ 오픈 후 vs HJ 3벳",
-    "description": "LJ 오픈 2bb → HJ 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
@@ -17519,7 +17519,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.8,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17546,7 +17546,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs CO 3벳",
     "title": "LJ 오픈 후 vs CO 3벳",
-    "description": "LJ 오픈 2bb → CO 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
@@ -17554,7 +17554,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.723,
     "regret": 0.0009,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17581,7 +17581,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BTN 3벳",
     "title": "LJ 오픈 후 vs BTN 3벳",
-    "description": "LJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
@@ -17589,7 +17589,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.686,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17616,7 +17616,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-lj:open"
@@ -17624,7 +17624,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.477,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17651,7 +17651,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 올인",
     "title": "LJ 오픈 후 vs SB 3벳 올인",
-    "description": "LJ 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · SB 올인",
     "reachFrom": [
      "rfi-lj:open"
@@ -17659,7 +17659,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.176,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17680,7 +17680,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-lj:open"
@@ -17688,7 +17688,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.32,
     "regret": 0.0025,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17715,7 +17715,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 올인",
     "title": "LJ 오픈 후 vs BB 3벳 올인",
-    "description": "LJ 오픈 2bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BB 올인",
     "reachFrom": [
      "rfi-lj:open"
@@ -17723,7 +17723,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 24.8,
     "occ": 0.129,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17744,7 +17744,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs CO 3벳",
     "title": "HJ 오픈 후 vs CO 3벳",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-hj:open"
@@ -17752,7 +17752,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.855,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17779,7 +17779,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-hj:open"
@@ -17787,7 +17787,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.84,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17814,7 +17814,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-hj:open"
@@ -17822,7 +17822,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.635,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17849,7 +17849,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 올인",
     "title": "HJ 오픈 후 vs SB 3벳 올인",
-    "description": "HJ 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · SB 올인",
     "reachFrom": [
      "rfi-hj:open"
@@ -17857,7 +17857,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.221,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17878,7 +17878,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-hj:open"
@@ -17886,7 +17886,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.356,
     "regret": 0.0017,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17913,7 +17913,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 올인",
     "title": "HJ 오픈 후 vs BB 3벳 올인",
-    "description": "HJ 오픈 2bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BB 올인",
     "reachFrom": [
      "rfi-hj:open"
@@ -17921,7 +17921,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 30.5,
     "occ": 0.201,
     "regret": 0.0009,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17942,7 +17942,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BTN 3벳",
     "title": "CO 오픈 후 vs BTN 3벳",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-co:open"
@@ -17950,7 +17950,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 37.6,
     "occ": 1.064,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -17977,7 +17977,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-co:open"
@@ -17985,7 +17985,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 37.6,
     "occ": 0.735,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18012,7 +18012,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 올인",
     "title": "CO 오픈 후 vs SB 3벳 올인",
-    "description": "CO 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · SB 올인",
     "reachFrom": [
      "rfi-co:open"
@@ -18020,7 +18020,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 37.6,
     "occ": 0.321,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18041,7 +18041,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-co:open"
@@ -18049,7 +18049,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 37.6,
     "occ": 0.318,
     "regret": 0.0013,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18076,7 +18076,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 올인",
     "title": "CO 오픈 후 vs BB 3벳 올인",
-    "description": "CO 오픈 2bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BB 올인",
     "reachFrom": [
      "rfi-co:open"
@@ -18084,7 +18084,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 37.6,
     "occ": 0.401,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18106,12 +18106,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · CO 3벳 6",
     "reachPct": 100,
     "occ": 1.03,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18132,7 +18132,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-btn:open"
@@ -18140,7 +18140,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49,
     "occ": 0.843,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18167,7 +18167,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 올인",
     "title": "BTN 오픈 후 vs SB 3벳 올인",
-    "description": "BTN 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 올인",
     "reachFrom": [
      "rfi-btn:open"
@@ -18175,7 +18175,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49,
     "occ": 0.621,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18196,7 +18196,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 2bb → BB 3벳 8bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-btn:open"
@@ -18204,7 +18204,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49,
     "occ": 0.378,
     "regret": 0.0025,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18231,7 +18231,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 올인",
     "title": "BTN 오픈 후 vs BB 3벳 올인",
-    "description": "BTN 오픈 2bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · BB 올인",
     "reachFrom": [
      "rfi-btn:open"
@@ -18239,7 +18239,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49,
     "occ": 0.714,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18261,12 +18261,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 3벳 6",
     "reachPct": 100,
     "occ": 1.26,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18287,7 +18287,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 2.5bb → BB 3벳 7.5bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb → BB 3벳 7.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 2.5 · BB 3벳 7.5",
     "reachFrom": [
      "rfi-sb:raise"
@@ -18295,7 +18295,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 31,
     "occ": 0.357,
     "regret": 0.0008,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18322,7 +18322,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 올인",
     "title": "SB 오픈 후 vs BB 3벳 올인",
-    "description": "SB 오픈 2.5bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 2.5 · BB 올인",
     "reachFrom": [
      "rfi-sb:raise"
@@ -18330,7 +18330,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 31,
     "occ": 0.203,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18352,12 +18352,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 3벳 6",
     "reachPct": 100,
     "occ": 1.166,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18378,7 +18378,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1 4벳 올인",
     "title": "UTG+2 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb → UTG+1 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · UTG+2 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "utgp2-vs-utgp1-open:3bet"
@@ -18386,7 +18386,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 4.6,
     "occ": 0.101,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18407,7 +18407,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG 4벳 올인",
     "title": "LJ 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → LJ 3벳 6bb → UTG 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → LJ 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · LJ 3벳 6 · UTG 올인",
     "reachFrom": [
      "lj-vs-utg-open:3bet"
@@ -18415,7 +18415,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.9,
     "occ": 0.182,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18436,7 +18436,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1 4벳 올인",
     "title": "LJ 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb → UTG+1 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · LJ 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "lj-vs-utgp1-open:3bet"
@@ -18444,7 +18444,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 5.6,
     "occ": 0.114,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18465,7 +18465,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2 4벳 올인",
     "title": "LJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb → UTG+2 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · LJ 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
@@ -18473,7 +18473,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6,
     "occ": 0.129,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18494,7 +18494,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG 4벳 올인",
     "title": "HJ 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → HJ 3벳 6bb → UTG 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · HJ 3벳 6 · UTG 올인",
     "reachFrom": [
      "hj-vs-utg-open:3bet"
@@ -18502,7 +18502,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 5.6,
     "occ": 0.11,
     "regret": 0.0016,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18523,7 +18523,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1 4벳 올인",
     "title": "HJ 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb → UTG+1 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · HJ 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "hj-vs-utgp1-open:3bet"
@@ -18531,7 +18531,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6,
     "occ": 0.114,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18552,7 +18552,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2 4벳 올인",
     "title": "HJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb → UTG+2 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · HJ 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
@@ -18560,7 +18560,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.7,
     "occ": 0.131,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18581,7 +18581,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳 올인",
     "title": "HJ 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → HJ 3벳 6bb → LJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → HJ 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · HJ 3벳 6 · LJ 올인",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
@@ -18589,7 +18589,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 7.2,
     "occ": 0.141,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18610,7 +18610,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG 4벳 올인",
     "title": "CO 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → CO 3벳 6bb → UTG 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · CO 3벳 6 · UTG 올인",
     "reachFrom": [
      "co-vs-utg-open:3bet"
@@ -18618,7 +18618,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.1,
     "occ": 0.107,
     "regret": 0.0009,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18639,7 +18639,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1 4벳 올인",
     "title": "CO 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → CO 3벳 6bb → UTG+1 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · CO 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "co-vs-utgp1-open:3bet"
@@ -18647,7 +18647,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.6,
     "occ": 0.113,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18668,7 +18668,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2 4벳 올인",
     "title": "CO 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → CO 3벳 6bb → UTG+2 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · CO 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
@@ -18676,7 +18676,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.9,
     "occ": 0.127,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18697,7 +18697,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳 올인",
     "title": "CO 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → CO 3벳 6bb → LJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 3벳 6 · LJ 올인",
     "reachFrom": [
      "co-vs-lj-open:3bet"
@@ -18705,7 +18705,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 7.6,
     "occ": 0.128,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18726,7 +18726,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳 올인",
     "title": "CO 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb → HJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 3벳 6bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · CO 3벳 6 · HJ 올인",
     "reachFrom": [
      "co-vs-hj-open:3bet"
@@ -18734,7 +18734,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 8.5,
     "occ": 0.128,
     "regret": 0.0007,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18755,7 +18755,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG 4벳 올인",
     "title": "BTN 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → BTN 3벳 6bb → UTG 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · BTN 3벳 6 · UTG 올인",
     "reachFrom": [
      "btn-vs-utg-open:3bet"
@@ -18763,7 +18763,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.4,
     "occ": 0.108,
     "regret": 0.0012,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18784,7 +18784,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1 4벳 올인",
     "title": "BTN 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb → UTG+1 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · BTN 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "btn-vs-utgp1-open:3bet"
@@ -18792,7 +18792,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 7,
     "occ": 0.109,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18813,7 +18813,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2 4벳 올인",
     "title": "BTN 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb → UTG+2 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BTN 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
@@ -18821,7 +18821,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 7.3,
     "occ": 0.116,
     "regret": 0.0015,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18842,7 +18842,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳 올인",
     "title": "BTN 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → BTN 3벳 6bb → LJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BTN 3벳 6 · LJ 올인",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
@@ -18850,7 +18850,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 8.3,
     "occ": 0.122,
     "regret": 0.0016,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18871,7 +18871,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳 올인",
     "title": "BTN 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → BTN 3벳 6bb → HJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 3벳 6bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 3벳 6 · HJ 올인",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
@@ -18879,7 +18879,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 9.9,
     "occ": 0.142,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18900,7 +18900,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳 올인",
     "title": "BTN 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb → CO 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb → CO 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 3벳 6 · CO 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -18908,7 +18908,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 12.1,
     "occ": 0.17,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18930,7 +18930,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳·BB올인",
     "title": "BTN — CO 오픈 → BTN 3벳 → BB 올인",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 3벳 6 · BB 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
@@ -18938,7 +18938,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 12.1,
     "occ": 0.102,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18959,7 +18959,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ 4벳 올인",
     "title": "SB 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → SB 3벳 8bb → HJ 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 3벳 8bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · SB 3벳 8 · HJ 올인",
     "reachFrom": [
      "sb-vs-hj-open:3bet"
@@ -18967,7 +18967,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 9.1,
     "occ": 0.113,
     "regret": 0.0005,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -18988,7 +18988,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO 4벳 올인",
     "title": "SB 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2bb → SB 3벳 8bb → CO 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 3벳 8bb → CO 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · SB 3벳 8 · CO 올인",
     "reachFrom": [
      "sb-vs-co-open:3bet"
@@ -18996,7 +18996,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 10.2,
     "occ": 0.131,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19017,7 +19017,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb → BTN 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 3벳 8bb → BTN 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 3벳 8 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -19025,7 +19025,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 11.5,
     "occ": 0.143,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19047,7 +19047,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 3벳 8bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 3벳 8 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
@@ -19055,7 +19055,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 11.5,
     "occ": 0.116,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19077,12 +19077,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+1콜",
     "title": "UTG+2 vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+1 콜",
     "reachPct": 100,
     "occ": 1.23,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19116,12 +19116,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+1콜",
     "title": "LJ vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+1 콜",
     "reachPct": 100,
     "occ": 1.173,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19155,12 +19155,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 2bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+2 콜",
     "reachPct": 100,
     "occ": 1.045,
     "regret": 0.0006,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19194,12 +19194,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · UTG+2 콜",
     "reachPct": 100,
     "occ": 1.096,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19233,12 +19233,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+1콜",
     "title": "HJ vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+1 콜",
     "reachPct": 100,
     "occ": 1.094,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19272,12 +19272,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · UTG+2 콜",
     "reachPct": 100,
     "occ": 1.016,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19311,12 +19311,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+1콜",
     "title": "CO vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · UTG+1 콜",
     "reachPct": 100,
     "occ": 1.015,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19350,12 +19350,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
     "occ": 1.068,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19389,12 +19389,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2bb → HJ 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · HJ 콜",
     "reachPct": 100,
     "occ": 1.07,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19428,12 +19428,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.028,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19467,12 +19467,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.115,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19506,12 +19506,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.206,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19545,12 +19545,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.245,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19584,12 +19584,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.242,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19617,12 +19617,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.191,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19650,12 +19650,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.191,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19683,12 +19683,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.033,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19716,12 +19716,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.242,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19749,12 +19749,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 1.064,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19782,12 +19782,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.38,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19815,12 +19815,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.213,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19848,12 +19848,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·SB콜",
     "title": "BB vs UTG 오픈 + SB 콜",
-    "description": "UTG 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.61,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19881,12 +19881,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·SB콜",
     "title": "BB vs UTG+1 오픈 + SB 콜",
-    "description": "UTG+1 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.606,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19914,12 +19914,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.607,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19947,12 +19947,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.659,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -19980,12 +19980,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
     "occ": 1.003,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20013,12 +20013,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.808,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20046,12 +20046,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.98,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20079,12 +20079,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2bb → SB 콜. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 콜",
     "reachPct": 100,
     "occ": 1.768,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20111,7 +20111,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3bb. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3",
     "reachFrom": [
      "rfi-sb:limp"
@@ -20119,7 +20119,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49.5,
     "occ": 1.761,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20152,7 +20152,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 올인",
     "title": "SB 림프 vs BB 올인",
-    "description": "SB 림프 → BB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 올인",
     "reachFrom": [
      "rfi-sb:limp"
@@ -20160,7 +20160,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 49.5,
     "occ": 0.237,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20181,13 +20181,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
     "occ": 4.329,
     "regret": 0.0003,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20220,7 +20220,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 올인",
     "title": "BB 레이즈 후 vs SB 올인",
-    "description": "SB 림프 → BB 레이즈 3bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 림프 · BB 레이즈 3 · SB 올인",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
@@ -20228,7 +20228,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 40.6,
     "occ": 0.2,
     "regret": 0.0002,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20247,14 +20247,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "SB"
     ],
-    "chip": "LJ오픈·SB올인",
-    "title": "BB — LJ 오픈 → SB 올인",
-    "description": "LJ 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 2 · SB 올인",
+    "chip": "LJ오픈·SB올인·LJ폴드",
+    "title": "BB — LJ 오픈 → SB 올인 → LJ 폴드",
+    "description": "LJ 오픈 2bb → SB 올인 → LJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · SB 올인 · LJ 폴드",
     "reachPct": 100,
     "occ": 0.134,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20273,14 +20273,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "SB"
     ],
-    "chip": "HJ오픈·SB올인",
-    "title": "BB — HJ 오픈 → SB 올인",
-    "description": "HJ 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · SB 올인",
+    "chip": "HJ오픈·SB올인·HJ폴드",
+    "title": "BB — HJ 오픈 → SB 올인 → HJ 폴드",
+    "description": "HJ 오픈 2bb → SB 올인 → HJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "HJ 2 · SB 올인 · HJ 폴드",
     "reachPct": 100,
     "occ": 0.167,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20299,14 +20299,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "SB"
     ],
-    "chip": "CO오픈·SB올인",
-    "title": "BB — CO 오픈 → SB 올인",
-    "description": "CO 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · SB 올인",
+    "chip": "CO오픈·SB올인·CO폴드",
+    "title": "BB — CO 오픈 → SB 올인 → CO 폴드",
+    "description": "CO 오픈 2bb → SB 올인 → CO 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "CO 2 · SB 올인 · CO 폴드",
     "reachPct": 100,
     "occ": 0.242,
     "regret": 0.0004,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20325,14 +20325,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "villainSeats": [
      "SB"
     ],
-    "chip": "BTN오픈·SB올인",
-    "title": "BB — BTN 오픈 → SB 올인",
-    "description": "BTN 오픈 2bb → SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 2 · SB 올인",
+    "chip": "BTN오픈·SB올인·BTN폴드",
+    "title": "BB — BTN 오픈 → SB 올인 → BTN 폴드",
+    "description": "BTN 오픈 2bb → SB 올인 → BTN 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "BTN 2 · SB 올인 · BTN 폴드",
     "reachPct": 100,
     "occ": 0.472,
     "regret": 0.0001,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
@@ -20353,12 +20353,12 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 올인",
-    "description": "SB 올인. 신뢰도 높음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 올인",
     "reachPct": 100,
     "occ": 0.546,
     "regret": 0,
-    "confidence": "high",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
