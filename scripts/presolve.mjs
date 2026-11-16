@@ -4,6 +4,10 @@
 // Usage: node scripts/presolve.mjs [options]
 //   --scenario <id|all>     which pack(s) (default all; ids in src/presolve/scenarios.ts)
 //   --count <n>             cover the first n flops of FLOPS_BY_PRIORITY per pack (default 100)
+//   --shard <i>/<n>         solve only shard i of n (0 ≤ i < n; default 0/1, everything): flop k of FLOPS_BY_PRIORITY
+//                           (its index in the full order) belongs to shard k % n, so parallel jobs started from the
+//                           same commit solve disjoint flops; each shard still covers only the first --count flops,
+//                           in priority order, and skips files already on disk (src/presolve/shard.ts)
 //   --budget-minutes <m>    wall-clock budget for the whole run (default 50); never starts or keeps a solve past it
 //   --iterations <n>        iteration cap per flop (default: the scenario's; not allowed with the default --out)
 //   --target <pct>          exploitability target, % of pot (default: the scenario's; not allowed with the default --out)
@@ -14,6 +18,12 @@
 //   --accept-above-target   write a flop even when its exploitability is above the scenario's target × TARGET_TOLERANCE
 //   --allow-dirty           write to the default --out although src/solver has uncommitted changes
 //   --dry-run               print the plan (flops, memory estimates) and write nothing
+//   --rebuild-manifest      solve nothing: rebuild manifest.json from the current-version files on disk (e.g. after
+//                           copying in the files of several --shard runs), with the checks a run applies before
+//                           writing a file, and write it as a run would; exits 1 when a pack's files fail them
+//   --summaries-from <file> with --rebuild-manifest (repeatable): a manifest written by another run (e.g. a shard's);
+//                           a file listed there with the same path and sha256 takes its summary from it, the exact
+//                           one the solve produced, instead of one rebuilt from the quantized file
 //
 // It skips flops whose file already exists for the pack's current version, solves the next ones in priority
 // order, writes each file as soon as it is done and updates manifest.json after every flop (both atomically,
@@ -22,6 +32,8 @@
 // exploitability is within TARGET_TOLERANCE × the scenario's target and its summary nodes match the pack's
 // (the files of a version never change, so a bad or mismatched file would stay forever). The manifest is only
 // rewritten when something other than `generatedAt` changes, so a run that adds nothing leaves no diff.
+// The daily workflow runs n shards in parallel, copies their new files into one checkout and runs
+// --rebuild-manifest there (.github/workflows/presolve.yml).
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from "node:fs";
@@ -96,6 +108,7 @@ if (isMainThread) {
     options: {
       scenario: { type: "string", default: "all" },
       count: { type: "string", default: "100" },
+      shard: { type: "string" },
       "budget-minutes": { type: "string", default: "50" },
       iterations: { type: "string" },
       target: { type: "string" },
@@ -106,8 +119,18 @@ if (isMainThread) {
       "accept-above-target": { type: "boolean", default: false },
       "allow-dirty": { type: "boolean", default: false },
       "dry-run": { type: "boolean", default: false },
+      "rebuild-manifest": { type: "boolean", default: false },
+      "summaries-from": { type: "string", multiple: true, default: [] },
     },
   });
+  const rebuild = opt["rebuild-manifest"];
+  const usage = (msg) => {
+    console.error(msg);
+    process.exit(1);
+  };
+  if (rebuild && opt["dry-run"]) usage("--rebuild-manifest writes the manifest; it has no --dry-run.");
+  if (rebuild && opt.shard !== undefined) usage("--rebuild-manifest covers every file on disk; it takes no --shard.");
+  if (!rebuild && opt["summaries-from"].length) usage("--summaries-from only works with --rebuild-manifest.");
   const num = (name, v, min) => {
     const x = Number(v);
     if (!Number.isFinite(x) || x < min) throw new Error(`--${name} must be a number ≥ ${min}`);
@@ -136,8 +159,16 @@ if (isMainThread) {
   const { SCENARIOS, getScenario, solverInput } = await load("src/presolve/scenarios.ts");
   const { FLOPS_BY_PRIORITY, describeTexture, representativeWeightsFor } = await load("src/presolve/flops.ts");
   const { estimateMemory } = await load("src/solver/index.ts");
-  const { PACK_FORMAT, packFilePath, validateManifest, validateFlopFile } = await load("src/presolve/format.ts");
-  const { summarizeFile } = await load("src/presolve/extract.ts");
+  const { PACK_FORMAT, packFilePath, validateManifest, validateFlopFile, decodeFlopFile, summaryNodeDefs } = await load("src/presolve/format.ts");
+  const { summarizeFile, MAX_BYTES } = await load("src/presolve/extract.ts");
+  const { parseShard, shardFlops } = await load("src/presolve/shard.ts");
+  let shard;
+  try {
+    shard = parseShard(opt.shard ?? "0/1");
+  } catch (e) {
+    usage(e.message);
+  }
+  const shardTag = shard.count > 1 ? ` (shard ${shard.index}/${shard.count})` : "";
 
   const scenarios = opt.scenario === "all" ? SCENARIOS : opt.scenario.split(",").map((id) => getScenario(id.trim()));
   const manifestFile = `${outDir}/manifest.json`;
@@ -190,15 +221,19 @@ if (isMainThread) {
       log(`${sc.id}: v${sc.version} was solved with uncommitted solver code (${old.solverCommit}); its provenance is unknown`);
   }
 
-  // Jobs: the next missing flops of each pack in priority order, interleaved across packs.
-  const perPack = scenarios.map((sc) => {
-    const have = new Set(existingBoards(sc));
-    const todo = FLOPS_BY_PRIORITY.slice(0, count).filter((f) => !have.has(f.key));
-    log(`${sc.id} v${sc.version}: ${have.size} flops on disk, ${todo.length} of the first ${count} to solve`);
-    return todo.map((f) => ({ sc, flop: f }));
-  });
+  // Jobs: the next missing flops of each pack (of this shard) in priority order, interleaved across packs.
   const queue = [];
-  for (let i = 0; perPack.some((l) => i < l.length); i++) for (const l of perPack) if (i < l.length) queue.push(l[i]);
+  if (!rebuild) {
+    const mine = shardFlops(FLOPS_BY_PRIORITY, count, shard); // by index in the full order, before skipping files on disk
+    const of = shard.count > 1 ? `of shard ${shard.index}/${shard.count}'s ${mine.length} among the first ${count}` : `of the first ${count}`;
+    const perPack = scenarios.map((sc) => {
+      const have = new Set(existingBoards(sc));
+      const todo = mine.filter((f) => !have.has(f.key));
+      log(`${sc.id} v${sc.version}: ${have.size} flops on disk, ${todo.length} ${of} to solve`);
+      return todo.map((f) => ({ sc, flop: f }));
+    });
+    for (let i = 0; perPack.some((l) => i < l.length); i++) for (const l of perPack) if (i < l.length) queue.push(l[i]);
+  }
 
   const estimate = (job) => {
     job.est ??= estimateMemory(solverInput(job.sc, job.flop.cards));
@@ -213,7 +248,7 @@ if (isMainThread) {
         `  ${job.sc.id} ${job.flop.key.padEnd(7)} ${describeTexture(job.flop.texture).padEnd(18)} est ${String(mb).padStart(5)} MB, ${m.actionNodes} action nodes${mb > maxMb ? `  (over --max-mb ${maxMb}: would skip)` : ""}`,
       );
     }
-    console.log(`dry run: ${queue.length} flops planned, ${workers} workers, budget ${mins(budgetMs)} min; nothing written`);
+    console.log(`dry run${shardTag}: ${queue.length} flops planned, ${workers} workers, budget ${mins(budgetMs)} min; nothing written`);
     process.exit(0);
   }
 
@@ -227,6 +262,9 @@ if (isMainThread) {
   };
   const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
   const fresh = new Map(); // `${id}/${board}` → { summary, summaryNodes }
+  const hints = new Map(); // `${path} ${sha256}` → summary, from --summaries-from manifests
+  let hinted = 0;
+  const stats = { done: 0, skipped: 0, stopped: 0, failed: 0, tooBig: 0, rejected: 0 };
   // JSON with sorted keys, so two manifests compare equal whatever order their fields were written in.
   const canon = (x) =>
     Array.isArray(x)
@@ -266,16 +304,40 @@ if (isMainThread) {
       const path = packFilePath(sc.id, sc.version, board);
       const buf = readFileSync(`${outDir}/${path}`);
       const hash = sha256(buf);
-      const text = buf.toString("utf8");
-      const file = JSON.parse(text);
+      let file;
+      try {
+        file = JSON.parse(buf.toString("utf8"));
+      } catch (e) {
+        throw new Error(`${path}: not JSON (${e.message})`);
+      }
       let info = fresh.get(`${sc.id}/${board}`);
       const prev = oldFiles.get(path);
       if (!info && prev && prev.sha256 === hash) info = { summary: prev.summary };
       if (!info) {
-        const errs = validateFlopFile(file);
+        // A file the manifest doesn't list yet (written by a run that stopped before its manifest, or copied in
+        // from shard runs): the checks a run applies before writing a solved flop, then its summary.
+        let errs;
+        try {
+          errs = validateFlopFile(file);
+        } catch (e) {
+          errs = [`malformed file (${e.message})`];
+        }
         if (errs.length) throw new Error(`${path}: ${errs.slice(0, 3).join("; ")}`);
-        info = summarizeFile(file);
-        log(`${path}: no manifest entry, summary rebuilt from the file`);
+        if (file.scenario !== sc.id || file.version !== sc.version || file.board !== board)
+          throw new Error(`${path}: the file says ${file.scenario} v${file.version} ${file.board}, not ${sc.id} v${sc.version} ${board}`);
+        if (buf.length > MAX_BYTES) throw new Error(`${path}: ${buf.length} bytes, over the ${MAX_BYTES}-byte hard cap`);
+        const limit = sc.meta.targetExploitability * TARGET_TOLERANCE;
+        if (!(file.exploitability <= limit) && !opt["accept-above-target"])
+          throw new Error(`${path}: exploitability ${file.exploitability}% is above ${+limit.toFixed(3)}% (target × ${TARGET_TOLERANCE}); pass --accept-above-target to keep it`);
+        const hint = hints.get(`${path} ${hash}`);
+        if (hint) {
+          info = { summary: hint, summaryNodes: summaryNodeDefs(decodeFlopFile(file), 2) };
+          hinted++;
+        } else {
+          info = summarizeFile(file);
+          log(`${path}: no manifest entry, summary rebuilt from the file`);
+        }
+        fresh.set(`${sc.id}/${board}`, info); // checked once per run, not again at the next manifest write
       }
       if (info.summaryNodes) {
         if (summaryNodes && !sameJson(summaryNodes, info.summaryNodes)) throw new Error(`${path}: its summary nodes differ from the pack's (tree changed without a version bump?)`);
@@ -324,9 +386,45 @@ if (isMainThread) {
     return { manifest: m, written: true };
   }
 
+  // ───── --rebuild-manifest: no solving ─────
+
+  if (rebuild) {
+    for (const file of opt["summaries-from"]) {
+      let m;
+      try {
+        m = JSON.parse(readFileSync(resolve(file), "utf8"));
+        const errs = validateManifest(m);
+        if (errs.length) throw new Error(errs.slice(0, 3).join("; "));
+      } catch (e) {
+        log(`${file}: not used for summaries: ${e.message}`);
+        continue;
+      }
+      for (const p of m.packs) for (const f of p.files) hints.set(`${f.path} ${f.sha256}`, f.summary);
+    }
+    if (opt["summaries-from"].length) log(`${hints.size} file summaries read from ${opt["summaries-from"].length} manifest(s)`);
+    let result;
+    try {
+      result = writeManifest();
+    } catch (e) {
+      log(`manifest not written: ${e.message}`);
+      process.exit(1);
+    }
+    for (const sc of scenarios) {
+      const before = oldManifest.packs.find((p) => p.id === sc.id);
+      const after = result.manifest.packs.find((p) => p.id === sc.id);
+      const known = new Set((before?.files ?? []).map((f) => f.path));
+      const added = (after?.files ?? []).filter((f) => !known.has(f.path)).length;
+      const state = packErrors.has(sc.id) ? "kept as it was" : after ? `v${after.version}, ${after.files.length} flops (${added} new)` : "no files";
+      log(`${sc.id}: ${state}${after && after.version !== sc.version && !packErrors.has(sc.id) ? ` (no v${sc.version} files yet)` : ""}`);
+    }
+    if (hinted) log(`${hinted} summaries taken from --summaries-from, the rest rebuilt from the files`);
+    log(result.written ? `manifest written → ${manifestFile}` : "manifest unchanged, not rewritten");
+    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `failed=${stats.failed}\n`);
+    process.exit(packErrors.size ? 1 : 0);
+  }
+
   // ───── solving ─────
 
-  const stats = { done: 0, skipped: 0, stopped: 0, failed: 0, tooBig: 0, rejected: 0 };
   const seconds = new Map(); // scenario id → solve seconds of finished flops
   const running = new Set();
   let stopping = false;
@@ -439,7 +537,7 @@ if (isMainThread) {
   }
 
   const pending = [];
-  log(`${queue.length} flops queued, ${workers} workers, budget ${mins(budgetMs)} min, memory ${(totalmem() / 1e9).toFixed(1)} GB`);
+  log(`${queue.length} flops queued${shardTag}, ${workers} workers, budget ${mins(budgetMs)} min, memory ${(totalmem() / 1e9).toFixed(1)} GB`);
   while (queue.length && !stopping) {
     const job = queue[0];
     const est = estimate(job);
