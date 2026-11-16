@@ -40,6 +40,8 @@ export interface Settings {
   playMode: "pub" | "cash";
   /** 카드 색: 4색 (온라인 표준) or 2색 (실물 카드); read it through cardColorsOf. */
   cardColors: CardColors;
+  /** 빠른 기록's 아재 reacts to the hand just entered (src/features/log/AjaeReaction.tsx); read it through ajaeOn. */
+  ajae: boolean;
 }
 
 export const settingsStore = createStore<Settings>("mygto.settings", {
@@ -52,6 +54,7 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
   chartSet: "pub",
   playMode: "pub",
   cardColors: "four",
+  ajae: true,
 });
 
 export const useSettings = settingsStore.use;
@@ -69,6 +72,11 @@ export const CARD_COLOR_OPTIONS: { id: CardColors; label: string; note: string }
 /** The stored value as a deck: anything but "two" (missing in settings saved before it existed, or broken) is 4색. */
 export function cardColorsOf(value: unknown): CardColors {
   return value === "two" ? "two" : "four";
+}
+
+/** The stored 아재 switch: on unless switched off (missing in settings saved before it existed, or broken, is on). */
+export function ajaeOn(value: unknown): boolean {
+  return value !== false;
 }
 
 /** The attribute on <html> that styles.css reads for every card's suit colors. */

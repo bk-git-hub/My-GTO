@@ -1,0 +1,165 @@
+/*
+ * 빠른 기록's 아재 (AjaeReaction.tsx), from the approved mockup: the same art as the launch splash's 아재,
+ * the same keyframes and timing. Every class and keyframe is prefixed aj- so nothing here touches the
+ * rest of the app.
+ *
+ * Layout: .ajae-host takes the class's place in the label row (margin-left: auto, as .fast-class had)
+ * and is exactly the class's box, so the row keeps its height; everything he draws is absolute, with
+ * pointer-events off. The host's z-index keeps him under the sticky stage bar (4) and the header (5).
+ * The row is shorter than his 40px slot, so the slot ends 1px above the pad (the row, then 3 of the 4px
+ * .fast-sec gap of styles.css; the 1px keeps a transformed layer's edge pixel off the keys) and, at rest,
+ * he is cut to it: between the seat row and the pad.
+ *
+ * Motion: the pop and the kicker's walk move HTML boxes (WebKit composites those); the face's parts
+ * and the kicker's limbs move inside the SVG. Each animation starts when its element mounts or gets
+ * its class, and ends on the resting frame, so leaving the classes on changes nothing afterwards.
+ */
+.ajae-host { margin-left: auto; position: relative; z-index: 3; display: flex; align-items: center; }
+.aj-jolt { display: flex; transform-origin: 30% 80%; }
+
+/* ── the face: a small slot left of the class, popping up to ~2.15× for 1.9 s ── */
+.aj-slot { position: absolute; right: calc(100% + 6px); bottom: -3px; width: 34px; height: 40px; pointer-events: none; }
+/* At rest he is cut to his slot, as the mockup's small face is (the shirt and a tilted head would hang
+   over the pad keys); aj-open holds the cut open while he pops (the lifted shades, the z's, the shirt). */
+.aj-face { position: absolute; inset: 0; transform-origin: 50% 100%; clip-path: inset(0); }
+.aj-pop .aj-face { z-index: 2; animation: aj-pop 1.9s cubic-bezier(.2, .9, .3, 1) both, aj-open 1.9s step-end both; }
+@keyframes aj-pop { 0% { transform: translateY(10px) scale(0.5); opacity: 0; } 10% { transform: translateY(0) scale(2.15); opacity: 1; } 76% { transform: scale(2.15); } 100% { transform: scale(1); } }
+@keyframes aj-open { from { clip-path: inset(-300%); } to { clip-path: inset(0); } }
+.aj-fig { display: block; width: 100%; height: 100%; overflow: visible; }
+/* the shirt, cut to the slot's width when small */
+.aj-head > path:first-child { clip-path: inset(0 22% 0 22%); }
+
+.aj-bubble { position: absolute; right: 30px; bottom: 58px; z-index: 3; padding: 5px 11px 4px; border: 2px solid #1b1400; border-radius: 13px; background: #fffdf7; color: #1b1400; font-size: 1.02rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; white-space: nowrap; pointer-events: none; transform: rotate(-3deg); opacity: 0; animation: aj-bubble 1.9s ease-out both; }
+.aj-bubble::after { content: ""; position: absolute; right: -9px; bottom: 6px; border: 7px solid transparent; border-left: 10px solid #1b1400; }
+@keyframes aj-bubble { 0% { opacity: 0; transform: rotate(-3deg) scale(0.5); } 12% { opacity: 1; transform: rotate(-3deg) scale(1.08); } 18% { transform: rotate(-3deg) scale(1); } 76% { opacity: 1; } 100% { opacity: 0; transform: rotate(-3deg) translateY(-4px); } }
+
+.aj-fig g, .aj-fig path, .aj-fig ellipse, .aj-fig rect, .aj-fig text { transform-box: fill-box; }
+.aj-fig text { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-weight: 800; }
+.aj-head { transform-origin: 50% 88%; }
+.aj-shades, .aj-eyes, .aj-brow-l, .aj-brow-r, .aj-pupils { transform-origin: 50% 50%; }
+.aj-smile, .aj-flat, .aj-qmark, .aj-zrest, .aj-sp, .aj-glint, .aj-zfly { opacity: 0; }
+.aj-yawn { transform-origin: 50% 30%; transform: scale(0); }
+.aj-mug { opacity: 0; transform-origin: 20% 100%; }
+
+/* resting expressions (also the last frame of each move) */
+.aj-monster .aj-smile, .aj-good .aj-smile { opacity: 1; }
+.aj-monster .aj-sp.aj-one { opacity: 1; }
+.aj-meh .aj-head { transform: rotate(-7deg); }
+.aj-meh .aj-shades { transform: translateY(9px); }
+.aj-meh .aj-brow-l { transform: translateY(-7px) rotate(-8deg); }
+.aj-meh .aj-pupils { transform: translateX(2.5px); }
+.aj-meh .aj-flat, .aj-meh .aj-qmark { opacity: 1; }
+.aj-fold .aj-head { transform: rotate(9deg) translateY(2px); }
+.aj-fold .aj-yawn { transform: scale(0.42); }
+.aj-fold .aj-zrest { opacity: 0.9; }
+.aj-hammer .aj-head { transform: rotate(-4deg); }
+.aj-hammer .aj-mug { opacity: 1; }
+
+/* the moves, 1.9 s, with the pop */
+.aj-play * { animation-duration: 1.9s; animation-fill-mode: both; animation-timing-function: ease-in-out; }
+/* monster: shades lift and drop, eyes wide, brows up, a grin, sparkles */
+.aj-play.aj-monster .aj-shades { animation-name: aj-m-shades; }
+.aj-play.aj-monster .aj-eyes { animation-name: aj-m-eyes; }
+.aj-play.aj-monster .aj-brow-l, .aj-play.aj-monster .aj-brow-r { animation-name: aj-m-brows; }
+.aj-play.aj-monster .aj-smile { animation-name: aj-show-late; }
+.aj-play.aj-monster .aj-sp { animation-name: aj-m-spark; }
+.aj-play.aj-monster .aj-sp.aj-two { animation-delay: 0.12s; }
+.aj-play.aj-monster .aj-sp.aj-three { animation-delay: 0.24s; }
+.aj-play.aj-monster .aj-sp.aj-one { animation-name: aj-m-spark-keep; }
+.aj-play.aj-monster .aj-glint { animation-name: aj-glint; }
+@keyframes aj-m-shades { 0%, 12% { transform: none; } 20%, 46% { transform: translateY(-27px) rotate(-10deg); } 55% { transform: translateY(3px); } 60%, 100% { transform: none; } }
+@keyframes aj-m-eyes { 0%, 16% { transform: none; } 22%, 46% { transform: scale(1.4); } 54%, 100% { transform: none; } }
+@keyframes aj-m-brows { 0%, 14% { transform: none; } 22%, 46% { transform: translateY(-13px); } 54%, 100% { transform: none; } }
+@keyframes aj-show-late { 0%, 20% { opacity: 0; } 28%, 100% { opacity: 1; } }
+@keyframes aj-m-spark { 0%, 18% { opacity: 0; transform: scale(0) rotate(0); } 30% { opacity: 1; transform: scale(1.2) rotate(45deg); } 62% { opacity: 1; transform: scale(1) rotate(90deg); } 74% { opacity: 0; transform: scale(0) rotate(120deg); } 100% { opacity: 0; transform: scale(0); } }
+@keyframes aj-m-spark-keep { 0%, 18% { opacity: 0; transform: scale(0); } 30% { opacity: 1; transform: scale(1.2) rotate(45deg); } 62%, 100% { opacity: 1; transform: scale(1) rotate(90deg); } }
+@keyframes aj-glint { 0%, 56% { opacity: 0; transform: scale(0); } 64% { opacity: 1; transform: scale(1.1) rotate(30deg); } 76%, 100% { opacity: 0; transform: scale(0) rotate(60deg); } }
+
+/* good: two nods, brows up, a grin */
+.aj-play.aj-good .aj-head { animation-name: aj-g-nod; }
+.aj-play.aj-good .aj-smile { animation-name: aj-show-early; }
+.aj-play.aj-good .aj-brow-l, .aj-play.aj-good .aj-brow-r { animation-name: aj-g-brows; }
+.aj-play.aj-good .aj-glint { animation-name: aj-glint; }
+@keyframes aj-g-nod { 0%, 14% { transform: none; } 24% { transform: rotate(9deg); } 33% { transform: rotate(-2deg); } 42% { transform: rotate(9deg); } 52%, 100% { transform: none; } }
+@keyframes aj-show-early { 0%, 14% { opacity: 0; } 20%, 100% { opacity: 1; } }
+@keyframes aj-g-brows { 0%, 16% { transform: none; } 22% { transform: translateY(-11px); } 30% { transform: translateY(-4px); } 38% { transform: translateY(-11px); } 48%, 100% { transform: none; } }
+
+/* meh: shades down the nose, a look, a tilt, "?" */
+.aj-play.aj-meh .aj-head { animation-name: aj-h-tilt; }
+.aj-play.aj-meh .aj-shades { animation-name: aj-h-peek; }
+.aj-play.aj-meh .aj-brow-l { animation-name: aj-h-brow; }
+.aj-play.aj-meh .aj-pupils { animation-name: aj-h-look; }
+.aj-play.aj-meh .aj-qmark { animation-name: aj-h-q; }
+.aj-play.aj-meh .aj-flat { animation-name: aj-show-late; }
+@keyframes aj-h-tilt { 0%, 14% { transform: none; } 28%, 100% { transform: rotate(-7deg); } }
+@keyframes aj-h-peek { 0%, 14% { transform: none; } 26% { transform: translateY(11px); } 32%, 100% { transform: translateY(9px); } }
+@keyframes aj-h-brow { 0%, 24% { transform: none; } 32%, 100% { transform: translateY(-7px) rotate(-8deg); } }
+@keyframes aj-h-look { 0%, 30% { transform: none; } 38% { transform: translateX(-3px); } 52% { transform: translateX(-3px); } 60%, 100% { transform: translateX(2.5px); } }
+@keyframes aj-h-q { 0%, 34% { opacity: 0; transform: translateY(5px) scale(0.6); } 44% { opacity: 1; transform: translateY(-2px) scale(1.15); } 52%, 100% { opacity: 1; transform: none; } }
+
+/* fold (자리 탓): a big yawn, a doze, "zzz" */
+.aj-play.aj-fold .aj-head { animation-name: aj-f-droop; }
+.aj-play.aj-fold .aj-yawn { animation-name: aj-f-yawn; }
+.aj-play.aj-fold .aj-zfly { animation-name: aj-f-z; }
+.aj-play.aj-fold .aj-zfly.aj-b { animation-delay: 0.18s; }
+.aj-play.aj-fold .aj-zfly.aj-c { animation-delay: 0.36s; }
+.aj-play.aj-fold .aj-zrest { animation-name: aj-show-end; }
+@keyframes aj-f-droop { 0%, 12% { transform: none; } 26% { transform: rotate(-4deg) translateY(-1px); } 55%, 100% { transform: rotate(9deg) translateY(2px); } }
+@keyframes aj-f-yawn { 0%, 12% { transform: scale(0); } 24%, 44% { transform: scale(1.05, 1.25); } 56%, 100% { transform: scale(0.42); } }
+@keyframes aj-f-z { 0%, 46% { opacity: 0; transform: translate(0, 0) scale(0.6); } 56% { opacity: 1; } 84% { opacity: 0; transform: translate(6px, -22px) scale(1.2); } 100% { opacity: 0; } }
+@keyframes aj-show-end { 0%, 80% { opacity: 0; } 100% { opacity: 0.9; } }
+
+/* hammer (72o): a sip of beer */
+.aj-play.aj-hammer .aj-mug { animation-name: aj-k-mug; }
+.aj-play.aj-hammer .aj-head { animation-name: aj-k-head; }
+@keyframes aj-k-mug { 0%, 10% { opacity: 0; transform: translate(10px, 60px); } 22% { opacity: 1; transform: translate(0, 4px); } 34%, 58% { opacity: 1; transform: translate(-17px, -10px) rotate(-38deg); } 70%, 100% { opacity: 1; transform: none; } }
+@keyframes aj-k-head { 0%, 26% { transform: none; } 36%, 58% { transform: rotate(-9deg); } 70%, 100% { transform: rotate(-4deg); } }
+
+/* ── the kick (trash): he hops out right beside the hand, two steps, kicks at ~0.5 s, turns and walks off left (2.1 s) ── */
+.aj-kick { position: absolute; inset: 0; pointer-events: none; }
+.aj-kicker { position: absolute; right: calc(100% + 2px); bottom: -15px; width: 48px; height: 72px; z-index: 4; opacity: 0; animation: aj-q-body 2.1s linear both; }
+.aj-kicker svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.aj-kicker .aj-leg, .aj-kicker .aj-arm, .aj-kicker .aj-bob { transform-box: fill-box; }
+.aj-kicker .aj-leg { transform-origin: 50% 0; }
+.aj-kicker .aj-arm { transform-origin: 15% 10%; }
+.aj-kicker .aj-bob { animation: aj-q-bob 2.1s linear both; }
+.aj-kicker .aj-leg-l { animation: aj-q-leg-l 2.1s ease-in-out both; }
+.aj-kicker .aj-leg-r { animation: aj-q-leg-r 2.1s cubic-bezier(.3, 0, .2, 1) both; }
+.aj-kicker .aj-arm-l { animation: aj-q-arm-l 2.1s ease-in-out both; }
+.aj-kicker .aj-arm-r { animation: aj-q-arm-r 2.1s ease-in-out both; }
+.aj-boom { position: absolute; right: calc(100% - 20px); bottom: 13px; z-index: 5; font-size: 1.2rem; font-weight: 900; line-height: 1; color: #fbbf24; -webkit-text-stroke: 1px #1b1400; paint-order: stroke fill; text-shadow: 0 2px 0 #1b1400; white-space: nowrap; opacity: 0; animation: aj-q-boom 2.1s ease-out both; }
+.aj-kbubble { position: absolute; right: calc(100% + 26px); bottom: 51px; z-index: 6; padding: 4px 10px 3px; border: 2px solid #1b1400; border-radius: 12px; background: #fffdf7; color: #1b1400; font-size: 0.96rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; white-space: nowrap; opacity: 0; transform: rotate(3deg); animation: aj-q-say 2.1s ease-out both; }
+/* the jolt: the class itself, alternating between two equal keyframes so back-to-back kicks restart.
+   At the hit it reaches past the screen's right edge for a frame: the page clips it there (clip, not
+   hidden: no scroll box, so the sticky stage bar still sticks) instead of growing a sideways scroll. */
+.page:has(.aj-kicked) { overflow-x: clip; }
+.aj-kicked.aj-k0 { animation: aj-q-hit-0 2.1s ease-out both; }
+.aj-kicked.aj-k1 { animation: aj-q-hit-1 2.1s ease-out both; }
+.aj-kicked.aj-k0 > .fast-class { animation: aj-q-flash-0 2.1s ease-out both; }
+.aj-kicked.aj-k1 > .fast-class { animation: aj-q-flash-1 2.1s ease-out both; }
+@keyframes aj-q-body {
+  0% { opacity: 0; transform: translate(-26px, 10px) scale(0.8); } 6% { opacity: 1; transform: translate(-26px, -5px) scale(1.04); } 9% { transform: translate(-26px, 0); }
+  16% { transform: translateX(0); } 19% { transform: translateX(-3px) rotate(-4deg); } 23% { transform: translateX(2px) rotate(5deg); }
+  36% { transform: translateX(0) rotate(0); } 42% { transform: scaleX(1); } 47% { opacity: 1; transform: scaleX(-1); }
+  82% { opacity: 1; } 88% { opacity: 0; transform: translateX(-104px) scaleX(-1); } 100% { opacity: 0; transform: translateX(-104px) scaleX(-1); }
+}
+@keyframes aj-q-bob { 0%, 9%, 16% { transform: none; } 12.5% { transform: translateY(-3px); } 47%, 55%, 63%, 71%, 79%, 87% { transform: none; } 51%, 59%, 67%, 75%, 83% { transform: translateY(-3px); } 100% { transform: none; } }
+@keyframes aj-q-leg-l { 0%, 9% { transform: rotate(0); } 12.5% { transform: rotate(20deg); } 16%, 47% { transform: rotate(0); } 51% { transform: rotate(20deg); } 55% { transform: rotate(-20deg); } 59% { transform: rotate(20deg); } 63% { transform: rotate(-20deg); } 67% { transform: rotate(20deg); } 71% { transform: rotate(-20deg); } 75% { transform: rotate(20deg); } 79% { transform: rotate(-20deg); } 84%, 100% { transform: rotate(0); } }
+@keyframes aj-q-leg-r { 0%, 9% { transform: rotate(0); } 12.5% { transform: rotate(-20deg); } 16% { transform: rotate(0); } 19% { transform: rotate(38deg); } 23%, 34% { transform: rotate(-92deg); } 41%, 47% { transform: rotate(0); } 51% { transform: rotate(-20deg); } 55% { transform: rotate(20deg); } 59% { transform: rotate(-20deg); } 63% { transform: rotate(20deg); } 67% { transform: rotate(-20deg); } 71% { transform: rotate(20deg); } 75% { transform: rotate(-20deg); } 79% { transform: rotate(20deg); } 84%, 100% { transform: rotate(0); } }
+@keyframes aj-q-arm-l { 0%, 16% { transform: rotate(0); } 19% { transform: rotate(-20deg); } 23%, 34% { transform: rotate(48deg); } 41%, 100% { transform: rotate(0); } }
+@keyframes aj-q-arm-r { 0%, 16% { transform: rotate(0); } 19% { transform: rotate(25deg); } 23%, 34% { transform: rotate(-40deg); } 41%, 100% { transform: rotate(0); } }
+@keyframes aj-q-hit-0 { 0%, 23% { transform: none; } 25.5% { transform: translateX(13px) rotate(17deg) scale(0.9); } 31% { transform: translateX(-4px) rotate(-6deg); } 37% { transform: translateX(3px) rotate(3deg); } 43%, 100% { transform: none; } }
+@keyframes aj-q-hit-1 { 0%, 23% { transform: none; } 25.5% { transform: translateX(13px) rotate(17deg) scale(0.9); } 31% { transform: translateX(-4px) rotate(-6deg); } 37% { transform: translateX(3px) rotate(3deg); } 43%, 100% { transform: none; } }
+@keyframes aj-q-flash-0 { 25.5% { color: #fff; } }
+@keyframes aj-q-flash-1 { 25.5% { color: #fff; } }
+@keyframes aj-q-boom { 0%, 22% { opacity: 0; transform: scale(0.3) rotate(-12deg); } 25.5% { opacity: 1; transform: scale(1.35) rotate(-12deg); } 30% { transform: scale(1) rotate(-8deg); } 44% { opacity: 1; } 54%, 100% { opacity: 0; transform: translateY(-8px) rotate(-8deg); } }
+@keyframes aj-q-say { 0%, 26% { opacity: 0; transform: rotate(3deg) scale(0.5); } 31% { opacity: 1; transform: rotate(3deg) scale(1.08); } 35% { transform: rotate(3deg) scale(1); } 62% { opacity: 1; } 72%, 100% { opacity: 0; } }
+
+/* Reduce motion: nothing moves. The face shows its resting expression, the line fades; the kick shows only its line.
+   Without the big face and the kicker, the lines sit in the hand row: left of the small face, and of the class. */
+@media (prefers-reduced-motion: reduce) {
+  .aj-play *, .aj-pop .aj-face, .aj-kicker, .aj-kicker *, .aj-boom, .aj-kicked, .aj-kicked > .fast-class { animation: none !important; }
+  .aj-bubble { bottom: 5px; animation: aj-fade 1.9s linear both; }
+  .aj-kbubble { right: calc(100% + 8px); bottom: 0; animation: aj-fade 2.1s linear both; }
+}
+@keyframes aj-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
