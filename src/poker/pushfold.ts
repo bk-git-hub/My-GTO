@@ -124,8 +124,32 @@ export interface PushFoldSolution {
 }
 
 const COMBO_W = ALL_HANDS.map((h) => (h.length === 2 ? 6 : h.endsWith("s") ? 4 : 12));
+const COMPAT = 1225; // combos left for one opponent once my two cards are out
 
-export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 3000): PushFoldSolution {
+/** What every push/fold decision gains over folding, per hand class, under fixed strategies (bb). */
+export interface PushFoldGains {
+  /** pushGain[i][h]: seat i shoving h when folded to, over folding. */
+  pushGain: Float64Array[];
+  /**
+   * callGain[i][j][h]: seat j calling seat i's shove with h (everyone between folded), over folding; empty for
+   * j <= i. -1 where seat i's shoving range, seen from h, is empty (below 1e-12).
+   */
+  callGain: Float64Array[][];
+}
+
+/**
+ * The gains solvePushFold plays its best responses against, for the strategies `push` and `call` (shaped as in
+ * PushFoldSolution). solvePushFold calls this every iteration, so other code (the preflop engine's reduction
+ * tests) can check its own values against exactly what the reference solver uses. `out` reuses arrays from an
+ * earlier call.
+ */
+export function pushFoldGains(
+  t: EquityTable,
+  setup: TableSetup,
+  push: Float64Array[],
+  call: Float64Array[][],
+  out?: PushFoldGains,
+): PushFoldGains {
   const { players: n, stack, sb, bb, bbAnte } = setup;
   const SB = n - 2, BB = n - 1;
   const { eq, cnt } = t;
@@ -134,15 +158,13 @@ export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 30
   const effOf = (i: number, j: number) => Math.min(live(i), live(j));
   const deadOf = (i: number, j: number) => bbAnte + (i !== SB && j !== SB ? sb : 0) + (i !== BB && j !== BB ? bb : 0);
   const allFoldWin = bbAnte + sb + bb; // pot the shover picks up uncontested (includes own blind)
-
-  const push = Array.from({ length: n - 1 }, () => new Float64Array(N).fill(0.5));
-  const call = Array.from({ length: n - 1 }, (_, i) => Array.from({ length: n }, (_, j) => (j > i ? new Float64Array(N).fill(0.3) : new Float64Array(0))));
-  const brPush = push.map(() => new Float64Array(N));
-  const brCall = call.map((row) => row.map((a) => new Float64Array(a.length)));
-  const COMPAT = 1225; // combos left for one opponent once my two cards are out
+  const g = out ?? {
+    pushGain: Array.from({ length: n - 1 }, () => new Float64Array(N)),
+    callGain: Array.from({ length: n - 1 }, (_, i) => Array.from({ length: n }, (_, j) => new Float64Array(j > i ? N : 0))),
+  };
 
   /** EV (bb, vs. folding) of shoving each class from seat i, given the callers' current ranges. */
-  function pushGain(i: number, out: Float64Array) {
+  function pushGain(i: number, dst: Float64Array) {
     for (let h = 0; h < N; h++) {
       let reach = 1; // nobody has called yet
       let ev = 0;
@@ -164,12 +186,12 @@ export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 30
       // Uncontested: I take the blinds and ante; my own posted blind was mine already.
       ev += reach * (allFoldWin - blind(i));
       // Folding costs my posted blind, so the gain over folding adds it back.
-      out[h] = ev + blind(i);
+      dst[h] = ev + blind(i);
     }
   }
 
   /** EV (bb, vs. folding) of calling seat i's shove from seat j with each class. */
-  function callGain(i: number, j: number, out: Float64Array) {
+  function callGain(i: number, j: number, dst: Float64Array) {
     const p = push[i];
     const eff = effOf(i, j);
     const pot = 2 * eff + deadOf(i, j);
@@ -181,20 +203,33 @@ export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 30
         pp += w;
         pe += w * eq[row + x];
       }
-      out[h] = pp > 1e-12 ? (pe / pp) * pot - eff + blind(j) : -1;
+      dst[h] = pp > 1e-12 ? (pe / pp) * pot - eff + blind(j) : -1;
     }
   }
 
-  const gain = new Float64Array(N);
+  for (let i = 0; i < n - 1; i++) {
+    pushGain(i, g.pushGain[i]);
+    for (let j = i + 1; j < n; j++) callGain(i, j, g.callGain[i][j]);
+  }
+  return g;
+}
+
+export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 3000): PushFoldSolution {
+  const n = setup.players;
+  const push = Array.from({ length: n - 1 }, () => new Float64Array(N).fill(0.5));
+  const call = Array.from({ length: n - 1 }, (_, i) => Array.from({ length: n }, (_, j) => (j > i ? new Float64Array(N).fill(0.3) : new Float64Array(0))));
+  const brPush = push.map(() => new Float64Array(N));
+  const brCall = call.map((row) => row.map((a) => new Float64Array(a.length)));
+
+  // Every gain depends only on the current averages, which change after the loop, so computing them all first
+  // and then the best responses is the same as interleaving the two.
+  let gains: PushFoldGains | undefined;
   let it = 0;
   for (; it < iterations; it++) {
+    gains = pushFoldGains(t, setup, push, call, gains);
     for (let i = 0; i < n - 1; i++) {
-      pushGain(i, gain);
-      for (let h = 0; h < N; h++) brPush[i][h] = gain[h] > 0 ? 1 : 0;
-      for (let j = i + 1; j < n; j++) {
-        callGain(i, j, gain);
-        for (let h = 0; h < N; h++) brCall[i][j][h] = gain[h] > 0 ? 1 : 0;
-      }
+      for (let h = 0; h < N; h++) brPush[i][h] = gains.pushGain[i][h] > 0 ? 1 : 0;
+      for (let j = i + 1; j < n; j++) for (let h = 0; h < N; h++) brCall[i][j][h] = gains.callGain[i][j][h] > 0 ? 1 : 0;
     }
     const step = 1 / (it + 2);
     for (let i = 0; i < n - 1; i++) {
@@ -210,13 +245,10 @@ export function solvePushFold(t: EquityTable, setup: TableSetup, iterations = 30
     for (let h = 0; h < N; h++) d += COMBO_W[h] * (Math.max(0, g[h]) - s[h] * g[h]);
     return d / 1326;
   };
+  gains = pushFoldGains(t, setup, push, call, gains);
   for (let i = 0; i < n - 1; i++) {
-    pushGain(i, gain);
-    worst = Math.max(worst, gainOf(gain, push[i]));
-    for (let j = i + 1; j < n; j++) {
-      callGain(i, j, gain);
-      worst = Math.max(worst, gainOf(gain, call[i][j]));
-    }
+    worst = Math.max(worst, gainOf(gains.pushGain[i], push[i]));
+    for (let j = i + 1; j < n; j++) worst = Math.max(worst, gainOf(gains.callGain[i][j], call[i][j]));
   }
   return { setup, push, call, exploitability: worst, iterations: it };
 }
