@@ -5,7 +5,7 @@ them: the app downloads one small JSON file per flop and shows the strategy, the
 first flop decisions without solving anything on the device. The numbers come from our own solver
 (`src/solver/`, spec in `docs/solver.md`); no third-party solver code or output is involved.
 
-A GitHub Action re-runs the presolve pipeline once a day, split over parallel jobs. It solves the next flops
+A GitHub Action re-runs the presolve pipeline every 6 hours, split over parallel jobs. It solves the next flops
 (in priority order) that have no file yet in each pack's current version directory under `public/packs/`, and
 rewrites `public/packs/manifest.json` (see Pipeline below).
 The format lives in `src/presolve/format.ts` (types plus pure encode/decode helpers that run in Node and in the
@@ -247,7 +247,7 @@ the file lists into per-pack index files in a v2 manifest.
 ## Pipeline
 
 `src/presolve/` holds the pipeline; `scripts/presolve.mjs` runs it and `.github/workflows/presolve.yml` runs the
-script once a day in parallel shards (below).
+script every 6 hours in parallel shards (below).
 
 - `scenarios.ts`: `SCENARIOS` (one per pack: id, title, version, tier, `meta: ScenarioMeta`, COMBOS-indexed
   starting ranges from the charts' effective frequencies), `chartRange(ref)`, `srpPotStack`, `solverInput(sc, board)`
@@ -300,8 +300,8 @@ Measured run (4-core dev machine, `--count 3 --workers 3`, other jobs sharing th
 80 iterations (~7 s per iteration), plus ~22 s of extraction; estimate 1.66–1.71 GB, 1.75–1.79 GB used per
 worker; files 36–38 KB raw, 18 KB gzip (6 nodes). The strategies look like solver output should: BB checks,
 BTN c-bets ~55% mixing 33% and 75%, BB facing 33% folds ~32%, calls ~52%, check-raises ~16% (sets always).
-The daily workflow (public repository: standard runners with 4 vCPU and 16 GB, unlimited minutes, 6 h per
-job) runs 8 `solve` jobs with `--shard i/8 --workers $(nproc) --budget-minutes 300 --count 1755` (4 workers on
+The workflow (public repository: standard runners with 4 vCPU and 16 GB, unlimited minutes, 6 h per job) runs
+every 6 hours, at 05:23, 11:23, 17:23 and 23:23 UTC, and starts 16 `solve` jobs with `--shard i/16 --workers $(nproc) --budget-minutes 300 --count 1755` (4 workers on
 these runners); each uploads the flop files it added (and its manifest, for the summaries). All jobs check out the
 branch head that a first `plan` job reads when the run starts, so a run that waited behind another one continues
 from that run's commit. A `merge` job, which also runs when some shards failed or timed out, copies the files
@@ -311,9 +311,11 @@ the shard artifacts are kept for 2 days). When the branch changed the manifest m
 always conflicts), the push keeps the branch's files, runs `--rebuild-manifest` again on top of the branch and
 counts N again. The result is the manifest one unsharded run over the same flops would write: a local 2-shard
 simulation gave byte-identical flop files and an identical manifest apart from `generatedAt`. At ~11
-core-minutes per flop that is roughly 800 flops a day.
+core-minutes per flop one run solves roughly 1,700 flops, about a whole pack (1,755). A run with work takes
+~5 h 15 min, so while flops are left the runs follow each other almost back to back (a run still going makes
+the next one wait); with nothing left a run ends within minutes.
 
-## Versioning and the daily job
+## Versioning and the presolve job
 
 - `version` bumps when anything that changes the numbers changes: solver code (`solverCommit`), scenario
   settings, ranges, or the solve targets. New content goes under `v<version>/`; a file whose bytes are

@@ -103,7 +103,7 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 - 시나리오(레인지·팟·벳 사이즈)는 `src/presolve/scenarios.ts`, 플랍 1755종의 우선순위(앞에서부터 잘라도 고르게 퍼진 대표 플랍)는 `src/presolve/flops.ts`.
 - `node scripts/presolve.mjs --scenario all --count 100 --budget-minutes 50`: 없는 플랍만 우선순위대로 풀어서 파일과 `manifest.json`을 쓴다. 한 플랍에 코어 1개, 1.3~1.8GB, 약 10분. `--dry-run`은 계획과 메모리 추정만 보여 준다.
 - `--shard i/n`: 우선순위 k번째 플랍을 k % n번 샤드에 배정해 그 샤드 몫만 푼다(병렬 작업끼리 겹치지 않음). `--rebuild-manifest`: 아무것도 풀지 않고 디스크에 있는 파일로 `manifest.json`을 다시 쓴다(샤드 결과를 합친 뒤).
-- GitHub Action(`.github/workflows/presolve.yml`)이 매일 02:23 KST에 4코어 러너 8개(샤드)로 최대 5시간씩 이어서 풀고, 합치는 작업이 `public/packs/`만 하루 한 번 커밋한다(퍼블릭 레포라 무료). 수동 실행(workflow_dispatch)에서 시나리오·샤드 수·예산·개수를 바꿀 수 있다.
+- GitHub Action(`.github/workflows/presolve.yml`)이 6시간마다(02:23·08:23·14:23·20:23 KST) 4코어 러너 16개(샤드)로 최대 5시간씩 이어서 풀고, 합치는 작업이 회차마다 `public/packs/`만 한 번 커밋한다(퍼블릭 레포라 무료). 한 회차가 팩 하나(1,755개)를 거의 다 풀고, 풀 게 없으면 몇 분 만에 끝난다. 수동 실행(workflow_dispatch)에서 시나리오·샤드 수·예산·개수를 바꿀 수 있다.
 
 ## 구조
 

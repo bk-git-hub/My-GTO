@@ -32,7 +32,7 @@
 // exploitability is within TARGET_TOLERANCE × the scenario's target and its summary nodes match the pack's
 // (the files of a version never change, so a bad or mismatched file would stay forever). The manifest is only
 // rewritten when something other than `generatedAt` changes, so a run that adds nothing leaves no diff.
-// The daily workflow runs n shards in parallel, copies their new files into one checkout and runs
+// The presolve workflow runs n shards in parallel, copies their new files into one checkout and runs
 // --rebuild-manifest there (.github/workflows/presolve.yml).
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";

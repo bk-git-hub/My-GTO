@@ -109,7 +109,7 @@ export interface PackEntry {
   scenario: ScenarioMeta;
   /** Nodes summarized in every `FileEntry.summary.freq` (the flop root and its first responses). */
   summaryNodes: SummaryNodeDef[];
-  /** Git commit of src/solver that produced this version (lets the daily job notice a solver change). */
+  /** Git commit of src/solver that produced this version (lets the presolve job notice a solver change). */
   solverCommit?: string;
   files: FileEntry[];
 }

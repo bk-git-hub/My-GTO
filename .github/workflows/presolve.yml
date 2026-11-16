@@ -1,30 +1,35 @@
-# Daily presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own
-# solver and commits them under public/packs/ (format: docs/solver-packs.md). Flops already on disk for a
-# pack's version are skipped, so every run continues where the last one stopped, in priority order.
+# Presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own solver and
+# commits them under public/packs/ (format: docs/solver-packs.md). Flops already on disk for a pack's version are
+# skipped, so every run continues where the last one stopped, in priority order.
 #
 # The repository is public, so GitHub-hosted standard Linux runners are free with unlimited minutes: 4 vCPU,
-# 16 GB, up to 6 h per job, up to 20 jobs at once for the whole account (so `shards` stops at 16). One scheduled
-# run a day fans out into `shards` parallel "solve" jobs (default 8). Job i solves the flops whose index k in
-# the priority order has k % shards == i (scripts/presolve.mjs --shard i/n), one flop per core (~10–12
-# core-minutes and up to ~2 GB each), until its budget (default 300 min) runs out, and uploads only the flop
-# files it added. The "merge" job copies those
-# files into one checkout, rebuilds manifest.json (--rebuild-manifest) and pushes ONE commit, so a day costs
-# one deploy. Shards that finished are kept when another shard fails or times out.
+# 16 GB, up to 6 h per job, up to 20 jobs at once for the whole account (so `shards` stops at 16). Each run fans
+# out into `shards` parallel "solve" jobs (default 16). Job i solves the flops whose index k in the priority
+# order has k % shards == i (scripts/presolve.mjs --shard i/n), one flop per core (~10–12 core-minutes and up
+# to ~2 GB each), until its budget (default 300 min) runs out, and uploads only the flop files it added. The
+# "merge" job copies those files into one checkout, rebuilds manifest.json (--rebuild-manifest) and pushes ONE
+# commit, so a run costs one deploy. Shards that finished are kept when another shard fails or times out.
 # Every job works on the branch head that the "plan" job reads once the run starts (after the concurrency
 # wait), not on github.sha, which is fixed when the run is queued: a run that waited behind another one then
 # starts from that run's commit instead of re-solving its flops. If the push meets a manifest change on the
 # branch, the merge keeps the branch's files, rebuilds manifest.json over both sets and pushes. "Re-run failed
 # jobs" reuses the plan, so a re-run shard starts again from the run's commit (flops it already landed are
-# solved again; only the new ones are committed). Usually it is simpler to let the next day's run continue.
-# A day adds roughly 8 × 4 cores × ~290 min / ~11 min ≈ 800 flops, so the ~3,500 flops left in both packs take
-# about five days; after that each run finds nothing to solve and ends within minutes.
-# GitHub's terms ask that Actions serve the project: these packs are the app's own data. Keep it to one
-# scheduled run a day, not a round-the-clock farm.
+# solved again; only the new ones are committed). Usually it is simpler to let the next run continue.
+#
+# Schedule: every 6 hours. A run with work takes ~5 h 15 min (setup, 300 min of solving, merge), so while a
+# pack has flops left the runs follow each other almost back to back, and a run that is still going makes the
+# next one wait (concurrency below). One run solves roughly 16 × 4 cores × ~290 min / ~11 min ≈ 1,700 flops,
+# about one whole pack (1,755 flops); a new pack version (new ranges, sizes or solver) is re-solved within a
+# day. With nothing left, a run ends within minutes.
+# GitHub's terms ask that Actions serve the project: these packs are the app's own data, and the total work is
+# fixed by the packs (the schedule only decides how soon it is done), so the runners sit idle once they are full.
 name: Presolve
 
 on:
   schedule:
-    - cron: "23 17 * * *" # 17:23 UTC = 02:23 KST, outside the busy 6–9 AM Pacific window (runs often start hours late)
+    # 05:23, 11:23, 17:23 and 23:23 UTC (14:23, 20:23, 02:23, 08:23 KST): all outside the busy 6–9 AM Pacific
+    # window, when scheduled runs often start hours late.
+    - cron: "23 5,11,17,23 * * *"
   workflow_dispatch:
     inputs:
       scenario:
@@ -33,7 +38,7 @@ on:
         type: string
       shards:
         description: "Parallel solve jobs (1–16; the account's 20 concurrent jobs are shared with other workflows)"
-        default: "8"
+        default: "16"
         type: string
       budget_minutes:
         description: "Solving budget per job in minutes (at most 320; the script stops cleanly before it)"
@@ -64,7 +69,7 @@ jobs:
     steps:
       - id: plan
         env:
-          SHARDS: ${{ inputs.shards || '8' }}
+          SHARDS: ${{ inputs.shards || '16' }}
         run: |
           if [ "$GITHUB_REF_TYPE" != branch ]; then
             echo "::error::Run this workflow on a branch (the merge pushes to it), not on $GITHUB_REF_TYPE $GITHUB_REF_NAME"
