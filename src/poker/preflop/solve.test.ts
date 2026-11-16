@@ -228,6 +228,58 @@ function expectNextIteration(solver: PreflopSolver) {
   expect(worstS).toBeLessThan(1e-12);
 }
 
+describe("best-response action values (§6.9's close calls)", { timeout: 60_000 }, () => {
+  it("B ≥ V on every edge, B = V into a terminal and on the fold, the root's actor gets brEv, V unchanged", () => {
+    const tree = fourHanded();
+    const solver = createSolver(tree, table, { valuation: modelB });
+    solver.iterate(60); // not converged: B and V differ below most nodes
+    const S = solver.average();
+    const plain = solver.evaluate(S, { actionValues: true });
+    const both = solver.evaluate(S, { actionValues: true, brActionValues: true });
+    const brOnly = solver.evaluate(S, { brActionValues: true });
+    expect(plain.brActionValues).toBeNull();
+    expect(brOnly.actionValues).toBeNull();
+    const V = plain.actionValues!, V2 = both.actionValues!, B = both.brActionValues!, B2 = brOnly.brActionValues!;
+    expect(B.length).toBe(tree.edgeCount * N);
+    let changedV = 0, changedB = 0, below = 0, termOrFold = 0, unequal = 0, above = 0;
+    for (let i = 0; i < V.length; i++) {
+      if (!Object.is(V[i], V2[i])) changedV++;
+      if (!Object.is(B[i], B2[i])) changedB++;
+    }
+    for (let p = 0; p < tree.nodeCount; p++) {
+      const e0 = tree.actStart[p], A = tree.actStart[p + 1] - e0;
+      for (let a = 0; a < A; a++) {
+        const e = e0 + a;
+        const fixed = tree.child[e] < 0 || a === tree.foldIdx[p];
+        if (fixed) termOrFold++;
+        for (let h = 0; h < N; h++) {
+          const v = V[e * N + h], b = B[e * N + h];
+          if (b < v - 1e-12) below++;
+          if (fixed && b !== v) unequal++;
+          if (b > v + 1e-6) above++;
+        }
+      }
+    }
+    expect(changedV, "actionValues are bit-identical with and without brActionValues").toBe(0);
+    expect(changedB).toBe(0);
+    expect(below, "B ≥ V − 1e-12").toBe(0);
+    expect(termOrFold).toBeGreaterThan(0);
+    expect(unequal, "B = V on edges into a terminal and on the fold").toBe(0);
+    expect(above, "the actor gains by best-responding somewhere below").toBeGreaterThan(0);
+    // At the root, the actor's best-response value is the combo-weighted max over its actions' B (UTG's brEv only:
+    // every other seat's brEv also best-responds at nodes above its own first decision).
+    const t = tree.seat[0], A0 = tree.actStart[1] - tree.actStart[0];
+    let num = 0, den = 0;
+    for (let h = 0; h < N; h++) {
+      let m = -Infinity;
+      for (let a = 0; a < A0; a++) m = Math.max(m, B[(tree.actStart[0] + a) * N + h]);
+      num += CW[h] * m;
+      den += CW[h];
+    }
+    expect(Math.abs(num / den - both.brEv[t])).toBeLessThan(1e-12);
+  });
+});
+
 describe("DCFR training update (§4.2) against its definition", { timeout: 60_000 }, () => {
   it("first iteration on a tree with multiway flops and seats acting twice", () => {
     const tree = fourHanded();

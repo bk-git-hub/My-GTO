@@ -1,8 +1,8 @@
-import type { ChartSetDef, ScenarioDef, StageDef } from "../charts";
-import { ALL_HANDS } from "../../poker/cards";
+import type { ChartSetDef, Scenario, ScenarioDef, StageDef } from "../charts";
+import { ALL_HANDS, type HandClass } from "../../poker/cards";
 import { parseRange, type Range } from "../../poker/range";
 import { PREFLOP_STAGES } from "./preflopData";
-import type { PreflopScenario, PreflopStage } from "./preflopTypes";
+import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage } from "./preflopTypes";
 
 /**
  * 솔버 프리플랍: the chart set built from our own 9-handed preflop solver (src/poker/preflop; the data is generated
@@ -22,6 +22,16 @@ import type { PreflopScenario, PreflopStage } from "./preflopTypes";
  *    charts page still shows it, with its "트리 제약" note.
  *  - noFold for the BB facing an SB limp, which checks instead of folding (its last action is 체크).
  *  - heroFilter: a kind group holds up to 72 spots per stage, which a phone cannot show without the seat row.
+ *  - close: the data's close string decoded to legend keys per marked hand (§6.9), and the stage's closeEps.
+ *  - flags as written, and quizSkip (§6.10): the quiz never deals a flag's `hands`, nor the `vs` of PF-SANITY-9 and
+ *    -14, where both sides of the comparison are distorted. The `vs` of -11 and -13 stay in the quiz: TT–77 there are
+ *    mostly ties, and AA's small 4-bet is the line §8 recommends. `cautionLines` and `flagLines` give the Korean
+ *    caution of each flag, with the chart's own numbers, and `cautionFacts` the coach's lines about them.
+ *  - `quizCloseActions` and `bigPairCloseNote`: the close-call set the quiz accepts (no AA/KK passive tie) and the
+ *    caveat under such a tie (§6.8, §8 "More KK flats").
+ *
+ * The set itself is built on first use (solverSetDef, through charts.ts's lazy sets): building its 625 spots costs
+ * about 120 ms and 15 MB, which an app start on a set without it should not pay (docs §6.3).
  */
 
 const POS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -63,8 +73,40 @@ export function stageReach(stage: PreflopStage): Map<string, Range> {
   return out;
 }
 
+/** The legend keys of a scenario: its actions in order, then fold unless noFold (the bit order of `close`). */
+const legendKeys = (sc: PreflopScenario) => [...sc.actions.map((a) => a.key), ...(sc.noFold ? [] : ["fold"])];
+
+/** The close string decoded: per marked hand, the legend keys of its set bits, in legend order. */
+function decodeClose(sc: PreflopScenario): Partial<Record<HandClass, string[]>> | undefined {
+  if (!sc.close) return undefined;
+  const keys = legendKeys(sc);
+  const out: Partial<Record<HandClass, string[]>> = {};
+  ALL_HANDS.forEach((h, i) => {
+    const ch = sc.close![i];
+    if (ch === undefined || ch === ".") return;
+    const mask = parseInt(ch, 16);
+    out[h] = keys.filter((_, j) => mask & (1 << j));
+  });
+  return out;
+}
+
+/** The flags whose `vs` the quiz also skips: both sides of their comparison are distorted (§8). */
+const SKIP_VS: ReadonlySet<PreflopFlagCode> = new Set(["PF-SANITY-9", "PF-SANITY-14"]);
+
+/** The hands of a flag's range string (every value 1). */
+const handsOf = (text: string | undefined): HandClass[] => (text ? Object.keys(parseRange(text)) : []);
+
+function quizSkipOf(flags: PreflopFlag[] | undefined): Partial<Record<HandClass, true>> | undefined {
+  if (!flags?.length) return undefined;
+  const out: Partial<Record<HandClass, true>> = {};
+  for (const f of flags) for (const h of [...handsOf(f.hands), ...(SKIP_VS.has(f.code) ? handsOf(f.vs) : [])]) out[h] = true;
+  return out;
+}
+
 function scenario(sc: PreflopScenario, reach: Map<string, Range>, stack: number): ScenarioDef {
   const reachRange = reach.get(sc.id);
+  const close = decodeClose(sc);
+  const quizSkip = quizSkipOf(sc.flags);
   return {
     id: sc.id,
     kind: sc.kind,
@@ -78,6 +120,9 @@ function scenario(sc: PreflopScenario, reach: Map<string, Range>, stack: number)
     ...(reachRange ? { reachRange } : {}),
     ...(sc.noFold ? { noFold: true } : {}),
     weight: quizWeight(sc, stack),
+    ...(close ? { close } : {}),
+    ...(sc.flags?.length ? { flags: sc.flags } : {}),
+    ...(quizSkip ? { quizSkip } : {}),
   };
 }
 
@@ -93,22 +138,170 @@ function stage(st: PreflopStage): StageDef {
     stack,
     description,
     scenarios: st.scenarios.map((sc) => scenario(sc, reach, st.stack)),
+    ...(st.closeEps !== undefined ? { closeEps: st.closeEps } : {}),
   };
 }
 
-// After the cold4 fallback (§2.8) a stage has no cold jam behind a 3-bet: the cold seat only folds there.
-const noColdJam = PREFLOP_STAGES.filter((st) => st.tree.cold4 === "none").map((st) => st.label);
-const COLD_TEXT =
-  "3벳 뒤에 처음 액션하는 자리는 폴드나 올인만 해요 (콜드콜·작은 콜드 4벳 없음)." +
-  (noColdJam.length ? ` ${noColdJam.join("·")}에서는 그 자리가 폴드만 해요.` : "");
+export const SOLVER_ID = "solver";
+export const SOLVER_LABEL = "솔버 프리플랍 (9인·BB 앤티)";
 
-export const SOLVER: ChartSetDef = {
-  id: "solver",
-  label: "솔버 프리플랍 (9인·BB 앤티)",
-  game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)",
-  source:
-    `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요. 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`,
-  positions: POS,
-  heroFilter: true,
-  stages: PREFLOP_STAGES.map(stage),
-};
+let solverDef: ChartSetDef | null = null;
+
+/** Whether solverSetDef has built the set (tests: nothing but a use of the solver set may build it). */
+export function solverSetDefBuilt(): boolean {
+  return solverDef !== null;
+}
+
+/** The solver set's definition, built on the first call (stageReach and the close strings parse every spot). */
+export function solverSetDef(): ChartSetDef {
+  if (solverDef) return solverDef;
+  // After the cold4 fallback (§2.8) a stage has no cold jam behind a 3-bet: the cold seat only folds there.
+  const noColdJam = PREFLOP_STAGES.filter((st) => st.tree.cold4 === "none").map((st) => st.label);
+  const COLD_TEXT =
+    "3벳 뒤에 처음 액션하는 자리는 폴드나 올인만 해요 (콜드콜·작은 콜드 4벳 없음)." +
+    (noColdJam.length ? ` ${noColdJam.join("·")}에서는 그 자리가 폴드만 해요.` : "");
+  solverDef = {
+    id: SOLVER_ID,
+    label: SOLVER_LABEL,
+    game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)",
+    source:
+      `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요. 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`,
+    positions: POS,
+    heroFilter: true,
+    stages: PREFLOP_STAGES.map(stage),
+  };
+  return solverDef;
+}
+
+// ───────────── cautions of the artifact flags (§6.10) ─────────────
+
+/** "Raise" for the flags (export.ts's rules): every raise or jam key; the others (call, overcall, limp, check) call. */
+export const RAISE_KEYS: ReadonlySet<string> = new Set(["open", "raise", "3bet", "squeeze", "4bet", "shove"]);
+/** The raise keys as the action buttons name them, for PF-SANITY-12's caution. */
+const RAISE_WORD: Record<string, string> = { "4bet": "4벳", shove: "올인", raise: "레이즈", "3bet": "3벳", squeeze: "스퀴즈", open: "오픈" };
+/** The rules' hand lists, in the order that breaks ties in the examples. */
+const LOW_SUITED_CONNECTORS = ["43s", "54s", "65s", "53s", "64s"], SUITED_WHEEL_ACES = ["A5s", "A4s", "A3s", "A2s"];
+const BIG_PAIRS = ["AA", "KK", "QQ", "JJ"], MID_PAIRS = ["TT", "99", "88", "77"], JAM_PAIRS = ["AA", "KK", "QQ", "JJ", "TT", "99"];
+const HIGH_OFFSUIT_ACES = ["A9o", "A8o", "A7o", "A6o"], LOW_OFFSUIT_ACES = ["A4o", "A3o", "A2o"];
+
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+/** The first hand of `list` with the largest f (ties go to the earlier hand), or undefined for an empty list. */
+const argmax = (list: string[], f: (h: string) => number) => list.reduce<string | undefined>((b, h) => (b === undefined || f(h) > f(b) ? h : b), undefined);
+
+/** The first (a, b) pair of `pairs`, in order, with the largest gap; undefined if there is none. */
+function widest(pairs: [string, string][], gap: (a: string, b: string) => number): [string, string] | undefined {
+  let best: [string, string] | undefined;
+  for (const p of pairs) if (!best || gap(...p) > gap(...best)) best = p;
+  return best;
+}
+
+/** The caution of one flag on spot `s`, with the chart's own numbers (percentages of the chart's tenths). */
+function cautionLine(s: Scenario, f: PreflopFlag): string {
+  const H = new Set(handsOf(f.hands)), V = new Set(handsOf(f.vs));
+  const keys = s.actions.map((a) => a.key);
+  const sum = (h: string, ks: string[]) => ks.reduce((x, k) => x + (s.strategy[h]?.[k] ?? 0), 0);
+  const raise = (h: string) => sum(h, keys.filter((k) => RAISE_KEYS.has(k)));
+  const call = (h: string) => sum(h, keys.filter((k) => !RAISE_KEYS.has(k)));
+  const plays = (h: string) => 1 - (s.strategy[h]?.fold ?? 1);
+  const inH = (list: string[]) => list.filter((h) => H.has(h)), inV = (list: string[]) => list.filter((h) => V.has(h));
+  const eg = (text: string | null) => (text ? ` (예: ${text})` : "");
+  switch (f.code) {
+    case "PF-SANITY-9": {
+      const r = (h: string) => sum(h, keys.filter((k) => k === "3bet" || k === "squeeze" || k === "shove"));
+      const a = argmax(inH(LOW_SUITED_CONNECTORS), r), b = argmax(inV(SUITED_WHEEL_ACES), r);
+      return `낮은 수딧 커넥터를 휠 에이스보다 더 많이 3벳해요${eg(a && b ? `${a} 3벳 ${pct(r(a))}, ${b} 3벳 ${pct(r(b))}` : null)}. 모델이 3벳한 핸드의 실현율을 상대 레인지와 상관없이 매겨서 생기는 알려진 한계예요.`;
+    }
+    case "PF-SANITY-11": {
+      const verb = s.kind === "squeeze" ? "스퀴즈" : "3벳";
+      const a = argmax(inH(BIG_PAIRS), (h) => -raise(h)), b = argmax(inV(MID_PAIRS), raise);
+      return `더 높은 페어를 덜 ${verb}하는 칸이 있어요${eg(a && b ? `${a} ${verb} ${pct(raise(a))}, ${b} ${verb} ${pct(raise(b))}` : null)}. 3벳 뒤 콜드콜이 없는 트리 단순화 탓으로 보이는 알려진 한계예요.`;
+    }
+    case "PF-SANITY-12": {
+      const hs = inH(["AA", "KK"]);
+      // The raises by their button words (4벳, 올인), as the legend shows them.
+      const raises = [...new Set(keys.filter((k) => RAISE_KEYS.has(k)).map((k) => RAISE_WORD[k] ?? "레이즈"))].join("·");
+      return `${hs.join("·")}는 ${s.kind === "vs4bet" ? "4벳" : "3벳"}에 ${raises}보다 콜을 더 많이 해요 (${hs.map((h) => `${h} 콜 ${pct(call(h))}`).join(", ")}). 모델이 큰 페어의 콜 실현율을 높게 잡아서 생기는 알려진 한계예요.`;
+    }
+    case "PF-SANITY-13": {
+      const jam = (h: string) => s.strategy[h]?.shove ?? 0;
+      const higher = JAM_PAIRS.filter((h) => H.has(h) || V.has(h));
+      const pairs: [string, string][] = [];
+      for (const lo of inH(JAM_PAIRS))
+        for (const hi of higher) if (JAM_PAIRS.indexOf(hi) < JAM_PAIRS.indexOf(lo) && jam(lo) >= jam(hi) + 0.5 - 1e-9) pairs.push([lo, hi]);
+      const p = widest(pairs, (lo, hi) => jam(lo) - jam(hi));
+      return `더 낮은 페어가 4벳 올인을 더 많이 하는 칸이 있어요${eg(p ? `${p[0]} 올인 ${pct(jam(p[0]))}, ${p[1]} 올인 ${pct(jam(p[1]))}` : null)}. 모델의 낮은 SPR 가정 탓으로 보이는 알려진 한계예요. 올인과 작은 4벳 중에 고민되면 작은 4벳을 권해요.`;
+    }
+    case "PF-SANITY-14": {
+      const pairs: [string, string][] = [];
+      for (const a of inH(HIGH_OFFSUIT_ACES)) for (const b of inV(LOW_OFFSUIT_ACES)) if (plays(a) <= plays(b) - 0.3 + 1e-9) pairs.push([a, b]);
+      const p = widest(pairs, (a, b) => plays(b) - plays(a));
+      return `킥커가 더 높은 오프수트 에이스를 덜 플레이하는 칸이 있어요${eg(p ? `${p[0]} ${pct(plays(p[0]))}, ${p[1]} ${pct(plays(p[1]))}` : null)}. 모델이 A2~A5에 같은 가산점을 줘서 생기는 알려진 한계예요.`;
+    }
+  }
+}
+
+/** The cautions of spot `s` (the charts page's "알려진 한계"), one per flag, in flag order; [] without flags. */
+export function cautionLines(s: Scenario): string[] {
+  return (s.flags ?? []).map((f) => cautionLine(s, f));
+}
+
+/** The cautions of the flags whose `hands` or `vs` contain h (the hand card). */
+export function flagLines(s: Scenario, h: HandClass): string[] {
+  return (s.flags ?? []).filter((f) => handsOf(f.hands).includes(h) || handsOf(f.vs).includes(h)).map((f) => cautionLine(s, f));
+}
+
+/** The coach's line after a caution whose artifact cells hold the hand: its `hands`, or the `vs` of -9 and -14. */
+export const ARTIFACT_CELL_FACT = "이 핸드는 위 모델 한계에 해당하는 칸이에요.";
+/** The coach's line after a caution that only compares against the hand: the `vs` of -11 and -13, which the quiz
+ *  drills (TT–77 against opens, AA's small 4-bet). */
+export const COMPARISON_FACT = "이 핸드는 위 한계의 비교 대상이에요.";
+
+/**
+ * The coach facts of spot s's cautions for hand h (docs §6.8): "모델 한계: {caution}" for every flag of the spot (`all`,
+ * the charts page) or only for the flags whose `hands` or `vs` hold h (the quiz), each followed by what h is to it:
+ * ARTIFACT_CELL_FACT for one of its artifact cells (`hands`, or the `vs` of -9 and -14: the cells the quiz never deals),
+ * COMPARISON_FACT for a kept comparison hand (the `vs` of -11 and -13), nothing when h is in neither.
+ */
+export function cautionFacts(s: Scenario, h: HandClass, all = false): string[] {
+  const out: string[] = [];
+  for (const f of s.flags ?? []) {
+    const inHands = handsOf(f.hands).includes(h), inVs = handsOf(f.vs).includes(h);
+    if (!all && !inHands && !inVs) continue;
+    out.push(`모델 한계: ${cautionLine(s, f)}`);
+    if (inHands || (inVs && SKIP_VS.has(f.code))) out.push(ARTIFACT_CELL_FACT);
+    else if (inVs) out.push(COMPARISON_FACT);
+  }
+  return out;
+}
+
+// ───────────── AA and KK close calls with a passive action (§6.8, §8 "More KK flats") ─────────────
+
+const BIG_PAIRS_CLOSE: ReadonlySet<string> = new Set(["AA", "KK"]);
+/** A passive key of a near set: not a raise and not the fold. */
+const isPassive = (k: string) => k !== "fold" && !RAISE_KEYS.has(k);
+
+/**
+ * The close-call set the quiz accepts for hand h (docs §6.8): closeActions, except that for AA and KK a passive action
+ * (call, overcall, limp, check) other than the chart's own is left out. Those ties rest on the pair-rank slope that
+ * makes the big pairs realize well as callers (§8 "More KK flats", the cause PF-SANITY-12 flags), so the quiz does not
+ * call a KK flat "괜찮아요" next to a chart that 3-bets it. undefined when fewer than two actions remain.
+ */
+export function quizCloseActions(s: Scenario, h: HandClass): string[] | undefined {
+  const keys = s.close?.[h];
+  if (!keys || !BIG_PAIRS_CLOSE.has(h)) return keys;
+  const st = s.strategy[h];
+  const kept = keys.filter((k) => !isPassive(k) || (st?.[k] ?? 0) >= 0.999);
+  return kept.length >= 2 ? kept : undefined;
+}
+
+/**
+ * The caveat under an AA or KK close mark whose near set holds a passive action (the hand card and the quiz), or null:
+ * the model over-rates the big pairs' realization as callers (§8 "More KK flats").
+ */
+export function bigPairCloseNote(s: Scenario, h: HandClass): string | null {
+  const keys = s.close?.[h];
+  if (!BIG_PAIRS_CLOSE.has(h) || !keys?.some(isPassive)) return null;
+  const raise = keys.find((k) => RAISE_KEYS.has(k));
+  return `모델이 큰 페어의 콜 실현율을 높게 잡는 알려진 한계가 있어서, 실전에서는 ${(raise && RAISE_WORD[raise]) ?? "레이즈"} 쪽이 더 나을 수 있어요.`;
+}

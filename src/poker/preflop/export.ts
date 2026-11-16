@@ -1,6 +1,6 @@
 import { ALL_HANDS, RANKS } from "../cards";
 import { parseRange } from "../range";
-import type { PreflopAction, PreflopKind, PreflopScenario, PreflopStage } from "../../data/sets/preflopTypes";
+import type { PreflopAction, PreflopFlag, PreflopFlagCode, PreflopKind, PreflopScenario, PreflopStage } from "../../data/sets/preflopTypes";
 import type { EqrFit } from "./eqrFit";
 import { comboWeights, ownReach, snapStrategy, type Valuation } from "./solve";
 import { seatNames, type ActionInfo, type LineStep, type NodeInfo, type PreflopTree, type Verb } from "./tree";
@@ -53,8 +53,18 @@ import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusSh
  *
  * Checks on a stage's data (also usable on the committed file)
  *  - `decodeStage(stage)`: per scenario the hero's reach and the effective frequencies (buildScenario's fill).
- *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..10. `stageBands(stage)`: PF-BANDS
- *    (published aggregates: printed warnings only, never targets).
+ *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..14 (11–14 print-only, every hit of
+ *    the flag rules). `stageBands(stage)`: PF-BANDS (published aggregates: printed warnings only, never targets).
+ *
+ * Close calls and artifact flags (§6.9, §6.10), written after the export; they never change a range, a text or a badge
+ *  - `CLOSE_EPS` (0.05 bb per arrival), `CLOSE_USE_MIN_PCT` (1%), `CLOSE_LADDER` (PF-SIZE-1's fallback steps).
+ *  - `legendOrder(c)`: a node's legend as tree action indices (actions, then fold).
+ *  - `closeString(d, br, eps?)`: one scenario's 169-character close string from its best-response action values.
+ *  - `stageFlags(stage, decoded, close)`: PF-SANITY-9 (vs a UTG–LJ open) and -11 to -14 as flags, clear preferences
+ *    only (pure, unmarked cells), in code order.
+ *  - `annotateStage(stage, input)`: closeEps, close and flags on an exported stage (the new keys before `actions` and
+ *    `scenarios`). `dropClose(stages, minOcc)`: PF-SIZE-1's fallback, close strings off the spots below minOcc and
+ *    the flags recomputed. `flagProblems(stage)`: the stored flags against the ones its close strings give.
  */
 
 // ───────────── constants ─────────────
@@ -866,8 +876,8 @@ export interface SanityReport {
 const EP_OPENERS = new Set(["UTG", "UTG+1", "UTG+2", "LJ"]);
 
 /**
- * PF-SANITY-1..10 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. PF-SANITY-8, -9
- * and -10 only add to `warns`: no badge, no confidence change.
+ * PF-SANITY-1..14 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. PF-SANITY-8 to
+ * -14 only add to `warns`: no badge, no confidence change (the flags of -9 and -11 to -14 are stageFlags', §6.10).
  */
 export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): SanityReport {
   const rep: SanityReport = { fails: [], warns: [], sanity5: [], sanity6: [], sanity7: [] };
@@ -993,6 +1003,9 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
       rep.warns.push(`PF-SANITY-10 ${fam.name} ${name}: ${g.spots} spot(s), ${g.hits} pair(s) inverted, worst ${w.id} ${w.better} plays ${w.pBetter.toFixed(2)} < ${w.worse} ${w.pWorse.toFixed(2)}`);
     }
   }
+  // PF-SANITY-11 to -14 (print-only warnings, one line per spot and check): every hit of the flag rules, ties included;
+  // the flags written to the data keep only the clear preferences among them (stageFlags, §6.10).
+  for (const sc of stage.scenarios) rep.warns.push(...flagWarnings(stage, get(sc.id)!));
   return rep;
 }
 
@@ -1024,6 +1037,305 @@ export function stageBands(stage: PreflopStage, decoded = decodeStage(stage)): B
     out.push({ name, value, lo, hi, ok: value >= lo && value <= hi });
   }
   return out;
+}
+
+// ───────────── close calls and artifact flags (§6.9, §6.10) ─────────────
+
+/**
+ * ε of the close-call marker (§6.9), bb per arrival (the hero holding h at the node). Numerically equal to
+ * DEFAULT_GATES.localRegret, but a different quantity: that gate is a reach-weighted node average of
+ * max_a V^a − Σ_a σ_a·V^a, this is a per-hand gap between best-response action values. 0.05 rests on the marks'
+ * measured stability against other solves and on being below any difference a pub player acts on.
+ */
+export const CLOSE_EPS = 0.05;
+/** A non-fold action counts for a close mark only when it takes at least this % of the reaching range (§6.9): below
+ *  it, its subtree is off σ̄'s path and the opponents' replies there have not converged (§8). */
+export const CLOSE_USE_MIN_PCT = 1;
+/** PF-SIZE-1's fallback (§6.9): % of dealt hands; close strings are dropped from spots below each step in turn. No
+ *  0.1 step: every shipped spot has occ ≥ 0.1 (BASE_THRESHOLD, and RFI spots are far above it), so it drops nothing. */
+export const CLOSE_LADDER: readonly number[] = [0.2, 0.5, 1, 2];
+
+/** Legend order of node class c as tree action indices: the exported actions in order, then the fold if any. */
+export function legendOrder(c: NodeClass): number[] {
+  const fold = c.actions.indexOf(null);
+  return [...c.order, ...(fold >= 0 ? [fold] : [])];
+}
+
+/** The legend keys of a scenario: its actions in order, then "fold" unless noFold. */
+const legendKeys = (sc: PreflopScenario) => [...sc.actions.map((a) => a.key), ...(sc.noFold ? [] : ["fold"])];
+
+/** The legend index of the action the chart shows at ≥ 0.999 for class h, or -1 if the cell is mixed. */
+function pureAction(d: DecodedScenario, keys: readonly string[], h: number): number {
+  for (let j = 0; j < keys.length; j++) if ((keys[j] === "fold" ? d.fold[h] : d.freq[keys[j]][h]) >= 0.999) return j;
+  return -1;
+}
+
+/**
+ * The scenario's close string (§6.9), or undefined when no hand is marked. `br[i][h]` is B^a(h) of legend action i
+ * (legendOrder): the best-response value against σ̄, bb per arrival. Purity, reach and use come from the decoded
+ * data, exactly what the app and the data test see. A hand is marked when it is in reach, the chart shows it pure,
+ * at least two eligible actions are within `eps` of the best eligible one (inclusive), and the chart's action is one
+ * of them. Eligible: fold, and any action with at least CLOSE_USE_MIN_PCT % of the reaching range (reachShares).
+ */
+export function closeString(d: DecodedScenario, br: readonly ArrayLike<number>[], eps = CLOSE_EPS): string | undefined {
+  const keys = legendKeys(d.scenario);
+  if (keys.length > 4) throw new Error(`${d.scenario.id}: ${keys.length} legend actions do not fit one hex digit`);
+  if (br.length !== keys.length) throw new Error(`${d.scenario.id}: ${br.length} value rows for ${keys.length} legend actions`);
+  const share = reachShares(d);
+  const ok = keys.map((k) => k === "fold" || share[k] >= CLOSE_USE_MIN_PCT);
+  let s = "";
+  let any = false;
+  for (let h = 0; h < ALL_HANDS.length; h++) {
+    const top = d.rho[h] > 0 ? pureAction(d, keys, h) : -1;
+    if (top < 0) {
+      s += ".";
+      continue;
+    }
+    let best = -Infinity;
+    for (let j = 0; j < keys.length; j++) if (ok[j] && br[j][h] > best) best = br[j][h];
+    let mask = 0, n = 0;
+    for (let j = 0; j < keys.length; j++)
+      if (ok[j] && br[j][h] >= best - eps) {
+        mask |= 1 << j;
+        n++;
+      }
+    if (n < 2 || !(mask & (1 << top))) {
+      s += ".";
+      continue;
+    }
+    s += mask.toString(16);
+    any = true;
+  }
+  return any ? s : undefined;
+}
+
+/** "Raise" for the flags: every raise or jam key; the other keys (call, overcall, limp, check) "call". */
+const FLAG_RAISE_KEYS: ReadonlySet<string> = new Set(["open", "raise", "3bet", "squeeze", "4bet", "shove"]);
+const BIG_PAIRS = ["AA", "KK", "QQ", "JJ"], MID_PAIRS = ["TT", "99", "88", "77"], JAM_PAIRS = ["AA", "KK", "QQ", "JJ", "TT", "99"];
+const HIGH_OFFSUIT_ACES = ["A9o", "A8o", "A7o", "A6o"], LOW_OFFSUIT_ACES = ["A4o", "A3o", "A2o"];
+const FLAG_ORDER: readonly PreflopFlagCode[] = ["PF-SANITY-9", "PF-SANITY-11", "PF-SANITY-12", "PF-SANITY-13", "PF-SANITY-14"];
+
+interface FlagHit {
+  code: PreflopFlagCode;
+  /** The flagged hands and the hands they are measured against, in the rule's list order. */
+  hands: string[];
+  vs: string[];
+  /** The frequency the rule compares (3-bet, raise, call, jam or plays), per hand, for printing. */
+  value: (h: string) => number;
+}
+
+/**
+ * The rules of PF-SANITY-9 (flag scope) and -11 to -14 on one scenario (§5.2, §6.10), in code order; `tie(h)` (a class
+ * index) removes a hand from the flagged side: with tie ≡ false these are the unrestricted hits stageSanity prints,
+ * with stageFlags' tie (mixed or close-marked) the flags. Every comparison has 1e-9 slack.
+ */
+function flagHits(stage: PreflopStage, d: DecodedScenario, tie: (h: number) => boolean): FlagHit[] {
+  const sc = d.scenario;
+  const at = (h: string) => HAND_INDEX.get(h)!;
+  const keys = sc.actions.map((a) => a.key);
+  const sum = (h: string, ks: readonly string[]) => ks.reduce((x, k) => x + d.freq[k][at(h)], 0);
+  const raiseKeys = keys.filter((k) => FLAG_RAISE_KEYS.has(k)), callKeys = keys.filter((k) => !FLAG_RAISE_KEYS.has(k));
+  const raise = (h: string) => sum(h, raiseKeys), call = (h: string) => sum(h, callKeys);
+  const plays = (h: string) => 1 - d.fold[at(h)];
+  const inReach = (h: string) => d.rho[at(h)] > 0;
+  const clear = (h: string) => !tie(at(h));
+  const first = !sc.reachFrom?.length;
+  const out: FlagHit[] = [];
+  // PF-SANITY-9's flag: vs-open spots against a UTG–LJ opener where the summed rule of stageSanity fires.
+  if (first && sc.kind === "vsOpen" && EP_OPENERS.has(sc.villain ?? "")) {
+    const k3 = keys.filter((k) => k === "3bet" || k === "squeeze" || k === "shove");
+    if (k3.length) {
+      const r = (h: string) => sum(h, k3);
+      const low = LOW_SUITED_CONNECTORS.reduce((x, h) => x + r(h), 0), wheel = SUITED_WHEEL_ACES.reduce((x, h) => x + r(h), 0);
+      if (low > wheel + 0.5 + 1e-9) {
+        const maxW = Math.max(...SUITED_WHEEL_ACES.map(r));
+        const hands = LOW_SUITED_CONNECTORS.filter((h) => r(h) > maxW + 1e-9 && clear(h));
+        const maxL = Math.max(-Infinity, ...hands.map(r));
+        out.push({ code: "PF-SANITY-9", hands, vs: hands.length ? SUITED_WHEEL_ACES.filter((h) => r(h) < maxL - 1e-9) : [], value: r });
+      }
+    }
+  }
+  // PF-SANITY-11: a JJ+ pair raising at least 0.5 less than a TT–77 pair, where the hero first faces an open.
+  if (first && (sc.kind === "vsOpen" || sc.kind === "squeeze") && raiseKeys.length) {
+    const maxMid = Math.max(...MID_PAIRS.map(raise));
+    const hands = BIG_PAIRS.filter((h) => raise(h) <= maxMid - 0.5 + 1e-9 && clear(h));
+    const minBig = Math.min(Infinity, ...hands.map(raise));
+    out.push({ code: "PF-SANITY-11", hands, vs: hands.length ? MID_PAIRS.filter((h) => raise(h) >= minBig + 0.5 - 1e-9) : [], value: raise });
+  }
+  // PF-SANITY-12: AA or KK calling a 3-bet or 4-bet at least half the time and raising less than half.
+  if ((sc.kind === "vs3bet" || sc.kind === "vs4bet") && raiseKeys.length && callKeys.length)
+    out.push({
+      code: "PF-SANITY-12",
+      hands: ["AA", "KK"].filter((h) => inReach(h) && raise(h) < 0.5 - 1e-9 && call(h) >= 0.5 - 1e-9 && clear(h)),
+      vs: [],
+      value: call,
+    });
+  // PF-SANITY-13 (≥ 100bb): a lower pair among AA–99 jamming at least 0.5 more than a higher pair, both in reach.
+  if (stage.stack >= 100 && sc.kind === "vs3bet" && keys.includes("4bet") && keys.includes("shove")) {
+    const jam = (h: string) => d.freq.shove[at(h)];
+    const lo = new Set<string>(), hi = new Set<string>();
+    for (let i = 0; i < JAM_PAIRS.length; i++)
+      for (let j = i + 1; j < JAM_PAIRS.length; j++) {
+        const a = JAM_PAIRS[i], b = JAM_PAIRS[j];
+        if (inReach(a) && inReach(b) && clear(b) && jam(b) >= jam(a) + 0.5 - 1e-9) {
+          lo.add(b);
+          hi.add(a);
+        }
+      }
+    out.push({ code: "PF-SANITY-13", hands: JAM_PAIRS.filter((h) => lo.has(h)), vs: JAM_PAIRS.filter((h) => hi.has(h) && !lo.has(h)), value: jam });
+  }
+  // PF-SANITY-14: an A9o–A6o played at least 0.3 less than an A4o–A2o (never A5o), where the hero acts first.
+  if (first) {
+    const holes = new Set<string>(), over = new Set<string>();
+    for (const a of HIGH_OFFSUIT_ACES)
+      for (const b of LOW_OFFSUIT_ACES)
+        if (clear(a) && plays(a) <= plays(b) - 0.3 + 1e-9) {
+          holes.add(a);
+          over.add(b);
+        }
+    out.push({ code: "PF-SANITY-14", hands: HIGH_OFFSUIT_ACES.filter((h) => holes.has(h)), vs: LOW_OFFSUIT_ACES.filter((h) => over.has(h)), value: plays });
+  }
+  return out.filter((x) => x.hands.length);
+}
+
+/** A per-class vector with 1 at `hands`, for rangeText. */
+const oneAt = (hands: readonly string[]) => {
+  const v = new Float64Array(ALL_HANDS.length);
+  for (const h of hands) v[HAND_INDEX.get(h)!] = 1;
+  return v;
+};
+
+/**
+ * The known-artifact flags (§6.10) of every scenario of a stage, by id (scenarios without one are left out). `close`
+ * holds the scenarios' close strings (closeString). A flag lists in `hands` only rule hits whose cell is pure and
+ * carries no close mark (a clear model preference in the artifact's direction), and is written only when `hands` is
+ * not empty; `vs` (not for PF-SANITY-12) is measured against those remaining hands, on any cell. Flags come in code
+ * order 9, 11, 12, 13, 14.
+ */
+export function stageFlags(stage: PreflopStage, decoded: Map<string, DecodedScenario>, close: ReadonlyMap<string, string | undefined>): Map<string, PreflopFlag[]> {
+  const out = new Map<string, PreflopFlag[]>();
+  for (const sc of stage.scenarios) {
+    const d = decoded.get(sc.id)!;
+    const keys = legendKeys(sc);
+    const marks = close.get(sc.id);
+    const tie = (h: number) => pureAction(d, keys, h) < 0 || (marks !== undefined && marks[h] !== ".");
+    const flags: PreflopFlag[] = flagHits(stage, d, tie)
+      .sort((a, b) => FLAG_ORDER.indexOf(a.code) - FLAG_ORDER.indexOf(b.code))
+      .map((x) => ({ code: x.code, hands: rangeText(oneAt(x.hands)), ...(x.code !== "PF-SANITY-12" && x.vs.length ? { vs: rangeText(oneAt(x.vs)) } : {}) }));
+    if (flags.length) out.set(sc.id, flags);
+  }
+  return out;
+}
+
+/** The unrestricted PF-SANITY-11 to -14 hits of one scenario as stageSanity's print-only warning lines. */
+function flagWarnings(stage: PreflopStage, d: DecodedScenario): string[] {
+  const f2 = (x: number) => x.toFixed(1);
+  const what: Partial<Record<PreflopFlagCode, string>> = {
+    "PF-SANITY-11": "JJ+ raising at least 0.5 less than TT–77",
+    "PF-SANITY-12": "AA/KK calling at least half and raising less than half",
+    "PF-SANITY-13": "a lower pair (AA–99) jamming at least 0.5 more than a higher one",
+    "PF-SANITY-14": "A9o–A6o played at least 0.3 less than A4o–A2o",
+  };
+  return flagHits(stage, d, () => false)
+    .filter((x) => x.code !== "PF-SANITY-9")
+    .map((x) => `${x.code} ${d.scenario.id}: ${what[x.code]}: ${x.hands.map((h) => `${h} ${f2(x.value(h))}`).join(", ")}${x.vs.length ? ` vs ${x.vs.map((h) => `${h} ${f2(x.value(h))}`).join(", ")}` : ""}`);
+}
+
+/** Scenario sc with `close` and `flags` set to cs and fl (left out when undefined), placed just before `actions`;
+ *  every other field kept, in its place. */
+function withAnnotations(sc: PreflopScenario, cs: string | undefined, fl: PreflopFlag[] | undefined): PreflopScenario {
+  const o: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(sc)) {
+    if (k === "close" || k === "flags") continue;
+    if (k === "actions") {
+      if (cs !== undefined) o.close = cs;
+      if (fl) o.flags = fl;
+    }
+    o[k] = v;
+  }
+  return o as unknown as PreflopScenario;
+}
+
+/**
+ * The stored flags of an annotated stage against stageFlags re-derived from its stored close strings (what the data
+ * test does); one line per scenario that differs, [] when they all agree. The generator's self-check.
+ */
+export function flagProblems(stage: PreflopStage): string[] {
+  const close = new Map(stage.scenarios.map((sc) => [sc.id, sc.close]));
+  const want = stageFlags(stage, decodeStage(stage), close);
+  const out: string[] = [];
+  for (const sc of stage.scenarios) {
+    const got = JSON.stringify(sc.flags ?? []), exp = JSON.stringify(want.get(sc.id) ?? []);
+    if (got !== exp) out.push(`${sc.id}: flags ${got} ≠ ${exp} re-derived from its close string`);
+  }
+  return out;
+}
+
+export interface AnnotateInput {
+  tree: PreflopTree;
+  classes: readonly NodeClass[];
+  /** The node of each scenario, in scenario order (StageExport.nodes). */
+  nodes: readonly number[];
+  /** Evaluation.brActionValues of σ̄ (the unsnapped average the chart rounds), edgeCount·169. */
+  brActionValues: Float64Array;
+  eps?: number;
+}
+
+/**
+ * The stage with its annotations (§6.9, §6.10): `closeEps`, each scenario's `close` string and `flags`. The new keys
+ * sit before `actions` and before `scenarios`; every other field is kept as it is, in its place. Pure: the input
+ * stage is not changed.
+ */
+export function annotateStage(stage: PreflopStage, input: AnnotateInput): PreflopStage {
+  const { tree, classes, nodes, brActionValues } = input;
+  const eps = input.eps ?? CLOSE_EPS;
+  const N = ALL_HANDS.length;
+  if (nodes.length !== stage.scenarios.length) throw new Error(`${nodes.length} nodes for ${stage.scenarios.length} scenarios`);
+  if (brActionValues.length !== tree.edgeCount * N) throw new Error("brActionValues must be edgeCount·169");
+  const decoded = decodeStage(stage);
+  const close = new Map<string, string | undefined>();
+  stage.scenarios.forEach((sc, i) => {
+    const p = nodes[i], c = classes[p];
+    if (c.id !== sc.id) throw new Error(`scenario ${i} is ${sc.id}, node ${p} is ${c.id}`);
+    const order = legendOrder(c);
+    const keys = order.map((a) => c.actions[a]?.key ?? "fold");
+    if (keys.join() !== legendKeys(sc).join()) throw new Error(`${sc.id}: legend ${legendKeys(sc).join()} ≠ node actions ${keys.join()}`);
+    const br = order.map((a) => brActionValues.subarray((tree.actStart[p] + a) * N, (tree.actStart[p] + a + 1) * N));
+    close.set(sc.id, closeString(decoded.get(sc.id)!, br, eps));
+  });
+  const flags = stageFlags(stage, decoded, close);
+  const scenarios = stage.scenarios.map((sc) => withAnnotations(sc, close.get(sc.id), flags.get(sc.id)));
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(stage)) {
+    if (k === "closeEps" || k === "closeMinOcc") continue;
+    if (k === "scenarios") out.closeEps = eps;
+    out[k] = k === "scenarios" ? scenarios : v;
+  }
+  return out as unknown as PreflopStage;
+}
+
+/**
+ * PF-SIZE-1's fallback (§6.9): the stages with `close` removed from every spot below `minOcc` (% of dealt hands). A
+ * stage that loses a string gets `closeMinOcc` = minOcc (after `closeEps`, before `scenarios`) and its flags
+ * recomputed by stageFlags on the strings it keeps: a cell whose mark is gone is a clear cell again, so a rule hit
+ * there joins its flag (or makes one), exactly as the data test re-derives them. A stage that loses nothing comes back
+ * unchanged, without `closeMinOcc`. Spots and every other field stay. Pure.
+ */
+export function dropClose(stages: readonly PreflopStage[], minOcc: number): PreflopStage[] {
+  return stages.map((st) => {
+    const drop = (sc: PreflopScenario) => sc.close !== undefined && sc.occ < minOcc;
+    if (!st.scenarios.some(drop)) return st;
+    const close = new Map(st.scenarios.map((sc) => [sc.id, drop(sc) ? undefined : sc.close]));
+    const flags = stageFlags(st, decodeStage(st), close);
+    const scenarios = st.scenarios.map((sc) => withAnnotations(sc, close.get(sc.id), flags.get(sc.id)));
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(st)) {
+      if (k === "closeMinOcc") continue;
+      if (k === "scenarios") out.closeMinOcc = minOcc;
+      out[k] = k === "scenarios" ? scenarios : v;
+    }
+    return out as unknown as PreflopStage;
+  });
 }
 
 // ───────────── export (§4.4, §6.2, §6.5, §6.6) ─────────────

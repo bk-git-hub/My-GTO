@@ -32,7 +32,8 @@ function facingText(q: StackQuestion): string {
 }
 /** Button label; facing an open, an all-in is a 3-bet shove. */
 const actionLabel = (q: StackQuestion, a: QuizAction) => (a === "shove" && q.opener ? "3벳 올인" : QUIZ_ACTIONS.find((x) => x.key === a)!.label);
-const GRADE_TEXT = { correct: "정답", mixed: "부분 정답 (혼합 빈도)", wrong: "오답" } as const;
+// "close" never comes up here (the drills use the hand-made sets, which have no close calls); listed for the type.
+const GRADE_TEXT = { correct: "정답", close: "정답 (EV 거의 같음)", mixed: "부분 정답 (혼합 빈도)", wrong: "오답" } as const;
 const fmt = (n: number) => n.toLocaleString("ko-KR");
 const bbOf = (chips: number, bb: number) => {
   const v = chips / bb;

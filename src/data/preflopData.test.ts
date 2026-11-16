@@ -1,8 +1,10 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { CloseNote } from "../components/FreqBar";
+import { RangeGrid } from "../components/RangeGrid";
 import { ChartsPage } from "../features/charts/ChartsPage";
-import { generatePreflop } from "../features/quiz/generators";
+import { generatePreflop, gradeAnswer, quizMixedMin } from "../features/quiz/generators";
 import { ALL_HANDS, comboCount, RANKS, type HandClass } from "../poker/cards";
 import { EQR_FIT } from "../poker/preflop/eqrFit";
 import { parseRange } from "../poker/range";
@@ -10,13 +12,17 @@ import { settingsStore } from "../state/settings";
 import {
   actionTotals,
   CHART_SETS,
+  chartSetMenu,
+  closeActions,
   displayChips,
+  getNamedRanges,
   getSet,
   heroFilterSeats,
   inReach,
+  isHeavyClose,
+  HEAVY_CLOSE_SHARE,
   KIND_LABEL,
   legendActions,
-  NAMED_RANGES,
   reachOf,
   reachShare,
   reachTotals,
@@ -24,9 +30,19 @@ import {
   type Scenario,
   type Stage,
 } from "./charts";
-import { SOLVER } from "./sets/preflop";
+import {
+  ARTIFACT_CELL_FACT,
+  bigPairCloseNote,
+  cautionFacts,
+  cautionLines,
+  COMPARISON_FACT,
+  flagLines,
+  quizCloseActions,
+  RAISE_KEYS,
+  solverSetDef,
+} from "./sets/preflop";
 import { PREFLOP_DRAFT_STAGES, PREFLOP_STAGES } from "./sets/preflopData";
-import type { PreflopKind, PreflopScenario, PreflopStage } from "./sets/preflopTypes";
+import type { PreflopFlag, PreflopFlagCode, PreflopKind, PreflopScenario, PreflopStage } from "./sets/preflopTypes";
 
 /**
  * Data tests (design §5.2) on the committed src/data/sets/preflopData.ts, read the way the app reads it: through
@@ -103,7 +119,8 @@ afterEach(() => {
 
 describe("solver chart set: registration and texts", () => {
   it("is registered last; the default set and getSet's fallback stay pub", () => {
-    expect(CHART_SETS.at(-1)!.id).toBe("solver");
+    expect(chartSetMenu().at(-1)!.id).toBe("solver");
+    expect(chartSetMenu().at(-1)!.label).toBe(solver.label);
     expect(CHART_SETS[0].id).toBe("pub");
     expect(getSet("no-such-set").id).toBe("pub");
     expect(solver.label).toBe("솔버 프리플랍 (9인·BB 앤티)");
@@ -555,13 +572,14 @@ describe("solver data: size and app smoke tests", () => {
   });
 
   it("the module builds the set from the data as is (same stages, spots and actions)", () => {
-    expect(SOLVER.stages.map((s) => s.scenarios.map((x) => x.id))).toEqual(PREFLOP_STAGES.map((s) => s.scenarios.map((x) => x.id)));
+    const def = solverSetDef();
+    expect(def.stages.map((s) => s.scenarios.map((x) => x.id))).toEqual(PREFLOP_STAGES.map((s) => s.scenarios.map((x) => x.id)));
     for (const [i, st] of PREFLOP_STAGES.entries())
-      st.scenarios.forEach((s, j) => expect(SOLVER.stages[i].scenarios[j].actions, s.id).toEqual(s.actions));
+      st.scenarios.forEach((s, j) => expect(def.stages[i].scenarios[j].actions, s.id).toEqual(s.actions));
   });
 
   it("the calculator lists only the solver's rfi, vsOpen and vs3bet ranges", () => {
-    const named = NAMED_RANGES.filter((r) => r.id.startsWith("solver/"));
+    const named = getNamedRanges().filter((r) => r.id.startsWith("solver/"));
     const want = solver.stages.flatMap((st) => st.scenarios.filter((s) => ["rfi", "vsOpen", "vs3bet"].includes(s.kind)).flatMap((s) => s.actions.map((a) => `${s.id}:${a.key}`)));
     expect(named.map((r) => r.id)).toEqual(want);
   });
@@ -585,6 +603,8 @@ describe("solver data: size and app smoke tests", () => {
       const st = PREFLOP_STAGES.find((x) => q.scenario.stageId === x.id)!;
       expect(isCold({ kind: q.scenario.kind, id: q.scenario.id.split("/")[2] }) && st.stack >= 55, q.scenario.id).toBe(false);
       expect(scenarioActions(q.scenario).some((a) => a.key === "fold"), q.scenario.id).toBe(!q.scenario.noFold);
+      // Flagged artifact cells (§6.10) are never dealt.
+      expect(q.scenario.quizSkip?.[q.hand as HandClass], `${q.scenario.id} ${q.hand}`).toBeUndefined();
       stages.add(q.scenario.stageId);
       kinds.add(q.scenario.kind);
     }
@@ -603,5 +623,401 @@ describe("solver data: size and app smoke tests", () => {
     } finally {
       settingsStore.set(before);
     }
+  });
+});
+
+// ───────────── Close calls and artifact flags (§6.9, §6.10) ─────────────
+// Read through the built set (closeActions, the strategies the grid shows) and the raw data, independently of the
+// generator's closeString and stageFlags.
+
+const CLOSE_EPS = 0.05;
+/** PF-CLOSE-3: the share of in-reach cells marked per stage, in % (measured 5.1 / 3.8 / 5.5 / 5.6). */
+const CLOSE_SHARE = [1, 12];
+const FLAG_CODES: PreflopFlagCode[] = ["PF-SANITY-9", "PF-SANITY-11", "PF-SANITY-12", "PF-SANITY-13", "PF-SANITY-14"];
+const RAISES = new Set(["open", "raise", "3bet", "squeeze", "4bet", "shove"]);
+const EP = new Set(["UTG", "UTG+1", "UTG+2", "LJ"]);
+const handsOf = (text: string | undefined) => Object.keys(parseRange(text ?? "")) as HandClass[];
+const legendKeys = (s: PreflopScenario) => [...s.actions.map((a) => a.key), ...(s.noFold ? [] : ["fold"])];
+/** The legend key the chart shows at ≥ 0.999 for h, or null for a mixed cell. */
+const pureKey = (s: Scenario, keys: string[], h: HandClass) => keys.find((k) => (s.strategy[h][k] ?? 0) >= 0.999) ?? null;
+const bitsOf = (ch: string) => {
+  const m = parseInt(ch, 16);
+  return [0, 1, 2, 3].filter((i) => m & (1 << i));
+};
+
+/** The five flag rules (§6.10) written out again, on the built scenario: `hands` (clear cells only) and `vs`. */
+function expectedFlags(stack: number, raw: PreflopScenario, s: Scenario): { code: PreflopFlagCode; hands: HandClass[]; vs: HandClass[] }[] {
+  const keys = raw.actions.map((a) => a.key);
+  const lk = legendKeys(raw);
+  const f = (h: string, ks: string[]) => ks.reduce((x, k) => x + (s.strategy[h][k] ?? 0), 0);
+  const raise = (h: string) => f(h, keys.filter((k) => RAISES.has(k)));
+  const call = (h: string) => f(h, keys.filter((k) => !RAISES.has(k)));
+  const plays = (h: string) => 1 - s.strategy[h].fold;
+  const reach = (h: string) => reachOf(s, h as HandClass) > 0;
+  // A clear model preference: the cell is pure and carries no close mark.
+  const clear = (h: string) => pureKey(s, lk, h as HandClass) !== null && (raw.close?.[ALL_HANDS.indexOf(h as HandClass)] ?? ".") === ".";
+  const first = !raw.reachFrom?.length;
+  const out: { code: PreflopFlagCode; hands: HandClass[]; vs: HandClass[] }[] = [];
+  const push = (code: PreflopFlagCode, hands: string[], vs: string[]) => hands.length && out.push({ code, hands: hands as HandClass[], vs: vs as HandClass[] });
+  if (first && raw.kind === "vsOpen" && EP.has(raw.villain ?? "")) {
+    const k3 = keys.filter((k) => ["3bet", "squeeze", "shove"].includes(k));
+    const r = (h: string) => f(h, k3);
+    const lsc = ["43s", "54s", "65s", "53s", "64s"], wheel = ["A5s", "A4s", "A3s", "A2s"];
+    if (k3.length && lsc.reduce((x, h) => x + r(h), 0) > wheel.reduce((x, h) => x + r(h), 0) + 0.5 + 1e-9) {
+      const hs = lsc.filter((h) => r(h) > Math.max(...wheel.map(r)) + 1e-9 && clear(h));
+      if (hs.length) push("PF-SANITY-9", hs, wheel.filter((h) => r(h) < Math.max(...hs.map(r)) - 1e-9));
+    }
+  }
+  if (first && (raw.kind === "vsOpen" || raw.kind === "squeeze") && keys.some((k) => RAISES.has(k))) {
+    const mid = ["TT", "99", "88", "77"];
+    const hs = ["AA", "KK", "QQ", "JJ"].filter((h) => raise(h) <= Math.max(...mid.map(raise)) - 0.5 + 1e-9 && clear(h));
+    if (hs.length) push("PF-SANITY-11", hs, mid.filter((h) => raise(h) >= Math.min(...hs.map(raise)) + 0.5 - 1e-9));
+  }
+  if ((raw.kind === "vs3bet" || raw.kind === "vs4bet") && keys.some((k) => RAISES.has(k)) && keys.some((k) => !RAISES.has(k)))
+    push("PF-SANITY-12", ["AA", "KK"].filter((h) => reach(h) && raise(h) < 0.5 - 1e-9 && call(h) >= 0.5 - 1e-9 && clear(h)), []);
+  if (stack >= 100 && raw.kind === "vs3bet" && keys.includes("4bet") && keys.includes("shove")) {
+    const L = ["AA", "KK", "QQ", "JJ", "TT", "99"], jam = (h: string) => s.strategy[h].shove ?? 0;
+    const lo = new Set<string>(), hi = new Set<string>();
+    L.forEach((a, i) => L.slice(i + 1).forEach((b) => {
+      if (reach(a) && reach(b) && clear(b) && jam(b) >= jam(a) + 0.5 - 1e-9) (lo.add(b), hi.add(a));
+    }));
+    push("PF-SANITY-13", L.filter((h) => lo.has(h)), L.filter((h) => hi.has(h) && !lo.has(h)));
+  }
+  if (first) {
+    const holes = new Set<string>(), over = new Set<string>();
+    for (const a of ["A9o", "A8o", "A7o", "A6o"]) for (const b of ["A4o", "A3o", "A2o"]) if (clear(a) && plays(a) <= plays(b) - 0.3 + 1e-9) (holes.add(a), over.add(b));
+    push("PF-SANITY-14", [...holes], [...over]);
+  }
+  return out;
+}
+
+describe("solver data: close calls and artifact flags (§6.9, §6.10)", () => {
+  it("PF-CLOSE-1: format — closeEps, 169 hex characters, 2+ bits within the legend, '.' out of reach, no empty string", () => {
+    for (const st of PREFLOP_STAGES) {
+      expect(st.closeEps, st.id).toBe(CLOSE_EPS);
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        if (raw.close === undefined) continue;
+        const s = built.get(raw.id)!;
+        expect(raw.close, raw.id).toMatch(/^[.0-9a-f]{169}$/);
+        expect(raw.close.replace(/\./g, "").length, raw.id).toBeGreaterThan(0);
+        if (st.closeMinOcc !== undefined) expect(raw.occ, raw.id).toBeGreaterThanOrEqual(st.closeMinOcc);
+        const n = legendKeys(raw).length;
+        ALL_HANDS.forEach((h, i) => {
+          const ch = raw.close![i];
+          if (!inReach(s, h)) expect(ch, `${raw.id} ${h}`).toBe(".");
+          if (ch === ".") return;
+          const bits = bitsOf(ch);
+          expect(bits.length, `${raw.id} ${h}`).toBeGreaterThanOrEqual(2);
+          expect(Math.max(...bits), `${raw.id} ${h}`).toBeLessThan(n);
+        });
+      }
+    }
+  });
+
+  it("PF-CLOSE-2: marks only pure cells, always with the chart's action, never an action under 1% of the reaching range", () => {
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        if (!raw.close) continue;
+        const s = built.get(raw.id)!;
+        const keys = legendKeys(raw);
+        const totals = reachTotals(s);
+        ALL_HANDS.forEach((h, i) => {
+          const ch = raw.close![i];
+          if (ch === ".") return;
+          const pure = pureKey(s, keys, h);
+          expect(pure, `${raw.id} ${h} is not pure`).not.toBeNull();
+          const set = bitsOf(ch).map((b) => keys[b]);
+          expect(set, `${raw.id} ${h}`).toContain(pure);
+          for (const k of set) if (k !== "fold") expect(totals[k] * 100, `${raw.id} ${h} ${k}`).toBeGreaterThanOrEqual(1 - 1e-9);
+        });
+      }
+    }
+  });
+
+  it("PF-CLOSE-3: 1–12% of in-reach cells are marked per stage", () => {
+    const lines: string[] = [];
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      let cells = 0, marked = 0, spots = 0;
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        cells += ALL_HANDS.filter((h) => inReach(s, h)).length;
+        marked += Object.keys(s.close ?? {}).length;
+        if (raw.close) spots++;
+      }
+      const pct = (marked / cells) * 100;
+      lines.push(`${st.id} ${marked}/${cells} (${pct.toFixed(1)}%), ${spots} spots`);
+      expect(pct, st.id).toBeGreaterThanOrEqual(CLOSE_SHARE[0]);
+      expect(pct, st.id).toBeLessThanOrEqual(CLOSE_SHARE[1]);
+    }
+    console.info(`close calls: ${lines.join("; ")}`);
+  });
+
+  it("the built set decodes close to legend keys, only on marked pure cells", () => {
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        const keys = legendKeys(raw);
+        expect(legendActions(s).map((a) => a.key), raw.id).toEqual(keys);
+        ALL_HANDS.forEach((h, i) => {
+          const ch = raw.close?.[i] ?? ".";
+          const got = closeActions(s, h);
+          if (ch === ".") expect(got, `${raw.id} ${h}`).toBeUndefined();
+          else expect(got, `${raw.id} ${h}`).toEqual(bitsOf(ch).map((b) => keys[b]));
+          if (pureKey(s, keys, h) === null) expect(got, `${raw.id} ${h} is mixed`).toBeUndefined();
+        });
+      }
+    }
+  });
+
+  it("flags: the five rules written out again give exactly the stored flags; every flagged hand is in reach, pure and unmarked", () => {
+    const counts: string[] = [];
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      const byCode = new Map<string, number>();
+      let spots = 0;
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        const want = expectedFlags(st.stack, raw, s);
+        const got = (raw.flags ?? []).map((f: PreflopFlag) => ({ code: f.code, hands: handsOf(f.hands).sort(), vs: handsOf(f.vs).sort() }));
+        expect(got, raw.id).toEqual(want.map((f) => ({ code: f.code, hands: [...f.hands].sort(), vs: [...f.vs].sort() })));
+        expect(raw.flags === undefined || raw.flags.length > 0, raw.id).toBe(true);
+        expect((raw.flags ?? []).map((f) => f.code), raw.id).toEqual(FLAG_CODES.filter((c) => raw.flags?.some((f) => f.code === c)));
+        if (raw.flags) spots++;
+        for (const f of raw.flags ?? []) {
+          byCode.set(f.code, (byCode.get(f.code) ?? 0) + 1);
+          expect(f.hands.length, raw.id).toBeGreaterThan(0);
+          if (f.code === "PF-SANITY-12") expect(f.vs, raw.id).toBeUndefined();
+          for (const h of handsOf(f.hands)) {
+            expect(inReach(s, h), `${raw.id} ${h}`).toBe(true);
+            expect(pureKey(s, legendKeys(raw), h), `${raw.id} ${h}`).not.toBeNull();
+            expect(closeActions(s, h), `${raw.id} ${h}`).toBeUndefined();
+          }
+          for (const v of Object.values(parseRange(f.hands))) expect(v).toBe(1);
+          for (const v of Object.values(parseRange(f.vs ?? ""))) expect(v).toBe(1);
+        }
+      }
+      counts.push(`${st.id} ${spots} spots (${FLAG_CODES.filter((c) => byCode.has(c)).map((c) => `${c.slice(10)}: ${byCode.get(c)}`).join(", ")})`);
+    }
+    console.info(`flags: ${counts.join("; ")}`);
+  });
+
+  it("cautions quote the chart's own numbers, every example is true, and the quiz skips hands plus vs of 9 and 14", () => {
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        const lines = cautionLines(s);
+        expect(lines.length, raw.id).toBe(raw.flags?.length ?? 0);
+        const keys = raw.actions.map((a) => a.key);
+        const sum = (h: string, ks: string[]) => ks.reduce((x, k) => x + (s.strategy[h][k] ?? 0), 0);
+        const p = (x: number) => Math.round(x * 100);
+        const skip = new Set<string>();
+        (raw.flags ?? []).forEach((f, i) => {
+          const line = lines[i], H = handsOf(f.hands), V = handsOf(f.vs);
+          for (const h of H) skip.add(h);
+          if (f.code === "PF-SANITY-9" || f.code === "PF-SANITY-14") for (const h of V) skip.add(h);
+          const m = (re: RegExp) => {
+            const x = re.exec(line);
+            expect(x, `${raw.id} ${f.code}: ${line}`).not.toBeNull();
+            return x!;
+          };
+          if (f.code === "PF-SANITY-9") {
+            const [, a, pa, b, pb] = m(/예: (\S+) 3벳 (\d+)%, (\S+) 3벳 (\d+)%\)/);
+            const r = (h: string) => sum(h, keys.filter((k) => ["3bet", "squeeze", "shove"].includes(k)));
+            expect([H.includes(a as HandClass), V.includes(b as HandClass), +pa, +pb]).toEqual([true, true, p(r(a)), p(r(b))]);
+            expect(+pa).toBeGreaterThan(+pb);
+          } else if (f.code === "PF-SANITY-11") {
+            const [, a, verb, pa, b, pb] = m(/예: (\S+) (3벳|스퀴즈) (\d+)%, (\S+) \2 (\d+)%\)/);
+            expect(verb).toBe(raw.kind === "squeeze" ? "스퀴즈" : "3벳");
+            const r = (h: string) => sum(h, keys.filter((k) => RAISES.has(k)));
+            expect([H.includes(a as HandClass), V.includes(b as HandClass), +pa, +pb]).toEqual([true, true, p(r(a)), p(r(b))]);
+            expect(+pa).toBeLessThanOrEqual(+pb - 50);
+          } else if (f.code === "PF-SANITY-12") {
+            expect(line.startsWith(`${H.join("·")}는 ${raw.kind === "vs4bet" ? "4벳" : "3벳"}에`), line).toBe(true);
+            for (const h of H) {
+              const [, pc] = m(new RegExp(`${h} 콜 (\\d+)%`));
+              expect(+pc).toBe(p(sum(h, keys.filter((k) => !RAISES.has(k)))));
+              expect(sum(h, keys.filter((k) => !RAISES.has(k)))).toBeGreaterThan(sum(h, keys.filter((k) => RAISES.has(k))));
+            }
+          } else if (f.code === "PF-SANITY-13") {
+            const [, a, pa, b, pb] = m(/예: (\S+) 올인 (\d+)%, (\S+) 올인 (\d+)%\)/);
+            const jam = (h: string) => s.strategy[h].shove ?? 0;
+            expect([H.includes(a as HandClass), [...H, ...V].includes(b as HandClass), +pa, +pb]).toEqual([true, true, p(jam(a)), p(jam(b))]);
+            expect(ALL_HANDS.indexOf(b as HandClass)).toBeLessThan(ALL_HANDS.indexOf(a as HandClass)); // b is the higher pair
+            expect(+pa).toBeGreaterThanOrEqual(+pb + 50);
+          } else {
+            const [, a, pa, b, pb] = m(/예: (A[2-9]o) (\d+)%, (A[2-4]o) (\d+)%\)/);
+            const plays = (h: string) => 1 - s.strategy[h].fold;
+            expect([H.includes(a as HandClass), V.includes(b as HandClass), +pa, +pb]).toEqual([true, true, p(plays(a)), p(plays(b))]);
+            expect(+pa).toBeLessThanOrEqual(+pb - 30);
+          }
+        });
+        expect(Object.keys(s.quizSkip ?? {}).sort(), raw.id).toEqual([...skip].sort());
+        // The hand card shows the cautions whose hands or vs hold the hand.
+        for (const h of ALL_HANDS) {
+          const want = (raw.flags ?? []).flatMap((f, i) => (handsOf(f.hands).includes(h) || handsOf(f.vs).includes(h) ? [lines[i]] : []));
+          expect(flagLines(s, h), `${raw.id} ${h}`).toEqual(want);
+        }
+      }
+    }
+  });
+
+  it("each caution's example is its rule's extreme pair, ties to the earlier hand of the rule's list", () => {
+    const LSC = ["43s", "54s", "65s", "53s", "64s"], WHEEL = ["A5s", "A4s", "A3s", "A2s"];
+    const BIG = ["AA", "KK", "QQ", "JJ"], MID = ["TT", "99", "88", "77"], JAM = ["AA", "KK", "QQ", "JJ", "TT", "99"];
+    const HIGH = ["A9o", "A8o", "A7o", "A6o"], LOW = ["A4o", "A3o", "A2o"];
+    /** The first hand of list with the largest f. */
+    const first = (list: string[], f: (h: string) => number) => list.reduce<string | undefined>((b, h) => (b === undefined || f(h) > f(b) ? h : b), undefined);
+    /** The first pair with the largest gap. */
+    const widest = (pairs: [string, string][], gap: (p: [string, string]) => number) => pairs.reduce<[string, string] | undefined>((b, p) => (!b || gap(p) > gap(b) ? p : b), undefined);
+    let n = 0;
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        const keys = raw.actions.map((a) => a.key);
+        const sum = (h: string, ks: string[]) => ks.reduce((x, k) => x + (s.strategy[h][k] ?? 0), 0);
+        const lines = cautionLines(s);
+        (raw.flags ?? []).forEach((f, i) => {
+          const H = handsOf(f.hands) as string[], V = handsOf(f.vs) as string[];
+          const ex = /\(예: (\S+) .*?, (\S+) .*?\)/.exec(lines[i]);
+          let want: (string | undefined)[] | null = null;
+          if (f.code === "PF-SANITY-9") {
+            const r = (h: string) => sum(h, keys.filter((k) => ["3bet", "squeeze", "shove"].includes(k)));
+            want = [first(LSC.filter((h) => H.includes(h)), r), first(WHEEL.filter((h) => V.includes(h)), r)];
+          } else if (f.code === "PF-SANITY-11") {
+            const r = (h: string) => sum(h, keys.filter((k) => RAISES.has(k)));
+            want = [first(BIG.filter((h) => H.includes(h)), (h) => -r(h)), first(MID.filter((h) => V.includes(h)), r)];
+          } else if (f.code === "PF-SANITY-13") {
+            const jam = (h: string) => s.strategy[h].shove ?? 0;
+            const pairs: [string, string][] = [];
+            for (const lo of JAM.filter((h) => H.includes(h)))
+              for (const hi of JAM.filter((h) => H.includes(h) || V.includes(h)))
+                if (JAM.indexOf(hi) < JAM.indexOf(lo) && jam(lo) >= jam(hi) + 0.5 - 1e-9) pairs.push([lo, hi]);
+            want = widest(pairs, ([lo, hi]) => jam(lo) - jam(hi)) ?? null;
+          } else if (f.code === "PF-SANITY-14") {
+            const plays = (h: string) => 1 - s.strategy[h].fold;
+            const pairs: [string, string][] = [];
+            for (const a of HIGH.filter((h) => H.includes(h))) for (const b of LOW.filter((h) => V.includes(h))) if (plays(a) <= plays(b) - 0.3 + 1e-9) pairs.push([a, b]);
+            want = widest(pairs, ([a, b]) => plays(b) - plays(a)) ?? null;
+          }
+          if (want === null) return; // -12 quotes every hand
+          expect(ex, `${raw.id} ${f.code}: ${lines[i]}`).not.toBeNull();
+          expect([ex![1], ex![2]], `${raw.id} ${f.code}: ${lines[i]}`).toEqual(want);
+          n++;
+        });
+      }
+    }
+    expect(n).toBeGreaterThan(0);
+  });
+
+  it("coach facts: an artifact cell (hands, vs of 9 and 14) or a comparison hand (vs of 11 and 13), as the quiz skips them", () => {
+    let comparisons = 0;
+    for (const st of PREFLOP_STAGES) {
+      const built = byId(builtStage(st.id));
+      for (const raw of st.scenarios) {
+        const s = built.get(raw.id)!;
+        const lines = cautionLines(s);
+        for (const h of ALL_HANDS) {
+          const want: string[] = [], wantAll: string[] = [];
+          (raw.flags ?? []).forEach((f, i) => {
+            const inH = handsOf(f.hands).includes(h), inV = handsOf(f.vs).includes(h);
+            const tail = inH || (inV && (f.code === "PF-SANITY-9" || f.code === "PF-SANITY-14")) ? [ARTIFACT_CELL_FACT] : inV ? [COMPARISON_FACT] : [];
+            if (inH || inV) want.push(`모델 한계: ${lines[i]}`, ...tail);
+            wantAll.push(`모델 한계: ${lines[i]}`, ...tail);
+          });
+          expect(cautionFacts(s, h), `${raw.id} ${h}`).toEqual(want);
+          expect(cautionFacts(s, h, true), `${raw.id} ${h}`).toEqual(wantAll);
+          // The artifact line goes exactly with the hands the quiz never deals.
+          expect(want.includes(ARTIFACT_CELL_FACT), `${raw.id} ${h}`).toBe(!!s.quizSkip?.[h]);
+          if (want.includes(COMPARISON_FACT)) comparisons++;
+        }
+      }
+    }
+    expect(comparisons).toBeGreaterThan(0);
+  });
+
+  it("the grid notches exactly the marked cells; the hand card, the legend item and the heavy-spot note follow the data", () => {
+    const st = builtStage("100bb-2.2");
+    let notched = 0;
+    for (const s of st.scenarios) {
+      const html = renderToString(createElement(RangeGrid, { scenario: s, selected: null, onPick: () => {} }));
+      const marked = Object.keys(s.close ?? {}).length;
+      expect(html.match(/class="cell [^"]*? close"/g)?.length ?? 0, s.id).toBe(marked);
+      notched += marked;
+    }
+    expect(notched).toBeGreaterThan(0);
+    // rfi-sb: many marks, so the heavy-spot note; TT's hand card names both actions.
+    const sb = byId(st).get("rfi-sb")!;
+    const marked = Object.keys(sb.close ?? {}).length;
+    expect(marked).toBeGreaterThanOrEqual(HEAVY_CLOSE_SHARE * 169);
+    expect(isHeavyClose(sb)).toBe(true);
+    const tt = closeActions(sb, "TT")!;
+    expect(tt.length).toBeGreaterThanOrEqual(2);
+    const note = renderToString(createElement(CloseNote, { scenario: sb, hand: "TT", eps: st.closeEps })).replace(/<!-- -->/g, "");
+    const label = (k: string) => legendActions(sb).find((a) => a.key === k)!.label;
+    const chart = tt.find((k) => sb.strategy.TT[k] >= 0.999)!;
+    expect(note).toBe(`<p class="close-note">차트는 ${label(chart)}만 보여 주지만 ${tt.filter((k) => k !== chart).map(label).join("·")}도 EV 차이가 0.05bb 이내라 거의 같아요.</p>`);
+    expect(renderToString(createElement(CloseNote, { scenario: sb, hand: ALL_HANDS.find((h) => !sb.close?.[h])!, eps: st.closeEps }))).toBe("");
+    for (const stage of solver.stages)
+      for (const s of stage.scenarios) {
+        const m = Object.keys(s.close ?? {}).length;
+        expect(isHeavyClose(s), s.id).toBe(m > 0 && m >= 0.25 * ALL_HANDS.filter((h) => inReach(s, h)).length);
+      }
+    // The charts page's first spot: its marks on the grid and the "EV 거의 같음" legend item.
+    const before = settingsStore.get();
+    try {
+      settingsStore.set({ ...before, chartSet: "solver" });
+      const html = renderToString(createElement(ChartsPage)).replace(/<!-- -->/g, "");
+      const first = st.scenarios[0];
+      expect(Object.keys(first.close ?? {}).length).toBeGreaterThan(0);
+      expect(html.match(/class="cell [^"]*? close"/g)?.length).toBe(Object.keys(first.close!).length);
+      expect(html).toContain('<i class="close"></i>EV 거의 같음');
+      expect(html.includes("표시된 칸이 많아요")).toBe(isHeavyClose(first));
+    } finally {
+      settingsStore.set(before);
+    }
+  });
+
+  it("the quiz grades every action the solver chart plays at least 부분 정답, every accepted near action 정답, never an AA/KK passive tie", () => {
+    let mixed10 = 0, close = 0, bigPair = 0;
+    for (const stage of solver.stages) {
+      const mixedMin = quizMixedMin(stage);
+      expect(mixedMin).toBeLessThan(0.1);
+      for (const s of stage.scenarios)
+        for (const h of ALL_HANDS) {
+          if (!inReach(s, h)) continue;
+          const near = quizCloseActions(s, h);
+          for (const a of scenarioActions(s)) {
+            const f = s.strategy[h][a.key] ?? 0, g = gradeAnswer(s, h, a.key, mixedMin);
+            if (f > 1e-9) expect(g, `${s.id} ${h} ${a.key} ${f}`).not.toBe("wrong");
+            else expect(g, `${s.id} ${h} ${a.key}`).toBe(near?.includes(a.key) ? "close" : "wrong");
+            if (g === "mixed" && f < 0.2) mixed10++;
+            if (g === "close") close++;
+          }
+          // AA and KK: a passive action the chart does not take is never accepted as close, and the caveat shows.
+          if ((h === "AA" || h === "KK") && closeActions(s, h)?.some((k) => k !== "fold" && !RAISE_KEYS.has(k))) {
+            bigPair++;
+            expect(bigPairCloseNote(s, h), `${s.id} ${h}`).not.toBeNull();
+            for (const k of closeActions(s, h)!)
+              if (k !== "fold" && !RAISE_KEYS.has(k) && s.strategy[h][k] < 0.999) expect(gradeAnswer(s, h, k, mixedMin), `${s.id} ${h} ${k}`).toBe("wrong");
+          } else expect(bigPairCloseNote(s, h)).toBeNull();
+        }
+    }
+    expect(mixed10).toBeGreaterThan(0);
+    expect(close).toBeGreaterThan(0);
+    console.info(`quiz grading: ${mixed10} 10% actions graded 부분 정답, ${close} close answers, ${bigPair} AA/KK passive ties`);
+  });
+
+  it("every spot the quiz can pick still has a hand to deal", () => {
+    for (const st of solver.stages)
+      for (const s of st.scenarios) {
+        if (!((s.weight ?? 1) > 0)) continue;
+        expect(ALL_HANDS.some((h) => inReach(s, h) && !s.quizSkip?.[h]), s.id).toBe(true);
+      }
   });
 });

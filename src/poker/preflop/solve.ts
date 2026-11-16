@@ -58,8 +58,12 @@ import {
  *  - `solver.evaluate(strategy, options?)`: per-seat EV, best-response value and gain (each in that seat's own
  *    world), NashConv, reach-weighted local regret, own reach and occ per node, occ per terminal, and the §4.5
  *    diagnostics (PF-FROZEN, negative shares, Σ EV). It first refreshes Z and ū from `strategy` (and restores the
- *    solver's own afterwards, so metrics never change the training run). Optionally the actor's value of every
- *    action, V^a(h), per edge.
+ *    solver's own afterwards, so metrics never change the training run). Optionally, per edge (index
+ *    (actStart[i] + a)·N + h, bb net from the start of the hand, given that the actor holds h and the node is
+ *    reached): `{ actionValues: true }` gives the actor's value of every action when it follows `strategy` below,
+ *    V^a(h); `{ brActionValues: true }` gives it when the actor best-responds below and every other seat plays
+ *    `strategy`, B^a(h) ≥ V^a(h) (the close-call marker of the charts, docs §6.9). Each is a Float64Array(edgeCount·N),
+ *    15 MB at 100bb: callers keep it only as long as they need it.
  *  - `solver.polish(nodes, k)`: the §4.6 polish pass on those nodes' subtrees.
  *  - `solver.restart()`: strategy sums to 0 and the discount counter back to t = 0, keeping the regrets.
  *  - `twoStartInit(solver, warmup?)`: PF-TWOSTART's second start (§5.4), steps 1–3.
@@ -136,6 +140,9 @@ export interface Evaluation {
   negativeShares: { count: number; occ: number; worst: NegativeShare[] };
   /** V^a(h) of the actor per edge, (actStart[i] + a)·N + h, when asked for. */
   actionValues: Float64Array | null;
+  /** B^a(h) of the actor per edge, the same layout, when asked for: the actor best-responds below the node and every
+   *  other seat plays the evaluated strategy. Equal to V^a(h) on an edge into a terminal and on the fold. */
+  brActionValues: Float64Array | null;
 }
 
 export interface PreflopSolver {
@@ -156,7 +163,7 @@ export interface PreflopSolver {
   readonly iterations: number;
   iterate(count?: number): void;
   average(out?: Float64Array): Float64Array;
-  evaluate(strategy: Float64Array, options?: { actionValues?: boolean }): Evaluation;
+  evaluate(strategy: Float64Array, options?: { actionValues?: boolean; brActionValues?: boolean }): Evaluation;
   polish(nodes: readonly number[], iterations: number): void;
   restart(): void;
 }
@@ -523,6 +530,7 @@ export function createSolver(tree: PreflopTree, table: { eq: ArrayLike<number>; 
   let evBr = false;
   let evRec = false;
   let evAct: Float64Array | null = null;
+  let evBrAct: Float64Array | null = null;
   let evLocal = new Float64Array(0), evReach = new Float64Array(0), evOcc = new Float64Array(0), evTermOcc = new Float64Array(0);
   let negCount = 0, negOcc = 0;
   let negList: NegativeShare[] = [];
@@ -651,6 +659,7 @@ export function createSolver(tree: PreflopTree, table: { eq: ArrayLike<number>; 
       br[s].set(bs);
     }
     if (evAct) for (let a = 0; a < A; a++) evAct.set(acts[a], base + a * N);
+    if (evBrAct) for (let a = 0; a < A; a++) evBrAct.set(brs[a], base + a * N);
     if (evRec) {
       let num = 0, den = 0;
       for (let h = 0; h < N; h++) {
@@ -666,7 +675,7 @@ export function createSolver(tree: PreflopTree, table: { eq: ArrayLike<number>; 
     }
   }
 
-  function evaluate(strategy: Float64Array, opts: { actionValues?: boolean } = {}): Evaluation {
+  function evaluate(strategy: Float64Array, opts: { actionValues?: boolean; brActionValues?: boolean } = {}): Evaluation {
     if (strategy.length !== edgeCount * N) throw new Error("strategy must be edgeCount·N");
     // Metrics use the evaluated profile's own multiway normalization; the training run keeps its frozen one.
     const saved = mwNorm.map((x) => ({ Z: x.Z, ubar: x.ubar }));
@@ -674,6 +683,7 @@ export function createSolver(tree: PreflopTree, table: { eq: ArrayLike<number>; 
     evBr = true;
     evRec = true;
     evAct = opts.actionValues ? new Float64Array(edgeCount * N) : null;
+    evBrAct = opts.brActionValues ? new Float64Array(edgeCount * N) : null;
     evLocal = new Float64Array(nodeCount);
     evReach = new Float64Array(nodeCount);
     evOcc = new Float64Array(nodeCount);
@@ -722,8 +732,10 @@ export function createSolver(tree: PreflopTree, table: { eq: ArrayLike<number>; 
       frozen: { occ: fz, raiserOcc: fzR, callerOcc: fzC },
       negativeShares: { count: negCount, occ: negOcc, worst: negList.slice(0, 25) },
       actionValues: evAct,
+      brActionValues: evBrAct,
     };
     evAct = null;
+    evBrAct = null;
     negList = [];
     return result;
   }

@@ -23,8 +23,9 @@
 // on its reach (§2.8), one re-solve with cold4 "none"; if that fails too, an optional stage (35bb-2) is dropped and a
 // required one fails the run (exit 1, nothing written). 25bb-2 is solved
 // only for PF-OVERLAP against shortNash 25bb and never exported. Then PF-TWOSTART and the five 1,000-iteration
-// sensitivity solves, the PF-* checks, the size ladder and the data file. Every output is a pure function of the
-// inputs: no timestamps, fixed ordering, independent of the worker count.
+// sensitivity solves, the PF-* checks, the size ladder, the close-call marks and artifact flags (§6.9, §6.10: one
+// best-response evaluation of σ̄ per stage, after the ladder, so they never change which spots ship) and the data file.
+// Every output is a pure function of the inputs: no timestamps, fixed ordering, independent of the worker count.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
@@ -539,11 +540,53 @@ async function main() {
       for (const st of shipped) steps.set(st.id, st.countLadder.steps);
     }
 
+    // ── close calls and artifact flags (§6.9, §6.10) on the final export sets ──
+    // The ladder above ran on annotation-free text, so the annotations never change which spots ship. Per stage one
+    // evaluation of σ̄ (the unsnapped average the chart rounds) with the best-response action values, about 0.8 s.
+    const plainGz = gz;
+    if (exports) {
+      for (const e of exports) {
+        const st = states.get(e.stage.id);
+        if (!evalSolvers.has(st.id)) evalSolvers.set(st.id, solveM.createSolver(st.tree, table, { valuation: ex.stageValuation(EQR_FIT, features) }));
+        // brActionValues is 15 MB at 100bb: it lives only for this call.
+        const { brActionValues } = evalSolvers.get(st.id).evaluate(st.main.avg, { brActionValues: true });
+        e.stage = ex.annotateStage(e.stage, { tree: st.tree, classes: st.classes, nodes: e.nodes, brActionValues, eps: ex.CLOSE_EPS });
+      }
+      text = dataFileText(exports.map((e) => e.stage), draftIds);
+      gz = gzipSync(text).length;
+      // PF-SIZE-1 after the annotations: close strings come off the rarest spots first (the ladder of CLOSE_LADDER),
+      // rather than failing a run that may have taken hours over a feature that is not a gate. dropClose recomputes
+      // the flags of a stage that loses a string (a cell whose mark is gone is clear again); a step that drops
+      // nothing is skipped.
+      if (gz > GZIP_LIMIT) {
+        const full = exports.map((e) => e.stage);
+        let fits = false;
+        for (const t of ex.CLOSE_LADDER) {
+          const dropped = ex.dropClose(full, t);
+          const lost = full.reduce((n, s, i) => n + s.scenarios.filter((sc, j) => sc.close !== undefined && dropped[i].scenarios[j].close === undefined).length, 0);
+          if (!lost) continue;
+          console.log(`PF-SIZE-1: annotated gzip ${gz} > ${GZIP_LIMIT}; close strings kept only on spots with occ ≥ ${t}% (${lost} spots lost theirs)`);
+          exports.forEach((e, i) => (e.stage = dropped[i]));
+          text = dataFileText(exports.map((e) => e.stage), draftIds);
+          gz = gzipSync(text).length;
+          if (gz <= GZIP_LIMIT) {
+            fits = true;
+            break;
+          }
+        }
+        if (!fits) {
+          console.log(`\nPF-SIZE-1 FAILED after annotations: gzip ${gz} bytes > ${GZIP_LIMIT} with close strings only on spots with occ ≥ ${ex.CLOSE_LADDER.at(-1)}%`);
+          exitCode = 1;
+        }
+      }
+    }
+
     // ── the self-checks of the written data ──
     for (const e of exports ?? []) {
       const st = states.get(e.stage.id);
       // PF-SANITY-1/2/3 failures fail the data tests, so they stop the run too (unless the gates are ignored).
-      const problems = [...ex.dataChecks(e.stage), ...reproductionProblems(e, st), ...(args.ignoreGates ? [] : e.sanity.fails)];
+      // flagProblems: the flags must be the ones the stored close strings give (the data test re-derives them).
+      const problems = [...ex.dataChecks(e.stage), ...ex.flagProblems(e.stage), ...reproductionProblems(e, st), ...(args.ignoreGates ? [] : e.sanity.fails)];
       if (problems.length) {
         console.log(`${st.id}: DATA SELF-CHECK FAILED:\n  ${problems.slice(0, 20).join("\n  ")}`);
         exitCode = 1;
@@ -559,7 +602,7 @@ async function main() {
       console.log("\n" + lines.join("\n"));
       writeFileSync(`${args.summaryDir}/summary-${st.id}.txt`, lines.join("\n") + "\n");
     }
-    if (shipped.length && exports) console.log(`\ndata file: ${exports.length} stage(s), ${exports.reduce((a, e) => a + e.stage.scenarios.length, 0)} scenarios, ${Buffer.byteLength(text)} bytes, gzip ${gz} bytes (limit ${GZIP_LIMIT})${draftIds.length ? `; DRAFT stages: ${draftIds.join(", ")}` : ""}`);
+    if (shipped.length && exports) console.log(`\ndata file: ${exports.length} stage(s), ${exports.reduce((a, e) => a + e.stage.scenarios.length, 0)} scenarios, ${Buffer.byteLength(text)} bytes, gzip ${gz} bytes (limit ${GZIP_LIMIT}; ${plainGz} without close calls and flags)${draftIds.length ? `; DRAFT stages: ${draftIds.join(", ")}` : ""}`);
 
     // ── dumps ──
     if (args.dump) for (const st of all) if (st.main) writeDump(st, exports?.find((x) => x.stage.id === st.id) ?? null);
@@ -570,6 +613,8 @@ async function main() {
       const sha = (x) => createHash("sha256").update(Buffer.from(x.avg.buffer)).digest("hex");
       const tr = treeM.buildTree(treeM.stageConfig(DET_STAGE));
       const classes = ex.classifyTree(tr);
+      const detEval = solveM.createSolver(tr, table, { valuation: ex.stageValuation(EQR_FIT, features) });
+      // The export with its close calls and flags (§6.9, §6.10), so the determinism check covers them too.
       const stageJson = (r) => {
         const ch = ex.chooseLadder(tr, classes, r.occ, { shared });
         const out = ex.exportStage({
@@ -577,7 +622,8 @@ async function main() {
           metrics: { occ: r.occ, localRegret: r.localRegret, gainMbb: r.gainMbb, nashConvMbb: r.nashConvMbb, snappedGainMbb: r.snappedMaxGainMbb, ev: r.ev, evSum: r.evSum, frozenOcc: r.frozen.occ, negativeShares: r.negativeShares.count },
           moves: null, twoStartFlags: null, fit: EQR_FIT, equityTable: tableSha,
         });
-        return JSON.stringify(out.stage);
+        const { brActionValues } = detEval.evaluate(r.avg, { brActionValues: true });
+        return JSON.stringify(ex.annotateStage(out.stage, { tree: tr, classes, nodes: out.nodes, brActionValues, eps: ex.CLOSE_EPS }));
       };
       const same = sha(a) === sha(b) && stageJson(a) === stageJson(b);
       console.log(`\nPF-DET (${DET_STAGE}, ${DET_ITERATIONS} iterations, twice): ${same ? "identical" : "DIFFERENT"} (σ̄ sha256 ${sha(a).slice(0, 12)} / ${sha(b).slice(0, 12)})`);
@@ -733,6 +779,7 @@ export const PREFLOP_STAGES: PreflopStage[] = ${JSON.stringify(stages, null, 1)}
       for (const s of e.stage.scenarios) conf[s.confidence]++;
       const draftWhy = { sensitivity: "no sensitivity solves", twostart: "no two-start solve", gates: "gates ignored", iterations: "not the §4.6 schedule (--iterations)", twostartGates: "the two-start solve failed its gates" };
       L.push(`confidence: high ${conf.high}, mid ${conf.mid}, low ${conf.low}${e.draft.length ? ` (DRAFT: ${e.draft.map((d) => draftWhy[d] ?? d).join(", ")})` : ""}`);
+      L.push(...annotationLines(e.stage));
       for (const b of ex.stageBands(e.stage)) L.push(`PF-BANDS ${b.ok ? "ok  " : "WARN"} ${b.name}: ${b.value} (band ${b.lo}–${b.hi}; a warning only, never a target)`);
       for (const f of e.sanity.fails) L.push(`SANITY FAIL (the data test fails): ${f}`);
       for (const w of e.sanity.warns) L.push(`sanity warning: ${w}`);
@@ -753,6 +800,44 @@ export const PREFLOP_STAGES: PreflopStage[] = ${JSON.stringify(stages, null, 1)}
       L.push(`PF-TWOSTART: ${t.result.pass ? "converged" : `gates ${t.result.failures.join(",")}`} at ${t.result.iterations}; ${t.flags.size} node(s) above 2pp; worst ${t.worst.slice(0, 5).map((x) => `${st.classes[x.p].id} ${(x.d * 100).toFixed(1)}pp`).join(", ")}`);
     }
     if (overlap) L.push(...overlap);
+    return L;
+  }
+
+  /** §6.9, §6.10: the close-call marks (cells, spots, per-spot spread) and the artifact flags per code of a stage. */
+  function annotationLines(stage) {
+    const decoded = ex.decodeStage(stage);
+    let cells = 0, marked = 0, three = 0, spots = 0;
+    const perSpot = [];
+    for (const sc of stage.scenarios) {
+      const d = decoded.get(sc.id);
+      for (let h = 0; h < N; h++) if (d.rho[h] > 0) cells++;
+      let n = 0;
+      for (const ch of sc.close ?? "") {
+        if (ch === ".") continue;
+        n++;
+        let m = parseInt(ch, 16), bits = 0;
+        for (; m; m &= m - 1) bits++;
+        if (bits >= 3) three++;
+      }
+      if (sc.close) spots++;
+      marked += n;
+      perSpot.push(n);
+    }
+    perSpot.sort((a, b) => a - b);
+    const L = [
+      `close calls (ε ${stage.closeEps} bb per arrival): ${marked} of ${cells} in-reach cells marked (${((marked / Math.max(1, cells)) * 100).toFixed(1)}%), ${three} with 3+ near actions; ${spots} of ${stage.scenarios.length} spots carry a string; per spot p50 ${perSpot[perSpot.length >> 1]} p90 ${perSpot[Math.floor(perSpot.length * 0.9)]} max ${perSpot.at(-1)}` +
+        (stage.closeMinOcc !== undefined ? `; closeMinOcc ${stage.closeMinOcc}% (PF-SIZE-1 fallback: spots below it carry none)` : ""),
+    ];
+    const byCode = new Map();
+    let flagged = 0, two = 0;
+    for (const sc of stage.scenarios) {
+      if (!sc.flags) continue;
+      flagged++;
+      if (sc.flags.length > 1) two++;
+      for (const f of sc.flags) byCode.set(f.code, (byCode.get(f.code) ?? 0) + 1);
+    }
+    const codes = [...byCode.keys()].sort((a, b) => Number(a.slice(10)) - Number(b.slice(10)));
+    L.push(`flags (§6.10): ${flagged} spot(s), ${two} with 2+${codes.length ? `; ${codes.map((c) => `${c} ${byCode.get(c)}`).join(", ")}` : ""}`);
     return L;
   }
 

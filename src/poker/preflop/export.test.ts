@@ -5,6 +5,9 @@ import { buildEquityTable, mulberry32, N } from "../pushfold";
 import { parseRange } from "../range";
 import { EQR_FIT } from "./eqrFit";
 import {
+  CLOSE_EPS,
+  CLOSE_LADDER,
+  CLOSE_USE_MIN_PCT,
   DATA_LIMITS,
   FOUR_BET_SPLIT_TEXT,
   LADDER_START,
@@ -12,21 +15,27 @@ import {
   LADDER_STEPS,
   LOW_SUITED_CONNECTORS,
   SUITED_WHEEL_ACES,
+  annotateStage,
   chainFamilies,
   chooseLadder,
   classifyTree,
+  closeString,
   countKinds,
   dataChecks,
   decodeStage,
+  dropClose,
   exportSet,
   exportStage,
+  flagProblems,
   kickerChains,
   ladderThresholds,
+  legendOrder,
   moveAt,
   productFormHu,
   raiseAll,
   rangeText,
   reachShares,
+  stageFlags,
   stageSanity,
   stageValuation,
   thresholdsByKind,
@@ -646,5 +655,320 @@ describe("sensitivity valuations (§6.6)", { timeout: 60_000 }, () => {
         other[(e0 + a) * N + h] = a === f ? 0 : a === (f === 0 ? 1 : 0) ? 1 : 0;
       }
     expect(moveAt(tree, pure, other, p, rho)).toBeCloseTo(100, 9);
+  });
+});
+
+describe("close calls and artifact flags (§6.9, §6.10)", { timeout: 60_000 }, () => {
+  const scenario = (id: string, kind: PreflopStage["scenarios"][number]["kind"], hero: string, actions: [string, string][], extra: object = {}) => ({
+    id,
+    kind,
+    hero,
+    chip: id,
+    title: id,
+    description: "",
+    line: "",
+    reachPct: 100,
+    occ: 5,
+    regret: 0,
+    confidence: "high" as const,
+    move: 0,
+    actions: actions.map(([key, range]) => ({ key, label: key, color: "call" as const, range })),
+    ...extra,
+  });
+  const base = (scenarios: ReturnType<typeof scenario>[], stack = 100): PreflopStage => ({
+    id: "t",
+    label: "t",
+    description: "",
+    stack,
+    open: 2.2,
+    sizes: { sbRaise: 3, iso: 3.5, ip3: 3, blind3: 4, bbVsSb3: 3, sqzPerCallerIP: 1, sqzPerCallerBlind: 1.25, fourIP: 2.3, fourOOP: 2.5, limpReraise: 3, jamMax: 40 },
+    tree: { cold4: "jam", allinOrder: "priority" },
+    iterations: 1,
+    occThreshold: 0.1,
+    occThresholdByKind: thresholdsByKind(LADDER_START),
+    brGainMbb: [],
+    nashConvMbb: 0,
+    snappedGainMbb: 0,
+    ev: [],
+    diag: { evSum: 0, frozenOccPct: 0, negativeShares: 0 },
+    model: { id: "modelB-rank9", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
+    equityTable: "",
+    scenarios,
+  });
+  const H = (h: string) => ALL_HANDS.indexOf(h);
+  /** Legend rows of B, every hand at `fill[i]` for legend action i, then `set` per hand: { hand: [B per action] }. */
+  const rows = (fill: number[], set: Record<string, number[]> = {}) =>
+    fill.map((v, i) => {
+      const r = new Float64Array(N).fill(v);
+      for (const [h, bs] of Object.entries(set)) r[H(h)] = bs[i];
+      return r;
+    });
+  const one = (sc: ReturnType<typeof scenario>, extra: ReturnType<typeof scenario>[] = []) => decodeStage(base([...extra, sc])).get(sc.id)!;
+  const at = (s: string | undefined, h: string) => (s ?? ".".repeat(169))[H(h)];
+  const handsOf = (text: string | undefined) => Object.keys(parseRange(text ?? "")).sort();
+
+  it("closeString marks pure cells whose eligible near set has 2+ actions including the chart's, ε inclusive", () => {
+    expect(CLOSE_EPS).toBe(0.05);
+    expect(CLOSE_USE_MIN_PCT).toBe(1);
+    expect(CLOSE_LADDER).toEqual([0.2, 0.5, 1, 2]);
+    // Legend [call, 3bet, fold]; every action takes well over 1% of the hands.
+    const sc = scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "22+, A2s+, KQs:0.5"], ["3bet", "AKo, AQo, KQs:0.5"]], { villain: "UTG" });
+    const d = one(sc);
+    const s = closeString(d, rows([0, -1, 0.1], {
+      AA: [1, 0.95, 0], // pure call, 3-bet exactly ε below: marked, call + 3bet = bits 0, 1
+      KK: [1, 0.9499, 0], // just outside ε: not marked
+      AKo: [0.5, 0.52, 0.48], // pure 3-bet, all three within ε: bits 0, 1, 2
+      KQs: [0, 0, 0], // mixed (call 0.5, 3-bet 0.5): never marked
+      "72o": [0.8, 0.79, 0.81], // pure fold with call and 3-bet near: bits 0, 1, 2
+      QQ: [0.5, 1, 0.97], // pure call, but the near set {3bet, fold} leaves the chart's action out
+    }));
+    expect(s).toHaveLength(169);
+    expect(at(s, "AA")).toBe("3");
+    expect(at(s, "KK")).toBe(".");
+    expect(at(s, "AKo")).toBe("7");
+    expect(at(s, "KQs")).toBe(".");
+    expect(at(s, "72o")).toBe("7");
+    expect(at(s, "QQ")).toBe(".");
+    // Everything else: call 0, 3-bet −1, fold 0.1 → one action near the best: no mark.
+    expect(s!.replace(/\./g, "")).toBe("377"); // AA, AKo, 72o in grid order
+    // No hand marked: undefined.
+    expect(closeString(d, rows([0, -1, -1]))).toBeUndefined();
+  });
+
+  it("closeString leaves out actions under 1% of the reaching range, and hands out of reach", () => {
+    // The 3-bet takes AA only (6 of 1,326 combos, 0.45%): off σ̄'s path, never part of a near set.
+    const thin = scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "22+, A2s+"], ["3bet", "AA"]], { villain: "UTG" });
+    const d = one(thin);
+    expect(reachShares(d)["3bet"]).toBeLessThan(1);
+    expect(at(closeString(d, rows([0, 0, -1])), "KK")).toBe(".");
+    expect(closeString(d, rows([0, 0, -1]))).toBeUndefined();
+    // The same values with a 3-bet range of 2%+ are marked.
+    const wide = scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "22+, A2s+"], ["3bet", "AKo, AQo, AJo"]], { villain: "UTG" });
+    expect(at(closeString(one(wide), rows([0, 0, -1])), "KK")).toBe("3");
+    // The best is taken over the eligible actions only: the thin 3-bet is worth 1 bb more, yet call and fold, 0.03 apart,
+    // are a near set of their own (bits 0 and 2), and the 3-bet stays out of it.
+    const t = closeString(d, rows([0, 1, -0.03]));
+    expect(at(t, "KK")).toBe("5");
+    expect(at(t, "72o")).toBe("5"); // pure fold, call near
+    expect(at(closeString(d, rows([0, 1, -0.06])), "KK")).toBe("."); // fold 0.06 below: alone
+    // Out of reach: "." whatever the values. The hero reached this vs-3-bet spot with AA and KK only.
+    const rfi = scenario("rfi-utg", "rfi", "UTG", [["open", "AA, KK, AKs:0.5"]]);
+    const deep = scenario("utg-open-vs-hj-3bet", "vs3bet", "UTG", [["call", "AA, KK, AKs"]], { reachFrom: ["rfi-utg:open"] });
+    const s = closeString(one(deep, [rfi]), rows([0, 0]));
+    expect(at(s, "AA")).toBe("3");
+    expect(at(s, "QQ")).toBe(".");
+    expect(at(s, "AKs")).toBe("3"); // in reach (0.5), pure call
+    expect(s!.replace(/\./g, "")).toHaveLength(3);
+  });
+
+  it("closeString handles a no-fold legend and throws above 4 legend actions", () => {
+    const limp = scenario("bb-vs-sb-limp", "vsLimp", "BB", [["raise", "AA, KK, QQ, AKs"], ["check", ALL_HANDS.join(", ")]], { noFold: true });
+    const s = closeString(one(limp), rows([0, -0.04]));
+    expect(at(s, "AA")).toBe("3"); // raise and check within ε
+    expect(at(s, "72o")).toBe("3");
+    expect(() => closeString(one(limp), rows([0, 0, 0]))).toThrow(/value rows/);
+    const five = scenario("x", "vs3bet", "UTG", [["call", "AA"], ["4bet", "KK"], ["shove", "QQ"], ["raise", "JJ"]]);
+    expect(() => closeString(one(five), rows([0, 0, 0, 0, 0]))).toThrow(/hex digit/);
+  });
+
+  it("legendOrder lists the exported actions, then the fold", () => {
+    const tree = buildTree(stageConfig("100bb-2.2", { players: 4 }));
+    for (const c of classifyTree(tree)) {
+      const lo = legendOrder(c);
+      expect(lo.slice(0, c.order.length)).toEqual(c.order);
+      expect(lo.length).toBe(tree.actStart[c.node + 1] - tree.actStart[c.node]);
+      if (!c.noFold) expect(lo.at(-1)).toBe(tree.foldIdx[c.node]);
+    }
+  });
+
+  it("PF-SANITY-9's flag: connectors 3-betting above every wheel ace vs a UTG–LJ open, clear cells only", () => {
+    const vsUtg = scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "22+, A5s:0.5"], ["3bet", "AA, 43s, 54s, 65s:0.6, A5s:0.5"]], { villain: "UTG" });
+    const st = base([vsUtg]);
+    const dec = decodeStage(st);
+    const f = stageFlags(st, dec, new Map()).get("co-vs-utg-open")!;
+    // 65s is mixed (a tie): only 43s and 54s are clear; every wheel ace 3-bets less than they do.
+    expect(f.map((x) => x.code)).toEqual(["PF-SANITY-9"]);
+    expect(handsOf(f[0].hands)).toEqual(["43s", "54s"]);
+    expect(handsOf(f[0].vs)).toEqual(["A2s", "A3s", "A4s", "A5s"]);
+    // A close mark on 54s takes it out.
+    const marked = ".".repeat(169).split("");
+    marked[H("54s")] = "3";
+    expect(handsOf(stageFlags(st, dec, new Map([["co-vs-utg-open", marked.join("")]])).get("co-vs-utg-open")![0].hands)).toEqual(["43s"]);
+    // Against a CO opener the rule prints (stageSanity) but never flags.
+    const vsCo = scenario("btn-vs-co-open", "vsOpen", "BTN", vsUtg.actions.map((a) => [a.key, a.range] as [string, string]), { villain: "CO" });
+    const st2 = base([vsCo]);
+    expect(stageFlags(st2, decodeStage(st2), new Map()).size).toBe(0);
+    expect(stageSanity(st2).warns.some((w) => w.startsWith("PF-SANITY-9 btn-vs-co-open"))).toBe(true);
+  });
+
+  it("PF-SANITY-11 and -12: big pairs below TT–77 or flatting, clear cells only; prints every hit", () => {
+    const st = base([
+      scenario("rfi-utg", "rfi", "UTG", [["open", "22+, AKo"]]),
+      scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "QQ, JJ:0.6, 99:0.6"], ["3bet", "AA, KK, JJ:0.4, TT, 99:0.4"]], { villain: "UTG" }),
+      scenario("utg-open-vs-co-3bet", "vs3bet", "UTG", [["call", "KK, AA:0.6"], ["4bet", "AA:0.4, QQ"]], { reachFrom: ["rfi-utg:open"] }),
+    ]);
+    const dec = decodeStage(st);
+    const flags = stageFlags(st, dec, new Map());
+    // QQ calls 100% while TT 3-bets 100%; JJ (3-bet 0.4) is a mix, so only in the printed warning.
+    const f11 = flags.get("co-vs-utg-open")!;
+    expect(f11.map((x) => x.code)).toEqual(["PF-SANITY-11"]);
+    expect(handsOf(f11[0].hands)).toEqual(["QQ"]);
+    expect(handsOf(f11[0].vs)).toEqual(["TT"]);
+    // KK flats the 3-bet; AA is a mix (call 0.5): only KK. No vs for -12.
+    const f12 = flags.get("utg-open-vs-co-3bet")!;
+    expect(f12).toEqual([{ code: "PF-SANITY-12", hands: "KK" }]);
+    const warns = stageSanity(st).warns;
+    expect(warns).toContain("PF-SANITY-11 co-vs-utg-open: JJ+ raising at least 0.5 less than TT–77: QQ 0.0, JJ 0.4 vs TT 1.0");
+    expect(warns).toContain("PF-SANITY-12 utg-open-vs-co-3bet: AA/KK calling at least half and raising less than half: AA 0.6, KK 1.0");
+    // A close mark on QQ removes the -11 flag; KK out of reach removes the -12 flag.
+    const m = ".".repeat(169).split("");
+    m[H("QQ")] = "3";
+    expect(stageFlags(st, dec, new Map([["co-vs-utg-open", m.join("")]])).get("co-vs-utg-open")).toBeUndefined();
+    const st2 = base([
+      scenario("rfi-utg", "rfi", "UTG", [["open", "AA, QQ"]]),
+      scenario("utg-open-vs-co-3bet", "vs3bet", "UTG", [["call", "KK, QQ"], ["4bet", "AA"]], { reachFrom: ["rfi-utg:open"] }),
+    ]);
+    expect(stageFlags(st2, decodeStage(st2), new Map()).size).toBe(0);
+  });
+
+  it("PF-SANITY-13 (≥ 100bb only): lower pairs jamming over higher ones; vs against the remaining hands", () => {
+    const sc = scenario("utg-open-vs-co-3bet", "vs3bet", "UTG", [["call", ""], ["4bet", "AA, KK:0.5"], ["shove", "QQ, KK:0.5"]]);
+    const st = base([sc]);
+    const f = stageFlags(st, decodeStage(st), new Map()).get(sc.id)!;
+    // KK (jam 0.5, a mix) is out of `hands`, so it is now a higher pair QQ jams over: vs AA and KK.
+    expect(f.map((x) => x.code)).toEqual(["PF-SANITY-13"]);
+    expect(handsOf(f[0].hands)).toEqual(["QQ"]);
+    expect(handsOf(f[0].vs)).toEqual(["AA", "KK"]);
+    // Unrestricted (the printed warning), KK is a lower pair too, and vs is AA alone.
+    expect(stageSanity(st).warns).toContain(
+      "PF-SANITY-13 utg-open-vs-co-3bet: a lower pair (AA–99) jamming at least 0.5 more than a higher one: KK 0.5, QQ 1.0 vs AA 0.0",
+    );
+    const st55 = base([sc], 55);
+    expect(stageFlags(st55, decodeStage(st55), new Map()).size).toBe(0);
+    expect(stageSanity(st55).warns.some((w) => w.startsWith("PF-SANITY-13"))).toBe(false);
+  });
+
+  it("PF-SANITY-14: offsuit A9o–A6o played 0.3 less than A4o–A2o, never A5o or suited; flags in numeric order", () => {
+    const st = base([
+      // Also fires -9 (54s and 43s 3-bet, no wheel ace) and -11 (QQ flats, TT 3-bets): order 9, 11, 14.
+      scenario("co-vs-utg-open", "vsOpen", "CO", [["call", "QQ, A5o, A3o, A9o:0.5, A3s"], ["3bet", "AA, KK, TT, 54s, 43s, A4o"]], { villain: "UTG" }),
+    ]);
+    const f = stageFlags(st, decodeStage(st), new Map()).get("co-vs-utg-open")!;
+    expect(f.map((x) => x.code)).toEqual(["PF-SANITY-9", "PF-SANITY-11", "PF-SANITY-14"]);
+    const f14 = f[2];
+    // A9o (0.5) is a mix; A8o–A6o fold while A4o and A3o play. A5o plays too but is never a vs hand; A6s folds against
+    // A3s, but suited aces are not checked.
+    expect(handsOf(f14.hands)).toEqual(["A6o", "A7o", "A8o"]);
+    expect(handsOf(f14.vs)).toEqual(["A3o", "A4o"]);
+    // A string sort would put 11 before 9.
+    expect([...f.map((x) => x.code)].sort()).not.toEqual(f.map((x) => x.code));
+  });
+
+  it("annotateStage adds closeEps, close and flags before scenarios and actions, keeping every other field", () => {
+    const s = solved(5, 200);
+    const ladder = chooseLadder(s.tree, s.classes, s.ev.occ, { limits: SMALL_LIMITS });
+    const out = exportStage({
+      id: "t4",
+      label: "t4",
+      tree: s.tree,
+      strategy: s.avg,
+      classes: s.classes,
+      exported: ladder.set.exported,
+      ladder: ladder.steps,
+      iterations: 200,
+      metrics: { occ: s.ev.occ, localRegret: s.ev.localRegret, gainMbb: s.ev.gainMbb, nashConvMbb: s.ev.nashConvMbb, snappedGainMbb: 1, ev: s.ev.ev, evSum: s.ev.evSum, frozenOcc: 0, negativeShares: 0 },
+      moves: null,
+      twoStartFlags: null,
+      fit: FIT,
+      equityTable: "x",
+    });
+    const before = JSON.stringify(out.stage);
+    const { brActionValues } = s.solver.evaluate(s.avg, { brActionValues: true });
+    const input = { tree: s.tree, classes: s.classes, nodes: out.nodes, brActionValues: brActionValues! };
+    const a = annotateStage(out.stage, input);
+    expect(JSON.stringify(out.stage)).toBe(before); // pure
+    expect(JSON.stringify(annotateStage(out.stage, input))).toBe(JSON.stringify(a)); // deterministic
+    expect(a.closeEps).toBe(CLOSE_EPS);
+    const keys = Object.keys(a);
+    expect(keys.slice(-2)).toEqual(["closeEps", "scenarios"]);
+    // Stripped of the new keys, the stage is the export as it was, field for field and in order.
+    const strip = JSON.parse(JSON.stringify(a));
+    delete strip.closeEps;
+    for (const sc of strip.scenarios) {
+      delete sc.close;
+      delete sc.flags;
+    }
+    expect(JSON.stringify(strip)).toBe(before);
+    const decoded = decodeStage(out.stage);
+    let marked = 0;
+    a.scenarios.forEach((sc, i) => {
+      const k = Object.keys(sc);
+      expect(k.at(-1)).toBe("actions");
+      const extra = k.filter((x) => x === "close" || x === "flags");
+      expect(k.slice(k.length - 1 - extra.length, -1)).toEqual(extra);
+      // The string is closeString's on the node's legend values.
+      const c = s.classes[out.nodes[i]];
+      const br = legendOrder(c).map((x) => brActionValues!.subarray((s.tree.actStart[c.node] + x) * N, (s.tree.actStart[c.node] + x + 1) * N));
+      expect(sc.close).toBe(closeString(decoded.get(sc.id)!, br));
+      if (sc.close) marked += sc.close.replace(/\./g, "").length;
+    });
+    expect(marked).toBeGreaterThan(0);
+    expect(flagProblems(a)).toEqual([]);
+    // PF-SIZE-1's fallback on it: the stored flags are stageFlags on the close strings that are left.
+    const occs = a.scenarios.filter((sc) => sc.close).map((sc) => sc.occ).sort((x, y) => x - y);
+    const t = occs[occs.length >> 1];
+    const d = dropClose([a], t)[0];
+    expect(d.scenarios.filter((sc) => sc.close).length).toBeLessThan(occs.length);
+    expect(d.closeMinOcc).toBe(t);
+    const kept = new Map(d.scenarios.map((sc) => [sc.id, sc.close]));
+    const want = stageFlags(d, decodeStage(d), kept);
+    for (const sc of d.scenarios) expect(sc.flags, sc.id).toEqual(want.get(sc.id));
+    expect(flagProblems(d)).toEqual([]);
+  });
+
+  it("dropClose removes close strings from the lowest-occ spots first and records closeMinOcc", () => {
+    const str = "3" + ".".repeat(168);
+    const { scenarios, ...head } = base([
+      scenario("a", "vsOpen", "CO", [["call", "AA"]], { occ: 0.05, close: str }),
+      scenario("b", "vsOpen", "BTN", [["call", "AA"]], { occ: 0.3, close: str }),
+      scenario("c", "vsOpen", "SB", [["call", "AA"]], { occ: 5, close: str }),
+    ]);
+    const st: PreflopStage = { ...head, closeEps: 0.05, scenarios };
+    const one = dropClose([st], 0.2)[0];
+    expect(one.scenarios.map((x) => x.close !== undefined)).toEqual([false, true, true]);
+    expect(one.closeMinOcc).toBe(0.2);
+    expect(Object.keys(one).slice(-3)).toEqual(["closeEps", "closeMinOcc", "scenarios"]);
+    expect(dropClose([st], 0.5)[0].scenarios.map((x) => x.close !== undefined)).toEqual([false, false, true]);
+    expect(st.scenarios.every((x) => x.close === str)).toBe(true); // pure
+    // Again on its own output: the step is replaced, not added.
+    expect(Object.keys(dropClose([one], 1)[0]).filter((k) => k === "closeMinOcc")).toHaveLength(1);
+    // A stage that loses nothing comes back as it was, without closeMinOcc.
+    expect(dropClose([st], 0.01)[0]).toBe(st);
+    expect(dropClose([one], 0.01)[0]).toBe(one);
+  });
+
+  it("dropClose recomputes the flags: a cell whose close mark is dropped is clear again", () => {
+    // UTG flats the CO's 3-bet with KK 100%: a PF-SANITY-12 hit, but KK's call is close-marked (with the 4-bet), so
+    // it is a tie and carries no flag while the mark is there.
+    const marks = ".".repeat(169).split("");
+    marks[H("KK")] = "3";
+    const { scenarios, ...head } = base([
+      scenario("rfi-utg", "rfi", "UTG", [["open", "22+, AKo"]], { occ: 100 }),
+      scenario("utg-open-vs-co-3bet", "vs3bet", "UTG", [["call", "KK, QQ"], ["4bet", "AA, AKo"]], { reachFrom: ["rfi-utg:open"], occ: 0.3, close: marks.join("") }),
+    ]);
+    const st: PreflopStage = { ...head, closeEps: 0.05, scenarios };
+    expect(flagProblems(st)).toEqual([]);
+    expect(st.scenarios[1].flags).toBeUndefined();
+    const d = dropClose([st], 0.5)[0];
+    expect(d.closeMinOcc).toBe(0.5);
+    expect(d.scenarios[1].close).toBeUndefined();
+    expect(d.scenarios[1].flags).toEqual([{ code: "PF-SANITY-12", hands: "KK" }]);
+    const k = Object.keys(d.scenarios[1]);
+    expect(k[k.indexOf("actions") - 1]).toBe("flags"); // just before actions, where annotateStage puts it
+    expect(flagProblems(d)).toEqual([]);
+    expect(st.scenarios[1].close).toBe(marks.join("")); // pure
+    // Dropping the string alone (the old fallback) leaves flags the close strings no longer give: flagProblems says so.
+    const stale: PreflopStage = { ...st, scenarios: st.scenarios.map((sc) => ({ ...sc, close: undefined })) };
+    expect(flagProblems(stale)).toEqual([`utg-open-vs-co-3bet: flags [] ≠ [{"code":"PF-SANITY-12","hands":"KK"}] re-derived from its close string`]);
   });
 });

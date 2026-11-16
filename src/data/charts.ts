@@ -2,7 +2,8 @@ import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
 import { parseRange, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
 import { NASH } from "./sets/nash";
-import { SOLVER } from "./sets/preflop";
+import { SOLVER_ID, SOLVER_LABEL, solverSetDef } from "./sets/preflop";
+import type { PreflopFlag } from "./sets/preflopTypes";
 import { SHORT_NASH } from "./sets/shortNash";
 import { PUB_TOURNEY } from "./sets/pub";
 
@@ -58,6 +59,16 @@ export interface ScenarioDef {
   noFold?: boolean;
   /** Quiz pick weight against the other scenarios of the pool; default 1. */
   weight?: number;
+  /**
+   * Close calls (the solver set, docs §6.9): per hand whose chart cell is pure, the legend keys (legend order) whose
+   * best-response EV is within the stage's closeEps of the best: the chart's action and at least one other. The grid
+   * marks these cells, and the quiz grades the other actions in the set "정답 (EV 거의 같음)".
+   */
+  close?: Partial<Record<HandClass, string[]>>;
+  /** Known model or tree artifacts of this spot (the solver set, docs §6.10): the charts page shows their cautions. */
+  flags?: PreflopFlag[];
+  /** Hands the quiz never deals here (the solver set's flagged cells, docs §6.10). */
+  quizSkip?: Partial<Record<HandClass, true>>;
 }
 
 export interface StageDef {
@@ -67,6 +78,8 @@ export interface StageDef {
   stack: string;
   description: string;
   scenarios: ScenarioDef[];
+  /** bb per arrival: the threshold of the scenarios' close calls (the solver set). */
+  closeEps?: number;
 }
 
 export interface ChartSetDef {
@@ -136,7 +149,7 @@ function buildScenario(set: ChartSetDef, stage: StageDef, def: ScenarioDef): Sce
   };
 }
 
-/** Exported for tests, which build synthetic sets; the app only reads CHART_SETS. */
+/** Exported for tests, which build synthetic sets; the app reads sets through getSet, allSets and chartSetMenu. */
 export function buildSet(def: ChartSetDef): ChartSet {
   return {
     ...def,
@@ -144,15 +157,68 @@ export function buildSet(def: ChartSetDef): ChartSet {
   };
 }
 
-// SOLVER goes last: getSet's fallback (CHART_SETS[0]) and the default chart set "pub" stay as they are.
-export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH, SOLVER].map(buildSet);
+/**
+ * The hand-made sets, built at load (they are small). CHART_SETS[0] is getSet's fallback and "pub" the default chart
+ * set. Tests push synthetic sets here while they run.
+ */
+export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH].map(buildSet);
+
+/**
+ * Sets built on first use: the solver set (625 spots). Built at load with its calculator ranges it cost every app start
+ * about 0.26 s and 20 MB of JS heap in Chromium (docs §6.3). The menu lists them without building them; getSet,
+ * allSets, allScenarios() and getNamedRanges build them once, synchronously.
+ */
+const LAZY_SETS: { id: string; label: string; def: () => ChartSetDef }[] = [{ id: SOLVER_ID, label: SOLVER_LABEL, def: solverSetDef }];
+const lazyBuilt = new Map<string, ChartSet>();
+
+function lazySet(id: string): ChartSet | undefined {
+  const l = LAZY_SETS.find((x) => x.id === id);
+  if (!l) return undefined;
+  let s = lazyBuilt.get(id);
+  if (!s) lazyBuilt.set(id, (s = buildSet(l.def())));
+  return s;
+}
+
+/** The ids of the lazy sets built so far (tests). */
+export function lazySetsBuilt(): string[] {
+  return [...lazyBuilt.keys()];
+}
+
+/** Every set the picker offers, in menu order (the solver set last): id and label only, nothing is built. */
+export function chartSetMenu(): { id: string; label: string }[] {
+  return [...CHART_SETS, ...LAZY_SETS].map(({ id, label }) => ({ id, label }));
+}
+
+/** `id` if a set has it, else the fallback's id (what getSet(id).id gives), without building a set. */
+export function chartSetId(id: string): string {
+  return chartSetMenu().some((s) => s.id === id) ? id : CHART_SETS[0].id;
+}
 
 export function getSet(id: string): ChartSet {
-  return CHART_SETS.find((s) => s.id === id) ?? CHART_SETS[0];
+  return CHART_SETS.find((s) => s.id === id) ?? lazySet(id) ?? CHART_SETS[0];
+}
+
+/** Every set, the hand-made ones first and the lazy ones (built here if they are not yet) last. */
+export function allSets(): ChartSet[] {
+  return [...CHART_SETS, ...LAZY_SETS.map((l) => lazySet(l.id)!)];
 }
 
 export function allScenarios(set?: ChartSet): Scenario[] {
-  return (set ? [set] : CHART_SETS).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
+  return (set ? [set] : allSets()).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
+}
+
+/** The close-call set of hand h (legend keys, the chart's action among them), or undefined where h is not marked. */
+export function closeActions(s: ScenarioDef, h: HandClass): string[] | undefined {
+  return s.close?.[h];
+}
+
+/** From this share of its in-reach cells marked close, a spot gets the charts page's "표시된 칸이 많아요" note (docs §6.8). */
+export const HEAVY_CLOSE_SHARE = 0.25;
+
+/** Whether at least HEAVY_CLOSE_SHARE of the spot's in-reach cells carry a close mark (never without marks). */
+export function isHeavyClose(s: Scenario): boolean {
+  const marked = s.close ? Object.keys(s.close).length : 0;
+  return marked > 0 && marked >= HEAVY_CLOSE_SHARE * ALL_HANDS.filter((h) => inReach(s, h)).length;
 }
 
 /** Actions in button order: fold first, then the scenario's actions. No fold where the hero cannot fold. */
@@ -297,4 +363,10 @@ export function namedRanges(sets: ChartSet[]): NamedRange[] {
   );
 }
 
-export const NAMED_RANGES: NamedRange[] = namedRanges(CHART_SETS);
+let named: NamedRange[] | null = null;
+
+/** The calculator's villain ranges over every set (allSets order), built on the first call; that call builds the lazy
+ *  sets. A set pushed into CHART_SETS later is not added. */
+export function getNamedRanges(): NamedRange[] {
+  return (named ??= namedRanges(allSets()));
+}

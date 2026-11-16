@@ -20,6 +20,18 @@ export interface PreflopAction {
   range: string;
 }
 
+/** Composition checks that flag cells as a known model or tree artifact (docs §5.2, §6.10, §8). */
+export type PreflopFlagCode = "PF-SANITY-9" | "PF-SANITY-11" | "PF-SANITY-12" | "PF-SANITY-13" | "PF-SANITY-14";
+
+export interface PreflopFlag {
+  code: PreflopFlagCode;
+  /** Range string, every value 1, never empty: in-reach hands whose cell shows the artifact as a clear model
+   *  preference (the chart shows the cell pure and it carries no close mark). */
+  hands: string;
+  /** Range string, every value 1: the hands `hands` are measured against (any cell). Omitted for PF-SANITY-12. */
+  vs?: string;
+}
+
 export interface PreflopScenario {
   /** Unique within the stage, e.g. "rfi-btn", "bb-vs-btn-open", "bb-at-co-open-btn-call". */
   id: string;
@@ -49,6 +61,16 @@ export interface PreflopScenario {
   confidence: "high" | "mid" | "low";
   /** pp the chart moved in the sensitivity solves (largest reach-weighted total variation). */
   move: number;
+  /**
+   * Close calls (§6.9): 169 characters in ALL_HANDS order (the grid row by row from AA). "." = no mark; otherwise a
+   * lowercase hex digit, the bitmask over the legend actions (`actions` in order, then fold unless noFold; bit i =
+   * legend action i) whose best-response value against σ̄ is within the stage's closeEps of the best eligible one.
+   * Only where the chart shows the cell pure; the chart's action is in the set, at least two bits are set, and no bit
+   * names a non-fold action that takes under 1% of the reaching range. Omitted when no hand is marked.
+   */
+  close?: string;
+  /** Known-artifact flags (§6.10), in the order 9, 11, 12, 13, 14. Omitted when none. */
+  flags?: PreflopFlag[];
   /** Non-fold actions in display order. */
   actions: PreflopAction[];
 }
@@ -104,5 +126,9 @@ export interface PreflopStage {
   };
   /** sha256 of the equity table (scripts/equity-cache.mjs equityTableSha256). */
   equityTable: string;
+  /** bb per arrival: the threshold of the scenarios' `close` strings. Omitted in data written before it. */
+  closeEps?: number;
+  /** % of dealt hands; set only when PF-SIZE-1 made the generator drop close strings: spots below it carry none. */
+  closeMinOcc?: number;
   scenarios: PreflopScenario[];
 }

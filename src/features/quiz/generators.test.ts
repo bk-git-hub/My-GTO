@@ -2,7 +2,20 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildSet, CHART_SETS, scenarioActions, type ChartSet, type Scenario, type ScenarioDef } from "../../data/charts";
 import { ALL_HANDS, gridHand, randomCombo, type HandClass } from "../../poker/cards";
 import { parseRange } from "../../poker/range";
-import { generateEquity, generateOdds, generatePreflop, gradePreflop, pickScenario, quizPool, weightedHand } from "./generators";
+import { quizCloseActions } from "../../data/sets/preflop";
+import {
+  generateEquity,
+  generateOdds,
+  generatePreflop,
+  gradeAnswer,
+  gradePreflop,
+  MIXED_MIN,
+  pickScenario,
+  quizMixedMin,
+  quizPool,
+  SOLVER_MIXED_MIN,
+  weightedHand,
+} from "./generators";
 
 describe("quiz generators", () => {
   it("odds questions have 4 distinct options and a valid answer", () => {
@@ -36,6 +49,13 @@ describe("quiz generators", () => {
     expect(gradePreflop(0.45, 0.45)).toBe("correct"); // best action in a 3-way mix
     expect(gradePreflop(0.1, 0.9)).toBe("wrong");
     expect(gradePreflop(0, 1)).toBe("wrong");
+    // A close call (docs §6.9): an action in the near set that the chart does not take is "close"; the chart's own
+    // action and every grade without `near` stay as they were.
+    expect(gradePreflop(0, 1, true)).toBe("close");
+    expect(gradePreflop(0.1, 0.9, true)).toBe("close");
+    expect(gradePreflop(0.3, 0.7)).toBe("mixed");
+    expect(gradePreflop(1, 1, true)).toBe("correct");
+    expect(gradePreflop(0.6, 0.6, true)).toBe("correct");
   });
 });
 
@@ -196,6 +216,87 @@ describe("preflop quiz: no fold", () => {
     const hands = sweep(4000, () => weightedHand(s));
     expect(n("AKs", hands)).toBeGreaterThan(n("AKo", hands));
     expect(n("AKo", hands)).toBeGreaterThan(5 * n("72o", hands));
+  });
+});
+
+describe("preflop quiz: close calls and skipped hands (docs §6.9, §6.10)", () => {
+  // TT 3-bets 100% on the chart, with call within ε (close); QQ is a flagged cell the quiz never deals.
+  const CLOSE: ScenarioDef = {
+    id: "co-vs-utg-open",
+    kind: "vsOpen",
+    hero: "CO",
+    villain: "UTG",
+    chip: "vs UTG",
+    title: "CO vs UTG 오픈",
+    description: "",
+    actions: [
+      { key: "3bet", label: "3벳 6.6bb", color: "raise", range: "AA, KK, TT, AKs" },
+      { key: "call", label: "콜", color: "call", range: "QQ, JJ, 99, AQs" },
+    ],
+    close: { TT: ["3bet", "call"] },
+    quizSkip: { QQ: true },
+  };
+
+  it("grades the other near action close and an action outside the set wrong", () => {
+    const s = synthSet("c", [CLOSE]).stages[0].scenarios[0];
+    const st = s.strategy["TT"];
+    expect(st["3bet"]).toBe(1);
+    const best = Math.max(...Object.values(st));
+    const near = (k: string) => s.close?.TT?.includes(k) ?? false;
+    expect(gradePreflop(st.call, best, near("call"))).toBe("close");
+    expect(gradePreflop(st.fold, best, near("fold"))).toBe("wrong");
+    expect(gradePreflop(st["3bet"], best, near("3bet"))).toBe("correct");
+  });
+
+  it("gradeAnswer: close calls, no AA/KK passive tie, and the solver set's mixed floor", () => {
+    // TT and KK 3-bet 100% with the call near; AJs 3-bets 90% and calls 10% (0.0999… after buildScenario's fill).
+    const def: ScenarioDef = {
+      ...CLOSE,
+      actions: [
+        { key: "3bet", label: "3벳 6.6bb", color: "raise", range: "AA, KK, TT, AKs, AJs:0.9" },
+        { key: "call", label: "콜", color: "call", range: "QQ, JJ, 99, AQs, AJs:0.1" },
+      ],
+      close: { TT: ["3bet", "call"], KK: ["3bet", "call"], QQ: ["3bet", "call"] },
+    };
+    const s = synthSet("c", [def]).stages[0].scenarios[0];
+    expect(gradeAnswer(s, "TT", "call")).toBe("close");
+    expect(gradeAnswer(s, "TT", "3bet")).toBe("correct");
+    expect(gradeAnswer(s, "TT", "fold")).toBe("wrong");
+    // KK: the flat rests on the big pairs' call realization (§8): not accepted as close; QQ's is.
+    expect(quizCloseActions(s, "KK")).toBeUndefined();
+    expect(gradeAnswer(s, "KK", "call")).toBe("wrong");
+    expect(gradeAnswer(s, "KK", "3bet")).toBe("correct");
+    expect(quizCloseActions(s, "QQ")).toEqual(["3bet", "call"]);
+    expect(gradeAnswer(s, "QQ", "3bet")).toBe("close"); // QQ calls on the chart
+    // The mixed floor: 0.2 for the hand-made sets, so a 10% action stays 오답 there; the solver set's 0.05.
+    expect(s.strategy.AJs.call).toBeLessThan(0.1);
+    expect(s.strategy.AJs.call).toBeGreaterThan(0.0999);
+    expect(gradeAnswer(s, "AJs", "call")).toBe("wrong");
+    expect(gradeAnswer(s, "AJs", "call", SOLVER_MIXED_MIN)).toBe("mixed");
+    expect(gradeAnswer(s, "AJs", "3bet", SOLVER_MIXED_MIN)).toBe("correct");
+    expect(gradeAnswer(s, "AJs", "fold", SOLVER_MIXED_MIN)).toBe("wrong");
+    expect(quizMixedMin({})).toBe(MIXED_MIN);
+    expect(quizMixedMin({ closeEps: 0.05 })).toBe(SOLVER_MIXED_MIN);
+    expect([gradePreflop(0.1, 0.9), gradePreflop(0.19, 0.81), gradePreflop(0.2, 0.8)]).toEqual(["wrong", "wrong", "mixed"]);
+    expect([gradePreflop(0, 1, false, SOLVER_MIXED_MIN), gradePreflop(0.1, 0.9, false, SOLVER_MIXED_MIN)]).toEqual(["wrong", "mixed"]);
+  });
+
+  it("never deals a quizSkip hand", () => {
+    const s = synthSet("c", [CLOSE]).stages[0].scenarios[0];
+    vi.spyOn(Math, "random").mockImplementation(mulberry32(11));
+    const dealt = Array.from({ length: 2000 }, () => weightedHand(s));
+    expect(dealt).not.toContain("QQ");
+    expect(new Set(dealt).size).toBeGreaterThan(100);
+  });
+
+  it("falls back to every hand rather than crash when all of a spot's hands are skipped", () => {
+    const all = Object.fromEntries(ALL_HANDS.map((h) => [h, true as const]));
+    const s = synthSet("c", [{ ...CLOSE, quizSkip: all }]).stages[0].scenarios[0];
+    const dealt = new Set(sweep(500, () => weightedHand(s)));
+    expect(dealt.size).toBeGreaterThan(50);
+    // A skipped spot that also reaches only a few hands falls back to those hands.
+    const d = synthSet("c", [deep("AA, KK, QQ:0.5, AKs, AQs:0.1", { quizSkip: all })]).stages[0].scenarios[0];
+    expect([...new Set(sweep(2000, () => weightedHand(d)))].sort()).toEqual([...REACH_HANDS].sort());
   });
 });
 

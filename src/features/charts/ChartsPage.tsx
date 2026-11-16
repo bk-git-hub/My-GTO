@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
+import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
 import {
@@ -8,6 +8,7 @@ import {
   getSet,
   heroFilterSeats,
   inReach,
+  isHeavyClose,
   KIND_LABEL,
   legendActions,
   reachOf,
@@ -15,6 +16,7 @@ import {
   reachTotals,
   type Scenario,
 } from "../../data/charts";
+import { bigPairCloseNote, cautionFacts, cautionLines, flagLines } from "../../data/sets/preflop";
 import { comboCount, type HandClass } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
@@ -55,6 +57,10 @@ export function ChartsPage() {
   // Deep in a line (reachRange set) the totals are shares of the hands that get here, not of all 1326 combos.
   const reach = scenario.reachRange ? reachShare(scenario) : null;
   const totals = useMemo(() => (scenario.reachRange ? reachTotals(scenario) : actionTotals(scenario)), [scenario]);
+  // The solver set's close calls and known-artifact cautions (docs §6.9, §6.10); nothing for the hand-made sets.
+  const cautions = useMemo(() => cautionLines(scenario), [scenario]);
+  const closeCount = scenario.close ? Object.keys(scenario.close).length : 0;
+  const heavyClose = useMemo(() => isHeavyClose(scenario), [scenario]);
 
   function pickStage(id: string) {
     setStageId(id);
@@ -69,6 +75,8 @@ export function ChartsPage() {
   function askCoach(h: HandClass) {
     const s = scenario.strategy[h];
     const all = legendActions(scenario).map((a) => `${a.label} ${(totals[a.key] * 100).toFixed(1)}%`).join(", ");
+    const close = closeFact(scenario, h, stage.closeEps);
+    const caveat = bigPairCloseNote(scenario, h);
     coach.open({
       id: `chart:${scenario.id}:${h}`,
       title: `${scenario.title} · ${h}`,
@@ -79,6 +87,9 @@ export function ChartsPage() {
         `핸드: ${h} (${comboCount(h)}콤보)`,
         ...(reach === null ? [] : [`이 핸드가 여기까지 오는 빈도: ${handReachPct(reachOf(scenario, h))}`]),
         `차트 빈도: ${describeStrategy(scenario, s)}`,
+        ...(close ? [close] : []),
+        ...(caveat ? [`모델 한계: ${caveat}`] : []),
+        ...cautionFacts(scenario, h, true),
         reach === null
           ? `이 상황 전체: ${all} (전체 핸드 대비)`
           : `이 상황 전체: ${all}, 도달 레인지 ${reachPct(reach)} (도달 핸드 대비)`,
@@ -161,6 +172,17 @@ export function ChartsPage() {
       <section className="card-box">
         <h2>{scenario.title}</h2>
         {scenario.description && <p className="muted">{scenario.description}</p>}
+        {cautions.length > 0 && (
+          // Collapsed: two open lines push the grid 120–135px down a phone screen. The picked hand's own caution
+          // shows in its hand card.
+          // Keyed by spot: an open row would otherwise stay open on the next flagged spot.
+          <details className="cautions" key={scenario.id}>
+            <summary>알려진 한계 {cautions.length}개</summary>
+            {cautions.map((c) => (
+              <p key={c}>{c}</p>
+            ))}
+          </details>
+        )}
         <SeatRow positions={set.positions} hero={scenario.hero} villains={scenario.villainSeats ?? (scenario.villain ? [scenario.villain] : [])} />
         <div className="legend">
           {legendActions(scenario).map((a) => (
@@ -175,8 +197,15 @@ export function ChartsPage() {
               도달 레인지 {reachPct(reach)}
             </span>
           )}
+          {closeCount > 0 && (
+            <span className="legend-item">
+              <i className="close" />
+              EV 거의 같음
+            </span>
+          )}
         </div>
         {reach !== null && <p className="muted small">비율은 여기까지 온 핸드 기준이에요. 빗금 칸은 앞에서 이 라인으로 오지 않는 핸드예요.</p>}
+        {heavyClose && <p className="muted small">표시된 칸이 많아요: 이 스팟은 액션끼리 EV 차이가 작은 핸드가 많아요.</p>}
       </section>
 
       <RangeGrid scenario={scenario} selected={hand} onPick={setHand} />
@@ -199,7 +228,16 @@ export function ChartsPage() {
           {handOut ? (
             <p className="muted small">이 핸드는 앞선 내 액션에서 이 라인으로 오지 않아요.</p>
           ) : (
-            <FreqBar scenario={scenario} strategy={scenario.strategy[hand]} />
+            <>
+              <FreqBar scenario={scenario} strategy={scenario.strategy[hand]} />
+              <CloseNote scenario={scenario} hand={hand} eps={stage.closeEps} />
+              {bigPairCloseNote(scenario, hand) && <p className="flag-note">{bigPairCloseNote(scenario, hand)}</p>}
+              {flagLines(scenario, hand).map((l) => (
+                <p key={l} className="flag-note">
+                  {l}
+                </p>
+              ))}
+            </>
           )}
         </section>
       ) : (
