@@ -1,5 +1,5 @@
 import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
-import { parseRange, type Range } from "../poker/range";
+import { parseRange, rangeCombos, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
 import { NASH } from "./sets/nash";
 import { SOLVER_ID, SOLVER_LABEL, solverSetDef } from "./sets/preflop";
@@ -340,7 +340,8 @@ export interface NamedRange {
 
 /**
  * The solver set lists only these kinds in the calculator: its squeeze, 4-bet and limp-pot lines run to hundreds of
- * ranges per stage and would bury the list.
+ * ranges per stage and would bury the list. It also leaves out the tree actions its chart never takes (an empty
+ * range, e.g. a 4-bet the solver plays 0%): the calculator cannot compute against them.
  */
 const SOLVER_NAMED_KINDS: ScenarioKind[] = ["rfi", "vsOpen", "vs3bet"];
 
@@ -350,14 +351,16 @@ export function namedRanges(sets: ChartSet[]): NamedRange[] {
       stage.scenarios
         .filter((s) => set.id !== "solver" || SOLVER_NAMED_KINDS.includes(s.kind))
         .flatMap((s) =>
-          s.actions.map((a) => ({
-            id: `${s.id}:${a.key}`,
-            group: `${set.label} · ${stage.label}`,
-            label: `${s.title} — ${a.label}`,
-            // Effective frequencies (an earlier action can take hands out of this one), times the hero's reach
-            // where the spot is deep in a line: a villain who 4-bets holds ρ·f of each hand, not f.
-            range: Object.fromEntries(ALL_HANDS.map((h) => [h, (s.strategy[h][a.key] ?? 0) * reachOf(s, h)])),
-          })),
+          s.actions
+            .map((a) => ({
+              id: `${s.id}:${a.key}`,
+              group: `${set.label} · ${stage.label}`,
+              label: `${s.title} — ${a.label}`,
+              // Effective frequencies (an earlier action can take hands out of this one), times the hero's reach
+              // where the spot is deep in a line: a villain who 4-bets holds ρ·f of each hand, not f.
+              range: Object.fromEntries(ALL_HANDS.map((h) => [h, (s.strategy[h][a.key] ?? 0) * reachOf(s, h)])),
+            }))
+            .filter((r) => set.id !== "solver" || rangeCombos(r.range) > 0),
         ),
     ),
   );

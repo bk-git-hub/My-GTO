@@ -344,7 +344,7 @@ at OOP's root and at IP's node after OOP checks, and fits the model to the per-c
 `src/poker/preflop/eqrFit.ts`, records each pack's version, flop count and a hash of its file list. For the packs
 this means:
 - New flops change the fit's inputs, but the charts move only when the fit is rerun. The committed fit names the
-  pack state it used (`srp-btn-bb-100` v1 with 468 flops, `pub-srp-btn-bb-55` v2 with 448); the next refit is
+  pack state it used (`srp-btn-bb-100` v1 with 1,476 flops, `pub-srp-btn-bb-55` v2 with 1,457); the next refit is
   planned for when both packs cover all 1,755 flop classes.
 - The fit reads IP's root EV at IP's node after OOP's check, which is IP's root only because OOP never bets the flop
   in these trees (`sizes.flop[0].bet` is `[]`); the opponent's EV at a node is not stored. It stops if OOP checks

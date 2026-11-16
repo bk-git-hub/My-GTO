@@ -83,11 +83,13 @@ function PreflopQuiz() {
   const stats = useStats();
   const coach = useCoach();
 
-  // A different chart set was picked: start over with a question from it.
+  // A different chart set was picked: start over with a question from it. Stop this render here: the old question's
+  // stage is not in the new set, so reading on would crash (React re-renders at once with the new state).
   if (q.scenario.setId !== set.id) {
     setQ(generatePreflop(set.id, "all"));
     setFilter("all");
     setChosen(null);
+    return null;
   }
 
   const s = q.scenario;

@@ -7,7 +7,7 @@ import { ChartsPage } from "../features/charts/ChartsPage";
 import { generatePreflop, gradeAnswer, quizMixedMin } from "../features/quiz/generators";
 import { ALL_HANDS, comboCount, RANKS, type HandClass } from "../poker/cards";
 import { EQR_FIT } from "../poker/preflop/eqrFit";
-import { parseRange } from "../poker/range";
+import { parseRange, rangeCombos } from "../poker/range";
 import { settingsStore } from "../state/settings";
 import {
   actionTotals,
@@ -578,10 +578,15 @@ describe("solver data: size and app smoke tests", () => {
       st.scenarios.forEach((s, j) => expect(def.stages[i].scenarios[j].actions, s.id).toEqual(s.actions));
   });
 
-  it("the calculator lists only the solver's rfi, vsOpen and vs3bet ranges", () => {
+  it("the calculator lists only the solver's rfi, vsOpen and vs3bet ranges, without the actions its chart never takes", () => {
     const named = getNamedRanges().filter((r) => r.id.startsWith("solver/"));
-    const want = solver.stages.flatMap((st) => st.scenarios.filter((s) => ["rfi", "vsOpen", "vs3bet"].includes(s.kind)).flatMap((s) => s.actions.map((a) => `${s.id}:${a.key}`)));
+    const want = solver.stages.flatMap((st) =>
+      st.scenarios
+        .filter((s) => ["rfi", "vsOpen", "vs3bet"].includes(s.kind))
+        .flatMap((s) => s.actions.filter((a) => a.range.trim() !== "").map((a) => `${s.id}:${a.key}`)),
+    );
     expect(named.map((r) => r.id)).toEqual(want);
+    for (const r of named) expect(rangeCombos(r.range), r.id).toBeGreaterThan(0);
   });
 
   it("the quiz deals only hands that reach the spot, from every stage, without 폴드 where the hero cannot fold", () => {

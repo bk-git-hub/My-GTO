@@ -1280,9 +1280,11 @@ Only small changes, all opt-in by fields the existing sets do not set: the range
 (`reachRange`) as hatched empty slots, distinct from a fold's solid dark fill; the charts page shows reach-relative totals (`reachTotals`) and the reach share where `reachRange` is
 set, so a vs-3-bet legend does not read "폴드 9x%"; a row of hero seats appears above the chips of a kind group with
 many scenarios (`heroFilter`); the quiz deals only hands in reach, picks scenarios by `weight` and shows no 폴드 button
-where `noFold` is set; the calculator lists only the solver set's rfi, vsOpen and vs3bet ranges. On the charts page
+where `noFold` is set; the calculator lists only the solver set's rfi, vsOpen and vs3bet ranges, and leaves out the
+actions the chart never takes (an empty range: 71 of them, mostly 4-bets and 35bb jams played 0%). On the charts page
 the stage row keeps Korean words whole, a kind row of more than 6 groups (35bb) scrolls sideways, and the chip row
-starts at its beginning after a set, stage, group or seat change, so the selected first chip is in view.
+starts at its beginning after a set, stage, group or seat change; when a group or seat comes back with an earlier pick
+that sits past the edge, the row scrolls that chip into view.
 
 The solver set's close calls and cautions (§6.9, §6.10), again only where the data sets them:
 - A close-marked cell gets a corner notch: a 7px triangle in the text colour on a 9px dark rim (`.cell.close`), drawn
