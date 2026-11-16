@@ -203,6 +203,10 @@ export const SCENARIOS: PresolveScenario[] = [
   build({
     id: "srp-btn-bb-100",
     title: "BTN vs BB 싱글 레이즈드 팟 (캐시 100bb)",
+    // v1 started with solver aa7f7fa. The later solver commits (input checks, typed-array tree, suit orbits,
+    // opt-in 16-bit storage) leave the numbers in place: Qs8h5h re-solved at fba9dd1 took the same 80 iterations
+    // and differs by 0.03% of strategy (reach-weighted, at most 0.4% for any combo) and ≤ 0.001 bb of EV, so the
+    // presolve's "solver changed since v1" note needs no bump. Bump it if a solver change does move them.
     version: 1,
     tier: "free",
     format: "cash",
