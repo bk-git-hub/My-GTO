@@ -123,10 +123,10 @@ function randomVectors(rand: () => number, n: number): PairwiseVectors {
 
 /** The model of the fit's shape, with numbers of the fit's size (not the fit itself, which is regenerated). */
 const F = featureMatrix(N, handFeatures);
-const THETA_O = [0.056, 0.077, -0.016, 0.062, -0.062];
-const THETA_I = [0.09, 0.066, -0.07, 0.078, -0.103];
-const ALPHA = 0.55;
-const C_FIT = -0.076;
+const THETA_O = [-0.071, 0.064, -0.139, 0.061, -0.02, 0.204];
+const THETA_I = [-0.184, 0.056, -0.245, 0.054, -0.02, 0.308];
+const ALPHA = 0.553;
+const C_FIT = -0.079;
 const u = (theta: number[], h: number) => handFeatures(h).reduce((s, f, k) => s + f * theta[k], 0);
 
 describe("preflop terminal valuation", () => {
@@ -480,7 +480,8 @@ describe("preflop terminal valuation", () => {
       const v = modelBVectors(fit, { potType: "srp", aggressor: "I", spr: 17.7 });
       for (let h = 0; h < N; h++) expect(Number.isFinite(v.qO[h]) && Number.isFinite(v.qI[h])).toBe(true);
       expect(() => prepareModelB({ ...EQR_FIT, kappa3: [1, 2] }, F)).toThrow();
-      expect(() => prepareModelB({ ...EQR_FIT, thetaO: [0, 0, 0, 0, 0, 0] }, F)).toThrow();
+      // More weights than features (FEATURE_COUNT = 6).
+      expect(() => prepareModelB({ ...EQR_FIT, thetaO: [0, 0, 0, 0, 0, 0, 0] }, F)).toThrow();
     });
   });
 

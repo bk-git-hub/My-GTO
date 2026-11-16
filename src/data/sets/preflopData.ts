@@ -35,7 +35,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "cold4": "jam",
    "allinOrder": "priority"
   },
-  "iterations": 1750,
+  "iterations": 2000,
   "occThreshold": 0.1,
   "occThresholdByKind": {
    "rfi": 0.1,
@@ -46,38 +46,39 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "vsLimp": 0.1,
    "vsShove": 0.1
   },
+  "occThresholdCold": 1,
   "brGainMbb": [
-   0.502,
-   0.358,
-   0.64,
-   0.435,
-   0.425,
-   0.364,
-   0.57,
-   0.372,
-   0.877
+   0.381,
+   0.449,
+   0.455,
+   0.455,
+   0.414,
+   0.276,
+   0.306,
+   0.336,
+   0.822
   ],
-  "nashConvMbb": 4.543,
-  "snappedGainMbb": 2.183,
+  "nashConvMbb": 3.893,
+  "snappedGainMbb": 2.17,
   "ev": [
-   0.159,
-   0.1793,
-   0.2005,
-   0.2237,
-   0.2556,
-   0.2988,
-   0.3606,
-   -0.1404,
-   -1.4075
+   0.1558,
+   0.1761,
+   0.1996,
+   0.2238,
+   0.2554,
+   0.2973,
+   0.3565,
+   -0.1464,
+   -1.3905
   ],
   "diag": {
-   "evSum": 0.1296,
-   "frozenOccPct": 0.719,
-   "negativeShares": 8104
+   "evSum": 0.1277,
+   "frozenOccPct": 0.691,
+   "negativeShares": 11959
   },
   "model": {
-   "id": "modelB-5f",
-   "fitHash": "45018e13c1764b7cbeb8e77875653bd1808740df1001e2c5ae8b55e36f111f96",
+   "id": "modelB-rank6",
+   "fitHash": "03dd3d0015e3d70ae736d9982d7c2bf8308f0141e6cd82bbbf1b8f636443fcb4",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
@@ -99,19 +100,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A7s 0%, K7s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A9s+, K7s+, Q9s+, J9s+, T9s, AJo+, KJo+, T8s:0.8, 98s:0.8, A8s:0.6, K6s:0.6, A5s:0.4, 55:0.3, ATo:0.3, A4s:0.1"
+      "range": "77+, A9s+, K9s+, Q9s+, J9s+, T8s+, 98s, AJo+, KQo, 87s:0.9, QJo:0.8, KJo:0.7, A8s:0.5, 66:0.2, A5s:0.1"
      }
     ]
    },
@@ -121,19 +122,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 84.841,
+    "occ": 85.714,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A8s+, K6s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, K5s:0.8, ATo:0.8, 55:0.6, A5s:0.6, QJo:0.3"
+      "range": "66+, A8s+, K8s+, Q9s+, J9s+, T8s+, 98s, 87s, AJo+, KJo+, QJo, 97s:0.6, ATo:0.6, A5s:0.2, J8s:0.2, 76s:0.2"
      }
     ]
    },
@@ -143,19 +144,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A4s 0%, K4s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 70.759,
+    "occ": 71.592,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A7s+, K4s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, A5s:0.6"
+      "range": "66+, A7s+, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, ATo+, KJo+, QJo, 97s:0.9, 76s:0.5, A5s:0.3, KTo:0.3, JTo:0.3"
      }
     ]
    },
@@ -165,19 +166,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A9o 0%, K9o 60%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 57.609,
+    "occ": 58.376,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "44+, A5s+, K4s+, Q7s+, J9s+, T8s+, 97s+, 87s, ATo+, KJo+, QJo, A4s:0.8, K9o:0.6, K3s:0.5, QTo:0.5"
+      "range": "55+, A5s+, K8s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, ATo+, KJo+, QTo+, KTo:0.9, JTo:0.9, K7s:0.2, T7s:0.2"
      }
     ]
    },
@@ -187,19 +188,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2s 0%, K2s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 45.104,
+    "occ": 45.731,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "33+, A3s+, K2s+, Q7s+, J9s+, T8s+, 97s+, 87s, 76s, A9o+, KJo+, K9o, QTo+, Q6s:0.8, KTo:0.7, J9o:0.7, 86s:0.6, J8s:0.1"
+      "range": "55+, A4s+, K6s+, Q7s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, A9o+, KTo+, QTo+, JTo, J7s:0.8, A8o:0.4, T9o:0.3, Q9o:0.1"
      }
     ]
    },
@@ -209,19 +210,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 32.999,
+    "occ": 33.843,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q4s+, J7s+, T8s+, 97s+, 86s+, 75s+, 65s, A7o+, K6o+, QTo+, J9o, T9o, JTo:0.7, Q9o:0.4"
+      "range": "44+, A2s+, K4s+, Q5s+, J7s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, A7o+, K9o+, Q9o+, J9o+, T9o, K8o:0.9, J6s:0.1"
      }
     ]
    },
@@ -231,19 +232,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2o 0%, K2o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 20.976,
+    "occ": 21.855,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T5s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, A3o+, K2o+, Q6o+, J8o+, T8o+, 98o, Q5o:0.6, 97o:0.6"
+      "range": "22+, A2s+, K2s+, Q2s+, J3s+, T4s+, 95s+, 84s+, 74s+, 63s+, 52s+, 42s+, 32s, A5o+, K5o+, Q6o+, J7o+, T8o+, 98o, 87o, T7o:0.1"
      }
     ]
    },
@@ -256,8 +257,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 9.324,
-    "regret": 0.0003,
+    "occ": 9.997,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -265,13 +266,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, AQs-AJs, A2s, K2s, Q5s-Q2s, J8s-J2s, T7s-T2s, 97s-92s, 86s-82s, 75s-72s, 63s+, 53s+, 43s, 32s, AJo-A8o, A5o-A2o, Q4o-Q2o, JTo, J7o-J2o, T2o+, 96o-95o, 75o+, 65o, ATs:0.9, Q5o:0.9, A5s:0.8, 98o:0.8, AKs:0.7, A6s:0.7, QTo:0.7, K3s:0.6, KQo:0.6, QQ:0.5, 99:0.5, A3s:0.5, 76s:0.5, KTo:0.5, J9o:0.5, KK:0.4, A4s:0.4, K5s:0.4, 94o:0.4, AQo:0.3, A7o:0.3, K9o:0.3, K7o:0.3, 54o:0.3, 88:0.2, 42s:0.2, J8o:0.2, 86o:0.2, 77:0.1, K4s:0.1"
+      "range": "AA, 44, 22, AQs-A9s, A2s, K6s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-72s, 63s-62s, AJo-A2o, KTo, K5o-K2o, Q5o-Q2o, J6o-J2o, T9o, T6o-T3o, 98o, 96o-95o, 86o-85o, 75o, 65o, 99:0.9, 33:0.9, A3s:0.9, KK:0.8, 32s:0.8, 97s:0.7, KJo:0.7, AKs:0.6, 75s:0.6, J9o-J8o:0.6, 97o:0.6, A8s:0.5, K7s:0.5, K7o:0.5, Q6o:0.5, T8o:0.5, 54o:0.5, KQo:0.4, K6o:0.4, AQo:0.3, QTo:0.3, QQ-JJ:0.2, A5s:0.2, 86s:0.2, J7o:0.2, 88:0.1, A7s-A6s:0.1, K9o:0.1, QJo:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "JJ-TT, 66-22, A9s-A7s, K6s+, Q6s+, J9s+, T8s+, 98s, 87s, AKo, A6o, KJo, K8o, K6o-K2o, QJo, Q9o-Q6o, 97o, 87o, 77:0.9, K4s:0.9, 88:0.8, 42s:0.8, J8o:0.8, 86o:0.8, AQo:0.7, A7o:0.7, K9o:0.7, K7o:0.7, KK:0.6, A4s:0.6, K5s:0.6, QQ:0.5, 99:0.5, A3s:0.5, 76s:0.5, KTo:0.5, J9o:0.5, K3s:0.4, KQo:0.4, AKs:0.3, A6s:0.3, QTo:0.3, A5s:0.2, 98o:0.2, ATs:0.1, Q5o:0.1"
+      "range": "TT, 77-55, A4s, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, 76s, 64s+, 52s+, 42s+, AKo, K8o, Q9o-Q7o, JTo, T7o, 87o, 76o, 88:0.9, A7s-A6s:0.9, K9o:0.9, QJo:0.9, QQ-JJ:0.8, A5s:0.8, 86s:0.8, J7o:0.8, AQo:0.7, QTo:0.7, KQo:0.6, K6o:0.6, A8s:0.5, K7s:0.5, K7o:0.5, Q6o:0.5, T8o:0.5, AKs:0.4, 75s:0.4, J9o-J8o:0.4, 97o:0.4, 97s:0.3, KJo:0.3, KK:0.2, 32s:0.2, 99:0.1, 33:0.1, A3s:0.1"
      }
     ]
    },
@@ -288,8 +289,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 15.159,
-    "regret": 0.0002,
+    "occ": 14.286,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -297,13 +298,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-AJs, KQs, QTs+, QQ:0.7, KQo:0.6, JJ:0.3, 88:0.3, TT:0.2, JTs:0.2, AKs:0.1"
+      "range": "QQ, KQs, QJs, AQs:0.9, AJs:0.8, KQo:0.7, 88:0.6, QTs:0.6, JJ:0.5, JTs:0.5, 99:0.3, AKs:0.3, AQo:0.3, KK:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99, ATs, KJs, AQo+, AKs:0.9, K9s:0.9, TT:0.8, JJ:0.7, 88:0.7, KQo:0.4, QQ:0.3, 55:0.3, A5s-A4s:0.1"
+      "range": "AA, TT, ATs, KJs-KTs, AKo, KK:0.9, T9s:0.9, 99:0.7, AKs:0.7, AQo:0.7, JJ:0.5, JTs:0.5, 88:0.4, 54s:0.3, KQo:0.3, AJs:0.2, AJo:0.2, AQs:0.1, A9s:0.1"
      }
     ]
    },
@@ -320,8 +321,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 13.816,
-    "regret": 0.0003,
+    "occ": 12.952,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -329,13 +330,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-AJs, KQs, QTs+, JTs:0.8, KQo:0.7, QQ:0.6, JJ-TT:0.4, 77:0.3, 88:0.2, ATs:0.2, AKs:0.1"
+      "range": "QQ, AJs, KQs, QTs+, AQs:0.9, KQo:0.9, 88:0.8, JJ:0.6, JTs:0.6, AKs:0.4, AQo:0.4, 99:0.3, KK:0.1, 77:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99, KJs, K9s, AQo+, AKs:0.9, 88:0.8, ATs:0.8, JJ-TT:0.6, KTs:0.6, QQ:0.4, 55:0.4, KQo:0.3, J9s:0.2, A5s-A4s:0.1"
+      "range": "AA, TT, ATs, KJs-KTs, T9s, AKo, KK:0.9, 54s:0.9, 99:0.7, AKs:0.6, AQo:0.6, JJ:0.4, JTs:0.4, AJo:0.4, 88:0.2, A9s:0.2, AQs:0.1, KQo:0.1"
      }
     ]
    },
@@ -352,8 +353,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 14.082,
-    "regret": 0.0008,
+    "occ": 14.122,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -361,13 +362,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs, QTs+, KQs:0.9, AJs:0.8, QQ:0.6, TT:0.5, 77:0.5, KQo:0.5, JTs:0.2, AJo:0.2, JJ:0.1, ATs:0.1"
+      "range": "QQ, 77, AQs, KQs, QTs+, KQo, AJs:0.7, JJ-TT:0.6, AJo:0.5, AKs:0.4, JTs:0.4, AQo:0.3, 99:0.2, KK:0.1, 88:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99-88, AKs, KJs, K9s, AQo+, JJ:0.9, ATs:0.9, KTs:0.6, TT:0.5, KQo:0.5, QQ:0.4, 77:0.4, J9s:0.4, KJo:0.4, AJs:0.2, KQs:0.1"
+      "range": "AA, KJs-KTs, T9s, AKo, KK:0.9, 88:0.9, ATs:0.9, 99:0.8, AQo:0.7, AKs:0.6, JTs:0.6, 54s:0.5, JJ-TT:0.4, AJs:0.3, K9s:0.3, 98s:0.2, AJo:0.2, A9s:0.1"
      }
     ]
    },
@@ -384,7 +385,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 12.506,
+    "occ": 11.673,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -393,13 +394,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, AQs, KQs, QTs+, JTs, AJs:0.9, KQo:0.9, QQ:0.8, TT:0.6, ATs:0.5, T9s:0.5, KTs:0.4, AJo:0.2, JJ:0.1, 99:0.1, AKs:0.1, AQo:0.1"
+      "range": "QQ, 77, AQs-AJs, KQs, QTs+, KQo, 88:0.7, JTs:0.7, JJ:0.5, AKs:0.5, AQo:0.5, AJo:0.4, TT:0.3, 99:0.2, ATs-A9s:0.2, KK:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 88, KJs, K9s, AKo, JJ:0.9, 99:0.9, AKs:0.9, AQo:0.9, ATs:0.5, TT:0.4, 55:0.4, KTs:0.4, QQ:0.2, J9s:0.2, KJo:0.2, AJs:0.1, A5s-A4s:0.1, T9s:0.1, KQo:0.1"
+      "range": "AA, KJs-KTs, T9s, 54s, AKo, KK:0.9, 99:0.8, ATs:0.8, TT:0.7, JJ:0.5, AKs:0.5, AQo-AJo:0.5, 88:0.3, A9s:0.3, JTs:0.3, K9s:0.1, 65s:0.1"
      }
     ]
    },
@@ -416,8 +417,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 12.679,
-    "regret": 0.0003,
+    "occ": 12.616,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -425,13 +426,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs, QTs+, JTs, T9s:0.9, AJs:0.8, KQs:0.8, QQ:0.5, 77:0.5, KQo:0.5, TT:0.4, KTs:0.3, AJo:0.3, 99:0.2, J9s:0.2, KK:0.1, ATs:0.1, KJs:0.1"
+      "range": "QQ, 77, AQs-AJs, KQs, QTs+, KQo, AJo:0.9, TT:0.8, JTs:0.8, JJ:0.5, T9s:0.5, AKs:0.4, ATs:0.4, AQo:0.4, A9s:0.3, 99:0.2, 88:0.1, KJs:0.1, J9s:0.1, 98s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, JJ, 88, AKs, K9s, AQo+, KK:0.9, ATs:0.9, KJs:0.9, 99:0.8, KTs:0.7, J9s:0.7, KJo:0.7, TT:0.6, QQ:0.5, 77:0.5, KQo:0.5, AJs:0.2, KQs:0.2, AJo:0.1"
+      "range": "KK+, KTs-K9s, AKo, 88:0.9, KJs:0.9, 54s:0.9, 99:0.8, AKs:0.6, ATs-A9s:0.6, 98s:0.6, AQo:0.6, JJ:0.5, T9s:0.5, TT:0.2, JTs:0.2, 87s:0.1, AJo:0.1, KJo:0.1"
      }
     ]
    },
@@ -448,8 +449,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 13.15,
-    "regret": 0.0005,
+    "occ": 13.216,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -457,13 +458,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs, QTs+, JTs, AJs:0.7, TT:0.4, KTs:0.4, T9s:0.4, QQ:0.3, KJs:0.3, AJo:0.3, KQs:0.1, AKo:0.1, KQo:0.1"
+      "range": "QQ, AQs, QTs+, AJs:0.9, KQs:0.7, KQo:0.7, TT:0.6, 77:0.6, KJs:0.5, AJo:0.5, Q9s:0.4, ATs-A9s:0.3, JTs:0.2, T9s:0.2, JJ:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ, 99-77, AKs, ATs, K9s, J9s, AQo, KQs:0.9, AKo:0.9, KQo:0.9, QQ:0.7, KJs:0.7, TT:0.6, KTs:0.6, AJo:0.6, KJo:0.5, AJs:0.3, 66:0.1, A9s:0.1, K8s:0.1"
+      "range": "KK+, 99-88, AKs, KTs-K9s, AKo, JJ:0.9, AQo:0.9, JTs:0.8, T9s:0.8, ATs-A9s:0.7, KJo:0.6, KJs:0.5, 54s:0.5, AJo:0.5, TT:0.4, 77:0.4, KQs:0.3, KQo:0.3, AJs:0.1"
      }
     ]
    },
@@ -480,8 +481,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 11.184,
-    "regret": 0.0002,
+    "occ": 10.393,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -489,13 +490,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-AJs, KQs, QTs+, JTs, T9s, AJo, KTs:0.9, J9s:0.9, 77:0.8, KQo:0.7, QQ:0.5, TT-99:0.3, ATs:0.2, KJs:0.2, KK:0.1, AKs:0.1"
+      "range": "QQ, 77, AQs, A9s, KQs, QTs+, JTs, AJs:0.9, KQo:0.9, T9s:0.8, AKs:0.6, AQo-AJo:0.6, 88:0.5, TT-99:0.4, ATs:0.4, JJ:0.3, KJs:0.2, K9s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, JJ, 88, K9s, AQo+, KK:0.9, AKs:0.9, ATs:0.8, KJs:0.8, TT-99:0.7, 55:0.6, QQ:0.5, KJo:0.4, KQo:0.3, 77:0.2, A9s:0.1, KTs:0.1, K8s:0.1, J9s:0.1"
+      "range": "KK+, KTs, 54s, AKo, KJs:0.8, JJ:0.7, K9s:0.7, TT-99:0.6, ATs:0.6, 88:0.5, 65s:0.5, AKs:0.4, A8s:0.4, 43s:0.4, AQo-AJo:0.4, T9s:0.2, AJs:0.1, 98s:0.1, 87s:0.1, KQo:0.1"
      }
     ]
    },
@@ -512,8 +513,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 11.251,
-    "regret": 0.0002,
+    "occ": 11.131,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -521,13 +522,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, KTs, QTs+, JTs, T9s, AJo, AQs:0.9, KJs+:0.9, AJs:0.8, 99:0.6, J9s:0.5, KQo:0.4, QQ:0.3, TT:0.3, ATs:0.2, AKo:0.1"
+      "range": "QQ, 77, AQs-AJs, KQs, QJs, AJo, A9s:0.9, QTs:0.9, T9s:0.9, JTs:0.8, KQo:0.7, Q9s:0.6, J9s:0.6, TT:0.5, KJs:0.5, K9s:0.5, 98s:0.5, AQo:0.5, JJ:0.3, 66:0.3, ATs:0.3, 99:0.2, 88:0.1, AKs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ, 88-77, AKs, K9s, AQo, KJo, AKo:0.9, ATs:0.8, QQ:0.7, TT:0.7, K8s:0.7, KQo:0.6, J9s:0.5, 99:0.4, AJs:0.2, A9s:0.2, 55:0.1, AQs:0.1, KJs+:0.1"
+      "range": "KK+, KTs, AKo, 88:0.9, AKs:0.9, 54s:0.9, 99:0.8, JJ:0.7, ATs:0.7, TT:0.5, KJs:0.5, K9s:0.5, 98s:0.5, 87s:0.5, AQo:0.5, KJo:0.5, A8s:0.3, KQo:0.3, J9s+:0.2, 65s:0.2, A9s:0.1, QTs:0.1, T9s:0.1, 76s:0.1"
      }
     ]
    },
@@ -544,8 +545,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 11.647,
-    "regret": 0.0006,
+    "occ": 11.627,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -553,13 +554,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, KJs-KTs, QTs+, JTs, T9s, AQs:0.8, 98s:0.7, QQ:0.6, 66:0.6, KQo:0.5, KJo:0.4, J9s:0.2, T8s:0.2, AKo:0.2, AJo:0.2, TT:0.1, KQs:0.1"
+      "range": "AQs, QJs, Q9s, J9s, QQ:0.9, AJs:0.9, A8s:0.9, KQs:0.9, QTs:0.9, KJs:0.8, 98s:0.6, KQo:0.6, TT:0.5, 77-66:0.5, ATs-A9s:0.5, JTs:0.5, AJo:0.5, T9s:0.3, 99:0.2, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ, 99-77, AKs, ATs, K9s-K8s, AQo, TT:0.9, A9s:0.9, KQs:0.9, J9s:0.8, AKo:0.8, AJo:0.8, KJo+:0.5, QQ:0.4, 66:0.4, K7s:0.4, AQs:0.2"
+      "range": "KK+, JJ, 88, AKs, KTs-K9s, 54s, AKo, AQo:0.9, 99:0.8, T9s:0.7, KJo:0.7, TT:0.5, 77:0.5, ATs-A9s:0.5, JTs:0.5, AJo:0.5, KQo:0.4, KJs:0.2, QQ:0.1, AJs:0.1, KQs:0.1, QTs:0.1, 98s:0.1, ATo:0.1"
      }
     ]
    },
@@ -576,8 +577,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 12.505,
-    "regret": 0.0001,
+    "occ": 12.645,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -585,13 +586,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs-KTs, QJs, JTs, AJs:0.9, QTs:0.9, 98s:0.9, KJo:0.9, 99:0.8, A9s:0.8, QQ:0.4, AKo:0.3, 66:0.2, 55:0.1, T8s:0.1"
+      "range": "QJs, 66:0.9, AJs-ATs:0.8, QTs:0.8, A8s:0.7, KJs:0.7, TT:0.6, A7s:0.6, JTs:0.6, KJo:0.6, QQ:0.5, J9s:0.4, Q9s:0.2, AKo:0.2, JJ:0.1, 88:0.1, A9s:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 88-77, AQs+, ATs, KQs, K9s-K8s, J9s, T9s, AQo-AJo, KQo, A8s:0.9, 66:0.8, T8s:0.7, AKo:0.7, QQ:0.6, 55:0.4, 99:0.2, A9s:0.2, AJs:0.1, K7s:0.1, QTs:0.1, KJo:0.1"
+      "range": "KK+, 99, 77, AQs+, KQs, KTs-K9s, T9s, 98s, AQo-AJo, JJ:0.9, 88:0.9, A9s:0.9, KQo:0.9, Q9s:0.8, AKo:0.8, J9s:0.6, QQ:0.5, 87s:0.5, TT:0.4, JTs:0.4, 54s:0.4, A8s:0.3, KJs:0.3, KJo:0.3, AJs-ATs:0.2, QTs:0.2, 66:0.1, A5s:0.1"
      }
     ]
    },
@@ -608,8 +609,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 9.861,
-    "regret": 0.0002,
+    "occ": 9.151,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -617,13 +618,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, KQs, KTs, QTs+, J9s+, T8s+, 98s, AJo, 77-66:0.9, AQs:0.9, KJs:0.9, A9s:0.8, KQo:0.7, QQ:0.4, 99:0.3, ATs:0.2"
+      "range": "QQ, 99, 77-66, AQs-AJs, A9s-A8s, KJs+, Q9s+, J9s+, T8s+, 98s, AQo, K9s:0.8, AJo:0.8, 88:0.7, KQo:0.5, AKs:0.4, ATs:0.4, JJ-TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 88, AKs, K9s, AQo+, KJo:0.9, ATs:0.8, 99:0.7, K8s:0.7, QQ:0.6, 55:0.5, KQo:0.3, 77:0.1, AQs:0.1, A9s:0.1, KJs:0.1, K7s:0.1"
+      "range": "KK+, KTs, 54s, 43s, AKo, JJ-TT:0.9, 65s:0.9, 87s:0.8, AKs:0.6, ATs:0.6, KJo+:0.5, 88:0.3, K9s:0.2, AJo:0.2"
      }
     ]
    },
@@ -640,7 +641,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 9.81,
+    "occ": 9.668,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -649,13 +650,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs, KTs+, QTs+, JTs, T8s+, 98s, AJo, 99:0.9, AJs-ATs:0.9, Q9s:0.5, KJo+:0.4, QQ:0.3, 88:0.3, A9s:0.2, J9s:0.2, AQo:0.1"
+      "range": "QQ, 77-66, AQs-AJs, A9s-A8s, KJs+, K9s, QJs, Q9s, J9s+, T8s+, 98s, AJo, QTs:0.9, AQo:0.6, 88:0.5, KQo:0.5, ATs:0.4, 87s:0.4, A7s:0.3, KTs:0.3, TT:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 77, AKs, K9s-K7s, AKo, AQo:0.9, A9s:0.8, J9s:0.8, QQ:0.7, 88:0.7, KJo+:0.6, 55:0.2, 99:0.1, AJs-ATs:0.1"
+      "range": "KK+, JJ, 99, AKs, 65s, 54s, AKo, KJo, TT:0.8, KTs:0.7, ATs:0.6, 87s:0.6, 88:0.5, 76s:0.5, KQo:0.5, AQo:0.4, ATo:0.2, A5s:0.1, QTs:0.1"
      }
     ]
    },
@@ -672,7 +673,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 10.082,
+    "occ": 10.056,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -681,13 +682,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, KJs-KTs, QTs+, JTs, T8s, 98s, KJo, ATs:0.9, A8s:0.8, 66:0.7, T9s:0.7, AJo:0.7, AQs:0.6, QQ:0.5, 55:0.5, Q9s:0.5, A9s:0.3, KQs:0.2, AKo:0.2, 99-88:0.1, KQo:0.1"
+      "range": "77-66, AQs-ATs, A8s, QJs, Q9s, J9s, 98s, A7s:0.9, KJs+:0.9, JTs:0.9, QTs:0.8, QQ:0.7, T9s:0.6, KJo+:0.5, AJo:0.4, A9s:0.3, K9s:0.3, QJo:0.2, 99-88:0.1, T8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 77, AKs, K9s-K7s, J9s, AQo, 99-88:0.9, KQo:0.9, KQs:0.8, AKo:0.8, A9s:0.7, QQ:0.5, K6s:0.5, ATo:0.5, AQs:0.4, 66-55:0.3, T9s:0.3, AJo:0.3, A8s:0.2, ATs:0.1"
+      "range": "KK+, JJ-TT, AKs, KTs, 54s, AQo+, 99-88:0.9, T8s:0.9, 87s:0.9, A9s:0.7, K9s:0.7, AJo:0.6, KJo+:0.5, T9s:0.4, 65s:0.4, QQ:0.3, ATo:0.3, A5s:0.2, QTs:0.2, A7s:0.1, KJs+:0.1, JTs:0.1, QJo:0.1"
      }
     ]
    },
@@ -704,8 +705,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 10.729,
-    "regret": 0.0002,
+    "occ": 10.853,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -713,13 +714,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, A7s, KJs-KTs, QTs+, JTs, 98s, KJo, QQ:0.6, ATs:0.6, Q9s:0.6, 97s:0.6, 99:0.5, 55:0.5, A8s:0.5, K7s:0.5, A9s:0.4, J9s:0.4, T8s:0.3, AJo-ATo:0.3, 77:0.2, T9s:0.2, AKo:0.2, KQo:0.2, 66:0.1"
+      "range": "AJs-ATs, A7s, KJs, QJs, KJo, QJo:0.9, 66:0.8, ATo:0.8, QQ:0.6, AQs:0.6, A8s:0.6, QTs:0.6, J9s:0.6, 88:0.5, JTs:0.5, T8s:0.5, 98s:0.4, TT:0.3, 77:0.3, 55:0.3, KTs:0.3, KQs:0.2, KQo:0.2, JJ:0.1, 97s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 88, AQs+, KQs, K9s-K8s, AQo, 66:0.9, 77:0.8, T9s:0.8, AKo:0.8, KQo:0.8, T8s:0.7, AJo:0.7, A9s:0.6, K6s:0.6, J9s:0.6, 99:0.5, 55:0.5, A8s:0.5, K7s:0.5, QQ:0.4, ATs:0.4, Q9s:0.4, ATo:0.4"
+      "range": "KK+, 99, AKs, A9s, K9s, Q9s, T9s, 87s, AJo+, JJ:0.9, KQs:0.8, KQo:0.8, TT:0.7, 77:0.7, KTs:0.7, 98s:0.6, 88:0.5, A5s:0.5, JTs:0.5, QQ:0.4, AQs:0.4, A8s:0.4, QTs:0.4, J9s:0.4, 54s:0.4, K8s:0.3, T8s:0.3, 66:0.2, 97s:0.2, 76s:0.1, QJo:0.1"
      }
     ]
    },
@@ -736,7 +737,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 12.105,
+    "occ": 11.888,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -745,13 +746,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs-KTs, QTs+, JTs, KJo, AJs:0.9, A7s:0.9, 98s:0.9, QJo:0.9, A6s:0.7, K7s:0.5, AQs:0.4, JJ:0.3, T9s:0.3, 77:0.2, 44:0.1, ATs:0.1, K6s:0.1, AKo:0.1"
+      "range": "KJs, QJs, Q8s, J9s+, QJo, KJo:0.9, A7s:0.8, K8s:0.7, J8s:0.7, 77:0.5, 55:0.4, ATs:0.4, T8s:0.4, JJ:0.3, AQs-AJs:0.3, QQ:0.2, AJo:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, TT-88, 66-55, AKs, A9s-A8s, A5s, KQs, K9s-K8s, Q9s, J9s, T8s, AQo-ATo, KQo, 44:0.9, ATs:0.9, K6s:0.9, AKo:0.9, 77:0.8, JJ:0.7, T9s:0.7, AQs:0.6, K7s:0.5, Q8s:0.5, AJs:0.1, A7s:0.1, 98s:0.1"
+      "range": "KK+, TT-88, 66, AKs, A9s-A8s, A5s, KQs, KTs-K9s, QTs-Q9s, T9s, 98s, 87s, AQo, ATo, KQo, AKo:0.9, QQ:0.8, AJo:0.8, JJ:0.7, AQs-AJs:0.7, ATs:0.6, T8s:0.6, 77:0.5, 55:0.5, K8s:0.3, A7s:0.2, KJo:0.1"
      }
     ]
    },
@@ -765,25 +766,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 8.509,
+    "occ": 7.809,
     "regret": 0.0001,
-    "confidence": "mid",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-AJs, A9s, A7s, KTs+, QTs+, J9s+, T8s+, 97s+, 87s, AJo, 99:0.9, 55:0.9, A8s:0.8, 77:0.7, Q9s:0.7, 76s:0.7, KQo:0.7, KJo:0.6, ATs:0.4, QQ:0.1, Q8s:0.1, 65s:0.1, AQo:0.1"
+      "range": "88-55, AQs-AJs, A9s, A7s, KJs+, K9s, Q9s+, J8s+, T8s+, 97s+, 76s, 65s, AJo, QQ:0.9, A8s:0.9, KTs:0.9, 99:0.8, KQo:0.7, A5s:0.6, 87s:0.6, AQo:0.6, ATs:0.5, Q8s:0.4, T7s:0.2, 86s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, 88, AKs, K9s-K7s, AKo, QQ:0.9, AQo:0.9, ATs:0.6, K6s:0.5, KJo:0.4, 77:0.3, 44:0.3, Q9s:0.3, KQo:0.3, A8s:0.2, 99:0.1, 55:0.1, A5s:0.1, QJo:0.1"
+      "range": "KK+, JJ-TT, AKs, 53s+, 43s, AKo, KJo, ATs:0.5, A5s:0.4, 87s:0.4, AQo:0.4, K8s:0.3, KQo:0.3, 99:0.2, QQ:0.1, A8s:0.1, KTs:0.1"
      }
     ]
    },
@@ -797,25 +798,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 8.41,
-    "regret": 0.0002,
-    "confidence": "mid",
+    "occ": 8.186,
+    "regret": 0.0001,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AJs-ATs, A8s-A7s, KTs+, Q8s+, J9s+, T8s+, 97s+, 87s, 76s, AJo, 88:0.6, A9s:0.6, KJo:0.6, 65s:0.5, 86s:0.4, AQs:0.3, KQo:0.3, K8s:0.1"
+      "range": "77-55, AQs-A9s, A7s, KJs+, K9s-K8s, Q8s+, J8s+, T7s+, 97s+, 76s, 65s, AJo, QJo, A8s:0.9, QQ:0.6, 88:0.6, 87s:0.6, KQo:0.4, 86s:0.2, A5s:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "99+, 77, AKs, K9s, K7s-K6s, AQo+, K8s:0.9, AQs:0.7, KQo:0.7, ATo:0.5, 88:0.4, A9s:0.4, KJo:0.4, QJo:0.2"
+      "range": "KK+, JJ-99, AKs, KTs, 54s, 43s, AKo, KJo, AQo:0.9, KQo:0.6, A5s:0.5, ATo:0.5, QQ:0.4, 88:0.4, 87s:0.4, JTo:0.2, A8s:0.1"
      }
     ]
    },
@@ -832,7 +833,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 8.526,
+    "occ": 8.48,
     "regret": 0.0002,
     "confidence": "low",
     "move": 0,
@@ -841,13 +842,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, A7s-A5s, KJs-KTs, K4s, QTs+, Q8s, JTs, T8s+, 97s+, 86s+, 76s, 65s, QJo, 66:0.9, ATs:0.9, A8s:0.9, AJo:0.9, KJo:0.9, K7s:0.7, 55:0.6, Q9s:0.6, KQo:0.5, KQs:0.4, K6s:0.4, A9s:0.3, J9s:0.2, QQ:0.1"
+      "range": "77-55, AJs-ATs, A8s-A7s, KJs, Q8s+, J8s+, T9s, T7s, 97s+, 65s, KJo, QJo, AQs:0.9, K8s-K7s:0.9, 76s:0.9, A9s:0.7, 87s:0.6, QQ:0.4, 88:0.4, T8s:0.4, AJo:0.4, KQs:0.3, KQo:0.3, A6s:0.2, K9s:0.2, 86s:0.2, A5s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-77, AQs+, K9s-K8s, K5s, AQo+, ATo, QQ:0.9, J9s:0.8, A9s:0.7, KQs:0.6, K6s:0.6, KQo:0.5, 55:0.4, Q9s:0.4, K7s:0.3, 66:0.1, ATs:0.1, A8s:0.1, AJo:0.1, KJo:0.1"
+      "range": "KK+, JJ-99, AKs, KTs, 54s, 43s, AQo+, A5s:0.8, K9s:0.8, KQs:0.7, KQo:0.7, QQ:0.6, 88:0.6, T8s:0.6, 53s:0.6, AJo:0.6, ATo:0.5, 87s:0.4, A9s:0.3, KTo:0.2, JTo:0.2, AQs:0.1, K8s-K7s:0.1, 76s:0.1"
      }
     ]
    },
@@ -864,8 +865,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 8.972,
-    "regret": 0.0002,
+    "occ": 9.03,
+    "regret": 0.0001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -873,13 +874,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, A7s-A4s, KJs-KTs, K7s-K6s, K4s, QTs+, JTs, 97s+, 86s+, 76s, 65s, KJo, QJo, T9s:0.9, J8s:0.8, T8s:0.8, ATs:0.7, AJo:0.7, A8s:0.6, 77-66:0.5, Q8s:0.5, J9s:0.5, K5s:0.4, ATo:0.4, QQ:0.2, K9s:0.2, KQo:0.2, 55-44:0.1"
+      "range": "66-55, AJs-ATs, A7s-A6s, KJs-KTs, K8s-K7s, QTs+, Q8s, J8s+, T8s-T7s, 97s+, 86s, 65s, KJo, QJo, K6s:0.9, ATo:0.9, A8s:0.7, 77:0.6, K9s:0.6, A4s:0.5, QQ:0.3, Q9s:0.3, JJ:0.2, A5s:0.2, 87s:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-88, AQs+, A9s, KQs, K8s, Q9s, AQo+, 55-44:0.9, QQ:0.8, K9s:0.8, KQo:0.8, K5s:0.6, ATo:0.6, 77-66:0.5, 33:0.5, Q8s:0.5, J9s:0.5, A8s:0.4, ATs:0.3, AJo:0.3, T8s:0.2, T9s:0.1"
+      "range": "KK+, TT-88, AQs+, A9s, KQs, T9s, 76s, 54s, AJo+, 87s:0.9, KQo:0.9, KTo:0.9, JJ:0.8, A5s:0.8, QQ:0.7, Q9s:0.7, 77:0.4, K9s:0.4, A8s:0.3, 43s:0.3, JTo:0.2, ATo:0.1"
      }
     ]
    },
@@ -896,8 +897,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 9.866,
-    "regret": 0.0001,
+    "occ": 9.753,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -905,13 +906,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A7s-A6s, KJs-KTs, K7s, K4s, QTs+, JTs, 97s+, 86s+, 65s, KJo, QJo, J9s:0.8, 76s:0.8, K5s:0.6, J8s:0.5, KQo:0.4, A4s:0.3, ATs:0.2, K6s:0.2, JJ:0.1, A3s:0.1, Q8s:0.1, AJo:0.1"
+      "range": "55, A7s-A6s, KJs-KTs, K8s-K6s, QTs+, Q8s-Q7s, J7s+, T7s+, 86s, 65s, KJo, QJo, KTo:0.7, QTo:0.7, 66:0.5, ATs:0.5, AJo:0.5, JTo:0.2, JJ:0.1, 97s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, TT-44, AJs+, A9s-A8s, A5s, KQs, K9s-K8s, Q9s, T8s+, AQo+, ATo, JJ:0.9, Q8s:0.9, AJo:0.9, ATs:0.8, K6s:0.8, A4s:0.7, 33:0.6, KQo:0.6, K5s:0.4, 22:0.2, J9s-J8s:0.2"
+      "range": "QQ+, TT-77, AJs+, A9s-A8s, A5s, KQs, K9s, Q9s, 98s, 87s, 76s, 54s, AQo+, ATo, KQo, JJ:0.9, 97s:0.9, JTo:0.7, 66:0.5, ATs:0.5, AJo:0.5, A4s:0.4, KTo:0.3, QTo:0.3"
      }
     ]
    },
@@ -928,7 +929,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 12.023,
+    "occ": 11.987,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -937,13 +938,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs-KTs, K4s, QTs+, Q7s, JTs, 97s+, KJo-KTo, QTo+, Q9s:0.8, 76s:0.6, TT:0.3, K9s:0.2, J9s:0.2, AQo:0.2, JTo:0.2, Q6s:0.1, T8s:0.1, 65s:0.1"
+      "range": "44, K9s-K6s, Q7s+, J9s, J7s, T7s, KTo, QTo, KTs:0.8, J8s:0.6, JTo:0.6, QJo:0.5, TT:0.4, 66:0.4, T9s:0.2, 55:0.1, KQs:0.1, 98s:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, 99-22, A2s+, KQs, K8s-K5s, K3s, Q8s, J8s, T9s, 86s+, AKo, AJo-ATo, KQo, T8s:0.9, K9s:0.8, J9s:0.8, AQo:0.8, TT:0.7, 76s:0.4, Q9s:0.2"
+      "range": "JJ+, 99-77, A4s+, KJs, JTs, T8s, 97s, 86s+, 76s, 65s, 54s, AKo, AJo-A9o, KJo+, 55:0.9, KQs:0.9, 98s:0.9, AQo:0.9, T9s:0.8, TT:0.6, 66:0.6, 75s:0.6, A3s:0.5, QJo:0.5, J8s:0.4, JTo:0.4, KTs:0.2"
      }
     ]
    },
@@ -960,7 +961,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 7.084,
+    "occ": 6.416,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -969,13 +970,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AQs-A7s, K9s+, K7s, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, AJo, KQo, 54s:0.9, 44:0.8, KJo:0.8, 75s:0.7, K6s:0.4, K8s:0.2, 99:0.1, 33:0.1, A5s:0.1"
+      "range": "99-55, AQs-AJs, A9s, A7s, KJs+, K9s, Q9s+, J8s+, T8s+, 97s+, 76s, 65s, AJo, A8s:0.8, T7s:0.8, ATs:0.7, AQo:0.7, KQo:0.6, 54s:0.3, AKs:0.2, 87s:0.2, QQ:0.1, A5s:0.1, Q8s:0.1, 86s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, AQo+, 99:0.9, K8s:0.8, 44:0.2, A5s:0.2, KJo:0.2, 33:0.1, A4s:0.1, K5s:0.1"
+      "range": "KK+, JJ-TT, KTs, 43s, AKo, QQ:0.9, AKs:0.8, 87s:0.8, 54s:0.7, KQo:0.4, ATs:0.3, 53s:0.3, AQo:0.3, A8s:0.2, A5s:0.1"
      }
     ]
    },
@@ -992,7 +993,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 6.913,
+    "occ": 6.588,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1001,13 +1002,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs-A5s, K7s+, K4s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AJo, KQo, QJo, K6s:0.9, KJo:0.5, 88:0.4, 33:0.4, ATo:0.4, AQs:0.3"
+      "range": "88-55, AQs-A7s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s, 75s, 65s, AJo, KQo, QJo, K8s:0.9, 64s:0.9, 76s:0.7, A5s:0.6, 54s:0.6, 43s:0.5, 87s:0.3, 53s:0.3, KJo:0.3, 96s:0.2, QQ:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AKs, AQo+, K5s:0.9, AQs:0.7, 88:0.6, KJo:0.5, 33:0.3, K6s:0.1"
+      "range": "KK+, JJ-99, AKs, KTs, AQo+, QQ:0.9, 87s:0.7, KJo:0.7, 43s:0.5, 54s:0.4, 76s:0.3"
      }
     ]
    },
@@ -1024,8 +1025,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 6.775,
-    "regret": 0.0001,
+    "occ": 6.752,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1033,13 +1034,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs, A9s-A3s, KTs+, K8s-K6s, K4s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AJo, KQo, QJo, 33:0.9, ATs:0.9, K5s:0.9, KJo:0.9, ATo:0.8, K9s:0.6, Q7s:0.6, AQs:0.2, QQ:0.1"
+      "range": "77-55, AJs-A6s, KJs+, K9s-K7s, Q8s+, J8s+, T7s+, 96s+, 86s, 75s, 64s+, 53s, AJo-ATo, KQo, QJo, 88:0.9, Q7s:0.9, J7s:0.9, AQs:0.7, A5s:0.7, 87s:0.7, 76s:0.6, 44:0.5, A4s:0.5, KJo:0.5, JTo:0.5, K6s:0.4, QQ:0.3, 54s:0.2, KTs:0.1, 85s:0.1, 43s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-88, AKs, K3s, AQo+, QQ:0.9, AQs:0.8, K2s:0.8, K9s:0.4, ATo:0.2, 33:0.1, ATs:0.1, K5s:0.1, KJo:0.1"
+      "range": "KK+, JJ-99, AKs, AQo+, KTs:0.9, 43s:0.9, 54s:0.8, QQ:0.7, KJo:0.5, 76s:0.4, AQs:0.3, A5s:0.3, 87s:0.3, A4s:0.2, 88:0.1"
      }
     ]
    },
@@ -1056,8 +1057,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 7.022,
-    "regret": 0.0001,
+    "occ": 7.044,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1065,13 +1066,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-33, AJs, A9s-A2s, KJs-KTs, K7s-K6s, K4s-K2s, Q6s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, QTo+, 66:0.9, KQo:0.9, AJo:0.7, KJo:0.7, 64s:0.5, K5s:0.4, ATo:0.4, QQ:0.1, KQs:0.1, K9s-K8s:0.1, AKo:0.1"
+      "range": "77-55, AJs, A8s-A3s, K8s-K4s, Q6s+, J7s+, T7s+, 96s+, 86s-85s, 75s, 64s+, 53s, 43s, ATo, QTo+, 44:0.9, KJs:0.9, 54s:0.9, JTo:0.9, K9s:0.8, KJo:0.8, KTo:0.7, ATs:0.6, KTs:0.6, 76s:0.5, KQo:0.5, 87s:0.4, QQ:0.3, AJo:0.3, AQs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-77, AQs+, ATs, AQo, QQ:0.9, KQs:0.9, K9s-K8s:0.9, AKo:0.9, K5s:0.6, ATo:0.6, AJo:0.3, KJo:0.3, 66:0.1, KQo:0.1"
+      "range": "KK+, JJ-88, AKs, A9s, KQs, AQo+, AQs:0.8, QQ:0.7, AJo:0.7, 87s:0.6, 76s:0.5, KQo:0.5, ATs:0.4, KTs:0.4, KTo:0.3, K9s:0.2, KJo:0.2, KJs:0.1, 54s:0.1, JTo:0.1"
      }
     ]
    },
@@ -1088,7 +1089,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 7.709,
+    "occ": 7.401,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1097,13 +1098,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33, A7s-A2s, KJs-K9s, K7s-K2s, Q4s+, J6s+, T8s-T7s, 97s+, 86s+, 75s+, 64s+, 54s, ATo, KJo-KTo, QTo+, J9o+, A9s:0.9, A8s:0.8, J5s:0.7, 44:0.5, ATs:0.5, T9s:0.4, K8s:0.1"
+      "range": "66-55, A7s-A3s, K9s-K4s, Q4s+, J5s+, T8s-T6s, 96s+, 86s-85s, 75s, 64s+, 53s+, 43s, ATo, KJo-KTo, QTo+, JTo, T9o, T9s:0.7, 95s:0.5, A8s:0.4, KJs:0.3, QQ:0.1, 44:0.1, J9o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "55+, AJs+, KQs, AJo+, KQo, K8s:0.9, T9s:0.6, 44:0.5, ATs:0.5, 22:0.4, A8s:0.2, A9s:0.1"
+      "range": "KK+, JJ-77, A9s+, KQs, KTs, 87s, 76s, AJo+, KQo, QQ:0.9, KJs:0.7, A8s:0.6, T9s:0.3"
      }
     ]
    },
@@ -1120,7 +1121,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 8.968,
+    "occ": 8.856,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1129,13 +1130,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A7s-A6s, A4s-A2s, KJs-K9s, K7s-K2s, Q2s+, JTs, J8s-J5s, T7s, 97s+, 86s+, 75s+, 64s+, 54s, KJo-KTo, QTo+, J9o+, T9o, A5s:0.9, K9o:0.9, T9s:0.7, AQs:0.4, K8s:0.4, JJ-TT:0.2, T8s:0.2, AKo:0.1"
+      "range": "44, A7s-A6s, A4s-A3s, KTs-K3s, Q3s+, J4s+, T8s-T6s, 95s+, 86s-85s, 75s, 64s+, 53s, 43s, KJo-KTo, Q9o+, J9o, T9o, 55:0.7, A5s:0.7, A2s:0.6, T9s:0.5, JTo:0.4, JJ:0.3, K9o:0.3, AQs:0.1, KJs:0.1, T5s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, 99-22, AKs, AJs-A8s, KQs, J9s, AQo-ATo, KQo, AKo:0.9, JJ-TT:0.8, T8s:0.8, AQs:0.6, K8s:0.6, T9s:0.3, A5s:0.1, K9o:0.1"
+      "range": "QQ+, TT-66, AKs, AJs-A8s, KQs, 87s, 76s, 54s, AQo-ATo, KQo, AQs:0.9, KJs:0.9, AKo:0.9, JJ:0.7, JTo:0.6, T9s:0.5, 55:0.3, A5s:0.3, A9o:0.2"
      }
     ]
    },
@@ -1152,8 +1153,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 11.652,
-    "regret": 0,
+    "occ": 11.858,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1161,13 +1162,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KTs, K8s-K2s, QTs-Q2s, J4s+, T6s+, 97s+, 86s+, 75s+, 64s+, 54s, AQo, KTo, K8o-K7o, QTo-Q8o, J9o+, T9o, 99:0.8, 88:0.7, QJo:0.7, KQs:0.6, K9s:0.5, K6o:0.5, QJs:0.4, KJs:0.2, A2s:0.1"
+      "range": "K9s-K2s, Q9s-Q2s, J3s+, T9s, T7s-T5s, 95s+, 86s-85s, 75s, 64s+, 54s, AQo, K9o-K7o, QTo-Q8o, J8o+, T8o+, 98o, 99:0.9, 33:0.9, T8s:0.9, QJo:0.8, 88:0.5, KJs:0.5, KTo:0.5, 53s:0.4, QJs:0.2, 43s:0.2, 77:0.1, AQs:0.1, QTs:0.1, J2s:0.1, 87s:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, 77-22, A3s+, AKo, AJo-A8o, KJo+, K9o, A2s:0.9, KJs:0.8, QJs:0.6, K9s:0.5, KQs:0.4, 88:0.3, QJo:0.3, 99:0.2"
+      "range": "TT+, 66-44, AKs, AJs-A2s, KQs, KTs, 76s, AKo, AJo-A8o, KJo, 77:0.9, AQs:0.9, QTs:0.9, 87s:0.9, KQo:0.9, QJs:0.8, 88:0.5, KJs:0.5, KTo:0.5, QJo:0.2, 99:0.1, 33:0.1, T8s:0.1"
      }
     ]
    },
@@ -1184,8 +1185,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 5.771,
-    "regret": 0,
+    "occ": 5.362,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1193,13 +1194,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-66, 44-22, AJs-A2s, K6s+, Q2s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo-A9o, KTo+, QTo+, JTo, 55:0.9, AQo:0.8, AQs:0.4, 96s:0.4, K4s:0.3, K2s:0.3, 99:0.1, K3s:0.1"
+      "range": "99-22, AQs-A2s, KJs+, K9s-K2s, Q8s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s, 42s, 32s, AQo-A9o, KJo, QJo, KTo:0.9, KTs:0.8, KQo:0.7, 54s:0.6, 53s:0.5, JTo:0.4, TT:0.1, 43s:0.1, A8o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, K5s, AKo, 99:0.9, K3s:0.9, K4s:0.7, K2s:0.7, AQs:0.6, AQo:0.2, 55:0.1"
+      "range": "JJ+, AKs, AKo, TT:0.9, 43s:0.9, JTo:0.6, 53s:0.5, 54s:0.4, KQo:0.3, KTs:0.2, KTo:0.1"
      }
     ]
    },
@@ -1216,8 +1217,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 5.419,
-    "regret": 0,
+    "occ": 5.277,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1225,13 +1226,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-44, 22, AJs-A2s, K6s+, Q2s+, J6s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo-A9o, K9o+, QTo+, J9o+, T9o, 33:0.9, AQo:0.8, AQs:0.5, T6s:0.5, K5s:0.1"
+      "range": "99-22, AQs-A2s, KJs+, K9s-K2s, Q5s+, J7s+, T6s+, 97s-95s, 86s-84s, 73s+, 62s+, 52s, 42s, 32s, AQo-A8o, KJo-KTo, QTo, 98s:0.9, 53s:0.9, QJo:0.9, KQo:0.7, JTo:0.7, 87s:0.5, 54s:0.5, T9o:0.5, Q4s:0.4, KTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AKs, K4s-K2s, AKo, K5s:0.9, AQs:0.5, AQo:0.2, 33:0.1"
+      "range": "TT+, AKs, 43s, AKo, KTs:0.9, 87s:0.5, 54s:0.5, T9o:0.5, KQo:0.3, JTo:0.3, 98s:0.1, 53s:0.1, QJo:0.1"
      }
     ]
    },
@@ -1248,7 +1249,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 5.172,
+    "occ": 5.157,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1257,13 +1258,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AJs-A2s, KQs, KTs-K8s, K6s, Q2s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo-A7o, K9o+, QTo, J9o+, T9o, KJs:0.8, QJo:0.8, K5s:0.7, AQs:0.4, K7s:0.3, AQo:0.3, 88:0.1"
+      "range": "99-22, AQs-A2s, KJs+, K9s-K2s, Q2s+, J5s+, T5s+, 97s-93s, 86s-83s, 75s-73s, 64s-62s, 53s-52s, 42s, 32s, AJo-A7o, A5o, KJo+, K9o, QTo+, J4s:0.9, 65s:0.9, JTo:0.9, 98s:0.8, AQo:0.8, T9o:0.8, 72s:0.7, 54s:0.7, T4s:0.6, KTo:0.6, A6o:0.2, 76s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AKs, K4s-K2s, AKo, 88:0.9, K7s:0.7, AQo:0.7, AQs:0.6, K5s:0.3, KJs:0.2, QJo:0.2"
+      "range": "TT+, AKs, KTs, 87s, 43s, AKo, 76s:0.9, KTo:0.4, 54s:0.3, 98s:0.2, AQo:0.2, T9o:0.2, 98o:0.2, 65s:0.1, JTo:0.1"
      }
     ]
    },
@@ -1280,7 +1281,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 5.189,
+    "occ": 5.081,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1289,13 +1290,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A2s, KQs, KTs-K7s, K4s, K2s, Q2s+, JTs, J8s-J2s, T4s+, 95s+, 85s+, 74s+, 64s+, 53s+, 42s+, 32s, AJo-A4o, KTo-K7o, QTo+, JTo, T8o+, 98o, 77:0.9, A3o:0.9, KJo:0.9, J9s:0.7, KJs:0.6, K3s:0.6, KQo:0.5, J9o:0.4, K5s:0.2, K6s:0.1"
+      "range": "88-22, AJs-A2s, KTs+, K8s-K2s, Q2s+, J2s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A2o, KJo-K9o, Q9o+, J9o, T9o, 87o, AQs:0.8, 98o:0.7, K9s:0.6, KQo:0.6, T3s:0.5, 76o:0.4, K8o:0.1, JTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, AQs+, AQo+, K6s:0.9, K5s:0.8, J9o:0.6, KQo:0.5, KJs:0.4, K3s:0.4, J9s:0.3, 77:0.1, KJo:0.1"
+      "range": "99+, AKs, AQo+, JTo:0.9, K9s:0.4, KQo:0.4, 65o:0.4, 98o:0.3, AQs:0.2, 76o:0.2, 54o:0.2"
      }
     ]
    },
@@ -1312,7 +1313,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 5.378,
+    "occ": 5.17,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1321,13 +1322,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-33, ATs-A2s, KJs-KTs, K8s-K2s, QTs+, Q8s-Q2s, JTs, J8s-J2s, T8s-T2s, 93s+, 84s+, 73s+, 63s+, 52s+, 42s+, 32s, AJo-A2o, KJo-K5o, Q9o+, JTo, T8o, 97o+, 87o, 76o, T9o:0.9, K9s:0.8, Q9s:0.6, 86o:0.4, KQo:0.3, 66:0.1"
+      "range": "77-22, AJs-A2s, KJs-K2s, Q2s+, J9s-J2s, T8s-T2s, 97s-92s, 82s+, 75s-72s, 64s-62s, 53s-52s, 42s, 32s, AJo-A2o, KJo-K7o, Q8o+, J9o-J8o, T8o+, 98o, 87o, 76o, 65o, 54o:0.9, T9s:0.6, JTo:0.4, 65s:0.2, 76s:0.1, 43s:0.1, KQo:0.1, 97o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "77+, 22, AJs+, KQs, J9s, T9s, AQo+, J9o, 66:0.9, KQo:0.7, Q9s:0.4, K9s:0.2, T9o:0.1"
+      "range": "88+, AQs+, KQs, JTs, 98s, 54s, AQo+, 76s:0.9, 43s:0.9, KQo:0.9, 65s:0.8, JTo:0.6, T9s:0.4, 54o:0.1"
      }
     ]
    },
@@ -1344,7 +1345,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 6.005,
+    "occ": 5.845,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1353,13 +1354,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33, A9s-A2s, KTs, K7s-K2s, QTs, Q7s-Q2s, JTs, J8s-J2s, T7s-T2s, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, ATo-A2o, KJo-K2o, Q8o+, JTo, T8o, 97o+, 86o+, 75o+, 65o, 54o, K9s:0.9, Q8s:0.9, J9o:0.9, 72s:0.8, J8o:0.8, KJs:0.6, 22:0.5, QJs:0.5, K8s:0.3, Q7o:0.3, T9o:0.3, ATs:0.2, 44:0.1, Q9s:0.1"
+      "range": "66-22, A9s, A7s-A2s, KJs-K2s, QTs-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, ATo-A2o, KJo-K4o, QTo-Q6o, J9o-J7o, T7o+, 97o, 86o+, 75o+, 64o+, 53o+, 43o, ATs:0.9, 98o:0.9, A8s:0.8, QJo:0.8, K3o:0.7, JTo:0.7, 97s:0.6, 65s:0.3, J9s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "55+, AJs+, KQs, J9s, T8s+, AJo+, KQo, 44:0.9, Q9s:0.9, ATs:0.8, K8s:0.7, T9o:0.7, 22:0.5, QJs:0.5, KJs:0.4, K9s:0.1, Q8s:0.1, J9o:0.1"
+      "range": "77+, AJs+, KQs, QJs, JTs, T8s+, 98s, 87s, 76s, 54s, AJo+, KQo, J9s:0.8, 65s:0.7, 97s:0.4, JTo:0.3, A8s:0.2, QJo:0.2, ATs:0.1, 98o:0.1"
      }
     ]
    },
@@ -1376,7 +1377,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 7.044,
+    "occ": 6.752,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -1385,13 +1386,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A8s, A6s, A3s-A2s, KTs, K4s-K2s, QTs, Q8s-Q2s, JTs, J8s-J2s, T7s-T2s, 96s-92s, 86s-82s, 72s+, 62s+, 52s+, 42s+, 32s, A9o-A2o, KTo-K2o, QTo-Q2o, J5o+, T7o, 97o, 86o+, 75o+, 64o+, 53o+, T8o+:0.8, A4s:0.7, 98o:0.7, A7s:0.6, Q9s:0.5, QJo:0.4, K5s:0.3, A9s:0.2, K8s:0.2, K6s:0.2, A5s:0.1"
+      "range": "44-22, A8s-A6s, A3s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T6s-T2s, 96s-92s, 85s-82s, 74s-72s, 64s-62s, 53s-52s, 42s+, 32s, A9o-A2o, KTo-K2o, QTo-Q2o, J4o+, T8o-T6o, 95o+, 85o+, 74o+, 64o+, 53o+, 43o, T7s:0.9, A4s:0.8, 63o:0.8, T9o:0.5, 42o:0.5, KJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "22+, ATs+, KJs+, K9s, K7s, QJs, J9s, T8s+, 97s+, 87s, ATo+, KJo+, A5s:0.9, A9s:0.8, K8s:0.8, K6s:0.8, K5s:0.7, QJo:0.6, Q9s:0.5, A7s:0.4, A4s:0.3, 98o:0.3, T8o+:0.2"
+      "range": "55+, A9s+, A5s, KTs+, QTs+, JTs, T8s+, 97s+, 86s+, 75s+, 65s, 54s, ATo+, KQo, QJo, KJo:0.8, T9o:0.5, A4s:0.2, T7s:0.1"
      }
     ]
    },
@@ -1408,8 +1409,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3",
     "reachPct": 100,
-    "occ": 3.1,
-    "regret": 0.0003,
+    "occ": 2.809,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1417,13 +1418,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A8s-A2s, KTs-K2s, Q2s+, J2s+, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A6o, A4o-A2o, KTo-K6o, Q6o+, J8o-J6o, T7o, 97o+, 86o+, 75o, 64o+, 53o+, 43o, K3o-K2o:0.9, Q3o:0.9, JTo:0.9, 96o:0.8, A5o:0.7, T6o:0.7, K5o:0.6, J5o:0.6, Q2o:0.5, KJs:0.4, KJo:0.4, 76o:0.4, T9s:0.3, Q4o:0.3, J9o:0.3, K4o:0.1"
+      "range": "55-22, A7s-A6s, A4s-A2s, K9s-K7s, K4s-K2s, QTs-Q2s, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 53s-52s, 42s+, 32s, A7o-A2o, K9o-K2o, Q9o-Q2o, J9o-J2o, T8o-T6o, T4o-T3o, 97o-95o, 84o+, 75o, 65o, 52o, 32o, 74o:0.9, 53o:0.9, 94o:0.8, QTo:0.7, 98o:0.7, 76o:0.7, 43o:0.7, K6s:0.6, A8o:0.6, KTo:0.6, 63o:0.6, 54o:0.6, 54s:0.4, 64o:0.4, A5s:0.3, K5s:0.3, JTo:0.3, T5o:0.3, T2o:0.3, 42o:0.3, QJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "22+, A9s+, KQs, A9o+, KQo, Q5o, T8o+, K4o:0.9, T9s:0.7, Q4o:0.7, J9o:0.7, KJs:0.6, KJo:0.6, 76o:0.6, K5o:0.4, J5o:0.4, A5o:0.3, T6o:0.3, K3o-K2o:0.1, Q3o:0.1, JTo:0.1, T5o:0.1"
+      "range": "66+, A8s+, KTs+, A9o+, KJo+, QJo, T9o, QJs:0.9, A5s:0.7, K5s:0.7, JTo:0.7, T5o:0.7, 42o:0.7, 54s:0.6, 64o:0.6, K6s:0.4, A8o:0.4, KTo:0.4, 63o:0.4, 54o:0.4, QTo:0.3, 98o:0.3, 76o:0.3, 43o:0.3, 74o:0.1, 53o:0.1"
      }
     ]
    },
@@ -1442,9 +1443,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.781,
-    "regret": 0.0036,
+    "reachPct": 14.3,
+    "occ": 0.705,
+    "regret": 0.0027,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1452,19 +1453,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, KJs+, JTs, AQo, AKs:0.6, AJs:0.5, QQ:0.3, AKo:0.3, JJ:0.2, 66:0.1"
+      "range": "QQ, TT-77, AQs, KQs, JJ:0.9, KJs:0.8, AKs:0.7, ATs:0.7, 66:0.6, AJs:0.6, AQo:0.5, AKo:0.2, JTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, ATs:0.9, JJ:0.8, AA:0.7, QQ:0.7, AKo:0.6, AJs:0.5, AKs:0.4, 66:0.1"
+      "range": "KK, JTs:0.9, AA:0.5, AKo:0.4, AKs:0.3, JJ:0.1, KJs:0.1, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, A5s:0.6, AA:0.3, ATs:0.1, AKo:0.1"
+      "range": "A5s, AA:0.5, AJs:0.4, AKo:0.4, A8s:0.2"
      }
     ]
    },
@@ -1483,9 +1484,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.739,
-    "regret": 0.005,
+    "reachPct": 14.3,
+    "occ": 0.642,
+    "regret": 0.0034,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1493,19 +1494,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, KQs, AQo, KJs:0.9, JTs:0.9, JJ:0.5, AKs:0.5, AJs:0.5, AKo:0.3, 77-66:0.2, ATs:0.2, QJs:0.2, QQ:0.1"
+      "range": "QQ, TT-66, AQs, KQs, KJs:0.9, JJ:0.8, AKs:0.7, AJs:0.7, ATs:0.6, AQo:0.6, JTs:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, QQ:0.9, ATs:0.8, AA:0.7, AKo:0.6, JJ:0.5, AKs:0.5, AJs:0.5, KJs:0.1, QJs:0.1, JTs:0.1"
+      "range": "KK, JTs:0.9, AA:0.5, AKo:0.5, AKs:0.3, JJ:0.2, QJs:0.2, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, A5s:0.8, AA:0.3, AKo:0.1"
+      "range": "A5s, AA:0.5, AKo:0.4, AJs:0.3, A8s:0.1"
      }
     ]
    },
@@ -1524,9 +1525,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.671,
-    "regret": 0.0041,
+    "reachPct": 14.3,
+    "occ": 0.581,
+    "regret": 0.0034,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1534,19 +1535,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, KJs+, AQo, QJs:0.9, JTs:0.9, AKs:0.7, JJ:0.6, 77:0.6, AJs:0.6, 66:0.2, T9s:0.2, AKo:0.2, ATs:0.1, QTs:0.1"
+      "range": "QQ, TT-66, AQs, KQs, KJs:0.9, JJ:0.7, AJs:0.7, AQo:0.7, AKs:0.6, ATs:0.3, JTs:0.3, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK-QQ, ATs:0.9, AA:0.7, AKo:0.6, JJ:0.4, AJs:0.4, AKs:0.3, QTs+:0.1, JTs:0.1"
+      "range": "KK, JTs:0.7, AA:0.6, QJs:0.5, AKo:0.5, AKs:0.4, JJ:0.3, ATs:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, A5s:0.9, AA:0.3, AKo:0.2"
+      "range": "A5s:0.9, AA:0.4, AKo:0.4, AJs:0.3, A8s:0.1"
      }
     ]
    },
@@ -1565,9 +1566,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.661,
-    "regret": 0.0055,
+    "reachPct": 14.3,
+    "occ": 0.533,
+    "regret": 0.0026,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1575,19 +1576,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, KJs+, JTs, 77:0.9, AJs:0.9, AQo:0.9, JJ:0.8, AKs:0.8, ATs:0.5, QJs:0.5, QTs:0.3, 66:0.2, T9s:0.2, AKo:0.2, J9s:0.1"
+      "range": "QQ-66, AQs, KJs+, AJs:0.7, ATs:0.6, AQo:0.6, JTs:0.5, AKs:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK-QQ, AA:0.5, ATs:0.5, AKo:0.5, KTs:0.4, QJs:0.4, JJ:0.2, AKs:0.2, QTs:0.1, AQo:0.1"
+      "range": "KK, QJs:0.7, AKs:0.6, AA:0.5, JTs:0.5, AKo:0.5, ATs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, A5s:0.9, AA:0.5, AKo:0.3, AJs:0.1"
+      "range": "A5s, AA:0.5, AKo:0.5, AJs:0.3, ATs:0.1, A8s:0.1"
      }
     ]
    },
@@ -1606,9 +1607,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.658,
-    "regret": 0.0026,
+    "reachPct": 14.3,
+    "occ": 0.482,
+    "regret": 0.0028,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1616,19 +1617,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs, ATs, KJs+, JTs, AJs:0.9, JJ:0.8, QTs:0.7, AQo:0.7, AKs:0.6, T9s:0.6, QJs:0.5, 66:0.4, AKo:0.2"
+      "range": "JJ-66, AQs-ATs, KQs, JTs:0.9, QQ:0.8, KJs:0.5, 87s:0.5, AQo:0.4, T9s:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, KK:0.9, AA:0.5, QJs:0.5, AKs:0.4, AQo+:0.3, JJ:0.2, KTs:0.2, QTs:0.2"
+      "range": "KK, QJs:0.9, AKo:0.7, AKs:0.6, AA:0.5, QQ:0.2, AQo:0.2, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.5, AKo:0.5, KK:0.1, AJs:0.1"
+      "range": "A5s, AA:0.5, AKs:0.4, A8s:0.3, AKo:0.3"
      }
     ]
    },
@@ -1647,9 +1648,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.577,
-    "regret": 0.0014,
+    "reachPct": 14.3,
+    "occ": 0.453,
+    "regret": 0.0023,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1657,19 +1658,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs, ATs, KJs+, JTs, 66:0.9, AJs:0.8, AKs:0.7, T9s:0.7, QTs:0.6, AQo:0.6, QJs:0.5, AKo:0.2"
+      "range": "QQ-66, AQs-AJs, KQs, 87s, ATs:0.9, JTs:0.8, KJs:0.7, T9s:0.6, AKs:0.3, AQo:0.3, 98s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, KK:0.8, QJs:0.5, AA:0.4, AQo:0.4, AKs:0.3, AKo:0.2, KTs:0.1, QTs:0.1"
+      "range": "KK, QJs:0.7, AKo:0.4, AKs:0.2, AQo:0.2, AA:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.6, AKo:0.6, KK:0.2, AJs:0.2"
+      "range": "AA:0.9, A5s:0.9, A8s:0.6, AKo:0.6, AKs:0.5, ATs:0.1, AQo:0.1"
      }
     ]
    },
@@ -1683,34 +1684,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.383,
-    "regret": 0.0032,
-    "confidence": "mid",
+    "reachPct": 14.3,
+    "occ": 0.332,
+    "regret": 0.011,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, JTs:0.9, AQo:0.8, AJs:0.5, 66:0.4, QJs:0.4, 77:0.3, AKo:0.3"
+      "range": "QQ-66, KQs, AQs:0.9, KK:0.8, AJs:0.8, AKs:0.7, ATs:0.3, AKo:0.3, KJs:0.2, QJs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK, AKo:0.4, AJs:0.2, AA:0.1"
+      "range": "KK:0.2, AA:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, A8s:0.6, AKo:0.3, AJs-ATs:0.1"
+      "range": "AA:0.9, A5s:0.8, AKo:0.6, A8s:0.4, AKs:0.3, AJs:0.2, AQs:0.1, ATs-A9s:0.1"
      }
     ]
    },
@@ -1729,9 +1730,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.1,
-    "occ": 0.306,
-    "regret": 0.002,
+    "reachPct": 14.3,
+    "occ": 0.268,
+    "regret": 0.0085,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -1739,19 +1740,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, QJs, AJs:0.9, ATs:0.8, AQo:0.8, KK:0.5, 66:0.4, AKo:0.4, 77:0.1"
+      "range": "QQ-88, AQs, KQs, QJs, KK:0.8, AJs:0.8, 77:0.7, ATs:0.7, AKs:0.6, KJs:0.5, 66:0.3, AKo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK:0.5, AKo:0.3, AA:0.1"
+      "range": "KK:0.2, AA:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, A8s:0.7, AKo:0.3, AJs-ATs:0.1"
+      "range": "AA:0.9, A5s:0.8, AKo:0.7, AKs:0.4, AJs:0.2, A8s:0.2, ATs:0.1"
      }
     ]
    },
@@ -1770,9 +1771,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.846,
-    "regret": 0.0025,
+    "reachPct": 16.4,
+    "occ": 0.714,
+    "regret": 0.0023,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1780,19 +1781,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs-AJs, KJs+, AQo, JTs:0.9, 77:0.8, ATs:0.8, AKs:0.6, T9s:0.6, JJ:0.4, QJs:0.4, QTs:0.2, J9s:0.2, AKo:0.2"
+      "range": "QQ, 99-66, AQs+, KQs, KJs:0.9, AQo:0.9, TT:0.8, ATs:0.8, JJ:0.5, AJs:0.5, JTs:0.5, QJs:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK-QQ, AA:0.8, KTs:0.8, AKo:0.8, JJ:0.6, AKs:0.4, QJs:0.3, ATs:0.2, A5s:0.1, QTs:0.1, JTs:0.1"
+      "range": "KK, QJs:0.6, AKo:0.6, AA:0.5, JJ:0.5, JTs:0.5, TT:0.2, AJs-ATs:0.2, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.6, AA:0.2"
+      "range": "A5s, AA:0.5, AKo:0.4, AJs:0.3"
      }
     ]
    },
@@ -1811,9 +1812,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.837,
-    "regret": 0.0015,
+    "reachPct": 16.4,
+    "occ": 0.66,
+    "regret": 0.0042,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1821,19 +1822,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-77, AQs-ATs, KJs+, QTs, JTs, TT:0.9, T9s:0.9, AQo:0.9, QJs:0.8, JJ:0.5, AKs:0.5, J9s:0.3, AKo:0.3, 66:0.1"
+      "range": "TT-66, AQs, ATs, KJs+, QQ:0.9, AQo:0.8, AKs:0.6, JJ:0.5, AJs:0.5, JTs:0.5, T9s:0.5, QJs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK-QQ, KTs:0.9, AA:0.7, AKo:0.6, JJ:0.5, AKs:0.5, QJs:0.2, TT:0.1, A5s:0.1, AQo-AJo:0.1"
+      "range": "KK, QJs:0.9, AA:0.6, AKo:0.6, JJ:0.5, JTs:0.5, AKs:0.4, AJs:0.3, QQ:0.1, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.9, AA:0.3, AKo:0.1"
+      "range": "A5s, AA:0.4, AKo:0.4, AJs:0.2"
      }
     ]
    },
@@ -1852,9 +1853,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.78,
-    "regret": 0.0015,
+    "reachPct": 16.4,
+    "occ": 0.648,
+    "regret": 0.0026,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1862,19 +1863,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-ATs, KJs+, QTs, JTs, T9s, AQo:0.9, QJs:0.8, J9s:0.6, AKs:0.5, JJ:0.4, 66:0.3, KQo:0.3, AKo:0.1"
+      "range": "TT-66, AQs-ATs, KJs+, JTs:0.8, T9s:0.8, QQ-JJ:0.7, AQo:0.6, AKs:0.5, A9s:0.1, QJs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, KTs:0.9, KK:0.8, AA:0.7, JJ:0.6, AKo:0.6, AKs:0.5, QJs:0.2, A9s:0.1, AQo:0.1"
+      "range": "KK, QJs:0.9, AKs:0.5, AA:0.4, AKo:0.4, QQ-JJ:0.3, AQo:0.3, JTs:0.2, A9s:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.3, AKo:0.3, KK:0.2"
+      "range": "A5s:0.8, AA:0.6, AKo:0.6, AQo:0.1"
      }
     ]
    },
@@ -1893,9 +1894,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.682,
-    "regret": 0.0011,
+    "reachPct": 16.4,
+    "occ": 0.616,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1903,19 +1904,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-ATs, KJs+, QTs, JTs, T9s, J9s:0.9, AQo:0.9, 66:0.8, JJ:0.5, QJs:0.5, KQo:0.5, AKs:0.4, AKo:0.1"
+      "range": "TT-66, AQs-ATs, KQs, T9s, KJs:0.9, JTs:0.9, JJ:0.8, QQ:0.6, AQo:0.4, A9s:0.2, 98s:0.2, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, KK+:0.7, KTs:0.7, AKs:0.6, JJ:0.5, QJs:0.5, AKo:0.5, A9s-A8s:0.1, AQo:0.1"
+      "range": "QJs, KK:0.9, AKs:0.8, AQo:0.5, AA:0.4, QQ:0.4, AKo:0.3, JJ:0.2, KJs-KTs:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AKo:0.4, KK+:0.3"
+      "range": "A5s:0.9, AKo:0.7, AA:0.6, AKs:0.2, KK:0.1, AQo:0.1"
      }
     ]
    },
@@ -1934,9 +1935,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.679,
-    "regret": 0.0011,
+    "reachPct": 16.4,
+    "occ": 0.615,
+    "regret": 0.0023,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -1944,19 +1945,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs, J9s+, T9s, AQo:0.7, QJs:0.6, 55:0.5, JJ:0.4, KQo:0.3, AKs:0.2"
+      "range": "JJ-66, AQs-AJs, KJs+, JTs, 87s, 76s, ATs:0.9, T9s:0.9, 98s:0.5, AQo:0.5, QJs:0.4, QQ:0.3, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, AA:0.7, AKs:0.7, JJ:0.6, KK:0.5, KTs:0.5, QJs:0.4, AQo+:0.3"
+      "range": "KK-QQ:0.7, AKs:0.7, QJs:0.6, AQo:0.5, AA:0.4, KTs:0.4, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AKo:0.7, KK:0.5, AA:0.3, AKs:0.1"
+      "range": "A5s, AKo:0.8, AA:0.6, KK:0.3, AKs:0.3, ATs:0.1, A8s:0.1, AJo:0.1"
      }
     ]
    },
@@ -1970,34 +1971,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.421,
-    "regret": 0.001,
-    "confidence": "mid",
+    "reachPct": 16.4,
+    "occ": 0.401,
+    "regret": 0.0042,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, QJs, JTs, AQo, AJs:0.8, 66:0.7, 77:0.6, ATs:0.4, QTs:0.4, AKo:0.1"
+      "range": "QQ-66, AQs+, KJs+, JTs:0.8, KK:0.7, AJs:0.7, AQo:0.7, ATs:0.4, QJs:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK, AKo:0.4, AA:0.1, AJs:0.1"
+      "range": "KK:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, AKo:0.5, AJs-ATs:0.1, A8s:0.1"
+      "range": "AA, A5s, AKo:0.9, AJs:0.3, A8s:0.3, KK:0.2, ATs:0.1"
      }
     ]
    },
@@ -2011,34 +2012,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.6,
-    "occ": 0.293,
-    "regret": 0.0033,
-    "confidence": "mid",
+    "reachPct": 16.4,
+    "occ": 0.291,
+    "regret": 0.0008,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, QJs, AQo, ATs:0.9, AJs:0.8, KTs:0.8, 66:0.5, JTs:0.5, 77:0.4, KK:0.3, AKo:0.3"
+      "range": "QQ-77, AQs+, ATs, KJs+, QJs, KK:0.9, AJs:0.7, 66:0.6, JTs:0.6, AQo:0.4, QTs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK:0.7, AKo:0.4, AA:0.1, AJs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, A8s:0.4, AKo:0.3, AJs-ATs:0.1"
+      "range": "AA, AKo, AJs:0.3, KK:0.1, A5s:0.1, AQo:0.1"
      }
     ]
    },
@@ -2057,9 +2058,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 1.012,
-    "regret": 0.0007,
+    "reachPct": 18.4,
+    "occ": 0.902,
+    "regret": 0.0016,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2067,19 +2068,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs-ATs, KJs+, QTs+, J9s+, T9s, TT:0.9, 55:0.9, AQo:0.8, KQo:0.5, T8s:0.3, JJ:0.1"
+      "range": "TT-66, AQs-ATs, KJs+, JTs, T9s:0.8, QTs:0.7, AQo:0.7, A9s:0.4, JJ:0.3, AJo:0.2, QQ:0.1, AKs:0.1, QJs:0.1, 76s:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ, AKs, KTs, AA:0.9, JJ:0.9, KK:0.6, AKo:0.5, AQo:0.2, TT:0.1, KQo:0.1"
+      "range": "KK+, KTs, QQ:0.9, AKs:0.9, QJs:0.9, AKo:0.8, JJ:0.7, AQo:0.3, T9s:0.2, QTs:0.1, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.6, AKo:0.5, KK:0.4, AA:0.1"
+      "range": "A5s:0.2, AKo:0.1"
      }
     ]
    },
@@ -2098,9 +2099,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 0.933,
-    "regret": 0.0056,
+    "reachPct": 18.4,
+    "occ": 0.842,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2108,19 +2109,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs+, J9s+, T8s+, 98s:0.8, AQo:0.8, KQo:0.8, 55:0.5"
+      "range": "TT-66, AQs-ATs, KJs+, T9s, A9s:0.9, QTs:0.9, JTs:0.9, 76s:0.6, AQo:0.6, JJ:0.4, AJo:0.3, 98s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ-JJ, AKs, KTs, AA:0.9, AKo:0.4, KK:0.2, AQo:0.2, K9s:0.1"
+      "range": "QQ, AKs, KTs, QJs, AA:0.9, KK:0.7, JJ:0.6, AKo:0.6, AQo:0.4, QTs:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.8, A5s:0.8, AKo:0.6, AA:0.1, 55:0.1"
+      "range": "A5s:0.7, AKo:0.4, KK:0.3, AA:0.1"
      }
     ]
    },
@@ -2139,9 +2140,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 0.848,
-    "regret": 0.0022,
+    "reachPct": 18.4,
+    "occ": 0.813,
+    "regret": 0.0012,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2149,19 +2150,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs+, J9s+, T8s+, AQo:0.8, KQo:0.7, 55:0.4, AJo:0.3, A9s:0.2, KTs:0.2, 98s:0.2"
+      "range": "TT-66, AQs-ATs, KQs, QTs, JTs, T9s, A9s:0.8, KJs:0.8, 76s:0.8, 98s:0.6, 87s:0.6, JJ:0.5, AQo-AJo:0.5, QJs:0.2, J9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ-JJ, AKs, AA:0.9, KTs:0.8, KK:0.5, AKo:0.4, K9s:0.2, AQo:0.2, AJo:0.1, KQo:0.1"
+      "range": "QQ, AKs, KTs, AA:0.8, QJs:0.8, KK:0.6, JJ:0.5, AQo+:0.5, KJs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.6, AKo:0.6, KK:0.5, AA:0.1"
+      "range": "A5s, AKo:0.5, KK:0.4, AA:0.2"
      }
     ]
    },
@@ -2180,9 +2181,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 0.781,
-    "regret": 0.0026,
+    "reachPct": 18.4,
+    "occ": 0.741,
+    "regret": 0.0017,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2190,19 +2191,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs+, J9s+, T9s, 98s, 55:0.8, T8s:0.7, KTs:0.6, AQo:0.6, AJo:0.4, KQo:0.3, K9s:0.2"
+      "range": "TT-66, AQs-ATs, KQs, JTs, T9s, 98s, 87s, 76s, JJ:0.8, QJs:0.7, A9s:0.6, KJs:0.6, AJo:0.6, QTs:0.5, AQo:0.5, J9s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ-JJ, AKs, AA:0.9, KTs:0.4, AQo:0.4, K9s:0.2, KK:0.1, 55:0.1, AKo:0.1, KQo:0.1"
+      "range": "QQ, AKs, KTs, AA:0.6, AQo:0.5, KK:0.4, KJs:0.4, QJs:0.3, JJ:0.2, AKo:0.2, J9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.9, A5s:0.9, AKo:0.9, AA:0.1, 55:0.1"
+      "range": "A5s, AKo:0.8, KK:0.6, AA:0.4, A7s:0.3"
      }
     ]
    },
@@ -2221,9 +2222,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 0.429,
-    "regret": 0.0018,
+    "reachPct": 18.4,
+    "occ": 0.427,
+    "regret": 0.0127,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -2231,19 +2232,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, QTs, JTs, AQo, ATs:0.9, QJs:0.9, T9s:0.9, 66:0.8, 77:0.7, AJs:0.6, J9s:0.3, 55:0.2, KTs:0.1, AKo:0.1"
+      "range": "QQ-66, AQs, KJs+, JTs, AQo:0.9, AKs:0.8, AJs-ATs:0.8, QJs:0.5, T9s:0.5, 76s:0.4, AKo:0.3, KK:0.2, 87s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK:0.6, AJs:0.2, AKo:0.2, AA:0.1, QJs:0.1"
+      "range": "KK:0.7, KTs:0.3, QJs:0.3, AQo+:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, AKo:0.7, A7s:0.5, KK:0.4, AJs:0.2, ATs:0.1"
+      "range": "AA, A5s:0.9, AKo:0.6, A7s:0.3, AKs:0.2, AJs:0.2, KK:0.1, ATs:0.1, A8s:0.1"
      }
     ]
    },
@@ -2257,34 +2258,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.6,
-    "occ": 0.337,
-    "regret": 0.0031,
-    "confidence": "mid",
+    "reachPct": 18.4,
+    "occ": 0.301,
+    "regret": 0.0029,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KTs+, QTs+, JTs, AJs-ATs:0.9, AQo:0.9, 77-66:0.7, K9s:0.4, T9s:0.4, AKo:0.3, J9s:0.1"
+      "range": "QQ-66, AQs, ATs, KJs+, QJs, JTs, AQo:0.7, KK:0.6, AJs:0.6, A9s:0.5, QTs:0.3, KTs:0.2, KQo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK:0.9, AKo:0.4, AA:0.1, AQo:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, A7s:0.4, AKo:0.3, KK:0.1, AJs-ATs:0.1"
+      "range": "AA, AKs, AKo, A5s:0.6, KK:0.4, AJs:0.4, AQo:0.1"
      }
     ]
    },
@@ -2304,8 +2305,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-lj:open"
     ],
     "reachPct": 21.7,
-    "occ": 1.121,
-    "regret": 0.0015,
+    "occ": 1.156,
+    "regret": 0.0014,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2313,19 +2314,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs-ATs, KTs+, QTs+, J9s+, T8s+, 98s, 55:0.8, 87s:0.7, AQo:0.7, AJo:0.6, KQo:0.6, A9s:0.3, TT:0.2, K9s:0.2"
+      "range": "99-55, AQs-A9s, KQs, QTs+, JTs, T9s, 98s, AJo, TT:0.8, KJs:0.8, T8s:0.6, A8s:0.3, AQo:0.3, J9s:0.2, 87s:0.2, JJ:0.1, 76s:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, QQ-JJ, AKs, TT:0.8, K9s:0.6, AQo+:0.3, KQo:0.3, AJo:0.2"
+      "range": "AA, QQ, AKs, KTs, JJ:0.9, AQo:0.7, J9s:0.5, KK:0.4, TT:0.2, KJs:0.2, AKo:0.2, K9s:0.1, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, AKo:0.7, A4s:0.4, 55:0.2, A5s:0.1"
+      "range": "AKo:0.8, KK:0.6, A5s:0.2"
      }
     ]
    },
@@ -2345,8 +2346,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-lj:open"
     ],
     "reachPct": 21.7,
-    "occ": 0.985,
-    "regret": 0.0013,
+    "occ": 0.995,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2354,19 +2355,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-ATs, KTs+, QTs+, J9s+, T8s+, 98s, 87s, K9s:0.8, AJo:0.8, AQo:0.7, A9s:0.4, KQo:0.4, TT:0.2"
+      "range": "TT-66, AQs-A9s, KQs, QTs+, JTs, T9s, 98s, AJo, 55:0.9, T8s:0.9, 76s:0.9, 87s:0.8, A8s:0.7, KTs:0.5, KJs:0.4, J9s:0.3, AQo:0.3, JJ:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, QQ-JJ, AKs, TT:0.8, KQo:0.6, AQo:0.3, K9s:0.2, AKo:0.2, AJo:0.2"
+      "range": "AA, QQ, AKs, JJ:0.9, J9s:0.7, AQo:0.7, KJs:0.6, KK:0.5, KTs:0.5, AKo:0.4, KQo:0.3, 55:0.1, K9s:0.1, T8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, AKo:0.8, A4s:0.5, 44:0.1"
+      "range": "AKo:0.6, KK:0.5, A5s:0.1"
      }
     ]
    },
@@ -2386,8 +2387,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-lj:open"
     ],
     "reachPct": 21.7,
-    "occ": 0.909,
-    "regret": 0.0008,
+    "occ": 0.919,
+    "regret": 0.0016,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2395,19 +2396,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-ATs, KTs+, QTs+, J9s+, T8s+, 97s+, 87s, AJo:0.9, KQo:0.6, K9s:0.5, AQo:0.5, TT:0.3, 44:0.1"
+      "range": "TT-55, AQs-A9s, KQs, QTs+, JTs, T8s+, 98s, 87s, 76s, AJo, J9s:0.8, KTs:0.7, A8s:0.6, KJs:0.5, AQo:0.3, JJ:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "JJ, AKs, QQ:0.9, AA:0.7, TT:0.7, K9s:0.5, AQo:0.5, KQo:0.4"
+      "range": "AKs, QQ-JJ:0.9, AQo:0.7, AA:0.6, KJs:0.5, KK:0.4, KQo:0.4, KTs:0.3, J9s:0.2, AKo:0.2, K9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, AKo, A5s:0.7, AA:0.3, A4s:0.2, QQ:0.1, 44:0.1"
+      "range": "A5s:0.9, AKo:0.8, KK:0.6, AA:0.4, QQ:0.1"
      }
     ]
    },
@@ -2427,7 +2428,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-lj:open"
     ],
     "reachPct": 21.7,
-    "occ": 0.567,
+    "occ": 0.562,
     "regret": 0.0005,
     "confidence": "low",
     "move": 0,
@@ -2436,19 +2437,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, ATs+, KTs+, QTs+, J9s+, T9s, 98s, AQo, 55:0.9, T8s:0.7, AJo:0.2, 44:0.1, KQo:0.1"
+      "range": "QQ-55, AJs+, KJs+, JTs, T9s, 98s, AQo, ATs:0.9, QJs:0.9, 87s:0.7, A9s:0.4, KTs:0.4, QTs:0.4, 76s:0.4, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, KTs:0.3, QJs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A4s, AKo, 55:0.1"
+      "range": "AA, A5s, AKo:0.9, KK:0.6, A6s:0.3, ATs:0.1"
      }
     ]
    },
@@ -2468,7 +2469,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-lj:open"
     ],
     "reachPct": 21.7,
-    "occ": 0.395,
+    "occ": 0.366,
     "regret": 0.001,
     "confidence": "low",
     "move": 0,
@@ -2477,19 +2478,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, ATs+, KTs+, QTs+, J9s+, AQo, K9s:0.8, 55:0.7, KQo:0.4, T9s:0.1"
+      "range": "QQ-66, AQs, KTs+, QTs+, JTs, AQo, ATs:0.9, Q9s:0.9, T9s:0.9, 55:0.7, AJs:0.7, A9s:0.7, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK:0.3, AKo:0.1, KQo:0.1"
+      "range": "KK:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s:0.9, AKo:0.9, A4s:0.8, KK:0.7"
+      "range": "AA, AKs, A5s, AKo, KK:0.9, AJs:0.3, A8s:0.2, ATs:0.1, A7s:0.1"
      }
     ]
    },
@@ -2507,7 +2508,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.159,
+    "occ": 1.032,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -2516,7 +2517,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.7"
+      "range": "KK+, AKs, AKo, A4s:0.9, A5s:0.6"
      }
     ]
    },
@@ -2535,9 +2536,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.8,
-    "occ": 1.45,
-    "regret": 0.0005,
+    "reachPct": 26,
+    "occ": 1.359,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2545,19 +2546,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AQs-A8s, K8s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, AJo, 88:0.7, KQo:0.6"
+      "range": "88-55, AQs-A8s, KQs, QTs+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, AJo, KTs:0.9, Q9s:0.9, 99:0.7, K9s:0.7, KJs:0.6, KQo:0.4, J8s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, JJ-99, AKs, AQo, KK:0.6, QQ:0.4, AKo:0.4, KJo+:0.4, 88:0.3"
+      "range": "AA, QQ-TT, AKs, AQo, KQo:0.6, AKo:0.5, KJs:0.4, 99:0.3, K9s:0.3, KK:0.1, KTs:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, QQ:0.6, AKo:0.6, KK:0.4, A4s:0.2"
+      "range": "KK:0.9, A5s-A4s:0.6, AKo:0.5"
      }
     ]
    },
@@ -2576,9 +2577,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.8,
-    "occ": 1.293,
-    "regret": 0.0005,
+    "reachPct": 26,
+    "occ": 1.213,
+    "regret": 0.0011,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2586,19 +2587,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AQs-A9s, K8s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, AJo, 88:0.8, KQo:0.7, A8s:0.6, K7s:0.4, 33:0.3, AQo:0.1"
+      "range": "88-55, AQs-A8s, K9s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, 54s, AJo, J8s:0.9, 99:0.6, ATo:0.5, TT:0.2, KQo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, JJ-99, AKs, AQo:0.9, KK:0.5, AKo:0.4, KJo:0.4, QQ:0.3, KQo:0.3, 88:0.2"
+      "range": "AA, QQ-JJ, AKs, AQo, TT:0.8, KQo:0.8, AKo:0.5, 99:0.4, J8s:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, QQ:0.7, A4s:0.7, AKo:0.6, KK:0.5"
+      "range": "KK, A5s, AKo:0.5, A4s:0.3"
      }
     ]
    },
@@ -2612,34 +2613,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.8,
-    "occ": 0.78,
-    "regret": 0.0008,
-    "confidence": "mid",
+    "reachPct": 26,
+    "occ": 0.744,
+    "regret": 0.0005,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs+, QTs+, J9s+, T8s+, 97s+, 86s+, 76s, AQo, K9s:0.9, AJo:0.9, 44:0.8, KQo:0.8, A9s:0.5, KTs:0.4, Q9s:0.1"
+      "range": "JJ-55, AQs-A9s, KJs+, QTs+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, AQo-AJo, QQ:0.9, KTs:0.9, KQo:0.3, A8s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "QQ:0.9, AKs:0.8, AA:0.6, KTs:0.6, AKo:0.2, KQo:0.2, K9s:0.1"
+      "range": "AKs:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s:0.9, AKo:0.8, AA:0.4, AKs:0.2, QQ:0.1, 44:0.1"
+      "range": "KK+, A5s, AKo, AKs:0.9, A4s:0.6, QQ:0.1"
      }
     ]
    },
@@ -2658,9 +2659,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.8,
-    "occ": 0.531,
-    "regret": 0.0007,
+    "reachPct": 26,
+    "occ": 0.471,
+    "regret": 0.0019,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -2668,7 +2669,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-A9s, K9s+, Q9s+, J9s+, T8s+, AQo, KQo, QQ:0.9, A8s:0.9, AJo:0.8, K8s:0.2, 44:0.1, KJo:0.1"
+      "range": "QQ-55, AQs-A8s, KTs+, Q9s+, J9s+, T9s, 98s, AQo, A7s:0.9, 76s:0.7, KQo:0.7, A5s:0.4, K9s:0.4, AJo:0.4, 87s:0.1"
      },
      {
       "key": "4bet",
@@ -2680,7 +2681,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s, AKo, A4s:0.7, QQ:0.1"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.6"
      }
     ]
    },
@@ -2698,7 +2699,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.129,
+    "occ": 1.005,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -2707,34 +2708,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.8"
-     }
-    ]
-   },
-   {
-    "id": "co-at-utgp2-open-hj-3bet",
-    "kind": "vs3bet",
-    "hero": "CO",
-    "villain": "HJ",
-    "villainSeats": [
-     "UTG+2",
-     "HJ"
-    ],
-    "chip": "UTG+2오픈·HJ3벳",
-    "title": "CO — UTG+2 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · HJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1.043,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.8"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.7"
      }
     ]
    },
@@ -2752,7 +2726,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.265,
+    "occ": 1.307,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -2761,7 +2735,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.1"
      }
     ]
    },
@@ -2780,9 +2754,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
-    "occ": 1.948,
-    "regret": 0.0005,
+    "reachPct": 35.4,
+    "occ": 1.972,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2790,19 +2764,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A6s, KJs+, K9s-K5s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, ATo, KJo, KTs:0.9, 77:0.8, AQs:0.8, QJo:0.8, KQo:0.7, AJo:0.6, J7s:0.5, JTo:0.5, A5s:0.4"
+      "range": "77-44, AJs-A5s, KJs+, K9s-K8s, Q8s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 54s, ATo, QJo, KJo:0.8, AJo:0.7, 88:0.6, KQo:0.4, K7s:0.2, T6s:0.2, KTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, TT-88, AKs, AQo, KK:0.8, JTo:0.5, AJo:0.4, QQ:0.3, AKo:0.3, KQo:0.3, JJ:0.2, 77:0.2, AQs:0.2"
+      "range": "AA, TT-99, AQs+, AQo, KK:0.9, JJ:0.6, KQo:0.6, AKo:0.5, JTo:0.5, 88:0.4, AJo:0.3, QQ:0.2, A9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, JJ:0.8, QQ:0.7, AKo:0.7, A5s:0.6, A3s:0.6, KK:0.2, QJo:0.2, KTs:0.1"
+      "range": "A4s, KTs:0.9, QQ:0.8, A3s:0.6, AKo:0.5, JJ:0.4, KK:0.1"
      }
     ]
    },
@@ -2821,9 +2795,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
-    "occ": 1.118,
-    "regret": 0.001,
+    "reachPct": 35.4,
+    "occ": 1.078,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2831,19 +2805,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-33, AQs-A8s, K6s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, AQo-ATo, KQo:0.8, TT:0.7, J7s:0.5, 22:0.4, A7s:0.3, KJo:0.3, JTo:0.1"
+      "range": "TT-44, AQs-A7s, KTs+, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, AQo-ATo, KQo, K9s:0.9, J7s:0.9, 85s:0.5, JJ:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AA, JJ, AKs, KJo:0.5, QQ:0.4, TT:0.3, AKo:0.3, KQo:0.2, 22:0.1"
+      "range": "AKs, AA:0.7, JJ:0.6, QQ:0.4, KJo:0.4, AKo:0.2, K9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A5s-A4s, AKo:0.7, QQ:0.6"
+      "range": "KK, A5s-A4s, AKo:0.8, QQ:0.6, A3s:0.4, AA:0.3"
      }
     ]
    },
@@ -2857,88 +2831,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
-    "occ": 0.759,
-    "regret": 0.0007,
-    "confidence": "low",
+    "reachPct": 35.4,
+    "occ": 0.708,
+    "regret": 0.0009,
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A7s, K6s+, Q8s+, J9s+, T8s+, 97s+, 87s, 76s, AJo, KQo, AQo:0.9, KJo:0.9, JTo:0.9, JJ:0.7, J8s:0.5, 86s:0.4, QTo:0.4, ATo:0.3, QJo:0.1"
+      "range": "JJ-44, AQs-A5s, K8s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, 54s, AJo, KQo, QJo:0.7, AQo:0.5, K7s:0.4, ATo:0.4, A3s:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AKs:0.4, JJ:0.3, AA:0.2, QQ:0.1, AQo:0.1, KJo:0.1"
+      "range": "AKs, QQ:0.9, AQo:0.5, KJo:0.4, KK+:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A5s-A3s, AKo, QQ:0.9, AA:0.8, AKs:0.6"
-     }
-    ]
-   },
-   {
-    "id": "btn-at-utgp2-open-lj-3bet",
-    "kind": "vs3bet",
-    "hero": "BTN",
-    "villain": "LJ",
-    "villainSeats": [
-     "UTG+2",
-     "LJ"
-    ],
-    "chip": "UTG+2오픈·LJ3벳",
-    "title": "BTN — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · LJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1.099,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.8"
-     }
-    ]
-   },
-   {
-    "id": "btn-at-utgp2-open-hj-3bet",
-    "kind": "vs3bet",
-    "hero": "BTN",
-    "villain": "HJ",
-    "villainSeats": [
-     "UTG+2",
-     "HJ"
-    ],
-    "chip": "UTG+2오픈·HJ3벳",
-    "title": "BTN — UTG+2 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · HJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1.016,
-    "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, AKo, A4s:0.8, A5s:0.7, AQs:0.1, ATs:0.1, A3s:0.1"
+      "range": "A4s, AKo, KK+:0.9, A3s:0.7, QQ:0.1"
      }
     ]
    },
@@ -2956,8 +2876,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.231,
-    "regret": 0,
+    "occ": 1.271,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -2983,7 +2903,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.083,
+    "occ": 1.095,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -2992,7 +2912,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.2"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.1"
      }
     ]
    },
@@ -3010,8 +2930,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.62,
-    "regret": 0,
+    "occ": 1.518,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3019,7 +2939,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AQs+, AKo, A4s:0.5, 66:0.4, A5s:0.4"
+      "range": "QQ+, AKs, A4s, AKo, A5s:0.8, 66:0.2, AQs:0.2"
      }
     ]
    },
@@ -3038,9 +2958,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 55.5,
-    "occ": 1.836,
-    "regret": 0.0005,
+    "reachPct": 54.2,
+    "occ": 1.839,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3048,19 +2968,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 77-22, AQs-A5s, A2s, K3s+, Q4s+, J6s+, T6s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo-A9o, KJo, JTo, A8o:0.9, A3s:0.8, KQo:0.8, 88:0.6, A4s:0.6, T9o:0.6, J5s:0.5, QJo:0.5, AQo:0.4, QTo:0.2, TT:0.1"
+      "range": "TT-99, 77-22, AQs-A2s, KJs+, K9s-K6s, Q6s+, J6s+, T6s+, 95s+, 84s+, 74s+, 63s+, 52s+, 42s+, 32s, AJo-A9o, KJo, JTo, A8o:0.9, KQo:0.8, QJo:0.8, KTs:0.6, 88:0.5, T9o:0.5, 87o:0.5, 98o:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AA, JJ, AKs, TT:0.9, KK:0.8, QTo:0.8, AQo:0.6, 88:0.4, AKo:0.4, KQo:0.2, A8o:0.1"
+      "range": "AA, JJ, AKs, AQo, QQ:0.9, KK:0.7, AKo:0.7, QTo:0.7, 88:0.5, KTo:0.4, KQo:0.2, A8o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ, AKo:0.6, QJo:0.5, A4s:0.4, KK:0.2, A3s:0.2"
+      "range": "KTs:0.4, KK:0.3, AKo:0.3, QJo:0.2, QQ:0.1"
      }
     ]
    },
@@ -3079,9 +2999,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 55.5,
-    "occ": 1.304,
-    "regret": 0.0011,
+    "reachPct": 54.2,
+    "occ": 1.21,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3089,46 +3009,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AQs-A5s, A2s, K3s+, Q6s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, ATo, KJo+, QTo, AJo:0.9, JTo:0.9, Q5s:0.8, QJo:0.7, 99:0.6, A9o:0.6, K2s:0.5, KTo:0.5, J9o:0.5, A3s:0.4, 88:0.3, T9o:0.3, A4s:0.1"
+      "range": "88-33, AJs-A5s, K4s+, Q6s+, J7s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, AJo-A9o, KQo, QJo, 22:0.9, A2s:0.9, 43s:0.8, QTo:0.8, 99:0.7, JTo:0.7, 53s:0.6, KJo-KTo:0.6, T9o:0.5, TT:0.3, A8o:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AA, TT, AKs, AQo, KK-QQ:0.7, 88:0.7, 99:0.4, AKo:0.3, A9o:0.3, QJo:0.3, AJo:0.1, KTo:0.1, JTo:0.1"
+      "range": "AA, AQs+, AQo, KK:0.7, TT:0.7, QQ:0.6, AKo:0.5, KJo-KTo:0.4, JJ:0.3, 99:0.3, JTo:0.3, QTo:0.2, 22:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, A4s:0.9, AKo:0.7, A3s:0.6, KTo:0.4, KK-QQ:0.3"
-     }
-    ]
-   },
-   {
-    "id": "sb-at-utgp2-open-lj-3bet",
-    "kind": "vs3bet",
-    "hero": "SB",
-    "villain": "LJ",
-    "villainSeats": [
-     "UTG+2",
-     "LJ"
-    ],
-    "chip": "UTG+2오픈·LJ3벳",
-    "title": "SB — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · LJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1.069,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9"
+      "range": "A4s-A3s, JJ:0.7, AKo:0.5, QQ:0.4, KK:0.3, A2s:0.1"
      }
     ]
    },
@@ -3146,7 +3039,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.197,
+    "occ": 1.236,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -3155,7 +3048,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s-A4s, AKo, A3s:0.1"
+      "range": "QQ+, AKs, A5s-A4s, AKo, 66:0.2, A3s:0.1"
      }
     ]
    },
@@ -3173,7 +3066,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.053,
+    "occ": 1.065,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -3182,7 +3075,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, A5s:0.9, 55:0.1, A3s:0.1"
+      "range": "QQ+, AKs, A5s-A4s, AKo, A3s:0.1"
      }
     ]
    },
@@ -3200,7 +3093,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.566,
+    "occ": 1.468,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -3209,7 +3102,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AQs+, AKo, 66:0.5, A5s-A4s:0.5, 55:0.1"
+      "range": "QQ+, AKs, A4s, AKo, AQs:0.9, 66:0.5, 55:0.2, A5s:0.1"
      }
     ]
    },
@@ -3227,7 +3120,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.405,
+    "occ": 1.311,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -3236,7 +3129,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, 66:0.8, A4s:0.7, A5s:0.5"
+      "range": "QQ+, AQs+, AKo, 66:0.8, A4s:0.8, A5s:0.3, 55:0.1"
      }
     ]
    },
@@ -3254,8 +3147,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 2.162,
-    "regret": 0.0001,
+    "occ": 2.185,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3263,7 +3156,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, 55, AJs+, KQs, AKo, TT:0.3, A4s:0.1"
+      "range": "JJ+, 55, AQs+, A4s, KQs, AKo, 66:0.2"
      }
     ]
    },
@@ -3282,9 +3175,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 33.1,
-    "occ": 0.655,
-    "regret": 0.0009,
+    "reachPct": 28,
+    "occ": 0.598,
+    "regret": 0.0011,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -3292,46 +3185,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-33, ATs-A5s, KJs+, K9s-K3s, Q6s+, J9s+, T8s+, 98s, 87s, 76s, KJo+, QTo+, K9o:0.9, J9o:0.9, 88:0.5, 22:0.4, 99:0.3"
+      "range": "88-55, A8s-A6s, KJs+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, QJo, K8s:0.9, JTo:0.9, QTo:0.8, A5s:0.7, KQo:0.7, 99:0.5, K7s:0.4, A4s:0.1, K9s:0.1, 53s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.5, 88:0.5, AKs:0.4, AQo:0.4, QQ:0.2, 99:0.1, K9o:0.1, J9o:0.1"
+      "range": "AKs, AQo:0.9, QQ:0.8, KK:0.6, K7s:0.6, 99:0.5, KQo:0.3, K8s:0.1, JTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, A4s-A3s, KTs, AKo, KTo, QQ:0.8, 99:0.6, 22:0.6, AKs:0.6, AQo:0.6, KK:0.5"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-utgp2-open-lj-3bet",
-    "kind": "vs3bet",
-    "hero": "BB",
-    "villain": "LJ",
-    "villainSeats": [
-     "UTG+2",
-     "LJ"
-    ],
-    "chip": "UTG+2오픈·LJ3벳",
-    "title": "BB — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · LJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1.04,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.1"
+      "range": "JJ-TT, 33, A3s, KTs, AKo, A4s:0.9, K9s:0.9, KK:0.4, A5s:0.3, QQ:0.2, AQo:0.1, QTo:0.1"
      }
     ]
    },
@@ -3349,7 +3215,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.159,
+    "occ": 1.196,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -3358,7 +3224,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, A5s:0.9, 55:0.2, AQs:0.1, A3s:0.1"
+      "range": "QQ+, AKs, A4s, AKo, A5s:0.9, 66:0.2, A3s:0.1"
      }
     ]
    },
@@ -3376,8 +3242,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.018,
-    "regret": 0.0001,
+    "occ": 1.03,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3385,7 +3251,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, A5s:0.9, 55:0.2, A3s:0.2"
+      "range": "QQ+, AKs, A5s-A4s, AKo, 66:0.5, A3s:0.1"
      }
     ]
    },
@@ -3403,8 +3269,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.513,
-    "regret": 0.0001,
+    "occ": 1.417,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3412,7 +3278,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, A4s:0.9, A5s:0.8, 66:0.4, 55:0.2, A3s:0.1"
+      "range": "JJ+, AQs+, A4s, AKo, 55:0.6, 66:0.3, A5s:0.3"
      }
     ]
    },
@@ -3430,7 +3296,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.348,
+    "occ": 1.265,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -3439,7 +3305,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, 66:0.8, A4s:0.8, A5s:0.5"
+      "range": "JJ+, AQs+, AKo, A4s:0.9, 55:0.5, 66:0.4, A5s:0.4"
      }
     ]
    },
@@ -3457,8 +3323,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 2.063,
-    "regret": 0.0001,
+    "occ": 2.088,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3466,7 +3332,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AJs+, A5s-A4s, KQs, AKo, 55:0.9, KJs:0.6"
+      "range": "TT+, 55, AJs+, A5s-A4s, KQs, AKo, 66:0.2, A3s:0.1, KJs:0.1"
      }
     ]
    },
@@ -3484,8 +3350,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.171,
-    "regret": 0.0002,
+    "occ": 1.129,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3493,7 +3359,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, KQs, AKo, 55:0.9, AJs:0.7, 66:0.5, TT:0.2"
+      "range": "JJ+, 55, AQs+, KQs, AKo, A4s:0.7, 66:0.4"
      }
     ]
    },
@@ -3511,8 +3377,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.992,
-    "regret": 0,
+    "occ": 1.983,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3520,182 +3386,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, 66-55, ATs+, KTs+, QJs, AQo+, 99:0.9, QTs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "utgp1-3bet-vs-utg-4bet",
-    "kind": "vs4bet",
-    "hero": "UTG+1",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG"
-    ],
-    "chip": "UTG+1 vs UTG 4벳",
-    "title": "UTG+1 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2.2 · UTG+1 3벳 6.6 · UTG 4벳 16.5",
-    "reachFrom": [
-     "utgp1-vs-utg-open:3bet"
-    ],
-    "reachPct": 6,
-    "occ": 0.137,
-    "regret": 0.0114,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, AKs, KK:0.8, AKo:0.7, 99:0.4, 88:0.2, AQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, A5s-A4s, ATs:0.8, AKo:0.3, KK:0.2"
-     }
-    ]
-   },
-   {
-    "id": "utgp2-3bet-vs-utg-4bet",
-    "kind": "vs4bet",
-    "hero": "UTG+2",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG"
-    ],
-    "chip": "UTG+2 vs UTG 4벳",
-    "title": "UTG+2 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2.2 · UTG+2 3벳 6.6 · UTG 4벳 16.5",
-    "reachFrom": [
-     "utgp2-vs-utg-open:3bet"
-    ],
-    "reachPct": 6.1,
-    "occ": 0.13,
-    "regret": 0.014,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, AKs, KK:0.7, AKo:0.7, 99:0.5, 88:0.4, AQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, A5s-A4s, ATs:0.9, KK:0.3, AKo:0.3"
-     }
-    ]
-   },
-   {
-    "id": "utgp2-3bet-vs-utgp1-4bet",
-    "kind": "vs4bet",
-    "hero": "UTG+2",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1"
-    ],
-    "chip": "UTG+2 vs UTG+1 4벳",
-    "title": "UTG+2 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2.2 · UTG+2 3벳 6.6 · UTG+1 4벳 16.5",
-    "reachFrom": [
-     "utgp2-vs-utgp1-open:3bet"
-    ],
-    "reachPct": 7,
-    "occ": 0.148,
-    "regret": 0.004,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, AKs, KQs, KK:0.6, 88:0.6, 99:0.5, AKo:0.5, AQo:0.3, AJs-ATs:0.2, KJs:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, AJs-ATs:0.8, AKo:0.5, KK:0.4"
-     }
-    ]
-   },
-   {
-    "id": "lj-3bet-vs-utg-4bet",
-    "kind": "vs4bet",
-    "hero": "LJ",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG"
-    ],
-    "chip": "LJ vs UTG 4벳",
-    "title": "LJ 3벳 후 vs UTG 4벳",
-    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb → UTG 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2.2 · LJ 3벳 6.6 · UTG 4벳 16.5",
-    "reachFrom": [
-     "lj-vs-utg-open:3bet"
-    ],
-    "reachPct": 5.9,
-    "occ": 0.111,
-    "regret": 0.0184,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, AKs, KK:0.8, AKo:0.7, 99:0.5, 88:0.4, AQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, AJs-ATs, A5s-A4s, AKo:0.3, KK:0.2"
-     }
-    ]
-   },
-   {
-    "id": "lj-3bet-vs-utgp1-4bet",
-    "kind": "vs4bet",
-    "hero": "LJ",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1"
-    ],
-    "chip": "LJ vs UTG+1 4벳",
-    "title": "LJ 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2.2 · LJ 3벳 6.6 · UTG+1 4벳 16.5",
-    "reachFrom": [
-     "lj-vs-utgp1-open:3bet"
-    ],
-    "reachPct": 7.5,
-    "occ": 0.141,
-    "regret": 0.0098,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, AKs, KQs, 99:0.7, 88:0.6, KK:0.5, AQo+:0.4, ATs:0.2, KJs:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, AJs, ATs:0.7, AKo:0.6, KK:0.5"
+      "range": "TT+, 55, ATs+, KJs+, QJs, AQo+, 99:0.8, 66:0.6, KTs:0.1"
      }
     ]
    },
@@ -3714,43 +3405,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 8.9,
-    "occ": 0.159,
-    "regret": 0.0112,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, KQs, AKs:0.9, AQo:0.9, 88:0.7, 99:0.6, 77-66:0.5, KK:0.3, AJs:0.2, ATs:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, AKo, A9s:0.9, AJs:0.8, KK:0.7, ATs:0.4, AKs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "hj-3bet-vs-utgp1-4bet",
-    "kind": "vs4bet",
-    "hero": "HJ",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1"
-    ],
-    "chip": "HJ vs UTG+1 4벳",
-    "title": "HJ 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2.2 · HJ 3벳 6.6 · UTG+1 4벳 16.5",
-    "reachFrom": [
-     "hj-vs-utgp1-open:3bet"
-    ],
-    "reachPct": 7.7,
-    "occ": 0.122,
+    "reachPct": 7.8,
+    "occ": 0.175,
     "regret": 0.0041,
     "confidence": "mid",
     "move": 0,
@@ -3759,13 +3415,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-TT, AQs+, KQs, 88:0.9, 99:0.8, KJs:0.7, KK:0.5, ATs:0.4, AQo:0.4, AKo:0.3"
+      "range": "JJ-77, KQs, AKs:0.9, ATs:0.7, KK:0.6, AQo+:0.5, KJs:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AJs, A9s, AKo:0.7, ATs:0.6, KK:0.5"
+      "range": "AA, AJs, A9s:0.9, AKo:0.5, KK:0.4, AKs:0.1"
      }
     ]
    },
@@ -3784,9 +3440,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 8.9,
-    "occ": 0.134,
-    "regret": 0.0072,
+    "reachPct": 8,
+    "occ": 0.151,
+    "regret": 0.0029,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3794,13 +3450,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-TT, AQs, KQs, AQo, 88:0.9, AKs:0.9, 99:0.6, KK:0.3, 77:0.3, 66:0.2, ATs:0.1, AKo:0.1"
+      "range": "QQ-77, KJs+, AKs:0.9, ATs:0.8, KK:0.6, AQo:0.6, AKo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A9s:0.9, AKo:0.9, KK:0.7, ATs:0.2, AKs:0.1"
+      "range": "AA, AJs, A9s, AKo:0.6, KK:0.4, ATs:0.2, AKs:0.1"
      }
     ]
    },
@@ -3819,9 +3475,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
-    "reachPct": 10.1,
-    "occ": 0.166,
-    "regret": 0.0024,
+    "reachPct": 10.3,
+    "occ": 0.18,
+    "regret": 0.0041,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3829,48 +3485,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-88, AQs-AJs, KQs, AQo, QQ:0.9, ATs:0.9, 77:0.5, 55:0.5, AKo:0.4, 66:0.3"
+      "range": "QQ-77, AQs, ATs, KJs+, AQo, AKo:0.7, AJs:0.6, 66:0.1, A9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A8s, A9s:0.8, AKo:0.6, QQ:0.1, 66:0.1, ATs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "co-3bet-vs-utgp1-4bet",
-    "kind": "vs4bet",
-    "hero": "CO",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1"
-    ],
-    "chip": "CO vs UTG+1 4벳",
-    "title": "CO 3벳 후 vs UTG+1 4벳",
-    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb → UTG+1 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2.2 · CO 3벳 6.6 · UTG+1 4벳 16.5",
-    "reachFrom": [
-     "co-vs-utgp1-open:3bet"
-    ],
-    "reachPct": 7.6,
-    "occ": 0.103,
-    "regret": 0.0019,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ-TT, 88, AKs, 99:0.7, KK:0.5, ATs:0.4, AQo+:0.4"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AA, AJs, A9s, ATs:0.6, AKo:0.6, KK:0.5"
+      "range": "KK+, AKs, A8s, A5s, 66:0.9, A9s:0.7, AJs:0.4, AKo:0.3"
      }
     ]
    },
@@ -3889,9 +3510,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
     ],
-    "reachPct": 9.2,
-    "occ": 0.129,
-    "regret": 0.0147,
+    "reachPct": 8.7,
+    "occ": 0.139,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3899,13 +3520,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-TT, AQs, KQs, AQo, 88:0.9, AKs:0.9, 99:0.8, KK:0.2, 77-66:0.2, ATs:0.2, AKo:0.2"
+      "range": "QQ-88, KJs+, AQo, AKs:0.6, AKo:0.6, KK:0.5"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A8s, KK:0.8, A9s:0.8, AKo:0.8, ATs:0.4, AKs:0.1"
+      "range": "AA, A9s, A7s, A5s, KK:0.5, AKs:0.4, AKo:0.4"
      }
     ]
    },
@@ -3924,9 +3545,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-lj-open:3bet"
     ],
-    "reachPct": 10.1,
-    "occ": 0.143,
-    "regret": 0.0086,
+    "reachPct": 10,
+    "occ": 0.176,
+    "regret": 0.0024,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3934,13 +3555,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-99, AQs, ATs, KQs, AQo, QQ:0.9, 88:0.9, AKo:0.5, 77-66:0.4, 55:0.3, AKs:0.2, AJo:0.1"
+      "range": "QQ-77, AQs, KQs, AQo, AKo:0.9, A9s:0.7, 66:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A9s-A8s, AKs:0.8, AKo:0.5, QQ:0.1, 88:0.1"
+      "range": "KK+, AKs, A8s, A5s, 66:0.9, A9s:0.3, AKo:0.1"
      }
     ]
    },
@@ -3959,9 +3580,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
-    "reachPct": 13.5,
-    "occ": 0.253,
-    "regret": 0.0031,
+    "reachPct": 12.7,
+    "occ": 0.241,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -3969,13 +3590,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-AJs, KQs, AQo, ATs:0.9, AJo:0.7, QQ:0.2, 44:0.2, A9s:0.2, KQo:0.2, AKo:0.1"
+      "range": "JJ-66, AQs-A9s, KQs, AQo, 55:0.7, A8s:0.6, AKo:0.6, QQ:0.5, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A7s, A5s, AKo:0.9, QQ:0.8, A8s:0.2, ATs:0.1"
+      "range": "KK+, AKs, A7s, A5s, QQ:0.5, A8s:0.4, AKo:0.4, 55:0.3"
      }
     ]
    },
@@ -3994,9 +3615,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
     ],
-    "reachPct": 9.7,
+    "reachPct": 9.2,
     "occ": 0.101,
-    "regret": 0.0188,
+    "regret": 0.0026,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4004,13 +3625,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-TT, AQs, KQs, AQo, 88:0.7, 99:0.6, AKs:0.6, AKo:0.5, KK:0.1, ATs:0.1"
+      "range": "QQ-88, AQs, KQs, AQo, AKo:0.8, KK:0.4, AKs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A8s, KK:0.9, ATs:0.9, A9s:0.8, AKo:0.5, AKs:0.4, 88-66:0.1"
+      "range": "AA, A9s, A5s, AKs:0.9, KK:0.6, AKo:0.2"
      }
     ]
    },
@@ -4029,9 +3650,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
-    "reachPct": 10.8,
-    "occ": 0.119,
-    "regret": 0.0027,
+    "reachPct": 10.9,
+    "occ": 0.13,
+    "regret": 0.0016,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4039,13 +3660,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-88, AQs, KQs, AQo, QQ:0.9, ATs:0.8, AKo:0.6, 77:0.5, 66-55:0.4, KQo:0.1"
+      "range": "QQ-77, AQs, KQs, AQo, AKo:0.8, A9s:0.5"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A9s-A8s, AKo:0.4, ATs:0.2, QQ:0.1"
+      "range": "KK+, AKs, A8s, A5s, A9s:0.5, AKo:0.2"
      }
     ]
    },
@@ -4064,9 +3685,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
-    "reachPct": 14.2,
-    "occ": 0.209,
-    "regret": 0.0046,
+    "reachPct": 13.5,
+    "occ": 0.206,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4074,13 +3695,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, 55, AQs-ATs, KQs, AQo, JJ:0.9, 66:0.6, AKo:0.6, AJo:0.5, 44:0.2, AKs:0.2, KQo:0.2, QQ:0.1"
+      "range": "JJ-77, AQs-AJs, A9s, KQs, 54s, AQo, A8s:0.9, AKo:0.8, ATs:0.7, QQ:0.5, 66:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A4s, QQ:0.9, AKs:0.8, 66:0.4, AKo:0.4, JJ:0.1"
+      "range": "KK+, AKs, A5s-A4s, 66:0.7, QQ:0.5, ATs:0.3, AKo:0.2, A8s:0.1"
      }
     ]
    },
@@ -4099,9 +3720,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 18,
-    "occ": 0.262,
-    "regret": 0.0009,
+    "reachPct": 18.2,
+    "occ": 0.319,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4109,13 +3730,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-ATs, KQs, K9s, J9s, T9s, AQo-AJo, KQo, 33:0.9, JJ:0.4, AKo:0.3, AKs:0.2, QQ:0.1"
+      "range": "TT-55, AQs-A7s, KTs+, JTs, T9s, 54s, AQo-AJo, 65s:0.7, JJ:0.5, 76s:0.4, AKo:0.4, KQo:0.4, A6s:0.3, QQ:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A3s, QQ:0.9, AKs:0.8, AKo:0.7, JJ:0.6, A6s:0.1, A2s:0.1"
+      "range": "KK+, AKs, A5s-A3s, QQ:0.9, AKo:0.6, JJ:0.5, A6s:0.4"
      }
     ]
    },
@@ -4134,9 +3755,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 18,
-    "occ": 0.122,
-    "regret": 0.0005,
+    "reachPct": 18.2,
+    "occ": 0.103,
+    "regret": 0.0034,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4144,7 +3765,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AQs+, AKo, AJs:0.6, 88:0.3"
+      "range": "99+, AQs+, AKo, AJs:0.7, 88:0.5, AQo:0.1"
      }
     ]
    },
@@ -4164,8 +3785,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 18,
-    "occ": 0.115,
+    "reachPct": 18.2,
+    "occ": 0.116,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -4174,7 +3795,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, AKs, AKo, TT:0.9"
+      "range": "TT+, AKs, AKo"
      }
     ]
    },
@@ -4193,9 +3814,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 55.5,
-    "occ": 0.12,
-    "regret": 0.0004,
+    "reachPct": 54.2,
+    "occ": 0.112,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4203,7 +3824,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AQs+, AKo, 99:0.1"
+      "range": "TT+, AKs, AKo"
      }
     ]
    },
@@ -4222,9 +3843,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 17,
-    "occ": 0.133,
-    "regret": 0.0028,
+    "reachPct": 16.7,
+    "occ": 0.17,
+    "regret": 0.0022,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4232,13 +3853,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A8s, KJs+, QJs, AJo, KQo, JJ:0.8, K9s:0.8, A3s:0.6, AKo:0.4, 33:0.2, A7s:0.1, A5s:0.1, ATo:0.1"
+      "range": "JJ-33, AQs-A7s, KTs+, QJs, A3s:0.9, AJo:0.8, A6s:0.5, AKo:0.5, KQo:0.5, QQ:0.3, A5s:0.3, A2s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, A5s:0.9, AKo:0.6, JJ:0.2"
+      "range": "KK+, AKs, A4s, QQ:0.7, A5s:0.7, AKo:0.5, A3s:0.1"
      }
     ]
    },
@@ -4258,8 +3879,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 17,
-    "occ": 0.155,
+    "reachPct": 16.7,
+    "occ": 0.144,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -4268,7 +3889,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AQs+, AKo, 88:0.2"
+      "range": "99+, AQs+, AKo"
      }
     ]
    },
@@ -4287,9 +3908,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
-    "reachPct": 18.6,
-    "occ": 0.102,
-    "regret": 0.0067,
+    "reachPct": 17.9,
+    "occ": 0.107,
+    "regret": 0.0016,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4297,13 +3918,145 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs, KJs, QJs, AQo, AJo:0.9, ATs:0.8, KQs:0.8, KJo:0.5, JJ:0.4, AKo:0.4, 33:0.2, AJs:0.2, QQ:0.1, A9s:0.1"
+      "range": "TT-66, AQs, ATs, KTs+, AQo-AJo, A9s:0.9, JJ:0.8, AJs:0.8, 55:0.7, AKo:0.7, QJs:0.3, KJo:0.3, QQ:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A7s, A5s-A4s, QQ:0.9, AJs:0.8, JJ:0.6, AKo:0.6, ATs:0.2, KQs:0.2"
+      "range": "KK+, AKs, A5s-A4s, QQ:0.9, 55:0.3, AKo:0.3, JJ:0.2, AJs:0.2, 54s:0.2, A9s:0.1, 76s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "utgp2-at-utg-open-utgp1-call",
+    "kind": "squeeze",
+    "hero": "UTG+2",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "UTG+1"
+    ],
+    "chip": "UTG오픈·UTG+1콜",
+    "title": "UTG+2 vs UTG 오픈 + UTG+1 콜",
+    "description": "UTG 오픈 2.2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · UTG+1 콜",
+    "reachPct": 100,
+    "occ": 0.519,
+    "regret": 0.0016,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "AQs, 99:0.8, TT:0.7, AQo:0.6, QQ-JJ:0.5, 65s:0.3, 54s:0.3"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "KK+, AKs, KJs+, AKo, AJs:0.9, QQ-JJ:0.5, QJs:0.5, TT:0.3, AQo:0.3"
+     }
+    ]
+   },
+   {
+    "id": "lj-at-utg-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "LJ",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "UTG+2"
+    ],
+    "chip": "UTG오픈·UTG+2콜",
+    "title": "LJ vs UTG 오픈 + UTG+2 콜",
+    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.551,
+    "regret": 0.0008,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs:0.9, 54s:0.8, 65s:0.7, TT:0.5, QQ:0.3, AQo:0.3, QJs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "KK+, JJ, AKs, AJs, KJs+, AKo, QQ:0.7, AQo:0.7, TT:0.5, KTs:0.5, AQs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "lj-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "LJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.681,
+    "regret": 0.0013,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs, AJs:0.6, TT:0.5, 98s:0.5, QJs:0.4, AQo:0.3, QQ:0.2, 65s:0.2, 54s:0.2, AKs:0.1, JTs:0.1, T9s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "KK+, JJ, KJs+, AKo, AKs:0.9, QQ:0.8, AQo:0.7, KTs:0.6, TT:0.5, QJs:0.5, KQo:0.5, AJs:0.4"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utg-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "UTG+2"
+    ],
+    "chip": "UTG오픈·UTG+2콜",
+    "title": "HJ vs UTG 오픈 + UTG+2 콜",
+    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.515,
+    "regret": 0.0005,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs:0.9, 54s:0.8, 65s:0.7, TT:0.3, QQ:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "KK+, JJ, AKs, AJs, KJs+, AQo+, QQ:0.8, TT:0.7, KTs:0.4, AQs:0.1"
      }
     ]
    },
@@ -4321,8 +4074,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.563,
-    "regret": 0.0005,
+    "occ": 0.631,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4330,13 +4083,112 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, 99:0.5, JTs:0.5, QTs:0.3, QQ:0.2, KQs:0.2"
+      "range": "99, AQs, QJs, JTs:0.9, T9s:0.5, 98s:0.5, QQ:0.4, 54s:0.3, AQo:0.2, TT:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AJs+, KJs, AQo+, QQ:0.8, KQs:0.8, ATs:0.5, K9s:0.5, 99:0.4, KQo:0.3, 88:0.1"
+      "range": "KK+, JJ, AKs, KJs+, AKo, TT:0.9, AJs:0.9, KTs:0.9, AQo:0.8, QQ:0.6, KQo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.631,
+    "regret": 0.001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs, AJs:0.7, 98s:0.6, TT:0.5, QJs:0.5, 54s:0.5, JTs:0.4, 65s:0.4, 88:0.3, T9s:0.3, AQo:0.2, JJ:0.1, AKs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "QQ+, KJs+, AKo, JJ:0.9, AKs:0.9, AQo:0.8, KTs:0.6, KQo:0.6, TT:0.5, QJs:0.4, AJs:0.2"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "HJ vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.736,
+    "regret": 0.0036,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, JTs:0.7, T9s:0.6, 88:0.5, QJs:0.5, AJs:0.4, 98s:0.4, QQ:0.2, AQs:0.2, JJ-TT:0.1, KQs:0.1, 65s:0.1, 54s:0.1, AQo:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "KK+, AKs, AKo, JJ-TT:0.9, KJs+:0.9, AQo:0.9, QQ:0.8, AQs:0.8, KTs:0.8, KQo:0.5, AJs-ATs:0.3, QJs:0.3, QTs:0.2, AJo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp2-open-lj-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "LJ"
+    ],
+    "chip": "UTG+2오픈·LJ콜",
+    "title": "HJ vs UTG+2 오픈 + LJ 콜",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.557,
+    "regret": 0.0011,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "QJs, 99:0.5, AJs:0.5, 88:0.4, 98s:0.3, 54s:0.3, 65s:0.2, JTs:0.1, T9s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KJs+, AQo+, KTs:0.9, KQo:0.8, 99:0.5, AJs:0.5, QTs:0.4, 88:0.1"
      }
     ]
    },
@@ -4354,7 +4206,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.522,
+    "occ": 0.583,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -4363,13 +4215,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, 99:0.3, JTs:0.3, 98s:0.3, QTs:0.2, T9s:0.2"
+      "range": "99, AQs, JTs, QJs:0.9, T9s:0.8, 98s:0.7, 54s:0.7, QQ:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AJs+, KJs+, AQo+, ATs:0.9, 99:0.6, KQo:0.4, 88:0.1, 55:0.1"
+      "range": "KK+, JJ-TT, AKs, KTs+, AQo+, QQ:0.9, AJs:0.9, KQo:0.5"
      }
     ]
    },
@@ -4387,8 +4239,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.592,
-    "regret": 0.0003,
+    "occ": 0.658,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4396,13 +4248,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs:0.9, QQ-JJ:0.1, KQs:0.1, T9s:0.1"
+      "range": "QJs, JTs, T9s:0.7, 99:0.4, 54s:0.4, 65s:0.2, QTs:0.1, 98s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, TT-99, ATs+, KJs, AQo+, KQo, QQ-JJ:0.9, KQs:0.9, 88:0.8, 55:0.1"
+      "range": "TT+, AQs+, KTs+, AQo+, 99:0.6, KQo:0.6, AJs:0.5"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "CO vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.582,
+    "regret": 0.0006,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, 98s:0.9, 54s:0.7, AQs:0.5, QJs:0.5, 65s:0.4, AJs:0.3, T9s:0.3, TT:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KJs+, AQo+, TT:0.8, KTs:0.8, AQs-AJs:0.5, QJs:0.5, KQo:0.5"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "CO vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.678,
+    "regret": 0.0017,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99:0.8, JTs:0.8, QJs:0.7, T9s:0.6, 98s:0.6, 54s:0.5, 65s:0.4, TT:0.1, QTs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AQs+, KTs+, AQo+, TT:0.9, KQo:0.6, AJs:0.3, QJs:0.3, 99:0.2, QTs:0.1"
      }
     ]
    },
@@ -4420,8 +4338,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.573,
-    "regret": 0.0006,
+    "occ": 0.745,
+    "regret": 0.0011,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4429,13 +4347,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs, T9s:0.5, J9s:0.2, KJs+:0.1"
+      "range": "QJs:0.9, JTs:0.8, 88:0.4, QQ-JJ:0.1, 99:0.1, QTs:0.1, 98s:0.1, 65s:0.1, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "99+, ATs+, AQo+, KQo, 88:0.9, KJs+:0.9, K9s:0.9, 55:0.2, 77:0.1"
+      "range": "KK+, TT, AJs+, KTs+, AQo+, QQ-JJ:0.9, 99:0.9, KQo:0.8, 88:0.3, QJs:0.1, 54s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp2-open-lj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "LJ"
+    ],
+    "chip": "UTG+2오픈·LJ콜",
+    "title": "CO vs UTG+2 오픈 + LJ 콜",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.513,
+    "regret": 0.0007,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "QJs:0.9, 65s:0.6, 54s:0.6, 98s:0.5, 88:0.4, 99:0.3, AJs:0.3"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KTs+, AQo+, KQo:0.9, 99:0.7, AJs:0.7, 88:0.4, QTs+:0.1, 54s:0.1"
      }
     ]
    },
@@ -4453,8 +4404,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.522,
-    "regret": 0.0018,
+    "occ": 0.633,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4462,32 +4413,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QJs, QTs:0.9, JTs:0.7, KQs:0.5, JJ:0.4, J9s:0.4, T9s:0.4"
+      "range": "QJs, JTs, QTs:0.9, JJ:0.2, 98s:0.2, 99:0.1, T9s:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-88, ATs+, AQo+, KQo, 77:0.8, JJ:0.6, AJo:0.6, KQs:0.5, K9s:0.3, 66:0.2, A9s:0.2, 55:0.1, KTs:0.1, QTs:0.1"
+      "range": "QQ+, TT, 88, ATs+, KTs+, AQo+, KQo, 99:0.9, JJ:0.8, 54s:0.3, QTs:0.1"
      }
     ]
    },
    {
-    "id": "co-at-lj-open-hj-call",
+    "id": "btn-at-utg-open-lj-call",
     "kind": "squeeze",
-    "hero": "CO",
-    "villain": "LJ",
+    "hero": "BTN",
+    "villain": "UTG",
     "villainSeats": [
-     "LJ",
-     "HJ"
+     "UTG",
+     "LJ"
     ],
-    "chip": "LJ오픈·HJ콜",
-    "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 2.2 · HJ 콜",
+    "chip": "UTG오픈·LJ콜",
+    "title": "BTN vs UTG 오픈 + LJ 콜",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.511,
-    "regret": 0.0004,
+    "occ": 0.537,
+    "regret": 0.0011,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4495,13 +4446,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QTs+, T9s, KQs:0.7, 98s:0.7, JJ:0.6, JTs:0.5, 77:0.2"
+      "range": "QJs, JTs, T9s, 98s, 54s, 99:0.6, 65s:0.5, 88:0.3, QTs:0.3, KQs:0.1, 43s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-88, A9s+, AJo+, KQo, K9s:0.8, JJ:0.4, KTs:0.4, KQs:0.3, 77:0.1"
+      "range": "TT+, AQs+, KJs-KTs, AQo+, KQs:0.9, AJs:0.6, KQo:0.6, 99:0.4"
      }
     ]
    },
@@ -4519,8 +4470,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.541,
-    "regret": 0.0007,
+    "occ": 0.607,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4528,13 +4479,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs, T9s, 98s:0.7, J9s:0.6, KJs+:0.1"
+      "range": "QJs, JTs, T9s:0.8, 54s:0.8, 65s:0.6, 98s:0.5, 99:0.4, 43s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "88+, ATs+, AQo+, KQo, KJs+:0.9, 77:0.4, 55:0.3, K9s:0.2"
+      "range": "TT+, AQs+, KTs+, AQo+, AJs:0.9, 99:0.6, KQo:0.6"
      }
     ]
    },
@@ -4552,8 +4503,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.639,
-    "regret": 0.0002,
+    "occ": 0.824,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4561,13 +4512,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, J9s+, T9s, 98s:0.8, T8s:0.2"
+      "range": "88, QTs+, JTs, T9s, 98s, 65s:0.7, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "77+, ATs+, KJs+, AQo+, KQo, K9s:0.5, 55:0.2, AJo:0.1"
+      "range": "99+, ATs+, KTs+, AQo+, K9s:0.5, 54s:0.4, KQo:0.2"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "BTN vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.537,
+    "regret": 0.0039,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "65s, 54s, 98s:0.9, T9s:0.8, 99:0.6, QJs:0.5, JTs:0.5, JJ-TT:0.3, AJs:0.3, 88:0.2, AQs:0.2, KQs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "QQ+, AKs, AQo+, KJs+:0.9, AQs:0.8, KTs:0.8, JJ-TT:0.7, 88:0.7, AJs:0.6, 99:0.4, ATs:0.4, QJs:0.4, KQo:0.4, QTs:0.2, K9s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "BTN vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.624,
+    "regret": 0.0023,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "QJs, JTs, T9s, 98s, 65s, 54s, 99:0.7, 43s:0.6, 88:0.4, QTs:0.4, AQs:0.2, TT:0.1, AJs:0.1, 76s:0.1, 53s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KTs+, AQo+, TT:0.9, AQs:0.8, KQo:0.6, QTs:0.4, 99:0.3, AJs:0.3, 88:0.1"
      }
     ]
    },
@@ -4585,8 +4602,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.521,
-    "regret": 0.001,
+    "occ": 0.685,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4594,13 +4611,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, J9s+, T9s, 98s:0.8, KJs+:0.1, T8s:0.1"
+      "range": "QJs, JTs, T9s, 98s, QTs:0.9, 65s:0.6, 99:0.4, 54s:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "88+, ATs+, AQo+, KQo, KJs+:0.9, K9s:0.6, 77:0.5, 55:0.1"
+      "range": "TT+, 88, AJs+, KTs+, AQo+, KQo, 99:0.6, 54s:0.4, ATs:0.1"
      }
     ]
    },
@@ -4618,8 +4635,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.661,
-    "regret": 0.0001,
+    "occ": 0.816,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4627,13 +4644,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, J9s+, T9s, 98s:0.6, KJs:0.1"
+      "range": "QTs+, JTs, T9s, 98s"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "88+, ATs+, KQs, AQo+, KQo, 77:0.9, KJs:0.9, K9s:0.5, AJo:0.4, 55:0.3, 66:0.2"
+      "range": "88+, ATs+, KTs+, AQo+, KQo, K9s:0.7, 54s:0.4, 77:0.1"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp2-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "HJ"
+    ],
+    "chip": "UTG+2오픈·HJ콜",
+    "title": "BTN vs UTG+2 오픈 + HJ 콜",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.575,
+    "regret": 0.0009,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "QJs, JTs, T9s:0.9, QTs:0.5, 98s:0.3, 65s:0.2, Q9s:0.1, J9s:0.1, 54s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "88+, ATs+, KTs+, AQo+, KQo, 54s:0.6, QTs:0.5, 77:0.3, K9s:0.1"
      }
     ]
    },
@@ -4651,8 +4701,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.632,
-    "regret": 0.0001,
+    "occ": 0.693,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4660,13 +4710,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QJs, J9s+, T9s, 98s, QTs:0.5, JJ:0.1"
+      "range": "QJs, JTs, 98s, T9s:0.7, QTs:0.3, JJ:0.2, Q9s:0.2, J9s:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-77, ATs+, KQs, AJo+, KQo, JJ:0.9, K9s:0.9, QTs:0.5, 66:0.4"
+      "range": "QQ+, TT-77, ATs+, KTs+, AQo+, KQo, JJ:0.8, AJo:0.8, QTs:0.7, 76s:0.7, T9s:0.3, K9s:0.1"
      }
     ]
    },
@@ -4684,8 +4734,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.674,
-    "regret": 0.0012,
+    "occ": 0.728,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4693,13 +4743,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "J9s+, T8s+, 98s, KJs:0.7, QJs:0.7, QTs:0.5, JJ:0.1, 65s:0.1"
+      "range": "QJs, 98s:0.7, 65s:0.7, JTs:0.3, KJs:0.2, T9s:0.2, JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-77, ATs+, KQs, KTs, AJo+, KQo, JJ:0.9, 66-55:0.7, K9s:0.7, QTs:0.5, KJs:0.3, QJs:0.3, KJo:0.2, A9s:0.1, ATo:0.1"
+      "range": "QQ+, TT-77, ATs+, KQs, KTs, QTs, AJo+, KQo, JJ:0.9, KJs:0.8, T9s:0.8, Q9s:0.6, K9s:0.4, 87s:0.4, 98s:0.3, A9s:0.2, JTs:0.1"
      }
     ]
    },
@@ -4717,8 +4767,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.618,
-    "regret": 0.0001,
+    "occ": 0.617,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4726,13 +4776,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, T9s, 98s, QTs:0.9, KQs:0.5, QJs:0.4"
+      "range": "QJs, KJs:0.8, JTs:0.8, 65s:0.6, T9s:0.3, 98s:0.3, Q9s:0.2, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "55+, ATs+, KTs-K9s, AJo+, KJo+, A9s:0.9, QJs:0.6, 44:0.5, KQs:0.5, A8s:0.1, QTs:0.1"
+      "range": "77+, A9s+, KQs, KTs-K9s, QTs, AJo+, KJo+, 66:0.7, Q9s:0.5, 54s:0.5, A8s:0.2, KJs:0.2, JTs:0.2, 98s:0.2"
      }
     ]
    },
@@ -4752,9 +4802,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 55.5,
-    "occ": 0.537,
-    "regret": 0.0002,
+    "reachPct": 54.2,
+    "occ": 0.653,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4762,13 +4812,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-33, AQs-A5s, Q8s+, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AJo-A9o, QJo, K9s:0.9, AQo:0.7, A4s:0.6, KJo:0.6, KJs:0.3, A8o:0.2, JTo:0.1"
+      "range": "99-33, AJs-A4s, Q9s, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, AJo-A8o, 22:0.9, QTs:0.9, Q8s:0.9, JTo:0.9, QJs:0.5, QJo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 22, AKs, KQs, KTs, JTs, AKo, KQo, KJs:0.7, KJo:0.4, AQo:0.3, K9s:0.1"
+      "range": "TT+, AQs+, K9s+, AQo+, KQo, KJo:0.9, QJs:0.5, 22:0.1, QTs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "SB vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.557,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, 53s+, 43s, 64s:0.9, T8s:0.5, AJs:0.3, TT:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KJs+, AQo+, KTs:0.9, TT:0.8, KQo:0.1"
      }
     ]
    },
@@ -4786,8 +4869,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.574,
-    "regret": 0.0007,
+    "occ": 0.748,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4795,13 +4878,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, Q9s+, J9s+, T8s+, 97s+, 65s, 87s:0.9, 76s:0.7, 54s:0.7, 88:0.4, K9s:0.3, 77:0.2, 86s:0.2, AJs:0.1, KTs:0.1, 75s:0.1"
+      "range": "88, AJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 53s+, 43s, 99:0.9, AQs:0.7, 64s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs, AQo+, KQo, AJs:0.9, 88:0.6, 77:0.1, K9s:0.1"
+      "range": "TT+, AKs, KTs+, AQo+, AQs:0.3, KQo:0.3, 99:0.1"
      }
     ]
    },
@@ -4819,8 +4902,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.817,
-    "regret": 0.0005,
+    "occ": 0.917,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4828,13 +4911,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KJs+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, K9s:0.9, Q8s:0.9, 88:0.4, 75s:0.2, 54s:0.1, KQo:0.1"
+      "range": "88, AJs, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, KQs:0.7, 43s:0.6, 99:0.3, K9s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, ATs+, AQo+, KQo:0.9, 88:0.6, KTs:0.5"
+      "range": "TT+, AQs+, KJs-KTs, AQo+, 99:0.7, KQo:0.5, KQs:0.3, ATs:0.2"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "SB vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.566,
+    "regret": 0.0015,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "QTs+, JTs, T9s, 98s, 87s, 76s, 64s+, 53s+, 43s, JJ:0.9, J9s:0.8, T8s:0.8, AJs:0.7, 99:0.4, KJs:0.4, 97s:0.4, 88:0.2, KQs:0.2, 75s:0.2, Q9s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "QQ+, TT, AQs+, AQo+, 88:0.8, KQs:0.8, KTs:0.7, 99:0.6, KJs:0.5, KQo:0.5, JJ:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "SB vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.619,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-88, AJs, QTs+, JTs, T8s+, 98s, 87s, 76s, 64s+, 53s+, 43s, J9s:0.9, 75s:0.8, 97s:0.4, 86s:0.2, Q9s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KTs+, AQo+, KQo:0.3"
      }
     ]
    },
@@ -4852,7 +5001,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.591,
+    "occ": 0.735,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -4861,13 +5010,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, Q9s+, J9s+, T8s+, 97s+, 87s, 65s, 76s:0.5, 54s:0.2"
+      "range": "88, AJs, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, 43s, 53s:0.6, 64s:0.4, 99:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, AJo+, KQo, 66:0.1"
+      "range": "TT+, AQs+, KTs+, AQo+, 99:0.9, KQo:0.5"
      }
     ]
    },
@@ -4885,8 +5034,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.779,
-    "regret": 0.0001,
+    "occ": 0.949,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4894,13 +5043,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, K9s, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, KTs:0.9, K7s:0.6, J8s:0.2, 77:0.1, K8s:0.1, Q7s:0.1, 75s:0.1"
+      "range": "77, KJs, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, 43s:0.8, 86s:0.3, QJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, AQo+, KQo, 77:0.9, AJo:0.7, KTs:0.1"
+      "range": "88+, ATs+, KQs, KTs, AQo+, KQo"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp2-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "HJ"
+    ],
+    "chip": "UTG+2오픈·HJ콜",
+    "title": "SB vs UTG+2 오픈 + HJ 콜",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.519,
+    "regret": 0.0006,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88, AJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 43s, 53s:0.9, 64s:0.7, KJs:0.4, 99:0.3, 97s:0.3, KQs:0.1, 75s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KTs, AQo+, KQs:0.9, 99:0.7, KQo:0.7, KJs:0.6"
      }
     ]
    },
@@ -4918,8 +5100,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.56,
-    "regret": 0.0002,
+    "occ": 0.616,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4927,13 +5109,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 64s+, 54s, 86s:0.7, 75s:0.6, K9s:0.3, 77:0.1, KTs:0.1, KQo:0.1"
+      "range": "KJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 43s, 97s:0.9, 53s:0.5, 77:0.4, 64s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, AQo+, 77:0.9, KQo:0.9, AJo:0.7, K9s:0.2, 66:0.1, KTs:0.1"
+      "range": "88+, ATs+, KQs, KTs, AQo+, KQo"
      }
     ]
    },
@@ -4951,7 +5133,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.92,
+    "occ": 0.942,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -4960,13 +5142,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, K9s-K6s, Q8s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, KTs:0.6, 66:0.5, K4s:0.2, KQo:0.1"
+      "range": "KJs, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, QJo, 43s:0.8, 86s:0.3, 53s:0.2, KQs:0.1, 64s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, AJo+, KQo:0.9, 66:0.5, KTs:0.4"
+      "range": "77+, ATs+, KTs, AQo+, KQo, KQs:0.9, AJo:0.8"
      }
     ]
    },
@@ -4984,8 +5166,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.589,
-    "regret": 0.0005,
+    "occ": 0.645,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -4993,13 +5175,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, K9s, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, 64s+, 54s, 75s:0.8, 77:0.6, 53s:0.5, KTs:0.3, Q8s:0.1, KJo:0.1"
+      "range": "KJs, QJs, J9s+, T8s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, 75s:0.6, KQs:0.5, QTs:0.4, KTs:0.3, Q9s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, AJo+, KQo, KTs:0.7, 77:0.4, 66:0.2, 55:0.1"
+      "range": "77+, ATs+, AJo+, KQo, Q9s:0.8, KTs:0.6, QTs:0.6, KQs:0.5, 66:0.3, A9s:0.1, K9s:0.1"
      }
     ]
    },
@@ -5017,7 +5199,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.979,
+    "occ": 1.004,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -5026,13 +5208,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K9s-K6s, Q8s+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KJo, J8s:0.9, KTs:0.2, 64s:0.1, 53s:0.1"
+      "range": "KJs, K9s-K8s, Q8s+, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, QJo, KJo:0.8, KQo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, ATs+, KQs, AJo+, KQo, KTs:0.8, A9s:0.2, ATo:0.2, 55:0.1"
+      "range": "66+, ATs+, KQs, KTs, AJo+, KQo:0.8, A9s:0.7, KJo:0.2"
      }
     ]
    },
@@ -5059,13 +5241,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K8s-K7s, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, K9s:0.8, KJo:0.7, 66:0.3, K4s:0.3, K6s:0.2, Q9s:0.1, 43s:0.1"
+      "range": "KJs, K8s, QJs, Q9s-Q8s, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, QJo, K9s:0.9, KJo:0.7, K7s:0.4, QTs:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, KTs, AJo+, KQo, 55:0.7, 66:0.6, KJo:0.3, A9s:0.2, K9s:0.2, ATo:0.1"
+      "range": "77+, A9s+, KQs, KTs, AJo+, KQo, QTs:0.7, KJo:0.3, 66:0.2, A8s:0.1, K9s:0.1"
      }
     ]
    },
@@ -5083,7 +5265,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.752,
+    "occ": 1.04,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -5092,13 +5274,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s, KJs, K9s-K4s, Q8s+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KJo, KTs:0.8, J8s:0.8, T7s:0.5, QJo:0.5, Q7s:0.4, 64s:0.1"
+      "range": "KJs, K8s-K7s, Q7s+, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, QJo, KJo:0.7, K9s:0.6, KTs:0.1, JTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "55+, A9s+, KQs, ATo+, KQo, QJo:0.5, KTs:0.2, A8s:0.1"
+      "range": "66+, A9s+, KQs, ATo+, KQo, KTs:0.9, JTs:0.9, A8s:0.5, K9s:0.4, KJo:0.3"
      }
     ]
    },
@@ -5116,8 +5298,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.893,
-    "regret": 0.0002,
+    "occ": 0.946,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5125,13 +5307,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A6s-A4s, KJs-K2s, QTs+, Q8s, J9s, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, JTs:0.9, KTo:0.9, QJo:0.8, Q9s:0.7, KJo:0.5, A7s:0.2, 44:0.1"
+      "range": "A7s, KTs-K4s, Q8s+, J9s-J8s, T8s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, KTo, QTo+, Q7s:0.9, 75s:0.9, KJo:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "55+, A8s+, KQs, ATo+, KQo, 44:0.9, A7s:0.8, KJo:0.5, Q9s:0.3, QJo:0.2, JTs:0.1, KTo:0.1"
+      "range": "55+, A8s+, KJs+, JTs, ATo+, KQo, KJo:0.7, A5s:0.6, A6s:0.2, A4s:0.1, JTo:0.1"
      }
     ]
    },
@@ -5149,8 +5331,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.505,
-    "regret": 0.0008,
+    "occ": 0.663,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5158,13 +5340,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, 44-33, AJs-ATs, A7s, K6s+, K4s-K2s, Q2s+, J7s+, J5s, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo, QTo+, JTo, K5s:0.9, J6s:0.9, 85s:0.9, T9o:0.9, 22:0.8, A8s:0.8, 96s:0.8, KJo+:0.8, 55:0.7, 88:0.5, J4s:0.4, T6s:0.3, J9o:0.3, A3s:0.2, 74s:0.2, A4s:0.1"
+      "range": "JJ, 77, AJs-ATs, KJs+, Q8s+, J7s+, T6s+, 96s+, 85s+, 73s+, 62s+, 52s+, 42s+, 32s, JTo:0.5, 95s:0.4, K9s:0.2, 84s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, A9s, AQo+, A5s:0.9, 88:0.5, 55:0.3, A4s:0.2, KJo+:0.2, K5s:0.1"
+      "range": "QQ+, TT-88, AQs+, KTs, AQo+, KQo, K9s:0.8"
      }
     ]
    },
@@ -5182,8 +5364,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.712,
-    "regret": 0.0003,
+    "occ": 0.803,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5191,13 +5373,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "55-33, AQs, ATs-A7s, K2s+, Q2s+, J2s+, T5s+, T2s, 95s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, QTo+, J9o+, T8o+, 98o, AJs:0.8, KJo:0.8, T4s-T3s:0.6, 22:0.4, 74s:0.4, 66:0.2, A6s:0.2, 77:0.1, A5s:0.1, 63s:0.1, KQo:0.1"
+      "range": "88-66, AJs-A8s, KJs+, K9s-K6s, K4s, Q5s+, J4s+, T2s+, 94s+, 92s, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, 98o, A7s:0.8, 99:0.6, KQo:0.5, Q4s:0.3, J3s:0.2, 55:0.1, J2s:0.1, 93s:0.1, 83s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AKs, AJo+, 77:0.9, KQo:0.9, 66:0.8, ATo:0.6, A6s:0.3, AJs:0.2, KJo:0.2"
+      "range": "TT+, AQs+, KTs, AQo+, KJo+:0.5, 99:0.4"
      }
     ]
    },
@@ -5215,8 +5397,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 0.92,
-    "regret": 0.0004,
+    "occ": 0.713,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5224,13 +5406,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-22, AJs-ATs, A8s-A3s, K2s+, Q2s+, J2s+, T2s+, 92s+, 84s+, 82s, 74s+, 63s+, 52s+, 42s+, 32s, KQo, QTo+, J9o+, T8o+, 98o, 87o, 76o, AJo-ATo:0.6, 97o:0.4, 88:0.2, 73s:0.2, KJo:0.2, A2s:0.1, 86o:0.1"
+      "range": "88-55, AJs, A7s, KJs+, K9s-K4s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QTo+, J9o+, T8o+, 98o, 76o, 99:0.9, A9s-A8s:0.9, 65o:0.4, KJo:0.1, 87o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, A9s, AQo+, 88:0.8, KJo:0.8, A2s:0.4, AJo:0.4, ATo:0.3"
+      "range": "TT+, AQs+, ATs, KTs, AQo+, KJo:0.8, 99:0.1, A9s-A8s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "BB vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.502,
+    "regret": 0.0009,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-77, AQs-ATs, K9s, Q9s+, J8s+, T7s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo:0.6, TT:0.4, KQo:0.3, KTs:0.2, KJs:0.1, Q8s:0.1, T6s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KQs, AKo, KJs:0.9, KTs:0.8, KQo:0.7, TT:0.6, AQo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "BB vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.547,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-66, AQs-ATs, K9s, Q8s+, J8s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo, J7s:0.9, 82s:0.5, KQs:0.3, KQo:0.3, KJs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "TT+, AKs, KTs, AQo+, KJs:0.9, KQs:0.7, KQo:0.7"
      }
     ]
    },
@@ -5248,7 +5496,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.517,
+    "occ": 0.649,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -5257,13 +5505,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, 44-22, AJs-ATs, A7s, KTs+, K8s-K2s, Q2s+, J4s+, T6s+, 96s+, 85s+, 74s+, 63s+, 53s+, 42s+, 32s, AJo, QTo+, JTo, T9o, 88:0.9, 55:0.9, KQo:0.9, KJo:0.8, K9s:0.6, J3s:0.6, J9o:0.6, A8s:0.3"
+      "range": "88-66, AJs-A9s, K9s, K7s, Q5s+, J5s+, T5s+, 95s+, 84s+, 82s, 72s+, 62s+, 52s+, 42s+, 32s, AJo, QJo, JTo, T9o, KQs:0.9, K8s:0.9, K4s:0.9, 94s:0.5, 99:0.4, KQo:0.3, KJs:0.2, 55:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, A9s, AQo+, A5s:0.7, K9s:0.4, KJo:0.2, 88:0.1, 55:0.1, A4s:0.1, KQo:0.1"
+      "range": "TT+, AQs+, KTs, AQo+, KJs:0.8, KQo:0.7, 99:0.6, KQs:0.1, K8s:0.1, KJo:0.1"
      }
     ]
    },
@@ -5281,8 +5529,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.67,
-    "regret": 0.0002,
+    "occ": 0.816,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5290,13 +5538,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-22, A8s-A5s, KJs+, K9s-K2s, Q2s+, J2s+, T2s+, 95s+, 85s+, 74s+, 63s+, 53s+, 42s+, 32s, KJo, QTo+, J9o+, T8o+, 98o, KTs:0.8, AJs:0.7, 94s:0.7, 92s:0.7, A4s:0.6, KQo:0.3, ATs:0.2, A3s:0.2, 77:0.1"
+      "range": "77-55, AJs, A8s-A6s, K3s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, A5s:0.9, AJo:0.8, T8o:0.8, 88:0.6, KQo:0.6, K2s:0.2, A9s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AQs+, A9s, AJo+, 77:0.9, ATs:0.8, KQo:0.7, AJs:0.3, KTs:0.2, ATo:0.1"
+      "range": "99+, AQs+, ATs, AQo+, A9s:0.9, KTo:0.7, 88:0.4, KQo:0.4, AJo:0.2"
      }
     ]
    },
@@ -5314,8 +5562,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.063,
-    "regret": 0.0001,
+    "occ": 0.9,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5323,13 +5571,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-22, AJs-ATs, A8s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 84s+, 82s, 73s+, 63s+, 52s+, 42s+, 32s, QTo+, J9o+, T8o+, 97o+, 87o, 76o, 83s:0.8, 86o:0.8, KJo:0.7, KQo:0.6, ATo:0.4"
+      "range": "77-33, AJs, A9s-A3s, KJs+, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KQo, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, A2s:0.9, AJo:0.8, KJo:0.8, KTs:0.5, 88:0.2, Q9o:0.2, T7o:0.2, ATs:0.1, ATo:0.1, KTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AQs+, A9s, AJo+, ATo:0.6, KQo:0.4, KJo:0.3"
+      "range": "99+, AQs+, AQo+, ATs:0.9, KTo:0.9, 88:0.8, ATo:0.7, KTs:0.5, AJo:0.2, KJo:0.2"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp2-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "CO"
+    ],
+    "chip": "UTG+2오픈·CO콜",
+    "title": "BB vs UTG+2 오픈 + CO 콜",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.538,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "66-44, AJs, A9s-A7s, KJs, K9s-K6s, K4s, Q5s+, J7s+, T5s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KJo, QTo+, JTo, T9o, 98o, 77:0.9, 93s:0.8, KQs:0.7, 33:0.6, Q4s:0.6, J5s:0.6, J6s:0.3, KQo:0.3, ATs:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "88+, AQs+, KTs, AQo+, ATs:0.8, A5s:0.8, KQo:0.7, A4s:0.3, KQs:0.3, 77:0.1"
      }
     ]
    },
@@ -5347,8 +5628,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.763,
-    "regret": 0.0001,
+    "occ": 0.794,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5356,13 +5637,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "55-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T8o+, 98o, 84s:0.9, 87o:0.9, AJs:0.8, 66:0.5, 73s:0.3, KQo:0.2, ATo:0.1, 76o:0.1"
+      "range": "66-55, AJs, A9s-A3s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, 76o, 44:0.9, KTs:0.8, Q9o:0.7, T8o:0.7, KQo:0.6, 65o:0.6, KQs:0.5, ATo:0.5, 33:0.4, ATs:0.3, 87o:0.3, KTo:0.2, AJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AQs+, AJo+, ATo:0.9, KQo:0.8, 66:0.5, AJs:0.2"
+      "range": "77+, AQs+, AQo+, AJo:0.9, ATs:0.7, KTo:0.7, KQs:0.5, ATo:0.5, KQo:0.4, KTs:0.2"
      }
     ]
    },
@@ -5380,7 +5661,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.162,
+    "occ": 1.156,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -5389,13 +5670,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-33, ATs, A8s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, QTo+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, KJo:0.9, AJs:0.8, 22:0.5, A9s:0.5, KQo:0.2"
+      "range": "66-22, ATs, A8s-A6s, A4s-A3s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, KJo, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, A5s:0.9, 86o:0.8, 77:0.7, A2s:0.7, 97o:0.7, J8o:0.6, KQo:0.4, KTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AQs+, ATo+, KQo:0.8, 22:0.5, A9s:0.5, AJs:0.2, KJo:0.1"
+      "range": "88+, AJs+, A9s, KQs, KTs, AJo+, KTo:0.9, KQo:0.6, 77:0.3, A2s:0.3, A5s:0.1"
      }
     ]
    },
@@ -5413,8 +5694,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.501,
-    "regret": 0.0006,
+    "occ": 0.549,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5422,13 +5703,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, ATs, A8s-A2s, KJs, K8s-K6s, K4s-K2s, Q2s+, J5s+, T5s+, 95s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QTo+, T9o, 55:0.9, K9s:0.9, K5s:0.9, J4s-J3s:0.9, KJo:0.9, 98o:0.9, 66:0.8, AJs:0.8, KQs:0.8, ATo:0.7, JTo:0.7, KTs:0.6, J2s:0.6, T2s:0.6, 77:0.5, A9s:0.4, J9o:0.4, T8o:0.4"
+      "range": "55-33, ATs, A7s-A6s, A4s-A3s, KJs-K9s, K7s-K6s, K4s, Q5s+, J7s+, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, QJo, 98o, 76o, 65o, AJs:0.9, K5s:0.9, KJo:0.9, 54o:0.9, 66:0.8, KQs:0.8, T9o:0.8, K8s:0.6, A8s:0.4, Q4s:0.4, A9s:0.2, A2s:0.2, J6s:0.2, T5s:0.2, A5s:0.1, J5s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AQs+, AJo+, KQo, A9s:0.6, 77:0.5, KTs:0.4, ATo:0.3, 66:0.2, AJs:0.2, KQs:0.2, 55:0.1, K9s:0.1, K5s:0.1, KJo:0.1"
+      "range": "77+, AQs+, ATo+, KQo, A5s:0.9, A9s:0.8, A8s:0.6, K8s:0.4, 66:0.2, KQs:0.2, AJs:0.1, KJo:0.1"
      }
     ]
    },
@@ -5446,7 +5727,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.81,
+    "occ": 0.815,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -5455,13 +5736,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, ATs-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 84s+, 74s+, 63s+, 52s+, 42s+, 32s, KJo-KTo, QTo+, J9o+, T8o+, 98o, 87o, 82s:0.9, 55:0.7, 76o:0.6, 73s:0.5, 66:0.3, 97o:0.3, KQo:0.2, ATo:0.1"
+      "range": "55-33, ATs, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, 54o:0.9, Q9o:0.8, ATo:0.7, KTs:0.6, KQo:0.4, KTo:0.4, T8o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AJs+, KQs, AJo+, ATo:0.9, KQo:0.8, 66:0.7, 55:0.3, K9o:0.1"
+      "range": "66+, AJs+, A9s, KQs, AJo+, KQo:0.6, KTo:0.6, KTs:0.4, ATo:0.3"
      }
     ]
    },
@@ -5479,7 +5760,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.248,
+    "occ": 1.382,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -5488,13 +5769,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-33, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K7o, QTo+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, ATs:0.9, 55:0.5, KQo:0.5, 22:0.4, K9o:0.3, KQs:0.2, 72s:0.1"
+      "range": "66-22, ATs, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, Q8o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 53o+, 43o, ATo:0.5, 75o:0.5, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, AJs+, ATo+, KQs:0.8, K9o:0.7, 22:0.6, 55:0.5, KQo:0.5, ATs:0.1"
+      "range": "77+, AJs+, A9s, KQs, AJo+, K9o, KQo:0.9, ATo:0.5, A9o:0.1"
      }
     ]
    },
@@ -5512,8 +5793,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.596,
-    "regret": 0.0002,
+    "occ": 0.83,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5521,13 +5802,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 84s+, 82s, 73s+, 63s+, 52s+, 42s+, 32s, KJo, K8o-K7o, QTo+, J9o+, T8o+, 98o, 87o, 97o:0.9, 76o:0.9, KTo:0.7, K9o:0.5, 83s:0.4, 55:0.3, KQo:0.2, 86o:0.1"
+      "range": "44-22, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 53o+, JTo:0.7, KTo:0.4, 55:0.1, 43o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, A9s+, KQs, ATo+, KQo:0.8, 55:0.7, K9o:0.5, KTo:0.3"
+      "range": "66+, A9s+, KQs, ATo+, KQo, 55:0.9, KTo:0.6, JTo:0.3"
      }
     ]
    },
@@ -5545,8 +5826,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.523,
-    "regret": 0.0001,
+    "occ": 1.46,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5554,13 +5835,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33, ATs-A9s, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K5o, Q8o+, J9o+, T8o+, 97o+, 86o+, 75o+, 65o, 54o, Q7o:0.9, KQo:0.8, 44:0.7, 22:0.7, A8s:0.4"
+      "range": "44-33, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K7o, Q6o+, J7o+, T7o+, 97o+, 86o+, 75o+, 65o, 53o+, 43o, 22:0.8, K6o:0.7, 55:0.5, 64o:0.2, KQo:0.1, K9o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "55+, AJs+, KQs, A9o+, K9o, A8s:0.6, 44:0.3, 22:0.3, KQo:0.2"
+      "range": "66+, ATs+, KQs, A9o+, KQo:0.9, K9o:0.9, 55:0.5, 22:0.2"
      }
     ]
    },
@@ -5578,7 +5859,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.679,
+    "occ": 0.718,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -5587,13 +5868,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KTs-K2s, QTs+, Q8s-Q2s, J2s+, T5s+, T3s-T2s, 94s+, 92s, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K6o, QTo+, J9o, T9o, 98o, 76o, 65o, T4s:0.9, K5o:0.9, JTo:0.8, 93s:0.7, Q9s:0.6, 83s:0.5, KQo:0.3, 33:0.2, K9o:0.2, T8o:0.2, KJs:0.1, 87o:0.1"
+      "range": "33-22, A7s-A2s, KTs-K2s, Q2s+, J9s-J2s, T5s+, T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K7o, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 53o+, T4s:0.9, 43o:0.9, T3s:0.8, K9o:0.6, A8s:0.5, JTs:0.5, KJo:0.5, A8o:0.4, JTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "44+, 22, A8s+, KQs, A9o+, KJs:0.9, 33:0.8, K9o:0.8, KQo:0.7, Q9s:0.4, JTo:0.1"
+      "range": "44+, A9s+, KJs+, A9o+, KQo, JTo:0.9, A8o:0.6, A8s:0.5, JTs:0.5, KJo:0.5, K9o:0.4"
      }
     ]
    },
@@ -5611,7 +5892,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.792,
+    "occ": 1.883,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -5620,13 +5901,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o, KJo-KTo, K8o-K4o, Q5o+, J8o+, T8o+, 97o+, 86o+, 75o+, 65o, 54o, Q4o:0.9, A5o:0.8, 53o:0.6"
+      "range": "33, A7s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A5o, K9o-K5o, Q4o+, J9o-J7o, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, KJs-KTs:0.9, KJo:0.8, A4o:0.6, K4o:0.5, JTo:0.4, A7o:0.2, KTo:0.2, 22:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "22+, A8s+, KQs, A7o+, KQo, K9o"
+      "range": "44+, A8s+, KQs, A8o+, 22:0.9, KQo:0.9, A7o:0.8, KTo:0.8, JTo:0.6, KJo:0.2, KJs-KTs:0.1"
      }
     ]
    },
@@ -5644,8 +5925,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 2.616,
-    "regret": 0.0001,
+    "occ": 3.123,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5653,13 +5934,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A6s, A4s-A3s, KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o, KJo-KTo, K8o-K2o, QTo+, Q8o-Q3o, J9o+, J7o, T8o, 97o+, 86o+, 75o+, 65o, 54o, 53o:0.9, J8o:0.8, A5s:0.7, Q9o:0.7, T9o:0.7, KQo:0.6, A2s:0.3, Q2o:0.1"
+      "range": "22, A7s-A6s, A4s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K2o, QTo+, Q8o-Q2o, J4o+, J2o, T6o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, 32o, KJo:0.9, Q9o:0.7, 74o:0.5, K9o:0.4, J3o:0.4, 33:0.2, KQo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "22+, A8s+, KJs+, A5o+, A3o-A2o, K9o, A2s:0.7, KQo:0.4, A5s:0.3, Q9o:0.3, T9o:0.3, J8o:0.2"
+      "range": "44+, A8s+, A5s, KTs+, A2o+, 33:0.8, KQo:0.8, K9o:0.6, Q9o:0.3, KJo:0.1"
      }
     ]
    },
@@ -5678,9 +5959,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 49.7,
-    "occ": 2.374,
-    "regret": 0.0002,
+    "reachPct": 55.3,
+    "occ": 2.923,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5688,13 +5969,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A4s-A2s, Q5s-Q2s, J8s-J2s, T7s-T2s, 97s-93s, 86s-85s, 75s+, 64s+, 53s+, 43s, A4o-A3o, QTo, JTo, J8o, T8o+, 98o, A5o:0.9, KTo:0.9, 84s:0.7, K2s:0.6, A7o:0.5, J9o:0.5, A8o:0.4, A2o:0.1"
+      "range": "44-22, A3s-A2s, K4s-K2s, Q7s-Q2s, J7s-J2s, T6s-T2s, 95s-92s, 85s-83s, 74s-73s, 63s, A6o-A4o, K9o, K7o-K6o, J9o-J7o, T8o+, 97o+, K5s:0.9, T7s:0.9, A7o:0.9, A3o:0.8, 96s:0.6, Q6o:0.6, K7s-K6s:0.3"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "QQ+, 99-77, ATs+, A6s-A5s, K5s-K3s, AQo-A9o, KQo, K9o, K7o, A8o:0.6, A7o:0.5, J9o:0.5, K2s:0.4, A5o:0.1, KTo:0.1"
+      "range": "JJ+, 99-88, A5s+, 97s, 86s, 75s, AQo-A8o, KTo+, QTo+, K7s-K6s:0.7, 96s:0.4, K5s:0.1, T7s:0.1, A7o:0.1"
      }
     ]
    },
@@ -5712,8 +5993,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 4.63,
-    "regret": 0.0002,
+    "occ": 5.511,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5721,13 +6002,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J7s+, T6s+, 96s+, 85s+, 74s+, 63s+, 53s+, 42s+, 32s, A7o+, KJo+, K9o-K8o, QJo, Q9o-Q8o, J9o, T9o, 97o+, 64o+, 53o, 42o, 32o, 94o:0.9, 76o:0.8, 54o:0.8, 86o:0.7, 87o:0.6, 43o:0.6, A4o:0.5, 75o:0.5, 52s:0.4, KTo:0.4, K4o:0.4, J6s:0.3, 95s:0.3, 92o:0.3, A5o:0.2, K7o:0.2, J4s:0.1, A6o:0.1, K2o:0.1, J8o:0.1, T8o:0.1, 95o:0.1, 93o:0.1"
+      "range": "22+, A2s+, K6s+, Q7s+, J7s+, T6s+, T4s, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A8o+, KTo+, QJo, Q9o, J8o+, T8o+, 98o, 84o, 64o+, 52o+, 42o+, 32o, K5s:0.9, 94s:0.9, A7o:0.9, QTo:0.9, 87o:0.8, T7o:0.7, 76o:0.7, 94o:0.6, 86o:0.6, 74o:0.5, 97o:0.4, 83o:0.4, K4s:0.3, 93o:0.3, J4s:0.1, 93s:0.1, 72s:0.1, T4o:0.1, 63o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "J5s, J3s-J2s, T5s-T2s, 94s-92s, 84s-82s, 73s-72s, 62s, A3o-A2o, K6o-K5o, K3o, QTo, Q7o-Q2o, JTo, J7o-J2o, T7o-T2o, 96o, 85o-82o, 74o-72o, 63o-62o, 52o, J4s:0.9, A6o:0.9, K2o:0.9, J8o:0.9, T8o:0.9, 95o:0.9, 93o:0.9, A5o:0.8, K7o:0.8, J6s:0.7, 95s:0.7, 92o:0.7, 52s:0.6, KTo:0.6, K4o:0.6, A4o:0.5, 75o:0.5, 87o:0.4, 43o:0.4, 86o:0.3, 76o:0.2, 54o:0.2, 94o:0.1"
+      "range": "K3s-K2s, Q6s-Q2s, J6s-J5s, J3s-J2s, T5s, T3s-T2s, 92s, 83s-82s, A6o-A2o, K9o-K2o, Q8o-Q2o, J7o-J2o, T6o-T5o, T3o-T2o, 96o-95o, 92o, 85o, 82o, 75o, 73o-72o, 62o, J4s:0.9, 93s:0.9, 72s:0.9, T4o:0.9, 63o:0.9, K4s:0.7, 93o:0.7, 97o:0.6, 83o:0.6, 74o:0.5, 94o:0.4, 86o:0.4, T7o:0.3, 76o:0.3, 87o:0.2, K5s:0.1, 94s:0.1, A7o:0.1, QTo:0.1"
      }
     ]
    },
@@ -5746,9 +6027,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 51.3,
-    "occ": 0.402,
-    "regret": 0.0046,
+    "reachPct": 53.1,
+    "occ": 0.541,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -5756,13 +6037,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A6s, K7s+, K4s-K2s, QTs+, Q8s-Q2s, J6s+, J4s, T6s+, 95s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, AQo-A9o, KJo+, QJo, K6s:0.9, K5s:0.7, 65o:0.6, A8o:0.5, 76o:0.5, TT:0.4, T9o:0.4, 54o:0.4, Q9s:0.3, 87o:0.3, JJ:0.2, A2s:0.2, KTo:0.2, A5s-A3s:0.1, J9o:0.1, 98o:0.1"
+      "range": "99-22, AQs-A6s, A2s, KTs+, QTs+, Q8s-Q7s, J7s+, J4s, T6s+, T4s, 94s+, 84s+, 72s+, 62s+, 52s+, 42s+, 32s, AQo-A8o, KJo+, QJo, JTo, 65o, 54o, 93s:0.9, K8s:0.8, Q9s:0.8, A7o:0.8, TT:0.7, A5s:0.7, KTo:0.7, QTo:0.7, A3s:0.5, 76o:0.2, JJ:0.1, K7s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, A5s-A3s:0.9, JJ:0.8, A2s:0.8, KTo:0.8, Q9s:0.7, TT:0.6, A5o:0.6, K5s:0.3, A4o:0.2, K6s:0.1"
+      "range": "QQ+, AKs, A4s, K9s, K6s-K4s, AKo, JJ:0.9, K7s:0.9, A3s:0.5, TT:0.3, A5s:0.3, KTo:0.3, K8s:0.2, Q9s:0.2, QTo:0.1"
      }
     ]
    }
@@ -5791,7 +6072,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "cold4": "jam",
    "allinOrder": "priority"
   },
-  "iterations": 2000,
+  "iterations": 2250,
   "occThreshold": 0.1,
   "occThresholdByKind": {
    "rfi": 0.1,
@@ -5802,38 +6083,39 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "vsLimp": 0.1,
    "vsShove": 0.1
   },
+  "occThresholdCold": 1,
   "brGainMbb": [
-   0.467,
-   0.541,
-   0.461,
-   0.721,
-   0.373,
-   0.28,
-   0.374,
-   0.355,
-   0.525
+   0.414,
+   0.488,
+   0.47,
+   0.511,
+   0.32,
+   0.32,
+   0.456,
+   0.486,
+   0.562
   ],
-  "nashConvMbb": 4.098,
-  "snappedGainMbb": 2.143,
+  "nashConvMbb": 4.026,
+  "snappedGainMbb": 1.548,
   "ev": [
-   0.1492,
-   0.1709,
-   0.1952,
-   0.2222,
-   0.2567,
-   0.3062,
-   0.3772,
-   -0.1256,
-   -1.4182
+   0.1487,
+   0.1687,
+   0.1935,
+   0.2226,
+   0.2594,
+   0.3073,
+   0.3784,
+   -0.1333,
+   -1.414
   ],
   "diag": {
-   "evSum": 0.1337,
-   "frozenOccPct": 0.684,
-   "negativeShares": 11863
+   "evSum": 0.1314,
+   "frozenOccPct": 0.635,
+   "negativeShares": 18849
   },
   "model": {
-   "id": "modelB-5f",
-   "fitHash": "45018e13c1764b7cbeb8e77875653bd1808740df1001e2c5ae8b55e36f111f96",
+   "id": "modelB-rank6",
+   "fitHash": "03dd3d0015e3d70ae736d9982d7c2bf8308f0141e6cd82bbbf1b8f636443fcb4",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
@@ -5855,19 +6137,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A7s 0%, K7s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "66+, A9s+, K7s+, QTs+, J9s, T9s, 98s, AJo+, KQo, JTs:0.8, KJo:0.8, A5s:0.5, A4s:0.3, T8s:0.3, ATo:0.3, A8s:0.2, 55:0.1"
+      "range": "77+, A9s+, K9s+, QTs+, J9s+, T8s+, 98s, 54s, AJo+, KQo, A5s:0.7, KJo:0.7, A8s:0.4, 87s:0.1"
      }
     ]
    },
@@ -5877,19 +6159,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 85.785,
+    "occ": 86.649,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "66+, A9s+, A5s, K6s+, QTs+, J9s+, T8s+, 98s, AJo+, KJo+, 55:0.8, A8s:0.8, Q9s:0.8, ATo:0.8, A4s:0.1"
+      "range": "77+, A9s+, K9s+, Q9s+, J9s+, T8s+, 98s, 87s, AJo+, KQo, 76s:0.9, A8s:0.7, ATo:0.7, QJo:0.7, 66:0.6, A5s:0.5, 54s:0.4, KJo:0.4, 97s:0.1"
      }
     ]
    },
@@ -5899,19 +6181,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 71.839,
+    "occ": 73.292,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "55+, A7s+, A5s, K4s+, Q9s+, J9s+, T8s+, 98s, ATo+, KJo+, 97s:0.9, Q8s:0.3, A4s:0.1"
+      "range": "66+, A8s+, A5s, K8s+, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, ATo+, KJo+, QJo, 65s:0.9, 54s:0.5, A7s:0.3, A4s:0.2"
      }
     ]
    },
@@ -5921,19 +6203,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A3s 0%, K3s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 58.993,
+    "occ": 60.151,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "44+, A5s+, K3s+, Q7s+, J9s+, T8s+, 97s+, 87s, ATo+, KJo+, QJo, A4s:0.7, 33:0.3"
+      "range": "55+, A7s+, A5s, K8s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, 65s, 54s, ATo+, KJo+, QJo, A6s:0.9, K7s:0.9, A9o:0.5, KTo:0.5, 86s:0.4, JTo:0.4, A4s:0.1, QTo:0.1"
      }
     ]
    },
@@ -5943,19 +6225,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: KTo 0%, K9o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 46.602,
+    "occ": 47.343,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "33+, A2s+, K2s+, Q6s+, J8s+, T8s+, 97s+, 87s, A9o+, KJo+, K9o, QJo, QTo:0.9, 22:0.6, A8o:0.4, 86s:0.3, 76s:0.3"
+      "range": "55+, A3s+, K6s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, A8o+, KTo+, QTo+, JTo, 96s:0.9, 44:0.3"
      }
     ]
    },
@@ -5965,19 +6247,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 34.328,
+    "occ": 34.718,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q4s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, A6o+, K7o+, QTo+, J9o, T9o, A5o:0.7"
+      "range": "33+, A2s+, K4s+, Q6s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, A7o+, K9o+, QTo+, J9o+, T9o, A6o:0.4, T6s:0.3, Q9o:0.2"
      }
     ]
    },
@@ -5990,7 +6272,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 21.959,
+    "occ": 22.669,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -5999,7 +6281,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T6s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, A2o+, K2o+, Q8o+, J9o+, T8o+, 98o, Q7o:0.2"
+      "range": "22+, A2s+, K2s+, Q2s+, J3s+, T4s+, 95s+, 84s+, 74s+, 63s+, 52s+, 42s+, 32s, A3o+, K6o+, Q8o+, J8o+, T8o+, 98o, 87o, Q7o:0.3"
      }
     ]
    },
@@ -6012,8 +6294,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 10.422,
-    "regret": 0.0001,
+    "occ": 10.743,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6021,13 +6303,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, AQs-AJs, A2s, K5s, K3s-K2s, Q6s-Q2s, J8s-J2s, T7s-T2s, 97s-92s, 86s-82s, 75s-73s, 63s+, 53s+, 32s, AJo-A8o, A5o-A3o, QTo, Q6o-Q2o, J9o+, J7o-J2o, T9o, T7o-T2o, 96o-95o, 75o+, 65o, 76s:0.9, KQo:0.9, K4s:0.8, 43s:0.8, AKs:0.7, ATs:0.7, 98o:0.7, Q9o:0.6, T8o:0.6, QQ:0.5, 99:0.5, A5s:0.5, A3s:0.4, KTo:0.4, J8o:0.4, KK:0.3, 55:0.3, A6s:0.2, 86o:0.2, JJ:0.1, 88:0.1, A4s:0.1, Q7s:0.1, 42s:0.1, A6o:0.1, A2o:0.1, K7o:0.1, QJo:0.1"
+      "range": "AA, 22, AQs-ATs, A2s, K6s-K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 97s-92s, 85s-82s, 75s-73s, AJo-A7o, A5o-A2o, K4o-K2o, Q6o-Q2o, J7o-J2o, T6o-T4o, 97o-95o, 86o-85o, 75o, 99:0.9, 33:0.9, Q8s:0.9, J8o:0.9, T9o:0.9, T7o:0.8, 65o:0.8, KTo:0.7, KK:0.6, KJo:0.6, K6o:0.6, T3o:0.6, A6o:0.5, KQo:0.5, QJo:0.5, 86s:0.4, 62s:0.4, J9o:0.4, QQ-JJ:0.3, AKs:0.3, QTo:0.3, T8o:0.3, 44:0.2, A3s:0.2, 72s:0.2, 64s:0.2, JTo:0.2, 77:0.1, 63s:0.1, AQo:0.1, K5o:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3.5bb",
       "color": "raise",
-      "range": "TT, 77-66, 44-22, A9s-A7s, K6s+, Q8s+, J9s+, T8s+, 98s, 87s, AQo+, A7o, KJo, K9o-K8o, K6o-K2o, Q8o-Q7o, 97o, 87o, JJ:0.9, 88:0.9, A4s:0.9, Q7s:0.9, 42s:0.9, A6o:0.9, A2o:0.9, K7o:0.9, QJo:0.9, A6s:0.8, 86o:0.8, KK:0.7, 55:0.7, A3s:0.6, KTo:0.6, J8o:0.6, QQ:0.5, 99:0.5, A5s:0.5, Q9o:0.4, T8o:0.4, AKs:0.3, ATs:0.3, 98o:0.3, K4s:0.2, 43s:0.2, 76s:0.1, KQo:0.1"
+      "range": "TT, 88, 66-55, A9s-A4s, K7s+, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 52s+, 42s+, 32s, AKo, K9o-K7o, Q9o-Q7o, 98o, 87o, 76o, 77:0.9, 63s:0.9, AQo:0.9, K5o:0.9, 44:0.8, A3s:0.8, 64s:0.8, JTo:0.8, QQ-JJ:0.7, AKs:0.7, QTo:0.7, T8o:0.7, 86s:0.6, J9o:0.6, A6o:0.5, KQo:0.5, QJo:0.5, KK:0.4, KJo:0.4, K6o:0.4, KTo:0.3, T7o:0.2, 99:0.1, 33:0.1, Q8s:0.1, J8o:0.1, T9o:0.1"
      }
     ]
    },
@@ -6044,7 +6326,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 14.215,
+    "occ": 13.351,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -6053,13 +6335,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KQs, JJ:0.9, QJs:0.9, 88:0.7, AKs:0.6, KJs:0.5, AQo:0.3, KK:0.1, ATs:0.1, QTs:0.1"
+      "range": "QQ, 88, AQs-AJs, KQs, JJ:0.8, AQo:0.7, AKs:0.6, KK:0.4, TT:0.4, 99:0.2, QJs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, TT-99, AKo, KK:0.9, ATs:0.9, AQo:0.7, K9s:0.6, KJs:0.5, AKs:0.4, 88:0.3, KQo:0.3, 55:0.2, JJ:0.1"
+      "range": "AA, ATs, KJs-KTs, AKo, 99:0.8, JTs:0.8, KK:0.6, TT:0.6, AKs:0.4, QJs:0.3, AQo:0.3, JJ:0.2"
      }
     ]
    },
@@ -6076,7 +6358,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 13.134,
+    "occ": 12.354,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -6085,13 +6367,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KQs, QTs+, 88:0.8, KQo:0.6, KJs:0.5, AKs:0.4, AQo:0.3, KK:0.1, ATs:0.1, JTs:0.1"
+      "range": "QQ-JJ, 88, AQs-AJs, KQs, QJs:0.9, AKs:0.6, AQo:0.6, KK:0.3, 99:0.3, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, TT-99, AKo, KK:0.9, ATs:0.9, K9s:0.7, AQo:0.7, AKs:0.6, KJs:0.5, KQo:0.3, 88:0.2, 55:0.2"
+      "range": "AA, ATs, KJs-KTs, JTs, AKo, TT:0.9, KK:0.7, 99:0.7, AKs:0.4, AQo:0.4, QJs:0.1"
      }
     ]
    },
@@ -6108,7 +6390,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 13.946,
+    "occ": 13.357,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -6117,13 +6399,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KQs, QTs+, JJ:0.9, KJs:0.6, KQo:0.6, 88-77:0.4, ATs:0.3, AKs:0.2, TT:0.1, AQo:0.1"
+      "range": "QQ-JJ, AQs-AJs, KQs, QJs, TT:0.6, AQo:0.6, 77:0.5, 99-88:0.3, AKs:0.3, KJs:0.3, KQo:0.3, AJo:0.2, KK:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 99, AKo, TT:0.9, AQo:0.9, AKs:0.8, K9s:0.8, ATs:0.7, 88:0.6, KJs:0.4, KQo:0.4, 55:0.2, JJ:0.1, 77:0.1"
+      "range": "AA, ATs, KTs, JTs, AKo, KK:0.9, 99-88:0.7, AKs:0.7, KJs:0.7, T9s:0.5, TT:0.4, AQo:0.4, KQo:0.3"
      }
     ]
    },
@@ -6140,8 +6422,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 12.012,
-    "regret": 0.0001,
+    "occ": 11.396,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6149,13 +6431,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KQs, QTs+, JTs, 88:0.8, KJs:0.7, KQo:0.7, AKs:0.5, ATs:0.3, AQo:0.3, 77:0.1"
+      "range": "QQ-JJ, 88, AQs-AJs, KQs, QJs, AQo:0.8, AKs:0.6, KJs:0.6, 99:0.5, QTs:0.5, 77:0.3, KQo:0.3, KK:0.2, TT:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT-99, AKo, K9s:0.9, ATs:0.7, AQo:0.7, AKs:0.5, 55:0.3, KJs:0.3, KQo:0.3, 88:0.2"
+      "range": "AA, ATs, KTs, JTs, TT:0.9, AKo:0.9, KK:0.8, T9s:0.8, 99:0.5, AKs:0.4, KJs:0.4, AJo:0.3, AQo:0.2"
      }
     ]
    },
@@ -6172,8 +6454,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 12.713,
-    "regret": 0.0004,
+    "occ": 12.189,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6181,13 +6463,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KQs, QTs+, JJ:0.9, 77:0.9, JTs:0.9, KJs:0.7, KQo:0.7, ATs:0.4, TT:0.1, 88:0.1, AQo:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, QTs:0.6, JTs:0.6, KQo:0.6, TT:0.4, AQo-AJo:0.3, 99:0.2, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 99, AKs, K9s, AKo, TT:0.9, 88:0.9, AQo:0.9, ATs:0.6, KTs:0.5, KJs:0.3, KQo:0.3, AJo:0.2, JJ:0.1, 77:0.1, 55:0.1"
+      "range": "KK+, AKs, ATs, KJs-KTs, AKo, 88:0.9, 99:0.8, AQo:0.7, TT:0.6, T9s:0.6, JTs:0.4, KQo:0.4"
      }
     ]
    },
@@ -6204,8 +6486,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 12.846,
-    "regret": 0.0005,
+    "occ": 13.141,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6213,13 +6495,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs, KQs, QTs+, JTs, AJs:0.9, KJs:0.9, KQo:0.6, JJ:0.5, ATs:0.5, 77:0.4, AJo:0.4, TT:0.2, AQo+:0.2, 99:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, QTs:0.9, AJo:0.9, KQo:0.7, 99:0.5, TT:0.3, ATs:0.3, JTs:0.3, KJs:0.2, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, KTs-K9s, 99:0.9, TT:0.8, AQo+:0.8, 77:0.6, JJ:0.5, ATs:0.5, AJo:0.5, A9s:0.4, KQo:0.4, KJo:0.3, AJs:0.1, KJs:0.1"
+      "range": "KK+, AKs, KTs, T9s, AQo+, 88:0.9, KJs:0.8, TT:0.7, ATs:0.7, JTs:0.7, A9s:0.6, 99:0.5, K9s:0.4, KQo:0.3, AJo:0.1"
      }
     ]
    },
@@ -6236,8 +6518,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 10.921,
-    "regret": 0.0002,
+    "occ": 10.397,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6245,13 +6527,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs-AJs, KQs, QTs+, JTs, JJ:0.9, KJs:0.9, 88:0.7, KQo:0.7, ATs:0.5, AQo:0.4, AKs:0.2, AJo:0.2"
+      "range": "QQ, 88-77, AQs-AJs, KQs, QTs+, JJ:0.9, KQo:0.9, AQo:0.8, 99:0.6, AKs:0.5, JTs:0.5, KJs:0.4, ATs:0.3, KK:0.2, TT:0.2, AJo:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT-99, K9s, AKo, AKs:0.8, AQo:0.6, ATs:0.5, 88:0.3, 55:0.3, KQo:0.3, KTs:0.2, JJ:0.1, KJs:0.1"
+      "range": "AA, KTs, T9s, AKo:0.9, KK:0.8, TT:0.8, 54s:0.8, ATs:0.7, KJs:0.6, AKs:0.5, JTs:0.5, 99:0.4, AQo-AJo:0.2, JJ:0.1, A9s:0.1, 98s:0.1, KQo:0.1"
      }
     ]
    },
@@ -6268,8 +6550,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 11.476,
-    "regret": 0.0003,
+    "occ": 11.006,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6277,13 +6559,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-ATs, KQs, QTs+, JTs, AJo, JJ:0.7, 77:0.7, KQo:0.7, TT:0.5, AQo:0.4, J9s:0.3, KJs:0.2, T9s:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, AJo, JTs:0.9, 88:0.8, KQo:0.6, TT:0.4, AQo:0.4, T9s:0.2, 99:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 99-88, AKs, KTs-K9s, AKo, KJs:0.8, AQo:0.6, TT:0.5, A9s:0.5, JJ:0.3, 77:0.3, 55:0.3, KQo:0.3, KJo:0.1"
+      "range": "KK+, AKs, KJs-KTs, 54s, AKo, 99:0.9, ATs:0.9, T9s:0.8, TT:0.6, AQo:0.6, KQo:0.4, 88:0.2, A9s:0.2, JTs:0.1"
      }
     ]
    },
@@ -6300,8 +6582,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 11.45,
-    "regret": 0.0001,
+    "occ": 11.719,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6309,13 +6591,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KJs+, QTs+, JTs, 66:0.7, AJo:0.7, ATs:0.5, J9s:0.5, TT-99:0.4, KQo:0.4, T9s:0.3, AKo:0.3, JJ:0.2, 77:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, AJo, KQo:0.9, 99:0.5, A9s:0.5, 88:0.4, T9s:0.3, JTs:0.2, TT:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, KTs-K9s, AQo, 77:0.9, JJ:0.8, AKo:0.7, TT-99:0.6, KJo+:0.6, ATs-A9s:0.5, AJo:0.3, J9s:0.2"
+      "range": "KK+, AKs, KJs-K9s, AQo+, TT:0.9, ATs:0.9, JTs:0.8, T9s:0.7, 88:0.6, 99:0.5, A9s:0.5, 98s:0.4, 54s:0.4, KJo:0.2, KQo:0.1"
      }
     ]
    },
@@ -6332,8 +6614,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 12.391,
-    "regret": 0.0003,
+    "occ": 12.808,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6341,13 +6623,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-AJs, KJs, QTs+, JTs, J9s:0.9, T9s:0.9, A9s:0.8, ATs:0.7, KQs:0.7, QQ-JJ:0.6, 66:0.6, KTs:0.6, AKo:0.4, KQo:0.4, TT-99:0.3, KJo:0.3, AJo:0.1"
+      "range": "JJ, 66, AQs-AJs, A9s-A8s, KQs, QTs+, JTs:0.9, QQ:0.8, 99:0.8, KJs:0.8, ATs:0.6, KQo:0.5, TT:0.3, AJo:0.3, AKo:0.2, 88:0.1, Q9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88-77, AKs, K9s-K8s, AQo, AJo:0.9, TT-99:0.7, AKo:0.6, KQo:0.6, QQ-JJ:0.4, 66:0.4, KTs:0.4, KJo:0.4, ATs:0.3, KQs:0.3, A9s:0.2, A8s:0.1, J9s:0.1, T9s:0.1"
+      "range": "KK+, 77, AKs, KTs-K9s, T9s, AQo, 88:0.9, 98s:0.9, AKo:0.8, TT:0.7, AJo:0.7, KQo:0.5, ATs:0.4, KJo:0.3, QQ:0.2, 99:0.2, KJs:0.2, JTs:0.1"
      }
     ]
    },
@@ -6364,8 +6646,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 9.852,
-    "regret": 0.0001,
+    "occ": 9.33,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6373,13 +6655,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs-ATs, KQs, QTs+, J9s+, T9s, AJo, 88:0.9, KQo:0.9, JJ:0.5, KTs:0.5, AQo:0.3, KJs:0.2, 99:0.1, AKs:0.1, AKo:0.1"
+      "range": "QQ, 99-77, AQs-AJs, A9s, KQs, QTs+, JTs, ATs:0.9, KQo:0.8, AJo:0.7, TT:0.5, AQo:0.5, JJ:0.3, AKs:0.2, 66:0.1, KJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, K9s, 99:0.9, AKs:0.9, AKo:0.9, KJs:0.8, AQo:0.7, JJ:0.5, KTs:0.5, 55:0.4, A9s:0.3, 88:0.1, KQo:0.1"
+      "range": "KK+, KTs, T9s, 98s, 54s, AKo, KJs:0.9, AKs:0.8, JJ:0.7, TT:0.5, AQo:0.5, AJo:0.3, KQo:0.2, ATs:0.1, 65s:0.1"
      }
     ]
    },
@@ -6396,8 +6678,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 10.205,
-    "regret": 0.0001,
+    "occ": 9.804,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6405,13 +6687,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 66, AQs-ATs, KJs+, QTs+, J9s+, T9s, AJo, KTs:0.7, KQo:0.7, 99:0.5, 77:0.5, A9s:0.4, JJ:0.3, AKo:0.3, TT:0.2, AQo:0.2"
+      "range": "QQ, 88-66, AQs-AJs, A9s, KQs, QTs+, T9s, AJo, JJ:0.9, JTs:0.7, AQo:0.6, KQo:0.6, TT:0.4, ATs:0.4, 99:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, K9s, TT:0.8, AQo:0.8, KJo:0.8, JJ:0.7, AKo:0.7, A9s:0.6, 99:0.5, 77:0.5, K8s:0.4, 55:0.3, KTs:0.3, KQo:0.3"
+      "range": "KK+, AKs, KJs-KTs, 98s, 54s, AKo, 99:0.7, TT:0.6, ATs:0.6, 87s:0.6, K9s:0.5, AQo:0.4, KQo:0.4, JTs:0.3, JJ:0.1"
      }
     ]
    },
@@ -6428,8 +6710,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 10.093,
-    "regret": 0.0001,
+    "occ": 10.355,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6437,13 +6719,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 66, AQs-AJs, KTs+, QTs+, J9s+, T9s, AJo, ATs:0.8, 99:0.7, KQo:0.6, A9s:0.5, AKo:0.3, JJ-TT:0.2, 77:0.1"
+      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, KQs, QTs+, T9s, AJo, KQo, 99:0.8, 98s:0.7, ATs:0.4, A8s:0.4, J9s:0.4, KJs:0.2, JTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, K9s-K8s, AQo, 77:0.9, JJ-TT:0.8, KJo:0.8, AKo:0.7, A9s:0.5, KQo:0.4, 99:0.3, ATs:0.2, ATo:0.2, A8s:0.1"
+      "range": "KK+, TT, 88, AKs, KTs-K9s, 54s, AQo+, JTs:0.9, KJs:0.8, ATs:0.6, A8s:0.6, KJo:0.6, 98s:0.3, 99:0.2"
      }
     ]
    },
@@ -6460,7 +6742,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 10.792,
+    "occ": 11.21,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6469,13 +6751,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AQs-A8s, KJs, QTs+, J9s+, T9s, 98s:0.9, KJo:0.9, 99:0.8, QQ:0.6, KTs:0.6, JJ:0.5, KQs:0.5, T8s:0.5, 66:0.4, AKo:0.4, KQo:0.3, 77:0.2, 88:0.1, AJo:0.1"
+      "range": "66, AQs-AJs, A9s-A8s, KJs+, QJs, Q9s, J9s+, 98s, ATo, JJ:0.9, 99:0.9, QQ:0.8, ATs:0.7, A7s:0.7, QTs:0.5, KQo:0.5, AKo:0.2, KJo:0.2, 77:0.1, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, K9s-K7s, AQo, 88:0.9, AJo:0.9, 77:0.8, KQo:0.7, 66:0.6, AKo:0.6, JJ:0.5, KQs:0.5, QQ:0.4, KTs:0.4, 99:0.2, K6s:0.2, ATo:0.2, KJo:0.1"
+      "range": "KK+, TT, 88, AKs, KTs-K9s, T9s, AQo, 77:0.9, AJo:0.9, AKo:0.8, KJo:0.6, QTs:0.5, KQo:0.5, ATs:0.3, 87s:0.3, QQ:0.2, 76s:0.2, JJ:0.1, 99:0.1"
      }
     ]
    },
@@ -6492,7 +6774,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 12.274,
+    "occ": 12.625,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6501,13 +6783,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-AJs, A7s, KJs-KTs, QTs+, JTs, 98s, KJo, ATs:0.9, JJ:0.8, KQs:0.6, T8s:0.6, 44:0.5, A9s:0.5, A8s:0.4, ATo:0.4, 77:0.2, 55:0.2, T9s:0.2, AKo:0.2, TT:0.1, J9s:0.1"
+      "range": "JJ, AQs-ATs, A8s-A7s, KJs, QTs+, J9s, KJo, QJo, 99:0.9, 55:0.7, Q9s:0.5, ATo:0.5, 66:0.4, KTs:0.4, JTs:0.4, 77:0.3, QQ:0.2, TT:0.2, KQs:0.2, 98s:0.2, AKo:0.2, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "QQ+, 88, 66, AKs, K9s-K7s, AQo-AJo, KQo, TT:0.9, J9s:0.9, 77:0.8, 55:0.8, T9s:0.8, AKo:0.8, A8s:0.6, ATo:0.6, A9s:0.5, KQs:0.4, T8s:0.4, JJ:0.2, A5s:0.2, 44:0.1, ATs:0.1"
+      "range": "KK+, AKs, A9s, K9s-K8s, T9s, AQo-AJo, KQo, 88:0.9, QQ:0.8, TT:0.8, KQs:0.8, 98s:0.8, AKo:0.8, 77:0.7, 66:0.6, KTs:0.6, JTs:0.6, Q9s:0.5, ATo:0.5, A5s:0.4, 55:0.3, 99:0.1"
      }
     ]
    },
@@ -6524,7 +6806,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 8.722,
+    "occ": 8.254,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6533,13 +6815,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77-66, AQs-A9s, KTs+, QTs+, J9s+, T8s+, 98s, AJo, KQo, 88:0.9, AQo:0.4, 55:0.2, 99:0.1, AKo:0.1"
+      "range": "QQ, 99-66, AQs-A9s, KQs, QTs+, JTs, T9s, AJo, A8s:0.9, TT:0.7, AQo:0.6, KQo:0.5, AKs:0.3, 55:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, K9s-K8s, 99:0.9, AKo:0.9, AQo:0.6, 55:0.4, KJo:0.4, 88:0.1, 44:0.1, A8s:0.1"
+      "range": "KK+, JJ, KJs-KTs, 98s, 54s, 65s:0.9, AKo:0.9, AKs:0.7, KQo:0.5, AQo:0.4, TT:0.3, 87s:0.3, A8s:0.1"
      }
     ]
    },
@@ -6556,7 +6838,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 8.887,
+    "occ": 8.602,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6565,13 +6847,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 66-55, AQs-A9s, KTs+, QTs+, J9s+, T8s+, 98s, AJo, KQo:0.9, 77:0.7, TT-99:0.5, A8s:0.5, AQo:0.3, KJo:0.3"
+      "range": "QQ, 99-66, AQs-AJs, A9s, KQs, Q9s+, J9s+, T9s, AJo, ATs:0.9, K9s:0.9, 98s:0.8, KQo:0.8, A8s:0.7, JJ:0.5, 55:0.5, KJs:0.4, AQo:0.4, TT:0.1, T8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, JJ, 88, AKs, K9s-K7s, AKo, AQo:0.7, KJo:0.7, TT-99:0.5, A8s:0.5, 77:0.3, KQo:0.1"
+      "range": "KK+, AKs, KTs, 87s, 54s, AKo, TT:0.9, KJs:0.6, AQo:0.6, JJ:0.5, KJo:0.5, 76s:0.4, 65s:0.4, A8s:0.3, 98s:0.2, KQo:0.2, ATs:0.1, K9s:0.1"
      }
     ]
    },
@@ -6585,25 +6867,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 8.768,
+    "occ": 8.99,
     "regret": 0.0001,
-    "confidence": "mid",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AQs-ATs, A8s, KTs+, Q9s+, J9s+, T8s+, 98s, AJo, A7s:0.9, QQ:0.7, A9s:0.7, ATo:0.7, 99:0.6, KJo:0.6, KQo:0.5, 77:0.4, JJ:0.3, AKo:0.3"
+      "range": "QQ, 77-55, AQs-A7s, KQs, QJs, Q9s, J9s, T9s, 98s, AJo, KQo, 99-88:0.8, KJs:0.8, T8s:0.8, ATo:0.8, K9s:0.7, QTs:0.7, JTs:0.7, JJ:0.4, 76s:0.2, 87s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, K9s-K7s, AQo, JJ:0.7, AKo:0.7, 77:0.6, K6s:0.5, KQo:0.5, 99:0.4, KJo:0.4, QQ:0.3, A9s:0.3, ATo:0.3, A7s:0.1"
+      "range": "KK+, TT, AKs, KTs, 54s, AQo+, KJo, 87s:0.9, JJ:0.6, 65s:0.4, K9s:0.3, QTs:0.3, JTs:0.3, 99-88:0.2, KJs:0.2, T8s:0.2, ATo:0.2, 76s:0.1"
      }
     ]
    },
@@ -6617,25 +6899,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 9.195,
+    "occ": 9.547,
     "regret": 0.0001,
-    "confidence": "mid",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AQs-A6s, KTs+, QTs+, J9s+, T8s+, 97s+, KJo, A5s:0.8, ATo:0.8, 88:0.7, JJ:0.6, K8s:0.5, QQ:0.4, K7s:0.4, 87s:0.4, 77:0.3, Q9s:0.3, 44:0.2, AKo:0.2, KQo:0.2, 66:0.1, AJo:0.1"
+      "range": "66-55, AJs-A6s, KQs, QJs, Q9s, J9s+, 97s+, 87s, ATo, KJo, QJo, AQs:0.9, KJs:0.9, QTs:0.9, T8s:0.9, JJ:0.8, 77:0.7, A5s:0.7, QQ:0.6, 88:0.5, KQo:0.3, Q8s:0.2, AKo:0.2, K8s:0.1, T9s:0.1, 76s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT-99, AKs, K9s, K6s, AQo, 66:0.9, AJo:0.9, AKo:0.8, KQo:0.8, 77:0.7, Q9s:0.7, QQ:0.6, K7s:0.6, K8s:0.5, K5s:0.5, JJ:0.4, 88:0.3, A5s:0.2, ATo:0.2"
+      "range": "KK+, TT-99, AKs, KTs-K9s, 54s, AQo-AJo, K8s:0.9, T9s:0.9, 76s:0.9, AKo:0.8, KQo:0.7, 65s:0.6, 88:0.5, QQ:0.4, 77:0.3, JJ:0.2, KTo:0.2, AQs:0.1, KJs:0.1, QTs:0.1, T8s:0.1"
      }
     ]
    },
@@ -6652,7 +6934,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 10.268,
+    "occ": 10.513,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6661,13 +6943,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, A8s-A6s, A4s, KTs+, K7s, QTs+, JTs, T8s, 97s+, 87s, KJo, QJo, A5s:0.9, 44:0.8, 76s:0.8, A9s:0.7, K6s:0.7, JJ:0.6, K8s:0.6, 77:0.4, TT:0.3, T9s:0.3, 88:0.2, 66:0.2, 55:0.1, K9s:0.1, AKo:0.1"
+      "range": "JJ, 55, AJs-ATs, A8s-A6s, KJs-KTs, K7s, QTs+, Q8s, J9s-J8s, 97s, 87s, KJo, QJo, AQs:0.9, K8s:0.9, 98s:0.7, 77:0.6, KQs:0.6, JTs:0.6, T8s:0.6, 66:0.5, ATo:0.5, TT:0.4, 76s:0.4, 88:0.3, A5s:0.3, A4s:0.1, 65s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "QQ+, 99, AKs, K5s, Q9s, J9s, AQo-ATo, KQo, 55:0.9, K9s:0.9, Q8s:0.9, AKo:0.9, 88:0.8, 66:0.8, TT:0.7, T9s:0.7, 77:0.6, JJ:0.4, K8s:0.4, A9s:0.3, K6s:0.3, 44:0.2, A5s:0.1"
+      "range": "QQ+, 99, AKs, A9s, K9s, Q9s, T9s, 54s, AQo-AJo, KQo, 65s:0.9, AKo:0.9, 88:0.7, A5s:0.7, TT:0.6, 76s:0.6, 66:0.5, ATo:0.5, 77:0.4, KQs:0.4, JTs:0.4, T8s:0.4, 98s:0.3, KTo:0.2, AQs:0.1, K8s:0.1"
      }
     ]
    },
@@ -6684,7 +6966,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 12.369,
+    "occ": 12.049,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6693,13 +6975,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs, ATs, A7s, A3s, KTs+, K4s, QTs+, J9s+, 97s+, 87s, KJo, QTo+, AJs:0.9, K7s:0.9, A9s:0.8, T9s:0.8, 99:0.7, A6s:0.7, TT:0.6, A4s:0.6, K5s:0.6, AQo:0.6, K9s:0.5, KTo:0.5, 77:0.1"
+      "range": "77, AQs-A9s, KTs-K9s, K7s, Q8s+, JTs, T8s, 65s, KJo-KTo, QTo, TT:0.9, A6s:0.9, KJs+:0.9, J8s:0.9, A7s:0.8, 44:0.7, A4s:0.7, 97s:0.7, J9s:0.6, K6s:0.5, T9s:0.5, 98s:0.5, QJo:0.4, 99:0.3, K8s:0.2, AQo:0.2, JTo:0.2, 87s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "JJ+, 88, 66-22, AKs, A8s, A5s, K8s, K6s, Q9s-Q8s, T8s, AKo, AJo-ATo, KQo, 77:0.9, A9o:0.6, K9s:0.5, TT:0.4, A4s:0.4, K5s:0.4, AQo:0.4, 99:0.3, A6s:0.3, A9s:0.2, T9s:0.2, AJs:0.1, K7s:0.1"
+      "range": "JJ+, 88, 66-55, AKs, A8s, A5s, 76s, AKo, AJo-A9o, KQo, 87s:0.9, K8s:0.8, AQo:0.8, 99:0.7, JTo:0.7, QJo:0.6, T9s:0.5, 98s:0.5, J9s:0.4, 44:0.3, A4s:0.3, 97s:0.3, A7s:0.2, TT:0.1, A6s:0.1, KJs+:0.1, J8s:0.1, 54s:0.1"
      }
     ]
    },
@@ -6716,8 +6998,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 7.537,
-    "regret": 0.0002,
+    "occ": 7.204,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6725,13 +7007,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-77, AQs-ATs, KJs+, QTs+, JTs, T9s:0.9, AJo:0.6, KQo:0.6, 66:0.4, 99:0.3, J9s:0.1"
+      "range": "99-77, AQs-ATs, KQs, QJs:0.6, AQo:0.4"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, AKs, AQo+, 99:0.7, KQo:0.4, 55:0.3, K9s:0.3, J9s:0.1, T9s:0.1"
+      "range": "TT+, AKs, KJs-KTs, JTs, AKo, AQo:0.6, QJs:0.4, KQo:0.3, QTs:0.2, T9s:0.1"
      }
     ]
    },
@@ -6748,8 +7030,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 7.573,
-    "regret": 0,
+    "occ": 7.37,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6757,13 +7039,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-66, AQs-ATs, KJs+, QTs+, J9s+, T9s, AJo, A9s:0.8, KTs:0.6, KQo:0.5"
+      "range": "88-66, AQs-A9s, KQs, QTs+, AJo, KJs:0.9, JTs:0.9, KQo:0.5, QQ:0.3, 99:0.3, T9s:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "99+, AKs, K9s, AQo+, KQo:0.5, KTs:0.4, 55:0.1"
+      "range": "KK+, JJ-TT, AKs, KTs, AKo, T9s:0.9, AQo:0.9, QQ:0.7, 99:0.7, KQo:0.5, KJs:0.1, JTs:0.1"
      }
     ]
    },
@@ -6780,7 +7062,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 7.326,
+    "occ": 7.506,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6789,13 +7071,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AQs-A9s, KTs+, QTs+, J9s+, T9s, AJo, 77:0.9, 98s:0.1, KQo:0.1"
+      "range": "88-66, AQs-AJs, A9s-A8s, KQs, QJs, T9s, 98s, AJo, ATs:0.9, JTs:0.9, KJs:0.8, QQ:0.5, J9s:0.5, KQo:0.2, K9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "88+, AKs, K9s, AQo+, KQo:0.9, KJo:0.5, 77:0.1"
+      "range": "KK+, JJ-99, AKs, KTs, QTs, AQo+, K9s:0.8, KQo:0.8, QQ:0.5, KJs:0.2, 87s:0.2, ATs:0.1, JTs:0.1"
      }
     ]
    },
@@ -6812,7 +7094,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 7.557,
+    "occ": 7.732,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -6821,13 +7103,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AJs-A7s, KTs+, K7s, QTs+, J9s+, T8s+, 98s, KJo:0.8, 66:0.6, K8s:0.6, AJo:0.5"
+      "range": "66, AJs-A7s, KJs+, QJs, Q9s, J9s+, 98s, T9s:0.9, QTs:0.8, 87s:0.8, 77:0.7, ATo:0.7, K9s:0.6, KJo:0.3, 55:0.2, QQ:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "77+, AQs+, K9s, AQo+, KQo, AJo:0.5, 66:0.4, K8s:0.4, ATo:0.3, KJo:0.2, Q9s:0.1"
+      "range": "KK+, JJ-88, AQs+, KTs, AJo+, KQo, QQ:0.9, K9s:0.4, 77:0.3, 76s:0.3, KJo:0.3, QTs:0.2, 87s:0.2, T9s:0.1"
      }
     ]
    },
@@ -6844,8 +7126,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 8.188,
-    "regret": 0,
+    "occ": 8.397,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6853,13 +7135,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, ATs, A8s-A5s, KJs-K6s, QTs+, JTs, T8s, 97s+, 87s, KJo, QJo:0.9, AJs:0.8, J9s:0.8, ATo:0.7, A9s:0.6, T9s:0.6, 66:0.3, JJ:0.2, 55:0.1, AKo:0.1"
+      "range": "55, ATs, A7s-A6s, KJs-KTs, Q9s+, J9s-J8s, T8s, 97s+, KJo, QJo, 66:0.9, 87s:0.9, ATo:0.7, JTs:0.6, A8s:0.4, JJ:0.3, K8s:0.3, K9s:0.2, 76s:0.2, Q8s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "QQ+, TT-77, AQs+, KQs, Q9s, AQo-AJo, KQo, 55:0.9, AKo:0.9, JJ:0.8, 66:0.7, A9s:0.4, T9s:0.4, ATo:0.3, AJs:0.2, J9s:0.2"
+      "range": "QQ+, TT-77, AJs+, A9s, A5s, KQs, T9s, AQo-AJo, KQo, AKo:0.9, K9s:0.8, 76s:0.8, JJ:0.7, A8s:0.6, JTs:0.4, ATo:0.3, 66:0.1, 87s:0.1"
      }
     ]
    },
@@ -6876,8 +7158,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 9.463,
-    "regret": 0,
+    "occ": 9.152,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6885,13 +7167,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs, ATs-A9s, A7s-A6s, A4s-A3s, KJs-KTs, K7s-K4s, Q8s+, JTs, T8s, 97s+, 87s, KJo, QTo+, A5s:0.9, K9s:0.7, TT:0.5, A2s:0.4, 86s:0.4, T9s:0.1"
+      "range": "44, AQs, A7s-A6s, A4s, KJs, K9s-K7s, Q8s+, J8s+, T8s-T7s, 97s, 76s, 65s, KTo, QTo, QJo:0.8, 87s:0.7, KJo:0.6, 55:0.5, JTo:0.4, TT:0.3, KTs:0.3, 98s:0.3, JJ:0.2, KQs:0.2, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "JJ+, 99-33, AKs, AJs, A8s, KQs, K8s, J9s, ATo+, KQo, T9s:0.9, TT:0.5, K9s:0.3, A5s:0.1"
+      "range": "QQ+, 88-66, AKs, AJs-A8s, A5s, T9s, ATo+, KQo, 99:0.9, JJ:0.8, KQs:0.8, TT:0.7, KTs:0.7, 98s:0.7, JTo:0.6, 55:0.5, KJo:0.4, 87s:0.3, QJo:0.2"
      }
     ]
    },
@@ -6908,7 +7190,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3",
     "reachPct": 100,
-    "occ": 11.537,
+    "occ": 11.926,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -6917,13 +7199,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88, A4s-A2s, KJs-K8s, K5s-K2s, Q5s+, J8s+, T8s+, 97s+, 86s+, 76s, KTo, JTo, 65s:0.9, QTo:0.9, K7s:0.8, A8s:0.7, K6s:0.7, AQo:0.7, A9s:0.5, K9o:0.4, 99:0.3, KQs:0.3"
+      "range": "88, 44, K9s-K4s, Q5s+, J7s+, T9s, T7s, 97s+, 65s, QTo, J9o, Q9o:0.9, A3s:0.8, KTs:0.7, AQo:0.7, JTo:0.7, KTo:0.5, A8s:0.3, KJs+:0.3, T8s:0.3, 99:0.2, 87s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, 77-22, ATs+, A7s-A5s, AKo, AJo-A9o, KJo+, QJo, A8o:0.9, 99:0.7, KQs:0.7, K9o:0.6, A9s:0.5, A8s:0.3, K6s:0.3, AQo:0.3, K7s:0.2, QTo:0.1"
+      "range": "TT+, 77-55, A9s+, A7s-A4s, 76s, AKo, AJo-A8o, KJo+, QJo, 99:0.8, 87s:0.8, A8s:0.7, KJs+:0.7, T8s:0.7, KTo:0.5, KTs:0.3, AQo:0.3, JTo:0.3, A3s:0.2"
      }
     ]
    },
@@ -6937,25 +7219,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: K6s 0%, K5s 30%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 6.76,
+    "occ": 6.592,
     "regret": 0.0001,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, 33-22, AQs-A2s, KTs+, Q9s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, 54s, AJo-ATo, KJo+, 99:0.6, 44:0.6, AQo:0.5, 75s:0.3"
+      "range": "99-33, AQs-A7s, A5s, KJs+, QTs-Q9s, J9s+, T8s, 87s, 76s, 65s, AQo-ATo, QJs:0.9, A4s:0.7, T9s:0.7, 54s:0.5, KQo:0.5, 43s:0.3, 98s:0.2, TT:0.1, A6s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, AKs, K9s-K8s, AKo, K7s:0.5, AQo:0.5, 99:0.4, 44:0.4, K5s:0.3"
+      "range": "JJ+, AKs, KTs-K9s, AKo, TT:0.9, 98s:0.8, 54s:0.5, KQo:0.5, T9s:0.3, 43s:0.3, QJs:0.1"
      }
     ]
    },
@@ -6972,8 +7254,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 6.671,
-    "regret": 0,
+    "occ": 6.536,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -6981,13 +7263,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AQs-A2s, K9s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AJo-ATo, KQo, KJo:0.7, K8s:0.6, AQo:0.1"
+      "range": "99-22, AQs-A3s, KJs+, K9s, Q9s+, J9s+, T9s, 97s, 86s, 75s+, 65s, AJo-ATo, KQo, 87s:0.9, 54s:0.9, AQo:0.9, KTs:0.7, T8s:0.7, 64s:0.7, 43s:0.6, A2s:0.5, 53s:0.5, KJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "99+, AKs, K7s-K6s, AKo, AQo:0.9, K5s:0.5, K8s:0.4, KJo:0.3"
+      "range": "TT+, AKs, 98s, AKo, KJo:0.9, 53s:0.5, 43s:0.4, KTs:0.3, T8s:0.3, K8s:0.1, 87s:0.1, 54s:0.1, AQo:0.1"
      }
     ]
    },
@@ -7004,7 +7286,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 6.384,
+    "occ": 6.575,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -7013,13 +7295,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AQs-A2s, K8s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo-ATo, KQo:0.9, 88:0.5, KJo:0.5, K6s:0.3, QJo:0.3, K5s:0.2"
+      "range": "99-22, AQs-A2s, KJs+, K9s, Q8s+, J9s-J8s, T9s, T7s, 97s+, 86s, 76s, 64s+, 53s, AJo-ATo, KQo, QJo, 75s:0.9, 96s:0.8, T8s:0.7, 54s:0.7, 43s:0.6, KTs:0.4, K8s:0.4, JTs:0.4, KJo:0.4, K7s:0.2, 87s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "99+, AKs, K7s, AQo+, K5s:0.8, K6s:0.7, 88:0.5, KJo:0.5, K4s:0.3, KQo:0.1"
+      "range": "TT+, AKs, AQo+, K7s:0.8, 87s:0.8, KTs:0.6, K8s:0.6, JTs:0.6, KJo:0.6, 43s:0.4, T8s:0.3, 54s:0.3, 75s:0.1"
      }
     ]
    },
@@ -7036,7 +7318,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 6.397,
+    "occ": 6.592,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -7045,13 +7327,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A2s, K7s+, K4s-K2s, QTs+, Q8s, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, AJo, KJo-KTo, K5s:0.7, ATo:0.7, K6s:0.5, QTo+:0.5, A9o:0.4, Q9s:0.3, 77:0.1, KQo:0.1"
+      "range": "77-22, AJs-A2s, K6s+, Q8s+, J7s+, T7s+, 96s+, 85s+, 75s-74s, 64s, 53s, 42s+, 32s, ATo-A9o, KJo, QJo, AJo:0.9, K5s:0.6, A8o:0.6, 76s:0.4, 65s:0.4, 63s:0.4, 54s:0.3, KTo:0.3, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "88+, AQs+, AQo+, 77:0.9, KQo:0.9, Q9s:0.7, K6s:0.5, QJo:0.5, K5s:0.3, ATo:0.3"
+      "range": "88+, AQs+, AQo+, KQo:0.9, 54s:0.7, KTo:0.7, 76s:0.6, 65s:0.6, JTo:0.5, AJo:0.1"
      }
     ]
    },
@@ -7068,7 +7350,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 6.628,
+    "occ": 6.842,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -7077,13 +7359,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, ATs-A2s, KJs-K2s, QTs+, Q8s-Q5s, JTs, J8s-J7s, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, ATo-A8o, KJo-KTo, QTo+, K9o:0.9, 55:0.8, AJs:0.6, JTo:0.6"
+      "range": "66-22, ATs, A8s-A2s, KJs-KTs, K8s-K2s, Q5s+, J9s-J7s, T8s-T6s, 97s-95s, 85s+, 74s+, 63s+, 53s-52s, 42s+, 32s, ATo-A7o, KJo-KTo, QTo+, J6s:0.9, 98s:0.4, JTo:0.3, 84s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "66+, AQs+, KQs, Q9s, J9s, AJo+, KQo, AJs:0.4, JTo:0.4, 55:0.2, K9o:0.1"
+      "range": "77+, AJs+, A9s, KQs, K9s, JTs, T9s, 54s, AJo+, KQo, JTo:0.7, 98s:0.6"
      }
     ]
    },
@@ -7100,7 +7382,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 7.354,
+    "occ": 7.012,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -7109,13 +7391,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A9s-A2s, KJs-KTs, K7s-K2s, Q2s+, JTs, J8s-J2s, T8s-T5s, 95s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, ATo-A3o, KJo-K8o, QTo+, JTo, K9s:0.9, 33:0.8, 98o:0.8, J9o:0.6, 22:0.4, T9s:0.4, K7o:0.4, T9o:0.3, K8s:0.2, ATs:0.1, J9s:0.1"
+      "range": "55-22, A9s, A7s-A2s, KTs-K2s, QTs-Q2s, J9s-J3s, T7s-T4s, 97s-95s, 86s-84s, 75s-73s, 62s+, 53s-52s, 42s+, 32s, A9o-A4o, KJo-K9o, QTo-Q9o, J9o, T8s:0.9, 87s:0.9, 76s:0.9, QJo:0.9, ATo:0.8, JTo:0.8, T9o:0.8, 98o:0.4, JTs:0.3, KJs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "44+, AJs+, KQs, AJo+, KQo, ATs:0.9, J9s:0.9, K8s:0.8, T9o:0.7, 22:0.6, T9s:0.6, J9o:0.4, 33:0.2, K9s:0.1"
+      "range": "66+, ATs+, A8s, KQs, QJs, T9s, 98s, 54s, AJo+, KQo, KJs:0.8, JTs:0.7, 98o:0.6, ATo:0.2, JTo:0.2, T9o:0.2, T8s:0.1, 87s:0.1, 76s:0.1, QJo:0.1"
      }
     ]
    },
@@ -7132,8 +7414,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3",
     "reachPct": 100,
-    "occ": 8.086,
-    "regret": 0.0001,
+    "occ": 8.433,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -7141,13 +7423,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A8s-A6s, A4s-A2s, KTs-K8s, K6s-K2s, QTs-Q8s, Q6s-Q2s, J2s+, T7s-T2s, 97s-94s, 84s+, 74s+, 64s+, 53s+, 42s+, 32s, A8o-A2o, KTo-K8o, K6o-K2o, QTo-Q8o, J9o+, 97o, 87o, A5s:0.9, Q7s:0.9, 63s:0.9, A9o:0.9, 98s:0.8, T8o:0.8, 98o:0.8, 93s:0.6, T9o:0.4, 76o:0.4, T8s:0.2, K7o:0.1"
+      "range": "44-22, A8s-A6s, A4s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T6s-T2s, 96s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, A8o-A2o, K9o-K5o, QTo-Q7o, J8o+, T8o-T7o, 97o, 87o, 76o, 65o, J7o:0.8, T9o:0.8, 98o:0.8, T7s:0.7, 65s:0.7, 54s:0.6, KTo:0.5, A5s:0.1, T8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "22+, A9s+, KJs+, K7s, QJs, T9s, ATo+, KJo+, QJo, K7o:0.9, T8s:0.8, T9o:0.6, 98s:0.2, T8o:0.2, 98o:0.2, A5s:0.1, Q7s:0.1, A9o:0.1"
+      "range": "55+, A9s+, KTs+, QTs+, JTs, T9s, 97s+, 87s, 76s, A9o+, KJo+, QJo, A5s:0.9, T8s:0.9, KTo:0.5, 54s:0.4, T7s:0.3, 65s:0.3, T9o:0.2, 98o:0.2"
      }
     ]
    },
@@ -7161,25 +7443,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3.5bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: J6o 0%, J5o 20%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "SB 오픈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3.5",
     "reachPct": 100,
-    "occ": 3.351,
-    "regret": 0.0003,
-    "confidence": "low",
+    "occ": 3.156,
+    "regret": 0.0005,
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A6o, A4o-A2o, KTo-K5o, QTo+, Q8o-Q7o, J9o-J7o, T7o, 97o+, 86o+, 75o+, 33:0.9, KQs:0.9, Q9o:0.9, 65o:0.9, 54o:0.9, Q6o:0.8, T8o:0.8, K4o:0.7, 64o:0.7, 22:0.6, KJo:0.6, K3o:0.5, K2o:0.4, JTo:0.1"
+      "range": "55-22, A7s-A2s, KTs-K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o, A3o-A2o, K9o-K6o, K3o-K2o, Q9o-Q3o, J9o-J4o, T8o-T6o, 95o+, 85o+, A8s:0.9, KJs:0.9, JTs:0.9, 54o:0.9, 66:0.8, KTo:0.8, K4o:0.8, 76o:0.8, 64o:0.8, 43o:0.8, 75o:0.7, 65o:0.7, 53o:0.6, A6o:0.5, K5o:0.5, QTo:0.5, T5o:0.5, KJo:0.4, T9o:0.4, A8o:0.3, A4o:0.3, KQs:0.2, T4o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "44+, A9s+, A9o+, A5o, KQo, Q5o, T9o, JTo:0.9, T6o:0.7, K2o:0.6, K3o:0.5, 22:0.4, KJo:0.4, K4o:0.3, 64o:0.3, Q6o:0.2, Q4o:0.2, J5o:0.2, T8o:0.2, 33:0.1, KQs:0.1, Q9o:0.1, 65o:0.1, 54o:0.1"
+      "range": "77+, A9s+, A9o+, A5o, KQo, QJo, JTo, KQs:0.8, A8o:0.7, A4o:0.7, KJo:0.6, T9o:0.6, A6o:0.5, K5o:0.5, QTo:0.5, T5o:0.5, 53o:0.4, 75o:0.3, 65o:0.3, 66:0.2, KTo:0.2, K4o:0.2, 76o:0.2, 64o:0.2, 43o:0.2, A8s:0.1, KJs:0.1, JTs:0.1, 54o:0.1"
      }
     ]
    },
@@ -7198,9 +7480,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.548,
-    "regret": 0.0025,
+    "reachPct": 13.4,
+    "occ": 0.467,
+    "regret": 0.0031,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7208,19 +7490,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-99, AQs+, 88:0.9, KJs:0.8, AQo:0.8, AKo:0.6, AJs:0.5, KK:0.3, KQs:0.2, JTs:0.2"
+      "range": "KK-JJ, 99-88, AQs+, KQs, TT:0.9, AJs:0.9, 77:0.7, AKo:0.7, ATs:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.7, AJs:0.2, AA:0.1, 66:0.1, ATs:0.1, AKo:0.1"
+      "range": "AA:0.2, TT:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, A8s:0.9, AJs:0.3, AKo:0.3"
+      "range": "A5s, AA:0.8, A8s:0.8, ATs:0.2, AKo:0.2, AJs:0.1"
      }
     ]
    },
@@ -7239,9 +7521,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.521,
-    "regret": 0.004,
+    "reachPct": 13.4,
+    "occ": 0.458,
+    "regret": 0.0037,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7249,19 +7531,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, AQo:0.8, KJs:0.7, KQs:0.6, AKo:0.6, JTs:0.5, AJs:0.4, KK:0.3, 66:0.1"
+      "range": "KK-88, AQs+, KQs, AJs:0.9, 77:0.7, AKo:0.7, ATs:0.6, KJs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.7, 66:0.2, ATs:0.2, AA:0.1, AJs:0.1, AKo:0.1"
+      "range": "AA:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, AJs:0.5, AKo:0.3, A8s:0.1"
+      "range": "A8s, A5s, AA:0.9, AKo:0.3, ATs:0.2, AJs:0.1"
      }
     ]
    },
@@ -7280,9 +7562,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.489,
-    "regret": 0.0051,
+    "reachPct": 13.4,
+    "occ": 0.43,
+    "regret": 0.0013,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7290,19 +7572,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs:0.9, AQo:0.8, KQs:0.7, JTs:0.6, AKo:0.5, AJs:0.4, ATs:0.3, KK:0.2, 66:0.2, 77:0.1"
+      "range": "KK-88, AQs+, KQs, 77:0.9, AJs-ATs:0.8, AKo:0.7, KJs:0.4, AQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.8, AJs:0.2, AKo:0.2, AA:0.1, 66:0.1, ATs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, A8s:0.5, AJs:0.4, AKo:0.3"
+      "range": "AA, A8s, A5s, AKo:0.3, AJs-ATs:0.2"
      }
     ]
    },
@@ -7316,34 +7598,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · HJ 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.467,
-    "regret": 0.0029,
-    "confidence": "mid",
+    "reachPct": 13.4,
+    "occ": 0.406,
+    "regret": 0.0039,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, JTs:0.9, AQo:0.8, ATs:0.5, AKo:0.4, 66:0.3, AJs:0.3, 77:0.2, KK:0.1"
+      "range": "KK-77, AQs+, KQs, ATs:0.9, AJs:0.7, AKo:0.7, KJs:0.5, AQo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.9, AJs:0.3, AKo:0.3, AA:0.1, 66:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, AJs:0.4, AKo:0.3"
+      "range": "AA, A8s, A5s, AJs:0.3, AKo:0.3"
      }
     ]
    },
@@ -7357,34 +7639,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.445,
-    "regret": 0.0037,
-    "confidence": "mid",
+    "reachPct": 13.4,
+    "occ": 0.432,
+    "regret": 0.0013,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, AQo:0.9, JTs:0.8, ATs:0.7, 77:0.4, 66:0.3, AJs:0.3, AKo:0.2"
+      "range": "KK-77, AQs+, KQs, ATs:0.8, KJs:0.8, AJs:0.6, AKo:0.6, AQo:0.4, JTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK, AKo:0.4, AJs:0.2, AA:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, AA:0.9, A5s:0.7, AJs:0.5, AKo:0.4, ATs:0.1"
+      "range": "AA, A5s, AJs:0.4, AKo:0.4, A8s:0.3, ATs:0.1"
      }
     ]
    },
@@ -7403,9 +7685,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.435,
-    "regret": 0.0014,
+    "reachPct": 13.4,
+    "occ": 0.39,
+    "regret": 0.0038,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7413,19 +7695,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, AQo, ATs:0.9, 77-66:0.5, AJs:0.5"
+      "range": "QQ-77, AQs, KQs, ATs:0.9, AKs:0.8, KK:0.7, AJs:0.7, AQo:0.4, KJs:0.3, JTs:0.3, AKo:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.9, AKo:0.4, AA:0.1"
+      "range": "KK:0.3, AKo:0.3, AKs:0.2, AA:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s, AA:0.9, AKo:0.6, AJs:0.5, A5s:0.3, KK:0.1, ATs:0.1"
+      "range": "A5s, AA:0.9, AKo:0.4, AJs:0.3, ATs:0.1, A8s:0.1"
      }
     ]
    },
@@ -7444,9 +7726,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.389,
-    "regret": 0.0043,
+    "reachPct": 13.4,
+    "occ": 0.375,
+    "regret": 0.0019,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7454,19 +7736,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-99, AQs+, KQs, AQo, 88:0.8, KJs:0.7, 66:0.4, 77:0.3, AKo:0.3, AJs:0.1"
+      "range": "KK-88, AQs+, KQs, AJs:0.8, 77:0.7, KJs:0.5, AKo:0.5, AQo:0.3, ATs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "KK:0.8, AKo:0.3, AA:0.2, AJs:0.2, ATs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.8, A8s:0.6, AKo:0.4, KK:0.2, AJs:0.2"
+      "range": "AA, A5s, AKo:0.5, AJs:0.2, ATs:0.1"
      }
     ]
    },
@@ -7480,34 +7762,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 14.2,
-    "occ": 0.345,
-    "regret": 0.0035,
-    "confidence": "mid",
+    "reachPct": 13.4,
+    "occ": 0.336,
+    "regret": 0.0021,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, AQo:0.9, AJs:0.8, ATs:0.4, 66:0.3, 77:0.2, AKo:0.2, KK:0.1, QJs:0.1"
+      "range": "QQ-88, AQs, KQs, AKs:0.9, ATs:0.9, KK:0.8, AJs:0.8, 77:0.7, AKo:0.3, KJs:0.2, AQo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "KK:0.9, AKo:0.4, AA:0.1, AJs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, A4s:0.9, AKo:0.4, AJs-ATs:0.1"
+      "range": "AA, A5s:0.8, AKo:0.7, KK:0.2, AJs:0.2, AKs:0.1, ATs:0.1"
      }
     ]
    },
@@ -7521,34 +7803,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · UTG+2 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.623,
-    "regret": 0.0027,
-    "confidence": "mid",
+    "reachPct": 15.4,
+    "occ": 0.542,
+    "regret": 0.0022,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-88, AQs+, KQs, JTs, AQo, JJ:0.9, KJs:0.9, AJs:0.6, AKo:0.6, ATs:0.4, 66:0.3, 77:0.1"
+      "range": "KK-77, AQs+, KQs, AJs:0.9, ATs:0.6, AQo+:0.6, 66:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK, ATs:0.3, 66:0.2, AJs:0.2, AKo:0.2, AA:0.1, JJ:0.1, KJs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, AJs:0.2, AKo:0.2"
+      "range": "AA, A5s, ATs:0.4, A8s:0.4, AKo:0.4, AJs:0.1"
      }
     ]
    },
@@ -7562,34 +7844,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · LJ 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.618,
-    "regret": 0.0032,
-    "confidence": "mid",
+    "reachPct": 15.4,
+    "occ": 0.579,
+    "regret": 0.0011,
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-88, AQs+, KJs+, AQo, JJ:0.9, JTs:0.8, 77:0.7, ATs:0.7, AJs:0.5, AKo:0.5, 66:0.1"
+      "range": "KK-77, AQs+, KQs, 66:0.9, AQo:0.9, AJs-ATs:0.6, KJs:0.6, AKo:0.4, JTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK, ATs:0.3, AJs:0.2, JTs:0.2, AKo:0.2, AA:0.1, JJ:0.1, 66:0.1, KTs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA:0.9, A5s-A4s:0.8, AJs:0.3, AKo:0.3"
+      "range": "AA, A5s, AKo:0.6, AJs-ATs:0.4"
      }
     ]
    },
@@ -7608,9 +7890,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.576,
-    "regret": 0.0028,
+    "reachPct": 15.4,
+    "occ": 0.532,
+    "regret": 0.001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7618,19 +7900,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-77, AQs+, ATs, KJs+, JTs, AQo, JJ:0.9, AJs:0.7, AKo:0.4, QJs:0.3, 66:0.2"
+      "range": "QQ-66, AQs+, ATs, KJs+, JTs, AQo, KK:0.9, AKo:0.4, AJs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.9, KTs:0.4, AKo:0.2, AA:0.1, JJ:0.1, QJs:0.1"
+      "range": "KK:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, AKo:0.4, AJs:0.3, KK:0.1"
+      "range": "AA, A5s, AJs:0.8, AKo:0.6"
      }
     ]
    },
@@ -7649,9 +7931,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.575,
-    "regret": 0.0016,
+    "reachPct": 15.4,
+    "occ": 0.485,
+    "regret": 0.0017,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7659,19 +7941,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-ATs, KJs+, JTs, AQo, QQ:0.8, AKs:0.8, QTs:0.7, 66:0.4, AKo:0.3, A9s:0.1, KQo:0.1"
+      "range": "QQ-66, AQs, ATs, KJs+, JTs, AQo, AKs:0.9, KK:0.6, AJs:0.3, AKo:0.3, A9s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.7, KTs:0.5, AA:0.2, QQ:0.2, AKs:0.2, QJs:0.2, AKo:0.2"
+      "range": "KK:0.4, AKo:0.2, AKs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.8, AKo:0.5, KK:0.3"
+      "range": "AA, A5s, AJs:0.7, AKo:0.5"
      }
     ]
    },
@@ -7685,34 +7967,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.512,
-    "regret": 0.0017,
-    "confidence": "low",
+    "reachPct": 15.4,
+    "occ": 0.448,
+    "regret": 0.0021,
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs+, KJs+, JTs, 66:0.9, AJs-ATs:0.9, AQo:0.9, QTs:0.8, A9s:0.3, KQo:0.3, AKo:0.2, QJs:0.1"
+      "range": "QQ-66, AQs+, KJs+, JTs, AJs-ATs:0.9, AQo:0.9, A9s:0.5, KK:0.1, T9s:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.5, QJs:0.3, AQo+:0.1"
+      "range": "KK:0.8, AKo:0.4, A9s:0.2, AA:0.1, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s-A4s, AKo:0.7, KK:0.5, AJs-A9s:0.1"
+      "range": "A5s, AA:0.9, AKo:0.5, A8s:0.4, KK:0.1, AJs-ATs:0.1"
      }
     ]
    },
@@ -7731,9 +8013,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.423,
-    "regret": 0.0023,
+    "reachPct": 15.4,
+    "occ": 0.407,
+    "regret": 0.0007,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7741,19 +8023,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, JTs, AQo, ATs:0.9, AJs:0.7, 66:0.6, 77:0.4, AKo:0.2"
+      "range": "QQ-77, AQs+, KQs, AQo, 66:0.8, AJs:0.8, KJs:0.7, KK:0.6, ATs:0.2, AKo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "KK:0.4, AJs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s-A4s, AKo:0.8, KK:0.6, AJs:0.2, ATs:0.1"
+      "range": "AA, A5s, AKo:0.8, A8s:0.5, KK:0.4, AJs:0.2, ATs:0.1"
      }
     ]
    },
@@ -7772,9 +8054,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.389,
-    "regret": 0.0081,
+    "reachPct": 15.4,
+    "occ": 0.342,
+    "regret": 0.0014,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7782,19 +8064,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, AQo, ATs:0.9, 77:0.8, AJs:0.8, JTs:0.8, QJs:0.6, KTs:0.5, 66:0.3, AKo:0.2, QTs:0.1"
+      "range": "QQ-77, AQs, KQs, AQo, AJs-ATs:0.9, 66:0.7, KK:0.5, AKs:0.5, KJs:0.5"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "KK:0.4, A8s:0.2, AA:0.1, A4s:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, A4s:0.9, AKo:0.8, KK:0.6, AJs:0.2, ATs:0.1, A8s:0.1"
+      "range": "AA, A5s, AKo, KK:0.5, AKs:0.5, AJs-ATs:0.1"
      }
     ]
    },
@@ -7814,8 +8096,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.721,
-    "regret": 0.0015,
+    "occ": 0.68,
+    "regret": 0.0018,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -7823,19 +8105,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-ATs, KJs+, JTs, AQo, JJ:0.8, QQ:0.7, AKs:0.7, T9s:0.6, 66:0.5, AKo:0.5, QTs+:0.3"
+      "range": "QQ, TT-66, AQs+, ATs, KQs, AQo, JJ:0.9, AJs:0.9, KJs:0.9, JTs:0.6, AKo:0.5"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.9, KTs:0.9, AA:0.3, QQ:0.3, AKs:0.3, AKo:0.3, JJ:0.2, AJo:0.1"
+      "range": "KK, JTs:0.4, T9s:0.3, AKo:0.3, AA:0.2, JJ:0.1, KJs:0.1, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, A4s:0.8, AA:0.7, AKo:0.2, KK:0.1"
+      "range": "A5s-A4s, AA:0.8, AKo:0.2, AJs:0.1"
      }
     ]
    },
@@ -7855,8 +8137,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.691,
-    "regret": 0.0011,
+    "occ": 0.663,
+    "regret": 0.0013,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -7864,19 +8146,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-ATs, KJs+, JTs, AQo, JJ:0.8, T9s:0.8, QTs:0.7, QQ:0.5, 66:0.5, AKs:0.5, A9s:0.5, AKo:0.4, QJs:0.2, AJo:0.1"
+      "range": "QQ, TT-66, AQs-ATs, KJs+, AQo, JTs:0.9, JJ:0.7, AKs:0.7, QJs:0.7, A9s:0.6, AKo:0.5"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs, KK:0.7, QQ:0.5, AKs:0.5, AA:0.4, AKo:0.3, JJ:0.2, AJo:0.1"
+      "range": "KK:0.9, KTs:0.5, JJ:0.3, AKs:0.3, AKo:0.3, AA:0.2, QJs:0.2, JTs:0.1, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.9, AA:0.6, A4s:0.5, KK:0.3, AKo:0.3"
+      "range": "A5s-A4s, AA:0.8, AKo:0.2, KK:0.1"
      }
     ]
    },
@@ -7896,8 +8178,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.611,
-    "regret": 0.0012,
+    "occ": 0.609,
+    "regret": 0.0028,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -7905,19 +8187,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-ATs, KJs+, JTs, AQo, T9s:0.9, 66:0.8, QTs:0.7, AKs:0.6, A9s:0.6, QQ:0.5, KQo:0.3, AKo:0.2, AJo:0.2, QJs:0.1"
+      "range": "QQ, TT-66, AQs-A9s, KJs+, JJ:0.8, AQo:0.8, QJs:0.7, JTs:0.7, AKs:0.5, T9s:0.4, AKo:0.4, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs:0.8, KK-QQ:0.5, AKs:0.4, AA:0.3, AKo:0.2"
+      "range": "KK:0.8, AKs:0.5, KTs:0.5, JTs:0.3, AA:0.2, JJ:0.2, AQo+:0.2, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.7, AKo:0.6, KK:0.5"
+      "range": "A5s-A4s, AA:0.8, AKo:0.4, KK:0.2, A7s:0.1"
      }
     ]
    },
@@ -7937,8 +8219,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.57,
-    "regret": 0.001,
+    "occ": 0.543,
+    "regret": 0.0017,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7946,19 +8228,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KJs+, JTs, AQo, QJs:0.9, A9s:0.8, T9s:0.8, AKs:0.7, QQ:0.4, KQo:0.4, 55:0.2, AJo:0.1"
+      "range": "QQ-66, AQs-AJs, A9s, KJs+, JTs, AQo, ATs:0.9, 87s:0.9, AKs:0.6, T9s:0.6, QJs:0.4, AJo:0.4, A8s:0.2, 76s:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs:0.7, QQ:0.5, KK+:0.3, AKs:0.3, AKo:0.2, QJs:0.1"
+      "range": "KTs:0.7, KK:0.5, AKs:0.4, AKo:0.2, AA:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AKo:0.8, KK+:0.7, QQ:0.1"
+      "range": "A5s-A4s, AA:0.9, AKo:0.7, KK:0.5, A7s:0.2, ATs:0.1"
      }
     ]
    },
@@ -7978,8 +8260,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.491,
-    "regret": 0.0028,
+    "occ": 0.46,
+    "regret": 0.0007,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -7987,19 +8269,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, ATs+, KJs+, JTs, AQo, QTs:0.8, 66:0.7, QJs:0.6, 55:0.5, A9s:0.4, T9s:0.1"
+      "range": "QQ-66, ATs+, KQs, AQo, KJs:0.9, A9s:0.8, JTs:0.8, KK:0.1, QJs:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A4s, AKo, A7s:0.5, 66:0.1"
+      "range": "AA, A5s-A4s, AKo:0.9, KK:0.8, A7s:0.3, A8s:0.2"
      }
     ]
    },
@@ -8019,8 +8301,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 17.9,
-    "occ": 0.412,
-    "regret": 0.0013,
+    "occ": 0.415,
+    "regret": 0.001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8028,19 +8310,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, ATs+, KJs+, QJs, JTs, AQo, KTs:0.6, QTs:0.5, KQo:0.2, 55:0.1"
+      "range": "QQ-66, AQs, KJs+, AQo, ATs:0.9, AJs:0.8, A9s:0.8, A8s:0.7, AKs:0.3, QJs:0.2, JTs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "KK:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s-A4s, AKo, KK:0.9, A7s:0.4"
+      "range": "KK+, A5s-A4s, AKo, AKs:0.7, AJs:0.2, ATs:0.1"
      }
     ]
    },
@@ -8059,9 +8341,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21,
-    "occ": 0.822,
-    "regret": 0.0018,
+    "reachPct": 21.4,
+    "occ": 0.8,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8069,19 +8351,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs, JTs, T9s, AQo, 55:0.8, T8s:0.8, JJ:0.6, AJo:0.6, QJs:0.5, KQo:0.4, A9s:0.3, J9s:0.3, AKs:0.1"
+      "range": "QQ, 99-55, AQs-AJs, A9s, KQs, JTs, T9s, AQo, TT:0.9, ATs:0.9, KJs:0.9, AJo:0.9, JJ:0.7, AKs:0.7, QJs:0.6, QTs:0.4, AKo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "QQ, KTs, AA:0.9, AKs:0.9, K9s:0.5, JJ:0.4, AKo:0.3, KK:0.1"
+      "range": "KTs, KK:0.9, AKs:0.3, AKo:0.3, AA:0.2, JJ:0.2, TT:0.1, KJs:0.1, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.9, AKo:0.7, A5s:0.4, AA:0.1, 55:0.1"
+      "range": "A5s, A4s:0.9, AA:0.8, AKo:0.6, KK:0.1, JJ:0.1, ATs:0.1"
      }
     ]
    },
@@ -8100,9 +8382,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21,
-    "occ": 0.754,
-    "regret": 0.002,
+    "reachPct": 21.4,
+    "occ": 0.76,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8110,19 +8392,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs, J9s+, T8s+, AQo, 55:0.9, QJs:0.9, JJ:0.7, A9s:0.7, AJo:0.7, KQo:0.3, AKs:0.2, 98s:0.2, 44:0.1"
+      "range": "QQ, 99-55, AQs-A9s, KQs, JTs, T9s, AQo-AJo, JJ-TT:0.9, KJs:0.9, 98s:0.6, A8s:0.4, QTs:0.4, AKs:0.1, QJs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "QQ, KTs, AA:0.8, AKs:0.8, K9s:0.4, JJ:0.3, AKo:0.3, KK:0.1"
+      "range": "KTs, AKs:0.7, KK:0.6, AKo:0.4, AA:0.3, QJs:0.2, JJ-TT:0.1, KJs:0.1, K9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.9, AKo:0.7, A5s:0.6, AA:0.2, A4s:0.2, 55:0.1"
+      "range": "A5s, A4s:0.9, AA:0.7, AKo:0.6, KK:0.4, AKs:0.2"
      }
     ]
    },
@@ -8141,9 +8423,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21,
-    "occ": 0.711,
-    "regret": 0.0011,
+    "reachPct": 21.4,
+    "occ": 0.731,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8151,19 +8433,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, QTs+, J9s+, T8s+, AQo, 55:0.9, JJ:0.8, AJo:0.8, KQo:0.7, A9s:0.5, 44:0.3, K9s:0.2, 98s:0.1"
+      "range": "QQ, TT-55, AQs-A8s, KJs+, QTs, JTs, T9s, AQo-AJo, 98s:0.8, JJ:0.6, QJs:0.6, 87s:0.5, 76s:0.2, J9s:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs, QQ:0.9, AKs:0.7, AA:0.6, K9s:0.3, JJ:0.2, AKo:0.2"
+      "range": "KTs, AKs:0.8, KK+:0.4, JJ:0.4, QJs:0.4, AKo:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, AKo:0.8, A5s:0.5, AA:0.4, A4s:0.4, AKs:0.3, QQ:0.1, 55-44:0.1"
+      "range": "A5s:0.9, AKo:0.7, KK+:0.6, A4s:0.5, AKs:0.2"
      }
     ]
    },
@@ -8182,9 +8464,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21,
-    "occ": 0.615,
-    "regret": 0.0037,
+    "reachPct": 21.4,
+    "occ": 0.632,
+    "regret": 0.0006,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8192,7 +8474,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs-ATs, KJs+, QTs+, J9s+, T9s, AQo, 55:0.9, T8s:0.9, AKs:0.8, KTs:0.7, 98s:0.7, 44:0.5, AJo:0.4, A9s:0.3, KQo:0.3, 33:0.1"
+      "range": "QQ-55, AQs-AJs, A9s, KQs, KTs, JTs, T9s, AQo-AJo, ATs:0.9, 54s:0.9, KJs:0.8, 98s:0.3, AKs:0.2, QJs:0.2"
      },
      {
       "key": "4bet",
@@ -8204,7 +8486,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo, A4s:0.8, AKs:0.2, 55:0.1"
+      "range": "KK+, A5s-A4s, AKo, AKs:0.8, A6s:0.2, KJs:0.2, ATs:0.1"
      }
     ]
    },
@@ -8223,9 +8505,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21,
-    "occ": 0.516,
-    "regret": 0.0013,
+    "reachPct": 21.4,
+    "occ": 0.529,
+    "regret": 0.0007,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8233,7 +8515,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-A9s, KTs+, QJs, J9s+, T9s, AQo, QTs:0.7, KQo:0.5, AKs:0.4, AJo:0.3"
+      "range": "QQ-55, AQs, ATs-A8s, KTs+, QJs, JTs, AQo, AJs:0.8, AJo:0.6, A7s:0.3, QTs:0.3, KQo:0.3, AKs:0.1, T9s:0.1"
      },
      {
       "key": "4bet",
@@ -8245,7 +8527,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo, A4s:0.8, AKs:0.6"
+      "range": "KK+, A5s-A4s, AKo, AKs:0.9, AJs:0.2, A7s:0.1"
      }
     ]
    },
@@ -8264,9 +8546,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.4,
-    "occ": 1.09,
-    "regret": 0.0006,
+    "reachPct": 26.7,
+    "occ": 1.061,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8274,19 +8556,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A8s, KTs+, QTs+, J9s+, T8s+, 98s, 87s, AJo, K9s:0.9, AQo:0.8, TT:0.7, KQo:0.7, 97s:0.3, 33:0.1"
+      "range": "77-44, AQs-A8s, KQs, QTs+, J9s+, T9s, 98s, 87s, 76s, AQo-AJo, KQo, JJ:0.9, 99:0.9, T8s:0.9, TT:0.7, 88:0.7, KJs:0.7, A7s:0.6, ATo:0.3, QQ:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "JJ, AKs, K8s, AA:0.9, QQ:0.8, TT:0.3, KQo:0.3, AQo+:0.2, K9s:0.1"
+      "range": "AKs, KTs, AA:0.9, QQ:0.7, AKo:0.5, K9s:0.4, TT:0.3, 88:0.3, KJs:0.3, JJ:0.1, 99:0.1, ATo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s, AKo:0.8, QQ:0.2, AA:0.1, A5s:0.1"
+      "range": "KK, A5s:0.9, A4s:0.6, AKo:0.5, AA:0.1, QQ:0.1"
      }
     ]
    },
@@ -8300,34 +8582,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.4,
-    "occ": 0.992,
+    "reachPct": 26.7,
+    "occ": 0.98,
     "regret": 0.0008,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A9s, KJs+, K9s, QTs+, J9s+, T8s+, 98s, 87s, AJo, TT:0.9, A8s:0.9, KTs:0.9, 97s:0.9, AQo:0.9, KQo:0.8, 76s:0.4, 33:0.1, Q9s:0.1"
+      "range": "99-44, AQs-A7s, KJs+, QTs+, J9s+, T8s+, 98s, 87s, 76s, AJo, KQo:0.9, TT:0.8, JJ:0.7, AQo:0.7, ATo:0.3, KTs-K9s:0.2, 65s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "JJ, AKs, AA:0.7, K8s:0.4, QQ:0.3, KQo:0.2, TT:0.1, 33:0.1, KTs:0.1, AQo:0.1"
+      "range": "QQ, AKs, KTs:0.8, K9s:0.7, AA:0.5, JJ:0.3, AQo+:0.3, TT:0.2, KK:0.1, ATo:0.1, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s, AKo, QQ:0.7, A3s:0.7, A5s:0.4, AA:0.3"
+      "range": "KK:0.9, A4s:0.9, A5s:0.8, AKo:0.7, AA:0.5"
      }
     ]
    },
@@ -8346,9 +8628,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.4,
-    "occ": 0.76,
-    "regret": 0.0004,
+    "reachPct": 26.7,
+    "occ": 0.829,
+    "regret": 0.0001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8356,19 +8638,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-A9s, KJs+, K9s, QTs+, J9s+, T8s+, 97s+, 87s, 76s, AQo-AJo, KQo, 44:0.8, KTs:0.6, QQ:0.1"
+      "range": "JJ-44, AQs-A8s, KTs+, QTs+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, AQo-AJo, KQo, QQ:0.8, AKs:0.6, Q9s:0.3, ATo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AKs:0.4, KTs:0.4, QQ:0.3, AA:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s, AKo, AA:0.9, A5s:0.8, QQ:0.6, AKs:0.6, 44:0.2"
+      "range": "KK+, A5s, AKo, A4s:0.9, AKs:0.4, QQ:0.2"
      }
     ]
    },
@@ -8387,9 +8669,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 26.4,
-    "occ": 0.654,
-    "regret": 0.0004,
+    "reachPct": 26.7,
+    "occ": 0.733,
+    "regret": 0.0005,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8397,7 +8679,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, 44, AQs-A8s, K9s+, Q9s+, J9s+, T8s+, 98s, AQo-AJo, KQo, 55:0.9, QQ:0.4, 87s:0.1"
+      "range": "JJ-44, AQs-A7s, K9s+, Q9s+, JTs, T9s, 98s, 54s, AQo-AJo, KQo, QQ:0.9, T8s:0.6, A5s:0.5, 76s:0.5, J9s:0.3, 87s:0.3, ATo:0.2"
      },
      {
       "key": "4bet",
@@ -8409,7 +8691,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, AKo, QQ:0.6, 55:0.1"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.5, QQ:0.1"
      }
     ]
    },
@@ -8428,9 +8710,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.1,
-    "occ": 1.456,
-    "regret": 0.001,
+    "reachPct": 34.7,
+    "occ": 1.391,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8438,19 +8720,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-33, AQs-A8s, A6s, K6s+, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, AJo-ATo, A7s:0.9, Q8s:0.9, J8s:0.9, KJo:0.9, KQo:0.7, AQo:0.5, TT:0.1, QJo:0.1"
+      "range": "88-66, 44-33, AQs-A6s, KTs+, K8s, QTs+, Q8s, JTs, T8s+, 97s+, 86s+, 76s, 65s, 54s, AJo-ATo, KQo, TT:0.9, 55:0.9, Q9s:0.9, J9s:0.9, T7s:0.9, J8s:0.8, K9s:0.7, A5s:0.4, AQo:0.3, QJo:0.3, K7s:0.2, 75s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "AA, 99, AKs, TT:0.9, QQ:0.5, AQo:0.5, KK:0.4, AKo:0.4, KQo:0.3, QJo:0.3, JJ:0.2, J8s:0.1, KJo:0.1"
+      "range": "AA, 99, AKs, JJ:0.9, AQo:0.7, AKo:0.6, KK:0.4, K9s:0.3, K7s:0.3, J8s:0.2, KJo:0.2, QJo:0.2, TT:0.1, 55:0.1, Q9s:0.1, J9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, JJ:0.8, A3s:0.7, KK:0.6, AKo:0.6, QQ:0.5, A7s:0.1"
+      "range": "QQ, A4s-A3s, KK:0.6, A5s:0.6, AKo:0.4, JJ:0.1"
      }
     ]
    },
@@ -8469,9 +8751,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.1,
-    "occ": 1.077,
-    "regret": 0.0002,
+    "reachPct": 34.7,
+    "occ": 1.084,
+    "regret": 0.0005,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8479,19 +8761,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-33, AQs-A7s, K7s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo:0.9, KJo:0.7, K6s:0.5"
+      "range": "TT, 88-33, AQs-A6s, KQs, KTs-K9s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, JJ:0.9, 99:0.9, K8s:0.7, A2s:0.5, 96s:0.5, 64s:0.5, KJs:0.3, T7s:0.1, QJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AKs:0.8, JJ:0.7, AA:0.5, KJo:0.2, 22:0.1, KQo:0.1"
+      "range": "AKs:0.3, AA:0.1, JJ:0.1, 99:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-QQ, A5s-A3s, AKo, AA:0.5, JJ:0.3, AKs:0.2, A2s:0.2"
+      "range": "KK-QQ, A5s-A3s, AKo, AA:0.9, AKs:0.7, KJs:0.7"
      }
     ]
    },
@@ -8510,9 +8792,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.1,
-    "occ": 0.889,
-    "regret": 0.0007,
+    "reachPct": 34.7,
+    "occ": 0.874,
+    "regret": 0.0004,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8520,7 +8802,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A7s, K7s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, AQo-ATo, KJo+, K6s:0.8, JJ:0.7, A6s:0.7, 33:0.5, QTo:0.5, J8s:0.4, QJo:0.1"
+      "range": "JJ-33, AQs-A6s, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, 76s, 54s, AQo-ATo, KQo, 97s:0.9, A2s:0.5, 65s:0.5, KJo:0.5, QJo:0.4, T7s:0.2, JTo:0.1"
      },
      {
       "key": "4bet",
@@ -8532,7 +8814,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s-A3s, AKo, A2s:0.8, JJ:0.3"
+      "range": "QQ+, AKs, A5s-A3s, AKo, A2s:0.3"
      }
     ]
    },
@@ -8550,8 +8832,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.213,
-    "regret": 0,
+    "occ": 1.182,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8559,7 +8841,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, AQs:0.5, 66:0.3"
+      "range": "QQ+, AKs, A4s, AKo, A5s:0.5, 66-55:0.1, AQs:0.1"
      }
     ]
    },
@@ -8578,8 +8860,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.5,
-    "occ": 1.7,
+    "reachPct": 52.6,
+    "occ": 1.806,
     "regret": 0.0004,
     "confidence": "low",
     "move": 0,
@@ -8588,19 +8870,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-33, AJs-A5s, K8s+, K6s-K3s, Q5s+, J7s+, T6s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo-A9o, KJo+, JTo, A2s:0.9, K7s:0.9, 22:0.8, AQs:0.8, AQo:0.8, A8o:0.6, QTo+:0.6, A4s:0.4, TT:0.3, A3s:0.3"
+      "range": "99-88, 66-22, AJs-A5s, A3s-A2s, KJs+, K9s-K6s, Q6s+, J7s+, T6s+, 95s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, JTo, 77:0.9, AQs:0.8, TT:0.7, AQo:0.7, A7o:0.7, QJo:0.7, K5s:0.3, A4s:0.1, KTo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AA, AKs, TT:0.7, JJ:0.4, QTo:0.4, AQs:0.2, AQo:0.2, K7s:0.1, A8o:0.1, KTo:0.1"
+      "range": "AKs, AA:0.9, JJ:0.5, QTo:0.5, TT:0.3, AQo:0.3, AQs:0.2, 77:0.1, KTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-QQ, AKo, A3s:0.7, JJ:0.6, A4s:0.6, KTo:0.4, QJo:0.4, 22:0.2, A2s:0.1"
+      "range": "KK-QQ, KTs, AKo, A4s:0.9, K5s:0.7, JJ:0.5, K3s:0.5, QJo:0.3, AA:0.1, K4s:0.1"
      }
     ]
    },
@@ -8619,9 +8901,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.5,
-    "occ": 1.416,
-    "regret": 0.002,
+    "reachPct": 52.6,
+    "occ": 1.537,
+    "regret": 0.0006,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8629,19 +8911,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-33, AJs-A5s, K2s+, Q6s+, J7s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, AJo-A9o, KJo+, AQs:0.9, JTo:0.9, 99:0.8, A2s:0.8, AQo:0.8, QTo:0.8, Q5s:0.6, QJo:0.6, A8o:0.5, KTo:0.5, A3s:0.4, 22:0.2, K9o:0.2, A4s:0.1, T7s:0.1, J9o:0.1"
+      "range": "77-44, 22, AJs-A5s, A2s, K5s+, QJs, Q9s-Q6s, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, AJo-A8o, KQo, QJo, 99-88:0.9, KJo:0.9, 33:0.8, KTo:0.8, JTo:0.8, K4s:0.7, QTs:0.6, AQo:0.6, A3s:0.4, QTo:0.3, K3s:0.1, A7o:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AA:0.6, TT:0.3, AKs:0.3, 99:0.2, AQo:0.2, QQ:0.1, AQs:0.1, A8o:0.1, JTo:0.1"
+      "range": "AA, AQs, TT:0.4, AQo:0.4, KTo:0.2, JTo:0.2, QQ:0.1, 99-88:0.1, A7o:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, JJ, AKo, QQ:0.9, A4s:0.9, 22:0.8, TT:0.7, AKs:0.7, A3s:0.6, KTo:0.5, AA:0.4, QJo:0.4, A2s:0.2, QTo:0.2"
+      "range": "KK, JJ, AKs, A4s, AKo, QQ:0.9, K3s:0.9, TT:0.6, A3s:0.6, QTo:0.6, QTs:0.4, K4s:0.3, 33:0.2"
      }
     ]
    },
@@ -8659,8 +8941,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.175,
-    "regret": 0,
+    "occ": 1.145,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8668,7 +8950,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AQs+, AKo, A4s:0.6, 66:0.5"
+      "range": "QQ+, AKs, AKo, A4s:0.8, AQs:0.5, 55:0.4, 66:0.3, A5s:0.2"
      }
     ]
    },
@@ -8686,8 +8968,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.073,
-    "regret": 0.0006,
+    "occ": 1.057,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8695,7 +8977,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AQs+, AKo, JJ:0.8, A4s:0.5, 66:0.4, TT:0.3, 77:0.1"
+      "range": "QQ+, AQs+, AKo, 66:0.6, A4s:0.4, 55:0.2"
      }
     ]
    },
@@ -8713,8 +8995,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.601,
-    "regret": 0.0001,
+    "occ": 1.531,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8722,7 +9004,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, KQs, AKo, TT:0.9, AJs:0.5, 66:0.2, 55:0.1"
+      "range": "JJ+, AQs+, KQs, AKo, 55:0.7, 66:0.4, A4s:0.3"
      }
     ]
    },
@@ -8741,9 +9023,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 32.1,
-    "occ": 0.648,
-    "regret": 0.0005,
+    "reachPct": 29.3,
+    "occ": 0.625,
+    "regret": 0.0014,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -8751,19 +9033,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-44, ATs-A5s, KJs+, K9s-K6s, K4s, Q7s+, J9s+, T8s+, 98s, 87s, 76s, KJo+, K9o, 33:0.9, QJo:0.9, AQo:0.8, 22:0.4, KTo:0.3, KTs:0.1"
+      "range": "88-44, A9s-A5s, KQs, K7s, Q9s+, J9s, T8s+, 98s, 86s+, 76s, 65s, 54s, KJo, QTo+, JTo, K8s:0.9, Q8s:0.9, KTo:0.9, KQo:0.8, KJs:0.7, JTs:0.6, AQo:0.5, A4s:0.4, 64s:0.3, 99:0.1, A3s:0.1, K9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 26.3bb",
       "color": "raise",
-      "range": ""
+      "range": "QQ:0.5, AKs:0.4, AQo:0.3, 99:0.2, KQo:0.2, K8s:0.1, Q8s:0.1, 43s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-99, AKs, A4s-A3s, AKo, KTs:0.9, KTo:0.7, 22:0.6, AQo:0.2, 33:0.1, QJo:0.1"
+      "range": "KK, JJ-TT, 33, KTs, AKo, A3s:0.9, K9s:0.9, 99:0.7, AKs:0.6, A4s:0.6, QQ:0.5, JTs:0.4, KJs:0.3, AQo:0.2, KTo:0.1"
      }
     ]
    },
@@ -8781,7 +9063,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.137,
+    "occ": 1.107,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -8790,7 +9072,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, A4s, AKo, 66-55:0.5"
+      "range": "JJ+, 55, AQs+, AKo, 66:0.6, A4s:0.5"
      }
     ]
    },
@@ -8808,8 +9090,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.032,
-    "regret": 0.0006,
+    "occ": 1.022,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8817,7 +9099,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, A4s:0.6, 66:0.5, 77:0.3, TT:0.1"
+      "range": "JJ+, AQs+, AKo, 55:0.8, 66:0.6, A4s:0.5"
      }
     ]
    },
@@ -8835,8 +9117,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.532,
-    "regret": 0.0001,
+    "occ": 1.466,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8844,7 +9126,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AJs+, KQs, AKo, 55:0.8, 66:0.5, 77:0.1"
+      "range": "TT+, 55, AQs+, KQs, AKo, 66:0.9, AJs:0.6"
      }
     ]
    },
@@ -8862,7 +9144,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · SB 3벳 10.5",
     "reachPct": 100,
-    "occ": 1.133,
+    "occ": 1.14,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -8871,7 +9153,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, 55, AJs+, KQs, AKo, 66:0.2"
+      "range": "TT+, 55, AQs+, KQs, AKo, AJs:0.9, 66:0.2"
      }
     ]
    },
@@ -8889,8 +9171,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 3벳 10.5",
     "reachPct": 100,
-    "occ": 1.849,
-    "regret": 0.0001,
+    "occ": 1.962,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8898,42 +9180,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "99+, ATs+, KTs+, QTs+, AQo+, 55:0.8, 88:0.7, JTs:0.5"
-     }
-    ]
-   },
-   {
-    "id": "co-3bet-vs-hj-4bet",
-    "kind": "vs4bet",
-    "hero": "CO",
-    "villain": "HJ",
-    "villainSeats": [
-     "HJ"
-    ],
-    "chip": "CO vs HJ 4벳",
-    "title": "CO 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb → HJ 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 3 · CO 3벳 9 · HJ 4벳 22.5",
-    "reachFrom": [
-     "co-vs-hj-open:3bet"
-    ],
-    "reachPct": 9.9,
-    "occ": 0.112,
-    "regret": 0.0055,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "JJ-TT, ATs, A8s, KQs, AQo, 88:0.8, A9s:0.8, 66:0.7, 77:0.6, QQ:0.4, AKo:0.4, AJo:0.3, 55:0.2, KQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "KK+, AKs, A5s, QQ:0.6, AKo:0.6, 55:0.2, A9s:0.2, 66:0.1"
+      "range": "99+, 55, ATs+, KTs+, QTs+, AQo+, 66:0.6"
      }
     ]
    },
@@ -8952,9 +9199,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 12.9,
-    "occ": 0.147,
-    "regret": 0.0042,
+    "reachPct": 12.6,
+    "occ": 0.149,
+    "regret": 0.0014,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8962,13 +9209,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AJs, AQo-AJo, A9s:0.9, 44:0.7, KQo:0.6, JJ:0.4, A8s:0.3, QQ:0.2, AKo:0.2"
+      "range": "TT-88, 66, A8s, KJs+, AQo-AJo, JJ:0.8, AKo:0.7, A7s:0.6, A5s:0.6, 55:0.5, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, QQ:0.8, AKo:0.8, JJ:0.6"
+      "range": "QQ+, 44, AKs, A4s, 55:0.5, A5s:0.4, AKo:0.3, JJ:0.2"
      }
     ]
    },
@@ -8987,9 +9234,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.5,
-    "occ": 0.109,
-    "regret": 0.0002,
+    "reachPct": 52.6,
+    "occ": 0.114,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -8997,7 +9244,36 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AQs+, AKo, 99:0.1"
+      "range": "TT+, AQs+, AKo, 99:0.2"
+     }
+    ]
+   },
+   {
+    "id": "sb-3bet-vs-co-4bet-jam",
+    "kind": "vs4bet",
+    "hero": "SB",
+    "villain": "CO",
+    "villainSeats": [
+     "CO"
+    ],
+    "chip": "SB vs CO 4벳 올인",
+    "title": "SB 3벳 후 vs CO 4벳 올인",
+    "description": "CO 오픈 3bb → SB 3벳 10.5bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "CO 3 · SB 3벳 10.5 · CO 올인",
+    "reachFrom": [
+     "sb-vs-co-open:3bet"
+    ],
+    "reachPct": 12.5,
+    "occ": 0.111,
+    "regret": 0.001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "TT+, AKs, AKo, 99:0.9, 88:0.3"
      }
     ]
    },
@@ -9016,8 +9292,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.1,
-    "occ": 0.11,
+    "reachPct": 16.5,
+    "occ": 0.112,
     "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
@@ -9026,7 +9302,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AJs+, AKo, ATs:0.9, 99:0.8, AQo:0.3, KQs:0.1"
+      "range": "99+, AJs+, AKo, ATs:0.9, KQs:0.5, 66:0.2"
      }
     ]
    },
@@ -9046,8 +9322,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.1,
-    "occ": 0.149,
+    "reachPct": 16.5,
+    "occ": 0.156,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -9075,9 +9351,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
-    "reachPct": 17.4,
-    "occ": 0.129,
-    "regret": 0.0016,
+    "reachPct": 18.3,
+    "occ": 0.127,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9085,40 +9361,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AJs+, AKo, 88:0.5, AQo:0.4, ATs:0.1, KQs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "lj-at-utg-open-utgp2-call",
-    "kind": "squeeze",
-    "hero": "LJ",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG",
-     "UTG+2"
-    ],
-    "chip": "UTG오픈·UTG+2콜",
-    "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 3 · UTG+2 콜",
-    "reachPct": 100,
-    "occ": 0.528,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "TT, AQs, AJs:0.7, JJ:0.5, AQo:0.5, KQs:0.2, 99:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 12bb",
-      "color": "raise",
-      "range": "QQ+, AKs, KJs, AKo, KQs:0.8, JJ:0.5, AQo:0.5, AJs:0.2"
+      "range": "99+, AJs+, AKo, 88:0.8, ATs:0.5, KQs:0.3, AQo:0.3"
      }
     ]
    },
@@ -9136,8 +9379,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.512,
-    "regret": 0.0002,
+    "occ": 0.542,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9145,13 +9388,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT, AQs-AJs, JJ:0.3, 99:0.3, QJs:0.3, KQs:0.2, AQo:0.2"
+      "range": "TT, AQs, JJ:0.9, 99:0.7"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs, AKo, KQs:0.8, AQo:0.8, JJ:0.7"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.3, KQo:0.3, JJ:0.1"
      }
     ]
    },
@@ -9169,8 +9412,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.543,
-    "regret": 0.0002,
+    "occ": 0.521,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9178,13 +9421,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT, AQs-AJs, QJs:0.9, 99:0.8, KQs:0.5, JJ:0.3, T9s:0.1, 98s:0.1, AQo:0.1"
+      "range": "JJ-99, AQs:0.9"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs, AKo, AQo:0.9, JJ:0.7, KQs:0.5"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.8, QJs:0.2, AQs:0.1, KQo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 3 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.515,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "TT-99, AQs, AQo, JJ:0.9, JTs:0.3"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 12bb",
+      "color": "raise",
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.3, KQo:0.3, JJ:0.1"
      }
     ]
    },
@@ -9202,8 +9478,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.538,
-    "regret": 0.0072,
+    "occ": 0.529,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9211,13 +9487,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs, TT:0.9, AJs:0.5, JJ:0.4, 99:0.4, KQs:0.4, QJs:0.4, KJs:0.3, ATs:0.2, AQo:0.2, AKs:0.1, KQo:0.1"
+      "range": "TT-99, AQs, QJs:0.9, AQo:0.5, JJ:0.3, AJs:0.1, 98s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKo, AKs:0.9, AQo:0.8, JJ:0.6, KJs+:0.5, KQo:0.4, QJs:0.2, TT:0.1, ATs:0.1, KTs:0.1"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.8, JJ:0.7, AQo:0.5, KQo:0.2"
      }
     ]
    },
@@ -9235,8 +9511,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.572,
-    "regret": 0.0013,
+    "occ": 0.65,
+    "regret": 0.0108,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9244,46 +9520,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs-AJs, QJs, TT:0.7, JJ:0.6, KQs:0.5, 98s:0.3, QTs:0.2, 88:0.1, KJs:0.1, T9s:0.1, 65s:0.1, AQo:0.1"
+      "range": "TT-99:0.9, AQs:0.8, JJ:0.7, AJs:0.6, AQo:0.6, 88:0.4, 98s:0.3, T9s:0.2, KQs:0.1, QJs:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, AKo, KJs:0.9, AQo:0.9, KQo:0.7, KQs:0.5, JJ:0.4, 88:0.4, TT:0.3, K9s:0.1"
-     }
-    ]
-   },
-   {
-    "id": "co-at-utg-open-lj-call",
-    "kind": "squeeze",
-    "hero": "CO",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG",
-     "LJ"
-    ],
-    "chip": "UTG오픈·LJ콜",
-    "title": "CO vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 3 · LJ 콜",
-    "reachPct": 100,
-    "occ": 0.509,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "TT, AQs, 99:0.9, AJs:0.9, QJs:0.9, 98s:0.7, JJ:0.4, KQs:0.4, T9s:0.4, JTs:0.1, AQo:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 12bb",
-      "color": "raise",
-      "range": "QQ+, AKs, KJs, AKo, AQo:0.9, JJ:0.6, KQs:0.6, KQo:0.2, 99:0.1"
+      "range": "QQ+, AKs, AKo, KQs:0.8, KQo:0.8, KJs:0.5, AQo:0.4, JJ:0.3, QJs:0.3, AQs:0.2, KTs:0.2, TT-99:0.1"
      }
     ]
    },
@@ -9301,8 +9544,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.556,
-    "regret": 0.0003,
+    "occ": 0.622,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9310,46 +9553,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs-AJs, QJs, TT:0.9, 98s:0.9, 99:0.6, T9s:0.5, JTs:0.3, QTs:0.1"
+      "range": "TT-99, AQs, JTs:0.8, JJ:0.3, T9s:0.3, 98s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AQo+, 99:0.4, KQo:0.4, TT:0.1"
-     }
-    ]
-   },
-   {
-    "id": "co-at-utgp1-open-lj-call",
-    "kind": "squeeze",
-    "hero": "CO",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1",
-     "LJ"
-    ],
-    "chip": "UTG+1오픈·LJ콜",
-    "title": "CO vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 3 · LJ 콜",
-    "reachPct": 100,
-    "occ": 0.503,
-    "regret": 0.0025,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "TT, AQs, QJs, 99:0.6, AJs:0.5, QTs:0.4, KQs:0.3, JTs:0.2, JJ:0.1, KJs:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 12bb",
-      "color": "raise",
-      "range": "QQ+, AKs, AQo+, JJ:0.9, KJs:0.9, KQs:0.7, KQo:0.6, 88:0.2, 99:0.1, AJs:0.1"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.7, AQo:0.6, AJs:0.5, KQo:0.1"
      }
     ]
    },
@@ -9367,8 +9577,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.634,
-    "regret": 0.0008,
+    "occ": 0.615,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9376,13 +9586,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs:0.9, QJs:0.9, 99:0.7, AJs:0.7, 98s:0.7, TT:0.6, QTs:0.3, JJ:0.1, T9s:0.1, 65s:0.1"
+      "range": "TT-99, AQs, QJs, 98s, T9s:0.8, 88:0.6, JTs:0.6, AQo:0.5, AJs:0.2, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AQo+, JJ:0.9, KQo:0.6, TT:0.4, 99:0.3, 88:0.1, AQs-AJs:0.1, K9s:0.1"
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.8, AQo:0.5"
      }
     ]
    },
@@ -9400,8 +9610,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.53,
-    "regret": 0.0004,
+    "occ": 0.604,
+    "regret": 0.0013,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9409,13 +9619,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs:0.2"
+      "range": "TT-99, AQs, 88:0.9, AJs:0.9, 98s:0.9, T9s:0.7, QJs:0.5, 65s:0.3, 54s:0.3, AQo:0.3, JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "TT+, AQs+, KJs+, AQo+, KQo:0.7, 88:0.3"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.9, KQo:0.8, AQo:0.7"
      }
     ]
    },
@@ -9433,8 +9643,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.587,
-    "regret": 0.0006,
+    "occ": 0.627,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9442,13 +9652,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, QTs+, 99:0.7, JTs:0.6, 98s:0.4, AQs:0.3, TT:0.2, JJ:0.1, 88:0.1, T9s:0.1"
+      "range": "99, AQs-AJs, QJs:0.9, 98s:0.9, 88:0.8, T9s:0.8, JTs:0.6, TT:0.3, AQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AQo+, JJ:0.9, TT:0.8, KQo:0.8, AQs:0.7, 88:0.5, 99:0.3"
+      "range": "JJ+, AKs, KJs+, AKo, AQo:0.9, KQo:0.9, TT:0.7, KTs:0.2, QJs:0.1"
      }
     ]
    },
@@ -9466,8 +9676,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.674,
-    "regret": 0.0005,
+    "occ": 0.697,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9475,13 +9685,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs, KJs:0.4, JJ:0.3, 99:0.3, AJs:0.3, KQs:0.1"
+      "range": "99-88, AJs, QJs, JTs, QTs:0.5"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT, AQs+, AQo+, KQo, KQs:0.9, JJ:0.7, 99:0.7, AJs:0.7, KJs:0.6, 88:0.5, 77:0.1, K9s:0.1"
+      "range": "TT+, AQs+, KJs+, AQo+, KQo, KTs:0.3"
      }
     ]
    },
@@ -9499,8 +9709,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.516,
-    "regret": 0.0006,
+    "occ": 0.584,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9508,13 +9718,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT, AQs-AJs, QJs, T9s, 98s, JTs:0.9, QTs:0.5, 99:0.4, KQs:0.2"
+      "range": "TT-99, AQs, JTs, T9s:0.9, 98s:0.9, JJ:0.4, 65s:0.3, 54s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs, AQo+, KQs:0.8, 99:0.6, KQo:0.6"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.6, AQo:0.6, KTs:0.3, AJs:0.2, QJs:0.2, KQo:0.1"
      }
     ]
    },
@@ -9532,8 +9742,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.652,
-    "regret": 0.0001,
+    "occ": 0.611,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9541,13 +9751,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, QTs+, JTs, T9s, 98s, J9s:0.6, JJ:0.5, 99:0.2"
+      "range": "99, AQs, QJs, JTs, T9s, 98s:0.6, TT:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT, AQs+, KJs+, AQo+, 99:0.8, KQo:0.6, JJ:0.5, 88:0.2, K9s:0.2"
+      "range": "JJ+, AKs, KTs+, AQo+, TT:0.8, KQo:0.5"
      }
     ]
    },
@@ -9565,8 +9775,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.588,
-    "regret": 0.0013,
+    "occ": 0.567,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9574,13 +9784,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, 98s, JJ:0.9, T9s:0.8, AJs:0.7, QTs:0.7, TT:0.4, KJs:0.4, 65s:0.4, JTs:0.2, KQs:0.1"
+      "range": "99, AQs, QJs, T9s, 98s, JTs:0.9, 88:0.8, TT:0.4, 54s:0.3, AJs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AQs+, AQo+, KQs:0.9, KQo:0.9, TT:0.6, KJs:0.6, 77:0.3, AJs:0.3, JJ:0.1, K9s:0.1"
+      "range": "JJ+, AKs, KJs+, AQo+, KQo:0.8, TT:0.6"
      }
     ]
    },
@@ -9598,8 +9808,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.697,
-    "regret": 0.0002,
+    "occ": 0.679,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9607,13 +9817,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs, T9s, 98s, J9s:0.8, 99:0.4, AJs:0.4, JJ:0.3, 88:0.2"
+      "range": "99-88, QJs, JTs, T9s, 98s, AJs:0.9, AQs:0.8, QTs:0.8, TT:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT, AQs+, KJs+, AQo+, KQo:0.9, JJ:0.7, 99-88:0.6, AJs:0.6"
+      "range": "JJ+, AKs, KTs+, AQo+, TT:0.9, KQo:0.6, AQs:0.2"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp2-open-lj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "LJ"
+    ],
+    "chip": "UTG+2오픈·LJ콜",
+    "title": "BTN vs UTG+2 오픈 + LJ 콜",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 3 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.556,
+    "regret": 0.0018,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs, T9s, 98s, 88:0.9, 65s:0.9, 54s:0.9, TT:0.8, AJs:0.8, QJs:0.8, JTs:0.5, AQo:0.2, JJ:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 12bb",
+      "color": "raise",
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.9, KQo:0.9, AQo:0.8, TT:0.2, QJs:0.1"
      }
     ]
    },
@@ -9631,8 +9874,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.54,
-    "regret": 0.0016,
+    "occ": 0.576,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9640,13 +9883,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, T9s, 98s, JTs:0.9, AJs:0.5, J9s:0.5, 99:0.2, KJs:0.2, JJ:0.1, AQs:0.1, KQs:0.1"
+      "range": "AJs, QJs, JTs, T9s, 98s, 99-88:0.9, AQs:0.4, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT, AKs, AQo+, KQo, JJ:0.9, AQs:0.9, KQs:0.9, 99:0.8, KJs:0.8, AJs:0.5, 88:0.2, K9s:0.2"
+      "range": "TT+, AKs, KJs+, AQo+, KQo:0.9, AQs:0.6, KTs:0.4, 99:0.1"
      }
     ]
    },
@@ -9664,8 +9907,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.662,
-    "regret": 0.0002,
+    "occ": 0.705,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9673,13 +9916,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, JTs, T9s, 98s:0.9, J9s:0.5, JJ:0.3, 99:0.3, AJs:0.2, KQs:0.2, 88:0.1"
+      "range": "JTs, T9s, 98s, QJs:0.9, 88:0.8, 99:0.2, AJs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT, AQs+, KJs, AQo+, KQo, AJs:0.8, KQs:0.8, JJ:0.7, 99:0.7, 88:0.6"
+      "range": "TT+, AQs+, KTs+, AQo+, KQo, 99:0.8, AJs:0.8, 88:0.2, QJs:0.1"
      }
     ]
    },
@@ -9697,8 +9940,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.619,
-    "regret": 0.0009,
+    "occ": 0.64,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9706,13 +9949,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QTs+, J9s+, KJs:0.9, 98s:0.9, T9s:0.8, KQs:0.7, AJs:0.5, 99:0.4, TT:0.2, JJ:0.1, 88:0.1"
+      "range": "88, QJs, JTs, 98s, AJs:0.9, QTs:0.5, 65s:0.5, T9s:0.3, 99:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AQs+, AQo+, KQo, JJ:0.9, TT:0.8, 99:0.6, AJs:0.5, K9s:0.5, 77:0.4, ATs:0.4, 88:0.3, KQs:0.3, KTs:0.2, KJs:0.1"
+      "range": "TT+, AQs+, KJs+, AQo+, KQo, KTs:0.9, 99:0.8, AJs:0.1, QTs:0.1"
      }
     ]
    },
@@ -9730,8 +9973,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.769,
-    "regret": 0.0002,
+    "occ": 0.825,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9739,13 +9982,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QTs+, J9s+, T9s, 98s:0.8, KQs:0.4, JJ:0.2, 88:0.2, AJs:0.1"
+      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s, TT:0.7, 54s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AQs+, ATs, AQo+, KQo, AJs:0.9, JJ:0.8, 88:0.8, 77:0.7, AJo:0.7, KQs:0.6, K9s:0.3, KTs:0.1"
+      "range": "JJ+, 99, AQs+, KTs+, AJo+, KQo, ATs:0.4, TT:0.3"
      }
     ]
    },
@@ -9763,7 +10006,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.793,
+    "occ": 0.93,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -9772,13 +10015,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QTs+, JTs, T9s, 98s, KJs:0.9, J9s:0.2, 88:0.1, ATs:0.1"
+      "range": "QJs, T9s, 98s, 65s, AJs:0.9, KQs:0.9, 54s:0.5, 77:0.4, ATs:0.3, KJs:0.3, 88:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "99+, AJs+, AJo+, KQo, 88:0.9, ATs:0.9, J9s:0.8, 66-55:0.5, 77:0.3, KJs:0.1, KJo:0.1"
+      "range": "99+, AQs+, KTs, QTs, JTs, AJo+, KQo, 88:0.9, ATs:0.7, KJs:0.7, 77:0.6, K9s:0.4, AJs:0.1, KQs:0.1, J9s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "SB vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 3 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.545,
+    "regret": 0.0018,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "TT-99, JTs, AQs:0.9, T9s:0.9, 98s:0.8, 65s:0.5, 54s:0.4, JJ:0.3, QJs:0.3"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 14.3bb",
+      "color": "raise",
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.7, QJs:0.3, AJs:0.2, AQo:0.2, AQs:0.1, KQo:0.1"
      }
     ]
    },
@@ -9796,8 +10072,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.597,
-    "regret": 0.0003,
+    "occ": 0.565,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9805,13 +10081,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, QTs+, J9s+, T9s, 98s, 99:0.8, AQs:0.7, TT:0.2, KQs:0.2"
+      "range": "TT-88, AQs-AJs, QTs+, JTs, T9s, 98s, 65s, 54s, AQo:0.7, 43s:0.2, JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs, AQo+, TT:0.8, KQs:0.8, KQo:0.4, AQs:0.3, 99-88:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.9, KQo:0.5, AQo:0.3, KTs:0.1"
      }
     ]
    },
@@ -9829,8 +10105,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.728,
-    "regret": 0.0001,
+    "occ": 0.64,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9838,13 +10114,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, KQs, QTs+, J9s+, T8s+, 98s, 88:0.8, 99:0.5, JJ:0.1, 97s:0.1"
+      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 65s:0.9, 54s:0.3, J9s:0.2, TT:0.1, AQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, TT, AQs+, KJs, AQo+, JJ:0.9, KQo:0.7, 99:0.5, 88:0.2, KTs:0.1"
+      "range": "JJ+, AKs, KJs+, AKo, TT:0.9, AQo:0.9, KQo:0.4, KTs:0.2"
      }
     ]
    },
@@ -9862,7 +10138,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.537,
+    "occ": 0.521,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -9871,13 +10147,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs-AJs, QTs+, T9s, 98s, 65s, JTs:0.8, 54s:0.8, TT:0.5, KJs:0.1"
+      "range": "TT-88, AQs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.7, AJs:0.5, QTs:0.5, 43s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "JJ+, AKs, KQs, AQo+, KJs:0.9, TT:0.5, KQo:0.4, 88:0.1"
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.5, AQo:0.3"
      }
     ]
    },
@@ -9895,7 +10171,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.635,
+    "occ": 0.62,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -9904,13 +10180,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AJs, QTs+, J9s+, T9s, 98s, T8s:0.3, 97s:0.3, 88:0.2, KQs:0.1, 87s:0.1, 65s:0.1"
+      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 65s, AJs:0.9, 87s:0.5, TT:0.2, 54s:0.2, AQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AQs+, KJs, AQo+, KQs:0.9, 88:0.7, KQo:0.5"
+      "range": "JJ+, AKs, KJs+, AKo, AQo:0.9, TT:0.8, KQo:0.5"
      }
     ]
    },
@@ -9928,8 +10204,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.775,
-    "regret": 0.0002,
+    "occ": 0.761,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -9937,13 +10213,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QTs+, J9s+, T8s+, 98s, 88:0.8, 97s:0.7, AJs:0.5, KJs:0.4"
+      "range": "88, AJs, QTs+, J9s+, T9s, 98s, 99:0.8, 65s:0.6, AQs:0.5, T8s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KQo, KJs:0.6, AJs:0.5, ATs:0.4, 88-77:0.2"
+      "range": "TT+, AKs, KTs+, AQo+, AQs:0.5, KQo:0.3, 99:0.2"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp2-open-lj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "LJ"
+    ],
+    "chip": "UTG+2오픈·LJ콜",
+    "title": "SB vs UTG+2 오픈 + LJ 콜",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 3 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.508,
+    "regret": 0.0017,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "TT-99, QJs, JTs, T9s, 98s, 65s, 54s, 88:0.9, AQs:0.9, AJs:0.6, AQo:0.4, QTs:0.1, 87s:0.1, 43s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 14.3bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KJs+, AKo, AQo:0.5, KQo:0.5, AQs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp2-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "HJ"
+    ],
+    "chip": "UTG+2오픈·HJ콜",
+    "title": "SB vs UTG+2 오픈 + HJ 콜",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 3 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.526,
+    "regret": 0.0005,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-88, AQs-AJs, QJs, JTs, T9s, 98s, 65s, 54s, TT:0.7, AQo:0.6, QTs:0.5, 43s:0.2, 87s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 14.3bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.8, AQo:0.4, TT:0.3"
      }
     ]
    },
@@ -9961,7 +10303,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.603,
+    "occ": 0.643,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -9970,13 +10312,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QTs+, J9s+, T9s, 98s"
+      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s, J9s:0.9, 99:0.5"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AJs+, KQs, AQo+, KQo, 88:0.6"
+      "range": "TT+, AQs+, KJs+, AQo+, KQo:0.6, 99:0.5"
      }
     ]
    },
@@ -9994,8 +10336,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.839,
-    "regret": 0.0002,
+    "occ": 0.91,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10003,13 +10345,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QTs+, J9s+, T8s+, 98s, 97s:0.9, 88:0.4, 77:0.3, AJs:0.2, KQs:0.2"
+      "range": "QTs+, J9s+, T9s, 98s, 88:0.2, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KQo, AJs:0.8, KQs:0.8, 88:0.6, 77:0.4, AJo:0.3, ATs:0.1"
+      "range": "99+, AJs+, KJs+, AQo+, KQo, 88:0.8, KTs:0.6"
      }
     ]
    },
@@ -10027,8 +10369,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.561,
-    "regret": 0.0005,
+    "occ": 0.583,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10036,13 +10378,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QTs+, J9s+, T9s, 98s, KJs:0.9, AJs:0.3, 65s:0.2"
+      "range": "99-88, AJs, QTs+, JTs, T9s, 98s, 65s, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KQo, AJs:0.7, 88:0.5, 77:0.3, 55:0.2, KJs-KTs:0.1"
+      "range": "TT+, AQs+, KJs+, AQo+, KQo:0.7"
      }
     ]
    },
@@ -10060,8 +10402,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.689,
-    "regret": 0.0001,
+    "occ": 0.738,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10069,13 +10411,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, KJs+, QTs+, J9s+, T8s+, 98s, 97s:0.6, AJs:0.3, 65s:0.2"
+      "range": "88, QTs+, JTs, T9s, 98s, 65s, 54s:0.7"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs, AQo+, KQo, 77:0.9, AJs:0.7, AJo:0.2, KTs:0.1"
+      "range": "99+, AJs+, KJs+, AQo+, KQo, 77:0.3, KTs:0.1"
      }
     ]
    },
@@ -10093,7 +10435,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.881,
+    "occ": 1.034,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -10102,13 +10444,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "ATs, KJs, QTs+, J9s+, T8s+, 97s+, KQs:0.9, Q9s:0.7, 77:0.2, AJs:0.2, 65s:0.1"
+      "range": "Q9s+, J9s+, T8s+, 97s+, 87s, 65s, AJs:0.9, KJs:0.8, 77:0.3, 76s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, AJo+, KQo, 77:0.8, AJs:0.8, 66:0.4, KTs:0.4, KQs:0.1"
+      "range": "88+, AQs+, KQs, KTs, AQo+, KQo, 77:0.7, AJo:0.7, ATs:0.5, KJs:0.2, AJs:0.1"
      }
     ]
    },
@@ -10126,7 +10468,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.704,
+    "occ": 0.823,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10135,13 +10477,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, QTs+, J9s+, T8s+, 98s, 65s, ATs:0.9, 97s:0.3, 77:0.2"
+      "range": "KJs, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, 54s, ATs:0.9, KQs:0.8, 97s:0.4, 77:0.2, AJs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AJs+, AJo+, KQo, 77:0.8, KTs:0.3, 66-55:0.2, ATs:0.1, K9s:0.1"
+      "range": "88+, AQs+, KTs, AJo+, KQo, AJs:0.9, 77:0.8, KQs:0.2, ATs:0.1"
      }
     ]
    },
@@ -10159,7 +10501,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.007,
+    "occ": 1.059,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10168,13 +10510,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K9s+, QTs+, J9s+, T8s+, 97s+, 87s, 65s, 66:0.3, ATs:0.2, KQo:0.2"
+      "range": "KJs, Q9s+, J9s, T9s, 97s+, 65s, JTs:0.5, KQs:0.4, ATs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "77+, AJs+, AJo+, KJo:0.9, ATs:0.8, KQo:0.8, 66:0.5, 55:0.2"
+      "range": "77+, AJs+, KTs, AJo+, KQo, ATs:0.9, KQs:0.6, KJo:0.6, JTs:0.5"
      }
     ]
    },
@@ -10192,8 +10534,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.305,
-    "regret": 0.0001,
+    "occ": 1.367,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10201,13 +10543,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K9s, QTs+, J9s+, T8s+, 97s+, 65s, KQs:0.5, K8s:0.5, KJo:0.4, KTs:0.1, 87s:0.1"
+      "range": "KJs-K9s, Q9s+, J9s, T9s, 98s, 87s, 76s, 65s, 54s, QJo, Q8s:0.8, JTs:0.8, T8s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "55+, A9s+, ATo+, KQo, KTs:0.9, KJo:0.6, KQs:0.5"
+      "range": "66+, A9s+, KQs, ATo+, KJo+, 55:0.5, JTs:0.2"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "BB vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 3 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.509,
+    "regret": 0.0011,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88, AQs, QJs, JTs, T9s, 98s, 76s, 64s+, 53s+, 43s, TT:0.9, 87s:0.9, AJs:0.8, 99:0.7, J9s:0.6, 86s:0.6, AQo:0.6, T8s:0.5, 75s:0.5, JJ:0.4, 97s:0.2, 42s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 14.3bb",
+      "color": "raise",
+      "range": "QQ+, AKs, KTs+, AKo, JJ:0.6, AQo:0.4, 99:0.3, KQo:0.3, TT:0.1, AJs:0.1"
      }
     ]
    },
@@ -10225,7 +10600,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.548,
+    "occ": 0.513,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10234,13 +10609,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AJs, KQs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 88:0.5, AQs:0.4, KJs:0.2"
+      "range": "TT-88, AQs-AJs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s:0.9, AQo:0.7"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AKs, AQo+, KQo:0.9, KJs:0.8, AQs:0.6, 88:0.5"
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.5, KTs:0.4, AQo:0.3"
      }
     ]
    },
@@ -10258,7 +10633,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.66,
+    "occ": 0.585,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -10267,13 +10642,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, AJs-ATs, KJs+, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 88:0.7, 99:0.4, KQo:0.1"
+      "range": "99-88, AQs-AJs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, T7s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AQs+, AQo+, KQo:0.9, K9s:0.7, 99:0.6, KTs:0.6, 88:0.3"
+      "range": "TT+, AKs, KTs+, AQo+, KQo:0.3"
      }
     ]
    },
@@ -10291,7 +10666,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.578,
+    "occ": 0.564,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10300,13 +10675,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs-ATs, KJs+, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 77:0.9, 88:0.5, 99:0.2"
+      "range": "99-88, AQs-AJs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 77:0.2, TT:0.1, 42s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AQs+, AQo+, KQo, 99:0.8, 88:0.5, K9s:0.5, 55:0.3, 77:0.1, KTs:0.1"
+      "range": "JJ+, AKs, KTs+, AQo+, TT:0.9, KQo:0.3"
      }
     ]
    },
@@ -10324,7 +10699,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.698,
+    "occ": 0.692,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10333,13 +10708,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs-ATs, KJs+, K9s, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, Q8s:0.9, 66:0.8, TT:0.6, JJ:0.1, 99:0.1, KTs:0.1"
+      "range": "88-77, AJs, Q9s+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 99:0.1, J8s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AKs, AJo+, KQo, JJ:0.9, 99:0.9, TT:0.4, 66-55:0.2"
+      "range": "TT+, AQs+, KTs+, AQo+, 99:0.9, KQo:0.7"
      }
     ]
    },
@@ -10357,8 +10732,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.548,
-    "regret": 0.0002,
+    "occ": 0.584,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10366,13 +10741,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, KJs+, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 77:0.9, 88:0.8, ATs:0.7, K9s:0.5, 66:0.4, 42s:0.1"
+      "range": "88-77, AJs, QTs+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, Q9s:0.6, 42s:0.5, 32s:0.2, 85s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KQo, 66:0.6, KTs:0.4, ATs:0.3, 88:0.2, 77:0.1, AJo:0.1"
+      "range": "99+, AQs+, KJs+, AQo+, KQo:0.9, KTs:0.8"
      }
     ]
    },
@@ -10390,8 +10765,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.752,
-    "regret": 0,
+    "occ": 0.824,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10399,13 +10774,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, AJs-ATs, KJs+, K9s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, 77:0.8, KTs:0.2, AJo:0.2"
+      "range": "77, AJs, Q9s+, J8s+, T7s+, 96s+, 85s+, 75s+, 63s+, 53s+, 42s+, 32s, 52s:0.7, ATs:0.5, 88:0.3, Q8s:0.3, 74s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, AQo+, KQo, KTs:0.8, AJo:0.8, 77:0.2"
+      "range": "99+, AQs+, KTs+, AQo+, KQo, 88:0.7, ATs:0.5, AJo:0.2"
      }
     ]
    },
@@ -10423,8 +10798,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.508,
-    "regret": 0.0005,
+    "occ": 0.531,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10432,13 +10807,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs-ATs, KJs+, K9s, Q9s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KTs:0.9, 88:0.8, 66:0.6, K7s:0.6, 77:0.3, Q8s:0.3, 99:0.2, KQo:0.2, 42s:0.1"
+      "range": "99-77, AJs-ATs, QTs+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 42s:0.6, 32s:0.5, 63s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AQs+, AQo+, 99:0.8, KQo:0.8, 77:0.7, AJo:0.5, 66:0.4, 88:0.2, KTs:0.1"
+      "range": "TT+, AQs+, KJs+, AQo+, KTs:0.7, KQo:0.7"
      }
     ]
    },
@@ -10456,8 +10831,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.615,
-    "regret": 0.0003,
+    "occ": 0.668,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10465,13 +10840,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs-ATs, KJs+, K9s, K7s, Q7s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 88:0.8, T7s:0.7, 66-55:0.6, 77:0.4, KTs:0.2, AJo:0.2, KJo+:0.2"
+      "range": "88, AJs-ATs, Q9s+, J8s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, 66:0.9, AJo:0.8, 77:0.7, Q8s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KTs:0.8, AJo:0.8, KQo:0.8, 77:0.6, 66:0.4, 88:0.2"
+      "range": "99+, AQs+, KTs+, AQo+, KQo, 77:0.3, AJo:0.2"
      }
     ]
    },
@@ -10489,7 +10864,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.775,
+    "occ": 0.907,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10498,46 +10873,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs-ATs, KJs+, K9s-K6s, K4s, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, QJo, 55:0.9, 66:0.8, KTs:0.6, KJo:0.4, 77:0.1"
+      "range": "66, AJs-ATs, KJs, K9s, Q8s+, J7s+, T6s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, A9s:0.8, KQs:0.5, AJo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, AJo+, KQo, 77:0.9, KJo:0.6, A9s:0.4, KTs:0.4, 66:0.2, 55:0.1"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-lj-open-sb-call",
-    "kind": "squeeze",
-    "hero": "BB",
-    "villain": "LJ",
-    "villainSeats": [
-     "LJ",
-     "SB"
-    ],
-    "chip": "LJ오픈·SB콜",
-    "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 3 · SB 콜",
-    "reachPct": 100,
-    "occ": 0.526,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "44, AJs-ATs, A8s-A7s, KJs+, K8s-K7s, K4s, Q4s+, J6s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, QTo+, JTo, T9o, A9s:0.9, K9s:0.9, K5s:0.9, KJo:0.9, T6s:0.8, 55:0.6, K6s:0.6, KQo:0.6, Q2s:0.4, 33:0.3, J5s:0.3, J9o:0.2, KTs:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 14.3bb",
-      "color": "raise",
-      "range": "66+, AQs+, AJo+, KTs:0.9, ATo:0.7, 22:0.6, 55:0.4, K6s:0.4, KQo:0.4, A9s:0.1, K9s:0.1, K5s:0.1, KJo:0.1"
+      "range": "77+, AQs+, KTs, AQo+, KQo, AJo:0.8, KJo:0.6, KQs:0.5, A9s:0.2"
      }
     ]
    },
@@ -10555,8 +10897,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.621,
-    "regret": 0.0003,
+    "occ": 0.723,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10564,13 +10906,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44, ATs, KTs+, K8s-K6s, K4s, Q5s+, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, QJo, 77:0.8, K9s:0.7, 66-55:0.6, 33:0.5, KJo:0.5, KQo:0.4, A7s:0.1"
+      "range": "66, AJs-A9s, KJs+, QJs, Q9s-Q8s, J9s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, J8s:0.9, 77:0.6, QTs:0.6, 62s:0.6, K9s:0.4, KQo:0.2, KJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AJs+, A9s, AJo+, KQo:0.6, KJo:0.5, 66-55:0.4, K9s:0.3, 77:0.2, 33:0.1"
+      "range": "88+, AQs+, KTs, AJo+, KJo:0.9, KQo:0.8, K9s:0.6, 77:0.4, QTs:0.4"
      }
     ]
    },
@@ -10588,7 +10930,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.866,
+    "occ": 0.924,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10597,13 +10939,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-33, ATs-A4s, K3s+, Q5s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, T9o, QJo:0.9, 66:0.7, KQo:0.5, KJo:0.4, 55:0.3, J9o:0.2, ATo:0.1, JTo:0.1"
+      "range": "ATs-A7s, KJs, K9s-K7s, Q7s+, J7s+, T6s+, 95s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, KTs:0.8, JTo:0.6, 66:0.5, KQs:0.3, KJo:0.2, 62s:0.1, T9o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "77+, AJs+, AJo+, ATo:0.9, 55:0.7, KJo:0.6, KQo:0.5, 66:0.3, QJo:0.1"
+      "range": "77+, AJs+, AJo+, KQo, KJo:0.8, KQs:0.7, 66:0.5, JTo:0.4, 55:0.2, KTs:0.2, ATo:0.2"
      }
     ]
    },
@@ -10621,8 +10963,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 3 · SB 콜",
     "reachPct": 100,
-    "occ": 0.771,
-    "regret": 0.0001,
+    "occ": 0.693,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10630,13 +10972,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-33, ATs-A3s, KJs-K2s, Q2s+, J3s+, T5s+, 95s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, KJo, QTo+, J9o, T9o, KQs:0.9, JTo:0.5, 22:0.3, KQo:0.1, 98o:0.1"
+      "range": "ATs-A6s, KJs-K4s, Q4s+, J4s+, T5s+, 94s+, 92s, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, A5s:0.7, 82s:0.6, KQs:0.5, A4s:0.3, 55:0.2, KQo:0.2, JTo:0.2, Q3s-Q2s:0.1, 72s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "55+, AJs+, ATo+, KQo:0.9, 22:0.7, KTo:0.5, JTo:0.5, KQs:0.1"
+      "range": "66+, AJs+, ATo+, KTo:0.9, 55:0.8, KQo:0.8, JTo:0.8, KQs:0.5, A5s:0.3"
      }
     ]
    },
@@ -10654,8 +10996,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.102,
-    "regret": 0.0003,
+    "occ": 1.136,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10663,13 +11005,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33, A8s-A2s, KJs-K2s, Q3s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, QTo+, T9o, J4s:0.9, J9o:0.9, 44:0.8, JTo:0.8, KQo:0.6, KJo:0.5, Q2s:0.1"
+      "range": "A7s-A3s, KJs-K4s, Q4s+, J5s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, QTo+, 44:0.9, J4s:0.9, JTo:0.9, A8s:0.5, 82s:0.5, T5s:0.4, KQo:0.4, KJo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "55+, 22, A9s+, KQs, ATo+, KTo, KJo:0.5, KQo:0.4, 44:0.2"
+      "range": "55+, A9s+, KQs, ATo+, KTo, KJo:0.8, KQo:0.6, A8s:0.5, 44:0.1, JTo:0.1"
      }
     ]
    },
@@ -10687,8 +11029,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 3 · SB 콜",
     "reachPct": 100,
-    "occ": 0.977,
-    "regret": 0.0002,
+    "occ": 0.999,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10696,13 +11038,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A8s-A3s, KJs-K2s, Q2s+, J2s+, T5s+, 95s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, KJo, QJo, J9o, T9o, 98o, A9s:0.6, JTo:0.6, T8o:0.6, KQo:0.5, QTo:0.5, 63s:0.4, A2s:0.1, 74s:0.1"
+      "range": "A8s-A6s, KJs-K2s, Q2s+, J2s+, T5s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QJo, J9o, T9o, 98o, 76o, QTo:0.9, A3s:0.8, KQo:0.7, JTo:0.6, 65o:0.6, 93s:0.5, A2s:0.2, A4s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "22+, ATs+, KQs, A9o+, KTo, A2s:0.9, KQo:0.5, QTo:0.5, A9s:0.4, JTo:0.4"
+      "range": "44+, A9s+, A5s, KQs, A9o+, KTo, A4s:0.9, A2s:0.8, A8o:0.8, JTo:0.4, KQo:0.3, A3s:0.2, K9o:0.2, QTo:0.1"
      }
     ]
    },
@@ -10720,8 +11062,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 3 · SB 콜",
     "reachPct": 100,
-    "occ": 1.602,
-    "regret": 0.0001,
+    "occ": 1.531,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10729,13 +11071,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A3s, KJs-K2s, Q2s+, J2s+, T2s+, 94s+, 85s+, 74s+, 64s+, 53s+, 42s+, 32s, KJo-KTo, K8o-K5o, QTo+, Q8o, J9o+, T8o+, 98o, 63s:0.7, 33:0.6, KQo:0.5, K9o:0.1"
+      "range": "33, A7s-A6s, KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K6o, Q9o+, J8o+, T8o+, 98o, 76o, Q7o:0.9, 65o:0.8, A4s-A3s:0.6, KQo:0.6, A5s:0.4, Q8o:0.3, K9o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "44+, 22, A8s+, A2s, KQs, A7o+, A5o, Q9o, K9o:0.9, KQo:0.5, 33:0.4, A6o:0.4"
+      "range": "44+, A8s+, A2s, KJs+, A5o+, K9o:0.9, Q8o:0.7, A5s:0.6, A4s-A3s:0.4, KQo:0.4, A4o:0.2"
      }
     ]
    },
@@ -10754,8 +11096,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 49.8,
-    "occ": 2.757,
+    "reachPct": 52.5,
+    "occ": 3.103,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10764,13 +11106,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A4s-A2s, K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 97s-93s, 86s-85s, 75s+, 64s+, 53s+, 43s, A5o-A2o, KTo, QTo-Q9o, JTo, T8o+, 98o, J8o:0.9, A6o:0.8, J9o:0.6, 84s:0.3, K3s:0.1"
+      "range": "44-22, A3s-A2s, K6s-K2s, Q8s-Q2s, J8s-J2s, T7s-T2s, 95s-92s, 85s-83s, 74s-73s, 64s-63s, A6o-A3o, K6o, J9o-J7o, T7o+, 97o, A7o:0.9, K5o:0.9, 96s:0.8, JTo:0.8, 86s:0.1, QTo:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "JJ+, 99-88, 55, ATs+, A6s-A5s, K5s-K4s, AJo-A8o, KQo, K7o, QJo, K3s:0.9, J9o:0.4, A6o:0.2"
+      "range": "JJ+, 99, 77, ATs+, 97s, 75s, AQo-A8o, KTo+, QJo, 86s:0.9, QTo:0.9, 96s:0.2, JTo:0.2, A7o:0.1"
      }
     ]
    },
@@ -10788,7 +11130,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 5.188,
+    "occ": 5.64,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -10797,13 +11139,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J7s+, T6s+, 96s+, 85s+, 74s+, 64s+, 53s+, 42s+, 32s, A7o+, KJo+, K9o-K8o, K4o, QJo, Q9o, J9o, T9o, 97o+, 76o, 65o, 53o, 42o, 32o, 63s:0.9, A5o-A4o:0.9, 54o:0.9, T8o:0.8, 86o+:0.8, 43o:0.8, KTo:0.7, K7o:0.7, Q8o:0.7, 64o:0.7, QTo:0.6, 75o:0.4, K2o:0.2, A6o:0.1"
+      "range": "22+, A2s+, K4s+, Q6s+, Q4s, J7s+, T6s+, 94s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A7o+, KTo+, Q9o+, J8o+, T8o+, 98o, 84o, 76o, 74o, 64o+, 52o+, 42o+, 32o, K3s:0.9, T4s:0.9, 87o:0.8, Q8o:0.7, 97o:0.7, J4s:0.6, 93s:0.6, 86o:0.6, T7o:0.4, K9o:0.2, Q5s:0.1, 94o:0.1, 63o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "J6s-J2s, T5s-T2s, 95s-92s, 84s-82s, 73s-72s, 62s, 52s, A3o-A2o, K6o-K5o, K3o, Q7o-Q2o, JTo, J8o-J2o, T7o-T2o, 96o-92o, 85o-82o, 74o-72o, 63o-62o, 52o, A6o:0.9, K2o:0.8, 75o:0.6, QTo:0.4, KTo:0.3, K7o:0.3, Q8o:0.3, 64o:0.3, T8o:0.2, 86o+:0.2, 43o:0.2, 63s:0.1, A5o-A4o:0.1, 54o:0.1"
+      "range": "K2s, Q3s-Q2s, J6s-J5s, J3s-J2s, T5s, T3s-T2s, 92s, 83s-82s, 72s, A6o-A2o, K8o-K2o, Q7o-Q2o, J7o-J2o, T6o-T2o, 96o-95o, 93o-92o, 85o, 83o-82o, 75o, 73o-72o, 62o, Q5s:0.9, 94o:0.9, 63o:0.9, K9o:0.8, T7o:0.6, J4s:0.4, 93s:0.4, 86o:0.4, Q8o:0.3, 97o:0.3, 87o:0.2, K3s:0.1, T4s:0.1"
      }
     ]
    },
@@ -10822,9 +11164,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 53.2,
-    "occ": 0.457,
-    "regret": 0.0014,
+    "reachPct": 55,
+    "occ": 0.551,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -10832,13 +11174,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A5s, K2s+, QTs+, Q8s-Q2s, J7s+, T6s+, 96s+, 85s+, 74s+, 63s+, 53s+, 42s+, 32s, AQo-A9o, KJo+, QTo+, 76o, A8o:0.9, 65o:0.8, 87o:0.6, Q9s:0.5, KTo:0.4, JJ:0.3, A3s-A2s:0.3, TT:0.2, T9o:0.2, K9o:0.1, J9o:0.1"
+      "range": "99-22, AJs-A5s, A2s, KTs+, K8s-K7s, QTs+, Q8s-Q4s, J7s+, J4s, T6s+, T4s, 93s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo-A7o, KJo+, QJo, 54o, QTo:0.9, 65o:0.9, AQs:0.8, A3s:0.8, KTo:0.8, JTo:0.8, TT:0.7, Q9s:0.7, A4s:0.2, JJ:0.1, K6s-K5s:0.1, 98o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, TT:0.8, A5o:0.8, JJ:0.7, A3s-A2s:0.7, KTo:0.6, Q9s:0.5, A4o:0.1"
+      "range": "QQ+, AKs, K9s, K4s-K3s, AKo, JJ:0.9, K6s-K5s:0.9, A4s:0.8, K9o:0.8, TT:0.3, Q9s:0.3, AQs:0.2, A3s:0.2, KTo:0.2, QTo:0.1"
      }
     ]
    }
@@ -10878,38 +11220,39 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "vsLimp": 0.1,
    "vsShove": 0.1
   },
+  "occThresholdCold": 1,
   "brGainMbb": [
-   0.489,
-   0.327,
-   0.563,
-   0.285,
-   0.437,
    0.439,
-   0.363,
-   0.461,
-   0.954
+   0.591,
+   0.316,
+   0.187,
+   0.596,
+   0.39,
+   0.61,
+   0.412,
+   0.83
   ],
-  "nashConvMbb": 4.319,
-  "snappedGainMbb": 1.527,
+  "nashConvMbb": 4.37,
+  "snappedGainMbb": 1.236,
   "ev": [
-   0.1653,
-   0.1807,
-   0.1991,
-   0.2205,
-   0.2491,
-   0.2875,
-   0.3382,
-   -0.1282,
-   -1.3877
+   0.1627,
+   0.181,
+   0.1998,
+   0.2216,
+   0.2489,
+   0.2862,
+   0.3348,
+   -0.1344,
+   -1.3747
   ],
   "diag": {
-   "evSum": 0.1245,
-   "frozenOccPct": 1.618,
-   "negativeShares": 3068
+   "evSum": 0.1259,
+   "frozenOccPct": 1.628,
+   "negativeShares": 2696
   },
   "model": {
-   "id": "modelB-5f",
-   "fitHash": "45018e13c1764b7cbeb8e77875653bd1808740df1001e2c5ae8b55e36f111f96",
+   "id": "modelB-rank6",
+   "fitHash": "03dd3d0015e3d70ae736d9982d7c2bf8308f0141e6cd82bbbf1b8f636443fcb4",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
@@ -10931,19 +11274,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A8s+, K6s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, A5s:0.7, ATo:0.5"
+      "range": "66+, A8s+, K9s+, Q9s+, J9s+, T8s+, 98s, 87s, AJo+, KQo, QJo, 76s:0.7, KJo:0.7, A5s:0.5, ATo:0.3, A7s:0.2"
      }
     ]
    },
@@ -10953,19 +11296,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 83.924,
+    "occ": 84.259,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A7s+, A5s, K6s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo:0.8, 44:0.1, K5s:0.1"
+      "range": "66+, A7s+, K9s+, Q9s+, J8s+, T8s+, 98s, 87s, ATo+, KJo+, QJo, Q8s:0.9, A5s:0.8, 97s:0.5, 76s:0.3, 55:0.2, K8s:0.1"
      }
     ]
    },
@@ -10978,7 +11321,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 68.843,
+    "occ": 69.404,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -10987,7 +11330,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "44+, A4s+, K4s+, Q8s+, J9s+, T8s+, 97s+, ATo+, KJo+, QJo, Q7s:0.6"
+      "range": "55+, A7s+, A5s, K8s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, ATo+, KJo+, QJo, JTo, A6s:0.8, QTo:0.4"
      }
     ]
    },
@@ -10997,19 +11340,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A9o 0%, K9o 70%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 54.901,
+    "occ": 55.375,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "33+, A3s+, K3s+, Q7s+, J8s+, T8s+, 97s+, 87s, ATo+, KJo+, QJo, K9o:0.7, QTo:0.6, J9o:0.4"
+      "range": "55+, A4s+, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, ATo+, KTo+, QTo+, JTo, 86s:0.6"
      }
     ]
    },
@@ -11019,19 +11362,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A8o 0%, K8o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 41.974,
+    "occ": 42.403,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "33+, A2s+, K2s+, Q5s+, J8s+, T8s+, 97s+, 86s+, 76s, A9o+, K8o+, QTo+, J9o, T9o, 22:0.4"
+      "range": "44+, A3s+, K6s+, Q7s+, J7s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, A9o+, KTo+, QTo+, J9o+, T9o, K5s:0.8, K9o:0.3, Q9o:0.2"
      }
     ]
    },
@@ -11041,19 +11384,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 29.242,
+    "occ": 30.031,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q4s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, A8o+, K6o+, Q9o+, J9o+, T9o, A7o:0.9, Q3s:0.6"
+      "range": "33+, A2s+, K4s+, Q5s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, A8o+, K8o+, Q9o+, J9o+, T9o, A7o:0.9, 98o:0.8, 53s:0.7, J5s:0.5"
      }
     ]
    },
@@ -11063,19 +11406,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A2o 0%, K2o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 18.241,
+    "occ": 18.853,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J4s+, T6s+, 96s+, 86s+, 75s+, 64s+, 54s, A3o+, K2o+, Q6o+, J9o+, T8o+, 98o, J3s:0.6, T5s:0.4"
+      "range": "22+, A2s+, K2s+, Q2s+, J3s+, T5s+, 95s+, 85s+, 74s+, 64s+, 53s+, 43s, A4o+, K5o+, Q7o+, J8o+, T8o+, 98o, 87o, T4s:0.6, Q6o:0.5, 84s:0.1"
      }
     ]
    },
@@ -11088,8 +11431,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 8.689,
-    "regret": 0.0004,
+    "occ": 9.03,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11097,13 +11440,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, AJs-ATs, A3s-A2s, K2s, Q5s-Q2s, J8s-J2s, T7s-T2s, 97s-92s, 86s-82s, 72s+, 63s+, 53s+, 42s+, 32s, AJo, Q4o-Q2o, JTo, J7o-J2o, T2o+, 98o, 96o-94o, 75o, 65o, A5o:0.9, A8o:0.8, 85o:0.8, A9s:0.7, JTs:0.7, KTo:0.7, 87s:0.6, A9o:0.6, 86o:0.6, KK:0.5, TT:0.5, A2o:0.5, ATo:0.4, A6o:0.4, A3o:0.4, 97o:0.4, 76o:0.4, QQ:0.3, AQs:0.3, 88-77:0.2, K3s:0.2, AQo:0.2, A4s:0.1, 62s:0.1, 52s:0.1, AKo:0.1, A7o:0.1, Q9o:0.1, 93o:0.1"
+      "range": "AA, AJs-ATs, A2s, K7s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 64s-62s, AJo-A9o, A6o-A2o, K4o-K2o, Q4o-Q2o, J6o-J2o, T9o, T6o-T3o, 96o-95o, 85o, 75o, 65o, 99:0.9, 32s:0.9, T8o:0.9, 86o:0.9, 54o:0.9, 22:0.8, AQo:0.8, T7o:0.8, 97o:0.8, J9o:0.7, T2o:0.7, 53s:0.6, A8o-A7o:0.6, Q5o:0.6, TT:0.5, Q8s:0.5, J8s:0.5, 94o:0.5, 88:0.4, AKo:0.4, KTo:0.4, 98o:0.4, KK:0.3, 52s:0.3, K8s:0.2, 86s:0.2, 42s+:0.2, A3s:0.1, 76o:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "JJ, 99, 66-22, AKs, A8s-A5s, K4s+, Q6s+, J9s, T8s+, 98s, A4o, KJo+, K9o-K2o, QTo+, Q8o-Q5o, J9o-J8o, 87o, A4s:0.9, AKo:0.9, A7o:0.9, Q9o:0.9, 88-77:0.8, K3s:0.8, AQo:0.8, QQ:0.7, AQs:0.7, ATo:0.6, A6o:0.6, A3o:0.6, 97o:0.6, 76o:0.6, KK:0.5, TT:0.5, A2o:0.5, 87s:0.4, A9o:0.4, 86o:0.4, A9s:0.3, JTs:0.3, KTo:0.3, A8o:0.2, A5o:0.1"
+      "range": "QQ-JJ, 77-33, AQs+, A9s-A4s, K9s+, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, KJo+, K9o-K5o, Q6o+, JTo, J8o-J7o, 87o, A3s:0.9, 76o:0.9, K8s:0.8, 86s:0.8, 42s+:0.8, KK:0.7, 52s:0.7, 88:0.6, AKo:0.6, KTo:0.6, 98o:0.6, TT:0.5, Q8s:0.5, J8s:0.5, 53s:0.4, A8o-A7o:0.4, Q5o:0.4, J9o:0.3, 22:0.2, AQo:0.2, T7o:0.2, 97o:0.2, 99:0.1, 32s:0.1, T8o:0.1, 86o:0.1"
      }
     ]
    },
@@ -11120,8 +11463,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 16.076,
-    "regret": 0.0002,
+    "occ": 15.741,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11129,13 +11472,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, JTs, KQo, ATs:0.9, AKs:0.6, AKo:0.6, KK:0.3, TT-99:0.3, J9s:0.3"
+      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, JTs, KQo, 99:0.9, TT:0.6, AKs:0.5, KK:0.3, AJo:0.3, AKo:0.2, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, 88, KTs, AQo, KK:0.7, TT-99:0.7, AKs:0.4, AKo:0.4, AJo:0.4, A9s:0.2, ATs:0.1, K9s:0.1"
+      "range": "AA, 88, ATs, KTs, AQo:0.9, AKo:0.8, KK:0.7, A9s:0.6, AKs:0.5, TT:0.4, AJo:0.2, 99:0.1, T9s:0.1"
      }
     ]
    },
@@ -11152,8 +11495,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 14.49,
-    "regret": 0.0007,
+    "occ": 14.167,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11161,13 +11504,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KJs+, QTs+, JTs, KQo, JJ:0.9, J9s:0.9, AKs:0.6, ATs:0.6, T9s:0.6, AKo:0.5, TT:0.4, 77:0.4, 99:0.3, KK:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, JTs, KQo, 99:0.8, T9s:0.8, AJo:0.8, TT:0.7, AKs:0.7, KK:0.3, AKo:0.2, 88:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, 88, KTs, AQo, KK:0.9, 99:0.7, TT:0.6, 77:0.6, AKo:0.5, AJo:0.5, AKs:0.4, ATs:0.4, K9s:0.4, A9s:0.2, JJ:0.1"
+      "range": "AA, KTs, AQo, 88:0.9, ATs:0.9, A9s:0.8, AKo:0.8, KK:0.7, TT:0.3, AKs:0.3, 99:0.2, T9s:0.2, AJo:0.2"
      }
     ]
    },
@@ -11184,7 +11527,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 15.081,
+    "occ": 14.855,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11193,13 +11536,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KJs+, QTs+, J9s+, T9s, KQo, ATs:0.8, AKo:0.7, 99:0.6, K9s:0.5, AJo:0.4, 66:0.3, TT:0.2, 77:0.2, AQo:0.2"
+      "range": "QQ-JJ, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, TT:0.9, 99:0.7, 77:0.7, AJo:0.7, AKo:0.6, 88:0.5, KK:0.4, K9s:0.4, 66:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, KTs, TT:0.8, 77:0.8, AQo:0.8, AJo:0.6, K9s:0.5, 99:0.4, A9s:0.4, AKo:0.3, ATs:0.2, KJo:0.2, 66:0.1"
+      "range": "AA, AKs, A9s, KTs, AQo, ATs:0.9, KK:0.6, 88:0.5, K9s:0.5, AKo:0.4, 99:0.3, 77:0.3, A8s:0.3, AJo:0.3, TT:0.1, 66:0.1"
      }
     ]
    },
@@ -11216,7 +11559,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 12.979,
+    "occ": 12.642,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11225,13 +11568,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KJs+, QTs+, J9s+, T9s, K9s:0.9, KQo:0.9, JJ:0.8, 99:0.7, ATs:0.7, AKo:0.7, 77:0.4, AJo:0.3, 66:0.2, AQo:0.1"
+      "range": "QQ, 99, 77, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, JJ:0.9, AJo:0.9, TT:0.7, K9s:0.6, AKo:0.4, KK:0.2, 66:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, KTs, AQo:0.9, A9s:0.8, AJo:0.7, 77:0.6, 99:0.3, ATs:0.3, AKo:0.3, JJ:0.2, 66:0.1, K9s:0.1, KQo:0.1"
+      "range": "AA, 88, AKs, ATs-A9s, KTs, AQo:0.9, KK:0.8, AKo:0.6, K9s:0.4, TT:0.3, 66:0.3, A8s:0.3, JJ:0.1, AJo:0.1"
      }
     ]
    },
@@ -11248,7 +11591,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 13.316,
+    "occ": 13.172,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11257,13 +11600,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-ATs, KJs+, QTs+, J9s+, T9s, KQo, QQ:0.9, 66:0.9, K9s:0.9, 99:0.7, AKo:0.7, AJo:0.6, TT:0.1, 88:0.1, 98s:0.1"
+      "range": "QQ-JJ, AQs-AJs, KJs+, Q9s+, JTs, T9s, KQo, TT-99:0.8, 66:0.8, AJo:0.8, J9s:0.7, 77:0.5, AKo:0.5, 88:0.4, ATs:0.3, KK:0.2, K9s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 77, AKs, KTs, AQo, TT:0.9, 88:0.9, A9s:0.9, AJo:0.4, KJo:0.4, 99:0.3, AKo:0.3, QQ:0.1, 66:0.1, K9s:0.1"
+      "range": "AA, AKs, A9s, KTs, AQo, KK:0.8, K9s:0.8, ATs:0.7, 88:0.6, 77:0.5, AKo:0.5, TT-99:0.2, 66:0.2, A8s:0.2, AJo:0.2, KJo:0.1"
      }
     ]
    },
@@ -11280,8 +11623,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 13.941,
-    "regret": 0.0004,
+    "occ": 14.029,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11289,13 +11632,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-ATs, KJs+, QTs+, J9s+, T9s, KQo:0.9, 99:0.8, K9s:0.8, QQ:0.6, 66:0.6, 98s:0.5, AKo:0.5, TT:0.1, KTs:0.1, T8s:0.1, AQo:0.1, KJo:0.1"
+      "range": "AQs-ATs, KJs+, Q9s+, J9s+, KQo, QQ-JJ:0.9, T9s:0.9, TT:0.8, 66:0.7, 99:0.6, 88:0.5, AKo:0.5, K9s:0.3, AJo:0.3, 77:0.2, QJo:0.2, A8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 88-77, AKs, AJo, TT:0.9, KTs:0.9, AQo:0.9, A9s:0.5, AKo:0.5, QQ:0.4, 66:0.4, KJo:0.3, 99:0.2, K9s:0.2, KQo:0.1"
+      "range": "KK+, AKs, A9s, KTs, AQo, A8s:0.9, 77:0.8, K9s:0.7, AJo:0.7, 88:0.5, AKo:0.5, 99:0.4, 66:0.3, TT:0.2, 55:0.2, QQ-JJ:0.1, T9s:0.1"
      }
     ]
    },
@@ -11312,8 +11655,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 11.483,
-    "regret": 0.0004,
+    "occ": 11.2,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11321,13 +11664,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-ATs, KJs+, QTs+, J9s+, T8s+, KQo, 66:0.9, K9s:0.9, 98s:0.9, JJ:0.8, 99:0.7, AKo:0.7, KTs:0.5, AJo:0.5, 77:0.3, Q9s:0.3"
+      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, 99:0.9, 66:0.9, J9s:0.9, 98s:0.9, AJo:0.8, Q9s:0.6, TT:0.5, K9s:0.5, A9s:0.4, ATs:0.3, AKo:0.3, AQo:0.2, KK:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, A9s, AQo, 77:0.7, KTs:0.5, AJo:0.5, KJo:0.5, 99:0.3, AKo:0.3, JJ:0.2, 66:0.1, K9s:0.1"
+      "range": "AA, 88, AKs, A8s, KTs, KK:0.9, AQo:0.8, ATs:0.7, AKo:0.7, A9s:0.6, TT:0.5, K9s:0.5, 76s:0.2, AJo:0.2, 99:0.1, 66:0.1, 54s:0.1"
      }
     ]
    },
@@ -11344,8 +11687,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 11.675,
-    "regret": 0.0001,
+    "occ": 11.553,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11353,13 +11696,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, KJs+, QTs+, J9s+, T8s+, 98s, KQo, JJ:0.9, K9s:0.9, QQ:0.8, 99:0.8, 66:0.8, AKo:0.6, KJo:0.5, Q9s:0.4, AJo:0.4, A9s:0.3, 88:0.2"
+      "range": "JJ, 66, AQs-AJs, KJs+, Q9s+, J9s+, T9s, 98s, KQo, QQ:0.9, 99:0.9, 77:0.7, AJo:0.7, ATs:0.6, TT:0.5, A9s:0.4, K9s:0.4, 88:0.3, A8s:0.3, AKo:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, 77, AKs, KTs, AQo, 88:0.8, A9s:0.7, AJo:0.6, KJo:0.5, AKo:0.4, K8s:0.3, QQ:0.2, 99:0.2, 66:0.2, JJ:0.1, K9s:0.1"
+      "range": "KK+, AKs, KTs, AQo, 88:0.7, AKo:0.7, A9s-A8s:0.6, K9s:0.6, TT:0.5, ATs:0.4, 77:0.3, 55:0.3, AJo:0.3, KJo:0.3, QQ:0.1, 99:0.1, A5s:0.1"
      }
     ]
    },
@@ -11376,8 +11719,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 12.221,
-    "regret": 0.0006,
+    "occ": 12.235,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11385,13 +11728,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-ATs, KJs+, QTs+, J9s+, T8s+, 98s, A9s:0.8, K9s:0.8, KJo:0.8, 99:0.7, 66:0.7, KTs:0.6, KQo:0.6, QQ:0.4, AKo:0.4, K8s:0.3, 55:0.2, A8s:0.2, Q9s:0.2, 77:0.1"
+      "range": "AQs-ATs, A8s, KJs+, Q9s+, J9s+, 98s, KQo, QJo, JJ:0.8, 66:0.8, T9s:0.8, QQ:0.7, 99:0.6, TT:0.5, 77:0.5, KJo:0.5, AKo:0.4, 88:0.2, A9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, AQo-AJo, 77:0.9, QQ:0.6, AKo:0.6, K8s:0.5, KTs:0.4, KQo:0.4, 99:0.3, 66:0.3, A9s:0.2, K9s:0.2, KJo:0.2, 55:0.1, ATo:0.1"
+      "range": "KK+, AKs, KTs-K9s, AQo-AJo, A9s:0.9, 88:0.8, AKo:0.6, TT:0.5, 77:0.5, 99:0.4, KJo:0.4, QQ:0.3, JJ:0.2, 66:0.2, T9s:0.2, ATo:0.2, 55:0.1"
      }
     ]
    },
@@ -11408,7 +11751,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 12.927,
+    "occ": 12.972,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11417,13 +11760,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, KTs+, QTs+, J9s+, T8s+, 98s, KJo, JJ:0.9, KQo:0.8, 99:0.7, A8s-A7s:0.6, K7s:0.6, Q9s:0.5, 77:0.4, AQo:0.4, TT:0.3, 55:0.3, K8s:0.3, AKo:0.3, 66:0.2, K9s:0.2, 88:0.1"
+      "range": "TT, AQs-AJs, A7s, KTs+, QTs+, J9s+, T9s, 98s, KQo, QJo, Q9s:0.9, JJ:0.8, 66:0.8, A8s:0.7, 99:0.6, ATs:0.6, 77:0.5, KJo:0.4, QQ:0.3, 88:0.3, AKo:0.2, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, AKs, A9s, AJo-ATo, 88:0.9, 66:0.8, K9s:0.8, TT:0.7, 55:0.7, K8s:0.7, AKo:0.7, 77:0.6, AQo:0.6, A8s:0.4, 99:0.3, KQo:0.2, JJ:0.1, K7s:0.1"
+      "range": "KK+, AKs, A9s, K9s, AJo-ATo, AQo:0.9, AKo:0.8, QQ:0.7, 88:0.7, K8s:0.7, KJo:0.6, 77:0.5, 99:0.4, ATs:0.4, A5s:0.4, A8s:0.3, JJ:0.2, 66:0.2, Q9s:0.1"
      }
     ]
    },
@@ -11440,8 +11783,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 9.989,
-    "regret": 0.0004,
+    "occ": 9.771,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11449,13 +11792,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-ATs, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, KQo, QQ:0.9, 97s:0.9, 87s:0.9, JJ:0.8, 77:0.6, AKo:0.6, AJo:0.5, KJo:0.5, A9s:0.3, KTs:0.3, 99:0.1, K8s:0.1"
+      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, AJo, KQo, ATs:0.9, 87s:0.9, 99:0.6, 55:0.5, TT:0.4, 88:0.3, A8s:0.3, KTs:0.3, A7s:0.1, 65s:0.1, 54s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, AQo, 99:0.9, A9s:0.7, KTs:0.7, AJo:0.5, KJo:0.5, 77:0.4, AKo:0.4, K8s:0.3, JJ:0.2, QQ:0.1"
+      "range": "KK+, AKs, AQo, AKo:0.9, 88:0.7, A8s:0.7, KTs:0.7, TT:0.6, 99:0.4, 76s:0.4, ATo:0.4, KJo:0.4, 54s:0.3, ATs:0.1, 87s:0.1"
      }
     ]
    },
@@ -11469,25 +11812,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 10.083,
+    "occ": 10.034,
     "regret": 0.0001,
-    "confidence": "mid",
+    "confidence": "low",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 55, AQs-A8s, KJs+, K9s-K8s, Q9s+, J9s+, T8s+, 97s+, 87s, KQo, 66:0.9, K7s:0.9, KJo:0.6, QQ:0.5, 88:0.4, AKo:0.4, 99:0.2, 77:0.1, KTs:0.1"
+      "range": "JJ, 77-66, AQs-A8s, KJs+, Q9s+, J9s+, T8s+, 98s, 87s, 65s, KQo, QJo, QQ:0.9, K9s:0.7, 55:0.6, 88:0.5, 99:0.4, AJo:0.4, TT:0.3, Q8s:0.3, KJo:0.3, 54s:0.2, AKo:0.2, A7s:0.1, 76s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, AQo-AJo, 77:0.9, KTs:0.9, 99:0.8, 88:0.6, AKo:0.6, QQ:0.5, KJo:0.4, ATo:0.3, 66:0.1, K7s:0.1"
+      "range": "KK+, AKs, KTs, AQo, AKo:0.8, TT:0.7, KJo:0.7, 99:0.6, AJo:0.6, 88:0.5, 55:0.4, A7s:0.4, K9s:0.3, QQ:0.1, 76s:0.1"
      }
     ]
    },
@@ -11504,7 +11847,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 10.513,
+    "occ": 10.434,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -11513,13 +11856,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-A8s, KJs+, K7s, Q9s+, J9s+, T8s+, 97s+, 87s, KJo, A7s:0.9, KTs-K9s:0.9, KQo:0.9, 55:0.8, K8s:0.8, 66:0.6, TT:0.3, 77:0.3, AKo:0.3, K6s:0.2"
+      "range": "66, AQs-ATs, A8s-A7s, KJs+, Q9s+, J9s+, T9s, 98s, 87s, QJo, A9s:0.9, Q8s:0.9, T8s:0.9, TT:0.8, JJ:0.7, KTs:0.7, KQo:0.7, 77:0.6, 97s:0.5, KJo:0.5, K9s:0.4, QQ:0.3, 88:0.3, 55:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AKs, AQo-AJo, ATo:0.9, TT:0.7, 77:0.7, AKo:0.7, 66:0.4, 55:0.2, K8s:0.2, K6s:0.2, KTs-K9s:0.1, KQo:0.1"
+      "range": "KK+, 99, AKs, K8s, AQo-AJo, AKo:0.9, ATo:0.8, QQ:0.7, 88:0.7, K9s:0.6, KJo:0.5, 77:0.4, JJ:0.3, 55:0.3, KTs:0.3, KQo:0.3, TT:0.2, A9s:0.1, K7s:0.1, T8s:0.1"
      }
     ]
    },
@@ -11533,11 +11876,11 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 10.869,
-    "regret": 0.0001,
+    "occ": 10.879,
+    "regret": 0.0002,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -11545,13 +11888,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, A7s, A5s, KTs+, K8s-K7s, Q9s+, J9s+, T8s+, 97s+, KJo, QJo, JJ:0.7, A8s:0.6, A6s:0.6, KQo:0.6, TT:0.5, K6s:0.5, 66-55:0.4, AQo:0.4, 99:0.3, 77:0.2, 87s:0.2, AKo:0.2, 44:0.1, K9s:0.1"
+      "range": "TT, 55, AQs-AJs, A7s, KTs+, Q9s+, J8s+, T9s, 98s, 87s, QJo, T8s:0.9, 97s:0.9, KQo:0.9, JJ:0.8, 66:0.8, ATs:0.8, A8s:0.8, Q8s:0.8, KJo:0.8, 88:0.6, 99:0.4, 77:0.3, A6s:0.3, K9s:0.1, AQo+:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, 88, AKs, A9s, AJo-ATo, K9s:0.9, 77:0.8, AKo:0.8, 99:0.7, 66-55:0.6, AQo:0.6, TT:0.5, K6s:0.5, A8s:0.4, KQo:0.4, JJ:0.3"
+      "range": "QQ+, AKs, A9s, A5s, K8s, AJo-ATo, K9s:0.9, AQo+:0.9, 77:0.7, A6s:0.7, 99:0.6, 88:0.4, K7s:0.3, JJ:0.2, 66:0.2, ATs:0.2, A8s:0.2, Q8s:0.2, KJo:0.2, T8s:0.1, KQo:0.1"
      }
     ]
    },
@@ -11568,7 +11911,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 12.733,
+    "occ": 12.372,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11577,13 +11920,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-ATs, K9s+, Q9s+, J9s+, T8s+, 98s, KJo, QJo, TT:0.9, A4s:0.9, 97s:0.9, KQo:0.9, A6s:0.8, AQo:0.8, Q8s:0.7, A5s:0.6, K7s:0.4, JJ:0.3, 77-66:0.2, K8s:0.2, A7s:0.1, A3s:0.1, K6s:0.1, AKo:0.1"
+      "range": "99, AQs-AJs, A7s, K9s+, Q8s+, J8s+, T8s+, 98s, 87s, KJo, QJo, K7s:0.8, TT:0.7, 55:0.7, A6s:0.7, JJ:0.6, 77:0.6, ATs:0.6, 66:0.4, 88:0.3, KQo:0.3, AQo:0.2, K8s:0.1, QTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, 88, 55-44, AKs, A9s-A8s, AJo-ATo, A7s:0.9, K6s:0.9, AKo:0.9, 77-66:0.8, K8s:0.8, JJ:0.7, K7s:0.6, A5s:0.4, Q8s:0.3, A6s:0.2, AQo:0.2, TT:0.1, A4s:0.1, K5s:0.1, KQo:0.1"
+      "range": "QQ+, AKs, A9s-A8s, A5s, AKo, AJo-ATo, K8s:0.9, AQo:0.8, 88:0.7, KQo:0.7, 66:0.6, JJ:0.4, 77:0.4, ATs:0.4, TT:0.3, 55:0.3, A6s:0.3, JTo:0.3, K7s:0.2, K6s:0.1, KTo:0.1"
      }
     ]
    },
@@ -11597,10 +11940,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 8.549,
+    "occ": 8.332,
     "regret": 0.0001,
     "confidence": "low",
     "move": 0,
@@ -11609,13 +11952,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AQs-A7s, K8s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, KQo, KJo:0.9, JJ:0.8, K7s:0.8, 77:0.7, QQ:0.5, AKo:0.4, K6s:0.3, QJo:0.3"
+      "range": "JJ, 77-55, AQs-A7s, KJs+, K9s-K8s, Q8s+, J8s+, T7s+, 97s+, 87s, 65s, 54s, KQo, QJo, QQ:0.9, 86s:0.9, KTs:0.8, 76s:0.8, AJo:0.8, KJo:0.6, 99-88:0.5, K7s:0.3, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT-88, AKs, AQo-AJo, ATo:0.8, AKo:0.6, QQ:0.5, K6s:0.5, 77:0.3, JJ:0.2, K7s:0.2, KJo:0.1"
+      "range": "KK+, AKs, AQo+, TT:0.9, A5s:0.9, ATo:0.7, 99-88:0.5, KJo:0.4, KTs:0.2, 76s:0.2, AJo:0.2, QQ:0.1, A6s:0.1, KTo:0.1"
      }
     ]
    },
@@ -11629,10 +11972,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 8.477,
+    "occ": 8.391,
     "regret": 0.0001,
     "confidence": "low",
     "move": 0,
@@ -11641,13 +11984,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 66-55, AQs-ATs, A8s-A7s, K7s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, QJo, KQo:0.9, A9s:0.8, K4s:0.8, KJo:0.8, K6s:0.7, 77:0.6, A5s:0.5, A6s:0.3, AKo:0.2, 44:0.1"
+      "range": "JJ, 77-66, AQs-A7s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, KQo, QJo, 55:0.9, 86s:0.7, 88:0.6, K8s:0.5, KJo:0.4, TT:0.2, QQ:0.1, KTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, TT-88, AKs, AQo-ATo, K5s:0.9, AKo:0.8, 77:0.4, K6s:0.3, A9s:0.2, KJo:0.2, KQo:0.1"
+      "range": "KK+, 99, AKs, A5s, AJo+, QQ:0.9, KTs:0.9, ATo:0.9, TT:0.8, K7s:0.7, KJo:0.6, K8s:0.5, 88:0.4, 55:0.1"
      }
     ]
    },
@@ -11661,10 +12004,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 8.733,
+    "occ": 8.636,
     "regret": 0.0001,
     "confidence": "low",
     "move": 0,
@@ -11673,13 +12016,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AQs-A5s, K6s+, K4s, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, KQo, QJo, JJ:0.9, 44:0.9, J8s:0.9, 66:0.8, KJo:0.7, 99:0.2, AKo:0.2"
+      "range": "66-55, AQs-ATs, A8s-A7s, K7s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, QJo, TT:0.9, KJo+:0.9, JJ:0.7, 77:0.7, A6s:0.5, A9s:0.4, Q7s:0.3, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, TT, 88-77, AKs, K5s, AQo-ATo, 99:0.8, AKo:0.8, KJo:0.3, 66:0.2, JJ:0.1"
+      "range": "QQ+, 99, AKs, A5s, ATo+, KTo, 88:0.9, A9s:0.6, A6s:0.5, JJ:0.3, 77:0.3, TT:0.1, K6s:0.1, KJo+:0.1"
      }
     ]
    },
@@ -11693,10 +12036,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 8.867,
+    "occ": 8.835,
     "regret": 0.0001,
     "confidence": "low",
     "move": 0,
@@ -11705,13 +12048,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, AQs-ATs, A7s-A4s, K7s+, K4s, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, KJo, QJo, K5s:0.7, TT:0.6, J8s:0.6, 77:0.5, 66:0.4, A8s:0.4, KQo:0.3, JJ:0.2, 99:0.2, K6s:0.2, AQo:0.2, 55:0.1"
+      "range": "66-55, AQs-ATs, A8s-A7s, K8s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KJo, QJo, TT:0.9, K7s:0.9, KQo:0.9, J7s:0.8, JJ:0.6, 77:0.6, QTo:0.6, A4s:0.5, Q7s:0.5, 99:0.4, A6s:0.4, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, 88, AKs, A9s, AKo, AJo-ATo, 55:0.9, JJ:0.8, 99:0.8, K6s:0.8, AQo:0.8, KQo:0.7, 66:0.6, A8s:0.6, 77:0.5, TT:0.4, K5s:0.3, QTo:0.1"
+      "range": "QQ+, AKs, A9s, A5s, ATo+, 88:0.9, K6s:0.9, 99:0.6, A6s:0.6, KTo:0.5, JJ:0.4, 77:0.4, A4s:0.3, JTo:0.2, TT:0.1, K7s:0.1, KQo:0.1"
      }
     ]
    },
@@ -11728,7 +12071,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 10.25,
+    "occ": 9.995,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11737,13 +12080,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-ATs, A4s-A3s, K9s+, K7s, K4s, Q7s+, J8s+, T8s+, 97s+, 86s+, 76s, 65s, KJo, QJo, TT:0.9, A7s:0.9, K5s:0.9, QTo:0.9, 33:0.8, Q6s:0.8, AQo:0.7, KTo:0.7, A2s:0.6, K6s:0.6, KQo:0.6, 77:0.5, A6s:0.4, K8s:0.4, 66:0.3, A5s:0.2, 55:0.1, JTo:0.1"
+      "range": "99, 66, 44, ATs, A7s, K9s+, K7s, Q7s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, KJo, QTo+, 77:0.9, 55:0.8, AJs:0.8, TT:0.7, AQs:0.7, K8s:0.7, A6s:0.6, A4s:0.6, JTo:0.6, KTo:0.5, Q6s:0.4, 88:0.3, KQo:0.3, K6s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, 88, 44, AKs, A9s-A8s, AKo, AJo-ATo, 55:0.9, A5s:0.8, A9o:0.8, 66:0.7, A6s:0.6, K8s:0.6, 77:0.5, K6s:0.4, KQo:0.4, AQo:0.3, 33:0.2, KTo:0.2, TT:0.1, A7s:0.1, K5s:0.1, QTo:0.1"
+      "range": "JJ+, AKs, A9s-A8s, A5s, A9o+, K6s:0.9, 88:0.7, KQo:0.7, KTo:0.5, A6s:0.4, JTo:0.4, TT:0.3, AQs:0.3, A4s:0.3, K8s:0.3, 55:0.2, AJs:0.2, 77:0.1, K5s:0.1"
      }
     ]
    },
@@ -11760,7 +12103,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 11.001,
+    "occ": 11.178,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11769,13 +12112,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, AJs-A9s, A4s-A2s, K3s+, Q6s+, J9s+, T8s+, 97s+, 86s+, KJo-KTo, QTo+, JTo, 88:0.9, AQo:0.9, J8s:0.8, TT:0.7, 99:0.6, A6s:0.6, 33:0.3, AQs:0.3, Q5s:0.3, 55:0.2, 22:0.2, 66:0.1, A5s:0.1"
+      "range": "77, 44, ATs, K7s+, Q6s+, J7s+, T7s+, 97s+, 86s+, 65s, KJo, QTo+, 88:0.9, AJs:0.9, 76s:0.9, A9s:0.8, Q5s:0.8, KTo:0.8, 55:0.7, AQo:0.7, 99:0.6, 66:0.6, TT:0.5, JTo:0.4, K6s:0.2, KQo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, 44, AKs, A8s-A7s, AKo, AJo-A9o, KQo, 66:0.9, A5s:0.9, 55:0.8, 22:0.8, 33:0.7, AQs:0.7, A8o:0.6, K9o:0.5, 99:0.4, A6s:0.4, TT:0.3, J8s:0.2, 88:0.1, AQo:0.1"
+      "range": "JJ+, AQs+, A8s-A3s, K5s, AKo, AJo-A8o, K6s:0.8, KQo:0.8, JTo:0.6, TT:0.5, 99:0.4, 66:0.4, 55:0.3, AQo:0.3, A9s:0.2, KTo:0.2, 88:0.1, AJs:0.1, 76s:0.1"
      }
     ]
    },
@@ -11792,7 +12135,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 6.978,
+    "occ": 6.689,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -11801,13 +12144,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AQs-ATs, A7s, K7s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, KQo, K6s:0.9, J8s:0.8, 75s:0.8, 54s:0.8, AJo:0.7, A9s:0.6, 88:0.5, KJo:0.5, A8s:0.4, JJ:0.1"
+      "range": "88-55, AQs-A7s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, AJo, KQo, QJo:0.9, QQ:0.7, JJ:0.6, KTs:0.5, 43s:0.4, K8s:0.2, 75s:0.2, KJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AKs, AQo+, JJ:0.9, A8s:0.6, 88:0.5, KJo:0.5, A9s:0.4, ATo:0.4, AJo:0.3, K6s:0.1"
+      "range": "KK+, TT-99, AKs, AQo+, KJo:0.8, KTs:0.5, JJ:0.4, QQ:0.3, K8s:0.3"
      }
     ]
    },
@@ -11824,7 +12167,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 6.775,
+    "occ": 6.717,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11833,13 +12176,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, AQs-A6s, K7s+, K4s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KQo, QJo, 77:0.9, K5s:0.9, K6s:0.8, 33:0.6, KJo:0.5, ATo:0.4, JJ:0.1, A5s:0.1"
+      "range": "77-55, AJs-A7s, KJs+, K9s-K7s, Q8s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, 43s, KQo, QJo, 53s:0.8, JJ:0.6, KTs:0.6, AJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-88, AKs, AJo+, JJ:0.9, A5s:0.9, ATo:0.6, KJo:0.5, K6s:0.2, 77:0.1, K5s:0.1"
+      "range": "QQ+, TT-88, AQs+, AQo+, KJo, A5s:0.9, AJo:0.8, JJ:0.4, KTs:0.4, K6s:0.2, ATo:0.2, KTo:0.1"
      }
     ]
    },
@@ -11856,7 +12199,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 6.882,
+    "occ": 6.772,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11865,13 +12208,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, AQs-A6s, A4s, K7s+, K4s, Q7s+, J8s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, QJo, A5s:0.9, K6s:0.9, KJo:0.9, QTo:0.7, J7s:0.6, KQo:0.5, ATo:0.4, 77:0.2, 33:0.2, K3s:0.2, Q6s:0.2, K5s:0.1"
+      "range": "TT, 66-55, AJs-A6s, K6s+, K4s, Q6s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, KJo, QTo+, JTo, ATo:0.8, A4s:0.7, 85s:0.7, KQo:0.6, JJ:0.5, AQs:0.4, 77:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, AKs, AJo+, K5s:0.9, 77:0.8, ATo:0.6, KQo:0.5, A5s:0.1, K6s:0.1, KJo:0.1, QTo:0.1"
+      "range": "QQ+, 99-88, AKs, A5s, AJo+, 77:0.9, KTo:0.7, AQs:0.6, JJ:0.5, KQo:0.4, ATo:0.2"
      }
     ]
    },
@@ -11888,8 +12231,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 6.959,
-    "regret": 0.0002,
+    "occ": 6.835,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11897,13 +12240,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-33, AQs-A6s, A4s-A3s, K2s+, Q7s+, Q5s, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, QTo+, JTo, Q6s:0.9, A5s:0.8, KQo:0.7, TT:0.4, A2s:0.3, ATo:0.3, 99:0.2, 66:0.1"
+      "range": "55-44, AJs-A6s, A4s, K6s+, K4s, Q5s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, KJo, QTo+, 66:0.9, TT:0.8, KQo:0.8, JTo:0.8, 99:0.6, K5s:0.6, J6s:0.6, 77:0.5, A5s:0.4, A3s:0.4, T6s:0.3, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AKs, AJo+, 66:0.9, 99:0.8, KTo:0.8, ATo:0.7, TT:0.6, KQo:0.3, A5s:0.2, A2s:0.2, Q6s:0.1"
+      "range": "JJ+, AQs+, ATo+, KTo, 88:0.9, A5s:0.6, A3s:0.6, 77:0.5, A2s:0.5, 99:0.4, K5s:0.4, TT:0.2, A9o:0.2, KQo:0.2, JTo:0.2, 66:0.1"
      }
     ]
    },
@@ -11920,7 +12263,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 7.624,
+    "occ": 7.435,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11929,13 +12272,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 33, AJs-A2s, K2s+, Q4s+, J5s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, QJo, J9o, 44:0.9, QTo:0.9, KQo:0.7, KTo:0.7, JTo:0.6, 88:0.3"
+      "range": "99, ATs-A9s, A7s-A3s, K7s+, K5s-K4s, Q4s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, KJo, QTo+, J9o+, K6s:0.9, 77:0.8, A8s:0.8, 44:0.7, 88:0.6, Q9o:0.6, T9o:0.6, 55:0.3, TT:0.2, KTo:0.2, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, 77-55, AQs+, ATo+, 88:0.7, A9o:0.5, K9o:0.4, JTo:0.4, KQo:0.3, KTo:0.3, 44:0.1, QTo:0.1"
+      "range": "JJ+, 66, AJs+, ATo+, KQo:0.9, TT:0.8, KTo:0.8, 55:0.7, A9o:0.5, 88:0.4, 44:0.3, A2s:0.3, 77:0.2, A8s:0.2, K6s:0.1, T9o:0.1"
      }
     ]
    },
@@ -11952,8 +12295,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 7.92,
-    "regret": 0.0001,
+    "occ": 8.101,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -11961,13 +12304,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "ATs-A6s, A4s-A3s, K2s+, Q2s+, J9s+, J7s-J5s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo-KTo, QTo+, J9o, 88:0.9, T9o:0.9, 77:0.8, 33:0.8, A2s:0.7, J8s:0.7, JTo:0.6, K9o:0.4, AQo:0.3, KQo:0.3, 44:0.2"
+      "range": "77, 44, A9s-A6s, KJs-K4s, Q4s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, KJo, Q9o+, J9o, T9o, J4s:0.9, A4s:0.8, KQs:0.8, Q3s:0.8, 53s:0.8, KTo:0.8, 88:0.6, 43s:0.6, 66:0.4, JTo:0.3, 55:0.2, 33:0.2, AJs:0.1, A3s:0.1, K3s:0.1, 95s:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, 66-55, 22, AJs+, A5s, AKo, AJo-A8o, 44:0.8, AQo:0.7, KQo:0.7, K9o:0.6, JTo:0.4, A2s:0.3, J8s:0.3, 77:0.2, 33:0.2, 88:0.1"
+      "range": "99+, AQs+, ATs, A5s, A2s, A8o+, AJs:0.9, A3s:0.9, KQo:0.9, 55:0.8, 33:0.7, JTo:0.7, 66:0.6, K9o:0.5, 88:0.4, A4s:0.2, KQs:0.2, KTo:0.2"
      }
     ]
    },
@@ -11984,7 +12327,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 9.552,
+    "occ": 9.823,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -11993,13 +12336,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, A8s-A6s, KJs-K2s, Q2s+, J4s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, K8o-K7o, QTo+, J9o, T9o, 33:0.9, JTo:0.9, Q9o:0.8, T6s:0.7, KTo:0.7, A9s:0.6, 77:0.4, K9o:0.3, ATs:0.2, AJo:0.2"
+      "range": "77-44, A8s-A6s, KJs-K2s, Q2s+, J3s+, T6s+, 95s+, 85s+, 75s+, 64s+, 54s, K8o, Q8o+, J9o-J8o, T9o, T5s:0.9, KTo:0.9, K9o:0.8, JTo:0.7, AJo:0.5, KJo:0.2, 33:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, 22, AJs+, A5s-A2s, KQs, AQo+, ATo-A5o, KQo, ATs:0.8, AJo:0.8, K9o:0.7, 77:0.6, A9s:0.4, KTo:0.3, Q9o:0.2, 33:0.1, JTo:0.1"
+      "range": "88+, A9s+, A5s-A2s, KQs, AQo+, ATo-A5o, 33:0.9, KQo:0.9, KJo:0.8, AJo:0.5, JTo:0.3, K9o:0.2, KTo:0.1"
      }
     ]
    },
@@ -12016,7 +12359,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 5.651,
+    "occ": 5.441,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -12025,13 +12368,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AQs-A2s, K7s+, K4s-K2s, Q2s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo-A9o, KJo+, QTo+, JTo, K6s:0.9, J6s:0.9, J9o:0.9, T9o:0.8, K5s:0.4, KTo:0.4"
+      "range": "99-22, AQs-A2s, K2s+, Q6s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QTo+, JTo:0.5, Q5s:0.1, T9o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AKs, AQo+, K5s:0.6, KTo:0.6, K9o:0.5, T9o:0.2, K6s:0.1"
+      "range": "TT+, AKs, AQo+, KTo, JTo:0.5"
      }
     ]
    },
@@ -12048,8 +12391,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 5.274,
-    "regret": 0.0002,
+    "occ": 5.285,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12057,13 +12400,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AQs-A2s, K2s+, Q2s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 42s+, 32s, AJo-ATo, A8o, QTo+, J9o+, T9o, KJo+:0.9, A9o:0.8, 88:0.4, J4s:0.4, K9o:0.4, KTo:0.3"
+      "range": "88-22, AJs-A2s, K2s+, Q4s+, J6s+, T6s+, 94s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo, A9o-A8o, QTo+, JTo, T5s:0.9, ATo:0.9, KJo+:0.9, J5s:0.8, A7o:0.7, K9o:0.6, T9o:0.6, 93s:0.4, Q3s:0.2, T4s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AKs, AQo+, KTo:0.7, 88:0.6, K9o:0.6, A9o:0.2, A7o:0.1, A5o:0.1, KJo+:0.1"
+      "range": "99+, AQs+, AQo+, KTo, K9o:0.4, T9o:0.4, ATo:0.1, A7o:0.1, KJo+:0.1"
      }
     ]
    },
@@ -12080,8 +12423,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 5.238,
-    "regret": 0.0001,
+    "occ": 4.985,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12089,13 +12432,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A2s, K2s+, Q2s+, J3s+, T5s+, 95s+, 85s+, 74s+, 64s+, 53s+, 42s+, 32s, ATo-A7o, KJo+, K9o-K8o, QTo+, J9o, T9o, 98o, A6o:0.9, T8o:0.9, JTo:0.8, 77:0.7, AJo:0.5, A5o:0.5, J2s:0.2"
+      "range": "77-22, AJs-A2s, K6s+, K4s-K2s, Q2s+, J4s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A6o, KQo, K9o, Q9o+, JTo, K5s:0.9, KJo:0.9, J9o:0.9, T9o:0.9, AJo:0.8, 98o:0.7, J3s:0.4, A4o:0.4, A5o:0.3, 88:0.2, KTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, AQs+, AQo+, KTo, AJo:0.5, A5o:0.5, 77:0.3, JTo:0.2, A6o:0.1, T8o:0.1"
+      "range": "99+, AQs+, AQo+, KTo:0.9, 88:0.8, A5o:0.7, 98o:0.3, AJo:0.2, K5s:0.1, KJo:0.1, T9o:0.1"
      }
     ]
    },
@@ -12112,7 +12455,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 5.008,
+    "occ": 4.866,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -12121,13 +12464,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A2s, K2s+, Q2s+, J2s+, T4s+, 95s+, 84s+, 74s+, 64s+, 53s+, 42s+, 32s, ATo-A6o, A4o-A2o, KJo+, K9o-K7o, QTo+, J9o+, T8o+, 98o, K6o:0.8, KTo:0.6, 63s:0.5, A5o:0.4, 87o:0.4, T3s:0.3, T2s:0.1, Q9o:0.1"
+      "range": "77-22, AJs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A6o, A4o, A2o, KTo+, K8o, QTo+, J9o+, T9o, 87o, 76o, 65o, A5o:0.8, K9o:0.7, Q9o:0.7, A3o:0.6, 98o:0.5, 54o:0.5, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "77+, AQs+, AJo+, A5o:0.6, Q9o:0.6, KTo:0.4, K6o:0.2"
+      "range": "99+, AQs+, AJo+, 88:0.9, 98o:0.5, A3o:0.4, K7o:0.4, K9o:0.3, Q9o:0.3, A5o:0.2"
      }
     ]
    },
@@ -12144,8 +12487,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 5.259,
-    "regret": 0.0001,
+    "occ": 5.05,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12153,13 +12496,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 84s+, 73s+, 63s+, 52s+, 42s+, 32s, ATo-A6o, A3o-A2o, KJo-K6o, QTo+, J9o+, T8o+, 97o+, 87o, 76o, 65o, 83s:0.9, A4o:0.9, KQo:0.9, K4o:0.9, Q8o:0.9, 86o:0.9, K5o:0.7, K3o:0.5, 62s:0.4, A5o:0.1, Q9o:0.1"
+      "range": "55-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A6o, A3o-A2o, KJo-K7o, QJo, Q9o, J9o+, T8o+, 97o+, 87o, 76o, 65o, 54o, 66:0.9, A9o:0.9, A5o:0.9, K6o:0.9, QTo:0.9, Q8o:0.9, KQo:0.8, J8o:0.7, 86o:0.7, ATo:0.6, A4o:0.6, 75o:0.2, K5o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "66+, AJs+, AJo+, A5o:0.9, Q9o:0.9, K5o:0.3, A4o:0.1, KQo:0.1, K4o:0.1, Q8o:0.1, J8o:0.1"
+      "range": "77+, AJs+, AJo+, K5o:0.9, ATo:0.4, A4o:0.4, J8o:0.3, 86o:0.3, KQo:0.2, 66:0.1, A9o:0.1, A5o:0.1, K6o:0.1, QTo:0.1, Q8o:0.1"
      }
     ]
    },
@@ -12176,8 +12519,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 5.164,
-    "regret": 0.0001,
+    "occ": 5.23,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12185,13 +12528,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, ATs-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o-A6o, A4o-A2o, KJo-K9o, K7o-K4o, Q6o+, J9o+, T8o, 97o+, 86o+, 75o+, 65o, 54o, K8o:0.9, K2o:0.9, T9o:0.8, A9o:0.7, K3o:0.7, KQs:0.6, A5o:0.6, 44:0.3, KQo:0.1"
+      "range": "44-22, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A6o-A4o, A2o, KJo-K4o, Q6o+, J9o, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, KQs:0.9, J8o-J7o:0.9, 96o:0.9, A7o:0.7, 55:0.5, A8o:0.5, A9o:0.4, Q5o:0.4, A3o:0.3, K2o:0.3, KQo:0.2, K3o:0.2, JTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "55+, AJs+, ATo+, A8o, J8o, KQo:0.9, 44:0.7, KQs:0.4, A5o:0.4, A9o:0.3, K3o:0.3, T9o:0.2, K8o:0.1, K2o:0.1"
+      "range": "66+, ATs+, ATo+, JTo:0.9, KQo:0.8, K3o:0.8, A3o:0.7, A9o:0.6, 55:0.5, A8o:0.5, A7o:0.3, KQs:0.1, J8o-J7o:0.1"
      }
     ]
    },
@@ -12208,7 +12551,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 5.655,
+    "occ": 5.622,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -12217,13 +12560,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, K9o-K8o, K6o-K2o, QTo-Q7o, Q5o-Q3o, J7o+, T8o+, 97o+, 86o+, 75o+, 64o+, 53o+, A8s:0.9, A3o-A2o:0.9, KTo:0.9, Q6o:0.9, K7o:0.8, Q2o:0.8, A4o:0.7, J6o:0.6, A6o:0.3"
+      "range": "44-22, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K2o, Q9o-Q7o, Q5o-Q2o, J9o-J4o, T8o-T6o, 95o+, 85o+, 74o+, 64o+, 53o+, 43o, A4o:0.9, KJo:0.9, JTo:0.9, 63o:0.9, A3o:0.7, Q6o:0.7, 55:0.6, QTo:0.6, A6o:0.5, 42o:0.5, 32o:0.5, T9o:0.2, A5o:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "44+, A9s+, KQs, A7o+, A5o, KQo, QJo, T7o, A6o:0.7, A4o:0.3, K7o:0.2, A8s:0.1, A3o-A2o:0.1, KTo:0.1, Q6o:0.1"
+      "range": "66+, A9s+, KQs, A7o+, A2o, KQo, A5o:0.9, QJo:0.9, T9o:0.8, A6o:0.5, 55:0.4, QTo:0.4, A3o:0.3, Q6o:0.3, A4o:0.1, KJo:0.1, JTo:0.1"
      }
     ]
    },
@@ -12240,8 +12583,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 3",
     "reachPct": 100,
-    "occ": 3.335,
-    "regret": 0.0006,
+    "occ": 3.011,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12249,13 +12592,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K5o, K2o, Q6o+, J6o+, T6o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, A8s:0.9, K3o:0.9, KTo:0.8, Q2o:0.8, J5o:0.8, 55:0.4, A6o:0.4, K4o:0.4, Q5o:0.4, Q3o:0.4, KQs:0.3, Q4o:0.2, A7o:0.1"
+      "range": "55-22, A7s-A6s, A3s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K6o, K3o-K2o, QTo-Q7o, Q4o-Q2o, J7o+, J4o-J3o, T3o+, 94o+, 84o+, 74o+, 63o+, 52o+, 42o+, 32o, A4s:0.9, QJo:0.9, Q6o:0.9, J6o:0.9, 66:0.8, J5o:0.8, K4o:0.6, 77:0.5, KJo:0.5, K5o:0.5, T2o:0.5, A5s:0.4, Q5o:0.4, J2o:0.3, A7o:0.2, 93o:0.2, A6o:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "66+, A9s+, A8o+, A5o-A2o, A7o:0.9, Q4o:0.8, KQs:0.7, 55:0.6, A6o:0.6, K4o:0.6, Q5o:0.6, Q3o:0.6, KTo:0.2, J5o:0.2, A8s:0.1, K3o:0.1"
+      "range": "88+, A8s+, KQs, A8o+, A5o-A2o, A6o:0.9, KQo:0.9, A7o:0.8, A5s:0.6, Q5o:0.6, 77:0.5, KJo:0.5, K5o:0.5, K4o:0.4, 66:0.2, J5o:0.2, A4s:0.1, QJo:0.1, Q6o:0.1, J6o:0.1"
      }
     ]
    },
@@ -12274,9 +12617,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.538,
-    "regret": 0.0037,
+    "reachPct": 15.7,
+    "occ": 0.537,
+    "regret": 0.0028,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12284,19 +12627,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs+, KJs+, JTs, AQo, 77:0.9, AKo:0.9, AJs:0.8, T9s:0.4, ATs:0.3"
+      "range": "QQ-77, AQs+, AQo+, KK:0.9, AJs:0.9, KJs:0.9, 66:0.7, JTs:0.7, ATs:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.4, KTs:0.2, AKo:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, ATs:0.7, KK:0.6, 66:0.5, AJs:0.2"
+      "range": "AA, A5s, ATs:0.7, 66:0.3, KK:0.1, AJs:0.1"
      }
     ]
    },
@@ -12315,9 +12658,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.575,
-    "regret": 0.0166,
+    "reachPct": 15.7,
+    "occ": 0.509,
+    "regret": 0.0127,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12325,19 +12668,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KJs+, AQo, AKs:0.9, AJs:0.9, JTs:0.9, AKo:0.8, KTs:0.4, 66:0.3, ATs:0.3, T9s:0.3, 55:0.2, QJs:0.2"
+      "range": "QQ-77, AQs, AQo+, AKs:0.9, AJs:0.8, KJs:0.8, 66:0.6, ATs:0.6, KK:0.5, JTs:0.5, KQs:0.4, T9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.5, KTs:0.2, AA:0.1, AKs:0.1, AKo:0.1"
+      "range": "KK:0.2, AKs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, ATs:0.7, KK:0.5, 66:0.2, 55:0.1, AJs:0.1, AKo:0.1"
+      "range": "AA, A5s, 66:0.4, ATs:0.4, A7s:0.4, KK:0.3, AJs:0.2, A9s:0.1, JTs:0.1"
      }
     ]
    },
@@ -12356,9 +12699,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.572,
-    "regret": 0.0021,
+    "reachPct": 15.7,
+    "occ": 0.489,
+    "regret": 0.0027,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12366,19 +12709,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AJs+, KJs+, JTs, AQo, KTs:0.8, AKo:0.8, T9s:0.7, QTs:0.6, QJs:0.5, 66:0.4, 55:0.1"
+      "range": "QQ-77, AQs, KJs, AQo+, AKs:0.9, AJs:0.9, KQs:0.7, 66:0.6, ATs:0.6, JTs:0.6, KK:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, AA:0.1, AKs:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, ATs, A5s, 66:0.4, 55:0.2, AKo:0.2"
+      "range": "A5s, AA:0.9, A7s:0.6, KK:0.4, 66:0.4, ATs:0.4, JTs:0.3, AJs:0.1, A9s:0.1"
      }
     ]
    },
@@ -12397,9 +12740,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.529,
-    "regret": 0.0055,
+    "reachPct": 15.7,
+    "occ": 0.464,
+    "regret": 0.0021,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12407,19 +12750,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AJs+, KJs+, JTs, AQo, QTs:0.8, 66:0.7, T9s:0.7, 55:0.5, AKo:0.5, ATs:0.4, QJs:0.4, KTs:0.2, T8s:0.1"
+      "range": "QQ-77, AQs-AJs, KJs+, AQo, AKs:0.9, AKo:0.9, JTs:0.8, 66:0.6, ATs:0.6, T9s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, QJs:0.2, AA:0.1, AKs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, ATs:0.6, AKo:0.5, 66-55:0.2, KTs:0.2"
+      "range": "A7s, A5s, AA:0.9, KK:0.6, 66:0.4, ATs:0.4, A9s:0.2, JTs:0.2"
      }
     ]
    },
@@ -12438,9 +12781,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.502,
-    "regret": 0.001,
+    "reachPct": 15.7,
+    "occ": 0.453,
+    "regret": 0.0008,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12448,19 +12791,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-AJs, KJs+, QTs, JTs, T9s, AQo, AKs:0.8, ATs:0.5, QJs:0.3, AJo:0.1"
+      "range": "QQ-77, AJs+, KJs+, JTs, T9s, AQo, ATs:0.9, AKo:0.8, 66:0.6, 98s:0.1, 87s:0.1, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo, ATs:0.5, AKs:0.2, KTs:0.2"
+      "range": "AA, A7s, A5s, KK:0.9, 66:0.4, A8s:0.4, A9s:0.3, AKo:0.2, ATs:0.1"
      }
     ]
    },
@@ -12479,9 +12822,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.514,
-    "regret": 0.0008,
+    "reachPct": 15.7,
+    "occ": 0.427,
+    "regret": 0.0021,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12489,7 +12832,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-AJs, KJs+, QTs+, JTs, T9s, AQo, QQ:0.8, AJo:0.6, ATs:0.3, J9s:0.1"
+      "range": "QQ-77, AQs-AJs, KQs, JTs, AQo, KJs:0.8, AKs:0.7, T9s:0.7, AKo:0.7, 66:0.6, AJo:0.5, ATs:0.4, 76s:0.4, 87s:0.2"
      },
      {
       "key": "4bet",
@@ -12501,7 +12844,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s, AKo, ATs:0.4, QQ:0.2"
+      "range": "KK+, A5s, A7s:0.9, ATs:0.6, 66:0.4, AKs:0.3, AKo:0.3, KJs:0.2, 76s:0.1"
      }
     ]
    },
@@ -12520,9 +12863,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.442,
-    "regret": 0.0014,
+    "reachPct": 15.7,
+    "occ": 0.339,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12530,13 +12873,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-88, AQs-AJs, KQs, AQo, 66:0.9, 77:0.8, KJs:0.6, QQ:0.4, 55:0.3, ATs:0.3"
+      "range": "QQ-66, AQs-AJs, KQs, AQo, AKs:0.5, ATs:0.5, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, AKo, QQ:0.6, A5s:0.6, 55:0.2, 66:0.1, ATs:0.1"
+      "range": "KK+, A5s, AKo:0.8, AKs:0.5, ATs:0.4, A7s:0.2"
      }
     ]
    },
@@ -12555,9 +12898,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 16,
-    "occ": 0.353,
-    "regret": 0.0042,
+    "reachPct": 15.7,
+    "occ": 0.312,
+    "regret": 0.0037,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12565,13 +12908,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-88, AQs-ATs, KJs+, AQo, QQ:0.9, 77:0.7, 66:0.6, AKs:0.5, 55:0.4, KTs:0.1, QJs:0.1, AKo:0.1"
+      "range": "QQ-77, AQs, KJs+, AQo, 66:0.9, AJs:0.8, ATs:0.7, AKs:0.3, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo:0.9, AKs:0.5, A8s:0.2, QQ:0.1"
+      "range": "KK+, A5s:0.9, AKo:0.8, AKs:0.7, AJs:0.2, A8s-A7s:0.2"
      }
     ]
    },
@@ -12590,9 +12933,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.638,
-    "regret": 0.0008,
+    "reachPct": 17.6,
+    "occ": 0.528,
+    "regret": 0.0038,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12600,19 +12943,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AJs+, KJs+, QTs+, JTs, T9s, AQo+, KTs:0.9, 66:0.5, AJo:0.3, 55:0.1"
+      "range": "QQ-77, AQs-AJs, KJs+, AQo, AKs:0.9, AKo:0.9, 66:0.8, ATs:0.8, JTs:0.7, KTs:0.5, KK:0.3, 87s:0.3, AJo:0.3, 55:0.2, T9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, AA:0.1, AKs:0.1, KTs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, ATs, A5s, 66-55:0.3, KTs:0.1"
+      "range": "A5s, AA:0.9, 55:0.8, KK:0.3, JTs:0.3, 66:0.2, ATs:0.2, A9s:0.1"
      }
     ]
    },
@@ -12631,9 +12974,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.6,
-    "regret": 0.0052,
+    "reachPct": 17.6,
+    "occ": 0.527,
+    "regret": 0.0038,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12641,19 +12984,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AJs+, KJs+, JTs, T9s, AQo, QTs:0.9, 55:0.6, ATs:0.6, QJs:0.6, KTs:0.5, AKo:0.5, T8s:0.4, AJo:0.4"
+      "range": "QQ-77, AQs-AJs, KJs+, AQo, AKs:0.9, ATs:0.9, JTs:0.9, AKo:0.9, KTs:0.8, 66:0.7, T9s:0.5, AJo:0.4, 87s:0.3, 55:0.1, A9s:0.1, 98s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, KTs:0.2, AA:0.1, AKs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo:0.5, ATs:0.4, 55:0.3, KTs:0.2"
+      "range": "A5s, AA:0.9, 55:0.9, KK:0.6, A9s:0.4, 66:0.3, ATs:0.1, A7s:0.1, JTs:0.1"
      }
     ]
    },
@@ -12672,9 +13015,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.569,
-    "regret": 0.0019,
+    "reachPct": 17.6,
+    "occ": 0.54,
+    "regret": 0.0062,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12682,19 +13025,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AJs+, KJs+, QTs, JTs, T9s, AQo, 55:0.9, ATs:0.8, QJs:0.6, AJo:0.6, KTs:0.5, 44:0.4, T8s:0.2, AKo:0.2"
+      "range": "QQ-77, AQs-AJs, KQs, AQo, ATs:0.9, KJs:0.9, JTs:0.9, 66:0.8, T9s:0.8, AKo:0.8, AKs:0.7, AJo:0.5, A9s:0.4, KTs:0.4, 87s:0.3, 55:0.1, 98s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.4, KTs:0.3, AKs:0.2, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo:0.8, KTs:0.5, ATs:0.2, 55:0.1"
+      "range": "AA, A5s, 55:0.9, KK:0.6, A7s:0.4, 66:0.2, AKs:0.1, ATs-A9s:0.1, AKo:0.1"
      }
     ]
    },
@@ -12713,9 +13056,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.575,
-    "regret": 0.0009,
+    "reachPct": 17.6,
+    "occ": 0.508,
+    "regret": 0.002,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12723,19 +13066,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, 44, AQs-AJs, KJs+, QTs+, JTs, T9s, AQo, 55:0.9, AKs:0.7, AJo:0.7, QQ:0.6, KTs:0.5, ATs:0.4, T8s:0.4, 98s:0.3"
+      "range": "QQ-77, AQs-AJs, KJs+, JTs, T9s, AQo, AKo:0.9, AJo:0.9, 66:0.8, 98s:0.7, 87s:0.7, ATs:0.5, 76s:0.5, A9s:0.2, 55:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKo, ATs:0.6, QQ:0.4, AKs:0.3, KTs:0.3, 55:0.1"
+      "range": "AA, AKs, A5s, KK:0.9, 55:0.9, ATs:0.5, A7s:0.3, 66:0.2, AKo:0.1"
      }
     ]
    },
@@ -12754,9 +13097,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.576,
-    "regret": 0.0008,
+    "reachPct": 17.6,
+    "occ": 0.601,
+    "regret": 0.001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12764,7 +13107,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KJs+, QTs+, JTs, T9s, AQo-AJo, J9s:0.9, 55:0.8, 98s:0.8, QQ:0.4, 44:0.4, KTs:0.4, K9s:0.1"
+      "range": "QQ-77, AQs-ATs, KJs+, T9s, 98s, 76s, AQo-AJo, 66:0.8, JTs:0.6, 87s:0.6, AKo:0.6, KQo:0.2, 55:0.1"
      },
      {
       "key": "4bet",
@@ -12776,7 +13119,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s, AKo, QQ:0.6, 44:0.6, 55:0.2, KTs:0.1"
+      "range": "KK+, AKs, A5s, 55:0.9, KTs:0.4, AKo:0.4, QJs:0.3, 66:0.2, A7s:0.1"
      }
     ]
    },
@@ -12795,9 +13138,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.492,
-    "regret": 0.0004,
+    "reachPct": 17.6,
+    "occ": 0.486,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12805,13 +13148,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-ATs, KJs, AQo, 66-55:0.7, KQs:0.7, AKs:0.4, AJo:0.1"
+      "range": "JJ-77, AQs-AJs, KQs, AQo, ATs:0.9, 66:0.8, QQ:0.6, AKo:0.5, AJo:0.4, 55:0.2, KJs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, 44, AKo, AKs:0.6, 66-55:0.3, KQs:0.3, KTs:0.1"
+      "range": "KK+, AKs, A5s, 55:0.8, AKo:0.5, QQ:0.4, 66:0.2, ATs:0.1, KTs:0.1"
      }
     ]
    },
@@ -12830,9 +13173,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 18,
-    "occ": 0.356,
-    "regret": 0.0015,
+    "reachPct": 17.6,
+    "occ": 0.379,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -12840,13 +13183,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-88, AQs-ATs, KJs+, QJs, AQo, AKs:0.8, KTs:0.8, 77:0.7, A9s:0.7, 66-55:0.6, QQ:0.4, KJo:0.1"
+      "range": "JJ-55, AQs-ATs, KJs+, AQo, A9s:0.9, QQ:0.8, KTs:0.5, KQo:0.2, QJs:0.1, AKo:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKo, A5s:0.7, QQ:0.6, 66:0.4, AKs:0.2"
+      "range": "KK+, AKs, A5s, AKo:0.9, QQ:0.2"
      }
     ]
    },
@@ -12866,8 +13209,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.716,
-    "regret": 0.0015,
+    "occ": 0.636,
+    "regret": 0.0018,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12875,19 +13218,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-AJs, KJs+, QTs, JTs, T9s, AQo, T8s:0.9, 98s:0.9, 44:0.7, KTs:0.7, AJo:0.7, QQ:0.6, QJs:0.6, ATs:0.5, AKs:0.4, AKo:0.2"
+      "range": "QQ-66, AQs-AJs, KJs+, JTs, T9s, AQo+, KTs:0.9, AJo:0.9, AKs:0.8, ATs:0.6, 55:0.5, 98s:0.5, QTs:0.4, A9s:0.3, 87s:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A4s, AKo:0.8, AKs:0.6, ATs:0.5, QQ:0.4, KTs:0.2"
+      "range": "AA, A5s, KK:0.9, A9s:0.6, 55:0.5, ATs:0.4, AKs:0.2, A8s:0.1"
      }
     ]
    },
@@ -12907,8 +13250,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.693,
-    "regret": 0.002,
+    "occ": 0.683,
+    "regret": 0.0015,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12916,7 +13259,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-AJs, KJs+, QTs, JTs, T9s, AQo, T8s:0.9, ATs:0.8, QJs:0.8, 98s:0.8, AJo:0.7, J9s:0.5, QQ:0.2, KTs:0.2, AKs:0.1"
+      "range": "QQ-66, AQs-AJs, KJs+, JTs, T9s, AJo+, 87s:0.9, 98s:0.8, 55:0.6, A9s:0.5, ATs:0.4, QTs:0.4, KTs:0.3, 76s:0.1"
      },
      {
       "key": "4bet",
@@ -12928,7 +13271,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s-A4s, AKo, AKs:0.9, QQ:0.8, KTs:0.6, ATs:0.2"
+      "range": "KK+, AKs, A5s, KTs:0.7, ATs:0.6, 55:0.4, A9s:0.2"
      }
     ]
    },
@@ -12948,8 +13291,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.673,
-    "regret": 0.0005,
+    "occ": 0.708,
+    "regret": 0.001,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12957,7 +13300,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs+, QTs+, J9s+, T9s, 98s, AQo-AJo, 44:0.9, T8s:0.9, QQ:0.2"
+      "range": "JJ-66, AQs-ATs, KJs+, JTs, T9s, 98s, 76s, AQo-AJo, 87s:0.9, QQ:0.7, AKo:0.7, 55:0.6, QJs:0.5, A9s:0.2, QTs:0.2, KQo:0.2, KTs:0.1"
      },
      {
       "key": "4bet",
@@ -12969,7 +13312,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, KTs, AKo, QQ:0.8, A5s:0.8, 44:0.1"
+      "range": "KK+, AKs, A5s, KTs:0.9, 55:0.4, A9s:0.4, QQ:0.3, AKo:0.3, QTs+:0.1"
      }
     ]
    },
@@ -12989,8 +13332,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.613,
-    "regret": 0.0009,
+    "occ": 0.652,
+    "regret": 0.0006,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -12998,7 +13341,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs+, QTs+, J9s+, T9s, 98s, AQo-AJo, 44:0.8, T8s:0.6, KTs:0.2, K9s:0.1"
+      "range": "JJ-66, AQs-ATs, KJs+, JTs, T9s, 98s, 87s, 76s, AQo-AJo, 55:0.9, QQ:0.6, KTs:0.5, AKo:0.5, A9s:0.2, QJs:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -13010,7 +13353,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, A5s:0.8, KTs:0.7, 44:0.2"
+      "range": "KK+, AKs, A5s, QJs:0.9, A9s:0.8, KTs:0.5, AKo:0.5, QQ:0.4, QTs:0.2, 55:0.1, A7s:0.1"
      }
     ]
    },
@@ -13030,8 +13373,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.53,
-    "regret": 0.0017,
+    "occ": 0.497,
+    "regret": 0.0014,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13039,13 +13382,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, AQo, KQs:0.8, AJo:0.8, 55:0.7, KJs:0.7, QJs:0.3, 44:0.1"
+      "range": "JJ-66, AQs-ATs, KJs+, AQo, 55:0.9, AJo:0.6, QQ:0.3, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, QJs:0.6, 55:0.3, A4s:0.3, KJs:0.3, A5s:0.2, KQs:0.2"
+      "range": "KK+, AKs, A5s, AKo:0.8, QQ:0.7, QJs:0.6, KTs:0.4, A9s:0.2, 55:0.1"
      }
     ]
    },
@@ -13065,8 +13408,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "rfi-utgp2:open"
     ],
     "reachPct": 20.2,
-    "occ": 0.415,
-    "regret": 0.0013,
+    "occ": 0.383,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13074,13 +13417,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KTs+, QJs, AQo, A9s:0.7, JTs:0.5, AJo:0.4, KQo:0.3, 44:0.1"
+      "range": "JJ-77, AQs-A9s, KJs+, AQo, 66:0.9, QJs:0.9, 55:0.8, JTs:0.8, AJo:0.8, KTs:0.7, QQ:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, 44:0.5, A4s:0.5"
+      "range": "KK+, AKs, AKo, QQ:0.7, A5s:0.5, 55:0.2, 66:0.1"
      }
     ]
    },
@@ -13099,9 +13442,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.6,
-    "occ": 0.851,
-    "regret": 0.0004,
+    "reachPct": 23.4,
+    "occ": 0.839,
+    "regret": 0.0008,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13109,7 +13452,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-ATs, KJs+, K9s, QTs+, J9s+, T8s+, 97s+, 87s, AQo-AJo, 33:0.8, KQo:0.1"
+      "range": "JJ-55, AQs-ATs, KJs+, QJs, JTs, T9s, 98s, 87s, 76s, 65s, 54s, AQo-AJo, A9s:0.6, QQ:0.5, AKo:0.5, QTs:0.2, 97s:0.1"
      },
      {
       "key": "4bet",
@@ -13121,7 +13464,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, KTs, AKo, A9s:0.7, A5s:0.5, A3s:0.4, KQo:0.1"
+      "range": "KK+, AKs, A5s-A4s, KTs, QTs:0.8, QQ:0.5, AKo:0.5, A9s:0.4"
      }
     ]
    },
@@ -13140,9 +13483,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.6,
-    "occ": 0.771,
-    "regret": 0.0002,
+    "reachPct": 23.4,
+    "occ": 0.773,
+    "regret": 0.0009,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13150,7 +13493,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-33, AQs-ATs, KJs+, K9s, QTs+, J9s+, T8s+, 97s+, 87s, AQo-AJo, KQo:0.2"
+      "range": "JJ-55, AQs-A9s, KJs+, JTs, T9s, 98s, 87s, 76s, 65s, 54s, AQo-AJo, K9s:0.8, 97s:0.6, AKo:0.4, KTs:0.3, QQ:0.2, A8s:0.2, QJs:0.2, T8s:0.2, J9s:0.1"
      },
      {
       "key": "4bet",
@@ -13162,7 +13505,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, KTs, AKo, A9s:0.9, A3s:0.5, A5s:0.2, KQo:0.1"
+      "range": "KK+, AKs, A5s-A4s, QTs, QQ:0.8, QJs:0.8, KTs:0.7, AKo:0.6, Q9s:0.1"
      }
     ]
    },
@@ -13181,9 +13524,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.6,
-    "occ": 0.726,
-    "regret": 0.0008,
+    "reachPct": 23.4,
+    "occ": 0.677,
+    "regret": 0.0012,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13191,7 +13534,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-33, AQs-ATs, KQs, QTs+, J9s+, T8s+, 97s+, 87s, AQo-AJo, KJs:0.7, JJ:0.6, KQo:0.6, K9s:0.5, A9s:0.1"
+      "range": "JJ-55, AQs-ATs, KJs, JTs, T9s, 98s, 87s, 76s, 65s, 54s, AQo-AJo, A9s:0.8, KQs:0.8, KTs:0.8, ATo:0.8, QJs:0.7, 97s:0.7, QTs:0.2, AKo:0.2, J9s:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -13203,7 +13546,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, KTs, AKo, A3s:0.9, JJ:0.4, A5s:0.3, KJs:0.3, KQo:0.3, A9s:0.1"
+      "range": "QQ+, AKs, A5s-A4s, QTs:0.8, AKo:0.8, Q9s:0.6, QJs:0.3, A9s:0.2, KQs:0.2, KTs:0.2, K9s:0.1"
      }
     ]
    },
@@ -13222,9 +13565,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.6,
-    "occ": 0.573,
-    "regret": 0.001,
+    "reachPct": 23.4,
+    "occ": 0.585,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13232,13 +13575,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-ATs, KJs+, AQo-AJo, JJ:0.8, 44:0.7, JTs:0.4, KQo:0.4, J9s:0.2"
+      "range": "JJ-55, AQs-A9s, KJs, AQo-AJo, KQs:0.5, 87s:0.4, KTs:0.3, AKo:0.3, 98s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, QJs, AKo, A5s:0.5, KQo:0.5, JJ:0.2, A4s:0.2, KTs:0.2"
+      "range": "QQ+, AKs, QJs, A5s:0.9, A4s:0.8, AKo:0.7, KQs:0.5, KTs:0.5"
      }
     ]
    },
@@ -13257,9 +13600,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.6,
-    "occ": 0.435,
-    "regret": 0.0021,
+    "reachPct": 23.4,
+    "occ": 0.415,
+    "regret": 0.0031,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13267,13 +13610,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs-KTs, QTs+, JTs, AQo-AJo, 44:0.9, KQs:0.6, K9s:0.6, A9s:0.5, KQo:0.5"
+      "range": "JJ-55, AQs-A9s, KTs, QTs, JTs, AQo-AJo, KJs:0.8, QJs:0.6, KQs:0.5, K9s:0.4, KQo:0.4, A8s:0.2, T9s:0.2, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, A4s:0.9, A5s:0.4, KQs:0.4, KQo:0.2"
+      "range": "QQ+, AKs, AKo:0.9, A5s-A4s:0.7, KQs:0.5, QJs:0.4, KJs:0.2"
      }
     ]
    },
@@ -13292,9 +13635,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.3,
-    "occ": 1.002,
-    "regret": 0.0012,
+    "reachPct": 29.2,
+    "occ": 0.95,
+    "regret": 0.0011,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13302,7 +13645,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-33, AQs-ATs, KJs, K9s-K8s, QTs+, J9s+, T8s+, 97s+, 86s+, 76s, AQo-ATo, KQs:0.9, A8s:0.8, A9s:0.7, KQo:0.7, 22:0.6, JJ:0.3, A7s:0.3, KJo:0.2, KTs:0.1, K7s:0.1, Q9s-Q8s:0.1"
+      "range": "TT-44, AQs-A8s, J9s+, T9s, 97s+, 86s+, 76s, 65s, 54s, AQo-ATo, QTs:0.9, JJ:0.8, KQs:0.8, KQo:0.8, A7s:0.5, T8s:0.4, 75s:0.4, KTs:0.3, K9s:0.2, Q9s:0.2"
      },
      {
       "key": "4bet",
@@ -13314,7 +13657,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A3s, AKo, KTs:0.9, Q9s:0.9, A5s:0.8, JJ:0.7, A4s:0.6, A9s:0.3, KQo:0.3, A8s:0.2, KQs:0.1"
+      "range": "QQ+, AKs, KJs, QJs, AKo, A5s-A4s:0.8, Q9s:0.8, KTs:0.7, K9s:0.6, JJ:0.2, KQs:0.2, QTs:0.1"
      }
     ]
    },
@@ -13333,9 +13676,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.3,
-    "occ": 0.919,
-    "regret": 0.001,
+    "reachPct": 29.2,
+    "occ": 0.938,
+    "regret": 0.0009,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13343,7 +13686,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-33, AQs-A9s, KJs, K9s-K8s, QTs, J9s+, T8s+, 97s+, 86s+, 76s, AQo-ATo, 22:0.9, Q8s:0.9, J8s:0.9, QJs:0.8, KQs:0.7, Q9s:0.7, KQo:0.6, A7s:0.5, A8s:0.3, KJo:0.3, K7s:0.1"
+      "range": "TT-44, AQs-A7s, QTs, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, KTs:0.8, JJ:0.6, A6s:0.5, KQs:0.5, A5s:0.3, Q9s:0.3"
      },
      {
       "key": "4bet",
@@ -13355,7 +13698,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A5s-A4s, KTs, AKo, A8s:0.7, A3s:0.6, KQo:0.4, KQs:0.3, Q9s:0.3, QJs:0.2, 22:0.1"
+      "range": "QQ+, AKs, A4s, KJs, K9s, QJs, AKo, A5s:0.7, KQs:0.5, JJ:0.4, Q9s:0.4, K8s:0.3, KTs:0.2"
      }
     ]
    },
@@ -13374,9 +13717,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.3,
-    "occ": 0.723,
-    "regret": 0.0011,
+    "reachPct": 29.2,
+    "occ": 0.71,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13384,13 +13727,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, 22, AQs-ATs, KJs, QTs, J9s+, T9s, 98s, 87s, AQo-AJo, 44:0.9, T8s:0.7, 33:0.6, KQs:0.6, K9s:0.6, ATo:0.6, A9s:0.5, KJo+:0.4, QJs:0.1"
+      "range": "TT-55, AQs-A9s, JTs, 98s, 87s, 76s, AQo-AJo, 44:0.9, ATo:0.9, A8s:0.8, KQo:0.7, JJ:0.5, KQs:0.3, 65s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs, AKo, QJs:0.9, KQo:0.6, 33:0.4, KQs:0.4, A4s:0.2, 44:0.1, A8s:0.1"
+      "range": "QQ+, AKs, KJs-KTs, QJs, AKo, QTs:0.9, KQs:0.7, JJ:0.5, A4s:0.4, 44:0.1"
      }
     ]
    },
@@ -13409,9 +13752,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.3,
-    "occ": 0.536,
-    "regret": 0.0023,
+    "reachPct": 29.2,
+    "occ": 0.513,
+    "regret": 0.0024,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13419,13 +13762,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A8s, K9s-K8s, QTs+, T8s+, AQo-AJo, JTs:0.9, KJo:0.9, Q9s:0.8, J9s:0.7, KQs:0.6, KQo:0.6, K7s:0.5, 33:0.3, KJs:0.3, ATo:0.3, A7s:0.1"
+      "range": "TT-44, AQs-A8s, KTs-K9s, Q9s, J9s+, T9s, AQo-AJo, QTs:0.9, KQo:0.9, A7s:0.8, ATo:0.5, JJ:0.4, KJs:0.4, 98s:0.4, K8s:0.3, A5s:0.1, KQs:0.1, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs, AKo, KJs:0.7, 33:0.4, A4s:0.4, KQs:0.4, KQo:0.4, JTs:0.1"
+      "range": "QQ+, AKs, AKo, KQs:0.9, QJs:0.9, JJ:0.6, A4s:0.6, KJs:0.6, A5s:0.4, A3s:0.3, QTs:0.1, KQo:0.1"
      }
     ]
    },
@@ -13444,9 +13787,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 1.081,
-    "regret": 0.0007,
+    "reachPct": 37.2,
+    "occ": 1.152,
+    "regret": 0.0008,
     "confidence": "low",
     "move": 0,
     "actions": [
@@ -13454,7 +13797,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-22, AQs-A6s, K9s, K7s-K6s, QTs-Q8s, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, AQo-A9o, A5s:0.8, KJo:0.8, K8s:0.7, KJs:0.6, QJs:0.6, KQo:0.6, Q7s-Q6s:0.5, QJo:0.2, KQs:0.1"
+      "range": "TT-44, AQs-A5s, A3s-A2s, QTs-Q9s, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, AQo-A9o, KQo, Q8s:0.8, A4s:0.7, T7s:0.6, QJo:0.6, K9s:0.5, 33:0.4, KQs:0.4, J8s:0.2, KTs:0.1, 96s:0.1"
      },
      {
       "key": "4bet",
@@ -13466,7 +13809,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A4s-A3s, KTs, AKo, KQs:0.9, KJs:0.4, QJs:0.4, KQo:0.4, QJo:0.4, A5s:0.2"
+      "range": "JJ+, AKs, KJs, QJs, AKo, KTs:0.9, K7s-K6s:0.9, 33:0.6, KQs:0.6, K9s:0.5, A4s:0.3, KJo:0.2"
      }
     ]
    },
@@ -13485,8 +13828,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 0.943,
+    "reachPct": 37.2,
+    "occ": 1.007,
     "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
@@ -13495,13 +13838,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A7s, K9s, QTs-Q9s, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, AQo-ATo, 33:0.9, KQs:0.9, KQo:0.9, TT:0.7, 22:0.7, KJo:0.7, A5s:0.6, QJs:0.4, K7s:0.3, QJo:0.1"
+      "range": "TT-44, AQs-A5s, QTs-Q9s, J9s+, T9s, 98s, 87s, 75s+, 65s, 54s, AQo-A9o, KQo, 97s:0.9, 86s:0.8, 33:0.6, A4s:0.5, T8s:0.4, QJs:0.3, KQs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KJs-KTs, AKo, QJs:0.6, A5s:0.4, K7s:0.4, TT:0.3, 22:0.3, KJo:0.3, QJo:0.3, 33:0.1, A4s:0.1, KQs:0.1, KQo:0.1"
+      "range": "JJ+, AKs, KJs-K9s, AKo, KQs:0.8, QJs:0.7, 33:0.4, KJo:0.2"
      }
     ]
    },
@@ -13520,9 +13863,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 0.686,
-    "regret": 0.0011,
+    "reachPct": 37.2,
+    "occ": 0.71,
+    "regret": 0.0018,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13530,13 +13873,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A7s, K9s-K7s, Q9s+, J9s+, T8s+, 97s+, AQo-ATo, KJo, QJo:0.9, KQs:0.8, 76s:0.8, KQo:0.8, A5s:0.7, JTo:0.6, 33-22:0.5, 87s:0.5, KJs:0.2, Q8s:0.2, K6s:0.1"
+      "range": "99-55, AQs-A7s, A5s, K9s-K8s, QTs-Q9s, J9s+, T9s, 98s, 87s, AQo-ATo, KQo, A6s:0.9, T8s:0.9, 76s:0.9, 44:0.7, A9o:0.7, KJo:0.7, 33:0.6, A4s:0.6, QJo:0.6, Q8s:0.5, TT:0.4, QJs:0.4, 97s:0.3, KQs:0.2, J8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, AKs, KTs, AKo, KJs:0.8, 33-22:0.5, KTo:0.5, KQs:0.2, KQo:0.2, A4s:0.1"
+      "range": "JJ+, AKs, KJs-KTs, AKo, KQs:0.8, TT:0.6, QJs:0.6, 33:0.4, 44:0.3, A4s:0.3, KJo:0.3"
      }
     ]
    },
@@ -13554,8 +13897,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.143,
-    "regret": 0.0001,
+    "occ": 1.09,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13563,7 +13906,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, TT:0.9, KQs:0.6"
+      "range": "JJ+, AQs+, AKo, 55:0.9, 66:0.3"
      }
     ]
    },
@@ -13582,9 +13925,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.3,
-    "occ": 1.443,
-    "regret": 0.0005,
+    "reachPct": 52.1,
+    "occ": 1.453,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13592,13 +13935,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AJs-A2s, KJs, K8s, QTs-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo-A8o, KJo, JTo, QJo:0.9, K9s:0.7, T7s:0.7, JTs:0.6, 99:0.5, AQo:0.5, KQo:0.5, K7s:0.3, QJs:0.3"
+      "range": "88-22, AJs-A2s, Q9s, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, 43s, AJo-A7o, Q8s:0.9, QJo:0.7, JTo:0.7, 53s:0.6, 99:0.5, 96s:0.5, KJo+:0.5, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, AQs+, KQs, KTs, AKo, K6s:0.8, QJs:0.7, KTo:0.6, 99:0.5, AQo:0.5, KQo:0.5, JTs:0.4, K9s:0.3, QJo:0.1"
+      "range": "TT+, AQs+, K9s+, QTs+, AKo, AQo:0.9, 99:0.5, KQo:0.5, KJo:0.3"
      }
     ]
    },
@@ -13617,9 +13960,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.3,
-    "occ": 1.032,
-    "regret": 0.0004,
+    "reachPct": 52.1,
+    "occ": 1.025,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13627,13 +13970,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-44, AJs-A2s, KJs, K8s-K4s, QJs, Q8s, J9s-J7s, T8s+, 97s+, 86s+, 76s, 65s, AJo-A8o, KJo, QTo+, JTo, 33-22:0.9, QTs:0.8, KQo:0.6, JTs:0.5, K3s:0.4, K9s:0.3, Q9s:0.3, 54s:0.3, T7s:0.2, T9o:0.1"
+      "range": "88-33, AJs-A2s, K8s-K6s, QJs, Q9s-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 76s, 65s, 54s, AJo-A8o, KJo, QJo, JTo, 22:0.9, T7s:0.9, 75s:0.8, A7o:0.6, QTs:0.5, KQo:0.5, KTo:0.4, QTo:0.4, K9s:0.3, J7s:0.2, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, AQs+, KQs, KTs, AQo+, KTo, K9s:0.7, Q9s:0.7, JTs:0.5, KQo:0.4, QTs:0.2, 33-22:0.1"
+      "range": "99+, AQs+, KTs+, AQo+, JTs:0.9, K9s:0.7, KTo:0.6, QTs:0.5, KQo:0.5, 22:0.1"
      }
     ]
    },
@@ -13651,8 +13994,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.098,
-    "regret": 0,
+    "occ": 1.048,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13660,7 +14003,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AQs+, KQs, AKo"
+      "range": "JJ+, AQs+, AKo, 55:0.9, KQs:0.5, TT:0.2, 66:0.2"
      }
     ]
    },
@@ -13678,8 +14021,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.017,
-    "regret": 0.0002,
+    "occ": 1.039,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13687,7 +14030,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, KQs, AKo, TT:0.9, 66:0.8, 77:0.2, 55:0.1"
+      "range": "JJ+, AQs+, KQs, AKo, 55:0.9, TT:0.8, 66:0.2"
      }
     ]
    },
@@ -13705,8 +14048,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.24,
-    "regret": 0,
+    "occ": 1.328,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13714,7 +14057,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AJs+, KJs+, AKo, 77:0.8, AQo:0.5, 66-55:0.2, QJs:0.1"
+      "range": "TT+, AQs+, KJs+, QJs, AKo, AQo:0.8, AJs:0.5, 77:0.4, 55:0.4, 99:0.3, 66:0.1"
      }
     ]
    },
@@ -13733,9 +14076,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 38.6,
-    "occ": 0.646,
-    "regret": 0.0006,
+    "reachPct": 33.5,
+    "occ": 0.585,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13743,13 +14086,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, A9s-A4s, K9s-K3s, Q6s+, J9s, T8s+, 98s, 87s, ATo-A7o, KJo, QTo+, KJs:0.8, J9o:0.6, K9o:0.5, KQo:0.1"
+      "range": "77-44, A9s-A3s, K9s-K8s, QTs-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 76s, 65s, 54s, A8o-A7o, KJo, QJo, JTo, QJs:0.9, KTo:0.9, 33:0.8, QTo:0.8, KJs:0.3, KQo:0.3, JTs:0.2, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-88, AQs+, KQs, KTs, JTs, AQo+, KTo, KQo:0.9, KJs:0.2"
+      "range": "KK-88, 22, AQs+, KQs, AQo+, KTs:0.9, JTs:0.8, KJs:0.7, KQo:0.7, 33:0.2, QJs:0.1"
      }
     ]
    },
@@ -13767,8 +14110,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.053,
-    "regret": 0.0002,
+    "occ": 1.005,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13776,7 +14119,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AQs+, KQs, AKo, 66-55:0.6, 99:0.5"
+      "range": "TT+, 55, AQs+, AKo, 66:0.9, 99:0.8, KQs:0.7, 44:0.5"
      }
     ]
    },
@@ -13794,7 +14137,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.17,
+    "occ": 1.248,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -13803,7 +14146,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "99+, AJs+, KJs+, QJs, AQo+, 77:0.9, 88:0.6, 66-55:0.6"
+      "range": "99+, AQs+, KJs+, QJs, AQo+, 88:0.9, 55:0.9, AJs:0.8, 77-66:0.7"
      }
     ]
    },
@@ -13821,8 +14164,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.015,
-    "regret": 0.0001,
+    "occ": 1.088,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13830,7 +14173,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "99+, AJs+, KTs+, QJs, AQo+, 88-77:0.5"
+      "range": "88+, AQs+, KJs+, AQo+, 77:0.9, QJs:0.9, 66:0.8, AJs:0.2, KTs:0.2, 55:0.1"
      }
     ]
    },
@@ -13848,8 +14191,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.601,
-    "regret": 0,
+    "occ": 1.612,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13857,36 +14200,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "55+, AJs+, KTs+, QJs, JTs, AQo+, 44:0.9, AJo:0.7"
-     }
-    ]
-   },
-   {
-    "id": "hj-3bet-vs-utgp2-4bet-jam",
-    "kind": "vs4bet",
-    "hero": "HJ",
-    "villain": "UTG+2",
-    "villainSeats": [
-     "UTG+2"
-    ],
-    "chip": "HJ vs UTG+2 4벳 올인",
-    "title": "HJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · HJ 3벳 6.6 · UTG+2 올인",
-    "reachFrom": [
-     "hj-vs-utgp2-open:3bet"
-    ],
-    "reachPct": 6.5,
-    "occ": 0.112,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "QQ+, TT, AKs, AKo"
+      "range": "44+, AJs+, KTs+, QJs, JTs, AQo+, 33:0.9, AJo:0.2, 22:0.1, QTs:0.1"
      }
     ]
    },
@@ -13905,38 +14219,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
-    "reachPct": 7.6,
-    "occ": 0.134,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "99+, AKs, AKo, 88:0.1"
-     }
-    ]
-   },
-   {
-    "id": "co-3bet-vs-utgp2-4bet-jam",
-    "kind": "vs4bet",
-    "hero": "CO",
-    "villain": "UTG+2",
-    "villainSeats": [
-     "UTG+2"
-    ],
-    "chip": "CO vs UTG+2 4벳 올인",
-    "title": "CO 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · CO 3벳 6.6 · UTG+2 올인",
-    "reachFrom": [
-     "co-vs-utgp2-open:3bet"
-    ],
-    "reachPct": 7,
+    "reachPct": 7.5,
     "occ": 0.112,
-    "regret": 0.0043,
+    "regret": 0.0016,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13944,7 +14229,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ+, TT, AKs, AKo, 99:0.2"
+      "range": "JJ+, 99, AKs, ATs, AKo, 77:0.4, 88:0.2"
      }
     ]
    },
@@ -13964,8 +14249,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "co-vs-lj-open:3bet"
     ],
     "reachPct": 8,
-    "occ": 0.122,
-    "regret": 0.0002,
+    "occ": 0.116,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -13973,7 +14258,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AKs, AKo"
+      "range": "JJ+, 99, AKs, ATs, AKo, 88:0.2"
      }
     ]
    },
@@ -13992,9 +14277,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
-    "reachPct": 8.9,
-    "occ": 0.152,
-    "regret": 0.001,
+    "reachPct": 8.8,
+    "occ": 0.145,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14002,36 +14287,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, AKs, AKo, AQo:0.4, 66:0.1"
-     }
-    ]
-   },
-   {
-    "id": "btn-3bet-vs-utgp2-4bet-jam",
-    "kind": "vs4bet",
-    "hero": "BTN",
-    "villain": "UTG+2",
-    "villainSeats": [
-     "UTG+2"
-    ],
-    "chip": "BTN vs UTG+2 4벳 올인",
-    "title": "BTN 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · BTN 3벳 6.6 · UTG+2 올인",
-    "reachFrom": [
-     "btn-vs-utgp2-open:3bet"
-    ],
-    "reachPct": 7.5,
-    "occ": 0.103,
-    "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "TT+, AKs, AKo"
+      "range": "TT+, 88, AKs, ATs, AKo, 66:0.3"
      }
     ]
    },
@@ -14050,9 +14306,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
-    "reachPct": 8.9,
-    "occ": 0.126,
-    "regret": 0.0002,
+    "reachPct": 8.3,
+    "occ": 0.107,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14060,7 +14316,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AKs, AKo, 99:0.6"
+      "range": "99+, AKs, AKo"
      }
     ]
    },
@@ -14079,9 +14335,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
-    "reachPct": 9.8,
+    "reachPct": 10.3,
     "occ": 0.147,
-    "regret": 0.0002,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14089,7 +14345,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AKs, AQo+, 88:0.9"
+      "range": "TT+, 88, AJs+, AKo, AQo:0.3"
      }
     ]
    },
@@ -14108,9 +14364,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 11.3,
-    "occ": 0.15,
-    "regret": 0.0006,
+    "reachPct": 11.9,
+    "occ": 0.163,
+    "regret": 0.0011,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14118,7 +14374,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, AQs+, AQo+, A8s:0.6, 66:0.4, AJo:0.3"
+      "range": "88+, AJs+, AQo+, A9s:0.9, A7s:0.6, A5s:0.4, 66:0.3, A8s:0.3"
      }
     ]
    },
@@ -14137,9 +14393,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-hj-open:3bet"
     ],
-    "reachPct": 10,
-    "occ": 0.109,
-    "regret": 0.0017,
+    "reachPct": 10.1,
+    "occ": 0.106,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14147,7 +14403,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AQs+, AKo, 88:0.6, 66:0.3, AQo:0.2"
+      "range": "TT+, 88, AJs+, AKo, AQo:0.1"
      }
     ]
    },
@@ -14166,9 +14422,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-co-open:3bet"
     ],
-    "reachPct": 12.7,
-    "occ": 0.125,
-    "regret": 0.0018,
+    "reachPct": 13.5,
+    "occ": 0.128,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14176,7 +14432,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, AJs+, AQo+, A5s:0.5, 77:0.3, 66:0.1, AJo:0.1"
+      "range": "99+, ATs+, KQs, AQo+, 88:0.5, A5s:0.1"
      }
     ]
    },
@@ -14195,9 +14451,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.8,
-    "occ": 0.186,
-    "regret": 0.0005,
+    "reachPct": 16.4,
+    "occ": 0.205,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14205,7 +14461,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, A9s+, A5s, KQs, AQo+, 88:0.8, AJo:0.8, A4s:0.5"
+      "range": "88+, ATs+, A5s, KQs, AJo+, A9s:0.6, A4s:0.2"
      }
     ]
    },
@@ -14225,9 +14481,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.8,
-    "occ": 0.157,
-    "regret": 0.0001,
+    "reachPct": 16.4,
+    "occ": 0.158,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14235,7 +14491,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77+, ATs+, KQs, AJo+"
+      "range": "88+, ATs+, KQs, AJo+"
      }
     ]
    },
@@ -14255,7 +14511,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      "bb-vs-btn-open:3bet"
     ],
     "reachPct": 18.2,
-    "occ": 0.151,
+    "occ": 0.153,
     "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
@@ -14264,7 +14520,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, A9s+, KQs, AQo+, 77:0.8, AJo:0.8, 66:0.5"
+      "range": "88+, A9s+, KQs, AJo+, 77:0.7, 66:0.1"
      }
     ]
    },
@@ -14282,7 +14538,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 1.007,
+    "occ": 1.058,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -14297,7 +14553,106 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AQs+, KJs+, AQo+, KQo:0.3, 99:0.1"
+      "range": "TT+, AQs+, KQs, AKo, KQo:0.9, AQo:0.7, KJs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "HJ vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 1.009,
+    "regret": 0,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": ""
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KJs+, AQo+, KQo:0.7"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp2-open-lj-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "LJ"
+    ],
+    "chip": "UTG+2오픈·LJ콜",
+    "title": "HJ vs UTG+2 오픈 + LJ 콜",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 1.045,
+    "regret": 0,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": ""
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "TT+, AQs+, KQs, AQo+, KQo, KJs:0.6, AJs:0.5"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp2-open-hj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "HJ"
+    ],
+    "chip": "UTG+2오픈·HJ콜",
+    "title": "CO vs UTG+2 오픈 + HJ 콜",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 1.013,
+    "regret": 0.0013,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KQs, QTs+, JTs, KJs:0.9, T9s:0.8, 88:0.6, TT:0.5, 99:0.3, AJs:0.3, 98s:0.2, JJ:0.1, Q9s:0.1, 65s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "QQ+, AQs+, AQo+, KQo, JJ:0.9, KTs:0.9, 99:0.7, AJs-ATs:0.7, TT:0.5, AJo:0.4, 88:0.2, KJs:0.1"
      }
     ]
    },
@@ -14315,8 +14670,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.072,
-    "regret": 0.0002,
+    "occ": 1.113,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14324,13 +14679,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs, KJs+, QTs+, J9s+, T9s, KQo, 98s:0.8, AJs:0.6, ATs:0.5, 77:0.3, T8s:0.3, TT:0.1"
+      "range": "88, AJs, KJs+, QTs+, JTs, T9s, 98s, J9s:0.6, KQo:0.5, TT:0.2, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, 99-88, AKs, AJo+, TT:0.9, KJo:0.7, ATs:0.5, AJs:0.4, KTs:0.4, 77:0.3"
+      "range": "JJ+, 99, AQs+, ATs, KTs, AJo+, TT:0.8, KJo:0.6, KQo:0.5"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp1-open-co-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "CO"
+    ],
+    "chip": "UTG+1오픈·CO콜",
+    "title": "BTN vs UTG+1 오픈 + CO 콜",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2.2 · CO 콜",
+    "reachPct": 100,
+    "occ": 1.08,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88, AJs, KQs, Q9s+, J9s+, T9s, 98s, 65s, T8s:0.8, KJs:0.7, TT:0.4, 99:0.2, 54s:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AQs+, ATs, KTs, AQo+, KQo, 99:0.8, TT:0.6, AJo:0.6, KJs:0.3"
      }
     ]
    },
@@ -14348,8 +14736,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.035,
-    "regret": 0.0001,
+    "occ": 1.006,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14357,13 +14745,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AQs, KJs+, K9s, Q9s+, J9s+, T8s+, 97s+, 65s, KQo, ATs:0.9, KTs:0.8, 77:0.7, AJs:0.6, 99:0.3, TT:0.1"
+      "range": "77, AJs, KJs+, Q9s+, J9s+, T9s, 98s, 65s, K9s:0.9, 54s:0.9, QJo:0.9, KQo:0.8, 99:0.4, TT:0.3, 88:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, 88, AKs, AJo+, KJo, TT:0.9, 99:0.7, 66:0.4, AJs:0.4, 77:0.3, 55:0.2, ATs:0.1, KTs:0.1"
+      "range": "JJ+, AQs+, ATs, KTs, AJo+, KJo, 88:0.9, TT:0.7, 99:0.6, KQo:0.2"
      }
     ]
    },
@@ -14381,7 +14769,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.133,
+    "occ": 1.174,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -14390,13 +14778,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, K9s, QTs+, J9s+, T8s+, 98s, KQo, KTs:0.8, AJs:0.7, 97s:0.4, 65s:0.4, 66:0.3, 99:0.1, 77:0.1"
+      "range": "KJs+, K9s, Q9s+, J9s+, T9s, 98s, 65s, QJo, 77:0.9, KQo:0.7, 88:0.3, AJs:0.3, T8s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, 88, AQs+, ATs, AJo+, KJo, 99:0.9, 77:0.9, 66:0.3, AJs:0.3, 55:0.2, KTs:0.2, ATo:0.2"
+      "range": "99+, AQs+, ATs, KTs, AJo+, KJo, 88:0.7, AJs:0.7, A9s:0.4, KQo:0.3, 77:0.1, JTo:0.1"
      }
     ]
    },
@@ -14414,8 +14802,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.34,
-    "regret": 0.0003,
+    "occ": 1.287,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14423,13 +14811,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs+, K9s, QTs+, J9s+, T8s+, 98s, 65s:0.9, KTs:0.8, KQo:0.8, KJo:0.3, 88-66:0.2"
+      "range": "K9s+, Q8s+, J9s+, T9s, 98s, QJo, 77:0.8, KQo:0.7, 65s:0.5, ATs:0.3, KJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "99+, ATs+, ATo+, 55:0.9, 88-66:0.8, KJo:0.7, A9s:0.4, KTs:0.2, KQo:0.2"
+      "range": "88+, AJs+, A9s, ATo+, KJo:0.9, ATs:0.7, KQo:0.3, 77:0.2, JTo:0.1"
      }
     ]
    },
@@ -14447,7 +14835,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.024,
+    "occ": 1.186,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -14456,13 +14844,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs-ATs, K9s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KQo, 77:0.6, 99:0.4, K8s:0.1, 64s:0.1"
+      "range": "99-77, AJs, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, 43s, QJo:0.9, 64s:0.8, 53s:0.6, KTs:0.5, J7s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, AQo+, AJo:0.7, KJo:0.7, 99:0.6, 77:0.4"
+      "range": "TT+, AQs+, AQo+, KQo, KTs:0.5, KJo:0.4, ATs:0.1"
      }
     ]
    },
@@ -14480,8 +14868,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.088,
-    "regret": 0.0001,
+    "occ": 1.025,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14489,13 +14877,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs-ATs, K6s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, 77-66:0.9, 88:0.5, AQs:0.2, KJo:0.1"
+      "range": "AJs, K9s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, QJo, 77:0.9, J7s:0.9, 64s:0.9, 43s:0.9, KQo:0.8, 53s:0.6, 75s:0.5, ATs:0.4, 88:0.3, JTo:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AKs, AJo+, KJo:0.9, AQs:0.8, 88:0.5, 77:0.1"
+      "range": "99+, AQs+, AQo+, AJo:0.9, KJo:0.8, 88:0.7, ATs:0.6, KQo:0.2, 77:0.1"
      }
     ]
    },
@@ -14513,7 +14901,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.191,
+    "occ": 1.159,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -14522,13 +14910,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, ATs, KJs+, K9s-K6s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KQo, QJo, KTs:0.9, 66:0.7, AJs:0.7, T7s:0.7, 64s:0.6, 88:0.1"
+      "range": "KJs+, K9s-K8s, Q8s+, J7s+, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, KQo, QJo, AJs:0.9, 77:0.8, JTo:0.6, Q7s:0.5, 75s:0.3, KTs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, AJo+, KJo, 88:0.9, 66:0.3, AJs:0.3, JTo:0.3, 55:0.2, KTs:0.1"
+      "range": "88+, AQs+, ATs, AJo+, KJo, KTs:0.8, 77:0.2, AJs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-lj-open-co-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "LJ",
+    "villainSeats": [
+     "LJ",
+     "CO"
+    ],
+    "chip": "LJ오픈·CO콜",
+    "title": "SB vs LJ 오픈 + CO 콜",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2.2 · CO 콜",
+    "reachPct": 100,
+    "occ": 1.008,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "K9s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, QJo, 88:0.8, KQo:0.8, AJs:0.7, 75s:0.7, KJo:0.5, 77:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "99+, AQs+, ATs-A9s, ATo+, 77:0.8, AJs:0.3, KJo:0.3, 88:0.2, KQo:0.2"
      }
     ]
    },
@@ -14546,8 +14967,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.123,
-    "regret": 0.0001,
+    "occ": 1.265,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14555,13 +14976,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "ATs, K4s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QJo, 88-77:0.9, Q7s:0.9, AJs:0.5, J7s:0.3, Q6s:0.2, 53s:0.2, QTo:0.1"
+      "range": "88-77, K7s+, Q7s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, KJo, QJo, JTo, KQo:0.7, QTo:0.7, AJs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, 66-55, AQs+, A9s-A8s, A5s, ATo+, A7s:0.9, AJs:0.5, A6s:0.4, 88-77:0.1, A4s:0.1"
+      "range": "99+, AQs+, ATs-A8s, ATo+, A5s:0.9, AJs:0.8, A7s:0.5, A9o:0.4, 66:0.3, KQo:0.3"
      }
     ]
    },
@@ -14579,8 +15000,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.142,
-    "regret": 0.0003,
+    "occ": 1.09,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14588,13 +15009,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K4s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, KJo+, QJo, 43s:0.9, 88:0.6, 77:0.5, 66:0.2, ATs:0.1"
+      "range": "K7s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, KJo, QTo+, 77:0.9, JTo:0.9, 75s:0.7, KQo:0.6, 88:0.2, Q7s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, 55, AJs+, A9s, ATo+, ATs:0.9, 66:0.8, A5s:0.8, 77:0.5, 88:0.4, A4s:0.4, A8s:0.1"
+      "range": "99+, A7s+, A5s, ATo+, 88:0.8, KQo:0.4, 77:0.1, KTo:0.1, JTo:0.1"
      }
     ]
    },
@@ -14612,7 +15033,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.608,
+    "occ": 1.521,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -14621,13 +15042,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, K3s+, Q6s+, J7s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, KJo+, QTo+, 55:0.9, Q5s:0.3, 88:0.2"
+      "range": "77-66, KJs-K6s, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 53s+, KJo-KTo, QTo+, JTo, KQs:0.9, K5s:0.9, 43s:0.9, 64s:0.8, K4s:0.6, KQo:0.6"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, A2s+, ATo+, 88:0.8, 44:0.8, 55:0.1"
+      "range": "88+, A5s+, A9o+, KQo:0.4, KQs:0.1, A8o:0.1"
      }
     ]
    },
@@ -14645,7 +15066,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.841,
+    "occ": 1.75,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -14654,13 +15075,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-55, KJs-K2s, Q5s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, KTo+, QTo+, JTo, 77:0.3"
+      "range": "KJs-K4s, Q5s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, KJo-KTo, QTo+, JTo, 66:0.9, J6s:0.9, J5s:0.8, 43s:0.5, KQo:0.5, Q9o:0.4, T6s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, A2s+, KQs, A9o+, A8o:0.8, 77:0.7"
+      "range": "77+, A5s+, KQs, A9o+, A8o:0.7, A4s:0.5, KQo:0.5, 66:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-btn-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "BTN"
+    ],
+    "chip": "UTG오픈·BTN콜",
+    "title": "BB vs UTG 오픈 + BTN 콜",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2.2 · BTN 콜",
+    "reachPct": 100,
+    "occ": 1.001,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88-66, AJs-A5s, K6s+, K4s, Q4s+, J3s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, QTo+, JTo, T9o, 98o, 99:0.9, K5s:0.9, AJo:0.9, J2s:0.7, KQo:0.5, 55:0.4, J9o:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "TT+, AQs+, AQo+, KJo, KQo:0.5, KTo:0.3, 99:0.1, AJo:0.1"
      }
     ]
    },
@@ -14678,8 +15132,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.093,
-    "regret": 0.0003,
+    "occ": 1.271,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14687,13 +15141,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, 55-22, AJs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, KTo+, QTo+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, 66:0.8, K9o:0.6, 88:0.5, AJo:0.5, K8o:0.1"
+      "range": "77-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KQo, Q8o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 53o+, ATo:0.7, KJo:0.6, 43o:0.5, KTo:0.4, 88:0.2, AJs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, ATo-A8o, 88:0.5, AJo:0.5, A7o:0.4, Q9o:0.4, 66:0.2, A6o:0.1, K9o:0.1"
+      "range": "99+, AQs+, AJo+, K9o, 88:0.8, AJs:0.8, KTo:0.6, KJo:0.4, ATo:0.3"
      }
     ]
    },
@@ -14720,13 +15174,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-22, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, K7o+, Q8o+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, K6o:0.9, ATs:0.8, 72s:0.3, AJo:0.2, ATo:0.1"
+      "range": "77-22, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q8o+, J8o+, T7o+, 97o+, 86o+, 76o, 65o, 53o+, ATs:0.7, J7o:0.6, AJo:0.5, 88:0.4, K9o:0.4, ATo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AJs+, AQo+, A9o-A8o, ATo:0.9, A5o:0.9, AJo:0.8, A6o:0.7, A7o:0.3, ATs:0.2"
+      "range": "99+, AJs+, AQo+, A9o-A8o, ATo:0.9, A7o:0.8, 88:0.6, K9o:0.6, AJo:0.5, ATs:0.3, A6o-A5o:0.2"
      }
     ]
    },
@@ -14744,7 +15198,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.198,
+    "occ": 1.113,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -14753,13 +15207,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-22, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 84s+, 73s+, 63s+, 52s+, 42s+, 32s, K8o+, QTo+, J9o+, T8o+, 98o, 87o, 76o, 77:0.7, K7o:0.4, 82s:0.1, 65o:0.1"
+      "range": "66-44, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K9o+, Q8o+, J8o+, T8o+, 98o, 87o, 76o, 65o, 77:0.7, 54o:0.5, 33:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, A7o+, A5o:0.8, A6o:0.6, 77:0.3"
+      "range": "88+, ATs+, KQs, A7o+, A6o-A5o:0.6, 77:0.3"
      }
     ]
    },
@@ -14777,8 +15231,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.598,
-    "regret": 0.0001,
+    "occ": 1.635,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14786,13 +15240,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "55-22, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, K5o+, Q7o+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, 66:0.9, 72s:0.7, ATo:0.3"
+      "range": "66-22, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K6o+, Q6o+, J7o+, T7o+, 97o+, 86o+, 76o, 65o, 53o+, 43o, 75o:0.6, ATo:0.3, K5o:0.3, Q5o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, AJo+, A9o-A5o, ATo:0.7, A4o:0.5, 66:0.1"
+      "range": "77+, ATs+, KQs, AJo+, A9o-A7o, A6o-A5o:0.8, ATo:0.7, A4o:0.4, A2o:0.3, A3o:0.1"
      }
     ]
    },
@@ -14810,8 +15264,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.312,
-    "regret": 0.0001,
+    "occ": 1.245,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14819,13 +15273,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-22, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 84s+, 82s, 74s+, 63s+, 52s+, 42s+, 32s, K7o+, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 73s:0.9, A9s:0.2, K6o:0.2, 65o:0.2"
+      "range": "66-33, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K7o+, Q8o+, J8o+, T8o+, 98o, 87o, 76o, 65o, 54o, 86o:0.4, T7o:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, A7o+, A5o, A6o:0.9, A9s:0.8, A4o:0.4"
+      "range": "77+, A9s+, KQs, A5o+"
      }
     ]
    },
@@ -14843,8 +15297,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.74,
-    "regret": 0.0001,
+    "occ": 1.782,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14852,13 +15306,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, A7s-A6s, A4s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K4o+, Q6o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, Q5o:0.5, 55:0.3, A5s:0.1"
+      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K5o, Q4o+, J7o+, T7o+, 97o+, 86o+, 75o+, 65o, 53o+, 43o, 85o:0.7, K4o:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, A8s+, KQs, A3o+, A5s:0.9, 55:0.7, A2o:0.5"
+      "range": "55+, A8s+, KQs, A4o+, KQo, A2o:0.8, A3o:0.5"
      }
     ]
    },
@@ -14876,8 +15330,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 2.296,
-    "regret": 0,
+    "occ": 2.59,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14885,13 +15339,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33-22, KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K2o, Q3o+, J9o+, J7o, T8o+, 97o+, 86o+, 75o+, 65o, 54o, KJs:0.9, J8o:0.9"
+      "range": "KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K4o, Q3o+, J5o+, T6o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, 22:0.9, 85o:0.7, 33:0.6, K3o:0.5, 74o:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "44+, A2s+, KQs, A2o+, KQo, T7o:0.8, KJs:0.1, J8o:0.1"
+      "range": "44+, A2s+, KJs+, A2o+, KQo, K2o:0.6, K3o:0.5, 33:0.4, 22:0.1"
      }
     ]
    },
@@ -14910,9 +15364,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 45.4,
-    "occ": 1.987,
-    "regret": 0.0001,
+    "reachPct": 51.2,
+    "occ": 2.286,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14920,13 +15374,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A4s-A2s, K3s-K2s, Q5s-Q2s, JTs, J8s-J2s, T7s-T2s, 97s-93s, 84s+, 74s+, 64s+, 53s+, 42s+, JTo, T8o+, 97o+, KTo:0.4, 76o:0.1"
+      "range": "22, A3s-A2s, K8s-K2s, Q8s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-73s, 64s-63s, 53s-52s, 43s, A3o, J9o, T7o+, 97o+, 76o, A4o:0.7, 62s:0.3, 86o:0.2"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "QQ+, TT, 88-77, AQs-A9s, A5o+, A3o-A2o, Q9o, KTo:0.6"
+      "range": "KK+, TT-88, AJs-ATs, A5o+, KTo, A4o:0.3, A2o:0.1"
      }
     ]
    },
@@ -14944,7 +15398,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 3.962,
+    "occ": 4.641,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -14953,13 +15407,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A2s+, K4s+, Q7s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, A7o+, A5o-A2o, KJo+, K9o-K7o, K4o, K2o, Q9o-Q8o, J9o, T9o, 94o, 53o, 42o, 32o, K3s:0.9, Q6s:0.9, T7s:0.9, A6o:0.9, 98o:0.9, 82o:0.9, 43o:0.9, K5o:0.6, Q4s:0.5, K3o:0.5, QJo:0.5, 54o:0.5, T2o:0.4, 92o:0.3, 84o:0.3, 65o:0.3, J4o:0.2, T8o:0.2, T4o:0.2, 52o:0.2, Q7o:0.1, J8o:0.1, T3o:0.1"
+      "range": "22+, A3s+, K9s+, Q8s+, J7s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, A7o+, KJo+, QTo+, J8o+, T8o+, 98o, 93o, 64o+, 52o+, 42o+, 32o, K8s:0.9, T3o:0.9, 94o:0.9, 63o:0.8, 62o:0.7, Q9o:0.6, 83o:0.6, T6s:0.5, 73o:0.5, J7o:0.4, 84o:0.4, T7o:0.3, K7s:0.2, A3o:0.2, KTo:0.1, 86o-85o:0.1, 82o:0.1, 74o:0.1, 72o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "K2s, Q5s, Q3s-Q2s, J7s-J2s, T6s-T2s, 96s-92s, 85s-82s, 74s-72s, 63s-62s, 52s, 42s, 32s, KTo, K6o, QTo, Q6o-Q2o, JTo, J7o-J5o, J3o-J2o, T7o-T5o, 97o-95o, 93o, 85o+, 83o, 72o+, 64o-62o, Q7o:0.9, J8o:0.9, T3o:0.9, J4o:0.8, T8o:0.8, T4o:0.8, 52o:0.8, 92o:0.7, 84o:0.7, 65o:0.7, T2o:0.6, Q4s:0.5, K3o:0.5, QJo:0.5, 54o:0.5, K5o:0.4, K3s:0.1, Q6s:0.1, T7s:0.1, A6o:0.1, 98o:0.1, 82o:0.1, 43o:0.1"
+      "range": "A2s, K6s-K2s, Q7s-Q2s, J6s-J2s, T5s-T2s, 95s-92s, 84s-82s, 73s-72s, 62s, A6o-A4o, A2o, K9o-K2o, Q8o-Q2o, J6o-J2o, T6o-T4o, T2o, 97o-95o, 92o, 87o, 75o+, KTo:0.9, 86o-85o:0.9, 82o:0.9, 74o:0.9, 72o:0.9, K7s:0.8, A3o:0.8, T7o:0.7, J7o:0.6, 84o:0.6, T6s:0.5, 73o:0.5, Q9o:0.4, 83o:0.4, 62o:0.3, 63o:0.2, K8s:0.1, T3o:0.1, 94o:0.1"
      }
     ]
    },
@@ -14978,9 +15432,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 50.4,
-    "occ": 0.336,
-    "regret": 0.0029,
+    "reachPct": 49.4,
+    "occ": 0.418,
+    "regret": 0.0017,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -14988,13 +15442,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, ATs-A2s, KJs-KTs, Q6s+, Q4s, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo-A7o, KJo, QJo, K9s:0.9, T9o:0.9, AJs:0.7, K8s:0.7, K7s:0.5, K4s:0.5, 99:0.4, K3s:0.4, 98o:0.4, K5s:0.3, 88:0.2, KQo:0.2, 33:0.1, J9o:0.1"
+      "range": "77, ATs-A3s, KJs-KTs, QTs, Q8s, J7s+, T6s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, AJo-A8o, KJo-KTo, QTo+, JTo, T9o, 98o, J9o:0.9, AJs:0.7, QJs:0.7, A7o:0.6, K8s-K7s:0.5, Q9s:0.5, 66:0.4, 88:0.3, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 44, 22, AQs+, KQs, K6s, AQo+, 33:0.9, 88:0.8, KQo:0.8, K5s:0.7, 99:0.6, K3s:0.6, K7s:0.5, K4s:0.5, AJs:0.3, K8s:0.3, K9s:0.1"
+      "range": "99+, 55-22, AQs+, KQs, K9s, AQo+, KQo:0.9, 88:0.7, 66:0.6, K8s-K7s:0.5, Q9s:0.5, AJs:0.3, QJs:0.3"
      }
     ]
    }
@@ -15003,7 +15457,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "35bb-2",
   "label": "35bb · 오픈 2bb",
-  "description": "모두 35bb. 오픈 2bb, SB는 림프·오픈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 35bb. 오픈 2bb, SB는 림프·오픈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 3벳 뒤 콜드 올인 없음. 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
   "stack": 35,
   "open": 2,
   "sizes": {
@@ -15020,7 +15474,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "jamMax": 40
   },
   "tree": {
-   "cold4": "jam",
+   "cold4": "none",
    "allinOrder": "priority"
   },
   "iterations": 1500,
@@ -15030,42 +15484,43 @@ export const PREFLOP_STAGES: PreflopStage[] = [
    "vsOpen": 0.1,
    "vs3bet": 0.1,
    "vs4bet": 0.1,
-   "squeeze": 1,
+   "squeeze": 0.1,
    "vsLimp": 0.1,
    "vsShove": 0.1
   },
+  "occThresholdCold": 0.1,
   "brGainMbb": [
-   0.256,
-   0.181,
-   0.222,
+   0.057,
+   0.075,
    0.104,
-   0.185,
-   0.21,
-   0.237,
-   0.257,
-   0.326
+   0.064,
+   0.088,
+   0.071,
+   0.108,
+   0.114,
+   0.168
   ],
-  "nashConvMbb": 1.979,
-  "snappedGainMbb": 1.258,
+  "nashConvMbb": 0.85,
+  "snappedGainMbb": 0.854,
   "ev": [
-   0.1708,
-   0.1833,
-   0.2003,
-   0.2156,
-   0.2424,
-   0.2731,
-   0.315,
-   -0.117,
-   -1.3602
+   0.1873,
+   0.2036,
+   0.2264,
+   0.2451,
+   0.2615,
+   0.2866,
+   0.3058,
+   -0.1587,
+   -1.43
   ],
   "diag": {
-   "evSum": 0.1233,
-   "frozenOccPct": 3.114,
-   "negativeShares": 507
+   "evSum": 0.1276,
+   "frozenOccPct": 1.075,
+   "negativeShares": 676
   },
   "model": {
-   "id": "modelB-5f",
-   "fitHash": "45018e13c1764b7cbeb8e77875653bd1808740df1001e2c5ae8b55e36f111f96",
+   "id": "modelB-rank6",
+   "fitHash": "03dd3d0015e3d70ae736d9982d7c2bf8308f0141e6cd82bbbf1b8f636443fcb4",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
@@ -15087,19 +15542,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6s 0%, K6s 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "55+, A7s+, K6s+, Q9s+, J9s+, T8s+, ATo+, KJo+, 98s:0.9, QJo:0.9, A5s:0.2, Q8s:0.1"
+      "range": "66+, A8s+, K9s+, Q9s+, J9s+, T9s, ATo+, KJo+, QJo, 98s:0.3, A7s:0.1"
      },
      {
       "key": "shove",
@@ -15115,19 +15570,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A4s 0%, K4s 20%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 82.526,
+    "occ": 84.65,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "55+, A5s+, K5s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, 44:0.8, K4s:0.2"
+      "range": "66+, A7s+, K9s+, Q9s+, J9s+, T9s, 98s, ATo+, KJo+, QJo, J8s:0.7, T8s:0.5, 55:0.4, Q8s:0.4, K8s:0.2, JTo:0.2, A5s:0.1"
      },
      {
       "key": "shove",
@@ -15146,7 +15601,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 66.761,
+    "occ": 70.429,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -15155,7 +15610,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "44+, A4s+, K4s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, A3s:0.9, 97s:0.8, QTo:0.6, Q7s:0.5, J8s:0.4"
+      "range": "55+, A6s+, K9s+, Q9s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, QTo:0.9, A5s:0.8, JTo:0.5, KTo:0.4, Q8s:0.1"
      },
      {
       "key": "shove",
@@ -15171,19 +15626,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 52.647,
+    "occ": 57.165,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "44+, A3s+, K3s+, Q8s+, J9s+, T8s+, 97s+, ATo+, KJo+, K9o, QTo+, J9o, 33:0.9, J8s:0.9, 87s:0.7, Q7s:0.4, A2s:0.3, A9o:0.2, KTo:0.2"
+      "range": "44+, A5s+, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, A9o+, KTo+, QTo+, JTo, K7s:0.1"
      },
      {
       "key": "shove",
@@ -15199,19 +15654,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: JTo 0%, J9o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 39.587,
+    "occ": 44.305,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "33+, A2s+, K2s+, Q6s+, J8s+, T8s+, 97s+, 87s, A8o+, K8o+, QTo+, J9o, T9o, Q5s:0.8, 22:0.3"
+      "range": "44+, A3s+, K6s+, Q7s+, J8s+, T7s+, 97s+, 87s, 76s, A8o+, KTo+, QTo+, JTo, Q9o:0.8, J7s:0.7, K9o:0.2, T9o:0.1"
      },
      {
       "key": "shove",
@@ -15227,19 +15682,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 더 좋은 핸드를 덜 플레이하는 칸이 있어요 (예: A6o 0%, K6o 100%). 실현율 모델의 알려진 왜곡이에요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 27.491,
+    "occ": 32.34,
     "regret": 0,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q4s+, J7s+, T8s+, 97s+, 86s+, 76s, A7o+, A5o, K6o+, Q9o+, J9o+, T9o"
+      "range": "33+, A2s+, K4s+, Q6s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, A7o+, K9o+, Q9o+, J9o+, T9o, 96s:0.9, 75s:0.6, Q5s:0.5"
      },
      {
       "key": "shove",
@@ -15258,7 +15713,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 17.161,
+    "occ": 21.491,
     "regret": 0,
     "confidence": "mid",
     "move": 0,
@@ -15267,7 +15722,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J4s+, T7s+, 97s+, 86s+, 75s+, 65s, A2o+, K3o+, Q7o+, J9o+, T8o+"
+      "range": "22+, A2s+, K2s+, Q3s+, J5s+, T6s+, 96s+, 85s+, 75s+, 65s, 54s, A4o+, K6o+, Q8o+, J8o+, T9o, 98o:0.5"
      },
      {
       "key": "shove",
@@ -15286,8 +15741,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "",
     "reachPct": 100,
-    "occ": 8.752,
-    "regret": 0.0002,
+    "occ": 11.891,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15295,19 +15750,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AJs, A9s, A5s-A2s, KTs, K2s, Q4s-Q2s, JTs, J7s-J2s, T9s, T7s-T2s, 92s+, 86s-82s, 75s+, 73s-72s, 64s+, 62s, 53s-52s, 42s+, 32s, AQo, A4o-A2o, QTo, Q3o-Q2o, JTo, J6o-J2o, T2o+, 98o, 96o-93o, 85o, 75o, 64o, A6s:0.9, 97o:0.8, 55:0.7, 74s:0.7, 54s:0.7, AJo:0.7, KTo:0.7, AA:0.6, 77-66:0.6, ATs:0.6, KQo:0.6, 44:0.5, 87s:0.5, ATo:0.5, A6o:0.5, J8o:0.5, 86o+:0.5, 76o:0.5, 54o:0.4, TT:0.3, 88:0.3, J8s:0.3, Q5s:0.2, A7o:0.1"
+      "range": "99, 44, A5s-A2s, K6s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, AQo+, A6o, A3o-A2o, K9o-K8o, K3o-K2o, Q4o-Q2o, J5o-J2o, T7o, T5o-T2o, 97o-93o, 85o-84o, 74o, K8s:0.9, T9s:0.9, 97s:0.9, K4o:0.9, J6o:0.9, T6o:0.9, 92o:0.9, 77:0.8, KJs:0.8, QTs:0.8, T8o:0.8, 98o:0.8, 75o:0.8, 66:0.7, AJs:0.7, K7s:0.6, AJo:0.6, T9o:0.6, 86o+:0.6, 54o:0.6, 88:0.5, 55:0.5, Q8s:0.5, A7o:0.5, ATs:0.4, 54s:0.4, KQo:0.4, 76o:0.4, JTs:0.3, QJo:0.3, Q5o:0.3, 22:0.2, KTs:0.2, 64o:0.2, TT:0.1, A9s:0.1, A6s:0.1, KQs:0.1, 65s:0.1, A8o:0.1, K7o:0.1, J8o+:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 2.5bb",
       "color": "raise",
-      "range": "KK-JJ, 99, AQs+, A8s-A7s, KJs+, K9s-K3s, Q6s+, J9s, T8s, AKo, KJo, K9o-K2o, QJo, Q9o-Q4o, J9o, J7o, Q5s:0.8, TT:0.7, 88:0.7, J8s:0.7, 44:0.5, 87s:0.5, A6o:0.5, J8o:0.5, 86o+:0.5, 76o:0.5, AA:0.4, 77-66:0.4, ATs:0.4, KQo:0.4, 55:0.3, 33:0.3, 54s:0.3, A7o:0.3, 22:0.2, 97o:0.2, A6s:0.1"
+      "range": "JJ+, AQs+, A8s-A7s, K9s, QJs, Q9s, J9s-J8s, T8s, 98s, 87s, 76s, KJo-KTo, K6o-K5o, QTo-Q6o, J7o, TT:0.9, A9s:0.9, A6s:0.9, KQs:0.9, 65s:0.9, K7o:0.9, J8o+:0.9, KTs:0.8, JTs:0.7, QJo:0.7, Q5o:0.7, ATs:0.6, 54s:0.6, KQo:0.6, 88:0.5, 55:0.5, Q8s:0.5, K7s:0.4, T9o:0.4, 86o+:0.4, 76o:0.4, 66:0.3, AJs:0.3, 77:0.2, KJs:0.2, QTs:0.2, A7o:0.2, T8o:0.2, 98o:0.2, 75o:0.2, K8s:0.1, T9s:0.1, 97s:0.1, K4o:0.1, J6o:0.1, T6o:0.1, 65o:0.1, 54o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "63s, A9o-A8o, A5o, 65o, 22:0.8, 33:0.7, A7o:0.6, ATo:0.5, 74s:0.3, AJo:0.3, KTo:0.3"
+      "range": "33, ATo-A9o, A5o-A4o, A8o:0.9, 65o:0.9, 22:0.8, AJo:0.4, A7o:0.3, 54o:0.3, 76o:0.2"
      }
     ]
    },
@@ -15324,7 +15779,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 17.474,
+    "occ": 15.35,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15333,13 +15788,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "ATs+, KJs+, QTs+, J9s+, KQo, QQ-JJ:0.9, 99:0.8, 77:0.7, K9s:0.6, AJo:0.6, AQo:0.5, TT:0.3, T9s:0.3, AKo:0.3"
+      "range": ""
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "KK+, 88, KTs, TT:0.7, A9s:0.7, AKo:0.7, AQo:0.5, AJo:0.4, 77:0.3, 99:0.2, K9s:0.2, QQ-JJ:0.1, KJo:0.1"
+      "range": "77+, AJs+, KTs+, AJo+, JTs:0.7, QTs+:0.1, KQo:0.1"
      },
      {
       "key": "shove",
@@ -15362,8 +15817,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 15.526,
-    "regret": 0.0004,
+    "occ": 14.052,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15371,13 +15826,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-ATs, KJs+, QTs+, JTs, AKs:0.9, J9s:0.9, T9s:0.9, KQo:0.9, 99:0.7, K9s:0.7, 77:0.6, QQ:0.5, AJo:0.5, AQo:0.4, TT:0.3, AKo:0.2, KTs:0.1"
+      "range": ""
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "KK+, 88, KTs:0.9, AKo:0.8, TT:0.7, AQo:0.6, QQ:0.5, AJo:0.5, 77:0.4, A9s:0.4, 99:0.3, K9s:0.3, KJo:0.2, AKs:0.1, KQo:0.1"
+      "range": "77+, AJs+, KTs+, AJo+, JTs:0.7, QTs:0.1"
      },
      {
       "key": "shove",
@@ -15400,7 +15855,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 15.765,
+    "occ": 14.221,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15409,13 +15864,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, ATs+, KJs+, K9s, QTs+, J9s+, T9s, KQo, 99:0.8, QQ:0.5, 77:0.5, AJo:0.5, AQo:0.4, TT:0.3, 66:0.3, AKo:0.2"
+      "range": ""
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "KK+, 88, KTs, AKo:0.8, TT:0.7, AQo:0.6, QQ:0.5, 77:0.5, AJo:0.5, A9s:0.4, KJo:0.3, 99:0.2"
+      "range": "77+, ATs+, KTs+, AJo+, QTs:0.6, KQo:0.3, JTs:0.2, 66:0.1"
      },
      {
       "key": "shove",
@@ -15438,7 +15893,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 13.761,
+    "occ": 12.864,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15453,7 +15908,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "88+, AJs+, KJs+, AQo+, KJo+:0.2, AJo:0.1"
+      "range": "77+, AJs+, KTs+, AJo+, JTs:0.6, QJs:0.2, KQo:0.1"
      },
      {
       "key": "shove",
@@ -15476,8 +15931,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 13.921,
-    "regret": 0.0001,
+    "occ": 12.937,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15485,13 +15940,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 66, ATs+, KJs+, K9s, QTs+, J9s+, T9s, KQo, AJo:0.7, TT:0.6, 99:0.3, KTs:0.3, 88:0.2, AQo:0.1"
+      "range": "QJs, ATs:0.9, KQs:0.6, TT-99:0.1, AJs:0.1, KJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 77, AKo, AQo:0.9, 88:0.8, 99:0.7, KTs:0.7, KJo:0.5, TT:0.4, AJo:0.3, A9s:0.2, ATo:0.2"
+      "range": "JJ+, 88-77, AQs+, KTs, AJo+, TT-99:0.9, AJs:0.9, KJs:0.9, QTs:0.6, KQo:0.5, KQs:0.4, JTs:0.3, 66:0.2, ATs:0.1"
      },
      {
       "key": "shove",
@@ -15514,8 +15969,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 14.114,
-    "regret": 0.0001,
+    "occ": 13.264,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15523,13 +15978,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, KJs+, K9s, QTs+, J9s+, T9s, KQo, AKs:0.9, JJ:0.8, 66:0.8, TT:0.6, A9s:0.5, 99:0.3, AQo:0.3, KJo:0.3, 88:0.2, KTs:0.2"
+      "range": ""
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 77, AKo, AJo, 88:0.8, KTs:0.8, 99:0.7, AQo:0.7, TT:0.4, KJo:0.3, JJ:0.2, 66:0.2, ATo:0.2, AKs:0.1"
+      "range": "66+, ATs+, KQs, ATo+, KJs:0.9, KQo:0.9, KTs:0.7, A9s:0.5"
      },
      {
       "key": "shove",
@@ -15552,8 +16007,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 12.811,
-    "regret": 0.0002,
+    "occ": 11.778,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15561,13 +16016,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 66, ATs+, KJs+, K9s, QTs+, J9s+, T9s, KQo, A9s:0.9, KTs:0.9, 98s:0.9, AJo:0.9, T8s:0.8, TT:0.7, 77:0.5, Q9s:0.4, KJo:0.3"
+      "range": "AJs-ATs, KJs+, QTs+, T9s, AQs:0.8, TT:0.6, KQo:0.6, 77:0.5, 98s:0.4, 99:0.3, 66:0.2, JTs:0.2, AJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AQo+, KJo:0.7, 77:0.5, ATo:0.4, TT:0.3, A9s:0.1, KTs:0.1, AJo:0.1"
+      "range": "JJ+, 88, AKs, KTs, AQo+, K9s:0.8, JTs:0.8, AJo:0.8, 99:0.7, 77:0.5, TT:0.4, KQo:0.4, AQs:0.2, KJo:0.1"
      },
      {
       "key": "shove",
@@ -15590,7 +16045,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 12.209,
+    "occ": 11.698,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15599,13 +16054,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-A9s, KJs+, K9s, QTs+, J9s+, T9s, KQo, T8s:0.9, 98s:0.9, JJ:0.8, TT:0.7, AKs:0.6, KTs:0.6, KJo:0.6, AJo:0.5, Q9s:0.4, 88:0.3, 99:0.2"
+      "range": "ATs, KJs, QJs, T9s, KQs:0.9, JTs:0.7, KQo:0.6, 66:0.5, TT:0.4, AJs:0.3, QTs:0.2, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 77, AQo+, 99:0.8, 88:0.7, AJo-ATo:0.5, AKs:0.4, KTs:0.4, KJo:0.4, TT:0.3, JJ:0.2"
+      "range": "JJ+, 88-77, AQs+, KTs, AJo+, 99:0.9, QTs:0.8, AJs:0.7, TT:0.6, K9s:0.6, 66:0.5, KQo:0.4, JTs:0.3, KQs:0.1"
      },
      {
       "key": "shove",
@@ -15628,7 +16083,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 12.359,
+    "occ": 11.848,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15637,13 +16092,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-A9s, KJs+, K9s, QTs+, J9s+, T9s, KQo, TT:0.8, 98s:0.8, 66:0.7, A8s:0.7, KTs:0.6, K8s:0.6, KJo:0.5, JJ:0.4, 99:0.4, T8s:0.2, AQo:0.2, AKs:0.1"
+      "range": "KJs, QJs, JTs:0.2, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AKo, AJo, AKs:0.9, AQo:0.8, JJ:0.6, 99:0.6, KJo:0.5, KTs:0.4, 66:0.3, ATo:0.3, TT:0.2"
+      "range": "TT+, 88-66, ATs+, KQs, KTs, AJo+, KQo, 99:0.9, ATo:0.8, A9s:0.7, JTs:0.3, 55:0.1, K9s:0.1"
      },
      {
       "key": "shove",
@@ -15666,8 +16121,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 13.06,
-    "regret": 0.0001,
+    "occ": 12.86,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15675,13 +16130,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, AQs-ATs, A8s, K9s+, QTs+, J9s+, T9s, KQo, A7s:0.9, T8s:0.9, A9s:0.8, KJo:0.8, 99:0.7, Q9s:0.6, K8s:0.5, 66:0.4, AQo:0.4, 55:0.3, JJ:0.2, QJo:0.1"
+      "range": "KJs:0.8, QJs:0.7, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AKs, AKo, AJo-ATo, JJ:0.8, 66:0.6, AQo:0.6, 55:0.5, K8s:0.5, 99:0.3, A9s:0.2, KJo:0.2"
+      "range": "99+, 77-55, A8s+, KQs, ATo+, KQo, 88:0.9, KTs:0.9, JTs:0.6, K9s:0.5, QJs:0.3, KJs:0.2, QTs:0.2"
      },
      {
       "key": "shove",
@@ -15704,8 +16159,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 11.045,
-    "regret": 0.0001,
+    "occ": 10.468,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15713,13 +16168,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-A8s, K8s+, Q9s+, J9s+, T8s+, 98s, KQo, JJ:0.8, TT:0.7, 77:0.6, A7s:0.6, K7s:0.6, KJo:0.6, AJo:0.5, AKs:0.3, 99:0.1"
+      "range": "66, AQs-A9s, KJs+, Q9s+, J9s+, T9s, 98s, KQo:0.7, TT:0.5, AJo:0.4, 99:0.3, 77:0.1, K9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88, AQo+, 99:0.9, AKs:0.7, ATo:0.7, AJo:0.5, 77:0.4, KJo:0.4, TT:0.3, JJ:0.2, K7s:0.1"
+      "range": "JJ+, 88, AKs, KTs, AQo+, 77:0.9, K9s:0.9, 99:0.7, AJo:0.6, TT:0.5, KJo+:0.3, T8s:0.1, ATo:0.1"
      },
      {
       "key": "shove",
@@ -15742,8 +16197,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 10.505,
-    "regret": 0,
+    "occ": 10.388,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -15751,13 +16206,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, 66, AQs-A7s, KJs+, K9s-K7s, Q9s+, J9s+, T8s+, 98s, KQo, 55:0.9, KTs:0.9, KJo:0.5, JJ:0.4, AJo:0.3, 99:0.2"
+      "range": "66, AJs-A9s, KJs+, K9s, Q9s+, J9s+, T9s, 98s, TT:0.8, KQo:0.8"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AKs, AQo+, 99:0.8, AJo:0.7, JJ:0.6, ATo:0.5, KJo:0.5, KTs:0.1"
+      "range": "JJ+, 99-77, AQs+, KTs, AJo+, KJo:0.5, TT:0.2, KQo:0.2, T8s:0.1, KTo:0.1"
      },
      {
       "key": "shove",
@@ -15777,25 +16232,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 10.654,
+    "occ": 10.511,
     "regret": 0.0001,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, 55, AQs-A7s, K7s+, Q9s+, J9s+, T8s+, 98s, KQo, QJo:0.9, 99:0.8, K6s:0.6, ATo:0.5, KJo:0.5, 66:0.3, AQo:0.2, JJ:0.1, A5s:0.1"
+      "range": "ATs, KJs, QTs+, JTs, T9s, 98s, KQs:0.6, KQo:0.6, 99:0.5, A8s:0.5, J9s:0.5, 66:0.2, AJs:0.1, Q9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AKs, AKo, AJo, JJ:0.9, AQo:0.8, 66:0.7, ATo:0.5, KJo:0.5, 99:0.2, QJo:0.1"
+      "range": "TT+, 88-77, AQs+, A9s, KTs-K9s, ATo+, AJs:0.9, 66:0.8, 55:0.7, 99:0.5, KQs:0.4, KQo:0.4"
      },
      {
       "key": "shove",
@@ -15815,25 +16270,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 11.037,
-    "regret": 0.0001,
-    "confidence": "low",
+    "occ": 11.258,
+    "regret": 0,
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-ATs, A7s-A5s, K7s+, Q9s+, J9s+, T8s+, 98s, KJo, QJo, TT:0.9, K6s:0.9, KQo:0.9, A8s:0.8, 55:0.6, AQo:0.5, Q8s:0.4, 88:0.1"
+      "range": "KJs, QJs, QTs:0.8, JTs:0.8, KTs:0.6, 88:0.2, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 77-66, AKs, A9s, AKo, AJo-ATo, 88:0.9, AQo:0.5, 55:0.4, KTo:0.4, A8s:0.2, TT:0.1, KQo:0.1"
+      "range": "99+, 77-55, A8s+, KQs, K9s, ATo+, KQo:0.9, 88:0.8, KTs:0.4, QTs-Q9s:0.2, JTs:0.2, J9s:0.1"
      },
      {
       "key": "shove",
@@ -15856,7 +16311,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 12.096,
+    "occ": 11.964,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -15865,13 +16320,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-AJs, A6s-A5s, K7s+, Q9s+, J9s+, T8s+, 98s, KJo, A7s:0.9, 88:0.8, ATs:0.8, KQo:0.8, A9s:0.7, K6s:0.7, A4s:0.6, QJo:0.6, AQo:0.5, TT:0.4, Q8s:0.3"
+      "range": "QJs:0.8, KJs:0.4, KTs:0.2, JTs:0.2, 77:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 77-55, AKs, A8s, AKo, AJo-ATo, TT:0.6, 44:0.5, AQo:0.5, QJo:0.4, A9s:0.3, KTo:0.3, 88:0.2, ATs:0.2, KQo:0.2, A7s:0.1"
+      "range": "88+, 66-55, A7s+, KQs, QTs, A9o+, KQo, 77:0.9, KTs:0.8, JTs:0.8, KJs:0.6, K9s:0.5, QJs:0.2, 44:0.1, A8o:0.1"
      },
      {
       "key": "shove",
@@ -15891,25 +16346,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 9.352,
+    "occ": 9.12,
     "regret": 0.0002,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, 66-55, AQs-A5s, K6s+, K4s, Q8s+, J9s+, T8s+, 97s+, 87s, KQo, QJo, KJo:0.7, K5s:0.5, ATo:0.5, 99:0.4, A4s:0.4, JJ:0.3, AJo:0.3, 77:0.2, 86s:0.1"
+      "range": "66, AJs-A9s, KJs+, K9s, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, KQo:0.9, 55:0.8, TT:0.6, A8s-A7s:0.6, KTs:0.5, AJo:0.5, AQs:0.4, Q8s:0.3, QJo:0.3, 77:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88, AKs, AQo+, 77:0.8, JJ:0.7, AJo:0.7, 99:0.6, ATo:0.5, KJo:0.3, KTo:0.2"
+      "range": "JJ+, 99-88, AKs, AQo+, 77:0.9, KJo:0.8, AQs:0.6, KTs:0.5, AJo:0.5, TT:0.4, A8s:0.4, KQo:0.1"
      },
      {
       "key": "shove",
@@ -15929,10 +16384,10 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 8.847,
+    "occ": 9.022,
     "regret": 0.0001,
     "confidence": "low",
     "move": 0,
@@ -15941,13 +16396,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AQs-A5s, K4s+, Q8s+, J9s+, T8s+, 97s+, 87s, KQo, QJo, TT:0.9, 66:0.9, KJo:0.9, 99:0.6, ATo:0.6, 86s:0.5, A4s:0.2, J8s:0.2"
+      "range": "TT, 66, AJs-A7s, K9s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, 65s, KQo, QJo, 55:0.9, K8s:0.9, KJo:0.9, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AKs, AJo+, KTo:0.5, 99:0.4, ATo:0.4, TT:0.1, 66:0.1, KJo:0.1, QTo:0.1"
+      "range": "JJ+, 88-77, AQs+, AJo+, 99:0.9, KTo:0.8, ATo:0.3, 55:0.1, KJo:0.1"
      },
      {
       "key": "shove",
@@ -15967,25 +16422,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 8.8,
+    "occ": 9.098,
     "regret": 0.0001,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-A4s, K4s+, Q8s+, J9s+, T8s+, 97s+, 87s, KJo+, QJo, 55:0.9, J8s:0.9, TT:0.8, ATo:0.5, 88:0.2, 66:0.1"
+      "range": "ATs, A8s-A7s, KJs-KTs, K8s, Q8s+, J8s+, T8s+, 97s+, 87s, 65s, KJo, QJo, 76s:0.8, KQs:0.7, KQo:0.7, 99:0.5, A9s:0.5, TT:0.4, 66-55:0.2, K9s:0.2, A5s:0.1, K7s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 77, AKs, AJo+, 66:0.9, 88:0.8, KTo:0.7, ATo:0.5, TT:0.2, 55:0.1"
+      "range": "JJ+, 88-77, AJs+, ATo+, 66-55:0.8, K9s:0.8, TT:0.6, 99:0.5, A9s:0.5, KTo:0.4, KQs:0.3, KQo:0.3"
      },
      {
       "key": "shove",
@@ -16005,25 +16460,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 8.994,
+    "occ": 9.788,
     "regret": 0.0001,
-    "confidence": "low",
+    "confidence": "mid",
     "move": 0,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AJs, A7s-A3s, K4s+, Q8s+, J8s+, T8s+, 97s+, 87s, KJo+, QJo, 88:0.9, 44:0.8, QTo:0.8, ATs:0.7, A8s:0.7, AQs:0.5, AQo:0.5, TT:0.2, A9s:0.1"
+      "range": "A7s, KJs-KTs, QTs+, Q8s, J9s+, T8s+, 98s, 87s, KJo, QJo, Q9s:0.8, 88:0.7, 97s:0.5, KQo:0.5, 99:0.1, A5s:0.1, K8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 77-55, AKs, AKo, AJo-ATo, A9s:0.9, TT:0.8, AQs:0.5, AQo:0.5, KTo:0.5, ATs:0.3, A8s:0.3, QTo:0.2, 88:0.1, 44:0.1"
+      "range": "TT+, 77-55, A8s+, KQs, K9s, ATo+, 99:0.9, A9o:0.7, K8s:0.6, KQo:0.5, KTo:0.4, 88:0.3, 44:0.2, Q9s:0.2"
      },
      {
       "key": "shove",
@@ -16046,7 +16501,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 9.821,
+    "occ": 10.27,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16055,13 +16510,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-77, AJs-ATs, A7s-A4s, KJs-K4s, Q8s+, J9s+, T8s+, 97s+, KJo, QJo, A9s:0.9, QTo:0.9, A3s:0.8, KQs:0.7, 99:0.6, KQo:0.6, KTo:0.6, J8s:0.5, JTo:0.5, AQo:0.4, A8s:0.3, 87s:0.2"
+      "range": "KJs-KTs, QTs+, J9s+, T9s, 98s, KJo, QJo, A5s:0.8, T8s:0.8, A6s:0.6, K9s:0.6, 77:0.5, 88:0.3, A7s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "TT+, 66-44, AQs+, AKo, AJo-A9o, A8s:0.7, AQo:0.6, 99:0.4, KQo:0.4, KTo:0.4, KQs:0.3, A3s:0.2, 33:0.1, A9s:0.1, QTo:0.1, JTo:0.1"
+      "range": "99+, 66-55, A8s+, KQs, Q9s, A9o+, KQo, A7s:0.9, 88:0.7, 44:0.6, 77:0.5, K8s:0.5, A6s:0.4, K9s:0.4, Q8s:0.3, JTo:0.1"
      },
      {
       "key": "shove",
@@ -16084,7 +16539,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 10.331,
+    "occ": 10.85,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16093,19 +16548,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, AJs-ATs, A7s, A4s, KJs-K6s, K4s, Q8s+, J9s, T8s+, 98s, KJo, QTo+, 66:0.9, JTs:0.9, 97s:0.9, A6s:0.8, A3s:0.8, KTo:0.8, 88:0.6, AJo:0.4, A5s:0.3"
+      "range": "K9s, JTs, 66:0.1, QJs:0.1, Q9s:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "99+, 55-33, AQs+, A9s-A8s, KQs, AQo, ATo-A8o, KQo, AKo:0.9, A5s:0.6, AJo:0.6, 88:0.3, A6s:0.2, A3s:0.2, KTo:0.2, 66:0.1"
+      "range": "77+, 55-44, A4s+, KTs+, QTs, A8o+, KJo+, 66:0.9, QJs:0.9, A3s:0.5, A7o:0.5, QJo:0.3, 33:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88:0.1, A5s:0.1, JTs:0.1, AKo:0.1"
+      "range": ""
      }
     ]
    },
@@ -16122,8 +16577,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 7.499,
-    "regret": 0.0003,
+    "occ": 7.642,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16131,19 +16586,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-33, AQs-A6s, A2s, K2s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, 77:0.9, AJo:0.9, A3s:0.7, ATo:0.7, A5s:0.6, JTo:0.6, 99:0.5, 88:0.3, 22:0.3, Q4s:0.2, 53s:0.2"
+      "range": "77-44, AJs-A4s, K6s+, Q7s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, AJo, KQo, QJo, K4s:0.9, 88:0.7, 74s:0.6, A3s:0.5, AQs:0.4, T6s:0.4"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, AQo, QQ:0.8, 88:0.7, AKo:0.6, 99:0.5, KTo:0.5, JTo:0.4, ATo:0.3, 77:0.1, 22:0.1, AJo:0.1"
+      "range": "99+, AKs, AQo+, KJo, AQs:0.6, 88:0.3, ATo:0.3, KTo:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, A4s, A5s:0.4, AKo:0.4, A3s:0.3, QQ:0.2"
+      "range": ""
      }
     ]
    },
@@ -16160,8 +16615,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 7.04,
-    "regret": 0.0001,
+    "occ": 7.331,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16169,19 +16624,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-33, AQs-A6s, A2s, K2s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, J9o, T9o, A5s:0.9, ATo:0.8, AJo:0.6, JTo:0.6, 99:0.4, 88:0.3, A4s-A3s:0.3"
+      "range": "77-44, AJs-A3s, K4s+, Q5s+, J7s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, KQo, QTo+, JTo, ATo:0.8, AQs:0.6, TT:0.5, 74s:0.5, AJo:0.5, 99:0.2, KJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, TT, AKs, AQo, 88:0.7, KTo:0.7, 99:0.6, AKo:0.6, AJo:0.4, JTo:0.4, ATo:0.2"
+      "range": "JJ+, 88, AKs, AQo+, KJo:0.9, 99:0.8, KTo:0.6, TT:0.5, AJo:0.5, AQs:0.4, ATo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, A4s-A3s:0.7, AKo:0.4, A5s:0.1"
+      "range": ""
      }
     ]
    },
@@ -16198,7 +16653,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 6.97,
+    "occ": 7.364,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16207,19 +16662,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, AQs-A6s, A4s, A2s, K2s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, ATo, KJo+, QTo+, J9o+, A5s:0.8, J6s:0.8, T9o:0.8, 99:0.6, 33:0.6, 88:0.5, AQo:0.3, KTo:0.2, A3s:0.1"
+      "range": "66-44, ATs-A3s, K4s+, Q5s+, J6s+, T6s+, 96s+, 85s+, 74s+, 64s+, 53s+, 43s, KQo, QTo+, AJs:0.9, 95s:0.9, ATo:0.9, KJo:0.8, J5s:0.7, JTo:0.7, 99:0.4, 63s:0.3, A2s:0.2, K3s:0.1, Q4s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 77, AKs, AJo, KTo:0.8, AQo+:0.7, TT:0.6, 88:0.5, 99:0.4, T9o:0.2"
+      "range": "TT+, 88-77, AQs+, AJo+, KTo, 99:0.6, JTo:0.3, KJo:0.2, AJs:0.1, ATo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, A3s:0.9, TT:0.4, 33:0.4, AKo:0.3, A5s:0.2"
+      "range": ""
      }
     ]
    },
@@ -16236,7 +16691,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 6.989,
+    "occ": 7.96,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16245,19 +16700,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, 44-33, ATs-A6s, A3s, KJs+, K9s-K2s, Q3s+, J5s+, T6s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, J9o+, Q2s:0.9, KTo:0.9, AJs:0.8, A5s:0.8, T9o:0.8, 88:0.7, A4s:0.7, 53s:0.5, 96s:0.4, ATo:0.3, K9o:0.3"
+      "range": "A9s-A6s, A4s-A3s, KJs-K4s, Q4s+, J5s+, T6s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, KJo+, QTo+, JTo, T9o, K3s:0.9, A5s:0.8, 88:0.5, 99:0.4, 44:0.4, ATs:0.4, KTo:0.2, ATo:0.1, J9o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 66-55, AQs+, AJo, AQo:0.9, ATo:0.7, K9o:0.7, JJ:0.6, 99:0.5, 88:0.3, AKo:0.3, A9o:0.3, AJs:0.2, T9o:0.2, KTo:0.1"
+      "range": "TT+, 77-55, AJs+, KQs, AJo+, ATo:0.9, A9o:0.8, KTo:0.8, 99:0.6, 44:0.6, ATs:0.6, 88:0.5, A5s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, A2s, KTs, AKo:0.7, 99:0.5, JJ:0.4, 22:0.3, A4s:0.3, A5s:0.2, AQo:0.1"
+      "range": ""
      }
     ]
    },
@@ -16274,7 +16729,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 7.472,
+    "occ": 8.357,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16283,19 +16738,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, ATs, A7s-A2s, KJs+, K9s-K2s, Q2s+, J4s+, T6s+, 97s+, 86s+, 75s+, 64s+, 54s, KTo+, QTo+, J9o+, T9o, 53s:0.9, K9o:0.9, 33:0.8, 96s:0.7, A8s:0.6, ATo:0.4, 77:0.3, A9s:0.1, KTs:0.1"
+      "range": "77, A9s-A3s, KJs-K3s, Q3s+, J4s+, T6s+, 95s+, 85s+, 75s+, 64s+, 53s+, 43s, KJo-KTo, QTo+, J9o+, T9o, T5s:0.9, 74s:0.9, KQo:0.9, K2s:0.8, Q2s:0.8, Q9o:0.8"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, 55-44, AJs+, AQo, A9o-A8o, AJo:0.9, 77:0.7, ATo:0.6, 88:0.5, K7o:0.4, AKo:0.3, 99:0.1, 33:0.1, A7o:0.1, K9o:0.1"
+      "range": "88+, 66-44, ATs+, A2s, KQs, A8o+, K9o:0.7, 33:0.3, Q9o:0.2, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, 22, 99:0.9, A9s:0.9, KTs:0.9, AKo:0.7, 88:0.5, A8s:0.4, 33:0.1, AJo:0.1"
+      "range": ""
      }
     ]
    },
@@ -16312,8 +16767,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 7.842,
-    "regret": 0.0002,
+    "occ": 8.849,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16321,19 +16776,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A9s, A7s-A6s, A3s-A2s, KJs, K9s-K2s, Q2s+, J9s-J4s, T6s+, 97s+, 86s+, 75s+, 64s+, 54s, ATo, KJo+, K9o-K8o, QTo+, J9o+, T9o, 96s:0.9, KTo:0.9, K7o:0.9, 55:0.8, A4s:0.7, Q9o:0.4, ATs:0.3, A8s:0.3, KTs:0.3, JTs:0.2"
+      "range": "KJs-K3s, Q4s+, J5s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, KJo, Q9o+, J9o+, T9o, KTo:0.8, A3s:0.6, 66:0.4, K9o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, 44, AJs+, A9o-A7o, TT:0.9, 66:0.9, AJo:0.8, ATs:0.7, 33:0.6, AQo:0.6, Q9o:0.6, KQs:0.4, AKo:0.4, A8s:0.3, A4s:0.3, 55:0.2, A5o:0.2, 77:0.1, A6o:0.1, KTo:0.1"
+      "range": "77+, 55-33, A4s+, A2s, KQs, A7o+, KQo, 66:0.6, A3s:0.4, 22:0.2, KTo:0.2, K9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99-88, 22, A5s, 77:0.9, JTs:0.8, KTs:0.7, KQs:0.6, AKo:0.6, 33:0.4, A8s:0.4, AQo:0.4, AJo:0.2, TT:0.1, 66:0.1"
+      "range": ""
      }
     ]
    },
@@ -16350,7 +16805,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2",
     "reachPct": 100,
-    "occ": 8.409,
+    "occ": 9.599,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -16359,19 +16814,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A8s-A7s, KJs, K9s-K2s, Q9s-Q3s, J9s-J5s, T8s-T7s, 97s+, 86s, 75s+, 65s, KJo-K7o, Q9o+, J9o+, T9o, QJs:0.9, Q2s:0.9, 87s:0.7, QTs:0.5, ATo:0.5, A9s:0.4, T6s:0.4, A9o:0.2, A6s:0.1"
+      "range": "K9s-K3s, Q4s+, J5s+, T6s+, 96s+, 86s+, 76s, 65s, KTo-K9o, QTo-Q8o, J9o+, T9o, K8o:0.9, Q3s:0.6, QJo:0.4, K2s:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, ATs+, A3s-A2s, KQs, A8o-A5o, A6s-A4s:0.9, TT:0.8, A9o:0.8, A9s:0.6, AQo:0.5, ATo:0.5, 77:0.4, 99:0.3, 44:0.3, 55:0.2, AJo:0.2, 88:0.1, AKo:0.1, A4o:0.1"
+      "range": "22+, A2s+, KTs+, A4o+, KJo+, QJo:0.6"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "66, 33-22, KTs, JTs, T9s, KQo, 88:0.9, AKo:0.9, 55:0.8, AJo:0.8, 99:0.7, 44:0.7, 77:0.6, QTs:0.5, AQo:0.5, 87s:0.3, TT:0.2, A5s-A4s:0.1, QJs:0.1"
+      "range": ""
      }
     ]
    },
@@ -16388,8 +16843,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 5.391,
-    "regret": 0.0003,
+    "occ": 5.781,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16397,19 +16852,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AQs-A5s, A3s-A2s, K2s+, Q2s+, J2s+, T4s+, 95s+, 84s+, 74s+, 63s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, K9o, QTo+, J9o, T8o+, 98o, 88:0.9, A6o:0.9, A5o:0.8, JTo:0.8, A7o:0.7, KTo:0.5, T3s:0.4, A4s:0.3, K8o:0.2, AQo:0.1"
+      "range": "88-22, AQs-A6s, A3s-A2s, K2s+, Q4s+, J5s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QJo, 98o, 87o, 76o, 65o, 54o, 99:0.9, QTo:0.8, JTo:0.7, A7o:0.6, T9o:0.5, A5s:0.4, Q3s:0.4, A4s:0.3, AQo:0.3, KTo:0.3, Q2s:0.1, J4s:0.1, T3s:0.1, A5o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, TT-99, AKs, AQo:0.9, QQ:0.8, AKo:0.6, KTo:0.5, A7o:0.3, Q9o:0.3, JTo:0.2, JJ:0.1, 88:0.1, A5o-A4o:0.1"
+      "range": "KK+, JJ-TT, AKs, AQo:0.7, KTo:0.7, AKo:0.6, JTo:0.3, QTo:0.2, 99:0.1, A7o:0.1, T9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ:0.9, A4s:0.7, AKo:0.4, QQ:0.2, A5o-A4o:0.1"
+      "range": "QQ, A4s:0.7, A5s:0.6, AKo:0.4"
      }
     ]
    },
@@ -16426,8 +16881,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 4.941,
-    "regret": 0.0002,
+    "occ": 5.258,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16435,19 +16890,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AQs-A2s, K2s+, Q2s+, J2s+, T2s+, 93s+, 84s+, 73s+, 63s+, 52s+, 42s+, 32s, AJo-A8o, A6o, A4o, KJo+, K9o-K8o, QTo+, J9o, T8o+, 98o, 87o, A7o:0.9, A5o:0.9, KTo:0.7, JTo:0.7, 97o:0.7, 88:0.6, K7o:0.6, A3o:0.2, 76o:0.2"
+      "range": "88-22, AQs-A6s, A3s-A2s, K2s+, Q2s+, J3s+, T3s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, A6o-A5o, KJo+, K9o, QTo+, T9o, 98o, 87o, 76o, 65o, 54o, A7o:0.8, T2s:0.7, A4o:0.6, A5s:0.4, JTo:0.4, 99:0.3, KTo:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AKs, AQo, AKo:0.6, 88:0.4, A3o:0.3, KTo:0.3, K7o:0.3, JTo:0.3, Q9o:0.2, A7o:0.1"
+      "range": "KK+, TT, AKs, AQo, 99:0.7, KTo:0.7, AKo:0.6, JTo:0.6, QQ-JJ:0.5, A7o:0.2, J9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, AKo:0.4, A3o:0.4, A5o:0.1"
+      "range": "A4s, A5s:0.6, QQ-JJ:0.5, AKo:0.4"
      }
     ]
    },
@@ -16464,8 +16919,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 4.849,
-    "regret": 0.0003,
+    "occ": 5.167,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16473,19 +16928,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AJs-A2s, K2s+, Q2s+, J9s-J2s, T2s+, 92s+, 84s+, 73s+, 63s+, 52s+, 42s+, 32s, ATo-A4o, KJo+, K9o-K6o, QTo+, J9o, T8o, 97o+, 87o, 76o, A2o:0.9, JTo:0.8, 62s:0.7, AJo:0.7, KTo:0.7, T9o:0.7, JTs:0.6, 83s:0.6, K5o:0.6, Q9o:0.6, 82s:0.4, A3o:0.4, 65o:0.4, 86o:0.3, AQs:0.2"
+      "range": "77-22, AJs-A5s, A3s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A6o, A3o-A2o, KQo, KTo-K9o, Q9o+, T9o, 98o, 87o, 76o, 65o, 54o, A5o-A4o:0.9, KJo:0.9, AQs:0.8, J9o:0.8, 88:0.7, JTo:0.5"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AKs, AQo, AQs:0.8, JJ:0.4, Q9o:0.4, AJo:0.3, KTo:0.3, T9o:0.3, AKo:0.2, A3o-A2o:0.1, JTo:0.1"
+      "range": "QQ+, TT-99, AKs, AQo, K8o:0.7, AKo:0.6, JTo:0.5, 88:0.3, AQs:0.2, J9o:0.2, JJ:0.1, A5o:0.1, KJo:0.1, K7o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, AKo:0.8, JJ:0.6, A3o:0.5, JTs:0.4, JTo:0.1"
+      "range": "A4s, JJ:0.9, AKo:0.4, A4o:0.1"
      }
     ]
    },
@@ -16502,7 +16957,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 4.648,
+    "occ": 5.39,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -16511,19 +16966,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-33, ATs-A2s, KJs+, K9s-K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, ATo-A7o, A4o-A3o, KJo+, K9o-K7o, K4o, QTo+, J9o, T8o, 97o+, 86o+, 75o+, 65o, 54o, KTs:0.9, A6o:0.9, K6o:0.9, Q9o:0.9, K5o:0.8, K3o:0.8, JTo:0.8, 22:0.7, JTs:0.7, A5o:0.7, KTo:0.7, Q8o:0.7, AJs:0.6, 72s:0.6, A2o:0.6, T9o:0.3, K2o:0.1"
+      "range": "66-44, 22, AJs-A5s, A2s, K4s+, K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A6o, A4o, A2o, K8o+, Q9o+, J9o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, 77:0.9, AJo:0.9, A5o:0.9, A3o:0.9, Q8o:0.9, T8o:0.9, K3s:0.8, T9o:0.8, 33:0.6, A3s:0.6, A4s:0.3, K7o:0.2, J8o:0.2, JTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 88-77, AQs+, AQo-AJo, 99:0.7, T9o:0.7, AJs:0.4, JJ:0.3, A5o:0.3, K5o:0.2, A6o:0.1, KTo:0.1, K6o:0.1, Q9o-Q8o:0.1"
+      "range": "QQ+, 99-88, AQs+, AQo, K7o:0.8, AKo:0.4, JJ:0.2, T9o:0.2, TT:0.1, 77:0.1, AJo:0.1, A5o:0.1, A3o:0.1, K6o:0.1, T8o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, AKo, JJ:0.7, A2o:0.4, 99:0.3, 22:0.3, JTs:0.3, KTo:0.2, JTo:0.2, KTs:0.1"
+      "range": "TT:0.9, JTs:0.9, JJ:0.8, A4s:0.7, AKo:0.6, 33:0.4, A3s:0.4, K3s:0.2"
      }
     ]
    },
@@ -16540,7 +16995,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 4.758,
+    "occ": 5.243,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -16549,19 +17004,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-33, A9s-A5s, A3s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A8o, A6o, A4o, A2o, K8o+, K6o-K2o, QTo, Q8o-Q7o, J9o, T8o+, 97o+, 86o+, 75o+, 64o+, 54o, A3o:0.9, K7o:0.9, QJo:0.9, JTo:0.8, Q9o:0.7, A4s:0.6, 55:0.5, A5o:0.5, 22:0.4, Q6o:0.4, 53o:0.3, ATs:0.2, A7o:0.1"
+      "range": "55-44, 22, ATs-A5s, A2s, K7s+, K5s-K4s, K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A6o, A4o-A2o, K7o+, Q9o+, JTo, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, K6o:0.9, Q8o:0.9, J9o-J8o:0.9, K6s:0.8, K3s:0.6, 96o:0.6, 33:0.5, A3s:0.4, K5o:0.3, A4s:0.2, 66:0.1, A5o:0.1, K4o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, JJ, 77-66, AJs+, AJo, A7o:0.9, QQ:0.8, ATs:0.8, J8o:0.7, AQo:0.6, 55:0.5, Q9o:0.3, Q6o:0.2, 88:0.1, K7o:0.1"
+      "range": "QQ+, 77, AJs+, AQo-AJo, 88:0.9, 66:0.9, A5o:0.9, K5o:0.7, JJ:0.6, TT:0.1, AKo:0.1, K6o:0.1, Q8o:0.1, J9o-J8o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT-99, AKo, 88:0.9, 22:0.6, A5o:0.5, A4s:0.4, AQo:0.4, J8o:0.3, QQ:0.2, JTo:0.2, A3o:0.1, QJo:0.1"
+      "range": "99, JTs, TT:0.9, AKo:0.9, A4s:0.8, A3s:0.6, 33:0.5, JJ:0.4, K3s:0.4, K6s:0.2, 88:0.1"
      }
     ]
    },
@@ -16578,8 +17033,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 4.736,
-    "regret": 0.0001,
+    "occ": 5.707,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16587,19 +17042,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, A8s-A6s, A3s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A2o, K6o+, K4o-K2o, QTo-Q9o, Q7o, Q4o, J9o, T8o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, 33:0.9, A4s:0.9, A8o:0.9, K5o:0.9, QJo:0.9, Q8o:0.9, JTo:0.9, A9o:0.8, Q5o:0.8, Q6o:0.7, J7o:0.7, A7o:0.6, A9s:0.5, A6o:0.5, A3o:0.5, A4o:0.4"
+      "range": "44, A9s-A6s, A2s, KJs, K9s, K6s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A3o-A2o, K8o+, K6o, K3o-K2o, Q7o+, J7o+, T7o+, 96o+, 85o+, 74o+, 63o+, 52o+, 42o+, 32o, A3s:0.9, KTs:0.9, K8s:0.9, QTs:0.9, A6o:0.9, A4o:0.9, K7o:0.9, A8o:0.8, Q5o:0.8, K5o-K4o:0.7, Q6o:0.7, K7s:0.6, 33:0.5, A4s:0.4, T6o:0.3, A7o:0.2, A5o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, 55, ATs+, ATo, JJ:0.8, A4o:0.6, A9s:0.5, A6o:0.5, A7o:0.4, Q6o:0.3, 66:0.2, AJo:0.2, A9o:0.2, Q5o:0.2, QQ:0.1, 88:0.1, A8o:0.1, K5o:0.1, Q8o:0.1"
+      "range": "JJ+, 55, ATs+, AJo-ATo, 66:0.8, A7o:0.8, A5o:0.8, AQo:0.6, TT:0.5, K5o-K4o:0.3, Q6o:0.3, 99:0.2, AKo:0.2, A8o:0.2, Q5o:0.2, A6o:0.1, A4o:0.1, K7o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT-99, 77, 22, A5s, AQo+, A5o, J8o, QQ:0.9, 88:0.9, 66:0.8, AJo:0.8, A3o:0.5, JJ:0.2, 33:0.1, A4s:0.1, QJo:0.1, JTo:0.1"
+      "range": "88-77, 22, A5s, KQs, JTs, 99:0.8, AKo:0.8, A4s:0.6, TT:0.5, 33:0.5, K7s:0.4, AQo:0.4, 66:0.2, A3s:0.1, KTs:0.1, K8s:0.1, QTs:0.1"
      }
     ]
    },
@@ -16616,8 +17071,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2",
     "reachPct": 100,
-    "occ": 5.06,
-    "regret": 0.0001,
+    "occ": 5.742,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16625,19 +17080,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A6s, KJs-K2s, Q2s+, J9s+, J7s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o, KJo-K2o, QTo-Q6o, Q3o-Q2o, J9o, J7o-J6o, T8o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, A2s:0.9, Q5o-Q4o:0.9, A3s:0.8, T7o:0.8, J8s:0.7, A6o:0.7, J5o:0.7, T6o:0.7, A3o:0.6, KQo:0.5, QJo:0.3"
+      "range": "A6s, A2s, KJs-K7s, K5s-K2s, Q2s+, J9s-J2s, T7s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o-A6o, KJo-K6o, K4o, K2o, QTo-Q7o, Q5o, Q3o-Q2o, J9o-J7o, J5o, T8o-T6o, 97o-95o, 84o+, 74o+, 63o+, 52o+, 42o+, 32o, K3o:0.9, QJo:0.9, Q4o:0.9, J4o:0.9, T9o:0.9, 98o:0.9, Q6o:0.8, J6o:0.8, A3s:0.7, K5o:0.7, K6s:0.6, JTs:0.6, A8o:0.6, T5o:0.6, A3o:0.4, JTo:0.4, A7s:0.3, A4o:0.3, A2o:0.3, T8s:0.2, T9s:0.1, A5o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, AQs+, ATs-A7s, KQs, A9o-A8o, A2o, A3o:0.4, J5o:0.3, 44:0.2, AKo:0.1, A6o:0.1, Q5o-Q4o:0.1, T6o:0.1"
+      "range": "QQ+, A8s+, A9o, A7s:0.7, A5s:0.7, A4o:0.7, A2o:0.7, JJ:0.6, ATo:0.6, A3o:0.6, A8o:0.4, 44:0.3, AKo:0.3, K5o:0.3, Q6o:0.2, J6o:0.2, 99:0.1, 55:0.1, K3o:0.1, Q4o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-55, 33-22, AJs, A5s-A4s, AQo-ATo, A5o-A4o, JTo, J8o, AKo:0.9, 44:0.8, QJo:0.7, KQo:0.5, J8s:0.3, A3s:0.2, A6o:0.2, T7o:0.2, A2s:0.1"
+      "range": "TT, 88-66, 33-22, A4s, KQs, AQo-AJo, KQo, 99:0.9, 55:0.9, T9s:0.9, A5o:0.9, T8s:0.8, 44:0.7, AKo:0.7, JTo:0.6, JJ:0.4, K6s:0.4, JTs:0.4, ATo:0.4, A5s:0.3, A3s:0.3, QJo:0.1, T9o:0.1, 98o:0.1"
      }
     ]
    },
@@ -16654,7 +17109,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "SB 오픈 2.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 2.5",
     "reachPct": 100,
-    "occ": 2.722,
+    "occ": 3.085,
     "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
@@ -16663,19 +17118,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A6s, A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K3o+, QTo-Q4o, J9o-J5o, T8o+, 96o+, 86o+, 75o+, 64o+, 53o+, 42o+, 77:0.9, Q3o:0.9, 95o:0.9, KQs:0.8, K2o:0.8, QJo:0.8, T6o:0.8, T7o:0.7, A7s:0.6, 32o:0.6, 55:0.5, T5o:0.5, JTo:0.4, 66:0.3, A7o:0.3, J4o:0.2, A6o:0.1, Q2o:0.1, 85o:0.1"
+      "range": "99-44, 22, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K4o, Q4o+, Q2o, J6o+, J4o, T6o+, T4o, 95o+, 84o+, 74o+, 63o+, 52o+, 42o+, 32o, A7o:0.9, KJo:0.9, J2o:0.8, 33:0.7, A7s:0.7, J5o:0.7, 94o:0.7, K3o-K2o:0.6, Q3o:0.6, J3o:0.5, T5o:0.5, T3o:0.5, A6s:0.4, KQo:0.2, 93o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 7.5bb",
       "color": "raise",
-      "range": "TT+, A8s+, A5s, AQo+, A3o-A2o, A6o:0.9, Q2o:0.9, A9o:0.7, A7o:0.7, A4s:0.6, A7s:0.4, J3o:0.4, T5o:0.4, 99:0.3, J4o:0.3, KQs:0.2, A4o:0.2, K2o:0.2, T4o:0.2, AJo:0.1, Q3o:0.1"
+      "range": "TT+, ATs+, A8s, A5s, KQs, AKo, A6o, A2o, A9s:0.9, AQo:0.8, A4o:0.8, KQo:0.8, A3o:0.7, A6s:0.6, T5o:0.5, K3o-K2o:0.4, Q3o:0.4, A7s:0.3, A4s:0.3, A8o:0.2, J3o-J2o:0.2, A7o:0.1, A5o:0.1, KJo:0.1, T3o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88, A3s, ATo, A8o, A5o, AJo:0.9, A4o:0.8, 99:0.7, 66:0.7, JTo:0.6, 55:0.5, A4s:0.4, A9o:0.3, T7o:0.3, QJo:0.2, T6o:0.2, 77:0.1"
+      "range": "A3s-A2s, AJo-A9o, A5o:0.9, A8o:0.8, A4s:0.7, 33:0.3, A3o:0.3, J5o:0.3, J3o:0.3, AQo:0.2, A4o:0.2, A9s:0.1"
      }
     ]
    },
@@ -16694,9 +17149,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.576,
-    "regret": 0.0011,
+    "reachPct": 15.4,
+    "occ": 1.297,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16704,13 +17159,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs+, JTs, AQo, AKo:0.9, 66:0.6, 55:0.3, ATs:0.3, KTs:0.2, AJo:0.1"
+      "range": "TT-77, AQs-ATs, AQo, AJo:0.8, 66:0.7, JTs:0.5, QTs:0.3, KQs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s, ATs:0.7, 66:0.4, 55:0.1, KTs:0.1, AKo:0.1"
+      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, KQs:0.9, 66:0.3"
      }
     ]
    },
@@ -16729,9 +17184,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.595,
-    "regret": 0.0035,
+    "reachPct": 15.4,
+    "occ": 1.188,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16739,13 +17194,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-AJs, KJs+, AQo, JJ:0.9, 66-55:0.9, ATs:0.7, QQ:0.6, JTs:0.3, AKo:0.2, AKs:0.1, AJo:0.1"
+      "range": "TT-77, AQs-ATs, AQo, AJo:0.8, 66:0.7, JTs:0.4, QTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, AKs:0.9, AKo:0.8, QQ:0.4, KTs:0.4, ATs:0.3, JJ:0.1, 66-55:0.1, A9s:0.1"
+      "range": "JJ+, AKs, KTs+, QJs, AKo, 66:0.3"
      }
     ]
    },
@@ -16764,9 +17219,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.801,
-    "regret": 0.0009,
+    "reachPct": 15.4,
+    "occ": 1.086,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16774,13 +17229,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs, AQo, 66:0.8, 55:0.7, AJs:0.7, KQs:0.7, ATs:0.4"
+      "range": "TT-77, AQs-ATs, AQo, AJo:0.8, 66:0.7, QTs:0.7, JTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A5s, KJs, AKo, ATs:0.6, 55:0.3, AJs:0.3, KQs:0.3, 66:0.2"
+      "range": "JJ+, AKs, KTs+, QJs, AKo, 66:0.3"
      }
     ]
    },
@@ -16799,9 +17254,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.611,
-    "regret": 0.0008,
+    "reachPct": 15.4,
+    "occ": 0.847,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16809,13 +17264,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-AJs, KJs+, JTs, AQo, 66-55:0.9, ATs:0.7, T9s:0.7, AJo:0.5"
+      "range": "TT-77, AQs-AJs, AQo, ATs:0.9, KQs:0.9, 66:0.7, A9s:0.6, KJs:0.3, JJ:0.2, JTs:0.2, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s, KTs, AKo, ATs:0.3, 66-55:0.1"
+      "range": "QQ+, AKs, KTs, QJs, AKo, JJ:0.8, KJs:0.7, QTs:0.4, JTs:0.4, 66:0.3, A9s:0.2, ATs:0.1, KQs:0.1"
      }
     ]
    },
@@ -16834,8 +17289,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.595,
+    "reachPct": 15.4,
+    "occ": 0.739,
     "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
@@ -16844,13 +17299,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-AJs, KJs, AQo, ATs:0.9, JTs:0.9, T9s:0.9, 55:0.8, AJo:0.7, KQs:0.6, QJs:0.1"
+      "range": "TT-77, AQs-AJs, KQs, AQo, 66:0.8, KJs:0.7, JJ:0.5, A9s:0.5, AJo:0.4, ATs:0.3, JTs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, AKo, A5s:0.8, KQs:0.4, 55:0.2, ATs:0.1"
+      "range": "QQ+, AKs, KTs, QJs, AKo, ATs:0.7, JJ:0.5, QTs:0.4, KJs:0.3, 66:0.2"
      }
     ]
    },
@@ -16869,9 +17324,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.564,
-    "regret": 0.0017,
+    "reachPct": 15.4,
+    "occ": 0.651,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16879,13 +17334,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs, AQo, T9s:0.9, JTs:0.6, AJo:0.6, 98s:0.4, KQs:0.3, QJs:0.3, QTs:0.1"
+      "range": "TT-77, AQs-AJs, KJs+, AQo, 66:0.9, JJ:0.8, ATs:0.7, AJo:0.5, A9s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, AKo, A5s:0.9, KQs:0.7, QJs:0.6, A9s:0.1"
+      "range": "QQ+, AKs, KTs, QJs, AKo, QTs:0.6, ATs:0.3, JJ:0.2, 66:0.1"
      }
     ]
    },
@@ -16904,9 +17359,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.371,
-    "regret": 0.0025,
+    "reachPct": 15.4,
+    "occ": 0.502,
+    "regret": 0.001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16914,42 +17369,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, ATs, KJs, AQo, 77:0.8, 66:0.7, AJs:0.7, AKs:0.6, 55:0.4, QJs:0.4, AKo:0.4, JJ:0.3, KQs:0.2, QQ:0.1"
+      "range": "TT-88, AQs-ATs, KQs, AQo, JJ:0.9, 77:0.9, AKo:0.4, 66:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, QQ:0.9, KQs:0.8, JJ:0.7, A7s:0.6, AKo:0.6, AKs:0.4, AJs:0.3, QJs:0.2, 66-55:0.1, KTs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "utg-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "UTG",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "UTG vs SB 올인",
-    "title": "UTG 오픈 후 vs SB 3벳 올인",
-    "description": "UTG 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · SB 올인",
-    "reachFrom": [
-     "rfi-utg:open"
-    ],
-    "reachPct": 17.5,
-    "occ": 0.112,
-    "regret": 0.0013,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "TT+, AQs+, AKo, 99:0.7, AJs:0.5, 77:0.1, AQo:0.1"
+      "range": "QQ+, AKs, QJs, KJs:0.7, AKo:0.6, 66:0.2, JJ:0.1"
      }
     ]
    },
@@ -16968,9 +17394,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 17.5,
-    "occ": 0.288,
-    "regret": 0.0058,
+    "reachPct": 15.4,
+    "occ": 0.273,
+    "regret": 0.0027,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -16978,13 +17404,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, AQs, ATs, KJs+, AQo, 66:0.9, AJs:0.9, 77:0.8, JJ:0.6, KTs:0.5, QJs:0.5, A9s:0.4, 55:0.3, AKs:0.3, AJo:0.3, AKo:0.2, QQ:0.1"
+      "range": "TT-77, AQs-ATs, KJs+, AQo, JJ:0.9, 66:0.6, AKo:0.3, QJs:0.2, KJo:0.2, QQ:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, QQ:0.9, A5s:0.9, AKo:0.8, AKs:0.7, QJs:0.5, JJ:0.4, KTs:0.4, A8s:0.2, 66:0.1, AJs:0.1, A7s:0.1"
+      "range": "KK+, AKs, QQ:0.9, AKo:0.7, 66:0.3, JJ:0.1, A8s-A7s:0.1"
      }
     ]
    },
@@ -17003,9 +17429,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.62,
-    "regret": 0.0005,
+    "reachPct": 16.8,
+    "occ": 1.284,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17013,13 +17439,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-AJs, KJs+, AQo, T9s:0.9, ATs:0.8, JTs:0.6, 44:0.5, QTs:0.4, AJo:0.3, AKo:0.1"
+      "range": "99-77, AJs-ATs, AQo-AJo, 66:0.7, JTs:0.5, KQo:0.3, KQs:0.2, A9s:0.1, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s, KTs, AKo:0.9, ATs:0.2"
+      "range": "TT+, 55, AQs+, KJs-KTs, AKo, A5s:0.9, KQs:0.8, QJs:0.8, 66:0.3"
      }
     ]
    },
@@ -17038,9 +17464,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.652,
-    "regret": 0.0018,
+    "reachPct": 16.8,
+    "occ": 1.127,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17048,13 +17474,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-AJs, KJs+, AQo, JJ-TT:0.9, JTs:0.9, 44:0.8, ATs:0.8, T9s:0.8, QTs:0.4, AJo:0.3"
+      "range": "99-77, AJs, JTs, AQo-AJo, ATs:0.9, 66:0.8, AQs:0.8, TT:0.5, A9s:0.5, KQo:0.5, KQs:0.4, QTs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, AKo, A5s:0.8, A9s:0.3, ATs:0.2, JJ-TT:0.1"
+      "range": "JJ+, 55, AKs, A5s, KJs-KTs, QJs, AKo, KQs:0.6, TT:0.5, 66:0.2, AQs:0.2, ATs:0.1"
      }
     ]
    },
@@ -17073,9 +17499,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.631,
-    "regret": 0.0019,
+    "reachPct": 16.8,
+    "occ": 0.981,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17083,13 +17509,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-AJs, KJs, T9s, AQo, KQs:0.9, JTs:0.9, JJ:0.8, QTs:0.8, AJo:0.7, ATs:0.4, QJs:0.1"
+      "range": "99-66, AQs, ATs, KQs, AQo-AJo, TT:0.9, JTs:0.9, AJs:0.7, A9s:0.6, QTs:0.3, KTs:0.1, T9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, AKo, ATs:0.6, A5s:0.6, A9s:0.3, JJ:0.2, KQs:0.1, QJs:0.1"
+      "range": "JJ+, 55, AKs, KJs, QJs, AKo, A5s:0.9, KTs:0.9, QTs:0.7, AJs:0.3, TT:0.1, JTs:0.1"
      }
     ]
    },
@@ -17108,9 +17534,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.619,
-    "regret": 0.0008,
+    "reachPct": 16.8,
+    "occ": 0.8,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17118,13 +17544,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-AJs, KJs, QTs, JTs, T9s, AQo, ATs:0.8, AJo:0.8, 98s:0.7, KQs:0.5"
+      "range": "TT-66, AQs-AJs, KJs+, AQo, AJo:0.9, ATs:0.6, JTs:0.6, T9s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, AKo, QJs:0.9, KQs:0.5, A9s:0.4, ATs:0.2"
+      "range": "JJ+, 55, AKs, KTs, QTs+, AKo, A5s:0.7, ATs:0.4, JTs:0.1"
      }
     ]
    },
@@ -17143,9 +17569,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.57,
-    "regret": 0.0019,
+    "reachPct": 16.8,
+    "occ": 0.689,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17153,13 +17579,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-ATs, KJs, AQo, T9s:0.9, 98s:0.9, AJo:0.9, JJ:0.8, QTs:0.7, JTs:0.6, KTs:0.4, J9s:0.3, KQs:0.1, AKo:0.1"
+      "range": "TT-66, AQs-ATs, KJs, AQo-AJo, KQs:0.9, JJ:0.4, 55:0.4, T9s:0.3, JTs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, QJs, KQs:0.9, AKo:0.9, A9s:0.8, KTs:0.6, A5s:0.4, JJ:0.2"
+      "range": "QQ+, AKs, KTs, QTs+, AKo, JJ:0.6, 55:0.6, A9s:0.4, A5s:0.1, KQs:0.1"
      }
     ]
    },
@@ -17178,9 +17604,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.385,
-    "regret": 0.0008,
+    "reachPct": 16.8,
+    "occ": 0.511,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17188,13 +17614,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-ATs, KJs+, AQo, AKo:0.2, QJs:0.1"
+      "range": "TT-77, AQs-ATs, KQs, AQo, 66:0.9, KJs:0.7, 55:0.3, AJo:0.2, JJ:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A5s, QJs:0.9, AKo:0.8, KTs:0.7, A9s:0.2"
+      "range": "QQ+, AKs, A5s, QJs, JJ:0.9, AKo:0.9, 55:0.7, KJs:0.3, QTs:0.2, 66:0.1"
      }
     ]
    },
@@ -17213,9 +17639,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 19.1,
-    "occ": 0.274,
-    "regret": 0.0035,
+    "reachPct": 16.8,
+    "occ": 0.278,
+    "regret": 0.0025,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17223,13 +17649,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs, ATs, KJs, QJs, AQo, AJs:0.8, KQs:0.8, KTs:0.8, 55:0.7, A9s:0.7, AJo:0.5, AKo:0.1"
+      "range": "TT-66, AQs, ATs, KJs+, AQo, JJ:0.9, AJs:0.9, KTs:0.8, 55:0.5, AKo:0.3, A9s:0.1, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A5s:0.9, AKo:0.9, AJs:0.2, A6s:0.2, KQs:0.2, KTs:0.2"
+      "range": "QQ+, AKs, A5s, QJs:0.8, AKo:0.7, A8s:0.4, JJ:0.1, 55:0.1, AJs:0.1"
      }
     ]
    },
@@ -17248,9 +17674,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.706,
-    "regret": 0.0007,
+    "reachPct": 18.8,
+    "occ": 1.416,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17258,13 +17684,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-AJs, KJs+, JTs, T9s, AQo, 44:0.9, QTs:0.9, AJo:0.8, JJ:0.6"
+      "range": "88-66, AJs-A9s, JTs, T9s, 98s, AQo-AJo, KQo, 99:0.9, KQs:0.6, ATo:0.5, AQs:0.3, 55:0.2, A8s:0.2, J9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, ATs, KTs, AKo, A9s:0.8, JJ:0.4, A5s:0.4, QJs:0.2, QTs:0.1"
+      "range": "TT+, AKs, KJs-KTs, QJs, AKo, 55:0.8, AQs:0.7, KQs:0.4, QTs:0.3, 99:0.1"
      }
     ]
    },
@@ -17283,9 +17709,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.705,
-    "regret": 0.0027,
+    "reachPct": 18.8,
+    "occ": 1.244,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17293,13 +17719,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-AJs, QTs, T9s, AQo-AJo, KJs+:0.9, JTs:0.9, JJ:0.8, TT:0.7, ATs:0.5, 98s:0.5"
+      "range": "99-66, AJs-A9s, JTs, T9s, 98s, AQo-AJo, KQo, AQs:0.7, QTs:0.6, ATo:0.4, J9s:0.3, KQs:0.2, 55:0.1, A8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, QJs, AKo, A9s:0.6, ATs:0.5, TT:0.3, A5s:0.3, JJ:0.2, A4s:0.1, KJs+:0.1"
+      "range": "TT+, AKs, KJs-KTs, QJs, AKo, 55:0.9, KQs:0.8, AQs:0.3"
      }
     ]
    },
@@ -17318,9 +17744,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.657,
-    "regret": 0.0005,
+    "reachPct": 18.8,
+    "occ": 1.043,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17328,13 +17754,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-ATs, KJs, JTs, T9s, 98s, AQo-AJo, TT:0.9, QTs:0.9, JJ:0.6, KQs:0.5"
+      "range": "99-66, AJs-A9s, QTs, JTs, T9s, 98s, AQo-AJo, KQo, AQs:0.7, J9s:0.5, 55:0.3, TT:0.2, KQs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A9s, KTs, QJs, AKo, Q9s:0.7, KQs:0.5, JJ:0.4, TT:0.1, QTs:0.1"
+      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, TT:0.8, KQs:0.8, 55:0.7, AQs:0.3"
      }
     ]
    },
@@ -17353,9 +17779,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.587,
-    "regret": 0.0004,
+    "reachPct": 18.8,
+    "occ": 0.867,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17363,13 +17789,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-ATs, KJs, QTs, J9s+, T9s, 98s, AQo-AJo, KTs:0.8, JJ:0.3, KQs:0.3, KQo:0.2, 97s:0.1"
+      "range": "99-66, AQs-ATs, J9s+, T9s, 98s, AQo-AJo, KQo, TT:0.7, 55:0.5, QTs:0.5, A9s:0.4, KJs:0.4, KQs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A9s, QJs, AKo, JJ:0.7, KQs:0.7, Q9s:0.4, A8s:0.3, A5s-A4s:0.3, KTs:0.2, K9s:0.1"
+      "range": "JJ+, AKs, KTs, QJs, AKo, KQs:0.9, KJs:0.6, 55:0.5, QTs:0.5, TT:0.3, K9s:0.1"
      }
     ]
    },
@@ -17388,9 +17814,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.395,
-    "regret": 0.0006,
+    "reachPct": 18.8,
+    "occ": 0.602,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17398,42 +17824,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-ATs, KJs+, AQo, TT:0.6, AJo:0.6, 44:0.5, KTs:0.3, JJ:0.2"
+      "range": "TT-66, AQs-ATs, KJs, AQo, 55:0.9, KQs:0.9, AJo:0.2, KQo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, QJs, AKo, A9s:0.9, JJ:0.8, KTs:0.6, TT:0.4, A5s:0.4"
-     }
-    ]
-   },
-   {
-    "id": "utgp2-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "UTG+2",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "UTG+2 vs SB 올인",
-    "title": "UTG+2 오픈 후 vs SB 3벳 올인",
-    "description": "UTG+2 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2 · SB 올인",
-    "reachFrom": [
-     "rfi-utgp2:open"
-    ],
-    "reachPct": 21.1,
-    "occ": 0.101,
-    "regret": 0.0024,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "TT+, AJs+, AKo, 99:0.6, 88:0.5, 66:0.4, AQo:0.3, 77:0.2, 55:0.2"
+      "range": "JJ+, AKs, KTs, QTs+, AKo, KQs:0.1"
      }
     ]
    },
@@ -17452,9 +17849,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 21.1,
-    "occ": 0.279,
-    "regret": 0.006,
+    "reachPct": 18.8,
+    "occ": 0.301,
+    "regret": 0.005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17462,42 +17859,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs, ATs, KJs+, QJs, AQo, 55:0.9, AJs:0.8, A9s:0.8, AJo:0.8, TT:0.7, QTs:0.6, KTs:0.5, JTs:0.3, KJo:0.2, K9s:0.1"
+      "range": "TT-77, AQs, KTs+, AQo, 66:0.9, AJs:0.9, A9s:0.9, QJs:0.8, JJ:0.7, ATs:0.6, 55:0.5, JTs:0.5, AJo:0.5, A8s:0.2, AKo:0.2, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, AKo, A5s:0.5, KTs:0.5, A4s:0.4, TT:0.3, AJs:0.2, A9s:0.2, K9s:0.2, JTs:0.2"
-     }
-    ]
-   },
-   {
-    "id": "utgp2-open-vs-bb-jam",
-    "kind": "vs3bet",
-    "hero": "UTG+2",
-    "villain": "BB",
-    "villainSeats": [
-     "BB"
-    ],
-    "chip": "UTG+2 vs BB 올인",
-    "title": "UTG+2 오픈 후 vs BB 3벳 올인",
-    "description": "UTG+2 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2 · BB 올인",
-    "reachFrom": [
-     "rfi-utgp2:open"
-    ],
-    "reachPct": 21.1,
-    "occ": 0.102,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "99+, AJs+, AKo, 88:0.6, AQo:0.5"
+      "range": "QQ+, AKs, A5s:0.9, AKo:0.8, ATs:0.4, JJ:0.3, QJs:0.2, AJs:0.1, A7s-A6s:0.1, QTs:0.1"
      }
     ]
    },
@@ -17516,8 +17884,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.8,
+    "reachPct": 22.5,
+    "occ": 1.54,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -17526,13 +17894,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, 33, AQs-ATs, KJs, QTs, J9s+, T8s+, 97s+, 87s, AQo-AJo, QJs:0.9, 44:0.8, Q9s:0.8, KQo:0.5, K9s:0.2"
+      "range": "88-55, AJs-A7s, QTs, J9s, T9s, 98s, 87s, AJo-ATo, KQo, KQs:0.6, K9s:0.5, T8s:0.5, AQo:0.5, A5s:0.4, JTs:0.2, 44:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A9s, KQs, KTs, AKo, K9s:0.8, 44:0.2, Q9s:0.2, QJs:0.1"
+      "range": "99+, AQs+, KJs-KTs, QJs, AKo, 44:0.9, JTs:0.8, AQo:0.5, KQs:0.4"
      }
     ]
    },
@@ -17551,9 +17919,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.723,
-    "regret": 0.0009,
+    "reachPct": 22.5,
+    "occ": 1.31,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17561,13 +17929,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, 33, AQs-ATs, KJs, QTs, J9s+, T9s, 97s+, 87s, AQo-AJo, KQo, Q9s:0.9, 44:0.7, T8s:0.6, QJs:0.5"
+      "range": "88-55, AJs-A8s, QTs, J9s, T8s+, 98s, 87s, AJo-ATo, KQo, A7s:0.7, K9s:0.7, AQo:0.6, KQs:0.5, JTs:0.4, 99:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KQs, KTs-K9s, AKo, A9s:0.5, QJs:0.5, 44:0.3, Q9s:0.1"
+      "range": "TT+, 44, AQs+, KJs-KTs, QJs, AKo, 99:0.9, JTs:0.6, KQs:0.5, AQo:0.4"
      }
     ]
    },
@@ -17586,9 +17954,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.686,
-    "regret": 0.0003,
+    "reachPct": 22.5,
+    "occ": 1.169,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17596,13 +17964,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-ATs, KJs, QTs-Q9s, J9s+, T8s+, 97s+, 87s, AQo-AJo, KQo, 33:0.9, 44:0.8, A9s:0.7, K9s:0.5, KQs:0.3, KJo:0.3, ATo:0.2"
+      "range": "88-55, AJs-A8s, J9s, T8s+, 98s, 87s, AJo-ATo, KQo, 99:0.8, AQo:0.8, JTs:0.7, K9s:0.6, QTs:0.6, 44:0.3, A7s:0.2, KTs:0.2, J8s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A8s, KTs, QJs, AKo, KQs:0.7, K9s:0.5, 44:0.2, 33:0.1"
+      "range": "TT+, AQs+, KJs+, QJs, AKo, KTs:0.8, 44:0.7, QTs:0.4, JTs:0.3, 99:0.2, AQo:0.2"
      }
     ]
    },
@@ -17621,9 +17989,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.477,
-    "regret": 0.0003,
+    "reachPct": 22.5,
+    "occ": 0.861,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17631,42 +17999,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AQs-ATs, KJs+, JTs, AQo-AJo, 88:0.9, 99:0.7, TT:0.6, 33:0.6, QTs:0.2, KQo:0.2, KTs:0.1"
+      "range": "88-55, AJs-ATs, AJo, 44:0.9, KJs:0.9, AQo:0.9, 99:0.7, JTs:0.6, KQo:0.6, ATo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, QJs, AKo, KTs-K9s:0.9, QTs:0.7, TT:0.4, 99:0.3, 33:0.2, 88:0.1"
-     }
-    ]
-   },
-   {
-    "id": "lj-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "LJ",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "LJ vs SB 올인",
-    "title": "LJ 오픈 후 vs SB 3벳 올인",
-    "description": "LJ 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 2 · SB 올인",
-    "reachFrom": [
-     "rfi-lj:open"
-    ],
-    "reachPct": 24.8,
-    "occ": 0.176,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "88+, AJs+, AKo, 66:0.8, AQo:0.6, ATs:0.2"
+      "range": "TT+, AQs+, KQs, KTs, QJs, AKo, QTs:0.4, JTs:0.4, 99:0.3, 44:0.1, KJs:0.1, AQo:0.1"
      }
     ]
    },
@@ -17685,9 +18024,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.32,
-    "regret": 0.0025,
+    "reachPct": 22.5,
+    "occ": 0.319,
+    "regret": 0.0073,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17695,13 +18034,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AQs-A8s, KQs, QTs+, JTs, AQo-AJo, KQo, 99:0.9, T9s:0.9, 44:0.8, JJ:0.6, K9s:0.4, KJs:0.3, K8s:0.2, J9s:0.2"
+      "range": "99-55, AQs, ATs-A9s, K9s+, AQo-AJo, A8s:0.9, AJs:0.8, JJ:0.7, JTs:0.7, TT:0.5, QTs:0.3, QJs:0.2, KJo:0.2, 44:0.1, A7s:0.1, KTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, TT, AKs, KTs, AKo, KJs:0.7, K9s:0.6, JJ:0.4, K8s:0.3, A4s:0.2, 99:0.1, 44:0.1, KTo:0.1"
+      "range": "QQ+, AKs, AKo, QJs:0.8, QTs:0.6, TT:0.5, JJ:0.3, JTs:0.3, AJs:0.2, A5s:0.2"
      }
     ]
    },
@@ -17720,9 +18059,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 24.8,
-    "occ": 0.129,
-    "regret": 0.0004,
+    "reachPct": 22.5,
+    "occ": 0.118,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17730,7 +18069,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, AKo, QJs:0.7, AQo:0.6, 66:0.3, 77:0.1"
+      "range": "88+, AJs+, AKo, AQo:0.5, QJs:0.2, 66-55:0.1"
      }
     ]
    },
@@ -17749,9 +18088,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.5,
-    "occ": 0.855,
-    "regret": 0.0004,
+    "reachPct": 27,
+    "occ": 1.636,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17759,13 +18098,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, 22, AQs-ATs, K9s, Q9s, J9s+, T8s+, 97s+, 87s, AQo-ATo, KQo, 33:0.8, A9s:0.8, K8s:0.7, KJs:0.6, QTs:0.6, KQs:0.4, K7s:0.1, KJo:0.1"
+      "range": "77-55, AJs-A4s, QJs, Q9s, J9s, T8s+, 98s, 87s, 76s, AJo-ATo, K9s:0.9, J8s:0.8, 97s:0.8, KJo:0.8, KQo:0.6, A9o:0.5, 44:0.4, A3s:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, A8s, KTs, QJs, AKo, KQs:0.6, KJs:0.4, QTs:0.4, K8s:0.3, 33:0.2, A9s:0.2"
+      "range": "88+, AQs+, KTs+, QTs, JTs, AQo+, 44:0.6, KQo:0.4, K9s:0.1"
      }
     ]
    },
@@ -17784,9 +18123,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.5,
-    "occ": 0.84,
-    "regret": 0.0004,
+    "reachPct": 27,
+    "occ": 1.36,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17794,13 +18133,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A8s, QTs, J9s+, T8s+, 97s+, 87s, AQo-ATo, KQo, J8s:0.9, KJo:0.8, 33:0.6, Q9s:0.6, K7s:0.4, 22:0.3, A7s:0.3, K9s:0.3, QJs:0.3, TT:0.1, K8s:0.1"
+      "range": "77-55, AJs-A5s, Q9s, J9s-J8s, T8s+, 97s+, 87s, 76s, AJo-ATo, KQo, A9o:0.9, 44:0.7, K9s:0.7, 88:0.6, QJs:0.5, QTs:0.3, A4s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs+, AKo, TT:0.9, 22:0.7, QJs:0.7, 33:0.4, A7s:0.4, K9s:0.4, K7s:0.4"
+      "range": "99+, AQs+, KTs+, JTs, AQo+, QTs:0.7, QJs:0.5, 88:0.4, 44:0.3, K9s:0.3, KJo:0.3"
      }
     ]
    },
@@ -17819,9 +18158,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.5,
-    "occ": 0.635,
-    "regret": 0.0005,
+    "reachPct": 27,
+    "occ": 1.068,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17829,42 +18168,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-33, AJs-A9s, KJs, QTs+, JTs, T9s, AJo-ATo, AQo:0.9, 99:0.8, TT:0.6, KQo:0.6, J9s:0.5, 22:0.4, T8s:0.3, 87s:0.3, 98s:0.1"
+      "range": "77-44, AJs-A9s, T9s, 76s, AJo-ATo, JTs:0.9, QJs:0.7, KQo:0.7, KJs:0.4, J9s:0.3, KTs:0.2, 88:0.1, A8s:0.1, QTs:0.1, 87s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, 88, AQs+, KQs, KTs-K9s, AKo, 22:0.6, TT:0.4, KQo:0.3, 99:0.2, AQo:0.1"
-     }
-    ]
-   },
-   {
-    "id": "hj-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "HJ",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "HJ vs SB 올인",
-    "title": "HJ 오픈 후 vs SB 3벳 올인",
-    "description": "HJ 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · SB 올인",
-    "reachFrom": [
-     "rfi-hj:open"
-    ],
-    "reachPct": 30.5,
-    "occ": 0.221,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "88+, 66, ATs+, AQo+, 77:0.9, KJs:0.7, KQs:0.2, AJo:0.1"
+      "range": "99+, AQs+, KQs, AQo+, 88:0.9, QTs:0.9, KTs:0.8, KJs:0.6, QJs:0.3, KQo:0.3, JTs:0.1"
      }
     ]
    },
@@ -17883,9 +18193,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.5,
-    "occ": 0.356,
-    "regret": 0.0017,
+    "reachPct": 27,
+    "occ": 0.403,
+    "regret": 0.0038,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17893,13 +18203,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 77-33, AJs-A7s, KJs, K8s, Q9s+, J9s+, T9s, AQo-ATo, KQo, K9s:0.9, 88:0.7, KQs:0.3, K7s:0.3, 98s:0.3, TT:0.2, K6s:0.2, Q8s:0.2, AQs:0.1"
+      "range": "88-55, AJs-A7s, KQs, JTs, T9s, AQo-AJo, 44:0.9, KQo:0.9, KJs:0.7, K9s:0.7, ATo:0.7, JJ:0.6, 99:0.6, 98s:0.6, KTs:0.5, QTs+:0.5, TT:0.4, K8s:0.4, Q9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs, AKo, AQs:0.9, TT:0.8, KQs:0.7, K7s:0.6, 98s:0.4, 88:0.3, KTo:0.3, K6s:0.2, K9s:0.1"
+      "range": "QQ+, AQs+, AKo, TT:0.6, KTs:0.5, QTs:0.5, JJ:0.4, 99:0.4, K8s:0.4, QJs:0.4, KJs:0.3, K9s:0.3, 44:0.1, Q9s:0.1, 98s:0.1"
      }
     ]
    },
@@ -17918,9 +18228,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 30.5,
-    "occ": 0.201,
-    "regret": 0.0009,
+    "reachPct": 27,
+    "occ": 0.159,
+    "regret": 0.0013,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17928,7 +18238,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, KJs, QJs, AQo+, 66:0.8, 77:0.6, JTs:0.4, AJo:0.4, QTs:0.1"
+      "range": "88+, ATs+, AKo, QJs:0.8, AQo:0.8, 66:0.6, 77:0.5, KJs:0.3, KQs:0.1"
      }
     ]
    },
@@ -17947,9 +18257,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 1.064,
-    "regret": 0.0007,
+    "reachPct": 33.5,
+    "occ": 1.914,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17957,13 +18267,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-33, AJs-A4s, K7s-K6s, Q9s+, J9s-J8s, T8s+, 97s+, 86s+, 76s, AQo-A9o, JTs:0.9, J7s:0.9, KQo:0.9, K9s:0.7, KJo:0.6, QJo:0.6, JTo:0.4, 99:0.3, 22:0.1"
+      "range": "66-44, ATs-A2s, K8s-K7s, QJs, Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, AJo-A7o, KJo, QJo, K9s:0.8, JTo:0.6, KJs:0.5, KQo:0.5, 33:0.3, K6s:0.1, Q9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, AQs+, KTs+, AKo, 22:0.9, 99:0.7, KJo:0.4, K9s:0.3, JTs:0.1, KQo:0.1"
+      "range": "77+, AJs+, KQs, KTs, QTs, JTs, AQo+, Q9s:0.9, 33:0.7, KJs:0.5, KQo:0.5, K9s:0.2"
      }
     ]
    },
@@ -17982,9 +18292,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 0.735,
-    "regret": 0.0004,
+    "reachPct": 33.5,
+    "occ": 1.47,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -17992,42 +18302,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 55-22, AJs-A8s, KJs, K9s, Q9s+, J9s+, T8s+, 76s, AJo-A9o, 87s:0.8, 88:0.7, 66:0.7, A7s:0.7, 98s:0.5, AQo:0.3, QJo:0.2, KJo+:0.1"
+      "range": "66-33, ATs-A7s, A5s, K9s, QTs-Q9s, J8s+, T8s+, 98s, 87s, 76s, 65s, AJo-A9o, A6s:0.9, A8o:0.7, 97s:0.4, KQo:0.4, QJs:0.2, KTs:0.1, 86s:0.1, JTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 77, AQs+, KQs, KTs, AKo, KQo:0.9, AQo:0.7, K6s:0.6, 88:0.3, 66:0.3"
-     }
-    ]
-   },
-   {
-    "id": "co-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "CO",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "CO vs SB 올인",
-    "title": "CO 오픈 후 vs SB 3벳 올인",
-    "description": "CO 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · SB 올인",
-    "reachFrom": [
-     "rfi-co:open"
-    ],
-    "reachPct": 37.6,
-    "occ": 0.321,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "66+, ATs+, KJs+, AJo+, 55:0.8, ATo:0.2, A9s:0.1, QTs:0.1"
+      "range": "77+, AJs+, KJs+, AQo+, KTs:0.9, QJs:0.8, KQo:0.6"
      }
     ]
    },
@@ -18046,9 +18327,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 0.318,
-    "regret": 0.0013,
+    "reachPct": 33.5,
+    "occ": 0.544,
+    "regret": 0.0028,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18056,13 +18337,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 55-22, AJs-A6s, KTs, K8s, Q9s+, J9s+, T9s, 98s, 87s, AJo-A9o, KJo:0.9, QJo:0.9, 66:0.8, A5s:0.8, K9s:0.7, K7s:0.7, Q8s:0.7, KJs:0.5, K6s:0.5, T8s:0.5, 88:0.4, AQo:0.4, KQo:0.2, TT:0.1, 77:0.1"
+      "range": "99, 66-33, AJs-A6s, K9s-K8s, Q9s, T9s, 98s, 87s, AJo-ATo, A5s:0.9, KJs:0.9, QJs:0.9, QTs:0.8, J9s+:0.7, KQo:0.7, KTs:0.6, AQo:0.6, A9o:0.6, K7s:0.5, TT:0.4, 77:0.4, 88:0.3, Q8s:0.1, 76s:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AQs+, KQs, AKo, TT:0.9, 77:0.9, KQo:0.8, 88:0.6, AQo:0.6, KJs:0.5, K9s:0.3, K7s:0.3, 66:0.2, K6s:0.2"
+      "range": "JJ+, AQs+, KQs, AKo, K6s:0.9, 88:0.7, TT:0.6, 77:0.6, KTs:0.4, AQo:0.4, K7s:0.3, JTs:0.3, KQo:0.3, QTs:0.2, KJs:0.1, QJs:0.1"
      }
     ]
    },
@@ -18081,9 +18362,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 37.6,
-    "occ": 0.401,
-    "regret": 0.0003,
+    "reachPct": 33.5,
+    "occ": 0.267,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18091,34 +18372,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66+, A9s+, KQs, AJo+, QTs+:0.9, KJs:0.8, 55:0.5, A8s:0.5, JTs:0.5, KTs:0.2"
-     }
-    ]
-   },
-   {
-    "id": "btn-at-hj-open-co-3bet",
-    "kind": "vs3bet",
-    "hero": "BTN",
-    "villain": "CO",
-    "villainSeats": [
-     "HJ",
-     "CO"
-    ],
-    "chip": "HJ오픈·CO3벳",
-    "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · CO 3벳 6",
-    "reachPct": 100,
-    "occ": 1.03,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "TT+, AJs+, KQs, AKo, KJs:0.7, AQo:0.2, 99-88:0.1"
+      "range": "66+, ATs+, AQo+, KJs:0.9, QJs:0.7, AJo:0.7, JTs:0.6, 55:0.5, KQs:0.5, QTs:0.1"
      }
     ]
    },
@@ -18137,9 +18391,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 49,
-    "occ": 0.843,
-    "regret": 0.0003,
+    "reachPct": 44.6,
+    "occ": 2.096,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18147,42 +18401,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, ATs-A5s, K9s, Q9s+, J8s+, T8s+, 98s, 87s, AJo-A7o, QJo, 88:0.9, 97s:0.9, A4s:0.7, 99:0.6, 66:0.6, 44:0.6, 76s:0.6, AJs:0.4, 77:0.2"
+      "range": "44-22, A9s-A2s, K9s, Q9s-Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, 54s, ATo-A6o, KJo, QJo, JTo, K8s:0.7, JTs:0.6, QJs:0.5, A5o:0.3, J7s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KTs+, AQo+, KQo, 77:0.8, AJs:0.6, 99:0.4, 66:0.4, 44:0.4, KJo:0.2, 88:0.1, A4s:0.1"
-     }
-    ]
-   },
-   {
-    "id": "btn-open-vs-sb-jam",
-    "kind": "vs3bet",
-    "hero": "BTN",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "BTN vs SB 올인",
-    "title": "BTN 오픈 후 vs SB 3벳 올인",
-    "description": "BTN 오픈 2bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 2 · SB 올인",
-    "reachFrom": [
-     "rfi-btn:open"
-    ],
-    "reachPct": 49,
-    "occ": 0.621,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "44+, A8s+, KTs+, ATo+, JTs:0.6, QTs:0.2, KQo:0.2"
+      "range": "55+, ATs+, KTs+, QTs, AJo+, KQo, QJs:0.5, JTs:0.4"
      }
     ]
    },
@@ -18201,9 +18426,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 49,
-    "occ": 0.378,
-    "regret": 0.0025,
+    "reachPct": 44.6,
+    "occ": 0.51,
+    "regret": 0.0012,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18211,13 +18436,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, A9s-A5s, A3s-A2s, K9s, Q9s+, J9s+, T8s+, 87s, ATo-A8o, KJo, QJo, 88:0.9, 44:0.9, K5s:0.9, 76s:0.9, 99:0.8, 66:0.8, 98s:0.8, A7o:0.8, QTo:0.8, JTo:0.8, KJs:0.7, K7s:0.7, ATs:0.6, A4s:0.6, 65s:0.6, K6s:0.5, K8s:0.4, 55:0.3, AJo:0.3, K4s:0.2, Q8s:0.2, J8s:0.1, 97s:0.1"
+      "range": "99, 44-33, ATs-A3s, KTs, QTs-Q9s, J9s+, T8s+, 98s, 87s, 76s, 65s, ATo-A8o, QJo, 88:0.9, 66:0.9, K8s:0.9, QJs:0.9, K9s:0.8, K7s:0.8, KJo:0.8, 55:0.7, 22:0.7, Q8s:0.7, A2s:0.6, 86s:0.6, J8s:0.5, AJo:0.5, K6s:0.4, 97s:0.3, 77:0.2, A7o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 77, AJs+, KQs, KTs, AQo+, KQo, 55:0.7, AJo:0.7, K6s:0.5, ATs:0.4, A4s:0.4, KJs:0.3, K7s:0.3, K4s:0.3, 65s:0.3, KTo:0.3, 99:0.2, 66:0.2, 88:0.1, 44:0.1, K5s:0.1, 76s:0.1"
+      "range": "TT+, AJs+, KJs+, AQo+, KQo, 77:0.8, K6s:0.6, AJo:0.5, 55:0.3, 22:0.3, K9s:0.2, K7s:0.2, 88:0.1, 66:0.1, QJs:0.1, KJo:0.1"
      }
     ]
    },
@@ -18236,9 +18461,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 49,
-    "occ": 0.714,
-    "regret": 0.0001,
+    "reachPct": 44.6,
+    "occ": 0.624,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18246,34 +18471,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44+, A7s+, KTs+, QTs+, ATo+, JTs:0.9, KQo:0.6, A9o:0.4"
-     }
-    ]
-   },
-   {
-    "id": "sb-at-co-open-btn-3bet",
-    "kind": "vs3bet",
-    "hero": "SB",
-    "villain": "BTN",
-    "villainSeats": [
-     "CO",
-     "BTN"
-    ],
-    "chip": "CO오픈·BTN3벳",
-    "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · BTN 3벳 6",
-    "reachPct": 100,
-    "occ": 1.26,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "88+, 66, AJs+, KJs+, AQo+, QJs:0.9, 77:0.5, KTs:0.2"
+      "range": "55+, A8s+, KQs, ATo+, QJs:0.9, KJs:0.8, KTs:0.7, A7s:0.6, JTs:0.6, 44:0.4, QTs:0.3"
      }
     ]
    },
@@ -18292,9 +18490,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 31,
-    "occ": 0.357,
-    "regret": 0.0008,
+    "reachPct": 26,
+    "occ": 0.402,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18302,13 +18500,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-66, ATs, A8s-A6s, K9s-K8s, K5s-K3s, Q5s+, J9s-J8s, T8s, A7o-A6o, QJo, J9o, 88:0.9, K7s:0.9, KJo:0.9, K9o:0.8, 44:0.5, Q9o:0.3, KQo:0.2, 33:0.1, KJs:0.1"
+      "range": "ATs-A6s, KJs-K7s, QTs-Q8s, J9s-J8s, T8s, 97s+, 87s, A7o, KJo-KTo, QTo+, JTo, 66:0.9, T9s:0.9, QJs:0.8, 88:0.7, AJs:0.7, 76s:0.6, 65s:0.5, JTs:0.4, 77:0.2, KQo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, 22, AQs+, KQs, K6s, 87s, 54s, AKo, 33:0.9, KJs:0.9, KQo:0.8, 44:0.5, 88:0.1, K7s:0.1, KJo:0.1"
+      "range": "TT+, 55, AQs+, KQs, 54s, 77:0.8, KQo:0.8, JTs:0.6, 65s:0.5, 76s:0.4, 88:0.3, AJs:0.3, QJs:0.2, 66:0.1, T9s:0.1"
      }
     ]
    },
@@ -18327,8 +18525,37 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 31,
-    "occ": 0.203,
+    "reachPct": 26,
+    "occ": 0.199,
+    "regret": 0.0006,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "TT+, 88-55, A7s+, KQs, QJs, JTs, QTs:0.6, KJs:0.3, A6s:0.2"
+     }
+    ]
+   },
+   {
+    "id": "utgp1-3bet-vs-utg-4bet-jam",
+    "kind": "vs4bet",
+    "hero": "UTG+1",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG"
+    ],
+    "chip": "UTG+1 vs UTG 4벳 올인",
+    "title": "UTG+1 3벳 후 vs UTG 4벳 올인",
+    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · UTG+1 3벳 6 · UTG 올인",
+    "reachFrom": [
+     "utgp1-vs-utg-open:3bet"
+    ],
+    "reachPct": 8.5,
+    "occ": 0.367,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -18337,34 +18564,36 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33+, AQs+, ATs, A8s-A7s, KJs+, Q9s+, AKo, 22:0.6, KQo:0.2, QJo:0.2, K9s:0.1"
+      "range": "TT+, AJs+, AKo, 99:0.8"
      }
     ]
    },
    {
-    "id": "bb-at-co-open-btn-3bet",
-    "kind": "vs3bet",
-    "hero": "BB",
-    "villain": "BTN",
+    "id": "utgp2-3bet-vs-utg-4bet-jam",
+    "kind": "vs4bet",
+    "hero": "UTG+2",
+    "villain": "UTG",
     "villainSeats": [
-     "CO",
-     "BTN"
+     "UTG"
     ],
-    "chip": "CO오픈·BTN3벳",
-    "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · BTN 3벳 6",
-    "reachPct": 100,
-    "occ": 1.166,
-    "regret": 0,
+    "chip": "UTG+2 vs UTG 4벳 올인",
+    "title": "UTG+2 3벳 후 vs UTG 4벳 올인",
+    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · UTG+2 3벳 6 · UTG 올인",
+    "reachFrom": [
+     "utgp2-vs-utg-open:3bet"
+    ],
+    "reachPct": 8.4,
+    "occ": 0.337,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
      {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "55+, AJs+, KTs+, AQo+, 44:0.7, JTs:0.6, QJs:0.3"
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "TT+, AJs+, AKo, 99:0.8"
      }
     ]
    },
@@ -18383,9 +18612,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "utgp2-vs-utgp1-open:3bet"
     ],
-    "reachPct": 4.6,
-    "occ": 0.101,
-    "regret": 0.0005,
+    "reachPct": 9,
+    "occ": 0.395,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18393,7 +18622,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ+, TT, AKo, 99:0.6, 88:0.2"
+      "range": "TT+, AJs+, AKo, 99:0.9, KQs:0.6, 88:0.1, AQo:0.1"
      }
     ]
    },
@@ -18412,9 +18641,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "lj-vs-utg-open:3bet"
     ],
-    "reachPct": 6.9,
-    "occ": 0.182,
-    "regret": 0.0004,
+    "reachPct": 8.5,
+    "occ": 0.308,
+    "regret": 0.0007,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18422,7 +18651,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AKs, AKo, AQs:0.1"
+      "range": "TT+, AJs+, AKo, 99:0.8"
      }
     ]
    },
@@ -18441,8 +18670,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "lj-vs-utgp1-open:3bet"
     ],
-    "reachPct": 5.6,
-    "occ": 0.114,
+    "reachPct": 8.7,
+    "occ": 0.318,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -18451,7 +18680,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ+, TT, AKo, 99:0.8, 88:0.4"
+      "range": "TT+, AJs+, KQs, AKo, 99:0.9"
      }
     ]
    },
@@ -18470,8 +18699,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 6,
-    "occ": 0.129,
+    "reachPct": 10.6,
+    "occ": 0.39,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -18480,7 +18709,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AKs, AKo, 88:0.3"
+      "range": "99+, AJs+, KQs, AKo, 88:0.8, AQo:0.7"
      }
     ]
    },
@@ -18499,9 +18728,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-utg-open:3bet"
     ],
-    "reachPct": 5.6,
-    "occ": 0.11,
-    "regret": 0.0016,
+    "reachPct": 7.1,
+    "occ": 0.231,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18509,7 +18738,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ+, TT, AKo, 88:0.4, 99:0.3"
+      "range": "TT+, AQs+, AKo, 99:0.8"
      }
     ]
    },
@@ -18528,9 +18757,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-utgp1-open:3bet"
     ],
-    "reachPct": 6,
-    "occ": 0.114,
-    "regret": 0.0002,
+    "reachPct": 8.4,
+    "occ": 0.262,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18538,7 +18767,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AKs, AKo, 88:0.1"
+      "range": "99+, AJs+, KQs, AKo, 88:0.3"
      }
     ]
    },
@@ -18557,8 +18786,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 6.7,
-    "occ": 0.131,
+    "reachPct": 10.6,
+    "occ": 0.334,
     "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
@@ -18567,7 +18796,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AKs, AKo, 88:0.4"
+      "range": "99+, AJs+, KQs, AKo, 88:0.8, AQo:0.7"
      }
     ]
    },
@@ -18586,8 +18815,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
-    "reachPct": 7.2,
-    "occ": 0.141,
+    "reachPct": 11.9,
+    "occ": 0.433,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -18596,7 +18825,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, AKs, AKo, 88:0.9, 99:0.7, AQo:0.5"
+      "range": "88+, AJs+, KJs+, AQo+, ATs:0.7, 66:0.4, 55:0.1"
      }
     ]
    },
@@ -18615,9 +18844,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-utg-open:3bet"
     ],
-    "reachPct": 6.1,
-    "occ": 0.107,
-    "regret": 0.0009,
+    "reachPct": 7.1,
+    "occ": 0.187,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18625,7 +18854,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AKs, AKo, 99:0.4, 88:0.3"
+      "range": "TT+, AKs, AKo, 99:0.8"
      }
     ]
    },
@@ -18644,8 +18873,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-utgp1-open:3bet"
     ],
-    "reachPct": 6.6,
-    "occ": 0.113,
+    "reachPct": 7.6,
+    "occ": 0.206,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -18654,7 +18883,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, 99, AKs, AKo, 88:0.2"
+      "range": "99+, AQs+, AKo, 88:0.1"
      }
     ]
    },
@@ -18673,9 +18902,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
     ],
-    "reachPct": 6.9,
-    "occ": 0.127,
-    "regret": 0.0003,
+    "reachPct": 10,
+    "occ": 0.273,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18683,7 +18912,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, 99, AKs, AKo, 88:0.9"
+      "range": "99+, AJs+, KQs, AKo, 88:0.7, AQo:0.7"
      }
     ]
    },
@@ -18702,8 +18931,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-lj-open:3bet"
     ],
-    "reachPct": 7.6,
-    "occ": 0.128,
+    "reachPct": 11.6,
+    "occ": 0.36,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -18712,7 +18941,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, AKs, AKo, AQo:0.8, 66:0.1"
+      "range": "88+, AJs+, KQs, AQo+, ATs:0.6, 66:0.2"
      }
     ]
    },
@@ -18731,9 +18960,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
-    "reachPct": 8.5,
-    "occ": 0.128,
-    "regret": 0.0007,
+    "reachPct": 13.6,
+    "occ": 0.474,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18741,7 +18970,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, AKs, ATs, AQo+, 66:0.9, A9s:0.8, 77:0.1"
+      "range": "88+, ATs+, KJs+, AQo+, 77:0.5, A9s:0.5, 66:0.4, AJo:0.3"
      }
     ]
    },
@@ -18760,9 +18989,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-utg-open:3bet"
     ],
-    "reachPct": 6.4,
-    "occ": 0.108,
-    "regret": 0.0012,
+    "reachPct": 7.1,
+    "occ": 0.153,
+    "regret": 0.0011,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18770,7 +18999,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, AKs, AKo, 99:0.9, 88:0.2"
+      "range": "TT+, AKs, AKo, 99:0.8, AQs:0.4"
      }
     ]
    },
@@ -18789,8 +19018,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-utgp1-open:3bet"
     ],
-    "reachPct": 7,
-    "occ": 0.109,
+    "reachPct": 7.6,
+    "occ": 0.165,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -18799,7 +19028,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AKs, AKo, 88:0.5"
+      "range": "JJ+, 99, AQs+, AKo, 88:0.2"
      }
     ]
    },
@@ -18818,9 +19047,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
     ],
-    "reachPct": 7.3,
-    "occ": 0.116,
-    "regret": 0.0015,
+    "reachPct": 9.6,
+    "occ": 0.211,
+    "regret": 0.0008,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18828,7 +19057,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, AKs, AKo, AQo:0.2"
+      "range": "99+, AJs+, KQs, AKo, 88:0.8, AQo:0.6"
      }
     ]
    },
@@ -18847,9 +19076,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
-    "reachPct": 8.3,
-    "occ": 0.122,
-    "regret": 0.0016,
+    "reachPct": 12,
+    "occ": 0.295,
+    "regret": 0.0009,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18857,7 +19086,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, AQs+, ATs, AKo, 66:0.7, AQo:0.7, 77:0.1"
+      "range": "88+, AJs+, KQs, AQo+, ATs:0.9, 77:0.5, 66:0.4, 55:0.1"
      }
     ]
    },
@@ -18876,9 +19105,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
-    "reachPct": 9.9,
-    "occ": 0.142,
-    "regret": 0.0003,
+    "reachPct": 13.1,
+    "occ": 0.374,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18886,7 +19115,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AQs+, KQs, AQo+, A9s:0.8, 66:0.7, AJo:0.2, A8s:0.1"
+      "range": "88+, ATs+, KQs, AQo+, 77:0.8, AJo:0.5, 66:0.4"
      }
     ]
    },
@@ -18905,8 +19134,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 12.1,
-    "occ": 0.17,
+    "reachPct": 17.6,
+    "occ": 0.508,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -18915,29 +19144,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, 66, AQs+, A5s, KQs, AJo+, 55:0.6"
+      "range": "77+, A9s+, KJs+, AJo+, 66:0.9, A8s:0.9, 55:0.4, ATo:0.4, KQo:0.4, KTs:0.3"
      }
     ]
    },
    {
-    "id": "btn-at-co-open-btn-3bet-bb-jam",
+    "id": "sb-3bet-vs-utgp1-4bet-jam",
     "kind": "vs4bet",
-    "hero": "BTN",
-    "villain": "BB",
+    "hero": "SB",
+    "villain": "UTG+1",
     "villainSeats": [
-     "CO",
-     "BB"
+     "UTG+1"
     ],
-    "chip": "CO오픈·BTN3벳·BB올인",
-    "title": "BTN — CO 오픈 → BTN 3벳 → BB 올인",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · BTN 3벳 6 · BB 올인",
+    "chip": "SB vs UTG+1 4벳 올인",
+    "title": "SB 3벳 후 vs UTG+1 4벳 올인",
+    "description": "UTG+1 오픈 2bb → SB 3벳 8bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · SB 3벳 8 · UTG+1 올인",
     "reachFrom": [
-     "btn-vs-co-open:3bet"
+     "sb-vs-utgp1-open:3bet"
     ],
-    "reachPct": 12.1,
-    "occ": 0.102,
-    "regret": 0.0002,
+    "reachPct": 7.1,
+    "occ": 0.108,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18945,7 +19173,65 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, 66, AQs+, KQs, AQo+, AJo:0.8"
+      "range": "TT+, AQs+, AKo, 99:0.5, 88:0.3"
+     }
+    ]
+   },
+   {
+    "id": "sb-3bet-vs-utgp2-4bet-jam",
+    "kind": "vs4bet",
+    "hero": "SB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2"
+    ],
+    "chip": "SB vs UTG+2 4벳 올인",
+    "title": "SB 3벳 후 vs UTG+2 4벳 올인",
+    "description": "UTG+2 오픈 2bb → SB 3벳 8bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · SB 3벳 8 · UTG+2 올인",
+    "reachFrom": [
+     "sb-vs-utgp2-open:3bet"
+    ],
+    "reachPct": 8.2,
+    "occ": 0.127,
+    "regret": 0.0006,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "99+, AJs+, AKo, 88:0.6, AQo:0.2"
+     }
+    ]
+   },
+   {
+    "id": "sb-3bet-vs-lj-4bet-jam",
+    "kind": "vs4bet",
+    "hero": "SB",
+    "villain": "LJ",
+    "villainSeats": [
+     "LJ"
+    ],
+    "chip": "SB vs LJ 4벳 올인",
+    "title": "SB 3벳 후 vs LJ 4벳 올인",
+    "description": "LJ 오픈 2bb → SB 3벳 8bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · SB 3벳 8 · LJ 올인",
+    "reachFrom": [
+     "sb-vs-lj-open:3bet"
+    ],
+    "reachPct": 10.8,
+    "occ": 0.2,
+    "regret": 0.0008,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "88+, ATs+, A5s, KQs, AQo+, 66:0.6, 77:0.5"
      }
     ]
    },
@@ -18964,9 +19250,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-hj-open:3bet"
     ],
-    "reachPct": 9.1,
-    "occ": 0.113,
-    "regret": 0.0005,
+    "reachPct": 12.8,
+    "occ": 0.272,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -18974,7 +19260,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, 99-77, AJs+, AQo+, AJo:0.7, 55:0.5"
+      "range": "88+, 66, ATs+, KQs, AQo+, 55:0.7, AJo:0.7"
      }
     ]
    },
@@ -18993,8 +19279,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-co-open:3bet"
     ],
-    "reachPct": 10.2,
-    "occ": 0.131,
+    "reachPct": 16.6,
+    "occ": 0.349,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19003,7 +19289,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 77-55, ATs+, A8s, A4s, KQs, AJo+, 44:0.5"
+      "range": "77+, A8s+, A5s-A4s, KQs, AJo+, 55:0.9, 66:0.8, ATo:0.7, KQo:0.3"
      }
     ]
    },
@@ -19022,9 +19308,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 11.5,
-    "occ": 0.143,
-    "regret": 0.0001,
+    "reachPct": 21.8,
+    "occ": 0.509,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19032,28 +19318,88 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77+, 55-44, A9s+, A6s-A2s, KQs, ATo+"
+      "range": "44+, A2s+, KTs+, ATo+, KQo"
      }
     ]
    },
    {
-    "id": "sb-at-btn-open-sb-3bet-bb-jam",
-    "kind": "vs4bet",
-    "hero": "SB",
+    "id": "utg-at-utg-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "UTG",
     "villain": "BB",
     "villainSeats": [
-     "BTN",
+     "SB",
      "BB"
     ],
-    "chip": "BTN오픈·SB3벳·BB올인",
-    "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 2 · SB 3벳 8 · BB 올인",
+    "chip": "UTG오픈·SB콜·BB올인",
+    "title": "UTG — UTG 오픈 → SB 콜 → BB 올인",
+    "description": "UTG 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · SB 콜 · BB 올인",
     "reachFrom": [
-     "sb-vs-btn-open:3bet"
+     "rfi-utg:open"
     ],
-    "reachPct": 11.5,
-    "occ": 0.116,
+    "reachPct": 15.4,
+    "occ": 0.106,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "99+, AQs+, AKo, 88:0.8, AQo:0.6"
+     }
+    ]
+   },
+   {
+    "id": "utgp1-at-utgp1-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "UTG+1",
+    "villain": "BB",
+    "villainSeats": [
+     "SB",
+     "BB"
+    ],
+    "chip": "UTG+1오픈·SB콜·BB올인",
+    "title": "UTG+1 — UTG+1 오픈 → SB 콜 → BB 올인",
+    "description": "UTG+1 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-utgp1:open"
+    ],
+    "reachPct": 16.8,
+    "occ": 0.129,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "88+, AQs+, AKo, AQo:0.8, 66:0.2, 77:0.1"
+     }
+    ]
+   },
+   {
+    "id": "utgp2-at-utgp2-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "UTG+2",
+    "villain": "BB",
+    "villainSeats": [
+     "SB",
+     "BB"
+    ],
+    "chip": "UTG+2오픈·SB콜·BB올인",
+    "title": "UTG+2 — UTG+2 오픈 → SB 콜 → BB 올인",
+    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-utgp2:open"
+    ],
+    "reachPct": 18.8,
+    "occ": 0.154,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19062,26 +19408,56 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77+, 55-44, A9s+, A6s-A4s, KQs, ATo+"
+      "range": "77+, AQs+, AQo+, AJs:0.6, 66:0.1"
      }
     ]
    },
    {
-    "id": "utgp2-at-utg-open-utgp1-call",
+    "id": "lj-at-lj-open-sb-call-bb-jam",
     "kind": "squeeze",
-    "hero": "UTG+2",
-    "villain": "UTG",
+    "hero": "LJ",
+    "villain": "BB",
     "villainSeats": [
-     "UTG",
-     "UTG+1"
+     "SB",
+     "BB"
     ],
-    "chip": "UTG오픈·UTG+1콜",
-    "title": "UTG+2 vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · UTG+1 콜",
+    "chip": "LJ오픈·SB콜·BB올인",
+    "title": "LJ — LJ 오픈 → SB 콜 → BB 올인",
+    "description": "LJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-lj:open"
+    ],
+    "reachPct": 22.5,
+    "occ": 0.215,
+    "regret": 0.0005,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "66+, AJs+, AQo+, ATs:0.9, AJo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "hj-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "HJ",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "HJ vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · LJ 콜",
     "reachPct": 100,
-    "occ": 1.23,
-    "regret": 0.0001,
+    "occ": 0.113,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19089,253 +19465,49 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
+      "range": "KQs, AJs:0.1, KJs:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "88+, AQs+, ATs, ATo+, AJs:0.9, A9s:0.9, KQo:0.3"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
       "range": ""
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "AA, JJ, AQs+, AQo, KK:0.9, KQs:0.8, TT:0.5, QQ:0.2, AKo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AKo:0.9, QQ:0.8, KK:0.1"
      }
     ]
    },
    {
-    "id": "lj-at-utg-open-utgp1-call",
+    "id": "hj-at-hj-open-sb-call-bb-jam",
     "kind": "squeeze",
-    "hero": "LJ",
-    "villain": "UTG",
+    "hero": "HJ",
+    "villain": "BB",
     "villainSeats": [
-     "UTG",
-     "UTG+1"
+     "SB",
+     "BB"
     ],
-    "chip": "UTG오픈·UTG+1콜",
-    "title": "LJ vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · UTG+1 콜",
-    "reachPct": 100,
-    "occ": 1.173,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "99, AQs-AJs, KQs, QJs, JTs:0.7, JJ-TT:0.6, KJs:0.5"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "AA, AKs, AQo, QQ:0.7, KJs:0.5, JJ-TT:0.4, KK:0.2, KQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "AKo, KK:0.8, QQ:0.3"
-     }
-    ]
-   },
-   {
-    "id": "lj-at-utg-open-utgp2-call",
-    "kind": "squeeze",
-    "hero": "LJ",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG",
-     "UTG+2"
+    "chip": "HJ오픈·SB콜·BB올인",
+    "title": "HJ — HJ 오픈 → SB 콜 → BB 올인",
+    "description": "HJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "HJ 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-hj:open"
     ],
-    "chip": "UTG오픈·UTG+2콜",
-    "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · UTG+2 콜",
-    "reachPct": 100,
-    "occ": 1.045,
-    "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "AQs-AJs, KQs, QJs, JTs:0.9, TT:0.8, 99:0.7, QTs:0.3, JJ:0.2"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "AA, AKs, KJs, AQo, KK:0.8, JJ:0.8, 99:0.3, TT:0.2, AKo:0.1, KQo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "QQ, AKo:0.9, KK:0.2, 55:0.1"
-     }
-    ]
-   },
-   {
-    "id": "lj-at-utgp1-open-utgp2-call",
-    "kind": "squeeze",
-    "hero": "LJ",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1",
-     "UTG+2"
-    ],
-    "chip": "UTG+1오픈·UTG+2콜",
-    "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2 · UTG+2 콜",
-    "reachPct": 100,
-    "occ": 1.096,
+    "reachPct": 27,
+    "occ": 0.314,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
      {
-      "key": "overcall",
-      "label": "오버콜",
+      "key": "call",
+      "label": "콜",
       "color": "call",
-      "range": "AQs-AJs, KQs, QTs+, JTs, TT:0.7, 99:0.6"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "KK+, JJ, AKs, KJs, AQo, 99:0.4, TT:0.3, AKo:0.3, KQo:0.2, QQ:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "QQ:0.9, AKo:0.7, 55:0.1"
-     }
-    ]
-   },
-   {
-    "id": "hj-at-utg-open-utgp1-call",
-    "kind": "squeeze",
-    "hero": "HJ",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG",
-     "UTG+1"
-    ],
-    "chip": "UTG오픈·UTG+1콜",
-    "title": "HJ vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · UTG+1 콜",
-    "reachPct": 100,
-    "occ": 1.094,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "AQs-AJs, KQs, QTs+, JTs, TT:0.9, 99:0.7, KJs:0.4, JJ:0.3, 88:0.1, KQo:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "AA, AKs, AQo, JJ:0.7, KJs:0.6, KK:0.5, 99:0.3, 88:0.2, QQ:0.1, TT:0.1, AKo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "QQ:0.9, AKo:0.9, KK:0.5, 55:0.3"
-     }
-    ]
-   },
-   {
-    "id": "hj-at-utgp1-open-utgp2-call",
-    "kind": "squeeze",
-    "hero": "HJ",
-    "villain": "UTG+1",
-    "villainSeats": [
-     "UTG+1",
-     "UTG+2"
-    ],
-    "chip": "UTG+1오픈·UTG+2콜",
-    "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+1 2 · UTG+2 콜",
-    "reachPct": 100,
-    "occ": 1.016,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "AQs-AJs, QTs+, JTs, TT-99:0.9, KQo:0.9, 88:0.5, KJs:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "KK+, JJ, AKs, AQo, KJs:0.9, 88:0.4, AJo:0.4, AKo:0.3, TT-99:0.1, KJo+:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "QQ, KQs, AKo:0.7"
-     }
-    ]
-   },
-   {
-    "id": "co-at-utg-open-utgp1-call",
-    "kind": "squeeze",
-    "hero": "CO",
-    "villain": "UTG",
-    "villainSeats": [
-     "UTG",
-     "UTG+1"
-    ],
-    "chip": "UTG오픈·UTG+1콜",
-    "title": "CO vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 2bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG 2 · UTG+1 콜",
-    "reachPct": 100,
-    "occ": 1.015,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "TT, AQs-AJs, KQs, QTs+, JTs, 99:0.8, 98s:0.8, KQo:0.7, T9s:0.6, 88:0.5, KJs:0.3, JJ:0.2, AQo:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "KK+, AKs, AQo:0.9, JJ:0.8, KJs:0.7, 88:0.5, 99:0.2, AKo:0.2, KQo:0.2"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "QQ, AKo:0.8, 55:0.2"
+      "range": "55+, ATs+, AJo+, KQs:0.7, ATo:0.5"
      }
     ]
    },
@@ -19353,46 +19525,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.068,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "overcall",
-      "label": "오버콜",
-      "color": "call",
-      "range": "99, KQs, QTs+, J9s+, T9s, KQo, AQs:0.7, ATs:0.6, 88:0.5, TT:0.3, AJs:0.1, KJs:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "QQ+, AKs, AQo, KJs:0.8, TT:0.7, 88:0.5, AJo:0.5, 77:0.3, AQs:0.3, AKo:0.3, JJ:0.1, KJo:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "JJ:0.9, AJs:0.9, AKo:0.7, KJs:0.1"
-     }
-    ]
-   },
-   {
-    "id": "co-at-lj-open-hj-call",
-    "kind": "squeeze",
-    "hero": "CO",
-    "villain": "LJ",
-    "villainSeats": [
-     "LJ",
-     "HJ"
-    ],
-    "chip": "LJ오픈·HJ콜",
-    "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 2 · HJ 콜",
-    "reachPct": 100,
-    "occ": 1.07,
+    "occ": 0.463,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19401,19 +19534,166 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, KQs, QTs+, J9s, KQo, 88:0.8, 77:0.4, T9s:0.4, ATs:0.3, JTs:0.2"
+      "range": "KQs, QJs, JTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "KK+, 99, AQs+, AJo, ATo:0.9, ATs:0.5, QQ:0.2, 88:0.2, AQo:0.2, 77:0.1"
+      "range": "88+, ATs+, AJo+, 77:0.8, A9s:0.3, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, KJs-KTs, AKo, QQ:0.8, JTs:0.8, AQo:0.8, 55:0.3, ATs:0.2, 66:0.1"
+      "range": ""
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "CO vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.103,
+    "regret": 0.0011,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": ""
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "88+, ATs+, AJo+, KQs:0.9, ATo:0.9, A9s:0.7"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "KQs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "CO vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.329,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KQs, QJs:0.9"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "88+, ATs+, AJo+, 77:0.9, ATo:0.9, KQo:0.4"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": ""
+     }
+    ]
+   },
+   {
+    "id": "co-at-co-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "BB",
+    "villainSeats": [
+     "SB",
+     "BB"
+    ],
+    "chip": "CO오픈·SB콜·BB올인",
+    "title": "CO — CO 오픈 → SB 콜 → BB 올인",
+    "description": "CO 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "CO 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-co:open"
+    ],
+    "reachPct": 33.5,
+    "occ": 0.35,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "44+, A8s+, KQs, A9o+, KJs:0.3"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "BTN vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.425,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KQs, QJs, JTs, AJs:0.8, T9s:0.5, 98s:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "88+, AQs+, ATs, AQo+, AJo:0.9, KJs-KTs:0.7, 77:0.2, AJs:0.2"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": ""
      }
     ]
    },
@@ -19431,7 +19711,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.028,
+    "occ": 0.61,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KQs, QTs+, JTs, KJs:0.8, AJs:0.6, 98s:0.6"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "77+, AQs+, ATs, AJo+, KTs:0.6, AJs:0.4, KQo:0.4, KJs:0.2"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": ""
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "BTN vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.299,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -19440,19 +19759,58 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QTs, J9s+, T9s, KQo, 77:0.9, ATs:0.9, 99:0.7, AJs:0.3, QJs:0.3, 98s:0.1"
+      "range": "QJs, JTs, KQs:0.8, KJs:0.7, KQo:0.6"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "KK+, 88, AQs+, AJo, KTs:0.9, TT:0.7, QQ:0.4, AQo:0.4, 99:0.3, 77:0.1, ATs:0.1, AKo:0.1"
+      "range": "KK+, TT-77, ATs+, AQo-AJo, QQ-JJ:0.9, AKo:0.9, ATo:0.6, KQo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ, KJs, AKo:0.9, AJs:0.7, QJs:0.7, QQ:0.6, AQo:0.6, TT:0.3, KTs:0.1"
+      "range": "KJs:0.3, KQs:0.2, QQ-JJ:0.1, AKo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utgp1-open-co-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "CO"
+    ],
+    "chip": "UTG+1오픈·CO콜",
+    "title": "BTN vs UTG+1 오픈 + CO 콜",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.566,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KJs+, QTs+, JTs, KQo:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "77+, ATs+, AJo+, KTs:0.9, KQo:0.9, ATo:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": ""
      }
     ]
    },
@@ -19470,7 +19828,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.115,
+    "occ": 0.371,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19479,19 +19837,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KQs, K9s, QTs+, J9s, T9s, KQo, AJs:0.9, KJo:0.8, 88:0.6, 98s:0.6, KJs:0.1"
+      "range": "KJs, QJs, JTs, QTs:0.9, KQs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "KK+, 99, AQs, AJo-ATo, AKs:0.9, QQ:0.8, ATs:0.6, 88:0.4, 66:0.4, AQo:0.2, AJs:0.1"
+      "range": "77+, ATs+, ATo+, KQo, KQs:0.8, A9s:0.2, 66:0.1, QTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, KTs, JTs, AKo, KJs:0.9, AQo:0.8, ATs:0.4, QQ:0.2, AKs:0.1"
+      "range": ""
      }
     ]
    },
@@ -19509,8 +19867,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.206,
-    "regret": 0.0001,
+    "occ": 0.16,
+    "regret": 0.0006,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19518,37 +19876,67 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KQs, K9s, QTs+, J9s, T8s+, KJo+, KJs:0.8, 66:0.7, AJs:0.4, 88:0.3"
+      "range": "QJs, KJs:0.9, KJo:0.7, KTs:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "KK+, AQs, A9s, AJo-ATo, AKs:0.9, QQ:0.7, 88:0.7, 99:0.6, AJs:0.6, A8s:0.6, AQo:0.3, ATs:0.2, AKo:0.2"
+      "range": "JJ+, 99-77, AJs+, A8s, KQs, AQo-ATo, KQo, A9s:0.7, ATs:0.6, A6s-A5s:0.6, A7s:0.5, AKo:0.4, TT:0.2, A2s:0.2, KJo:0.2, A3s:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, KTs, JTs, ATs:0.8, AKo:0.8, AQo:0.7, 99:0.4, 55:0.4, QQ:0.3, KJs:0.2, 66:0.1, AKs:0.1"
+      "range": "TT:0.8, KTs:0.6, AKo:0.6, ATs:0.4, A9s:0.3, QTs:0.2, JTs:0.1"
      }
     ]
    },
    {
-    "id": "btn-at-hj-open-co-call",
+    "id": "btn-at-btn-open-sb-call-bb-jam",
     "kind": "squeeze",
     "hero": "BTN",
-    "villain": "HJ",
+    "villain": "BB",
     "villainSeats": [
-     "HJ",
-     "CO"
+     "SB",
+     "BB"
     ],
-    "chip": "HJ오픈·CO콜",
-    "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · CO 콜",
+    "chip": "BTN오픈·SB콜·BB올인",
+    "title": "BTN — BTN 오픈 → SB 콜 → BB 올인",
+    "description": "BTN 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "BTN 2 · SB 콜 · BB 올인",
+    "reachFrom": [
+     "rfi-btn:open"
+    ],
+    "reachPct": 44.6,
+    "occ": 0.48,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "33+, A5s+, KJs+, QJs, A7o+, KQo:0.6, JTs:0.3, QTs:0.2"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "SB vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.245,
+    "occ": 0.388,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19557,19 +19945,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KQs, K9s, QJs, Q9s, J9s, T9s, KJo+, QTs:0.7, KJs:0.3, T8s:0.3, AJo:0.2, A7s:0.1"
-     },
-     {
-      "key": "squeeze",
-      "label": "스퀴즈 8bb",
-      "color": "raise",
-      "range": "KK+, 88, AKs, AJs, A9s, ATo, A8s:0.9, AQs:0.8, AJo:0.8, QQ:0.5, A9o:0.2, ATs:0.1"
+      "range": "99-77, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KQo, Q9s:0.9, KQs:0.5, J8s:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-99, KTs, JTs, AQo+, ATs:0.9, 55:0.8, KJs:0.7, QQ:0.5, QTs:0.3, AQs:0.2"
+      "range": "TT+, ATs+, KJs-KTs, AQo+, 55:0.9, A5s:0.9, KQs:0.5, 66:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utg-open-co-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "CO"
+    ],
+    "chip": "UTG오픈·CO콜",
+    "title": "SB vs UTG 오픈 + CO 콜",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.55,
+    "regret": 0,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-77, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KQo, QJo"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "TT+, ATs+, A5s, KTs+, AQo+, 55:0.7, A4s:0.6"
      }
     ]
    },
@@ -19587,7 +20002,40 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.242,
+    "occ": 0.827,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88-77, K9s, K7s, Q7s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, JTo, K8s:0.9, Q6s:0.9, T6s:0.9, 85s:0.9, 96s:0.7, 53s:0.6, 66:0.4, 99:0.3, K6s:0.3, 43s:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "TT+, 55, ATs+, A5s, KTs+, AQo+, 99:0.7, A4s:0.6, 66:0.3"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "SB vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.268,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -19596,13 +20044,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, KQs, K9s-K6s, K4s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KJo+, QJo, K5s:0.8, T7s:0.8, J7s:0.7, 53s:0.5, A7s:0.4, AJs:0.3, JTo:0.3"
+      "range": "99-77, QJs, Q9s, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo, KQo, AJs:0.9, Q8s:0.8, K9s:0.2, QJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, AQs+, ATs-A9s, A5s-A4s, KJs-KTs, AQo+, AJs:0.7, 44:0.3"
+      "range": "TT+, AQs+, ATs, KTs+, QTs, JTs, AQo+, 55:0.9, A5s:0.9, AJs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp1-open-co-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "CO"
+    ],
+    "chip": "UTG+1오픈·CO콜",
+    "title": "SB vs UTG+1 오픈 + CO 콜",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.507,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-77, K9s, Q8s+, J8s+, T7s+, 98s, 87s, 75s+, 64s+, 53s+, 43s, AJo, KQo, QJo, 97s:0.6, 86s:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "TT+, ATs+, A5s, KTs+, AQo+, 55:0.8, A4s:0.5"
      }
     ]
    },
@@ -19620,8 +20101,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.191,
-    "regret": 0.0001,
+    "occ": 1.003,
+    "regret": 0,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19629,13 +20110,46 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, A8s-A7s, KQs, K9s-K4s, Q9s-Q7s, J9s-J7s, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, AJo, KJo+, QJo, JTo, 88:0.8, A5s:0.3, QTs:0.3, QTo:0.3, QJs:0.1"
+      "range": "88-77, KQs, K9s-K6s, Q6s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo, KJo+, QJo, JTo, QTo:0.9, 66:0.8"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, A9s+, KJs-KTs, JTs, AQo+, QJs:0.9, 44:0.7, A5s:0.7, QTs:0.7, 88:0.2, 33:0.1"
+      "range": "99+, 55, A9s+, A5s-A4s, KJs-KTs, AQo+, 66:0.2, 44:0.1"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp2-open-co-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "CO"
+    ],
+    "chip": "UTG+2오픈·CO콜",
+    "title": "SB vs UTG+2 오픈 + CO 콜",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.33,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "77, QJs, Q9s-Q8s, J9s-J8s, T9s, 98s, 76s, 64s+, 54s, KQo, QJo, QTs:0.8, K7s:0.7, 43s:0.7, 88:0.6, T8s:0.5, 53s:0.4, 97s:0.1, 87s:0.1, 75s:0.1, KJo:0.1, QTo:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "99+, A9s+, K9s+, JTs, AJo+, 55:0.8, 88:0.4, KJo:0.4, QTs:0.2"
      }
     ]
    },
@@ -19653,8 +20167,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.191,
-    "regret": 0.0001,
+    "occ": 0.866,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19662,13 +20176,42 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, A8s-A5s, KQs, K9s-K4s, QJs, Q9s-Q8s, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, J7s:0.9, JTo:0.9, 53s:0.8, 88:0.1"
+      "range": "77, A8s-A7s, K9s-K6s, K4s, Q7s+, J9s-J7s, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KJo+, QTo+, K5s:0.9, Q6s:0.6, 66:0.5, JTo:0.5, KQs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, A9s+, KJs-KTs, QTs, JTs, AJo+, 88:0.9, 33:0.9, KTo:0.2"
+      "range": "88+, 55, A9s+, A5s-A4s, KJs-KTs, JTs, AJo+, KQs:0.9, 66:0.4"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-utgp2-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "BB",
+    "villainSeats": [
+     "BB"
+    ],
+    "chip": "UTG+2오픈·SB콜·BB올인·UTG+2폴드",
+    "title": "SB — UTG+2 오픈 → SB 콜 → BB 올인 → UTG+2 폴드",
+    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인 → UTG+2 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · SB 콜 · BB 올인 · UTG+2 폴드",
+    "reachFrom": [
+     "sb-vs-utgp2-open:call"
+    ],
+    "reachPct": 21.6,
+    "occ": 0.103,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "99, AJs:0.8, 66:0.2"
      }
     ]
    },
@@ -19686,8 +20229,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.033,
-    "regret": 0.0001,
+    "occ": 0.139,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19695,13 +20238,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, A9s-A4s, KJs+, K9s-K4s, QJs, Q9s-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, KJo+, QTo+, JTo, K3s:0.3, Q6s:0.1, T7s:0.1"
+      "range": "A7s-A6s, A4s-A3s, KJs+, K8s-K4s, QJs, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KJo+, QJo, ATo:0.9, 66:0.8, A2s:0.7, A5s:0.6, KTo:0.5, 77:0.2, Q8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 55-44, ATs+, KTs, QTs, JTs, AJo+, KTo:0.8, 33:0.1"
+      "range": "88+, 55, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, 77:0.8, T8s:0.8, A5s:0.4, 66:0.2, 44:0.1, ATo:0.1"
      }
     ]
    },
@@ -19719,7 +20262,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.242,
+    "occ": 0.66,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19728,46 +20271,42 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, A7s-A4s, KJs+, K9s-K3s, QJs, Q9s-Q8s, J9s-J8s, T8s-T7s, 97s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, JTo:0.9, 77:0.7, A8s:0.6, Q7s:0.5, Q6s:0.4, J7s:0.2, 53s:0.2, T9s:0.1"
+      "range": "A7s-A4s, K8s-K4s, QJs, Q9s-Q8s, J8s, T8s, 97s+, 87s, 76s, 64s+, 53s+, 43s, KJo+, QTo+, K3s:0.9, J9s:0.9, T7s:0.8, 66:0.7, KJs:0.3, Q7s:0.2, KQs:0.1, Q6s:0.1, T9s:0.1, 75s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 55, A9s+, KTs, QTs, JTs, AJo+, KTo, T9s:0.9, 44:0.7, ATo:0.5, A8s:0.4, 77:0.3, JTo:0.1"
+      "range": "77+, 55-44, A8s+, KTs-K9s, QTs, JTs, AJo+, KQs:0.9, T9s:0.9, KJs:0.7, 66:0.3, KTo:0.3, ATo:0.2, 33:0.1, J9s:0.1"
      }
     ]
    },
    {
-    "id": "sb-at-hj-open-co-call",
+    "id": "sb-at-lj-open-sb-call-bb-jam",
     "kind": "squeeze",
     "hero": "SB",
-    "villain": "HJ",
+    "villain": "BB",
     "villainSeats": [
-     "HJ",
-     "CO"
+     "BB"
     ],
-    "chip": "HJ오픈·CO콜",
-    "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · CO 콜",
-    "reachPct": 100,
-    "occ": 1.064,
-    "regret": 0.0001,
+    "chip": "LJ오픈·SB콜·BB올인·LJ폴드",
+    "title": "SB — LJ 오픈 → SB 콜 → BB 올인 → LJ 폴드",
+    "description": "LJ 오픈 2bb → SB 콜 → BB 올인 → LJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · SB 콜 · BB 올인 · LJ 폴드",
+    "reachFrom": [
+     "sb-vs-lj-open:call"
+    ],
+    "reachPct": 21.5,
+    "occ": 0.144,
+    "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
     "actions": [
      {
-      "key": "overcall",
-      "label": "오버콜",
+      "key": "call",
+      "label": "콜",
       "color": "call",
-      "range": "77-66, A8s-A2s, KJs+, K9s-K4s, Q9s-Q5s, J9s-J8s, T8s, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, KJo+, QTo+, QJs:0.9, J7s:0.9, ATo:0.9, T9s:0.8, JTo:0.8, K3s:0.6, 44:0.3, T7s:0.1"
-     },
-     {
-      "key": "shove",
-      "label": "올인",
-      "color": "allin",
-      "range": "88+, 55, A9s+, KTs, QTs, JTs, AJo+, KTo, 44:0.7, T9s:0.2, JTo:0.2, QJs:0.1, ATo:0.1"
+      "range": "99-88, ATs"
      }
     ]
    },
@@ -19785,7 +20324,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.38,
+    "occ": 0.553,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19794,31 +20333,151 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs, K9s-K2s, Q8s-Q5s, J9s-J8s, T8s, 97s+, 86s+, 75s+, 65s, 54s, KTo+, QTo+, J7s:0.8, 66:0.7, JTo:0.6, 64s:0.3, ATo:0.3, QJs:0.1, 53s:0.1"
+      "range": "A6s, K8s-K4s, Q8s-Q7s, J8s, 97s, 87s, 76s, 65s, 54s, KJo-KTo, QTo+, 53s:0.9, KQo:0.9, A3s:0.7, T7s:0.7, A4s:0.6, A5s:0.1, QJs:0.1, Q6s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "77+, 55-44, A8s+, KQs, KTs, QTs-Q9s, JTs, T9s, AJo+, QJs:0.9, ATo:0.7, JTo:0.4, 66:0.3"
+      "range": "55+, A7s+, K9s+, QTs-Q9s, J9s+, T8s+, 98s, ATo+, A5s:0.9, QJs:0.9, A4s:0.4, 44:0.2, KQo:0.1"
      }
     ]
    },
    {
-    "id": "sb-at-co-open-btn-call",
+    "id": "sb-at-hj-open-sb-call-bb-jam",
     "kind": "squeeze",
     "hero": "SB",
-    "villain": "CO",
+    "villain": "BB",
     "villainSeats": [
-     "CO",
-     "BTN"
+     "BB"
     ],
-    "chip": "CO오픈·BTN콜",
-    "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · BTN 콜",
+    "chip": "HJ오픈·SB콜·BB올인·HJ폴드",
+    "title": "SB — HJ 오픈 → SB 콜 → BB 올인 → HJ 폴드",
+    "description": "HJ 오픈 2bb → SB 콜 → BB 올인 → HJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "HJ 2 · SB 콜 · BB 올인 · HJ 폴드",
+    "reachFrom": [
+     "sb-vs-hj-open:call"
+    ],
+    "reachPct": 24.4,
+    "occ": 0.208,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "77"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-co-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "BB",
+    "villainSeats": [
+     "BB"
+    ],
+    "chip": "CO오픈·SB콜·BB올인·CO폴드",
+    "title": "SB — CO 오픈 → SB 콜 → BB 올인 → CO 폴드",
+    "description": "CO 오픈 2bb → SB 콜 → BB 올인 → CO 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "CO 2 · SB 콜 · BB 올인 · CO 폴드",
+    "reachFrom": [
+     "sb-vs-co-open:call"
+    ],
+    "reachPct": 19,
+    "occ": 0.228,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "66, KJs:0.4"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-btn-open-sb-call-bb-jam",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "BB",
+    "villainSeats": [
+     "BB"
+    ],
+    "chip": "BTN오픈·SB콜·BB올인·BTN폴드",
+    "title": "SB — BTN 오픈 → SB 콜 → BB 올인 → BTN 폴드",
+    "description": "BTN 오픈 2bb → SB 콜 → BB 올인 → BTN 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "BTN 2 · SB 콜 · BB 올인 · BTN 폴드",
+    "reachFrom": [
+     "sb-vs-btn-open:call"
+    ],
+    "reachPct": 18.3,
+    "occ": 0.307,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "call",
+      "label": "콜",
+      "color": "call",
+      "range": "QJs, JTs:0.6, QTs:0.4"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "HJ"
+    ],
+    "chip": "UTG오픈·HJ콜",
+    "title": "BB vs UTG 오픈 + HJ 콜",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.213,
+    "occ": 0.331,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-66, 44-22, AJs, A9s-A6s, A4s-A2s, KQs, K9s-K6s, K4s, QJs, Q9s-Q7s, J4s+, T5s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QJo, 76o, 65o, 53o+, 43o, J3s:0.9, T9o:0.9, K5s:0.7, Q5s:0.7, QTs:0.6, Q6s:0.6, JTo:0.6, 98o:0.4, 55:0.3, 93s:0.3, 87o:0.2"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "TT+, AQs+, ATs, A5s, KJs-KTs, AQo+, KJo:0.8, 55:0.7, QTs:0.4"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "CO"
+    ],
+    "chip": "UTG오픈·CO콜",
+    "title": "BB vs UTG 오픈 + CO 콜",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.458,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19827,13 +20486,80 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A6s-A2s, KJs, K9s-K2s, Q8s-Q5s, 97s, 86s, 76s, 65s, KJo-K9o, QTo+, JTo, QJs:0.5, KQo:0.5, KTs:0.3, J7s:0.3"
+      "range": "88-66, 44-22, AJs, A9s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J3s+, T2s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, 43o, KJo:0.9, 99:0.7, 53o:0.7, 55:0.1, A4s:0.1, J2s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "44+, A7s+, KQs, QTs-Q9s, J8s+, T8s+, 98s, 87s, ATo+, 33:0.9, KTs:0.7, QJs:0.5, KQo:0.5"
+      "range": "TT+, AQs+, ATs, A5s, KJs-KTs, AQo+, 55:0.9, A4s:0.9, KTo:0.5, 99:0.3, KJo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-btn-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "BTN"
+    ],
+    "chip": "UTG오픈·BTN콜",
+    "title": "BB vs UTG 오픈 + BTN 콜",
+    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · BTN 콜",
+    "reachPct": 100,
+    "occ": 0.661,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88-66, 33-22, AJs, A9s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QTo+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 54o, T7o:0.8, 53o:0.7, A4s:0.4, J8o:0.4, 55:0.3, 44:0.2, KTo:0.2, A5s:0.1, 43o:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "99+, AQs+, ATs, KJs-KTs, AQo+, A5s:0.9, 44:0.8, KTo:0.8, 55:0.7, A4s:0.6"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utg-open-btn-call-sb-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "BTN",
+     "SB"
+    ],
+    "chip": "UTG오픈·BTN콜·SB콜",
+    "title": "BB vs UTG 오픈 + BTN·SB 콜",
+    "description": "UTG 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG 2 · BTN 콜 · SB 콜",
+    "reachPct": 100,
+    "occ": 0.103,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "77-66, A7s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K7o+, Q7o+, Q5o, J8o+, T7o+, 98o, 86o+, 76o, 65o, J7o:0.9, KQs:0.8"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "88+, 55, A8s+, KJs-KTs, AJo+, 44:0.7, KQs:0.2, ATo:0.1"
      }
     ]
    },
@@ -19851,7 +20577,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.61,
+    "occ": 1.359,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19860,13 +20586,146 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-55, AJs, A8s-A5s, A3s-A2s, KJs+, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o-K7o, Q8o+, J9o+, T8o+, 97o+, 86o+, 75o+, 65o, 54o, 33:0.5"
+      "range": "88-55, 22, AJs, A8s-A6s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KTo+, Q8o+, J8o+, T7o+, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, A2s:0.8, J7o:0.8, 44:0.6, 33:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 44, 22, AQs+, ATs-A9s, A4s, KTs, AQo+, KTo, 33:0.5"
+      "range": "99+, AQs+, ATs-A9s, A5s-A3s, KJs-KTs, AQo+, 33:0.8, 44:0.4, A2s:0.2"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "BB vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.225,
+    "regret": 0.0004,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K6s, K4s, QJs, Q9s-Q5s, J9s-J4s, T6s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QJo, JTo, 76o, 65o, 54o, 43o, K5s:0.9, Q4s:0.9, JTs:0.9, J3s-J2s:0.9, 87o:0.9, Q3s:0.7, Q2s:0.6, 53o:0.6, ATs:0.5, KJo:0.5, 44:0.4, T9o:0.3, 93s:0.2, 99:0.1, K3s:0.1, 98o:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "TT+, 55, AQs+, KJs-KTs, QTs, AQo+, 99:0.9, KTo:0.8, 44:0.6, ATs:0.5, KJo:0.5, JTs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "CO"
+    ],
+    "chip": "UTG+1오픈·CO콜",
+    "title": "BB vs UTG+1 오픈 + CO 콜",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.419,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T4s+, T2s, 95s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 87o, 76o, 65o, 54o, KJo:0.6, 44:0.3, ATs:0.1, T3s:0.1, 94s:0.1, 53o:0.1, 43o:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "99+, 55, AQs+, KJs-KTs, AQo+, KTo, ATs:0.9, 44:0.7, KJo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-btn-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "BTN"
+    ],
+    "chip": "UTG+1오픈·BTN콜",
+    "title": "BB vs UTG+1 오픈 + BTN 콜",
+    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · BTN 콜",
+    "reachPct": 100,
+    "occ": 0.77,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "77-66, 22, AJs, A9s-A6s, A3s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, A5s:0.9, QTs:0.7, 33:0.6, 43o:0.5, A4s:0.3"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "88+, 55-44, AQs+, ATs, KJs-KTs, AQo+, KTo, A4s:0.7, 33:0.4, QTs:0.3, A5s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-btn-call-sb-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "BTN",
+     "SB"
+    ],
+    "chip": "UTG+1오픈·BTN콜·SB콜",
+    "title": "BB vs UTG+1 오픈 + BTN·SB 콜",
+    "description": "UTG+1 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+1 2 · BTN 콜 · SB 콜",
+    "reachPct": 100,
+    "occ": 0.154,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "66, A7s-A2s, KQs, K9s-K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K7o, Q8o+, J9o+, T8o+, 98o, 87o, 76o, 65o, KJs:0.7, KTo:0.7, 54o:0.7"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "77+, 55, A8s+, KTs, JTs, ATo+, KJs:0.3, KTo:0.3, 44:0.1"
      }
     ]
    },
@@ -19884,8 +20743,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+1 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+1 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.606,
-    "regret": 0,
+    "occ": 1.562,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19893,13 +20752,113 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-55, A7s-A2s, KJs+, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o-K6o, Q8o+, J8o+, T8o+, 97o+, 86o+, 75o+, 65o, 54o, 44:0.4, AJs:0.1"
+      "range": "77-55, AJs, A8s-A6s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o, K7o, Q8o+, J8o+, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, 22:0.9, A2s:0.9, KTo:0.9, 88:0.5, A3s:0.3, 44-33:0.2, K8o:0.2, 96o:0.2, J7o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 33-22, AQs+, ATs-A8s, KTs, AQo+, KTo, AJs:0.9, 44:0.6"
+      "range": "99+, AQs+, ATs-A9s, A5s-A4s, KJs-KTs, AQo+, 44-33:0.8, A3s:0.7, 88:0.5, 22:0.1, A2s:0.1, KTo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp2-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "CO"
+    ],
+    "chip": "UTG+2오픈·CO콜",
+    "title": "BB vs UTG+2 오픈 + CO 콜",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.276,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "77-66, 22, A8s-A6s, A3s-A2s, KQs, K8s-K2s, Q2s+, J9s-J2s, T5s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A9o, KJo+, QTo+, J9o+, T9o, 76o, 65o, 53o+, 43o, 33:0.9, A5s-A4s:0.9, AJo:0.9"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "88+, 55-44, A9s+, KJs-K9s, JTs, AQo+, KTo, 33:0.1, A5s-A4s:0.1, AJo:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp2-open-btn-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "BTN"
+    ],
+    "chip": "UTG+2오픈·BTN콜",
+    "title": "BB vs UTG+2 오픈 + BTN 콜",
+    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · BTN 콜",
+    "reachPct": 100,
+    "occ": 0.66,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "66, 22, A8s-A5s, A3s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A9o, KJo+, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, 77:0.9, A4s:0.9, A8o:0.9, 33:0.6, 55:0.1, QTs:0.1, K9o:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "88+, 44, A9s+, KJs-KTs, JTs, AQo+, KTo, 55:0.9, QTs:0.9, 33:0.4, 77:0.1, A4s:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp2-open-btn-call-sb-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "BTN",
+     "SB"
+    ],
+    "chip": "UTG+2오픈·BTN콜·SB콜",
+    "title": "BB vs UTG+2 오픈 + BTN·SB 콜",
+    "description": "UTG+2 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "UTG+2 2 · BTN 콜 · SB 콜",
+    "reachPct": 100,
+    "occ": 0.121,
+    "regret": 0.0002,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "A7s-A2s, KJs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K7o, Q8o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, K6o:0.8, 55:0.6, KTo:0.4, 33:0.3, KQs:0.3"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "66+, 44, A8s+, KTs, QTs, JTs, ATo+, KQs:0.7, KTo:0.6, 55:0.4"
      }
     ]
    },
@@ -19917,7 +20876,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "UTG+2 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "UTG+2 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.607,
+    "occ": 1.594,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19926,13 +20885,79 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-55, A7s-A2s, KJs+, K9s-K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, KJo+, K9o-K5o, Q7o+, J8o+, T8o+, 97o+, 86o+, 75o+, 65o, 54o, 44:0.8, JTs:0.6, A8s:0.2"
+      "range": "66-55, A7s-A5s, A3s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A9o, KJo+, K9o-K7o, Q7o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, A8o:0.9, K6o:0.9, Q6o:0.9, KTo:0.6, 77:0.2, A8s:0.2, 63o:0.2, A4s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "77+, 33-22, A9s+, KTs, AJo+, A9o, KTo, A8s:0.8, JTs:0.4, 44:0.2"
+      "range": "88+, 44-22, A9s+, KJs-KTs, AQo+, A4s:0.9, 77:0.8, A8s:0.8, KTo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-lj-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "LJ",
+    "villainSeats": [
+     "LJ",
+     "CO"
+    ],
+    "chip": "LJ오픈·CO콜",
+    "title": "BB vs LJ 오픈 + CO 콜",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.107,
+    "regret": 0.0001,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "33-22, A7s-A2s, KJs+, K8s-K2s, QJs, Q8s-Q2s, T7s, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, KTo+, QTo+, 76o, 65o, 53o+, 43o, 87o:0.9, 93s:0.7, KTs:0.3, 55-44:0.1, T6s:0.1, A9o:0.1, 98o:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "66+, A8s+, K9s, QTs-Q9s, J8s+, T8s+, AJo+, 55-44:0.9, A9o:0.9, KTs:0.7"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-lj-open-btn-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "LJ",
+    "villainSeats": [
+     "LJ",
+     "BTN"
+    ],
+    "chip": "LJ오픈·BTN콜",
+    "title": "BB vs LJ 오픈 + BTN 콜",
+    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "line": "LJ 2 · BTN 콜",
+    "reachPct": 100,
+    "occ": 0.504,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 0,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "A7s-A2s, KJs+, K8s-K2s, QJs, Q8s-Q2s, J8s-J2s, T7s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A8o, A4o, KJo+, K9o-K8o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, 22:0.9, A5o:0.9, KTo:0.8, T8s:0.7, A7o:0.7, 64o:0.7, Q8o:0.6, K7o:0.4, 33:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": "44+, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, 33:0.9, T8s:0.3, KTo:0.2, 22:0.1"
      }
     ]
    },
@@ -19950,7 +20975,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "LJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "LJ 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.659,
+    "occ": 1.709,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -19959,13 +20984,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs+, K9s-K2s, Q2s+, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A7o, A5o-A4o, KJo+, K9o-K3o, Q4o+, J7o+, T8o+, 97o+, 86o+, 75o+, 64o+, 53o+, A6o:0.9, A8o:0.6, 55:0.5, JTs:0.5, A3o:0.5, Q3o:0.4, 44:0.1, ATo:0.1, KTo:0.1"
+      "range": "A7s-A2s, K8s-K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A8o-A7o, A5o-A4o, KJo+, K9o-K5o, Q4o+, J7o+, T7o+, 96o+, 85o+, 74o+, 63o+, 53o+, 43o, 32o, K4o:0.9, KTo:0.8, Q3o:0.5, 55:0.4, JTs:0.3, A9o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "66+, 33-22, A8s+, KTs, T9s, AJo+, 44:0.9, ATo:0.9, KTo:0.9, 55:0.5, JTs:0.5, A8o:0.4"
+      "range": "66+, 44-22, A8s+, K9s+, AJo+, A9o:0.8, JTs:0.7, 55:0.6, KTo:0.2"
      }
     ]
    },
@@ -19983,8 +21008,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.003,
-    "regret": 0.0001,
+    "occ": 0.42,
+    "regret": 0.0005,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -19992,13 +21017,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs, K9s-K2s, QJs, Q8s-Q2s, J9s, J7s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A7o, A5o-A3o, K5o+, Q9o+, J9o, T8o+, 97o+, 86o+, 76o, 65o, 53o+, 33:0.9, J8s:0.6, KQs:0.3, Q8o:0.3"
+      "range": "A6s, A4s-A2s, KJs, K8s-K2s, QJs, Q8s-Q2s, J7s-J2s, T7s-T2s, 97s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A7o, A5o-A3o, K9o+, Q8o+, J9o, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, K9s:0.9, K8o:0.9, JTo:0.9, A7s:0.8, K7o:0.8, A6o:0.7, 33-22:0.5, 64o:0.5, A8o:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "44+, 22, A8s+, KTs, QTs-Q9s, JTs, T9s, A9o+, JTo, KQs:0.7, J8s:0.4, 33:0.1"
+      "range": "44+, A8s+, A5s, KQs, KTs, QTs-Q9s, J8s+, T8s+, 98s, ATo+, A8o:0.6, 33-22:0.5, A7s:0.2, K9s:0.1, JTo:0.1"
      }
     ]
    },
@@ -20016,7 +21041,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "HJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "HJ 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.808,
+    "occ": 2.045,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -20025,13 +21050,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A6s, A4s-A2s, K2s+, Q2s+, J9s, J7s-J2s, T7s-T2s, 97s-92s, 86s-82s, 72s+, 62s+, 52s+, 42s+, 32s, A6o-A3o, K2o+, Q3o+, J9o, J7o, T8o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, JTo:0.9, J8o:0.7, T7o:0.7, 98s:0.3, A5s:0.2, A2o:0.2, A8o:0.1"
+      "range": "A6s, A4s-A2s, K7s-K2s, Q2s+, J9s-J2s, T7s-T2s, 97s-92s, 86s-82s, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A6o-A3o, K4o+, Q3o+, J5o+, T7o+, 96o+, 85o+, 74o+, 63o+, 53o+, 43o, 32o, A7o:0.9, T6o:0.9, 87s:0.8, 98s:0.6, K3o:0.6, KJs:0.5, K9s-K8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "22+, A7s+, JTs, J8s, T8s+, 87s, A9o+, A7o, A8o:0.9, A5s:0.8, 98s:0.7, J8o:0.3, JTo:0.1"
+      "range": "22+, A7s+, A5s, KQs, KTs, JTs, T8s+, ATo+, A8o, K9s-K8s:0.9, KJs:0.5, 98s:0.4, 87s:0.2, A7o:0.1"
      }
     ]
    },
@@ -20049,7 +21074,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "CO 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "CO 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.98,
+    "occ": 1.671,
     "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
@@ -20058,13 +21083,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K9s-K2s, QTs-Q2s, J9s, J7s-J2s, T7s-T2s, 92s+, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A4o-A2o, K2o+, Q2o+, J9o-J7o, T8o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, A3s-A2s:0.8, KTs:0.8, JTo:0.4, T7o:0.3"
+      "range": "K9s-K2s, Q2s+, J9s, J7s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A4o-A3o, K2o+, Q2o+, J7o+, J5o, T9o, T7o, 97o+, 85o+, 74o+, 64o+, 53o+, 43o, 32o, J6o:0.9, T8o:0.9, A2o:0.8, KJs:0.4, 63o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "22+, A4s+, KQs, QJs, JTs, J8s, T8s+, 87s, 76s, A5o+, JTo:0.6, A3s-A2s:0.2, KTs:0.2"
+      "range": "22+, A2s+, KQs, KTs, JTs, J8s, T8s+, 97s+, 87s, 76s, A5o+, KJs:0.6, T8o:0.1"
      }
     ]
    },
@@ -20082,8 +21107,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "BTN 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "BTN 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.768,
-    "regret": 0,
+    "occ": 1.757,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -20091,13 +21116,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K9s-K2s, QTs-Q2s, J9s, J7s-J2s, T6s-T2s, 97s, 95s-92s, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, KJo-K2o, QTo-Q2o, J9o-J7o, T8o, 97o, 86o+, 75o+, 64o+, 53o+, 43o, T7s:0.9, T9o:0.9, 98o:0.7, QJo:0.3, J5o:0.2"
+      "range": "K9s-K6s, K4s-K2s, Q9s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, KTo-K2o, Q2o+, J9o-J5o, T7o+, 97o, 86o+, 74o+, 64o+, 53o+, 43o, 32o, K5s:0.9, JTo:0.5, J9s:0.4, J4o:0.4, 98o:0.4, 63o:0.4, 42o:0.3, 85o:0.2, T6o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "22+, A2s+, KTs+, QJs, JTs, J8s, T8s+, 98s, 96s, 87s, 76s, A2o+, KQo, JTo, QJo:0.7, 98o:0.3, T7s:0.1, T9o:0.1"
+      "range": "22+, A2s+, KTs+, QTs+, JTs, T8s+, 97s+, 86s+, 76s, A2o+, KJo+, J9s:0.6, 98o:0.6, JTo:0.5, K5s:0.1"
      }
     ]
    },
@@ -20116,8 +21141,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 49.5,
-    "occ": 1.761,
+    "reachPct": 56,
+    "occ": 2.93,
     "regret": 0.0002,
     "confidence": "mid",
     "move": 0,
@@ -20126,19 +21151,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A3s-A2s, KTs, K2s, Q5s-Q2s, JTs, J8s-J2s, T9s, T6s-T2s, 97s+, 95s-92s, 84s+, 74s+, 64s+, 53s+, 42s+, 32s, A4o, KTo, QTo, T8o+, 97o+, 86o+, 76o, T7s:0.9, A6s:0.8, A6o:0.8, A3o:0.8, JTo:0.7, A2o:0.6, J8o:0.6, 44:0.1, T7o:0.1"
+      "range": "KTs, K8s, K5s-K2s, Q8s-Q7s, Q5s-Q2s, J7s-J2s, T9s, T7s-T2s, 97s-92s, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A8o-A6o, K9o-K7o, K4o-K3o, Q5o, J9o-J8o, T7o+, 97o-96o, 86o, 76o, A2o:0.9, Q6s:0.8, 98o:0.8, K7s:0.7, A3o:0.6, 87o:0.5, A6s:0.4, Q4o:0.4, 75o:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 9bb",
       "color": "raise",
-      "range": "AA, ATs-A9s, A7o, A2o:0.4, AJs:0.3, A6o:0.2, A3o:0.2, 66:0.1, AQo:0.1, J8o:0.1"
+      "range": "A9s, TT:0.9, ATs:0.4, AJs:0.2, KQs:0.2, A2o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, 88-77, 55, A5s-A4s, 96s, AJo-ATo, KQo, 66:0.9, 44:0.9, AQo:0.9, AJs:0.7, JTo:0.3, J8o:0.3, T7o:0.3, A6s:0.2, T7s:0.1"
+      "range": "99-44, 22, A5s-A2s, KJs, K6s, QTs, JTs, AJo+, KQo, QJo, JTo, AJs:0.8, KQs:0.8, ATs:0.6, A6s:0.6, 87o:0.5, A3o:0.4, K7s:0.3, Q6s:0.2, 98o:0.2, TT:0.1"
      }
     ]
    },
@@ -20157,9 +21182,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 49.5,
-    "occ": 0.237,
-    "regret": 0.0003,
+    "reachPct": 56,
+    "occ": 0.26,
+    "regret": 0.0004,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -20167,7 +21192,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AA, TT, 88-44, AJs-A9s, A6s-A5s, KTs, JTs, T9s, AQo-ATo, KQo:0.9, JTo:0.4, A7o:0.3"
+      "range": "TT-44, AJs-A9s, A6s-A5s, KTs+, QTs, JTs, T9s, AJo+, A8o-A7o, QJo, JTo, KQo:0.7, A4s:0.1, 97s:0.1, T9o:0.1"
      }
     ]
    },
@@ -20185,7 +21210,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 4.329,
+    "occ": 6.649,
     "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
@@ -20194,19 +21219,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "raise",
       "label": "레이즈 3bb",
       "color": "raise",
-      "range": "44+, A2s+, K7s+, QJs, Q9s-Q8s, AQo+, A7o, A4o-A2o, KQo, K9o-K4o, K2o, Q9o-Q7o, J9o-J8o, T9o, KJo:0.8, 98o:0.8, AJo:0.7, A6o:0.7, ATo:0.6, 87o:0.6, J7o:0.5, 94o:0.5, 54o:0.5, 52o:0.5, Q6o:0.4, T7o:0.4, T3o-T2o:0.4, 65o:0.4, 53o:0.4, 42o:0.4, QTs:0.3, K3o:0.3, T4o:0.3, 83o:0.3, 32o:0.3, J9s:0.2, A5o:0.2, 93o-92o:0.2, 85o-84o:0.2, 82o:0.2, 75o:0.2, 72o:0.2, A8o:0.1, J4o:0.1, T8o:0.1, 73o:0.1"
+      "range": "55+, A2s+, K8s+, T9s, ATo+, A7o-A6o, A4o-A2o, KJo-K6o, J8o+, T8o+, 87o, 54o, QJs:0.9, KQo:0.9, Q8o:0.9, 98o:0.9, 65o:0.9, A9o:0.8, QJo:0.8, Q9o:0.8, K7s:0.7, JTs:0.7, 32o:0.7, 98s:0.6, QTo:0.6, 82o:0.6, J9s:0.5, J7o:0.5, 83o:0.5, 64o:0.5, 53o:0.5, 43o:0.5, Q7o:0.4, T7o:0.4, 97o:0.4, 63o:0.4, 42o:0.4, 93o-92o:0.3, 86o:0.3, 52o:0.3, A5o:0.2, 96o:0.2, 76o:0.2, 62o:0.2, QTs-Q9s:0.1, 85o:0.1, 75o:0.1, 73o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "33-22, A9o, A8o:0.9, A5o:0.8, 85o:0.5, ATo:0.4, AJo:0.3, A6o:0.3, 76o:0.3, 63o:0.3, KTo:0.2"
+      "range": "44-22, A8o, A5o:0.8, 86o:0.4, A9o:0.2, KQo:0.1, QTo:0.1, 98o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "K6s-K2s, Q7s-Q2s, JTs, J8s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, QTo+, Q5o-Q2o, JTo, J6o-J5o, J3o-J2o, T6o-T5o, 97o-95o, 86o, 74o, 64o, 62o, 43o, J4o:0.9, T8o:0.9, 73o:0.9, J9s:0.8, KTo:0.8, 93o-92o:0.8, 84o:0.8, 82o:0.8, 75o:0.8, 72o:0.8, QTs:0.7, K3o:0.7, T4o:0.7, 83o:0.7, 76o:0.7, 63o:0.7, 32o:0.7, Q6o:0.6, T7o:0.6, T3o-T2o:0.6, 65o:0.6, 53o:0.6, 42o:0.6, J7o:0.5, 94o:0.5, 54o:0.5, 52o:0.5, 87o:0.4, 85o:0.3, KJo:0.2, 98o:0.2"
+      "range": "K6s-K2s, Q8s-Q2s, J8s-J2s, T8s-T2s, 97s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K5o-K2o, Q6o-Q2o, J6o-J2o, T6o-T2o, 95o-94o, 84o, 74o, 72o, QTs-Q9s:0.9, 85o:0.9, 75o:0.9, 73o:0.9, 96o:0.8, 76o:0.8, 62o:0.8, 93o-92o:0.7, 52o:0.7, Q7o:0.6, T7o:0.6, 97o:0.6, 63o:0.6, 42o:0.6, J9s:0.5, J7o:0.5, 83o:0.5, 64o:0.5, 53o:0.5, 43o:0.5, 98s:0.4, 82o:0.4, K7s:0.3, JTs:0.3, QTo:0.3, 86o:0.3, 32o:0.3, QJo:0.2, Q9o:0.2, QJs:0.1, Q8o:0.1, 65o:0.1"
      }
     ]
    },
@@ -20225,9 +21250,9 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 40.6,
-    "occ": 0.2,
-    "regret": 0.0002,
+    "reachPct": 44.3,
+    "occ": 0.439,
+    "regret": 0.0003,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -20235,111 +21260,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44+, A7s+, KTs+, QTs+, ATo+, K9s:0.9, KQo:0.6"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-lj-open-sb-jam",
-    "kind": "vsShove",
-    "hero": "BB",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "LJ오픈·SB올인·LJ폴드",
-    "title": "BB — LJ 오픈 → SB 올인 → LJ 폴드",
-    "description": "LJ 오픈 2bb → SB 올인 → LJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "LJ 2 · SB 올인 · LJ 폴드",
-    "reachPct": 100,
-    "occ": 0.134,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "99+, AJs+, AKo"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-hj-open-sb-jam",
-    "kind": "vsShove",
-    "hero": "BB",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "HJ오픈·SB올인·HJ폴드",
-    "title": "BB — HJ 오픈 → SB 올인 → HJ 폴드",
-    "description": "HJ 오픈 2bb → SB 올인 → HJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "HJ 2 · SB 올인 · HJ 폴드",
-    "reachPct": 100,
-    "occ": 0.167,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "88+, ATs+, AKo, AQo:0.6"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-co-open-sb-jam",
-    "kind": "vsShove",
-    "hero": "BB",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "CO오픈·SB올인·CO폴드",
-    "title": "BB — CO 오픈 → SB 올인 → CO 폴드",
-    "description": "CO 오픈 2bb → SB 올인 → CO 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "CO 2 · SB 올인 · CO 폴드",
-    "reachPct": 100,
-    "occ": 0.242,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "66+, ATs+, AQo+, KQs:0.6, KJs:0.1, AJo:0.1"
-     }
-    ]
-   },
-   {
-    "id": "bb-at-btn-open-sb-jam",
-    "kind": "vsShove",
-    "hero": "BB",
-    "villain": "SB",
-    "villainSeats": [
-     "SB"
-    ],
-    "chip": "BTN오픈·SB올인·BTN폴드",
-    "title": "BB — BTN 오픈 → SB 올인 → BTN 폴드",
-    "description": "BTN 오픈 2bb → SB 올인 → BTN 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "BTN 2 · SB 올인 · BTN 폴드",
-    "reachPct": 100,
-    "occ": 0.472,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "call",
-      "label": "콜",
-      "color": "call",
-      "range": "55+, A9s+, KQs, AJo+, 44:0.9, ATo:0.9, A8s:0.1"
+      "range": "55+, A5s+, KTs+, QJs, A9o+, JTs:0.5, QTs:0.3"
      }
     ]
    },
@@ -20356,8 +21277,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "description": "SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
     "line": "SB 올인",
     "reachPct": 100,
-    "occ": 0.546,
-    "regret": 0,
+    "occ": 0.872,
+    "regret": 0.0001,
     "confidence": "mid",
     "move": 0,
     "actions": [
@@ -20365,7 +21286,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "22+, A5s+, KTs+, QTs+, J9s+, T8s+, A8o+, Q9s:0.6, A7o:0.3, KQo:0.3"
+      "range": "22+, A5s+, KTs+, QTs+, J9s+, T9s, A8o+, A7o:0.5, T8s:0.4, 87s:0.3, 98s:0.1"
      }
     ]
    }

@@ -27,6 +27,7 @@ import {
   stageSanity,
   stageValuation,
   thresholdsByKind,
+  topCardChains,
   type DataLimits,
   type NodeClass,
   type StageExportInput,
@@ -341,8 +342,9 @@ describe("exportStage (§4.4, §6.2, §6.5, §6.6)", { timeout: 60_000 }, () => 
       iterations: 300,
       occThreshold: 0.1,
       occThresholdByKind: thresholdsByKind(ladder.steps),
+      occThresholdCold: ladderThresholds(ladder.steps).cold,
       snappedGainMbb: 1.234,
-      model: { id: "modelB-5f", fitHash: "fit-sha", packs: { "pack-a": { version: 2, flops: 448 } } },
+      model: { id: "modelB-rank6", fitHash: "fit-sha", packs: { "pack-a": { version: 2, flops: 448 } } },
       equityTable: "table-sha",
     });
     expect(stage.brGainMbb).toHaveLength(5);
@@ -447,7 +449,7 @@ describe("checks on a stage's data", () => {
     snappedGainMbb: 0,
     ev: [],
     diag: { evSum: 0, frozenOccPct: 0, negativeShares: 0 },
-    model: { id: "modelB-5f", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
+    model: { id: "modelB-rank6", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
     equityTable: "",
     scenarios,
   });
@@ -509,6 +511,26 @@ describe("checks on a stage's data", () => {
     expect(rep.fails).toEqual([]);
     expect(rep.warns.filter((w) => w.startsWith("PF-SANITY-7"))).toHaveLength(2);
   });
+
+  it("PF-SANITY-8 prints inverted top cards (Kx ≥ Qx, kickers 2–J) and changes no badge", () => {
+    const chains = topCardChains();
+    expect(chains).toHaveLength(20);
+    expect(chains).toContainEqual(["K2s", "Q2s"]);
+    expect(chains).toContainEqual(["KJo", "QJo"]);
+    expect(chains).toContainEqual(["KTo", "QTo"]);
+    // Not Qx ≥ Jx (the packs put J9/J8 at or above Q9/Q8), and not KQ vs QQ.
+    expect(chains.some(([a, b]) => a.startsWith("Q") || b.startsWith("J"))).toBe(false);
+    expect(chains).not.toContainEqual(["KQo", "QQo"]);
+    const st = base([scenario("rfi-utg", "rfi", "UTG", [["open", "22+, A2s+, K9s+, Q9s+, AJo+, KQo, KJo, QJo, QTo"]])]);
+    const rep = stageSanity(st);
+    const w8 = rep.warns.filter((w) => w.startsWith("PF-SANITY-8"));
+    expect(w8).toEqual(["PF-SANITY-8 rfi-utg: 1 top-card pair(s) inverted, worst KTo plays 0.00 < QTo 1.00"]);
+    // Print-only: no PF-SANITY-7 hit, nothing failed, and the export's confidence reads only sanity5/6/7.
+    expect(rep.sanity7).toEqual([]);
+    expect(rep.fails).toEqual([]);
+    expect(rep.warns.filter((w) => !w.startsWith("PF-SANITY-8"))).toEqual([]);
+    expect(Object.keys(rep).sort()).toEqual(["fails", "sanity5", "sanity6", "sanity7", "warns"]);
+  });
 });
 
 describe("sensitivity valuations (§6.6)", { timeout: 60_000 }, () => {
@@ -536,7 +558,7 @@ describe("sensitivity valuations (§6.6)", { timeout: 60_000 }, () => {
     const d = stageValuation(EQR_FIT, features, "d");
     if (d.kind !== "modelB" || !d.hu) throw new Error("variant d needs a heads-up kernel");
     const tree: PreflopTree = buildTree(stageConfig("100bb-2.2", { players: 5 }));
-    const { rO, rI } = EQR_FIT.alternatives.product5;
+    const { rO, rI } = EQR_FIT.alternatives.product;
     let deep = 0, shallow = 0;
     for (let t = 0; t < tree.termCount; t++) {
       if (tree.termKind[t] !== TERM.FLOP || tree.termNLive[t] !== 2) continue;

@@ -34,10 +34,11 @@ import type { PreflopKind, PreflopScenario, PreflopStage } from "./sets/preflopT
  * checks (src/poker/preflop/export.ts), so a bug there cannot hide itself here.
  *
  * Severity follows §5.2: PF-DATA-1, PF-SANITY-1 above 2pp, -2, -3 and PF-SIZE-1 fail; PF-SANITY-1 between 0.5
- * and 2pp, -4, -5, -6 and -7 only warn (console.warn). PF-SANITY-5, -6 and -7 hits must carry the 낮음 badge, which
+ * and 2pp, -4, -5, -6, -7 and -8 only warn (console.warn). PF-SANITY-5, -6 and -7 hits must carry the 낮음 badge, which
  * is a data fact the generator writes, so a hit without it fails. The thresholds are the main session's decision 2:
- * per kind, rfi / vsOpen / non-cold vs3bet / vsLimp at 0.1%, the ladder group (squeeze, vs4bet, vsShove and the
- * cold vs3bet spots) raised through 0.1 → 0.2 → 0.5 → 1%.
+ * per kind, rfi / vsOpen / non-cold vs3bet / vsLimp at 0.1%, the ladder groups (squeeze, vs4bet, vsShove and the
+ * cold vs3bet spots) each raised through 0.1 → 0.2 → 0.5 → 1% only as far as its own count needs (the per-group ladder,
+ * the approved default).
  */
 
 // No @types/node here: reach node:fs and node:zlib through untyped handles (as cardColors.test.tsx does).
@@ -197,8 +198,13 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       if (s.kind === "rfi") continue;
       expect(s.occ, s.id).toBeGreaterThanOrEqual(t[s.kind]);
     }
-    // The cold spots' own threshold is the ladder's and is not stored; it is at least the lowest step.
-    for (const s of st.scenarios.filter(isCold)) expect(s.occ, s.id).toBeGreaterThanOrEqual(LADDER[0]);
+    // The cold spots' own threshold is their ladder group's, stored as occThresholdCold: a ladder step, at least the
+    // non-cold vs3bet threshold, and every cold spot meets it.
+    const cold = st.occThresholdCold;
+    expect(cold, "occThresholdCold").toBeDefined();
+    expect(LADDER).toContain(cold);
+    expect(cold!).toBeGreaterThanOrEqual(t.vs3bet);
+    for (const s of st.scenarios.filter(isCold)) expect(s.occ, s.id).toBeGreaterThanOrEqual(cold!);
   });
 
   it("PF-DATA-1: unique ids, valid seats, kinds, actions and ids of §6.4", () => {
@@ -513,6 +519,21 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       expect(d.description, d.id).toContain("더 좋은 핸드를 덜 플레이하는 칸이 있어요");
     }
     warnAll(stageId, "PF-SANITY-7", warns);
+  });
+
+  it("PF-SANITY-8 (warning, print only): top cards in RFI and BB defense (Kx ≥ Qx with the same kicker 2–J)", () => {
+    // An additive realization term cannot follow how close K and Q are against a tight range, so a few cells may
+    // cross; they are printed, never badged. Qx ≥ Jx is not checked: the packs put J9/J8 at or above Q9/Q8.
+    const R = RANKS;
+    const chains: [string, string][] = [];
+    for (const x of ["s", "o"]) for (let k = 0; k <= 9; k++) chains.push([`K${R[k]}${x}`, `Q${R[k]}${x}`]);
+    const warns: string[] = [];
+    for (const d of st.scenarios.filter((x) => x.kind === "rfi" || (x.kind === "vsOpen" && x.hero === "BB"))) {
+      const s = sc(d.id)!;
+      const bad = chains.filter(([a, b]) => 1 - s.strategy[a].fold < 1 - s.strategy[b].fold - 0.15 - 1e-9);
+      if (bad.length) warns.push(`${d.id}: ${bad.map(([a, b]) => `${a} ${(1 - s.strategy[a].fold).toFixed(1)} < ${b} ${(1 - s.strategy[b].fold).toFixed(1)}`).join(", ")}`);
+    }
+    warnAll(stageId, "PF-SANITY-8", warns);
   });
 
   it("§6.6: no spot is badged better than its measured move allows", () => {

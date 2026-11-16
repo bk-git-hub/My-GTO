@@ -82,8 +82,11 @@ export interface PreflopStage {
   iterations: number;
   /** % of dealt hands; non-rfi scenarios below their kind's threshold are not exported. */
   occThreshold: number;
-  /** Thresholds actually used per kind after the size ladder, % of dealt hands. */
+  /** Thresholds actually used per kind after the size ladder, % of dealt hands. vs3bet is the non-cold spots'. */
   occThresholdByKind: Record<PreflopKind, number>;
+  /** % of dealt hands: the cold vs3bet spots' own threshold (their size-ladder group's, at least vs3bet's). Cold
+   *  spots below it are not exported. Optional: data written before the field existed has none. */
+  occThresholdCold?: number;
   /** Per seat (UTG..BB), each in that seat's own world, mbb/hand. */
   brGainMbb: number[];
   nashConvMbb: number;
@@ -93,7 +96,7 @@ export interface PreflopStage {
   ev: number[];
   diag: { evSum: number; frozenOccPct: number; negativeShares: number };
   model: {
-    id: "modelB-5f";
+    id: "modelB-rank6";
     fitHash: string;
     sprAlpha: number;
     sprSurplus: number;

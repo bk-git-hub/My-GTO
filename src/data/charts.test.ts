@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { strategyGradient } from "../components/FreqBar";
+import { FreqBar, strategyGradient } from "../components/FreqBar";
 import { RangeGrid } from "../components/RangeGrid";
 import { ChartsPage } from "../features/charts/ChartsPage";
 import { ALL_HANDS, gridHand, type HandClass } from "../poker/cards";
@@ -402,6 +402,20 @@ describe("solver-style scenario fields", () => {
     expect(scenarioActions(s).map((a) => a.key)).toEqual(["fold", "shove", "call"]);
     expect(legendActions(s).map((a) => a.key)).toEqual(["shove", "call", "fold"]);
     expect(describeStrategy(s, s.strategy["AKs"])).toBe("올인 0% / 콜 50% / 폴드 50%");
+  });
+
+  it("FreqBar's legend follows legendActions: no 폴드 entry where the spot has no fold", () => {
+    const legend = (sc: Scenario, h: HandClass) =>
+      [...render(createElement(FreqBar, { scenario: sc, strategy: sc.strategy[h] })).matchAll(/<span class="freq-item">(.*?)<\/span>/g)].map((m) =>
+        stripTags(m[1]),
+      );
+    const limp = one(LIMP);
+    expect(legend(limp, "AKs")).toEqual(["레이즈 3.5bb 50%", "체크 50%"]);
+    expect(legend(limp, "72o")).toEqual(["레이즈 3.5bb 0%", "체크 100%"]);
+    const s = one(vs3bet("CO", "BTN"));
+    expect(legend(s, "AKs")).toEqual(["올인 0%", "콜 50%", "폴드 50%"]);
+    // The bar itself is unchanged: its bands still run in action order with fold last.
+    expect(strategyGradient(s, s.strategy["AKs"])).toBe("linear-gradient(to right, var(--call) 0% 50%, var(--fold) 50% 100%)");
   });
 
   it("lists only rfi, vsOpen and vs3bet ranges of the solver set in the calculator, reach-weighted", () => {

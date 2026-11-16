@@ -47,12 +47,13 @@ import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusSh
  *
  * Sensitivity solves (§6.6)
  *  - `SENSITIVITY_VARIANTS`, `stageValuation(fit, features, variant?)`: the shipped model B valuation, or one of the
- *    five sensitivity variants (a) uncalibrated ×0.5, (b) ×1.5, (c) model B on 3 features, (d) Product's
- *    equity-scaled surplus form by position on every heads-up flop, (e) the old low-SPR rule SPR_ALPHA = 6.
+ *    five sensitivity variants (a) uncalibrated ×0.5, (b) ×1.5, (c) model B on the first 3 features (pair, suited,
+ *    hi2) with α held, (d) Product's equity-scaled surplus form (all features) by position on every heads-up flop,
+ *    (e) the old low-SPR rule SPR_ALPHA = 6.
  *
  * Checks on a stage's data (also usable on the committed file)
  *  - `decodeStage(stage)`: per scenario the hero's reach and the effective frequencies (buildScenario's fill).
- *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..7. `stageBands(stage)`: PF-BANDS
+ *  - `dataChecks(stage, limits?)`: PF-DATA-1. `stageSanity(stage)`: PF-SANITY-1..8. `stageBands(stage)`: PF-BANDS
  *    (published aggregates: printed warnings only, never targets).
  */
 
@@ -369,8 +370,9 @@ export function classifyTree(tree: PreflopTree): NodeClass[] {
 
 /**
  * The size-ladder groups (§6.5, main session decision 2): squeeze, vs4bet, vsShove and the cold vs3bet nodes. Each has
- * its own step, raised only as far as its own count needs: one shared step would have to reach 1% at 100bb just to
- * cut the 84 cold nodes (36 + 84 vs3bet > 72), which drops every vs4bet chart. `shared: true` moves them together.
+ * its own step, raised only as far as its own count needs; the main session approved this per-group ladder as the
+ * default. One shared step would have to reach 1% at 100bb just to cut the 84 cold nodes (36 + 84 vs3bet > 72), which
+ * drops every vs4bet chart. `shared: true` moves them together (the `--ladder shared` option).
  */
 export type LadderGroup = "squeeze" | "vs4bet" | "vsShove" | "cold";
 export const LADDER_GROUPS: readonly LadderGroup[] = ["squeeze", "vs4bet", "vsShove", "cold"];
@@ -449,7 +451,8 @@ export interface LadderChoice {
 
 /**
  * Main session decision 2: from `start`, raise ladder groups one step at a time until the stage meets PF-DATA-1's
- * counts. Per group (default): a group whose own kind is over the limit moves up (the cold nodes when vs3bet is over);
+ * counts. Per group (the approved default): a group whose own kind is over the limit moves up (the cold nodes when
+ * vs3bet is over);
  * if only the total is over, every group below the top step moves up. With `shared`, all groups move together.
  * rfi, vsOpen, vsLimp and non-cold vs3bet never move. Deterministic: the same occ gives the same steps.
  */
@@ -491,7 +494,8 @@ export function raiseAll(steps: LadderSteps): LadderSteps | null {
 
 /**
  * occThresholdByKind in % of dealt hands. vs3bet gets the threshold of its non-cold nodes, the lowest, which every
- * vs3bet scenario meets; the cold nodes' own threshold is the "cold" group's (`ladderThresholds`).
+ * vs3bet scenario meets; the cold nodes' own threshold is the "cold" group's (`ladderThresholds`), written to the
+ * stage as occThresholdCold.
  */
 export function thresholdsByKind(steps: LadderSteps): Record<PreflopKind, number> {
   const base = round(BASE_THRESHOLD * 100, 4);
@@ -562,8 +566,8 @@ export type SensitivityVariant = "a" | "b" | "c" | "d" | "e";
 export const SENSITIVITY_VARIANTS: readonly { id: SensitivityVariant; label: string }[] = [
   { id: "a", label: "uncalibrated priors ×0.5 (c off-context, multiway c_pos and u, α_mw)" },
   { id: "b", label: "uncalibrated priors ×1.5" },
-  { id: "c", label: "model B on 3 features" },
-  { id: "d", label: "equity-scaled surplus form (5 features) by position on HU flops" },
+  { id: "c", label: "model B on 3 features (pair, suited, hi2), α held" },
+  { id: "d", label: "equity-scaled surplus form (6 features) by position on HU flops" },
   { id: "e", label: "old low-SPR rule (SPR_ALPHA = 6)" },
 ];
 
@@ -614,7 +618,7 @@ export function stageValuation(fit: FitForValuation, features: Float64Array, var
       return { kind: "modelB", params: { ...base, alpha: m.alpha, cFit: m.cFit, thetaO: m.thetaO, thetaI: m.thetaI }, features };
     }
     case "d": {
-      const pf = fit.alternatives.product5;
+      const pf = fit.alternatives.product;
       return { kind: "modelB", params: base, features, hu: productFormHu(pf.rO, pf.rI) };
     }
     case "e":
@@ -726,6 +730,7 @@ export function dataChecks(stage: PreflopStage, limits: DataLimits = DATA_LIMITS
     if (sc.kind !== "rfi" && !(sc.occ >= stage.occThresholdByKind[sc.kind])) out.push(`${sc.id}: occ ${sc.occ} below ${stage.occThresholdByKind[sc.kind]}`);
   }
   for (const k of KIND_ORDER) if (!(stage.occThreshold <= stage.occThresholdByKind[k])) out.push(`occThreshold ${stage.occThreshold} above ${k}'s`);
+  if (stage.occThresholdCold !== undefined && !(stage.occThresholdByKind.vs3bet <= stage.occThresholdCold)) out.push(`occThresholdCold ${stage.occThresholdCold} below vs3bet's`);
   out.push(...countProblems(counts, limits));
   const byId = new Map(stage.scenarios.map((s) => [s.id, s]));
   for (const sc of stage.scenarios) {
@@ -773,9 +778,12 @@ export function monotoneChains(): [string, string][] {
 /**
  * The pairs of PF-SANITY-7's kicker chains, [better, worse]: Ax ≥ Kx with the same kicker 2–9 (suited and offsuit),
  * and in every row the higher kicker ≥ the next lower one (suited and offsuit), except below A6 in the ace row, where
- * the wheel aces may rightly play more than A6–A9. A strong player rejects a chart that breaks these at a glance, and
- * the realization fit is known to (no weak-king feature; the weak-ace and broadway coefficients are poorly identified),
- * so they warn and badge the spot instead of failing like PF-SANITY-2.
+ * the wheel aces may rightly play more than A6–A9. A strong player rejects a chart that breaks these at a glance. The
+ * packs' own measured shares put Ax at or above Kx, and the rank-continuous realization features make u the same
+ * top-card step for every kicker and monotone in the kicker (θ_lo2 ≥ 0, θ_gap ≤ 0), so the model no longer produces
+ * these inversions; a hit can still come from an equity tie against a tight range or from convergence. They warn and
+ * badge the spot instead of failing like PF-SANITY-2. (The 5-feature fit, whose weakAce term had no weak-king
+ * counterpart, broke them on 5–8 spots per stage.)
  */
 export function kickerChains(): [string, string][] {
   const out: [string, string][] = [];
@@ -786,6 +794,18 @@ export function kickerChains(): [string, string][] {
         if (hi === 12 && lo - 1 <= 3) continue; // A6x vs A5x and below: the wheel aces
         out.push([RANKS[hi] + RANKS[lo] + sfx, RANKS[hi] + RANKS[lo - 1] + sfx]);
       }
+  return out;
+}
+
+/**
+ * The pairs of PF-SANITY-8's top-card chains, [better, worse]: Kx ≥ Qx with the same kicker 2–J, suited and offsuit.
+ * Print-only: model B's u is additive in the top card and the kicker and does not depend on the opponent's range, and
+ * against tight ranges adjacent top cards differ by only 0.005–0.02 in equity, so a few K/Q cells can cross; the packs'
+ * own K and Q shares are tied within 0.03. Qx ≥ Jx is deliberately not checked: the packs put J9/J8 at or above Q9/Q8.
+ */
+export function topCardChains(): [string, string][] {
+  const out: [string, string][] = [];
+  for (const sfx of ["s", "o"]) for (let k = 0; k <= 9; k++) out.push([`K${RANKS[k]}${sfx}`, `Q${RANKS[k]}${sfx}`]);
   return out;
 }
 
@@ -803,7 +823,10 @@ export interface SanityReport {
 
 const EP_OPENERS = new Set(["UTG", "UTG+1", "UTG+2", "LJ"]);
 
-/** PF-SANITY-1..6 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. */
+/**
+ * PF-SANITY-1..8 (§5.2) on a stage's data, as the app sees it. Scenarios are found by their §6.4 ids. PF-SANITY-8 only
+ * adds to `warns`: no badge, no confidence change.
+ */
 export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): SanityReport {
   const rep: SanityReport = { fails: [], warns: [], sanity5: [], sanity6: [], sanity7: [] };
   const get = (id: string) => decoded.get(id);
@@ -847,6 +870,20 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
       rep.warns.push(`PF-SANITY-7 ${id}: ${hits} kicker pair(s) inverted, worst ${worst.better} plays ${worst.pBetter.toFixed(2)} < ${worst.worse} ${worst.pWorse.toFixed(2)}`);
       rep.sanity7.push(worst);
     }
+  }
+  // PF-SANITY-8 (print-only warning): Kx ≥ Qx with the same kicker on the same spots and tolerance.
+  const tops = topCardChains();
+  for (const id of chainIds) {
+    const d = get(id)!;
+    let worst: { a: string; b: string; pa: number; pb: number } | null = null;
+    let hits = 0;
+    for (const [a, b] of tops) {
+      const pa = 1 - d.fold[HAND_INDEX.get(a)!], pb = 1 - d.fold[HAND_INDEX.get(b)!];
+      if (!(pa < pb - 0.15 - 1e-9)) continue;
+      hits++;
+      if (!worst || pb - pa > worst.pb - worst.pa + 1e-12) worst = { a, b, pa, pb };
+    }
+    if (worst) rep.warns.push(`PF-SANITY-8 ${id}: ${hits} top-card pair(s) inverted, worst ${worst.a} plays ${worst.pa.toFixed(2)} < ${worst.b} ${worst.pb.toFixed(2)}`);
   }
   // PF-SANITY-3: BB defense rises with the opener's seat; BB vs SB ≥ BB vs BTN − 2pp.
   const bbDef = seats.map((o) => ({ seat: o, d: get(`bb-vs-${seatId(o)}-open`) })).filter((x) => x.d).map((x) => ({ seat: x.seat, v: playsOfAll(x.d!) }));
@@ -1084,13 +1121,14 @@ export function exportStage(input: StageExportInput): StageExport {
     iterations: input.iterations,
     occThreshold: round(BASE_THRESHOLD * 100, 4),
     occThresholdByKind: thresholdsByKind(input.ladder),
+    occThresholdCold: ladderThresholds(input.ladder).cold,
     brGainMbb: metrics.gainMbb.map((g) => round(g, 3)),
     nashConvMbb: round(metrics.nashConvMbb, 3),
     snappedGainMbb: round(metrics.snappedGainMbb, 3),
     ev: metrics.ev.map((e) => round(e, 4)),
     diag: { evSum: round(metrics.evSum, 4), frozenOccPct: round(metrics.frozenOcc * 100, 3), negativeShares: metrics.negativeShares },
     model: {
-      id: "modelB-5f",
+      id: "modelB-rank6",
       fitHash: input.fit.sha256,
       sprAlpha: SPR_ALPHA,
       sprSurplus: SPR_SURPLUS,

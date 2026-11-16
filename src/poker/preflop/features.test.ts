@@ -1,38 +1,72 @@
 import { describe, expect, it } from "vitest";
-import { ALL_HANDS } from "../cards";
+import { ALL_HANDS, comboCount, RANKS } from "../cards";
 import { EQR_FIT } from "./eqrFit";
-import { FEATURE_NAMES, handFeatures } from "./features";
+import { FEATURE_MEANS, FEATURE_NAMES, handFeatures } from "./features";
 
-const f = (h: string) => handFeatures(ALL_HANDS.indexOf(h));
+const idx = (h: string) => ALL_HANDS.indexOf(h);
+/** The raw (uncentered) features: the centered ones plus the combo-weighted means. */
+const raw = (h: string) => handFeatures(idx(h)).map((v, j) => v + FEATURE_MEANS[j]);
+const sq = (r: number) => (r / 12) ** 2;
 
 describe("handFeatures", () => {
+  it("is centered: every column's combo-weighted sum over the 1,326 combos is 0", () => {
+    expect(FEATURE_NAMES).toEqual(["pair", "suited", "hi2", "lo2", "gap", "pairRank2"]);
+    for (let j = 0; j < FEATURE_NAMES.length; j++) {
+      const s = ALL_HANDS.reduce((acc, h, i) => acc + comboCount(h) * handFeatures(i)[j], 0);
+      expect(Math.abs(s), FEATURE_NAMES[j]).toBeLessThan(1e-12);
+    }
+    // The means themselves: 78 pair combos, 312 suited, and the rank terms.
+    const want = [78 / 1326, 312 / 1326, 0.509804, 0.143791, 0.609351, 0.020425];
+    FEATURE_MEANS.forEach((m, j) => expect(m, FEATURE_NAMES[j]).toBeCloseTo(want[j], 6));
+  });
+
   it("follows the definitions of the realization model", () => {
-    // [pair, suited, bway, conn, weakAce]
-    expect(f("AA")).toEqual([1, 0, 0, 0, 0]);
-    expect(f("22")).toEqual([1, 0, 0, 0, 0]);
-    expect(f("AKs")).toEqual([0, 1, 1, 1, 0]);
-    expect(f("AKo")).toEqual([0, 0, 1, 1, 0]);
-    expect(f("QTs")).toEqual([0, 1, 1, 1, 0]); // one gap
-    expect(f("KTo")).toEqual([0, 0, 1, 0, 0]); // two gaps
-    expect(f("ATo")).toEqual([0, 0, 1, 0, 0]); // ten kicker: broadway, not a weak ace
-    expect(f("A9s")).toEqual([0, 1, 0, 0, 1]);
-    expect(f("A2o")).toEqual([0, 0, 0, 0, 1]); // the wheel ace is not connected
-    expect(f("76s")).toEqual([0, 1, 0, 1, 0]);
-    expect(f("75o")).toEqual([0, 0, 0, 1, 0]);
-    expect(f("74o")).toEqual([0, 0, 0, 0, 0]);
+    // [pair, suited, hi2, lo2, gap, pairRank2], raw. Ranks: 2 = 0 … A = 12.
+    const close = (h: string, want: number[]) => raw(h).forEach((v, j) => expect(v, `${h} ${FEATURE_NAMES[j]}`).toBeCloseTo(want[j], 12));
+    close("AA", [1, 0, 0, 0, 0, 1]);
+    close("22", [1, 0, 0, 0, 0, 0]);
+    close("AKs", [0, 1, 1, sq(11), 0, 0]);
+    close("A2o", [0, 0, 1, 0, 1, 0]); // the wheel ace: four gaps or more
+    close("76s", [0, 1, sq(5), sq(4), 0, 0]);
+    close("74o", [0, 0, sq(5), sq(2), 0.5, 0]);
+    close("72o", [0, 0, sq(5), 0, 1, 0]);
+    close("T8o", [0, 0, sq(8), sq(6), 0.25, 0]);
+    close("77", [1, 0, 0, 0, 0, sq(5)]);
   });
 
-  it("counts the classes of each feature", () => {
-    const counts = FEATURE_NAMES.map((_, j) => ALL_HANDS.reduce((s, _h, i) => s + handFeatures(i)[j], 0));
-    // 13 pairs; 78 suited; 10 broadway rank pairs × 2; 23 connected or one-gapped rank pairs × 2; A9–A2 × 2.
-    expect(counts).toEqual([13, 78, 20, 46, 16]);
-    expect(() => handFeatures(169)).toThrow();
+  it("keeps the pair features on pairs and the hand features off them", () => {
+    for (const [i, h] of ALL_HANDS.entries()) {
+      const r = handFeatures(i).map((v, j) => v + FEATURE_MEANS[j]);
+      const pair = h.length === 2;
+      expect(Math.abs(r[0] - (pair ? 1 : 0)), h).toBeLessThan(1e-12);
+      if (!pair) expect(Math.abs(r[5]), h).toBeLessThan(1e-12);
+      // suited, hi2, lo2 and gap are raw 0 on a pair.
+      if (pair) for (const j of [1, 2, 3, 4]) expect(Math.abs(r[j]), `${h} ${FEATURE_NAMES[j]}`).toBeLessThan(1e-12);
+    }
   });
 
-  it("returns a copy", () => {
+  it("is monotone in one rank per feature: hi2 equal across kickers, lo2 rising and gap not rising with the kicker", () => {
+    for (const sfx of ["s", "o"])
+      for (let hi = 12; hi >= 1; hi--)
+        for (let lo = hi - 1; lo >= 1; lo--) {
+          const a = handFeatures(idx(RANKS[hi] + RANKS[lo] + sfx)), b = handFeatures(idx(RANKS[hi] + RANKS[lo - 1] + sfx));
+          const name = `${RANKS[hi]}${RANKS[lo]}${sfx} vs ${RANKS[hi]}${RANKS[lo - 1]}${sfx}`;
+          expect(a[2], name).toBe(b[2]);
+          expect(a[3], name).toBeGreaterThan(b[3]);
+          expect(a[4], name).toBeLessThanOrEqual(b[4]);
+        }
+    // pairRank2 rises with the pair.
+    for (let r = 12; r >= 1; r--) expect(handFeatures(idx(RANKS[r] + RANKS[r]))[5]).toBeGreaterThan(handFeatures(idx(RANKS[r - 1] + RANKS[r - 1]))[5]);
+  });
+
+  it("returns a copy and checks the index", () => {
     const a = handFeatures(0);
+    const keep = a[0];
     a[0] = 7;
-    expect(handFeatures(0)[0]).toBe(1);
+    expect(handFeatures(0)[0]).toBe(keep);
+    expect(handFeatures(0)).toHaveLength(FEATURE_NAMES.length);
+    expect(() => handFeatures(169)).toThrow();
+    expect(() => handFeatures(-1)).toThrow();
   });
 });
 
@@ -44,18 +78,39 @@ describe("EQR_FIT (generated by scripts/fit-realization.mjs)", () => {
     expect(hex).toBe(sha256);
   });
 
-  it("was fitted on the features defined here", () => {
+  it("was fitted on the features defined here, with α held at its prior", () => {
+    expect(EQR_FIT.model).toBe("modelB-rank6");
     expect(EQR_FIT.features).toEqual([...FEATURE_NAMES]);
-    expect(EQR_FIT.thetaO).toHaveLength(5);
-    expect(EQR_FIT.thetaI).toHaveLength(5);
-    expect(EQR_FIT.alternatives.modelB3.features).toEqual(FEATURE_NAMES.slice(0, 3));
+    expect(EQR_FIT.thetaO).toHaveLength(6);
+    expect(EQR_FIT.thetaI).toHaveLength(6);
+    expect(EQR_FIT.alpha).toBe(0.553);
+    expect(EQR_FIT.alphaPrior).toBe(0.553);
+    expect(EQR_FIT.alpha).toBe(EQR_FIT.alphaPrior);
+    const m3 = EQR_FIT.alternatives.modelB3;
+    expect(m3.features).toEqual(FEATURE_NAMES.slice(0, 3));
+    expect(m3.alpha).toBe(EQR_FIT.alphaPrior);
+    expect(m3.thetaO).toHaveLength(3);
+    expect(m3.thetaI).toHaveLength(3);
+    expect(EQR_FIT.alphaFree.features).toEqual([...FEATURE_NAMES]);
+    expect(EQR_FIT.alphaFree.thetaO).toHaveLength(6);
     // The per-class R of the alternative form was computed from the features when the fit ran: if features.ts
     // changes, this fails until the fit is rerun.
-    const p = EQR_FIT.alternatives.product5;
+    const p = EQR_FIT.alternatives.product;
+    expect(p.features).toEqual([...FEATURE_NAMES]);
     for (let h = 0; h < 169; h++) {
       const F = handFeatures(h);
       expect(p.rO[h]).toBeCloseTo(p.rO0 + F.reduce((s, v, j) => s + v * p.thetaO[j], 0), 5);
       expect(p.rI[h]).toBeCloseTo(p.rI0 + F.reduce((s, v, j) => s + v * p.thetaI[j], 0), 5);
+    }
+  });
+
+  it("keeps u monotone: θ_lo2 ≥ 0, θ_gap ≤ 0 and θ_pairRank2 ≥ 0 on both sides", () => {
+    // A refit that breaks one of these signs makes realization fall with a better kicker or a higher pair, which
+    // the charts would show as kicker or pair inversions (PF-SANITY-7, PF-SANITY-2).
+    for (const theta of [EQR_FIT.thetaO, EQR_FIT.thetaI]) {
+      expect(theta[3]).toBeGreaterThanOrEqual(0);
+      expect(theta[4]).toBeLessThanOrEqual(0);
+      expect(theta[5]).toBeGreaterThanOrEqual(0);
     }
   });
 

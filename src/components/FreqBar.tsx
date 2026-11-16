@@ -1,4 +1,4 @@
-import { describeStrategy, FOLD, type ActionColor, type HandStrategy, type ScenarioDef } from "../data/charts";
+import { describeStrategy, FOLD, legendActions, type ActionColor, type HandStrategy, type ScenarioDef } from "../data/charts";
 
 const COLOR_VAR: Record<ActionColor, string> = {
   open: "var(--open)",
@@ -30,7 +30,8 @@ export function FreqBar({ scenario, strategy }: { scenario: ScenarioDef; strateg
     <div>
       <div className="freqbar" style={{ background: strategyGradient(scenario, strategy) }} />
       <div className="freq-legend">
-        {[...scenario.actions, FOLD].map((a) => (
+        {/* legendActions leaves fold out where the spot has none (noFold: the BB facing an SB limp). */}
+        {legendActions(scenario).map((a) => (
           <span key={a.key} className="freq-item">
             <i style={{ background: actionColor(a.color, a.key) }} />
             {a.label} {Math.round((strategy[a.key] ?? 0) * 100)}%
