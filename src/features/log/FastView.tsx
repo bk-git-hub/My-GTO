@@ -200,7 +200,7 @@ function savedOf(h: LoggedHand, other: boolean): Saved {
 /**
  * 빠른 기록: every hand dealt to me, a few taps each. The stage and the table size stay for the session;
  * my seat moves on by itself after each hand; the class goes in on a rank pad (no suits); then the
- * result: 폴드 (one tap, saved at once, the blind it cost from my seat and the level) or 땄음 / 잃음 and the
+ * result: 폴드 (one tap, saved at once, the blind it cost from my seat and the level) or 수익 / 손실 and the
  * amount in chips or bb on the same keypad, and the board cards I remember (ranks, a suit if I know it);
  * 저장 saves and starts the next hand. The current tournament's list adds the chips up and draws them as a
  * graph from its start stack; every new hand goes to that tournament with no tap of its own (fastTourney.ts),
@@ -1048,7 +1048,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
                 </button>
               </div>
             )}
-            <p className="muted small">아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요 (이름·시작 스택은 나중에). 핸드마다 랭크 두 개 → 수딧/오프 → 폴드, 아니면 땄음·잃음과 금액만 누르면 돼요. 보드는 기억나는 카드만.</p>
+            <p className="muted small">아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요 (이름·시작 스택은 나중에). 핸드마다 랭크 두 개 → 수딧/오프 → 폴드, 아니면 수익·손실과 금액만 누르면 돼요. 보드는 기억나는 카드만.</p>
             {groups && (groups.tourneys.length > 0 || groups.legacy.length > 0) && <div className="fast-today-foot end">{pastLink}</div>}
           </>
         )}

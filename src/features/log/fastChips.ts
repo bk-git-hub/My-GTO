@@ -11,7 +11,7 @@ import { nextBoardCard } from "./suitGuess";
 
 /** What an amount is typed in. */
 export type Unit = "chips" | "bb";
-/** The draft's result: 땄음 "+", 잃음 "-", 폴드, 워크 (the BB, everyone folded). */
+/** The draft's result: 수익 "+", 손실 "-", 폴드, 워크 (the BB, everyone folded). */
 export type FastRes = "+" | "-" | "fold" | "walk";
 /** A remembered board card: rank 0–12 (cards.ts RANKS), suit 0–3 only when remembered. */
 export interface BoardMark {

@@ -158,7 +158,7 @@ function chipAmount(n: number, unit: Unit, level: number | null): string {
 /**
  * 결과: the line (what will be saved, as typed: "+12,000 = +20bb"; tap it to type the amount) with the
  * level chip at its right, the level picker under it when open, then the chips: 폴드 (one tap, saves, with
- * the blind it costs), 워크 for the BB, − 잃음 / + 땄음 (the sign; the keypad turns to digits). With
+ * the blind it costs), 워크 for the BB, − 손실 / + 수익 (the sign; the keypad turns to digits). With
  * 액션도 기록 open, 폴드 / 워크 are the action row's, so only the signs are here.
  */
 export function ResultSec(p: {
@@ -211,10 +211,10 @@ export function ResultSec(p: {
           </button>
         )}
         <button type="button" className={`r-lose${p.res === "-" ? " on" : ""}${p.askSign ? " ask" : ""}`} aria-pressed={p.res === "-"} disabled={!p.enabled} onClick={() => p.onRes("-")}>
-          {MINUS} 잃음
+          {MINUS} 손실
         </button>
         <button type="button" className={`r-win${p.res === "+" ? " on" : ""}${p.askSign ? " ask" : ""}`} aria-pressed={p.res === "+"} disabled={!p.enabled} onClick={() => p.onRes("+")}>
-          + 땄음
+          + 수익
         </button>
       </div>
     </div>

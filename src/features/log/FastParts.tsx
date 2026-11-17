@@ -27,7 +27,7 @@ function netShown(h: LoggedHand, view: Unit): string {
   if (h.result === "fold") return h.net ? `폴드 ${signedText(h.net, view, h.level)}` : "폴드";
   if (h.net !== null && h.net !== 0) return signedText(h.net, view, h.level);
   if (h.net === 0) return "본전";
-  return h.result === "win" ? "땄음" : h.result === "lose" ? "잃음" : "–";
+  return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : "–";
 }
 
 /** Plain text to the clipboard: the async API, else a hidden textarea (older iOS). */

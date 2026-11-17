@@ -86,7 +86,7 @@ export interface FastDraft {
   /** A hand being corrected keeps its own stage and table size (absent for a new hand: the session's). */
   stage?: PreStage;
   players?: number;
-  /** 결과: 땄음 "+", 잃음 "-", 폴드, 워크 (the BB). */
+  /** 결과: 수익 "+", 손실 "-", 폴드, 워크 (the BB). */
   res?: FastRes;
   /** The amount typed on the pad, in `unit`: digits, in bb with one decimal ("12000", "20.5"). Only when non-empty. */
   amount?: string;
@@ -388,7 +388,7 @@ export const focusOf = (d: FastDraft): FastFocus => (classDone(d) ? (d.focus ?? 
 /** `d` with the text field `k` set, or left out when empty. */
 const withText = (d: FastDraft, k: "amount" | "stackNow", t: string): FastDraft => (t ? { ...d, [k]: t } : omit(d, k));
 
-/** 땄음 / 잃음 set the sign and take the keypad to the amount; 폴드 / 워크 set the result and drop the amount. */
+/** 수익 / 손실 set the sign and take the keypad to the amount; 폴드 / 워크 set the result and drop the amount. */
 export function pickRes(d: FastDraft, res: FastRes): FastDraft {
   if (res === "+" || res === "-") return { ...d, res, focus: "result" };
   return { ...omit(d, "amount"), res };
@@ -755,13 +755,13 @@ const clock = (t: number) => {
 };
 
 /**
- * A 빠른 기록 hand's chips in words: "+12,000 (+20bb)", "폴드", "폴드 −300 (−0.5bb)", "본전", "땄음" for a
+ * A 빠른 기록 hand's chips in words: "+12,000 (+20bb)", "폴드", "폴드 −300 (−0.5bb)", "본전", "수익" for a
  * win without an amount; "" with no result.
  */
 export function resultText(h: Pick<LoggedHand, "result" | "net" | "level">): string {
   if (h.result === "fold") return h.net ? `폴드 ${netBoth(h.net, h.level)}` : "폴드";
   if (h.net !== null) return netBoth(h.net, h.level);
-  return h.result === "win" ? "땄음" : h.result === "lose" ? "잃음" : h.result === "chop" ? "본전" : "";
+  return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : h.result === "chop" ? "본전" : "";
 }
 
 /** A hand has a chip result or a remembered board to show. */
@@ -828,7 +828,7 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
       const bbOf = (n: number | null) => (n !== null ? ` (${sign(n)}${Math.abs(Math.round(n * 10) / 10)}bb)` : "");
       const bb = missed ? (m.bb !== null && missed.bb !== null ? m.bb + missed.bb : null) : m.bb;
       const split = missed ? ` (기록한 핸드 ${chips(m.chips)} · 빠진 핸드 ${chips(missed.chips)})` : "";
-      lines.push(`결과 ${chips(m.chips + (missed?.chips ?? 0))}${bbOf(bb)}${split} · 땄음 ${m.won} · 잃음 ${m.lost} · 폴드 ${m.folds} · 결과 없음 ${m.noResult}`);
+      lines.push(`결과 ${chips(m.chips + (missed?.chips ?? 0))}${bbOf(bb)}${split} · 수익 ${m.won} · 손실 ${m.lost} · 폴드 ${m.folds} · 결과 없음 ${m.noResult}`);
     }
     const first = old.find((h) => h.stack !== null);
     const lastAnchor = [...old].reverse().find((h) => h.stack !== null);

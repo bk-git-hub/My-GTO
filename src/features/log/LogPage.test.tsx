@@ -329,9 +329,9 @@ describe("빠른 기록 (react-dom/server)", () => {
     // the pad: 13 ranks and ⌫; 수딧 / 오프수트 wait for two different ranks
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
     expect(html).toMatch(/<button type="button" class="" disabled="">수딧<\/button><button type="button" class="" disabled="">오프수트<\/button>/);
-    // 결과: the line with the level chip, then 폴드 · 잃음 · 땄음, waiting for the hand
+    // 결과: the line with the level chip, then 폴드 · 손실 · 수익, waiting for the hand
     expect(html).toMatch(/<div class="fast-sec fast-res"><div class="fast-res-head"><span class="frh-label">결과<\/span><button type="button" class="fr-amt hint" disabled="">폴드 한 번, 아니면 금액<\/button><button type="button" class="fast-lv" aria-expanded="false" aria-label="블라인드 레벨 \? · 바꾸기">레벨 \? <i>▾<\/i><\/button><\/div>/);
-    expect(html).toMatch(/<div class="fast-res-chips n3"><button type="button" class="r-fold" disabled=""><span>폴드<\/span><\/button><button type="button" class="r-lose" aria-pressed="false" disabled="">− 잃음<\/button><button type="button" class="r-win" aria-pressed="false" disabled="">\+ 땄음<\/button><\/div>/);
+    expect(html).toMatch(/<div class="fast-res-chips n3"><button type="button" class="r-fold" disabled=""><span>폴드<\/span><\/button><button type="button" class="r-lose" aria-pressed="false" disabled="">− 손실<\/button><button type="button" class="r-win" aria-pressed="false" disabled="">\+ 수익<\/button><\/div>/);
     // 보드: five empty slots and 지금 스택, waiting too
     expect(html).toMatch(/<div class="fb-slots off" role="group" aria-label="보드 카드 \(기억나는 것만\)">(<button type="button" class="fb-slot( turn)?" aria-label="[^"]+" disabled="">·<\/button>){5}<\/div><button type="button" class="fast-stack" disabled="">지금 스택<\/button>/);
     // the save slot says what to tap next; 액션도 기록 is folded away, with no spot or action rows
@@ -435,7 +435,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(html).toContain('<div class="fast-suits unit" role="group" aria-label="단위"><button type="button" class="u-chips on" aria-pressed="true">칩</button><button type="button" class="u-bb" aria-pressed="false">bb</button></div>');
     expect(html).toContain('<button type="button" class="fr-amt on">+12,000 = +20bb</button>');
     expect(html).toContain('aria-label="블라인드 Lv5 300/600 · 바꾸기">Lv5 300/600 <i>▾</i></button>');
-    expect(html).toContain('<button type="button" class="r-win on" aria-pressed="true">+ 땄음</button>');
+    expect(html).toContain('<button type="button" class="r-win on" aria-pressed="true">+ 수익</button>');
     expect(html).toContain('<button type="button" class="fs-save">저장 · 다음 핸드 CO</button>');
     // the hand line takes the keypad back to the hand (a clear button laid over it); the class stays exactly as it is
     expect(html).toContain('<div class="fast-label hand-line"><button type="button" class="hand-hit" aria-label="핸드 AKs · 다시 입력"></button>핸드');
@@ -457,7 +457,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: { ...typed("BTN", "AKs"), amount: "12000", focus: "result" } });
     const sign = page("fast");
     expect(sign).toContain("12,000 · 땄어요? 잃었어요?");
-    expect(sign).toContain('<button type="button" class="r-lose ask" aria-pressed="false">− 잃음</button>');
+    expect(sign).toContain('<button type="button" class="r-lose ask" aria-pressed="false">− 손실</button>');
     expect(sign).toContain('<button type="button" class="fs-save plain" disabled="">땄어요? 잃었어요?</button>');
   });
 
@@ -602,7 +602,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     put([]);
     fastStore.set({ stage: "mid", players: 9, actions: true, ...lv5(), draft: { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" } });
     const html = page("fast");
-    expect(html).toContain('<div class="fast-res-chips n2"><button type="button" class="r-lose" aria-pressed="false">− 잃음</button>');
+    expect(html).toContain('<div class="fast-res-chips n2"><button type="button" class="r-lose" aria-pressed="false">− 손실</button>');
     expect(html).not.toContain("r-fold");
     expect(html).toContain('<button type="button" class="fast-more open" aria-expanded="true">액션 접기 ▴</button>');
     // open, the toggle sits under the actions (so the hand, the result, the board and the actions fit one screen)

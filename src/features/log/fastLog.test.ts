@@ -479,7 +479,7 @@ describe("빠른 기록 v2: a hand saved without a decision, with its chips and 
 
 describe("빠른 기록 v2: the keypad's fields", () => {
   const done = typed("BTN", "AKs");
-  it("takes 땄음 / 잃음 to the amount, 폴드 / 워크 drop it; digits go where the keypad is", () => {
+  it("takes 수익 / 손실 to the amount, 폴드 / 워크 drop it; digits go where the keypad is", () => {
     const won = pickRes(done, "+");
     expect(won).toMatchObject({ res: "+", focus: "result" });
     const typedIn = ["1", "2", "000"].reduce(typeDigit, won);
@@ -700,7 +700,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     ];
     const lines = sessionText(hands).split("\n");
     expect(lines[0]).toMatch(/^PubAJ 빠른 기록 · 11월 8일 \(일\) · 4핸드 \(펍 토너먼트\)$/);
-    expect(lines[1]).toBe("결과 +6,900칩 (+11.5bb) · 땄음 1 · 잃음 1 · 폴드 1 · 결과 없음 1");
+    expect(lines[1]).toBe("결과 +6,900칩 (+11.5bb) · 수익 1 · 손실 1 · 폴드 1 · 결과 없음 1");
     expect(lines[2]).toBe("스택 50,000 → 56,900 (지금 스택 기준)");
     expect(lines).not.toContain(expect.stringMatching(/^차트대로/));
     expect(sessionText(hands)).toContain("[큰 팟 · 10bb 이상]\n- 22:50 BTN AKs +12,000 (+20bb) · 보드 K♥ 7 2\n\n[전체 · 시간순]");
@@ -708,7 +708,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     // 지금 스택 disagreeing with the count (a hand missed): the result is the stack's change, split
     const missed = [...hands, at(NOW - 5 * 60_000, { ...pickRes(typed("CO", "55"), "-"), amount: "1000", stackNow: "50000" })];
     const ml = sessionText(missed).split("\n");
-    expect(ml[1]).toBe("결과 0칩 (0bb) (기록한 핸드 +5,900칩 · 빠진 핸드 −5,900칩) · 땄음 1 · 잃음 2 · 폴드 1 · 결과 없음 1");
+    expect(ml[1]).toBe("결과 0칩 (0bb) (기록한 핸드 +5,900칩 · 빠진 핸드 −5,900칩) · 수익 1 · 손실 2 · 폴드 1 · 결과 없음 1");
     expect(ml[2]).toBe("스택 50,000 → 50,000 (지금 스택 기준)");
     // with a decision on some hand: the chart line after the chips
     const mixed = sessionText([...hands, at(NOW - 50 * 60_000, typed("BTN", "AJo"), "open")]).split("\n");
@@ -722,7 +722,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     const lines = sessionText(hands, "mine", info).split("\n");
     expect(lines[0]).toBe("PubAJ 빠른 기록 · 수요일 펍 · 11월 8일 (일) 19:00 시작 · 2핸드 (펍 토너먼트)");
     expect(lines[1]).toBe("메모: 테이블 3 / 옆자리 공격적");
-    expect(lines[2]).toBe("결과 +11,700칩 (+19.5bb) · 땄음 1 · 잃음 0 · 폴드 1 · 결과 없음 0");
+    expect(lines[2]).toBe("결과 +11,700칩 (+19.5bb) · 수익 1 · 손실 0 · 폴드 1 · 결과 없음 0");
     expect(lines[3]).toBe("시작 스택 50,000 → 지금 61,700");
     // 지금 스택 lower than the count: the result is the stack's change from the start stack
     const missed = [...hands, at(NOW - 5 * 60_000, { ...pickRes(typed("CO", "55"), "-"), amount: "1000", stackNow: "58000" })];
