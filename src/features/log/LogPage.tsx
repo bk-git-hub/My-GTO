@@ -7,7 +7,7 @@ import {
   actionLine,
   coachPrompt,
   deleteHand,
-  exportData,
+  backupText,
   exportLegacyScout,
   fastActed,
   fastActText,
@@ -35,7 +35,7 @@ import {
   livePicks,
   logView,
   memoBlocker,
-  mergeImport,
+  withBackup,
   pickAll,
   PROGRESS_LABEL,
   putAside,
@@ -63,6 +63,7 @@ import { VERDICT_MARK } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
 import { STAGE_LABEL } from "./quickPre";
 import { TableFlow } from "./TableFlow";
+import { TourneyList, TourneyView } from "./TourneyScreens";
 import { deleteWithUndo, dismissUndo, undoLast, useUndoNote } from "./undoDelete";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
@@ -74,8 +75,9 @@ type Msg = { text: string; error?: boolean } | null;
  * Routes: "log" (a new hand of mine: the hand first, then the table), "log/fast" (빠른 기록: every hand
  * of mine, a few taps each, graded against the chart), "log/other" (남의 핸드: the same screen for hands
  * other players showed), "log/list" (past hands: all, "log/list/mine", "log/list/other", 편집 to delete
- * some, and the backup), "log/players" (showdowns by opponent), "log/<id>" (a saved hand in the table
- * flow, mine or another player's). `returned`: reached by a step back or forward (the header's ‹), not opened
+ * some, and the backup), "log/players" (showdowns by opponent), "log/fast/past" (빠른 기록's tournaments),
+ * "log/fast/t/<id>" (one of them), "log/fast/s/<handId>" (빠른 기록 hands from before tournaments), "log/<id>"
+ * (a saved hand in the table flow, mine or another player's). `returned`: reached by a step back or forward (the header's ‹), not opened
  * anew: a hand screen shows the hand and the step it was left on.
  */
 export function LogPage({ sub, go, returned = false }: { sub: string; go: Go; returned?: boolean }) {
@@ -95,6 +97,8 @@ export function LogPage({ sub, go, returned = false }: { sub: string; go: Go; re
       {v.kind === "other" && <FastView key="other" mode="other" hands={hands} go={go} />}
       {v.kind === "list" && <ListScreen tab={v.filter} hands={hands} go={go} />}
       {v.kind === "players" && <ListScreen tab="players" hands={hands} go={go} />}
+      {v.kind === "tourneys" && <TourneyList hands={hands} go={go} />}
+      {(v.kind === "tourney" || v.kind === "legacy") && <TourneyView key={`${v.kind}:${v.id}`} kind={v.kind} id={v.id} hands={hands} go={go} />}
       {/* Per screen: a link back to the list steps back through history, which doesn't open the page afresh. */}
       <Toast key={`toast:${sub}`} />
       <UndoToast />
@@ -873,9 +877,10 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
 
   async function importFile(f: File) {
     try {
+      const text = await f.text();
       const prev = handLogStore.get();
-      const { hands: merged, added, updated, startClock, startClocks } = mergeImport(await f.text(), prev.hands, prev.startClock, prev.startClocks);
-      if (handLogStore.set({ ...prev, hands: merged, ...(startClock ? { startClock } : {}), ...(startClocks.length ? { startClocks } : {}) })) setMsg({ text: `불러왔어요. 새 기록 ${added}개, 업데이트 ${updated}개.` });
+      const { next, added, updated } = withBackup(prev, text);
+      if (handLogStore.set(next)) setMsg({ text: `불러왔어요. 새 기록 ${added}개, 업데이트 ${updated}개.` });
       else {
         handLogStore.set(prev);
         setMsg({ text: FULL_MSG, error: true });
@@ -896,7 +901,7 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
         <button
           className="ghost"
           disabled={!hands.length}
-          onClick={() => void saveFile(exportData(hands, handLogStore.get().startClock, handLogStore.get().startClocks), `pubaj-hands-${day()}`, "PubAJ 핸드 기록 백업")}
+          onClick={() => void saveFile(backupText(handLogStore.get()), `pubaj-hands-${day()}`, "PubAJ 핸드 기록 백업")}
         >
           내보내기 ({hands.length}개)
         </button>

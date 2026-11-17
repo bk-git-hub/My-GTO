@@ -1318,6 +1318,62 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 /* ───────── 남의 핸드 on the 빠른 기록 screen ───────── */
 .fast-label small { font-size: 0.72rem; font-weight: 700; opacity: 0.8; }
 
+/* ───────── 빠른 기록's tournaments: the list's head, the sheet, the 토너먼트 기록 screens ───────── */
+.fast-today-head h2 { min-width: 0; }
+.tn-head { align-items: center; gap: 8px; }
+.tn-head h2 { flex: 1; min-width: 0; }
+.tn-title { display: flex; align-items: center; gap: 6px; max-width: 100%; min-height: 36px; padding: 0; background: none; border: 0; color: var(--text); text-align: left; }
+.tn-title span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tn-title i { flex: none; font-style: normal; color: var(--muted); font-size: 0.8rem; }
+.tn-new { flex: none; margin-left: auto; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+.tn-meta { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; word-break: keep-all; }
+.card-box .tn-meta { margin-top: -4px; }
+.tn-memo { color: #c7d0dd; font-size: 0.82rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tn-invite { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px dashed var(--accent); color: var(--accent); font-size: 0.82rem; font-weight: 800; text-align: left; }
+.tn-invite small { margin-left: auto; color: var(--muted); font-size: 0.7rem; font-weight: 700; }
+.tn-cancel { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.tn-cancel button { margin-left: auto; height: 40px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.82rem; font-weight: 800; }
+.tn-all { height: auto; min-height: 32px; padding: 0 2px; font-size: inherit; vertical-align: baseline; }
+.fast-today-foot.end { justify-content: flex-end; }
+.fast-hint.bad { color: var(--err); }
+.tn-card, .tn-row { display: flex; align-items: center; gap: 8px; border-radius: 10px; border: 1px solid var(--line); }
+.tn-card { padding: 8px 6px 8px 12px; background: var(--panel-2); }
+.tn-card-main, .tn-open { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.tn-card-main b, .tn-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; }
+.tn-list { display: flex; flex-direction: column; gap: 6px; }
+.tn-row { padding-right: 6px; background: var(--panel); }
+.tn-row.current { border-color: rgba(251, 191, 36, 0.55); }
+.tn-open { min-height: 56px; padding: 8px 12px; background: none; border: 0; color: var(--text); }
+.tn-row-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tn-res { margin-left: auto; flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tn-res.up { color: var(--ok); }
+.tn-res.down { color: var(--err); }
+.tn-res.none { color: var(--muted); font-weight: 600; }
+.tn-card .tn-res { margin-left: 0; }
+.tn-resume { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.84rem; font-weight: 800; white-space: nowrap; }
+.tn-backup { height: auto; min-height: 40px; padding: 6px 2px; white-space: normal; text-align: left; }
+.tn-view .tn-delete { align-self: flex-start; min-height: 40px; }
+/* The sheet sits at the top (the phone's keyboard comes up from the bottom), over the page dimmed. */
+.tn-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: calc(env(safe-area-inset-top) + 60px) 12px 24px; overflow-y: auto; background: rgba(0, 0, 0, 0.6); animation: fast-result-in 0.15s ease-out; }
+.tn-sheet { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+.tn-sheet > b, .tn-sheet-head b { font-size: 1.05rem; }
+.tn-sheet > p { margin: 0; color: var(--muted); font-size: 0.84rem; word-break: keep-all; }
+.tn-sheet-head { display: flex; align-items: center; gap: 8px; }
+.tn-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+.tn-field input { height: 44px; padding: 0 12px; color: var(--text); font-size: 16px; font-weight: 700; }
+.tn-field input[type="time"] { display: block; min-width: 0; -webkit-appearance: none; appearance: none; line-height: 44px; }
+.tn-field textarea { min-height: 64px; color: var(--text); font-size: 16px; }
+.tn-field small { color: var(--muted); font-size: 0.72rem; font-weight: 600; word-break: keep-all; }
+.tn-field small.tn-lv { color: var(--accent); font-weight: 800; }
+.tn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tn-join { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.84rem; font-weight: 700; word-break: keep-all; }
+.tn-join input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.tn-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; margin-top: 4px; }
+.tn-actions button { height: 50px; border-radius: 12px; font-size: 1rem; font-weight: 800; }
+.tn-actions .tn-go { background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); }
+.tn-del { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; }
+.tn-del button { margin-left: auto; min-height: 40px; }
+
 /* ───────── deleting: 되돌리기 toast, the confirm sheet, picking rows in 지난 기록 ───────── */
 /* "N개 삭제했어요 · 되돌리기": above everything at the bottom, the button a full 44px target. */
 .undo-toast { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 45; display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 32px); min-height: 52px; padding: 4px 4px 4px 16px; border-radius: 14px; background: #1f2a3a; border: 1px solid var(--line); color: var(--text); font-size: 0.88rem; font-weight: 800; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); animation: toast-in 0.18s ease-out; }

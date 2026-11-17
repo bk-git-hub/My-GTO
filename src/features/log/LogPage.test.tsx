@@ -1,12 +1,14 @@
 import type { ReactElement } from "react";
 import { renderToString } from "react-dom/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parseCards } from "../../poker/cards";
 import { emptyHand, handLogStore, localDay, putAside, type LoggedHand } from "./handLog";
 import { bbText, CardText, LevelRow } from "./inputs";
 import { ListView, LogPage } from "./LogPage";
 import { BoardRanks, HoleEntry } from "./SuitEntry";
 import { fastHand, fastOtherStore, fastStore, newDraft, pickRes, pickSuited, startEdit, tapRank, withFastResult, type FastDraft } from "./fastLog";
+import type { Tourney } from "./tourney";
+import { TourneySheet } from "./TourneySheet";
 
 const noop = () => {};
 /** renderToString puts <!-- --> between adjacent text nodes. */
@@ -736,5 +738,220 @@ describe("지난 기록 편집: picking hands to delete (react-dom/server)", () 
     expect(render(<ListView tab="all" hands={hs} go={noop} startPicking />)).toContain('<button type="button" class="log-pick-del" disabled="">선택 삭제</button>');
     // not picking: picks given are ignored
     expect(render(<ListView tab="all" hands={hs} go={noop} startPicks={["h2"]} />)).not.toContain("picked");
+  });
+});
+
+describe("빠른 기록's tournaments (react-dom/server)", () => {
+  const R = (k: string) => "23456789TJQKA".indexOf(k);
+  const typed = (seat: string, cls: string, extra: Partial<FastDraft> = {}): FastDraft => {
+    let d = tapRank(tapRank(newDraft(seat), R(cls[0])), R(cls[1]));
+    if (cls[2]) d = pickSuited(d, cls[2] === "s");
+    return { ...d, ...extra };
+  };
+  /** A hand saved on 빠른 기록 at Lv5 (no decision), in tournament `t` (none: logged before tournaments). */
+  const saved = (at: number, d: FastDraft, t?: string, kind: "mine" | "other" = "mine") =>
+    ({ ...withFastResult(fastHand(d, null, { ...emptyHand(null, kind), id: `t${at}${kind}`, createdAt: at, updatedAt: at }, "mid", 9, kind)!, d, { level: 5, guessed: false }, true)!, ...(t ? { tourney: t } : {}) }) as LoggedHand;
+  const MIN = 60_000;
+  /** That night's 19:00. */
+  const T0 = new Date(2026, 10, 7, 19, 0).getTime();
+  const rec = (id: string, extra: Partial<Tourney> = {}): Tourney => ({ id, createdAt: T0, updatedAt: T0, activeAt: T0, name: "", memo: "", start: T0, startSet: true, startStack: 50000, ...extra });
+  const won = (at: number, t?: string) => saved(at, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" }, t);
+  const fold = (at: number, t?: string) => saved(at, pickRes(typed("SB", "T4o"), "fold"), t);
+  const DRAFT = { stage: "mid" as const, players: 9, draft: newDraft("CO"), parked: null };
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NIGHT);
+    fastStore.set(DRAFT);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    fastStore.set({});
+    fastOtherStore.set({});
+  });
+
+  it("heads the list with the current tournament: its title to edit, ＋ 새 토너먼트, its start and stack, the graph from the start stack", () => {
+    put([won(NIGHT - MIN, "a"), fold(NIGHT - 2 * MIN, "a"), fold(NIGHT - 3 * MIN)], { tourneys: [rec("a")] });
+    const html = page("fast");
+    const t = text(html);
+    expect(html).toContain(
+      '<div class="fast-today-head tn-head"><h2><button type="button" class="tn-title" aria-label="토너먼트 정보 고치기: 11/7 토너먼트"><span>11/7 토너먼트</span><i>✎</i></button></h2><button type="button" class="tn-new">＋ 새 토너먼트</button></div><p class="tn-meta">19:00 시작 · 2핸드 · 시작 50,000 → 61,700</p>',
+    );
+    // only its own hands (the untagged fold is under 이전 기록)
+    expect(html.match(/class="fast-item /g)).toHaveLength(2);
+    expect(html).toMatch(/<svg class="chip-graph" viewBox="0 0 320 96" role="img" aria-label="칩 흐름: 50,000에서 지금 61,700/);
+    expect(html).toContain('<b class="fm-total up">+11,700</b>');
+    expect(t).toContain("요약 복사 토너먼트 기록 ›");
+    expect(t).not.toContain("오늘 요약 복사");
+    expect(t).not.toContain("지난 기록 ›");
+    // the start stack is known, and it has hands: no invite, no 취소
+    expect(html).not.toContain("tn-invite");
+    expect(html).not.toContain("tn-cancel");
+    // its level clock: 19:00 start, 22:05 → Lv9 (estimated)
+    fastStore.set({ ...DRAFT, draft: typed("BB", "94o") });
+    expect(page("fast")).toContain('aria-label="블라인드 Lv9 800/1,600 (추정) · 바꾸기"');
+  });
+
+  it("invites the start stack and name when unknown, and offers 새 토너먼트 취소 while a new one is empty", () => {
+    put([fold(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a", { startStack: null, startSet: undefined, auto: true })] });
+    const html = page("fast");
+    expect(html).toContain('<button type="button" class="tn-invite">＋ 시작 스택·이름 넣기<small>그래프가 시작 스택부터</small></button>');
+    expect(html).toContain('<p class="tn-meta">22:03부터 · 1핸드</p>');
+    put([fold(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a", { activeAt: T0 }), rec("b", { name: "2부", activeAt: NIGHT - MIN, createdAt: NIGHT - MIN })] });
+    const empty = page("fast");
+    expect(empty).toContain('<span>2부</span>');
+    expect(empty).toContain('<div class="tn-cancel"><span>아직 핸드가 없어요</span><button type="button">새 토너먼트 취소</button></div>');
+    // said once: not again under it
+    expect(text(empty)).not.toContain("아직 이 토너먼트에 핸드가 없어요");
+    expect(text(empty)).toContain("토너먼트 기록 ›");
+    expect(empty).not.toContain("fast-item");
+    // the only one there is, or the one before is last week's: it can only go (none current after it)
+    put([], { tourneys: [rec("b", { activeAt: NIGHT - MIN, createdAt: NIGHT - MIN })] });
+    expect(page("fast")).toContain('<button type="button">새 토너먼트 지우기</button>');
+    const week = NIGHT - 7 * 24 * 60 * MIN;
+    put([fold(week, "w")], { tourneys: [rec("w", { start: week, createdAt: week, activeAt: week }), rec("b", { activeAt: NIGHT - MIN, createdAt: NIGHT - MIN })] });
+    expect(page("fast")).toContain('<button type="button">새 토너먼트 지우기</button>');
+    // resumed, not new: neither (its sheet can delete it, with a confirm)
+    put([], { tourneys: [rec("b", { activeAt: NIGHT - MIN })] });
+    const resumed = page("fast");
+    expect(resumed).not.toContain("tn-cancel");
+    expect(text(resumed)).toContain("아직 이 토너먼트에 핸드가 없어요. 핸드를 적으면 여기 모여요.");
+  });
+
+  it("lays out the sheet: the start stack as a value (a placeholder that reads as an example), the level the start gives, the box for today's hands, the note", () => {
+    const html = render(
+      <TourneySheet
+        mode="new"
+        initial={{ name: "", clock: "19:00", stack: "50000", memo: "" }}
+        defaultName="11/7 토너먼트"
+        levelText={(c) => (c === "19:00" ? "지금 Lv3 200/400" : null)}
+        join={5}
+        onSave={() => null}
+        onClose={noop}
+      />,
+    );
+    expect(html).toContain('placeholder="예: 50000" autoComplete="off" value="50000"');
+    expect(html).toContain("= 50,000칩");
+    expect(html).toContain('<small class="tn-lv">지금 Lv3 200/400</small>');
+    expect(html).not.toContain("레벨 추정에 써요");
+    expect(html).toMatch(/<label class="tn-join"><input type="checkbox" checked=""\/><span>오늘 토너먼트 없이 적은 5핸드도 여기로 모으기<\/span><\/label>/);
+    const edit = render(<TourneySheet mode="edit" initial={{ name: "", clock: "", stack: "", memo: "" }} defaultName="x" note="저장된 핸드의 레벨은 그대로예요." join={5} onSave={() => null} onClose={noop} />);
+    expect(edit).toContain('placeholder="예: 50000" autoComplete="off" value=""');
+    expect(edit).toContain("<small>레벨 추정에 써요 · 모르면 비워 두세요</small>");
+    expect(edit).toContain("<p>저장된 핸드의 레벨은 그대로예요.</p>");
+    // only a new one takes today's hands
+    expect(edit).not.toContain("tn-join");
+  });
+
+  it("leaves everything above the list as it was, tournament or not", () => {
+    const head = (html: string) => html.slice(0, html.indexOf('class="card-box fast-today"'));
+    put([]);
+    const none = head(page("fast"));
+    put([fold(NIGHT - MIN, "a"), won(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a", { startSet: undefined })] });
+    const withT = page("fast");
+    expect(withT).toContain("tn-title");
+    expect(head(withT)).toBe(none);
+    put([fold(NIGHT - MIN), won(NIGHT - 2 * MIN)]);
+    expect(head(page("fast"))).toBe(none);
+    expect(none).not.toContain("토너먼트");
+    expect(none.length).toBeGreaterThan(1000);
+  });
+
+  it("shows today's hands from before tournaments as they were, with ＋ 새 토너먼트 and what happens next", () => {
+    put([won(NIGHT - MIN), fold(NIGHT - 2 * MIN)]);
+    const html = page("fast");
+    const t = text(html);
+    expect(t).toContain("오늘 빠른 기록 2핸드 ＋ 새 토너먼트");
+    expect(html).toContain('<p class="tn-meta">토너먼트 없이 적은 기록이에요 · 다음 핸드를 적으면 이 핸드들도 토너먼트로 모여요</p>');
+    expect(html).toMatch(/aria-label="오늘 칩 흐름: 0에서 지금 \+11,700/);
+    expect(t).toContain("오늘 요약 복사 토너먼트 기록 ›");
+  });
+
+  it("offers the last tournament's 이어 적기 when none is current and nothing is on today", () => {
+    const week = NIGHT - 7 * 24 * 60 * MIN;
+    put([won(week + MIN, "w"), fold(week, "w")], { tourneys: [rec("w", { name: "지난주 펍", start: week, createdAt: week, activeAt: week })] });
+    const html = page("fast");
+    const t = text(html);
+    expect(html).toContain('<div class="tn-card"><div class="tn-card-main"><small class="muted">지난 토너먼트</small><b>지난주 펍</b>');
+    expect(t).toMatch(/지난주 펍 10월 31일 \(토\) · 2핸드 · \+11,700 이어 적기/);
+    expect(t).toContain("아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요");
+    expect(t).toContain("토너먼트 기록 ›");
+    // nothing at all yet: neither
+    put([]);
+    const fresh = page("fast");
+    expect(fresh).not.toContain("tn-card");
+    expect(text(fresh)).not.toContain("토너먼트 기록 ›");
+    expect(fresh).toContain('<button type="button" class="tn-new">＋ 새 토너먼트</button>');
+  });
+
+  it("shows 남의 핸드 of the current tournament under its name, without the tournament buttons", () => {
+    const o = (at: number, t?: string) => saved(at, typed("CO", "K9s"), t, "other");
+    put([o(NIGHT - MIN, "a"), o(NIGHT - 2 * MIN)], { tourneys: [rec("a")] });
+    const html = page("other");
+    expect(text(html)).toContain("오늘 남의 핸드 1핸드 11/7 토너먼트 · 19:00 시작");
+    expect(html).toContain('<p class="tn-meta">11/7 토너먼트 · 19:00 시작</p>');
+    expect(html).not.toContain("tn-new");
+    expect(html).not.toContain("tn-title");
+    expect(html.match(/class="fast-item /g)).toHaveLength(1);
+  });
+
+  it("lists the tournaments: the current one tagged, 이어 적기 on the others, 이전 기록 under them", () => {
+    const week = NIGHT - 7 * 24 * 60 * MIN;
+    put([won(NIGHT - MIN, "a"), saved(NIGHT - MIN, typed("CO", "K9s"), "a", "other"), fold(week, "w"), fold(week - 3 * 24 * 60 * MIN), won(week - 3 * 24 * 60 * MIN + 30 * MIN)], {
+      tourneys: [rec("a", { name: "토요 펍" }), rec("w", { name: "지난주", start: week - 60 * MIN, createdAt: week, activeAt: week })],
+    });
+    const html = page("fast/past");
+    const t = text(html);
+    expect(html).toContain('<button type="button" class="log-link back">‹ 빠른 기록</button><button type="button" class="log-new-btn">＋ 새 토너먼트</button>');
+    expect(html).toContain('<div class="tn-row current"><button type="button" class="tn-open"><span class="tn-row-top"><b class="tn-name">토요 펍</b><span class="log-tag">적는 중</span><span class="tn-res up">+12,000</span></span><span class="muted small">11월 7일 (토) 19:00 시작 · 1핸드 · 남의 핸드 1</span></button></div>');
+    expect(html).toContain('<b class="tn-name">지난주</b><span class="tn-res down">−300</span>');
+    expect(html).toContain('<button type="button" class="tn-resume" aria-label="이어 적기: 지난주">이어 적기</button>');
+    expect(html.match(/class="tn-resume"/g)).toHaveLength(1);
+    expect(t).toMatch(/이전 기록 · 토너먼트 없이 적은 빠른 기록 10월 28일 \(수\) 빠른 기록 \+11,700 22:05~22:35 · 2핸드/);
+    expect(t).toContain("토너먼트도 같이 저장돼요");
+    put([]);
+    expect(text(page("fast/past"))).toContain("아직 토너먼트 기록이 없어요. 빠른 기록에서 핸드를 적으면 토너먼트가 시작돼요.");
+  });
+
+  it("opens one tournament: its title to edit, start, stack and memo, every hand, 이어 적기 or 적는 중", () => {
+    const week = NIGHT - 7 * 24 * 60 * MIN;
+    put([won(NIGHT - MIN, "a"), fold(NIGHT - 2 * MIN, "a"), fold(week, "w")], {
+      tourneys: [rec("a", { name: "토요 펍", memo: "테이블 3\n옆자리 공격적" }), rec("w", { start: week, createdAt: week, activeAt: week, startStack: null, startSet: undefined })],
+    });
+    const html = page("fast/t/a");
+    const t = text(html);
+    expect(html).toContain('<button type="button" class="log-link back">‹ 토너먼트 기록</button><span class="log-tag">적는 중</span>');
+    expect(html).toContain('<h2><button type="button" class="tn-title" aria-label="토너먼트 정보 고치기: 토요 펍"><span>토요 펍</span><i>✎</i></button></h2>');
+    expect(html).toContain('<p class="tn-meta">11월 7일 (토) 19:00 시작 · 2핸드 · 시작 50,000 → 61,700</p>');
+    expect(html).toContain('<p class="tn-memo">메모: 테이블 3\n옆자리 공격적</p>');
+    expect(html.match(/class="fast-item /g)).toHaveLength(2);
+    expect(html).toMatch(/aria-label="칩 흐름: 50,000에서 지금 61,700/);
+    expect(t).toContain("요약 복사");
+    expect(html).not.toContain("이 토너먼트 삭제");
+    const past = page("fast/t/w");
+    expect(past).toContain('<button type="button" class="tn-resume">이어 적기</button>');
+    expect(text(past)).toContain("10월 31일 (토) 22:05부터 · 1핸드");
+    // gone, or never here
+    expect(text(page("fast/t/nope"))).toContain("이 토너먼트를 찾을 수 없어요");
+    // an empty one can be deleted
+    put([], { tourneys: [rec("e", { activeAt: T0 - 60 * MIN })] });
+    expect(page("fast/t/e")).toContain("이 토너먼트 삭제");
+  });
+
+  it("opens a group of hands from before tournaments by its newest hand's time (or any hand in it), with nothing to resume", () => {
+    const old = [won(NIGHT - 24 * 60 * MIN), fold(NIGHT - 24 * 60 * MIN - 30 * MIN)];
+    put(old);
+    expect(page(`fast/s/${old[0].createdAt}`)).toBe(page(`fast/s/${old[1].id}`));
+    // its newest hand deleted (opened from here and deleted in 빠른 기록): still there by the same address
+    put([old[1]]);
+    expect(text(page(`fast/s/${old[0].createdAt}`))).toContain("21:35~21:35 · 1핸드");
+    put(old);
+    const html = page(`fast/s/${old[1].id}`);
+    const t = text(html);
+    expect(html).toContain("<h2>11월 6일 (금) 빠른 기록</h2>");
+    expect(t).toContain("21:35~22:05 · 2핸드");
+    expect(html).not.toContain("tn-resume");
+    expect(html).not.toContain("tn-title");
+    expect(html).toMatch(/aria-label="칩 흐름: 0에서 지금 \+11,700/);
+    expect(text(page("fast/s/nope"))).toContain("이 기록을 찾을 수 없어요");
   });
 });
