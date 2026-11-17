@@ -1,9 +1,9 @@
 import type { ReactElement } from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { RANKS } from "../../poker/cards";
+import { ALL_HANDS, RANKS } from "../../poker/cards";
 import { ajaeOn, settingsStore } from "../../state/settings";
-import { AJAE_CRAMPED, AJAE_MOVES, AJAE_SPECIALS, AJAE_START, ajaeSeen, ajaeStep, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCue, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
+import { AJAE_CRAMPED, AJAE_MOVES, AJAE_SPECIALS, AJAE_START, ajaeCards, ajaeSeen, ajaeStep, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCue, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
 import { AjaeReaction } from "./AjaeReaction";
 import { fastHand, fastOtherStore, fastStore, newDraft, pickSuited, startEdit, tapRank, undoTap, withSeat, type FastDraft } from "./fastLog";
 import { emptyHand, handLogStore } from "./handLog";
@@ -56,6 +56,25 @@ const actChildren = (html: string): string[] => {
   return out;
 };
 const HANGUL = /[ᄀ-ᇿ㄰-㆏가-힯]/;
+/** The rage's four card halves (front card's left and right, back card's left and right): each half's svg markup. */
+const rageHalves = (html: string): string[] => [...html.matchAll(/<span class="aj-half aj-q(\d) aj-h[lr]">(<svg[\s\S]*?<\/svg>)<\/span>/g)].map((m) => m[2]);
+/**
+ * What a rage card draws: its big pip, its small pip (path and fill), its index (the stroked paths: the index, then again
+ * over the pips with a white edge under it), the clip that keeps that second drawing to the pips, and the markup with the
+ * clip's id taken out (each card has its own).
+ */
+const rageCard = (svg: string) => {
+  const big = /<path d="([^"]+)" fill="([^"]+)" transform="translate\(1.6 2.2\) scale\(0.8\)"/.exec(svg);
+  const small = /<path d="([^"]+)" fill="([^"]+)" transform="translate\(2.3 7.4\) scale\(0.3\)"/.exec(svg);
+  const strokes = [...svg.matchAll(/<path d="([^"]+)" fill="none" stroke="([^"]+)" stroke-width="([\d.]+)"/g)].map((m) => ({ d: m[1], stroke: m[2], width: m[3] }));
+  const id = /<clipPath id="([^"]+)">/.exec(svg)?.[1] ?? "";
+  const clip = [...(/<clipPath id="[^"]+">([\s\S]*?)<\/clipPath>/.exec(svg)?.[1] ?? "").matchAll(/<path d="([^"]+)" transform="([^"]+)"/g)].map((m) => [m[1], m[2]]);
+  const clipped = /<g clip-path="url\(#([^)]+)\)">((?:<path [^>]*><\/path>)+)<\/g><\/svg>$/.exec(svg);
+  return { pip: big?.[1], color: big?.[2], small: small?.[1], smallColor: small?.[2], strokes, id, clip, clippedBy: clipped?.[1], clippedStrokes: (clipped?.[2].match(/<path /g) ?? []).length, same: svg.split(id).join("ID") };
+};
+/** 72o's indices as they have always been drawn: the 7 of clubs in ink, the 2 of diamonds in red. */
+const SEVEN = "M2.6 2.6 H 6.4 L 3.8 8.4";
+const TWO = "M2.8 4.2 Q 3 2.5 4.6 2.5 Q 6.3 2.5 6.2 4.1 Q 6.1 5.5 2.7 8.4 H 6.5";
 /** The stylesheet's rules (comments out, @media's too, keyframe steps as well): each rule's selectors and its declarations. */
 const RULES = [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ sel: m[1].split(",").map((x) => x.trim()), decl: m[2] }));
 /** The declarations of every rule with exactly `selector` among its selectors. */
@@ -157,8 +176,8 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     const { s, d } = typeIn("BTN", "72o");
     expect(s.cue).toMatchObject({ tier: "hammer", move: "rage" });
     const html = row(s, d);
-    // the furious face is in the slot from the start (it comes in as he vanishes) and stays there, as for trash
-    expect(html).toContain('<span class="aj-slot aj-after" aria-hidden="true"><span class="aj-face aj-hammer"><svg');
+    // the furious face is in the slot from the start (it comes in as he vanishes, on the rage's clock) and stays there, as for trash
+    expect(html).toContain('<span class="aj-slot aj-after aj-for-rage" aria-hidden="true"><span class="aj-face aj-hammer"><svg');
     for (const part of ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-steam aj-st-rest"]) expect(html).toContain(`class="${part}"`);
     expect(html).toContain('<span class="aj-act aj-mv-rage" aria-hidden="true">');
     expect(html).toContain(`<span class="aj-jolt aj-x-rage aj-j${s.cue!.n % 2}"><span class="fast-class done" aria-live="polite">CLS</span></span>`);
@@ -170,16 +189,29 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       "aj-burst", "aj-bang", "aj-dust aj-d1", "aj-dust aj-d2",
       "aj-puff aj-p0", "aj-puff aj-p1", "aj-puff aj-p2", "aj-poof",
     ]);
-    // more going on than in any trash move
-    for (const m of AJAE_MOVES.trash) {
+    // more going on than in any other trash move
+    for (const m of AJAE_MOVES.trash.filter((x) => x !== "rage")) {
       const { cue, seat } = cueOf("trash", m);
       expect(actChildren(render(<AjaeReaction cue={cue} seat={seat} stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>)).length, m).toBeLessThan(kids.length);
     }
     // the doll: mad, with the shocked O, the shock lines and steam out of both ears (two puffs a side)
     for (const part of ["aj-r-flush", "aj-r-vbrows", "aj-r-teeth", "aj-r-oh", "aj-r-shock", "aj-r-jet aj-r-jl1", "aj-r-jet aj-r-jl2", "aj-r-jet aj-r-jr1", "aj-r-jet aj-r-jr2"]) expect(html).toContain(`class="${part}"`);
-    // the two cards are the hand's: drawn with their indices (paths, no text), each cut in two along the tear
+    // the two cards are the hand's: drawn with their indices (paths, no text), each cut in two along the tear: the 7 of
+    // clubs in front, the 2 of diamonds behind, as they always were
     expect((html.match(/class="aj-half /g) ?? []).length).toBe(4);
     expect(html).not.toMatch(/<text[^>]*>[^<]*[27]/);
+    const [q1, q2, q3, q4] = rageHalves(html).map(rageCard);
+    expect(q1.same).toBe(q2.same);
+    expect(q3.same).toBe(q4.same);
+    const [seven, two] = [q1, q3];
+    for (const [card, d, ink] of [[seven, SEVEN, "#1b1400"], [two, TWO, "#d6202f"]] as const) {
+      expect(card.strokes[0]).toEqual({ d, stroke: ink, width: "1.5" });
+      expect(card.strokes.at(-1)).toEqual({ d, stroke: ink, width: "1.5" });
+    }
+    expect(seven).toMatchObject({ color: "#1b1400", smallColor: "#1b1400" });
+    expect(two).toMatchObject({ color: "#d6202f", smallColor: "#d6202f" });
+    expect(seven.pip).toMatch(/^M5.3 9.6 a 2.7 2.7 0 1 0 5.4 0 /);
+    expect(two.pip).toBe("M8 7.6 L 11.7 13 L 8 18.4 L 4.3 13 Z");
     // the other body moves never draw the rage's parts
     for (const m of ["kick", "mallet", "slam", "shove", "shuffle"] as AjaeMove[]) {
       const tier = (Object.keys(AJAE_MOVES) as AjaeTier[]).find((t) => (AJAE_MOVES[t] as readonly string[]).includes(m))!;
@@ -188,21 +220,27 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     }
   });
 
-  it("goes for a trash hand three ways (kick, mallet, card slam) and stays beside it furious: no walking off", () => {
+  it("goes for a trash hand four ways (72o's rage with the hand's own cards, kick, mallet, card slam) and stays beside it furious: no walking off", () => {
     let s = AJAE_START;
     const fumes = ["aj-puff aj-p0", "aj-puff aj-p1", "aj-puff aj-p2", "aj-poof"];
     const kids: Record<string, string[]> = {
+      rage: [
+        "aj-aura", "aj-body",
+        "aj-half aj-q1 aj-hl", "aj-half aj-q2 aj-hr", "aj-half aj-q3 aj-hl", "aj-half aj-q4 aj-hr",
+        "aj-bit aj-b1", "aj-bit aj-b2", "aj-bit aj-b3", "aj-bit aj-b4",
+        "aj-burst", "aj-bang", "aj-dust aj-d1", "aj-dust aj-d2", ...fumes,
+      ],
       kick: ["aj-body", "aj-whoosh", "aj-burst", "aj-dust aj-d1", "aj-dust aj-d2", ...fumes],
       mallet: ["aj-body", "aj-burst", "aj-crack", "aj-dizzy", "aj-speed", ...fumes],
       slam: ["aj-body", "aj-card aj-cd1", "aj-card aj-cd2", "aj-lines", "aj-bang", "aj-burst", "aj-dust aj-d1", "aj-dust aj-d2", ...fumes],
     };
     const parity: number[] = [];
-    for (const [cls, move] of [["J4o", "kick"], ["93o", "mallet"], ["T8o", "slam"], ["J4o", "kick"]]) {
+    for (const [cls, move] of [["J4o", "rage"], ["93o", "kick"], ["T8o", "mallet"], ["Q2o", "slam"], ["83o", "rage"]]) {
       const r = typeIn("CO", cls, s);
       s = r.s;
       const html = row(s, r.d);
-      // the face is in the slot from the start (it pops in, furious, as he finishes) and stays there
-      expect(html).toContain('<span class="aj-slot aj-after" aria-hidden="true"><span class="aj-face aj-trash"><svg');
+      // the face is in the slot from the start (it pops in, furious, as he finishes: after the rage, on its clock) and stays there
+      expect(html).toContain(`<span class="aj-slot aj-after${move === "rage" ? " aj-for-rage" : ""}" aria-hidden="true"><span class="aj-face aj-trash"><svg`);
       expect(html).toContain(`<span class="aj-act aj-mv-${move}" aria-hidden="true">`);
       expect(actChildren(html)).toEqual(kids[move]);
       expect(html).toContain(`<span class="aj-jolt aj-x-${move} aj-j${s.cue!.n % 2}"><span class="fast-class done" aria-live="polite">CLS</span></span>`);
@@ -210,9 +248,76 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       // the furious face's parts are all there (the resting face shows them by .aj-trash), and so is the mallet when he swings it
       for (const part of ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-steam aj-st-rest"]) expect(html).toContain(`class="${part}"`);
       expect(html.includes('class="aj-r-mallet"')).toBe(move === "mallet");
+      // the rage's parts only in the rage, its cards the hand's own
+      expect(/aj-r-oh|aj-r-shock|aj-r-jet|aj-half|aj-aura/.test(html), move).toBe(move === "rage");
+      if (move === "rage") {
+        const [front, back] = [rageHalves(html)[0], rageHalves(html)[2]].map((c) => rageCard(c).strokes[0].d);
+        expect(front, cls).not.toBe(back);
+        for (const d of [front, back]) expect([SEVEN, TWO], cls).not.toContain(d);
+      }
     }
     // back to back, each reaction gets the other keyframes, so the class's move starts over
-    expect(parity).toEqual([1, 0, 1, 0]);
+    expect(parity).toEqual([1, 0, 1, 0, 1]);
+  });
+
+  it("rips the hand's own two cards in the rage, for any hand: its ranks drawn (paths, no text), the high card in front, its suits", () => {
+    /** The rage's act for `cls` (as if it were its tier's move: the art is the same for any hand). */
+    const rage = (cls: string) => {
+      const html = render(<AjaeReaction cue={{ n: 1, key: `${cls}|`, cls, tier: ajaeTier(cls, "CO", "mid", 9), move: "rage" }} seat="CO" stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>);
+      return /<span class="aj-act aj-mv-rage"[\s\S]*<\/span>(?=<span class="aj-jolt)/.exec(html)?.[0] ?? "";
+    };
+    const index = new Map<string, string>();
+    const pips = new Map<string, string>();
+    for (const h of ALL_HANDS) {
+      const html = rage(h);
+      expect(rageHalves(html), h).toHaveLength(4);
+      expect(html, h).not.toMatch(/<text/);
+      expect(html.replace(/<[^>]*>/g, ""), h).toBe("");
+      const [q1, q2, q3, q4] = rageHalves(html).map(rageCard);
+      // each card's two halves are the same card, cut apart by ajae.css, each with a clip of its own
+      expect(q1.same, h).toBe(q2.same);
+      expect(q3.same, h).toBe(q4.same);
+      expect(new Set([q1, q2, q3, q4].map((q) => q.id)).size, h).toBe(4);
+      ajaeCards(h).forEach((c, i) => {
+        const card = i ? q3 : q1;
+        const red = c.suit === "h" || c.suit === "d";
+        const ink = red ? "#d6202f" : "#1b1400";
+        // the index in the suit's colour, the same stroke as 72o's, and again over the pips with a white edge under it,
+        // clipped to the pips (the card's own clip: its two pips)
+        const d = card.strokes[0]?.d ?? "";
+        expect(card.strokes, `${h} ${c.rank}`).toEqual([
+          { d, stroke: ink, width: "1.5" },
+          { d, stroke: "#fff", width: "2.2" },
+          { d, stroke: ink, width: "1.5" },
+        ]);
+        expect([card.clippedBy, card.clippedStrokes], h).toEqual([card.id, 2]);
+        expect(card.clip, h).toEqual([[card.pip, "translate(2.3 7.4) scale(0.3)"], [card.pip, "translate(1.6 2.2) scale(0.8)"]]);
+        expect(d, h).toMatch(/^M[\d. ]/);
+        expect(d.length, h).toBeGreaterThan(10);
+        expect(index.get(c.rank) ?? d, `${h} ${c.rank}`).toBe(d);
+        index.set(c.rank, d);
+        // the pip, big and small, in the suit's colour
+        expect(card.small, h).toBe(card.pip);
+        expect([card.color, card.smallColor], h).toEqual([ink, ink]);
+        expect(pips.get(c.suit) ?? card.pip, `${h} ${c.suit}`).toBe(card.pip);
+        pips.set(c.suit, card.pip!);
+      });
+      if (h.endsWith("s")) expect(q1.pip, h).toBe(q3.pip);
+      else expect(q1.pip, h).not.toBe(q3.pip);
+    }
+    // a drawing of its own for each of the 13 ranks and each of the 4 suits; 72o's 7 and 2 as they always were
+    expect([...index.keys()].sort()).toEqual([...RANKS].sort());
+    expect(new Set(index.values()).size).toBe(13);
+    expect(index.get("7")).toBe(SEVEN);
+    expect(index.get("2")).toBe(TWO);
+    expect(new Set(pips.values()).size).toBe(4);
+    // J4o: a jack in front, a four behind, in two suits; T3s: a ten and a three, both diamonds
+    const j4 = rageHalves(rage("J4o")).map(rageCard);
+    expect([j4[0].strokes[0].d, j4[2].strokes[0].d]).toEqual([index.get("J"), index.get("4")]);
+    expect(j4[0].pip).not.toBe(j4[2].pip);
+    const t3 = rageHalves(rage("T3s")).map(rageCard);
+    expect([t3[0].strokes[0].d, t3[2].strokes[0].d]).toEqual([index.get("T"), index.get("3")]);
+    expect([t3[0].pip, t3[2].pip]).toEqual([pips.get("d"), pips.get("d")]);
   });
 
   it("never says a word: nothing he draws, for any tier and move, has Hangul in it, and the bubbles are gone", () => {
@@ -336,7 +441,7 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     // once, and the face rests with the tier on screen
     const j4 = typeIn("CO", "J4o");
     expect(ajaeTier("J4o", "BB", "mid", 9)).toBe("trash");
-    expect(row(j4.s, withSeat(j4.d, "BB", 9))).toContain("aj-act aj-mv-kick");
+    expect(row(j4.s, withSeat(j4.d, "BB", 9))).toContain("aj-act aj-mv-rage");
     const k9 = typeIn("BTN", "K9o");
     expect(row(k9.s, k9.d)).toContain("aj-act aj-mv-shuffle");
     const moved = row(k9.s, withSeat(k9.d, "UTG", 9));
@@ -480,6 +585,8 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     expect(declsOf(".aj-act *").join(";")).toContain("animation-duration: 2.5s");
     for (const p of [0, 1]) expect(declsOf(`.aj-jolt.aj-x-rage.aj-j${p}`).join(";")).toContain(" 3.2s ");
     expect(RULES.some((r) => r.sel.includes(".aj-after .aj-face.aj-hammer") && r.sel.includes(".aj-after .aj-hammer *") && r.decl.includes("animation-duration: 3.2s"))).toBe(true);
+    // a trash hand's face waits for its rage the same (the slot's .aj-for-rage), not the other trash moves' 2.5 s
+    expect(RULES.some((r) => r.sel.includes(".aj-after.aj-for-rage .aj-face") && r.sel.includes(".aj-after.aj-for-rage .aj-face *") && r.decl.includes("animation-duration: 3.2s"))).toBe(true);
     expect(RULES.some((r) => r.sel.includes(".aj-after .aj-face.aj-trash") && r.sel.includes(".aj-after .aj-face.aj-hammer") && animNames(r.decl).includes("aj-after-mad"))).toBe(true);
     // the dance without its ball hides the ball and its beams
     expect(RULES.some((r) => r.sel.includes(".aj-noball .aj-ball") && r.sel.includes(".aj-noball .aj-beams") && r.decl.includes("display: none"))).toBe(true);
