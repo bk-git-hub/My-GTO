@@ -11,6 +11,7 @@ import { cautionLines } from "./sets/preflop";
 import {
   actionTotals,
   allScenarios,
+  allSets,
   buildSet,
   CHART_SETS,
   describeStrategy,
@@ -22,8 +23,8 @@ import {
   heroSeats,
   inReach,
   KIND_LABEL,
+  getNamedRanges,
   legendActions,
-  NAMED_RANGES,
   namedRanges,
   reachOf,
   reachShare,
@@ -49,7 +50,7 @@ describe("chart sets", () => {
         expect(total, `${s.id} ${h}`).toBeCloseTo(1, 6);
       }
     }
-    expect(NAMED_RANGES.length).toBeGreaterThan(50);
+    expect(getNamedRanges().length).toBeGreaterThan(50);
   });
 
   it("pub: later seats never play fewer hands than earlier seats (first-in)", () => {
@@ -110,7 +111,7 @@ describe("chart sets", () => {
   });
 
   it("prints range widths", () => {
-    for (const set of CHART_SETS) {
+    for (const set of allSets()) {
       for (const st of set.stages) {
         const row = st.scenarios
           .filter((s) => s.kind === "rfi")
@@ -604,7 +605,7 @@ describe("existing chart sets are unchanged", () => {
       ),
     );
     expect(namedRanges(legacySets())).toEqual(legacyNamed);
-    expect(NAMED_RANGES.filter((r) => LEGACY_SETS.includes(r.id.split("/")[0]))).toEqual(legacyNamed);
+    expect(getNamedRanges().filter((r) => LEGACY_SETS.includes(r.id.split("/")[0]))).toEqual(legacyNamed);
   });
 
   it("render the same grids", () => {

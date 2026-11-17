@@ -12,8 +12,10 @@ import { settingsStore } from "../state/settings";
 import {
   actionTotals,
   CHART_SETS,
+  chartSetMenu,
   closeActions,
   displayChips,
+  getNamedRanges,
   getSet,
   heroFilterSeats,
   inReach,
@@ -21,7 +23,6 @@ import {
   HEAVY_CLOSE_SHARE,
   KIND_LABEL,
   legendActions,
-  NAMED_RANGES,
   reachOf,
   reachShare,
   reachTotals,
@@ -118,7 +119,8 @@ afterEach(() => {
 
 describe("solver chart set: registration and texts", () => {
   it("is registered last; the default set and getSet's fallback stay pub", () => {
-    expect(CHART_SETS.at(-1)).toBe(solver);
+    expect(chartSetMenu().at(-1)!.id).toBe("solver");
+    expect(chartSetMenu().at(-1)!.label).toBe(solver.label);
     expect(CHART_SETS[0].id).toBe("pub");
     expect(getSet("no-such-set").id).toBe("pub");
     expect(solver.label).toBe("솔버 프리플랍 (9인·BB 앤티)");
@@ -581,7 +583,7 @@ describe("solver data: size and app smoke tests", () => {
   });
 
   it("the calculator lists only the solver's rfi, vsOpen and vs3bet ranges, without the actions its chart never takes", () => {
-    const named = NAMED_RANGES.filter((r) => r.id.startsWith("solver/"));
+    const named = getNamedRanges().filter((r) => r.id.startsWith("solver/"));
     const want = solver.stages.flatMap((st) =>
       st.scenarios
         .filter((s) => ["rfi", "vsOpen", "vs3bet"].includes(s.kind))

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CardPicker, CardRow } from "../../components/Cards";
-import { getSet, NAMED_RANGES } from "../../data/charts";
+import { getNamedRanges, getSet } from "../../data/charts";
 import { useSettings } from "../../state/settings";
 import { cardLabel, type Card } from "../../poker/cards";
 import { equityVsHand, equityVsRange, type EquityResult } from "../../poker/equity";
@@ -26,6 +26,8 @@ export function CalcPage() {
   const [villainMode, setVillainMode] = useState<"range" | "hand">("range");
   const { chartSet } = useSettings();
   const set = getSet(chartSet);
+  // Every set's villain ranges; the first open of the calculator builds the solver set once (about 120 ms).
+  const NAMED_RANGES = getNamedRanges();
   const [rangeId, setRangeId] = useState(
     (NAMED_RANGES.find((r) => r.id === `${set.id}/${set.stages[0].id}/rfi-btn:open`) ?? NAMED_RANGES[0]).id,
   );

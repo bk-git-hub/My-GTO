@@ -29,6 +29,9 @@ import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage } from
  *    caution of each flag, with the chart's own numbers, and `cautionFacts` the coach's lines about them.
  *  - `quizCloseActions` and `bigPairCloseNote`: the close-call set the quiz accepts (no AA/KK passive tie) and the
  *    caveat under such a tie (§6.8, §8 "More KK flats").
+ *
+ * The set itself is built on first use (solverSetDef, through charts.ts's lazy sets): building its 633 spots costs
+ * about 120 ms and 15 MB, which an app start on a set without it should not pay (docs §6.3).
  */
 
 const POS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -143,6 +146,11 @@ export const SOLVER_ID = "solver";
 export const SOLVER_LABEL = "솔버 프리플랍 (9인·BB 앤티)";
 
 let solverDef: ChartSetDef | null = null;
+
+/** Whether solverSetDef has built the set (tests: nothing but a use of the solver set may build it). */
+export function solverSetDefBuilt(): boolean {
+  return solverDef !== null;
+}
 
 /** The solver set's definition, built on the first call (stageReach and the close strings parse every spot). */
 export function solverSetDef(): ChartSetDef {

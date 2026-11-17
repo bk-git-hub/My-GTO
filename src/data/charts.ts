@@ -2,7 +2,7 @@ import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
 import { parseRange, rangeCombos, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
 import { NASH } from "./sets/nash";
-import { solverSetDef } from "./sets/preflop";
+import { SOLVER_ID, SOLVER_LABEL, solverSetDef } from "./sets/preflop";
 import type { PreflopFlag } from "./sets/preflopTypes";
 import { SHORT_NASH } from "./sets/shortNash";
 import { PUB_TOURNEY } from "./sets/pub";
@@ -149,7 +149,7 @@ function buildScenario(set: ChartSetDef, stage: StageDef, def: ScenarioDef): Sce
   };
 }
 
-/** Exported for tests, which build synthetic sets; the app reads sets through getSet and CHART_SETS. */
+/** Exported for tests, which build synthetic sets; the app reads sets through getSet, allSets and chartSetMenu. */
 export function buildSet(def: ChartSetDef): ChartSet {
   return {
     ...def,
@@ -158,17 +158,53 @@ export function buildSet(def: ChartSetDef): ChartSet {
 }
 
 /**
- * Every set, built at load: the hand-made ones, then the solver set. CHART_SETS[0] is getSet's fallback and "pub" the
- * default chart set. Tests push synthetic sets here while they run.
+ * The hand-made sets, built at load (they are small). CHART_SETS[0] is getSet's fallback and "pub" the default chart
+ * set. Tests push synthetic sets here while they run.
  */
-export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH, solverSetDef()].map(buildSet);
+export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH].map(buildSet);
+
+/**
+ * Sets built on first use: the solver set (633 spots). Built at load with its calculator ranges it cost every app start
+ * about 0.26 s and 20 MB of JS heap in Chromium (docs §6.3). The menu lists them without building them; getSet,
+ * allSets, allScenarios() and getNamedRanges build them once, synchronously.
+ */
+const LAZY_SETS: { id: string; label: string; def: () => ChartSetDef }[] = [{ id: SOLVER_ID, label: SOLVER_LABEL, def: solverSetDef }];
+const lazyBuilt = new Map<string, ChartSet>();
+
+function lazySet(id: string): ChartSet | undefined {
+  const l = LAZY_SETS.find((x) => x.id === id);
+  if (!l) return undefined;
+  let s = lazyBuilt.get(id);
+  if (!s) lazyBuilt.set(id, (s = buildSet(l.def())));
+  return s;
+}
+
+/** The ids of the lazy sets built so far (tests). */
+export function lazySetsBuilt(): string[] {
+  return [...lazyBuilt.keys()];
+}
+
+/** Every set the picker offers, in menu order (the solver set last): id and label only, nothing is built. */
+export function chartSetMenu(): { id: string; label: string }[] {
+  return [...CHART_SETS, ...LAZY_SETS].map(({ id, label }) => ({ id, label }));
+}
+
+/** `id` if a set has it, else the fallback's id (what getSet(id).id gives), without building a set. */
+export function chartSetId(id: string): string {
+  return chartSetMenu().some((s) => s.id === id) ? id : CHART_SETS[0].id;
+}
 
 export function getSet(id: string): ChartSet {
-  return CHART_SETS.find((s) => s.id === id) ?? CHART_SETS[0];
+  return CHART_SETS.find((s) => s.id === id) ?? lazySet(id) ?? CHART_SETS[0];
+}
+
+/** Every set, the hand-made ones first and the lazy ones (built here if they are not yet) last. */
+export function allSets(): ChartSet[] {
+  return [...CHART_SETS, ...LAZY_SETS.map((l) => lazySet(l.id)!)];
 }
 
 export function allScenarios(set?: ChartSet): Scenario[] {
-  return (set ? [set] : CHART_SETS).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
+  return (set ? [set] : allSets()).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
 }
 
 /** The close-call set of hand h (legend keys, the chart's action among them), or undefined where h is not marked. */
@@ -330,5 +366,10 @@ export function namedRanges(sets: ChartSet[]): NamedRange[] {
   );
 }
 
-/** The calculator's villain ranges over every set, built at load. A set pushed into CHART_SETS later is not added. */
-export const NAMED_RANGES: NamedRange[] = namedRanges(CHART_SETS);
+let named: NamedRange[] | null = null;
+
+/** The calculator's villain ranges over every set (allSets order), built on the first call; that call builds the lazy
+ *  sets. A set pushed into CHART_SETS later is not added. */
+export function getNamedRanges(): NamedRange[] {
+  return (named ??= namedRanges(allSets()));
+}
