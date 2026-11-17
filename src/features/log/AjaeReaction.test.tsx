@@ -34,7 +34,7 @@ function typeIn(seat: string, cls: string, s: AjaeState = AJAE_START, room?: num
   return { s, d: steps[steps.length - 1] };
 }
 /** A hand of each tier at the middle stage, 9-handed. */
-const SAMPLE: Record<AjaeTier, [string, string]> = { monster: ["UTG", "AA"], good: ["UTG", "JTs"], meh: ["HJ", "Q9o"], fold: ["UTG", "K9o"], trash: ["CO", "J4o"], hammer: ["BTN", "72o"] };
+const SAMPLE: Record<AjaeTier, [string, string]> = { monster: ["UTG", "AA"], good: ["UTG", "JTs"], meh: ["CO", "Q9o"], fold: ["UTG", "K9o"], trash: ["CO", "J4o"], hammer: ["BTN", "72o"] };
 /** A cue of the tier doing `move` (as if it were the tier's move in turn), and the seat it is for. */
 const cueOf = (tier: AjaeTier, move: AjaeMove, n = 1): { cue: AjaeCue; seat: string } => {
   const [seat, cls] = SAMPLE[tier];
@@ -142,9 +142,9 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     const fold = typed("UTG", "K9o");
     expect(fold.html).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-fold aj-play aj-mv-ponder"><svg');
     expect(typed("UTG", "K9o", fold.s).html).toContain('<span class="aj-face aj-fold aj-play aj-mv-glare">');
-    const meh = typed("HJ", "Q9o");
+    const meh = typed("CO", "Q9o");
     expect(meh.html).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder"><svg');
-    expect(typed("HJ", "Q9o", meh.s).html).toContain('<span class="aj-face aj-meh aj-play aj-mv-hmm">');
+    expect(typed("CO", "Q9o", meh.s).html).toContain('<span class="aj-face aj-meh aj-play aj-mv-hmm">');
     for (const h of [fold.html, meh.html]) {
       expect(h).not.toContain("aj-act");
       expect(h).toMatch(/<span class="aj-jolt"><span class="fast-class done"/);
@@ -197,7 +197,7 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       slam: ["aj-body", "aj-card aj-cd1", "aj-card aj-cd2", "aj-lines", "aj-bang", "aj-burst", "aj-dust aj-d1", "aj-dust aj-d2", ...fumes],
     };
     const parity: number[] = [];
-    for (const [cls, move] of [["J4o", "kick"], ["93o", "mallet"], ["Q4o", "slam"], ["J4o", "kick"]]) {
+    for (const [cls, move] of [["J4o", "kick"], ["93o", "mallet"], ["T8o", "slam"], ["J4o", "kick"]]) {
       const r = typeIn("CO", cls, s);
       s = r.s;
       const html = row(s, r.d);
@@ -300,11 +300,11 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     const h = typeIn("BTN", "72o", AJAE_START, 30);
     expect(row(h.s, h.d)).toContain('<span class="aj-slot aj-pop aj-low" aria-hidden="true"><span class="aj-face aj-hammer aj-play aj-mv-fume"><svg');
     // a face move with room for the full pop pops as usual; settled, nothing pops at all
-    const meh = typeIn("HJ", "Q9o", AJAE_START, 70);
+    const meh = typeIn("CO", "Q9o", AJAE_START, 70);
     expect(row(meh.s, meh.d)).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder">');
-    const lowMeh = typeIn("HJ", "Q9o", AJAE_START, 40);
+    const lowMeh = typeIn("CO", "Q9o", AJAE_START, 40);
     expect(row(lowMeh.s, lowMeh.d)).toContain('<span class="aj-slot aj-pop aj-low" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder">');
-    const settled = render(<AjaeReaction cue={{ ...lowMeh.s.cue!, settled: true }} seat="HJ" stage="mid" players={9}>Q9o</AjaeReaction>);
+    const settled = render(<AjaeReaction cue={{ ...lowMeh.s.cue!, settled: true }} seat="CO" stage="mid" players={9}>Q9o</AjaeReaction>);
     expect(settled).toContain('<span class="aj-slot" aria-hidden="true"><span class="aj-face aj-meh"><svg');
   });
 

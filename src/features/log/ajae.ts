@@ -1,6 +1,7 @@
 import type { HandClass } from "../../poker/cards";
+import { preflopDecision } from "../../play/policy";
 import { classDone, draftClass, type FastDraft } from "./fastLog";
-import { bbPlayShare, limpShare, raiseShare, TRASH_DEFENSE, trashDefenseShare } from "./judgeChart";
+import { spotOf, type FastSpot } from "./fastVerdict";
 import type { PreStage } from "./quickPre";
 import { buttonSeat, positionsFor } from "./recorder";
 
@@ -157,16 +158,26 @@ export function ajaePairMove(pair: AjaePair, k: number, tier: AjaeTier, kt: numb
 }
 
 /**
- * How often the judge chart (judgeChart.ts: the solver at 딥 and 미들, our computed short-stack charts at 숏 and
- * 푸시) plays `cls` first in from `seat`, 0~1. "open": raises and shoves only, what makes a hand good; "any": a limp
- * too (the solver's SB limps a lot of hands into the BB).
+ * How often the chart puts chips in with `cls` in the spot, 0~1: every non-fold move counts (an open, a
+ * 2bb open, a shove, a call, a 3-bet). 0 when the chart has nothing for the spot.
  */
-function playShare(stage: PreStage, players: number, seat: string, cls: HandClass, how: "open" | "any"): number {
-  const r = raiseShare(stage, players, seat, cls);
-  return how === "open" ? r : r + limpShare(stage, players, seat, cls);
+function playShare(stage: PreStage, players: number, seat: string, cls: HandClass, spot: Extract<FastSpot, "none" | "open">, opener?: string): number {
+  const sp = spotOf({ stage, players, seat, cls, spot, ...(opener ? { opener } : {}) });
+  if (!sp) return 0;
+  try {
+    const dec = preflopDecision(sp);
+    // Only a real chart: the policy's tight fallbacks for uncharted spots say nothing about the hand.
+    if (!dec.scenario) return 0;
+    return dec.moves(cls).reduce((a, m) => a + (m.kind === "fold" ? 0 : m.prob), 0);
+  } catch {
+    return 0;
+  }
 }
 
-/** The chart plays the hand: most of the time, the line 빠른 기록's verdict draws for 차트대로 (the solver mixes). */
+/**
+ * The chart plays the hand: most of the time, the line 빠른 기록's verdict draws for 차트대로. The pub
+ * charts are all-or-nothing today, so this only matters for a chart that mixes.
+ */
 const PLAYS = 0.5 - 1e-9;
 
 /** The seats whose open makes my fold only "meh": the next two non-blind seats after me (the SB's is the button). */
@@ -179,37 +190,30 @@ export function laterSeats(players: number, seat: string): string[] {
 }
 
 /**
- * The defense that decides what is trash, whatever stage is on screen: the solver's 55bb BB facing the HJ's open
- * (judgeChart.ts TRASH_DEFENSE). Not the button's open: deep, the solver's BB defends most hands against the button,
- * which would leave only a handful to kick; and short-stacked the BB folds 76s, T9o or Q9o to an open because of the
- * stack, not because the hand is junk. Against the HJ at 55bb it folds 41 offsuit hands (72o among them).
+ * The stage whose BB defense decides what is trash, whatever stage is on screen. Short-stacked, the BB folds
+ * 76s, T9o or Q9o to an open because of the stack, not because the hand is junk, so a 숏 chart would kick two
+ * thirds of all hands; the middle stage's defense keeps the kick for the same ~40 offsuit hands everywhere.
  */
-const TRASH_STAGE = TRASH_DEFENSE;
+const TRASH_STAGE: PreStage = "mid";
 
 /**
- * The tier of `cls` for my seat, first in at the stage, by the stage's judge chart (judgeChart.ts). The trash test
- * needs both halves: the BB folds it facing the HJ's open at 55bb (TRASH_STAGE), and no seat at the table opens or
- * shoves it first in at the stage on screen, not even mixed (at the short and push stages the button and the SB shove
- * hands the BB can't call with, and a hand someone opens is no hand to kick). A hand my own seat's chart plays at
- * least half the time is never trash from my seat, though it is from the others: the solver's SB limps much of that
- * junk into the BB (meh from the SB, the seat's call), and deep the BB defends some of it against the button. good
- * takes an open or a shove at least half the time, so a hand the SB mostly limps is meh too. The BB is graded by its
- * own defense against the button: a fold there is a fold, else good where the button opens the hand too, else meh.
+ * The tier of `cls` for my seat, first in at the stage. The trash test needs both halves: the BB folds
+ * it facing the button's open at the middle stage (where the BB defends widest), and no seat at the table
+ * plays it first in at the stage on screen (at the short and push stages the button and the SB shove hands
+ * the BB can't call with, and a hand someone shoves is no hand to kick). The BB is graded by its own
+ * defense against the button: a fold there is a fold, else good where the button opens the hand too.
  */
 export function ajaeTier(cls: HandClass, seat: string, stage: PreStage, players: number): AjaeTier {
   if (cls === "72o") return "hammer";
   if (MONSTERS.has(cls)) return "monster";
   const seats = positionsFor(players);
   const btn = buttonSeat(players);
-  const opens = (s: string) => playShare(stage, players, s, cls, "open");
-  const bbDefends = seats.includes("BB") ? bbPlayShare(stage, players, btn, cls) : 0;
-  // My own seat's chart: the BB's is its defense against the button.
-  const mine = seat === "BB" ? bbDefends : playShare(stage, players, seat, cls, "any");
-  if (mine < PLAYS && trashDefenseShare(TRASH_STAGE, cls) <= 1e-9 && seats.every((s) => s === "BB" || opens(s) <= 1e-9)) return "trash";
+  const opens = (s: string) => playShare(stage, players, s, cls, "none");
+  const bbDefendsAt = (st: PreStage) => (seats.includes("BB") ? playShare(st, players, "BB", cls, "open", btn) : 0);
+  const bbDefends = bbDefendsAt(stage);
+  if (bbDefendsAt(TRASH_STAGE) <= 1e-9 && seats.every((s) => s === "BB" || opens(s) <= 1e-9)) return "trash";
   if (seat === "BB") return bbDefends < PLAYS ? "fold" : opens(btn) >= PLAYS ? "good" : "meh";
   if (opens(seat) >= PLAYS) return "good";
-  // The SB's limp plays the hand, but it is no open: the seat's call, like a hand a later seat opens.
-  if (mine >= PLAYS) return "meh";
   // The button's "later" is the BB's defense against it.
   const later = seat === btn && seat !== "SB" ? bbDefends >= PLAYS : laterSeats(players, seat).some((s) => opens(s) >= PLAYS);
   // A fold here, but a hand someone opens or defends: the seat's fault, not the hand's.

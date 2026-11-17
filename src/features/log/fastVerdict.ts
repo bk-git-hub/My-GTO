@@ -1,15 +1,12 @@
 import type { HandClass } from "../../poker/cards";
 import { openSize, preflopDecision, STAGE_STACK, type MoveOption, type PreflopDecision, type PreflopSpot } from "../../play/policy";
-import { solverChart } from "./judgeChart";
 import type { PreAction, PreStage } from "./quickPre";
 import { positionsFor } from "./recorder";
 
 /**
- * 빠른 기록's verdict: was my preflop action in the chart for the stage, mixed, an overplay or an underplay.
- * First in and facing one open at the deep and middle stages, the chart is our solver's (judgeChart.ts
- * solverChart: 100bb with the 3bb open, 55bb), and the verdict says so ("· 솔버 100bb 기준"). Every other spot
- * (the short and push stages, a limp, a shove, a 3-bet) asks the pub chart the way the app's decision grading does
- * (preflopDecision with a PreflopSpot built from the spot). Pure.
+ * 빠른 기록's verdict: was my preflop action in the pub chart for the stage, mixed, an overplay or an
+ * underplay. It asks the chart the same way the app's decision grading does (preflopDecision with a
+ * PreflopSpot built from the spot), so the two never disagree. Pure.
  */
 
 /** What happened before my decision. "3bet": my open got 3-bet (or more); "cold3": someone opened and another 3-bet before me. */
@@ -158,8 +155,7 @@ function myGroup(act: PreAction, facingAllIn: boolean): Group {
 /** A chart move's name in this spot. */
 function groupLabel(g: Group, i: FastInput): string {
   if (g === "fold") return "폴드";
-  // first in, a call is a limp (the solver's SB limps)
-  if (g === "call") return i.spot === "none" ? "림프" : "콜";
+  if (g === "call") return "콜";
   const head = i.spot === "open" ? "3벳" : isThreeBet(i.spot) ? "4벳" : null;
   if (g === "allin") return head ? `${head} 올인` : "올인";
   return head ?? (i.stage === "short" ? "2bb 오픈" : "오픈");
@@ -174,27 +170,20 @@ function groupLabel(g: Group, i: FastInput): string {
  * middle-stack shove where the chart makes a small raise (a 100bb open-jam) is an overplay. No chart for
  * the spot (facing a limp, a walk, a spot the charts don't cover): 차트 없음, as the grading's "info".
  */
-export function fastVerdict(i: FastInput, decide?: (spot: PreflopSpot) => PreflopDecision): Verdict {
+export function fastVerdict(i: FastInput, decide: (spot: PreflopSpot) => PreflopDecision = preflopDecision): Verdict {
   if (!validInput(i)) return none();
   if (i.act === undefined) return none("워크");
   if (i.spot === "limp") return none("차트 없음 · 림프 팟");
   const spot = spotOf(i);
   if (!spot) return none();
-  // First in or facing one open at 딥 and 미들: the solver's chart (a `decide` given asks only it: tests).
-  const solver = !decide && (i.spot === "none" || i.spot === "open") ? solverChart(i.stage, i.players, i.seat, i.spot === "open" ? i.opener : undefined, spot.myBet + spot.myStack) : null;
   let moves: MoveOption[];
   let title = "";
   try {
-    if (solver) {
-      title = `${solver.name} ${solver.title}`;
-      moves = solver.moves(i.cls);
-    } else {
-      const dec = (decide ?? preflopDecision)(spot);
-      // A cold 3-bet has no chart of its own: the policy's premium-only default, by its label.
-      if (!dec.scenario && i.spot !== "cold3") return none();
-      title = dec.scenario?.title ?? dec.label;
-      moves = dec.moves(i.cls);
-    }
+    const dec = decide(spot);
+    // A cold 3-bet has no chart of its own: the policy's premium-only default, by its label.
+    if (!dec.scenario && i.spot !== "cold3") return none();
+    title = dec.scenario?.title ?? dec.label;
+    moves = dec.moves(i.cls);
   } catch {
     return none();
   }
@@ -225,9 +214,7 @@ export function fastVerdict(i: FastInput, decide?: (spot: PreflopSpot) => Preflo
       size = groupLabel(other, i);
     }
   }
-  // The solver's verdict names its chart: "✓ 차트대로 · 솔버 100bb 기준".
-  const named = (t: string) => (solver ? `${t} · ${solver.name} 기준` : t);
-  const sized = (t: string) => named(size ? `${t} · 차트는 ${size}` : t);
+  const sized = (t: string) => (size ? `${t} · 차트는 ${size}` : t);
   if (f >= 0.5 - 1e-9) return { kind: "ok", text: sized("✓ 차트대로"), chart, freq: f };
   if (f > 1e-9) return { kind: "mixed", text: sized(`△ 섞는 핸드 (${pct(f)})`), chart, freq: f };
   // Never in the chart: weigh what the chart does less and more aggressively than I did.
@@ -236,9 +223,9 @@ export function fastVerdict(i: FastInput, decide?: (spot: PreflopSpot) => Preflo
   const more = GROUPS.filter((g) => LEVEL[g] > lv);
   const sum = (gs: Group[]) => gs.reduce((a, g) => a + freq[g], 0);
   const top = (gs: Group[]) => gs.reduce((b, g) => (freq[g] > freq[b] ? g : b), gs[0]);
-  const move = (g: Group) => `${groupLabel(g, i)}${freq[g] < 0.995 ? ` ${pct(freq[g])}` : ""}`;
-  if (less.length && sum(less) >= sum(more)) return { kind: "over", text: named(`⚠ 오버플레이 (차트: ${move(top(less))})`), chart, freq: 0 };
-  return { kind: "under", text: named(`▽ 언더플레이 (차트: ${move(top(more))})`), chart, freq: 0 };
+  const named = (g: Group) => `${groupLabel(g, i)}${freq[g] < 0.995 ? ` ${pct(freq[g])}` : ""}`;
+  if (less.length && sum(less) >= sum(more)) return { kind: "over", text: `⚠ 오버플레이 (차트: ${named(top(less))})`, chart, freq: 0 };
+  return { kind: "under", text: `▽ 언더플레이 (차트: ${named(top(more))})`, chart, freq: 0 };
 }
 
 /**
