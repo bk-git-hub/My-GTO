@@ -18,8 +18,9 @@
  * Two kinds of reaction:
  * - a face move (meh's and fold's ponder, hmm and glare, and the cramped stand-ins): the face in the slot pops
  *   up big for 1.9 s and settles (.aj-pop, .aj-play.aj-mv-<move>; .aj-low, a smaller pop, when the page is scrolled);
- * - a body move (shuffle, robot, shove, kick, mallet, slam: 2.5 s; 72o's rage: 3.2 s): the whole 아재 performs
- *   (.aj-act, one per reaction), then shrinks away in a puff as the face pops into the slot (.aj-after) and stays there;
+ * - a body move (shuffle, robot, shove, kick, mallet, slam: 2.5 s; the rage, 72o's and trash's: 3.2 s, its face on that
+ *   clock: .aj-after.aj-for-rage): the whole 아재 performs (.aj-act, one per reaction), then shrinks away in a puff as
+ *   the face pops into the slot (.aj-after) and stays there;
  * - a pair's show (AA's plane 3 s, KK's gorilla or crown 2.9 s, QQ's waltz 2.8 s, JJ's jacks 2.7 s): a body move that
  *   takes the whole stage round the hand, from the sky under the stage bar down over the pad, in layers (fireworks,
  *   confetti, lights, flashes); the face waits for its end on its clock (.aj-after.aj-for-<move>).
@@ -54,7 +55,8 @@
 /* After a body move: hidden while he performs, then pops into the slot as the doll vanishes in a puff. */
 .aj-after .aj-face { z-index: 2; animation: aj-after 2.5s ease-out backwards, aj-open 2.5s step-end backwards; }
 @keyframes aj-after { 0%, 80% { opacity: 0; transform: translateY(6px) scale(0.4); } 87% { opacity: 1; transform: scale(1.22); } 93% { transform: scale(0.94); } 100% { opacity: 1; transform: none; } }
-/* the trash and 72o faces come in hotter: bigger, shaking, steaming (72o's on the rage's longer clock) */
+/* the trash and 72o faces come in hotter: bigger, shaking, steaming (after the rage, 72o's or a trash hand's, on its
+   longer clock: .aj-for-rage) */
 .aj-after .aj-face.aj-trash, .aj-after .aj-face.aj-hammer { animation-name: aj-after-mad, aj-open; }
 @keyframes aj-after-mad {
   0%, 79% { opacity: 0; transform: translateY(6px) scale(0.4); } 85% { opacity: 1; transform: scale(1.6); }
@@ -64,7 +66,7 @@
 /* what the face does as it comes in after a body move: the trash face's vein throbs and steam bursts off
    both sides (one small puff stays); the monster's sparkle */
 .aj-after .aj-face * { animation-duration: 2.5s; animation-fill-mode: backwards; animation-timing-function: ease-out; }
-.aj-after .aj-face.aj-hammer, .aj-after .aj-hammer * { animation-duration: 3.2s; }
+.aj-after .aj-face.aj-hammer, .aj-after .aj-hammer *, .aj-after.aj-for-rage .aj-face, .aj-after.aj-for-rage .aj-face * { animation-duration: 3.2s; }
 .aj-after .aj-trash .aj-vein, .aj-after .aj-hammer .aj-vein { animation-name: aj-in-vein; }
 .aj-after .aj-trash .aj-st-l, .aj-after .aj-hammer .aj-st-l { animation-name: aj-in-steam-l; }
 .aj-after .aj-trash .aj-st-r, .aj-after .aj-hammer .aj-st-r { animation-name: aj-in-steam-r; }
@@ -615,9 +617,10 @@
 @keyframes aj-x-slam-0 { 0%, 30%, 46%, 100% { transform: none; opacity: 1; } 33%, 40% { transform: none; opacity: 0.6; } 35% { transform: translate(0, 5px); } 37% { transform: translate(0, -2px); } }
 @keyframes aj-x-slam-1 { 0%, 30%, 46%, 100% { transform: none; opacity: 1; } 33%, 40% { transform: none; opacity: 0.6; } 35% { transform: translate(0, 5px); } 37% { transform: translate(0, -2px); } }
 
-/* ── 72o, the worst hand: the rage, 3.2 s (longer and bigger than any trash move). He looks at the hand, double-takes
-   (shades fly up, an O, shock lines), boils over (red, V brows, gritted teeth, shaking, steam shooting out of both
-   ears) under a red glow, snatches the two cards (the 7 of clubs and the 2 of diamonds), holds them up big, strains
+/* ── 72o, the worst hand, and every trash hand in turn: the rage, 3.2 s (longer and bigger than the other trash moves). He
+   looks at the hand, double-takes (shades fly up, an O, shock lines), boils over (red, V brows, gritted teeth, shaking,
+   steam shooting out of both ears) under a red glow, snatches the hand's two cards (72o's 7 of clubs and 2 of diamonds,
+   a trash hand's own: AjaeReaction.tsx RageCard), holds them up big, strains
    and rips them in half (each card's halves split open along the tear, then a flash behind them, scraps flying),
    stomps the pieces four times (dust, impact lines, the class shaking), boils over once more and vanishes in a puff
    as the furious face takes over. Like the other body moves: pose tables made plain CSS. ── */

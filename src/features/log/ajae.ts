@@ -1,4 +1,4 @@
-import type { HandClass } from "../../poker/cards";
+import { RANKS, type HandClass } from "../../poker/cards";
 import { preflopDecision } from "../../play/policy";
 import { classDone, draftClass, type FastDraft } from "./fastLog";
 import { spotOf, type FastSpot } from "./fastVerdict";
@@ -20,7 +20,7 @@ import { buttonSeat, positionsFor } from "./recorder";
  * monster: AA KK QQ AK. good: my seat opens it. meh: a seat or two later opens it (the BB: the button
  * opens it). fold: a fold here, but not a bad hand (자리 탓). meh and fold are the seat's call, so he ponders
  * them. trash: even the BB facing the button's open throws it away, and no seat plays it first in: bad from
- * every seat, so he kicks it. hammer: 72o, the worst hand there is: he loses it completely.
+ * every seat, so he rips it up or kicks it. hammer: 72o, the worst hand there is: he loses it completely, every time.
  */
 export type AjaeTier = "monster" | "good" | "meh" | "fold" | "trash" | "hammer";
 
@@ -29,7 +29,7 @@ const BLINDS = new Set(["SB", "BB"]);
 
 /**
  * What he does, by tier, in turn: each reaction of a tier takes the next one (a trash hand right after
- * another gets the next of kick → mallet → slam, whatever came between). The first move of each tier is
+ * another gets the next of rage → kick → mallet → slam, whatever came between). The first move of each tier is
  * its main one. Face moves (ponder, hmm, glare) are the chest-up face popping up big; body moves
  * (BODY_MOVES) are the whole 아재 performing beside the class, after which the face stays in its slot.
  * - monster: the all-in shove (two chip stacks pushed into the hand): AK's, as AA, KK and QQ have shows of their own
@@ -38,16 +38,18 @@ const BLINDS = new Set(["SB", "BB"]);
  * - meh and fold (the seat's call): first he ponders it (the hand on his chin, eyes up, a thought cloud);
  *   every other time meh gets "흠" (the shades down the nose, a ?) and fold a glare at the seat row. meh
  *   rests on the "흠" face, fold on the pondering one;
- * - trash: he kicks the hand, smashes it with a mallet or slams its cards to the floor, then stays, furious;
- * - hammer (72o): the rage. Bigger and longer than any trash move: he double-takes, boils over with steam
- *   shooting out of his ears, rips both cards in half and stomps the pieces, then stays as furious as trash.
+ * - trash: first the rage (72o's, with the hand's own two cards: ajaeCards), then he kicks the hand, smashes it with a
+ *   mallet or slams its cards to the floor; he stays furious after each;
+ * - hammer (72o): the rage, every time. Bigger and longer than the other trash moves: he double-takes, boils over
+ *   with steam shooting out of his ears, rips both cards (the 7 of clubs and the 2 of diamonds) in half and stomps the
+ *   pieces, then stays as furious as trash.
  */
 export const AJAE_MOVES = {
   monster: ["shove"],
   good: ["shuffle", "robot"],
   meh: ["ponder", "hmm"],
   fold: ["ponder", "glare"],
-  trash: ["kick", "mallet", "slam"],
+  trash: ["rage", "kick", "mallet", "slam"],
   hammer: ["rage"],
 } as const satisfies Record<AjaeTier, readonly string[]>;
 
@@ -155,6 +157,29 @@ export const ajaePair = (cls: HandClass): AjaePair | undefined => (Object.hasOwn
  */
 export function ajaePairMove(pair: AjaePair, k: number, tier: AjaeTier, kt: number, room?: number): AjaeMove {
   return fitting(AJAE_SPECIALS[pair], k, room) ?? ajaeMove(tier, kt, room);
+}
+
+/** A card the rage rips: its rank (a letter of RANKS: T is the ten) and its suit (a letter of SUITS). */
+export interface AjaeCard {
+  rank: string;
+  suit: "s" | "h" | "d" | "c";
+}
+
+/**
+ * The two cards the rage rips for `cls`: the hand's own (J4o a jack and a four), the high card first (the one in front,
+ * as the 7 is in 72o). The class names no suits, so each class has fixed ones, by the ranks' places in RANKS: offsuit,
+ * two different suits, a black high card (clubs for an odd place, else spades) and a red low card (hearts for an odd
+ * place, else diamonds), so 72o is the 7 of clubs and the 2 of diamonds; suited, the same suit on both (clubs when the
+ * high card's place is odd, else diamonds).
+ */
+export function ajaeCards(cls: HandClass): readonly [AjaeCard, AjaeCard] {
+  const odd = (rank: string) => RANKS.indexOf(rank) % 2 === 1;
+  const [hi, lo] = [cls[0], cls[1]];
+  if (cls[2] === "s") {
+    const suit = odd(hi) ? "c" : "d";
+    return [{ rank: hi, suit }, { rank: lo, suit }];
+  }
+  return [{ rank: hi, suit: odd(hi) ? "c" : "s" }, { rank: lo, suit: odd(lo) ? "h" : "d" }];
 }
 
 /**

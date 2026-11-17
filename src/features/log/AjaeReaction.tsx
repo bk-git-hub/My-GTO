@@ -1,6 +1,6 @@
 import { Fragment, memo, useId, useMemo, type ReactNode } from "react";
 import { ajaeOn, useSettings } from "../../state/settings";
-import { ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCue, type AjaeMove, type AjaeTier } from "./ajae";
+import { ajaeCards, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCard, type AjaeCue, type AjaeMove, type AjaeTier } from "./ajae";
 import type { PreStage } from "./quickPre";
 import "./ajae.css";
 
@@ -17,9 +17,10 @@ import "./ajae.css";
  * - a face move (meh's and fold's ponder, meh's 흠, fold's glare, and the cramped stand-ins): the chest-up
  *   face in its slot pops up big, makes the tier's face and settles small with it (fold: pondering, the hand
  *   on his chin and a thought cloud);
- * - a body move (monster's shove, good's shuffle or robot, trash's kick, mallet or slam, 72o's rage): the
+ * - a body move (monster's shove, good's shuffle or robot, trash's rage, kick, mallet or slam, 72o's rage): the
  *   whole 아재 performs beside the class (`.aj-act`), then shrinks away in a puff as the face pops into the
- *   slot and stays there at rest. The trash and 72o faces stay furious: he never walks off;
+ *   slot and stays there at rest. The trash and 72o faces stay furious: he never walks off. The rage rips the
+ *   hand's own two cards (ajaeCards), and its face waits for it on its longer clock (`.aj-for-rage` on the slot);
  * - the pairs' shows (AA's plane, KK's gorilla or crown, QQ's waltz, JJ's jacks) are body moves too, bigger:
  *   they use the whole stage around the hand (fireworks, confetti, searchlights, rays, flashes) for up to 3 s,
  *   and the face waits for their end on their own clock (`.aj-for-<move>` on the slot).
@@ -40,13 +41,13 @@ export function AjaeReaction({ cue, seat, stage, players, off = false, children 
   return (
     <span className="ajae-host">
       {cue && tier && (
-        <span key={cue.n} className={`aj-slot${playing ? (body ? ` aj-after${SPECIAL_MOVES.has(cue.move) ? ` aj-for-${cue.move}` : ""}` : cue.low ? " aj-pop aj-low" : " aj-pop") : ""}`} aria-hidden="true">
+        <span key={cue.n} className={`aj-slot${playing ? (body ? ` aj-after${SPECIAL_MOVES.has(cue.move) || cue.move === "rage" ? ` aj-for-${cue.move}` : ""}` : cue.low ? " aj-pop aj-low" : " aj-pop") : ""}`} aria-hidden="true">
           <AjaeFace tier={tier} move={playing && !body ? cue.move : undefined} />
         </span>
       )}
       {cue && body && (
         <span key={`a${cue.n}`} className={`aj-act aj-mv-${cue.move}${cue.noBall ? " aj-noball" : ""}`} aria-hidden="true">
-          <AjaeAct move={cue.move} />
+          <AjaeAct move={cue.move} cls={cue.cls} />
         </span>
       )}
       {/* A body move moves the class too (its keyframes alternate by cue, so a move right after another restarts). */}
@@ -564,20 +565,59 @@ const Card = ({ pip, color }: { pip: string; color: string }) => (
 const circ = (x: number, y: number, r: number) => `M${x - r} ${y} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0 Z`;
 const CLUB = `${circ(8, 9.6, 2.7)} ${circ(5.2, 13.4, 2.7)} ${circ(10.8, 13.4, 2.7)} M8 12 L 6.3 17.8 L 9.7 17.8 Z`;
 const DIAMOND = "M8 7.6 L 11.7 13 L 8 18.4 L 4.3 13 Z";
-/** 72o's two cards, with their indices drawn (no text): the 7 of clubs and the 2 of diamonds. */
-const CARDS_72 = [
-  { rank: "M2.6 2.6 H 6.4 L 3.8 8.4", pip: CLUB, color: INK },
-  { rank: "M2.8 4.2 Q 3 2.5 4.6 2.5 Q 6.3 2.5 6.2 4.1 Q 6.1 5.5 2.7 8.4 H 6.5", pip: DIAMOND, color: "#d6202f" },
-] as const;
-/** One of 72o's cards (18 x 25 box): ajae.css cuts it into its two halves along a jagged tear (.aj-half.aj-hl / .aj-hr). */
-const Card72 = ({ rank, pip, color }: (typeof CARDS_72)[number]) => (
-  <svg viewBox="0 0 16 22">
-    <rect x="0.7" y="0.7" width="14.6" height="20.6" rx="2.4" fill="#fff" stroke={INK} strokeWidth="1.4" />
-    <path d={rank} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d={pip} fill={color} transform="translate(2.3 7.4) scale(0.3)" />
-    <path d={pip} fill={color} transform="translate(1.6 2.2) scale(0.8)" />
-  </svg>
-);
+/**
+ * The card indices the rage draws (no text: strokes, 1.5 wide, in the card's top-left corner, x 2..8, y 2.5..8.4), by
+ * the letter of RANKS: the 7 and the 2 are 72o's as they always were, the ten is drawn 10.
+ */
+const RANK_INDEX: Readonly<Record<string, string>> = {
+  A: "M2.6 8.4 L 4.55 2.5 L 6.5 8.4 M3.3 6.4 H 5.8",
+  K: "M2.9 2.5 V 8.4 M6.3 2.5 L 2.9 5.9 M4.2 4.6 L 6.5 8.4",
+  Q: "M4.55 2.5 A 1.75 2.95 0 1 1 4.55 8.4 A 1.75 2.95 0 1 1 4.55 2.5 Z M5.2 6.9 L 6.7 8.7",
+  J: "M3.7 2.5 H 6.5 M5.6 2.5 V 6.8 Q 5.6 8.4 4.15 8.4 Q 2.9 8.4 2.7 7.1",
+  T: "M2.15 3.25 L 2.65 2.5 V 8.4 M5.8 2.5 A 1.2 2.95 0 1 1 5.8 8.4 A 1.2 2.95 0 1 1 5.8 2.5 Z",
+  9: "M6.35 4.3 A 1.8 1.8 0 1 0 2.75 4.3 A 1.8 1.8 0 1 0 6.35 4.3 V 6.4 Q 6.35 8.4 4.5 8.4 Q 3.4 8.4 2.9 7.6",
+  8: "M4.55 5.3 A 1.4 1.4 0 1 1 4.55 2.5 A 1.4 1.4 0 1 1 4.55 5.3 A 1.55 1.55 0 1 0 4.55 8.4 A 1.55 1.55 0 1 0 4.55 5.3 Z",
+  7: "M2.6 2.6 H 6.4 L 3.8 8.4",
+  6: "M6.2 3.2 Q 5.7 2.5 4.6 2.5 Q 2.75 2.5 2.75 4.6 V 6.6 A 1.8 1.8 0 1 0 6.35 6.6 A 1.8 1.8 0 1 0 2.75 6.6",
+  5: "M6.2 2.5 H 3.15 L 2.85 5.15 Q 3.6 4.65 4.5 4.65 Q 6.4 4.65 6.4 6.5 Q 6.4 8.4 4.4 8.4 Q 3.2 8.4 2.7 7.6",
+  4: "M5.5 8.4 V 2.5 L 2.6 6.5 H 6.6",
+  3: "M2.8 3.2 Q 3.4 2.5 4.5 2.5 Q 6.2 2.5 6.2 3.9 Q 6.2 5.25 4.3 5.25 Q 6.4 5.25 6.4 6.8 Q 6.4 8.4 4.5 8.4 Q 3.3 8.4 2.7 7.6",
+  2: "M2.8 4.2 Q 3 2.5 4.6 2.5 Q 6.3 2.5 6.2 4.1 Q 6.1 5.5 2.7 8.4 H 6.5",
+};
+/** The suits' pips (in a 16 x 22 card) and colours, by the letter of SUITS. */
+const SUIT_PIP: Readonly<Record<AjaeCard["suit"], { pip: string; color: string }>> = {
+  s: { pip: SPADE, color: INK },
+  h: { pip: HEART, color: "#d6202f" },
+  d: { pip: DIAMOND, color: "#d6202f" },
+  c: { pip: CLUB, color: INK },
+};
+/**
+ * One of the rage's cards (18 x 25 box): its index and a small pip under it, a big pip in the middle (72o: the 7 of clubs,
+ * the 2 of diamonds, drawn as they always were). Where the index meets a pip (a wide one, a Q or a 10, over a spade or a
+ * heart), it is drawn again over the pip with a white edge, clipped to the pips (a clip with a useId id), so it still
+ * reads; 72o's never meet theirs. ajae.css cuts the card into its two halves along a jagged tear (.aj-half.aj-hl / .aj-hr).
+ */
+function RageCard({ rank, suit }: AjaeCard) {
+  const clip = useId();
+  const { pip, color } = SUIT_PIP[suit];
+  const index = RANK_INDEX[rank] ?? "";
+  return (
+    <svg viewBox="0 0 16 22">
+      <clipPath id={clip}>
+        <path d={pip} transform="translate(2.3 7.4) scale(0.3)" />
+        <path d={pip} transform="translate(1.6 2.2) scale(0.8)" />
+      </clipPath>
+      <rect x="0.7" y="0.7" width="14.6" height="20.6" rx="2.4" fill="#fff" stroke={INK} strokeWidth="1.4" />
+      <path d={index} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={pip} fill={color} transform="translate(2.3 7.4) scale(0.3)" />
+      <path d={pip} fill={color} transform="translate(1.6 2.2) scale(0.8)" />
+      <g clipPath={`url(#${clip})`}>
+        <path d={index} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={index} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    </svg>
+  );
+}
 /** A scrap of a torn card. */
 const BitSvg = () => (
   <svg viewBox="0 0 8 6">
@@ -943,11 +983,11 @@ const Fumes = () => (
 );
 
 /**
- * Everything a body move draws, by move: the props as direct children of the .aj-act (a fragment, never a
- * wrapper: ajae.css places and hides `.aj-act > *`). Its own element per reaction, so every animation in it
- * starts when it mounts.
+ * Everything a body move draws, by move (`cls`: the hand's class, whose own two cards the rage rips): the props as
+ * direct children of the .aj-act (a fragment, never a wrapper: ajae.css places and hides `.aj-act > *`). Its own
+ * element per reaction, so every animation in it starts when it mounts.
  */
-const AjaeAct = memo(function AjaeAct({ move }: { move: AjaeMove }) {
+const AjaeAct = memo(function AjaeAct({ move, cls }: { move: AjaeMove; cls: AjaeCue["cls"] }) {
   const poof = (
     <span className="aj-poof">
       <PoofSvg />
@@ -1127,10 +1167,10 @@ const AjaeAct = memo(function AjaeAct({ move }: { move: AjaeMove }) {
           <span className="aj-body">
             <Doll mad rage />
           </span>
-          {CARDS_72.flatMap((c, i) =>
+          {ajaeCards(cls).flatMap((c, i) =>
             (["hl", "hr"] as const).map((h) => (
               <span key={`${i}${h}`} className={`aj-half aj-q${i * 2 + (h === "hl" ? 1 : 2)} aj-${h}`}>
-                <Card72 {...c} />
+                <RageCard {...c} />
               </span>
             )),
           )}
