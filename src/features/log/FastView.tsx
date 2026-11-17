@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Go } from "../../backNav";
 import { RANKS } from "../../poker/cards";
 import { AJAE_START, ajaeSeen, ajaeStep, type AjaeState } from "./ajae";
@@ -187,6 +187,14 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   // pattern for it): a hand saved, opened to correct or put back takes the reaction with it for good.
   const ajaeNow = other ? ajae : ajaeSeen(ajae, d, stage, players);
   if (ajaeNow !== ajae) setAjae((a) => ajaeSeen(a, d, stage, players));
+  const barRef = useRef<HTMLDivElement>(null);
+  const handRowRef = useRef<HTMLDivElement>(null);
+  /** The room above the hand row for the 아재, up to the sticky stage bar (less when the page is scrolled); read at the tap, never while rendering. */
+  const ajaeRoom = (): number | undefined => {
+    const bar = barRef.current?.getBoundingClientRect();
+    const row = handRowRef.current?.getBoundingClientRect();
+    return bar && row ? Math.round(row.top - bar.bottom) : undefined;
+  };
   const session = useMemo(() => sessionOf(hands, Math.max(now, ...hands.slice(0, 1).map((h) => h.createdAt)), mode), [hands, now, mode]);
   const stats = useMemo(() => fastStats(session), [session]);
 
@@ -213,7 +221,10 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     set({ ...c, draft: next });
     setSaved(null);
     setNudge(null);
-    if (!other) setAjae((a) => ajaeStep(a, c.draft, next, draftStage(c), draftPlayers(c)));
+    if (!other) {
+      const room = ajaeRoom();
+      setAjae((a) => ajaeStep(a, c.draft, next, draftStage(c), draftPlayers(c), room));
+    }
   };
   function rank(k: string) {
     const c = cur();
@@ -293,7 +304,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
 
   return (
     <div className="fast">
-      <div className="fast-bar">
+      <div className="fast-bar" ref={barRef}>
         <div className="fast-stages" role="group" aria-label="스택 구간 (차트)">
           {PRE_STAGES.map((x) => (
             <button key={x} type="button" className={stage === x ? "on" : ""} aria-pressed={stage === x} onClick={() => pickStage(x)}>
@@ -356,7 +367,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       </div>
 
       <div className="fast-sec">
-        <div className="fast-label">
+        <div className="fast-label" ref={handRowRef}>
           핸드
           {nudge && (
             <span className="fast-nudge" role="alert">

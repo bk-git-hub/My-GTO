@@ -9,8 +9,9 @@ import { buttonSeat, positionsFor } from "./recorder";
  * 빠른 기록's 아재: the moment my two cards are in, the little 아재 by the hand reacts to how good they
  * are from my seat. The grade comes from the pub chart at the screen's stage, first in (everyone folded
  * to me), asked the same way 빠른 기록's verdict asks it (spotOf → preflopDecision), so every table size
- * and stage the screen offers works and the two never disagree. Everything here is pure; the face and
- * its moves are AjaeReaction.tsx.
+ * and stage the screen offers works and the two never disagree. Each tier has its moves, taken in turn
+ * (AJAE_MOVES), so hands of the same tier in a row get a different show; he never says a word. Everything
+ * here is pure; the art and the moves are AjaeReaction.tsx and ajae.css.
  */
 
 /**
@@ -23,22 +24,66 @@ export type AjaeTier = "monster" | "good" | "meh" | "fold" | "trash" | "hammer";
 const MONSTERS = new Set<HandClass>(["AA", "KK", "QQ", "AKs", "AKo"]);
 const BLINDS = new Set(["SB", "BB"]);
 
-/** What he says, rotating per tier; "kick" is the trash hand's (he kicks it instead of making a face). */
-export const AJAE_LINES = {
-  monster: ["캬~ 이거지", "왔다 왔어!", "오늘 밤은 내 거"],
-  good: ["좋지~", "가자!", "오픈 각"],
-  meh: ["흠…", "글쎄다…", "자리가 좀…"],
-  fold: ["자리가 아쉽네", "뒤였으면 열었지", "패스~"],
-  kick: ["에잉!", "저리 가!", "이걸 왜 줘", "퉤!"],
-  hammer: ["해머네 ㅋ 건배", "이건 술안주"],
-} as const satisfies Record<string, readonly string[]>;
-export type AjaeLineSet = keyof typeof AJAE_LINES;
+/**
+ * What he does, by tier, in turn: each reaction of a tier takes the next one (a trash hand right after
+ * another gets the next of kick → mallet → slam, whatever came between). The first move of each tier is
+ * its main one. Face moves (hmm, yawn, glare, beer) are the chest-up face popping up big; body moves
+ * (BODY_MOVES) are the whole 아재 performing beside the class, after which the face stays in its slot.
+ * - monster: the all-in shove (two chip stacks pushed into the hand);
+ * - good: a shuffle under a mirror ball, every other time the robot;
+ * - meh: "흠" (the shades down the nose, a ?); fold (자리 탓): a yawn and a doze, or a glare at the seat row;
+ * - trash: he kicks the hand, smashes it with a mallet or slams its cards to the floor, then stays, furious;
+ * - hammer (72o): a cheers and a sip of beer.
+ */
+export const AJAE_MOVES = {
+  monster: ["shove"],
+  good: ["shuffle", "robot"],
+  meh: ["hmm"],
+  fold: ["yawn", "glare"],
+  trash: ["kick", "mallet", "slam"],
+  hammer: ["beer"],
+} as const satisfies Record<AjaeTier, readonly string[]>;
 
-/** A few hands get their own line, whatever the rotation says. */
-export const AJAE_SPECIAL: Partial<Record<HandClass, string>> = { AA: "주머니 로켓!", KK: "킹 두 장!" };
+/** The face's stand-ins for the body moves when there is no room above the hand row for the whole 아재 (AJAE_ROOM). */
+export const AJAE_CRAMPED = { monster: "cheer", good: "nod", meh: "hmm", fold: "yawn", trash: "fume", hammer: "beer" } as const satisfies Record<AjaeTier, string>;
 
-/** The line set for a tier: the trash hand gets the kick's. */
-export const lineSet = (t: AjaeTier): AjaeLineSet => (t === "trash" ? "kick" : t);
+export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier];
+
+/** The moves where the whole 아재 performs beside the class (the others are the face's). */
+export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam"]);
+
+/**
+ * The room each body move needs above the hand row, in px from the row's top up to the sticky stage bar's
+ * bottom edge (96 with the page at the top): the highest anything of the move paints (a hop, the mallet
+ * overhead, a note, a sparkle, a puff of steam) plus a little. Scrolled further, the bar would cut his head
+ * off, so another move of the tier that fits plays instead, or the face (AJAE_CRAMPED). The mirror ball hangs
+ * higher than the dancer: below BALL_ROOM the dance has none. A face move needs no room of its own (it pops
+ * in its slot), only less of a pop below POP_ROOM.
+ */
+export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = { shuffle: 58, robot: 50, shove: 49, kick: 53, mallet: 74, slam: 53 };
+export const BALL_ROOM = 90;
+/**
+ * The face's full pop (2.15x, growing up from the slot) reaches about 63 px above the row (the yawn's z's);
+ * with less room than this it pops smaller and from its middle (cue.low, ajae.css .aj-low), so the stage
+ * bar doesn't cut off the top of his head, his vein or his steam.
+ */
+export const POP_ROOM = 64;
+
+/**
+ * The move for the k-th reaction of the tier, with `room` px above the hand row (undefined: not measured,
+ * all the room in the world). The tier's move in turn if it fits, else the next of the tier's moves that
+ * fits, else the face's stand-in.
+ */
+export function ajaeMove(tier: AjaeTier, k: number, room?: number): AjaeMove {
+  const moves: readonly AjaeMove[] = AJAE_MOVES[tier];
+  for (let i = 0; i < moves.length; i++) {
+    const m = moves[(k + i) % moves.length];
+    const need = AJAE_ROOM[m];
+    // a face move always fits (it is the face in its slot), however far the row is scrolled
+    if (room === undefined || need === undefined || room >= need) return m;
+  }
+  return AJAE_CRAMPED[tier];
+}
 
 /**
  * How often the chart puts chips in with `cls` in the spot, 0~1: every non-fold move counts (an open, a
@@ -105,7 +150,7 @@ export function ajaeTier(cls: HandClass, seat: string, stage: PreStage, players:
 
 // ───────────── when he reacts ─────────────
 
-/** One reaction: the class it is for (with the hand being corrected, if any), its tier then, and its line. */
+/** One reaction: the class it is for (with the hand being corrected, if any), its tier then, and what he does. */
 export interface AjaeCue {
   /** Counts up with every reaction: a new one restarts the moves. */
   n: number;
@@ -114,7 +159,12 @@ export interface AjaeCue {
   cls: HandClass;
   /** The tier when the cards went in: a different one now (my seat changed) shows at rest, without moving. */
   tier: AjaeTier;
-  line: string;
+  /** What he does (ajaeMove). */
+  move: AjaeMove;
+  /** The dance without its mirror ball: too little room above the hand row for it (BALL_ROOM). */
+  noBall?: true;
+  /** A face move with too little room above the hand row for the full pop (POP_ROOM): it pops smaller. */
+  low?: true;
   /** Set once the tier on screen differed from `tier` (ajaeSeen): he never moves again for this reaction, even if it changes back. */
   settled?: true;
 }
@@ -123,35 +173,38 @@ export interface AjaeState {
   cue: AjaeCue | null;
   /** Reactions so far: the next cue's n. */
   n: number;
-  /** Lines said so far per set, so each reaction says the next one. */
-  said: Partial<Record<AjaeLineSet, number>>;
+  /** Reactions so far per tier, so each one takes the tier's next move. */
+  seen: Partial<Record<AjaeTier, number>>;
 }
 
-export const AJAE_START: AjaeState = { cue: null, n: 0, said: {} };
+export const AJAE_START: AjaeState = { cue: null, n: 0, seen: {} };
 
 /** The complete class on screen with the hand it belongs to ("" while the class isn't complete). */
 export const ajaeKey = (d: Pick<FastDraft, "ranks" | "suited" | "editing">): string => (classDone(d) ? `${draftClass(d)}|${d.editing ?? ""}` : "");
 
 /**
  * The 아재 after one input on the hand (`before` → `after`), at the stage and table size the hand is entered
- * at. A class completed by this tap (the pair's second rank, 수딧 / 오프수트, or switching between them)
- * reacts; a class no longer complete takes him away at once; anything else (my seat, the spot) keeps the
- * reaction on screen. Pure: it is a state updater.
+ * at, with `room` px free above the hand row (AJAE_ROOM, BALL_ROOM, POP_ROOM; FastView measures it at the tap,
+ * undefined: plenty; negative once the row is scrolled under the stage bar).
+ * A class completed by this tap (the pair's second rank, 수딧 / 오프수트, or switching between them) reacts
+ * with its tier's next move; a class no longer complete takes him away at once; anything else (my seat, the
+ * spot) keeps the reaction on screen. Pure: it is a state updater.
  */
-export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stage: PreStage, players: number): AjaeState {
+export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stage: PreStage, players: number, room?: number): AjaeState {
   const key = ajaeKey(after);
   if (!key) return s.cue ? { ...s, cue: null } : s;
   if (key === ajaeKey(before)) return s.cue && s.cue.key === key ? s : { ...s, cue: null };
   const cls = draftClass(after);
   const tier = ajaeTier(cls, after.seat, stage, players);
-  const set = lineSet(tier);
-  const k = s.said[set] ?? 0;
-  const lines = AJAE_LINES[set];
-  const line = (tier !== "trash" ? AJAE_SPECIAL[cls] : undefined) ?? lines[k % lines.length];
-  return { cue: { n: s.n + 1, key, cls, tier, line }, n: s.n + 1, said: { ...s.said, [set]: k + 1 } };
+  const k = s.seen[tier] ?? 0;
+  const move = ajaeMove(tier, k, room);
+  const noBall = (move === "shuffle" || move === "robot") && room !== undefined && room < BALL_ROOM;
+  const low = !BODY_MOVES.has(move) && room !== undefined && room < POP_ROOM;
+  const cue: AjaeCue = { n: s.n + 1, key, cls, tier, move, ...(noBall ? { noBall: true as const } : {}), ...(low ? { low: true as const } : {}) };
+  return { cue, n: s.n + 1, seen: { ...s.seen, [tier]: k + 1 } };
 }
 
-/** He goes, without a reaction (the reaction counts and lines carry on). */
+/** He goes, without a reaction (the reaction counts carry on). */
 export const ajaeQuiet = (s: AjaeState): AjaeState => (s.cue ? { ...s, cue: null } : s);
 
 /**
