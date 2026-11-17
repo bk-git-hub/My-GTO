@@ -143,17 +143,17 @@ describe("빠른 기록: the saved hand", () => {
     expect(holeGuessed(h)).toBe(true);
     expect(h.holeKind).toBe("offsuit");
     expect(holeClass(h)).toBe("AJo");
-    expect(fastVerdictOf(h)?.text).toBe("✓ 차트대로");
+    expect(fastVerdictOf(h)?.text).toBe("✓ 차트대로 · 솔버 55bb 기준");
     expect(fastActText(h)).toBe("오픈");
     // suited, a pair (no holeKind for a pair)
-    expect(holeClass(fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!)).toBe("K9s");
+    expect(holeClass(fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!)).toBe("K8s");
     const pair = fastHand(typed("LJ", "55"), "fold", base(), "mid", 9)!;
     expect([holeClass(pair), pair.holeKind]).toEqual(["55", undefined]);
     // facing an open: the opener in the block; facing a shove: the open was an all-in
-    const call = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    const call = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
     expect(call.quickPre).toEqual({ stage: "mid", pinned: true, action: "call", openerSeat: "UTG" });
     expect(fastActText(call)).toBe("UTG 오픈 → 콜");
-    expect(fastVerdictOf(call)?.text).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(fastVerdictOf(call)?.text).toBe("⚠ 오버플레이 (차트: 폴드) · 솔버 55bb 기준");
     const shove = fastHand(typed("BB", "TT", { spot: "shove", opener: "UTG" }), "call", base(), "short", 9)!;
     expect(shove.quickPre).toEqual({ stage: "short", pinned: true, action: "call", openAllIn: true, openerSeat: "UTG" });
     // a walk at the BB has no action
@@ -173,14 +173,14 @@ describe("빠른 기록: the saved hand", () => {
     const at = (d: FastDraft, a: Parameters<typeof fastHand>[1]) => fastHand(d, a, base(), "mid", 9)!;
     const open = at(typed("BTN", "AJo"), "open");
     expect(preSteps(tableOf(open), tablePre(open)).map((s) => s.s)).toEqual(["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO"]);
-    const call = at(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call");
+    const call = at(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call");
     expect(tablePre(call)).toBe(call.quickPre);
     // limps, a 3-bet and a fold facing an open have no place in the block: nothing is placed
     expect(tablePre(at(typed("BTN", "AJo", { spot: "limp" }), "open"))).toBeUndefined();
     expect(tablePre(at(typed("CO", "QQ", { spot: "3bet" }), "allin"))).toBeUndefined();
     const cold = at(typed("BTN", "QQ", { spot: "cold3" }), "call");
     expect([tablePre(cold), cold.fastSpot, fastActText(cold), fastVerdictOf(cold)?.kind]).toEqual([undefined, "cold3", "오픈·3벳 → 콜", "ok"]);
-    expect(tablePre(at(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "fold"))).toBeUndefined();
+    expect(tablePre(at(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "fold"))).toBeUndefined();
   });
 
   it("is complete as it is: not 작성 중, never offered for 이어서 기록", () => {
@@ -192,8 +192,8 @@ describe("빠른 기록: the saved hand", () => {
   });
 
   it("tells the coach the decision and the verdict", () => {
-    const h = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
-    expect(handFacts(h)).toContain("프리플랍 (빠른 기록, 내 결정 하나): 미들 구간 · HJ UTG 오픈 → 콜 · 펍 차트 판정 ⚠ 오버플레이 (차트: 폴드) (HJ vs EP 오픈 · 폴드 100%)");
+    const h = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    expect(handFacts(h)).toContain("프리플랍 (빠른 기록, 내 결정 하나): 미들 구간 · HJ UTG 오픈 → 콜 · 차트 판정 ⚠ 오버플레이 (차트: 폴드) · 솔버 55bb 기준 (솔버 55bb HJ vs UTG 오픈 · 폴드 100%)");
   });
 });
 
@@ -205,17 +205,17 @@ describe("빠른 기록: saving, 되돌리기 and corrections as state", () => {
   });
 
   it("opens a saved hand in the editor and puts the new one aside; saving it gives that one back", () => {
-    const h1 = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(1), "mid", 9)!;
+    const h1 = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(1), "mid", 9)!;
     // 되돌리기 right after: the next hand (LJ, nothing typed) goes aside
     const next = state(newDraft("LJ"));
     const editing = startEdit(next, h1);
-    expect(editing.draft).toMatchObject({ seat: "HJ", ranks: [R("K"), R("9")], suited: true, spot: "open", opener: "UTG", editing: h1.id, stage: "mid", players: 9 });
+    expect(editing.draft).toMatchObject({ seat: "HJ", ranks: [R("K"), R("8")], suited: true, spot: "open", opener: "UTG", editing: h1.id, stage: "mid", players: 9 });
     expect(editing.parked).toEqual(newDraft("LJ"));
     // corrected to a fold and saved: back to the next hand
     const fixed = fastHand(editing.draft, "fold", h1, "mid", 9)!;
     expect(fixed.id).toBe(h1.id);
     expect(fixed.createdAt).toBe(1);
-    expect(fastVerdictOf(fixed)?.text).toBe("✓ 차트대로");
+    expect(fastVerdictOf(fixed)?.text).toBe("✓ 차트대로 · 솔버 55bb 기준");
     expect(afterSave(editing, fixed, [fixed])).toEqual(state(newDraft("LJ")));
     // its seat corrected (it was really the LJ): the next seat follows
     const moved = fastHand(withSeat(editing.draft, "LJ", 9), "fold", h1, "mid", 9)!;
@@ -260,7 +260,7 @@ describe("빠른 기록: today's hands", () => {
   const at = (t: number, d: FastDraft, a: Parameters<typeof fastHand>[1]) => fastHand(d, a, base(t), "mid", 9)!;
   const NOW = new Date(2026, 10, 8, 23, 0).getTime();
   const hands = [
-    at(NOW - 10 * 60_000, typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call"),
+    at(NOW - 10 * 60_000, typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call"),
     at(NOW - 20 * 60_000, typed("LJ", "55"), "fold"),
     at(NOW - 30 * 60_000, typed("CO", "72o"), "fold"),
     at(NOW - 40 * 60_000, typed("BTN", "AJo"), "open"),
@@ -285,7 +285,7 @@ describe("빠른 기록: today's hands", () => {
     const lines = t.split("\n");
     expect(lines[0]).toMatch(/^PubAJ 빠른 기록 · 11월 8일 \(일\) · 5핸드/);
     expect(lines[1]).toBe("차트대로 2/4 (50%) · 섞는 핸드 0 · 오버플레이 1 · 언더플레이 1 · 차트 없음 1");
-    expect(t).toContain("[오버플레이]\n- 22:50 미들 HJ K9s UTG 오픈 → 콜 ⚠ 오버플레이 (차트: 폴드)");
+    expect(t).toContain("[오버플레이]\n- 22:50 미들 HJ K8s UTG 오픈 → 콜 ⚠ 오버플레이 (차트: 폴드) · 솔버 55bb 기준");
     expect(t).toContain("[언더플레이]\n- 22:40 미들 LJ 55 폴드 ▽ 언더플레이 (차트: 오픈)");
     expect(t).toContain("[전체 · 시간순]\n1. 22:10 미들 BTN AJo 림프 → 콜 차트 없음 · 림프 팟\n2. 22:20 미들 BTN AJo 오픈 ✓ 차트대로");
     expect(sessionText([])).toBe("");
@@ -293,13 +293,13 @@ describe("빠른 기록: today's hands", () => {
 });
 
 describe("빠른 기록: on file and in the backup", () => {
-  const h = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(5), "mid", 9)!;
+  const h = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(5), "mid", 9)!;
 
   it("keeps the flag and the spot through sanitize, export and import", () => {
     expect(sanitize(JSON.parse(JSON.stringify(h)))).toEqual(h);
     const { hands } = mergeImport(exportData([h]), []);
     expect(hands[0]).toMatchObject({ fast: true, fastSpot: "open", quickPre: { openerSeat: "UTG", action: "call" } });
-    expect(fastVerdictOf(hands[0])?.text).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(fastVerdictOf(hands[0])?.text).toBe("⚠ 오버플레이 (차트: 폴드) · 솔버 55bb 기준");
     // a bad flag or spot goes; a spot without the flag goes
     expect(sanitize({ ...h, fast: "yes" })).not.toHaveProperty("fast");
     expect(sanitize({ ...h, fast: "yes" })).not.toHaveProperty("fastSpot");
@@ -436,12 +436,12 @@ describe("빠른 기록 v2: a hand saved without a decision, with its chips and 
     expect(fixed.net).toBe(15000);
     expect([fixed.board, fixed.guess]).toEqual([kept.board, kept.guess]);
     // an old hand: no result fields, its level and ante only
-    const old = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    const old = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
     expect(Object.keys(draftOf(old)).sort()).toEqual(["editing", "level", "opener", "players", "ranks", "seat", "spot", "stage", "suited"]);
   });
 
   it("keeps a corrected hand's decision while it still fits, drops it when it doesn't", () => {
-    const call = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    const call = fastHand(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
     expect(keptAction(call, draftOf(call))).toBe("call");
     expect(keptAction(call, withSpot(draftOf(call), "none"))).toBeNull();
     const walk = fastHand(typed("BB", "72o"), undefined, base(), "mid", 9)!;
@@ -656,7 +656,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     expect(fastLineText(at(NOW, pickRes(typed("SB", "T4o"), "fold")))).toBe("23:00 SB T4o 폴드 −300 (−0.5bb)");
     expect(fastLineText(at(NOW, typed("HJ", "QJs")))).toBe("23:00 HJ QJs");
     const acted = at(NOW, { ...pickRes(typed("BTN", "AJo"), "+"), amount: "3000" }, "open");
-    expect(fastLineText(acted)).toBe("23:00 미들 BTN AJo 오픈 ✓ 차트대로 · +3,000 (+5bb)");
+    expect(fastLineText(acted)).toBe("23:00 미들 BTN AJo 오픈 ✓ 차트대로 · 솔버 55bb 기준 · +3,000 (+5bb)");
   });
 
   it("copies the session's chips, the stack, the big pots, then every hand; the verdict line only with decisions", () => {

@@ -3,6 +3,7 @@ import type { Go } from "../../backNav";
 import { RANKS } from "../../poker/cards";
 import { AJAE_START, ajaeSeen, ajaeStep, type AjaeState } from "./ajae";
 import { AjaeReaction } from "./AjaeReaction";
+import { warmJudgeCharts } from "./judgeChart";
 import {
   actLabel,
   actsFor,
@@ -117,9 +118,9 @@ const clock = (t: number) => {
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
-/** A verdict for a list row: "⚠ 오버 (폴드)", "▽ 언더 (오픈 72%)", another player's "⚠ 루즈 (폴드)", "차트 없음". */
+/** A verdict for a list row: "⚠ 오버 (폴드)", "▽ 언더 (오픈 72%)", another player's "⚠ 루즈 (폴드)", "차트 없음" (without the solver's "· 솔버 55bb 기준"). */
 const shortVerdict = (t: string) =>
-  t.replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
+  t.replace(/ · 솔버 \d+bb 기준$/, "").replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
 
 /** Plain text to the clipboard: the async API, else a hidden textarea (older iOS). */
 async function copyText(text: string): Promise<boolean> {
@@ -301,6 +302,12 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     if (d.editing && !editing) set(cancelEdit(cur()));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d.editing, editing]);
+  // The 아재's charts (judgeChart.ts), parsed while the screen is idle so the first hand typed doesn't wait for them.
+  useEffect(() => {
+    const idle = typeof window.requestIdleCallback === "function";
+    const id = idle ? window.requestIdleCallback(() => warmJudgeCharts(), { timeout: 1500 }) : window.setTimeout(warmJudgeCharts, 200);
+    return () => (idle ? window.cancelIdleCallback(id) : window.clearTimeout(id));
+  }, []);
   useEffect(() => {
     if (!nudge) return;
     const t = setTimeout(() => setNudge(null), 2500);

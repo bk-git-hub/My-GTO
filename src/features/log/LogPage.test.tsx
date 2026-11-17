@@ -345,9 +345,9 @@ describe("빠른 기록 (react-dom/server)", () => {
 
   it("shows the class as typed, the opener row facing an open, and the choices for it", () => {
     put([]);
-    fastStore.set({ stage: "mid", players: 9, actions: true, draft: typed("HJ", "K9s", { spot: "open", opener: "UTG" }) });
+    fastStore.set({ stage: "mid", players: 9, actions: true, draft: typed("HJ", "K8s", { spot: "open", opener: "UTG" }) });
     const html = page("fast");
-    expect(html).toMatch(/<span class="fast-class done" aria-live="polite">K9s<\/span>/);
+    expect(html).toMatch(/<span class="fast-class done" aria-live="polite">K8s<\/span>/);
     expect(html).toMatch(/<div class="fast-opener"><span class="fast-sub">오픈<br\/>자리<\/span><div class="fast-row fast-seats n4"><button type="button" class="on">UTG<\/button><button type="button" class="">UTG\+1<\/button><button type="button" class="">UTG\+2<\/button><button type="button" class="">LJ<\/button><\/div><\/div>/);
     expect(html).toMatch(/<div class="fast-acts n4"><button type="button" class="a-fold">폴드<\/button><button type="button" class="a-call">콜<\/button><button type="button" class="a-3bet">3벳<\/button><button type="button" class="a-allin">올인<\/button><\/div>/);
     expect(text(html)).toContain("누르면 바로 저장 · 다음 핸드는 LJ");
@@ -368,7 +368,7 @@ describe("빠른 기록 (react-dom/server)", () => {
   it("lists today's hands with their verdicts, overplays and underplays marked, and the counts", () => {
     const now = Date.now();
     put([
-      fast(now - 60_000, typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call"),
+      fast(now - 60_000, typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call"),
       fast(now - 120_000, typed("LJ", "55"), "fold"),
       fast(now - 180_000, typed("CO", "72o"), "fold"),
       fast(now - 240_000, typed("BTN", "AJo"), "open"),
@@ -377,26 +377,26 @@ describe("빠른 기록 (react-dom/server)", () => {
     const html = page("fast");
     expect(text(html)).toMatch(/차트대로 50% \(2\/4\) ⚠ 오버 1 ▽ 언더 1 △ 섞음 0/);
     expect(html.match(/class="fast-item /g)).toHaveLength(4);
-    expect(html).toMatch(/class="fast-item v-over"><span class="fi-time">[^<]+<\/span><b class="fi-seat">HJ<\/b><b class="fi-class">K9s<\/b><span class="fi-act">UTG 오픈 → 콜<\/span><span class="fi-verdict">⚠ 오버 \(폴드\)<\/span>/);
+    expect(html).toMatch(/class="fast-item v-over"><span class="fi-time">[^<]+<\/span><b class="fi-seat">HJ<\/b><b class="fi-class">K8s<\/b><span class="fi-act">UTG 오픈 → 콜<\/span><span class="fi-verdict">⚠ 오버 \(폴드\)<\/span>/);
     expect(html).toMatch(/class="fast-item v-under">.*?<b class="fi-class">55<\/b><span class="fi-act">폴드<\/span><span class="fi-verdict">▽ 언더 \(오픈\)<\/span>/);
     expect(html).toMatch(/class="fast-item v-ok">.*?<b class="fi-class">AJo<\/b><span class="fi-act">오픈<\/span><span class="fi-verdict">✓<\/span>/);
     expect(text(html)).toContain("오늘 요약 복사");
   });
 
   it("shows a hand being corrected with 삭제 and 취소, its action lit", () => {
-    const h = fast(Date.now() - 60_000, typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call");
+    const h = fast(Date.now() - 60_000, typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call");
     put([h]);
     fastStore.set(startEdit({ stage: "mid", players: 9, draft: newDraft("LJ"), parked: null }, h));
     const html = page("fast");
-    expect(text(html)).toMatch(/✎ 수정 중 \d\d:\d\d HJ K9s · 액션을 다시 누르면 저장 삭제 취소/);
+    expect(text(html)).toMatch(/✎ 수정 중 \d\d:\d\d HJ K8s · 액션을 다시 누르면 저장 삭제 취소/);
     expect(html).toContain('<button type="button" class="a-call on">콜</button>');
     expect(text(html)).toContain("누르면 이 핸드를 고쳐서 저장해요");
   });
 
   it("shows in 지난 기록 with a 빠른 tag, the decision and the verdict", () => {
-    put([fast(5, typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call")]);
+    put([fast(5, typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "call")]);
     const html = page("list/mine");
-    expect(html).toMatch(/<b class="log-seat">HJ<\/b><b class="log-class">K9s<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · UTG 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 오버플레이 \(차트: 폴드\)<\/span>/);
+    expect(html).toMatch(/<b class="log-seat">HJ<\/b><b class="log-class">K8s<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · UTG 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 오버플레이 \(차트: 폴드\) · 솔버 55bb 기준<\/span>/);
     // complete as it is: not 작성 중
     expect(html).not.toContain("log-continue");
     expect(text(html)).toContain("⚡ 빠른 기록");
@@ -696,7 +696,7 @@ describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/serve
   it("shows in 지난 기록 › 남의 핸드 with the 남 badge, a 빠른 tag and their verdict", () => {
     put([theirs(5, typed("BB", "72o", { spot: "open", opener: "CO" }), "call")]);
     const html = page("list/other");
-    expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">BB<\/b><b class="log-class">72o<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 차트보다 루즈 \(차트: 폴드\)<\/span>/);
+    expect(html).toMatch(/<button class="log-row other"><span class="log-row-main"><span class="log-kind" aria-label="남의 핸드">남<\/span><b class="log-seat">BB<\/b><b class="log-class">72o<\/b><span class="log-end"><span class="log-tag fast">빠른<\/span><\/span><\/span><span class="log-pre small">미들 · CO 오픈 → 콜<\/span><span class="log-verdict small v-over">⚠ 차트보다 루즈 \(차트: 폴드\) · 솔버 55bb 기준<\/span>/);
     expect(html).not.toContain("log-continue");
   });
 });

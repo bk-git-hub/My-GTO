@@ -1155,7 +1155,7 @@ export function handFacts(h: LoggedHand): string {
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
-    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 펍 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · ${fv.text.includes("솔버") ? "차트 판정" : "펍 차트 판정"} ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
   } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
