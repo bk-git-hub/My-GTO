@@ -8,25 +8,37 @@ import {
   CLOSE_EPS,
   CLOSE_LADDER,
   CLOSE_USE_MIN_PCT,
+  BANDS_MIN_STACK,
   DATA_LIMITS,
+  DEGEN_MIN_OPEN,
   FOUR_BET_SPLIT_TEXT,
   LADDER_START,
   LOW_SPR_CAP_TEXT,
   LADDER_STEPS,
   LOW_SUITED_CONNECTORS,
+  PUSHFOLD_CONFIDENCE_TEXT,
+  PUSHFOLD_LIMITS,
+  PUSHFOLD_RULE_TEXT,
+  SENS_FLIP,
   SUITED_WHEEL_ACES,
+  TWOSTART_TOLERANCE,
   annotateStage,
   chainFamilies,
   chooseLadder,
   classifyTree,
   closeString,
   countKinds,
+  countProblems,
   dataChecks,
+  dataLimits,
   decodeStage,
+  degenGates,
+  degenerateOpeners,
   dropClose,
   exportSet,
   exportStage,
   flagProblems,
+  hasFlop,
   kickerChains,
   ladderThresholds,
   legendOrder,
@@ -35,17 +47,21 @@ import {
   raiseAll,
   rangeText,
   reachShares,
+  sensString,
+  stageBands,
   stageFlags,
   stageSanity,
   stageValuation,
   thresholdsByKind,
   topCardChains,
+  twoStartRfiProblems,
+  valuationForStage,
   type DataLimits,
   type NodeClass,
   type StageExportInput,
 } from "./export";
 import { handFeatures } from "./features";
-import { comboWeights, createSolver, ownReach } from "./solve";
+import { actionShares, comboWeights, createSolver, ownReach } from "./solve";
 import { TERM, buildTree, stageConfig, type PreflopTree } from "./tree";
 import { MW_C_POS, equityScaledSurplusVectors, featureMatrix, surplusShrink } from "./value";
 
@@ -151,7 +167,7 @@ describe("scenario mapping (§6.4)", () => {
     expect([coldJamAnswer.kind, coldJamAnswer.title, ...keys(coldJamAnswer)]).toEqual(["vs4bet", "HJ — UTG 오픈 → HJ 3벳 → CO 올인", "call"]);
     const cold = byId(c100, "co-at-utg-open-hj-3bet");
     expect([cold.kind, cold.cold, cold.title, cold.villainSeats]).toEqual(["vs3bet", true, "CO — UTG 오픈 → HJ 3벳 (콜드: 폴드·올인)", ["UTG", "HJ"]]);
-    expect(cold.order.map((a) => cold.actions[a])).toEqual([{ key: "shove", label: "콜드 올인", color: "allin" }]);
+    expect(cold.order.map((a) => cold.actions[a])).toEqual([{ key: "shove", label: "콜드 올인", color: "allin", to: 100 }]);
     // A cold seat answering a 3-bet jam after the opener folded.
     const sh = byId(c35, "sb-at-co-open-btn-jam");
     expect([sh.kind, ...keys(sh)]).toEqual(["vsShove", "call"]);
@@ -970,5 +986,320 @@ describe("close calls and artifact flags (§6.9, §6.10)", { timeout: 60_000 }, 
     // Dropping the string alone (the old fallback) leaves flags the close strings no longer give: flagProblems says so.
     const stale: PreflopStage = { ...st, scenarios: st.scenarios.map((sc) => ({ ...sc, close: undefined })) };
     expect(flagProblems(stale)).toEqual([`utg-open-vs-co-3bet: flags [] ≠ [{"code":"PF-SANITY-12","hands":"KK"}] re-derived from its close string`]);
+  });
+});
+
+// ───────────── Short stacks and push/fold (§1.2, §5.2, §5.3, §6.6) ─────────────
+
+describe("short stacks and push/fold (§1.2, §5.2, §5.3, §6.6)", { timeout: 60_000 }, () => {
+  const scenario = (id: string, kind: PreflopStage["scenarios"][number]["kind"], hero: string, actions: [string, string][], extra: object = {}) => ({
+    id,
+    kind,
+    hero,
+    chip: id,
+    title: id,
+    description: "",
+    line: "",
+    reachPct: 100,
+    occ: 5,
+    regret: 0,
+    confidence: "high" as const,
+    move: 0,
+    actions: actions.map(([key, range]) => ({ key, label: key, color: "call" as const, range })),
+    ...extra,
+  });
+  const base = (scenarios: ReturnType<typeof scenario>[], stack = 25): PreflopStage => ({
+    id: "t",
+    label: "t",
+    description: "",
+    stack,
+    open: 2,
+    sizes: { sbRaise: 2.5, iso: 3, ip3: 3, blind3: 4, bbVsSb3: 3, sqzPerCallerIP: 1, sqzPerCallerBlind: 1.25, fourIP: 2.3, fourOOP: 2.5, limpReraise: 3, jamMax: 40 },
+    tree: { cold4: "none", allinOrder: "priority" },
+    iterations: 1,
+    occThreshold: 0.1,
+    occThresholdByKind: thresholdsByKind(LADDER_START),
+    brGainMbb: [],
+    nashConvMbb: 0,
+    snappedGainMbb: 0,
+    ev: [],
+    diag: { evSum: 0, frozenOccPct: 0, negativeShares: 0 },
+    model: { id: "modelB-rank9", fitHash: "", sprAlpha: 1.5, sprSurplus: 6, packs: {} },
+    equityTable: "",
+    scenarios,
+  });
+  const OPENERS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
+  const sid = (p: string) => p.toLowerCase().replace("+", "p");
+
+  // The 10bb push/fold stage, solved for a few hundred iterations on the coarse table.
+  const pfTree = buildTree(stageConfig("10bb-pf"));
+  const pfClasses = classifyTree(pfTree);
+  const pfSolver = createSolver(pfTree, table, { valuation: valuationForStage(pfTree.cfg, EQR_FIT, features) });
+  pfSolver.iterate(300);
+  const pfAvg = pfSolver.average();
+  const pfEv = pfSolver.evaluate(pfAvg);
+  const pfLadder = chooseLadder(pfTree, pfClasses, pfEv.occ);
+  const pfInput = (over: Partial<StageExportInput> = {}): StageExportInput => ({
+    id: "10bb-pf",
+    label: "10bb · 푸시/폴드",
+    tree: pfTree,
+    strategy: pfAvg,
+    classes: pfClasses,
+    exported: pfLadder.set.exported,
+    ladder: pfLadder.steps,
+    iterations: 1500,
+    metrics: { occ: pfEv.occ, localRegret: pfEv.localRegret, gainMbb: pfEv.gainMbb, nashConvMbb: pfEv.nashConvMbb, snappedGainMbb: 0.1, ev: pfEv.ev, evSum: pfEv.evSum, frozenOcc: 0, negativeShares: 0 },
+    moves: null,
+    twoStartFlags: new Set(),
+    fit: FIT,
+    equityTable: "table-sha",
+    ...over,
+  });
+
+  it("PF-DATA-1 per mode: push/fold is exactly 8 pushes and the 36 calls of a first-in jam; the full tree keeps its counts", () => {
+    expect(dataLimits(undefined)).toBe(DATA_LIMITS);
+    expect(dataLimits("full")).toBe(DATA_LIMITS);
+    expect(dataLimits("pushfold")).toBe(PUSHFOLD_LIMITS);
+    const c = (o: Partial<ReturnType<typeof countKinds>>) => ({ rfi: 8, vsOpen: 0, vs3bet: 0, vs4bet: 0, squeeze: 0, vsLimp: 0, vsShove: 36, cold: 0, total: 44, ...o });
+    expect(countProblems(c({}), PUSHFOLD_LIMITS)).toEqual([]);
+    expect(countProblems(c({ vsShove: 35, total: 43 }), PUSHFOLD_LIMITS)).toEqual(["vsShove 35 outside 36–36"]);
+    expect(countProblems(c({ vsOpen: 1, total: 45 }), PUSHFOLD_LIMITS)).toEqual(["vsOpen 1 outside 0–0", "total 45 > 44"]);
+    // The full tree: vsShove stays under otherMax, never an exact count.
+    expect(countProblems(c({ vsOpen: 30, vsLimp: 1, vsShove: 3, total: 42 }), DATA_LIMITS)).toEqual([]);
+    // chooseLadder picks the tree's mode by default.
+    expect(pfLadder.ok).toBe(true);
+    expect(pfLadder.counts).toMatchObject({ rfi: 8, vsShove: 36, total: 44 });
+    expect(chooseLadder(pfTree, pfClasses, pfEv.occ, { limits: DATA_LIMITS }).ok).toBe(false);
+  });
+
+  it("a push/fold stage: showdown equity, no draft for lacking sensitivity solves, every spot 높음 with move 0 and its reason", () => {
+    expect(hasFlop(pfTree)).toBe(false);
+    expect(hasFlop(buildTree(stageConfig("15bb-2")))).toBe(true);
+    const v = valuationForStage(pfTree.cfg, EQR_FIT, features);
+    expect(v.kind).toBe("equity");
+    expect(valuationForStage(stageConfig("25bb-2"), EQR_FIT, features)).toEqual(stageValuation(EQR_FIT, features));
+    const out = exportStage(pfInput({ note: "더 짧은 스택은 '푸시/폴드 내쉬' 세트를 보세요." }));
+    const st = out.stage;
+    expect(out.draft).toEqual([]);
+    expect(st.model).toEqual({ id: "showdown-equity" });
+    expect(st.tree).toEqual({ cold4: "jam", allinOrder: "priority", mode: "pushfold" });
+    expect(st.description).toBe(`모두 10bb. ${PUSHFOLD_RULE_TEXT} 서로 최선인 균형 근사(착취 아님). 더 짧은 스택은 '푸시/폴드 내쉬' 세트를 보세요.`);
+    expect(dataChecks(st)).toEqual([]);
+    expect(st.scenarios.map((x) => x.kind).filter((k) => k !== "rfi" && k !== "vsShove")).toEqual([]);
+    for (const sc of st.scenarios) {
+      // 높음 with move 0, unless a data check lowered it to 낮음 and says why (a kicker inversion of this coarse,
+      // short solve).
+      expect(sc.move, sc.id).toBe(0);
+      expect(sc.description, sc.id).toContain(`: ${PUSHFOLD_CONFIDENCE_TEXT}`);
+      if (sc.confidence !== "high") {
+        expect(sc.confidence, sc.id).toBe("low");
+        expect(sc.description.endsWith(PUSHFOLD_CONFIDENCE_TEXT), sc.id).toBe(false);
+      } else expect(sc.description.endsWith(`신뢰도 높음: ${PUSHFOLD_CONFIDENCE_TEXT}`), sc.id).toBe(true);
+      // Every push carries the jam size: the stack, or the BB's 9bb when only the BB is left behind the SB.
+      for (const a of sc.actions) expect(a.to, `${sc.id}:${a.key}`).toBe(a.key === "shove" ? (sc.hero === "SB" ? 9 : 10) : undefined);
+    }
+    // A two-start flag still lowers a spot, with its reason; a missing two-start solve is still a draft.
+    const flaggedNode = out.nodes[3];
+    const flagged = exportStage(pfInput({ twoStartFlags: new Set([flaggedNode]) })).stage.scenarios[3];
+    expect(flagged.confidence).toBe("low");
+    expect(flagged.description).toContain("다른 시작점에서 풀면");
+    expect(exportStage(pfInput({ twoStartFlags: null })).draft).toEqual(["twostart"]);
+    // Without a flop the export of a full-tree draft would say "민감도 풀이"; this one never does.
+    expect(st.scenarios.some((x) => x.description.includes("민감도"))).toBe(false);
+    expect(st.scenarios.filter((x) => x.confidence === "high").length).toBeGreaterThan(st.scenarios.length / 2);
+  });
+
+  it("writes `to` on every raise and jam (the tree's size; the stack on a jam), never on a call, limp or check", () => {
+    const c100 = classifyTree(buildTree(stageConfig("100bb-2.2")));
+    const spec = (classes: NodeClass[], id: string) => byId(classes, id).order.map((a) => byId(classes, id).actions[a]!);
+    expect(spec(c100, "rfi-utg")).toEqual([{ key: "open", label: "오픈 2.2bb", color: "raise", to: 2.2 }]);
+    expect(spec(c100, "rfi-sb").map((a) => [a.key, a.to])).toEqual([["limp", undefined], ["raise", 3]]);
+    expect(spec(c100, "bb-vs-btn-open").map((a) => [a.key, a.to])).toEqual([["call", undefined], ["3bet", 8.8]]);
+    expect(spec(c100, "bb-vs-sb-limp").map((a) => [a.key, a.to])).toEqual([["raise", 3.5], ["check", undefined]]);
+    expect(spec(c100, "co-open-vs-btn-3bet").map((a) => [a.key, a.to])).toEqual([["call", undefined], ["4bet", 16.5], ["shove", 100]]);
+    const c20 = classifyTree(buildTree(stageConfig("20bb-2")));
+    expect(spec(c20, "rfi-utg").map((a) => [a.key, a.to])).toEqual([["open", 2], ["shove", 20]]);
+    // The BB's jam is its stack less the 1bb ante; the SB's jam behind it is capped by the BB's.
+    expect(spec(c20, "bb-vs-btn-open").map((a) => [a.key, a.to])).toEqual([["call", undefined], ["shove", 19]]);
+    expect(spec(c20, "rfi-sb").map((a) => [a.key, a.to])).toEqual([["limp", undefined], ["raise", 2.5], ["shove", 19]]);
+  });
+
+  it("PF-SANITY-3: the vs-SB clause only warns where the SB limps more than it raises first in", () => {
+    const stageWith = (sbLimp: string, sbRaise: string) =>
+      base([
+        ...OPENERS.map((p) => scenario(`rfi-${sid(p)}`, "rfi", p, [["open", "22+, A2s+"]])),
+        scenario("rfi-sb", "rfi", "SB", [["limp", sbLimp], ["raise", sbRaise]]),
+        ...OPENERS.map((p) => scenario(`bb-vs-${sid(p)}-open`, "vsOpen", "BB", [["call", "22+, A2s+, K2s+, Q2s+"]], { villain: p })),
+        scenario("bb-vs-sb-open", "vsOpen", "BB", [["call", "22+, A2s+"]], { villain: "SB" }),
+      ]);
+    // The SB raises wide and limps little: a BB defending 3pp narrower against it than against the BTN fails.
+    const wide = stageSanity(stageWith("22", "33+, A2s+, K2s+, Q2s+, A2o+, K9o+"));
+    expect(wide.fails.filter((f) => f.startsWith("PF-SANITY-3"))).toHaveLength(1);
+    expect(wide.fails.find((f) => f.startsWith("PF-SANITY-3"))).toMatch(/^PF-SANITY-3 BB defense vs SB [\d.]+ < vs BTN [\d.]+ − 2$/);
+    // It limps most hands and raises a few strong ones: the same gap is a warning that says why.
+    const split = stageSanity(stageWith("22+, A2s+, K2s+, Q2s+, A2o+, K9o+", "AA, KK"));
+    expect(split.fails.filter((f) => f.startsWith("PF-SANITY-3"))).toEqual([]);
+    expect(split.warns.find((w) => w.startsWith("PF-SANITY-3"))).toMatch(/the SB raises [\d.]+% < limps [\d.]+% first in: a warning only/);
+  });
+
+  it("PF-BANDS are printed only from 35bb", () => {
+    const st = base([scenario("rfi-utg", "rfi", "UTG", [["open", "22+"]])], 25);
+    expect(stageBands(st)).toEqual([]);
+    expect(stageBands({ ...st, stack: BANDS_MIN_STACK }).map((b) => b.name)).toEqual(["RFI UTG"]);
+  });
+
+  it("PF-DEGEN-1 and PF-TWOSTART-RFI apply where first-in jams exist; they find a seat that never min-raises and first-in drift", () => {
+    expect(degenGates(stageConfig("100bb-2.2"))).toEqual({ degen: false, twoStartRfi: false });
+    expect(degenGates(stageConfig("55bb-2.2"))).toEqual({ degen: false, twoStartRfi: false });
+    expect(degenGates(stageConfig("35bb-2"))).toEqual({ degen: true, twoStartRfi: true });
+    expect(degenGates(stageConfig("25bb-2"))).toEqual({ degen: true, twoStartRfi: true });
+    expect(degenGates(stageConfig("15bb-2"))).toEqual({ degen: true, twoStartRfi: true });
+    expect(degenGates(stageConfig("10bb-pf"))).toEqual({ degen: false, twoStartRfi: true });
+    // A uniform strategy on a 5-handed 25bb tree: every first-in node opens a third of its hands.
+    const tree = buildTree(stageConfig("25bb-2", { players: 5 }));
+    const classes = classifyTree(tree);
+    const uniform = new Float64Array(tree.edgeCount * N);
+    for (let p = 0; p < tree.nodeCount; p++) {
+      const A = tree.actStart[p + 1] - tree.actStart[p];
+      for (let e = tree.actStart[p]; e < tree.actStart[p + 1]; e++) uniform.fill(1 / A, e * N, (e + 1) * N);
+    }
+    expect(degenerateOpeners(tree, uniform)).toEqual([]);
+    // The root (5-handed "HJ") jams or folds only; CO opens 0.5% of its combos (AA and KK, 12 of 1,326 = 0.9%: just under).
+    const s = uniform.slice();
+    const setNode = (p: number, f: (verb: string, h: number) => number) =>
+      tree.nodes[p].actions.forEach((a, k) => {
+        for (let h = 0; h < N; h++) s[(tree.actStart[p] + k) * N + h] = f(a.verb, h);
+      });
+    setNode(0, (verb) => (verb === "open" ? 0 : 0.5));
+    const co = tree.child[tree.actStart[0] + tree.foldIdx[0]];
+    const big = new Set(["AA", "KK"].map((h) => ALL_HANDS.indexOf(h)));
+    setNode(co, (verb, h) => (verb === "open" ? (big.has(h) ? 1 : 0) : verb === "fold" ? (big.has(h) ? 0 : 1) : 0));
+    const degen = degenerateOpeners(tree, s);
+    expect(degen.map((x) => x.seat)).toEqual(["HJ", "CO"]);
+    expect(degen[0].open).toBe(0);
+    expect(degen[1].open).toBeCloseTo(12 / 1326, 12);
+    expect(degen[1].open).toBeLessThan(DEGEN_MIN_OPEN);
+    // PF-TWOSTART-RFI: identical solves agree; a 3pp drift at a first-in node is named, one at a later node is not.
+    expect(twoStartRfiProblems(tree, classes, uniform, uniform)).toEqual([]);
+    const drift = (p: number, d: number) => {
+      const x = uniform.slice();
+      const e0 = tree.actStart[p];
+      for (let h = 0; h < N; h++) {
+        x[e0 * N + h] -= d;
+        x[(e0 + 1) * N + h] += d;
+      }
+      return x;
+    };
+    const btn = tree.child[tree.actStart[co] + tree.foldIdx[co]];
+    const rfi = twoStartRfiProblems(tree, classes, uniform, drift(btn, 0.03));
+    expect(rfi.map((x) => x.id)).toEqual(["rfi-btn"]);
+    expect(rfi[0].d).toBeCloseTo(0.03, 12);
+    expect(twoStartRfiProblems(tree, classes, uniform, drift(btn, TWOSTART_TOLERANCE * 0.9))).toEqual([]);
+    const later = classes.find((c) => c.kind === "vsOpen")!.node;
+    expect(twoStartRfiProblems(tree, classes, uniform, drift(later, 0.2))).toEqual([]);
+    expect(actionShares(tree, drift(btn, 0.03), btn, CW)[0]).toBeCloseTo(1 / 3 - 0.03, 12);
+  });
+
+  const H = (h: string) => ALL_HANDS.indexOf(h);
+  const rowsOf = (fill: number[], set: Record<string, number[]> = {}) =>
+    fill.map((v, i) => {
+      const r = new Float64Array(N).fill(v);
+      for (const [h, xs] of Object.entries(set)) r[H(h)] = xs[i];
+      return r;
+    });
+  const one = (sc: ReturnType<typeof scenario>, extra: ReturnType<typeof scenario>[] = []) => decodeStage(base([...extra, sc])).get(sc.id)!;
+  const at = (x: string | undefined, h: string) => (x ?? ".".repeat(169))[H(h)];
+
+  it("sensString marks a pure cell whose action falls below half in a variant, with the actions on top", () => {
+    // Chart: AA, KK, QQ open pure; JJ mixed; everything else folds pure.
+    const d = one(scenario("rfi-utg", "rfi", "UTG", [["open", "AA, KK, QQ, JJ:0.5"]]));
+    const main = rowsOf([0, 1], { AA: [1, 0], KK: [1, 0], QQ: [0.97, 0.03], JJ: [0.5, 0.5] });
+    // Variant 1: KK opens 0.4 (fold on top), QQ 0.6 (still on top); 72o opens 0.7 (the chart folds it pure).
+    const v1 = rowsOf([0, 1], { AA: [1, 0], KK: [0.4, 0.6], QQ: [0.6, 0.4], JJ: [0, 1], "72o": [0.7, 0.3] });
+    const s = sensString(d, main, [v1])!;
+    expect(at(s, "AA")).toBe(".");
+    expect(at(s, "KK")).toBe("3"); // open (the chart's, bit 0) and fold (on top in the variant, bit 1)
+    expect(at(s, "QQ")).toBe("."); // still ≥ 0.5
+    expect(at(s, "JJ")).toBe("."); // mixed in the chart
+    expect(at(s, "72o")).toBe("3");
+    expect(s.replace(/\./g, "")).toBe("33");
+    expect(sensString(d, main, [main])).toBeUndefined();
+    expect(SENS_FLIP).toBe(0.5);
+    // Exactly 0.5 is not below half.
+    expect(at(sensString(d, main, [rowsOf([0, 1], { KK: [0.5, 0.5] })]), "KK")).toBe(".");
+    expect(() => sensString(d, main, [rowsOf([0, 1, 0])])).toThrow(/legend actions/);
+  });
+
+  it("sensString needs two actions in the mask: a drop that leaves the chart's action on top marks nothing", () => {
+    // Three legend actions: call, 3bet, fold. AA 3-bets pure; in the variant it 3-bets 0.45, calls 0.3, folds 0.25.
+    const d = one(scenario("bb-vs-co-open", "vsOpen", "BB", [["call", "KK"], ["3bet", "AA"]], { villain: "CO" }));
+    const main = rowsOf([0, 0, 1], { AA: [0, 1, 0], KK: [1, 0, 0] });
+    const v = rowsOf([0, 0, 1], { AA: [0.3, 0.45, 0.25], KK: [0.2, 0.7, 0.1] });
+    const s = sensString(d, main, [v]);
+    expect(at(s, "AA")).toBe(".");
+    expect(at(s, "KK")).toBe("3"); // call (the chart's) and 3bet (the variant's top)
+    // The mask is the union over every variant's top action.
+    const w = rowsOf([0, 0, 1], { KK: [0.45, 0.1, 0.45] });
+    expect(at(sensString(d, main, [v, w]), "KK")).toBe("3");
+    const z = rowsOf([0, 0, 1], { KK: [0.2, 0.1, 0.7] });
+    expect(at(sensString(d, main, [v, z]), "KK")).toBe("7");
+    // Out of reach: never marked.
+    const deep = one(scenario("utg-open-vs-co-3bet", "vs3bet", "UTG", [["call", "QQ"]], { reachFrom: ["rfi-utg:open"] }), [
+      scenario("rfi-utg", "rfi", "UTG", [["open", "QQ"]]),
+    ]);
+    expect(sensString(deep, rowsOf([1, 0]), [rowsOf([0, 1])])!.replace(/\./g, "")).toBe("3");
+    expect(at(sensString(deep, rowsOf([1, 0]), [rowsOf([0, 1])]), "QQ")).toBe("3");
+  });
+
+  it("annotateStage writes sens after close and before flags, on the kinds asked for; dropClose keeps it", () => {
+    const s = solved(5, 200);
+    const ladder = chooseLadder(s.tree, s.classes, s.ev.occ, { limits: SMALL_LIMITS });
+    const out = exportStage({
+      id: "t5",
+      label: "t5",
+      tree: s.tree,
+      strategy: s.avg,
+      classes: s.classes,
+      exported: ladder.set.exported,
+      ladder: ladder.steps,
+      iterations: 200,
+      metrics: { occ: s.ev.occ, localRegret: s.ev.localRegret, gainMbb: s.ev.gainMbb, nashConvMbb: s.ev.nashConvMbb, snappedGainMbb: 1, ev: s.ev.ev, evSum: s.ev.evSum, frozenOcc: 0, negativeShares: 0 },
+      moves: new Float64Array(s.tree.nodeCount),
+      twoStartFlags: new Set(),
+      fit: FIT,
+      equityTable: "x",
+    });
+    // A variant that folds every hand everywhere a fold exists: every pure non-fold cell flips.
+    const variant = new Float64Array(s.avg.length);
+    for (let p = 0; p < s.tree.nodeCount; p++) {
+      const f = s.tree.foldIdx[p];
+      const A = s.tree.actStart[p + 1] - s.tree.actStart[p];
+      for (let k = 0; k < A; k++) variant.fill(f < 0 ? 1 / A : k === f ? 1 : 0, (s.tree.actStart[p] + k) * N, (s.tree.actStart[p] + k + 1) * N);
+    }
+    const { brActionValues } = s.solver.evaluate(s.avg, { brActionValues: true });
+    const input = { tree: s.tree, classes: s.classes, nodes: out.nodes, brActionValues: brActionValues! };
+    const a = annotateStage(out.stage, { ...input, sensitivity: { strategy: s.avg, variants: [variant] } });
+    const decoded = decodeStage(out.stage);
+    let marked = 0;
+    a.scenarios.forEach((sc, i) => {
+      const c = s.classes[out.nodes[i]];
+      const order = legendOrder(c);
+      const rows = (x: Float64Array) => order.map((k) => Array.from(x.subarray((s.tree.actStart[c.node] + k) * N, (s.tree.actStart[c.node] + k + 1) * N)));
+      expect(sc.sens, sc.id).toBe(sensString(decoded.get(sc.id)!, rows(s.avg), [rows(variant)]));
+      const k = Object.keys(sc);
+      const extra = k.filter((x) => x === "close" || x === "sens" || x === "flags");
+      expect(k.slice(k.length - 1 - extra.length, -1), sc.id).toEqual(extra);
+      if (sc.sens) marked += sc.sens.replace(/\./g, "").length;
+    });
+    expect(marked).toBeGreaterThan(0);
+    const rfiOnly = annotateStage(out.stage, { ...input, sensitivity: { strategy: s.avg, variants: [variant], kinds: ["rfi"] } });
+    expect(rfiOnly.scenarios.filter((sc) => sc.sens).every((sc) => sc.kind === "rfi")).toBe(true);
+    expect(rfiOnly.scenarios.some((sc) => sc.sens)).toBe(true);
+    // Without the sensitivity solves: no sens; dropClose keeps what is there.
+    expect(annotateStage(a, input).scenarios.some((sc) => sc.sens)).toBe(false);
+    const occs = a.scenarios.filter((sc) => sc.close).map((sc) => sc.occ).sort((x, y) => x - y);
+    const d = dropClose([a], occs[occs.length >> 1])[0];
+    expect(d.scenarios.map((sc) => sc.sens)).toEqual(a.scenarios.map((sc) => sc.sens));
+    expect(() => annotateStage(out.stage, { ...input, sensitivity: { strategy: s.avg, variants: [variant.subarray(1)] } })).toThrow(/edgeCount/);
   });
 });

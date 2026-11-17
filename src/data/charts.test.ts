@@ -25,6 +25,7 @@ import {
   KIND_LABEL,
   getNamedRanges,
   legendActions,
+  loadSolver,
   namedRanges,
   reachOf,
   reachShare,
@@ -38,6 +39,9 @@ import {
 } from "./charts";
 
 const playFreq = (s: ReturnType<typeof allScenarios>[number], h: string) => 1 - s.strategy[h].fold;
+
+// Every set, the solver set too: its stage chunks load first, as a solver screen does through useSolver (docs §6.3).
+await loadSolver();
 
 describe("chart sets", () => {
   it("build every scenario with unique ids and strategies that sum to 1", () => {

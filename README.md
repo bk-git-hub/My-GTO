@@ -68,28 +68,30 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 |---|---|---|
 | 펍 토너먼트 (기본) | `src/data/sets/pub.ts` | 9인, BB 앤티. 딥(100bb+) / 미들(40~80bb) / 숏(15~20bb) / 푸시·폴드(10bb 이하). bk와 Claude의 채팅(2026-10-31)에서 정리한 펍 맞춤 범위 |
 | 6맥스 캐시 100bb | `src/data/sets/cash6.ts` | 첫 버전의 학습용 근사 차트 |
-| 푸시/폴드 내쉬 | `src/data/sets/nash.ts`, `nashData.ts` | 9인, BB 앤티 1bb, 4~20bb. 앱이 직접 계산한 칩EV 내쉬 균형 (아래) |
-| 숏스택 내쉬 | `src/data/sets/shortNash.ts`, `shortNashData.ts` | 9인, BB 앤티 1bb, 10~25bb. 폴드/2bb 오픈/올인 + 리쉬브 + BB 콜까지 계산한 칩EV 균형 (아래) |
+| 푸시/폴드 내쉬 | `src/data/sets/nash.ts`, `nashData.ts` | 9인, BB 앤티 1bb, 4~20bb. 프리플랍 솔버 엔진(DCFR)이 직접 계산한 칩EV 내쉬 균형. 10bb는 솔버 차트의 10bb 푸시/폴드와 칸마다 같다 (아래) |
+| 숏스택 내쉬 | `src/data/sets/shortNash.ts`, `shortNashData.ts` | 9인, BB 앤티 1bb, 10~25bb. 폴드/2bb 오픈/올인 + 리쉬브 + BB 콜까지 같은 DCFR 엔진으로 계산한 칩EV 균형. 보정된 솔버 숏스택 스테이지가 나오기 전까지 12~25bb의 임시 기준 (아래) |
 | 솔버 프리플랍 | `src/data/sets/preflop.ts`, `preflopData.ts` | 9인, BB 앤티 1bb, 100bb(오픈 2.2bb·3bb)·55bb·35bb. 우리 프리플랍 솔버(DCFR, `scripts/make-preflop.mjs`)가 푼 칩EV 균형 근사. EV 차이가 0.05bb 이내인 칸은 모서리에 표시하고(퀴즈에서도 정답), 모델·트리 한계로 알려진 칸은 "알려진 한계"로 알려 주고 퀴즈에서 뺀다. 처음 고를 때 만들어서 앱 시작을 늦추지 않는다. 설계와 검증은 `docs/preflop-solver.md` |
 
 **펍 토너먼트와 캐시 차트는 솔버 정확값이 아니다.** 레인지 문자열만 바꾸면 직접 구한 솔버 결과로 교체할 수 있다.
 
 ### 푸시/폴드 내쉬 계산
 
-`node scripts/make-nash.mjs`가 `src/data/sets/nashData.ts`를 다시 만든다 (4코어에서 약 5분).
+`node scripts/make-nash.mjs`가 `src/data/sets/nashData.ts`를 다시 만든다 (코어 1개로 약 2분). `--check`는 다시 풀어서 커밋된 파일과 바이트 단위로 비교한다.
 
 1. 169×169 핸드 클래스끼리의 헤즈업 올인 에퀴티를 몬테카를로로 구한다 (클래스 쌍마다 보드 약 1.2만 개, 시드 고정). 카드 겹침(블로커)도 콤보 수로 반영한다.
-2. `src/poker/pushfold.ts`가 가상 플레이(fictitious play)로 균형을 찾는다. 퍼스트 인은 올인 or 폴드, 뒤 자리는 차례로 콜 or 폴드, 콜이 한 명 나오면 나머지는 폴드(오버콜 없음).
-3. 모두 같은 스택, 칩EV(ICM 미반영). 결과마다 "어떤 결정을 바꿔서 더 얻을 수 있는 최대치"(exploitability)를 함께 저장하는데 모두 0.02bb/핸드 이하다.
+2. 프리플랍 솔버의 DCFR 엔진(`src/poker/preflop`)이 푸시/폴드 트리(`pushFoldConfig`, `src/poker/pushfold.ts`와 같은 게임)를 솔버와 같은 스케줄·관문으로 풀고, 솔버 차트와 같은 0.1 단위로 맞춘다. 퍼스트 인은 올인 or 폴드, 뒤 자리는 차례로 콜 or 폴드, 콜이 한 명 나오면 나머지는 폴드(오버콜 없음). 솔버 차트의 10bb 푸시/폴드 스테이지와 같은 게임·엔진·계산이라 10bb는 칸마다 같다(`src/data/nashData.test.ts`).
+3. 모두 같은 스택, 칩EV(ICM 미반영). 결과마다 0.1 단위로 맞춘 차트의 "한 자리가 전략을 바꿔서 더 얻을 수 있는 최대치"(exploitability, 모두 0.0001bb/핸드 미만)와 NashConv(모두 0.2mbb/핸드 이하)를 함께 저장한다. 예전 가상 플레이(fictitious play) 파일은 NashConv가 0.5~15mbb/핸드였다.
 
 ### 숏스택 내쉬 (오픈/리쉬브)
 
-`node scripts/make-shortnash.mjs`가 `src/data/sets/shortNashData.ts`를 다시 만든다 (같은 에퀴티 표 재사용, 4코어에서 약 7분). 모델은 `src/poker/openjam.ts`:
+`node scripts/make-shortnash.mjs`가 `src/data/sets/shortNashData.ts`를 다시 만든다 (같은 에퀴티 표 재사용, 4코어에서 1~2분, `--check`로 재현 확인). 게임은 `src/poker/openjam.ts`와 같고(`openJamConfig`), 푸는 건 프리플랍 솔버의 DCFR 엔진이다:
 
 - 퍼스트 인: 폴드 / 2bb 오픈 / 올인. 올인에는 뒤에서 콜 or 폴드 (오버콜 없음).
 - 오픈에는 뒤에서 3벳 올인 or 폴드, BB만 플랫 콜도 가능. 리쉬브가 나오면 오픈한 사람이 콜 or 폴드.
 - BB가 플랫한 뒤는 체크다운으로 보고, BB가 핸드 종류별로 에퀴티 일부만 가져간다고 가정한다 (`src/poker/realization.ts`: 페어·수티드 브로드웨이·54s+ 커넥터 90%, 수티드 에이스·높은 원갭 85%, 오프수트 브로드웨이 85%, 오프수트 에이스 72%, 약한 오프수트 50%; 스택이 짧을수록 100%에 가깝게, 20bb부터는 그대로). **이 실현율만 판단으로 정한 값**이고 나머지는 계산이다.
-- exploitability는 0.07bb/핸드 이하. 10~12bb에서는 거의 모든 자리가 오픈 대신 올인하므로, 레인지 암기 퀴즈는 오픈 빈도가 5% 미만인 자리의 "vs 오픈" 문제를 내지 않는다.
+- 0.1 단위로 맞춘 차트의 exploitability는 0.003bb/핸드 이하(NashConv 0.4~5.6mbb/핸드; 예전 가상 플레이 파일은 47~125). 10~12bb에서는 거의 모든 자리가 오픈 대신 올인하므로, 레인지 암기 퀴즈는 오픈 빈도가 5% 미만인 자리의 "vs 오픈" 문제를 내지 않는다.
+- 오픈한 뒤 리쉬브를 받는 차트(콜/폴드)는 그 자리가 실제로 오픈하는 핸드만 그 자리에 온다. 오픈하지 않는 핸드 칸에는 "오픈했다면" 기준의 최선 응답을 넣는다.
+- 보정된 솔버 숏스택 스테이지(25·20·15bb)가 나오기 전까지 12~25bb의 임시 기준 차트다.
 
 ```
 "66+, 55:0.75, A2s+, KTo+, AJs-A6s, QJo:0.4"

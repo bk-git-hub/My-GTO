@@ -87,7 +87,7 @@ function weightedIndex(weights: number[]): number {
   return last; // rounding left x at or past the total: the last index that can come up
 }
 
-/** filter: "all" | "stage:<stageId>" | full scenario id */
+/** filter: "all" | "stage:<stageId>" | full scenario id. The solver set must be loaded (loadSolver, useSolver). */
 export function quizPool(setId: string, filter: string): Scenario[] {
   const set = getSet(setId);
   if (filter.startsWith("stage:")) {

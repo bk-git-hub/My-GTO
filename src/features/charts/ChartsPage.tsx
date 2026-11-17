@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
+import { SolverSkeleton } from "../../components/SolverSkeleton";
 import {
   actionTotals,
   displayChips,
@@ -16,7 +17,8 @@ import {
   reachTotals,
   type Scenario,
 } from "../../data/charts";
-import { bigPairCloseNote, cautionFacts, cautionLines, flagLines } from "../../data/sets/preflop";
+import { bigPairCloseNote, cautionFacts, cautionLines, flagLines, SOLVER_ID } from "../../data/sets/preflop";
+import { useSolver } from "../../data/useSolver";
 import { comboCount, type HandClass } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
@@ -28,7 +30,21 @@ const reachPct = (x: number) => (x > 0 && x < 0.0005 ? "0.1% 미만" : pct1(x));
 /** How often one hand reaches the spot. */
 const handReachPct = (x: number) => (x > 0 && x < 0.005 ? "1% 미만" : `${Math.round(x * 100)}%`);
 
+/** The solver set's stages are chunks loaded on first use (docs §6.3): a skeleton under the set picker until then. */
 export function ChartsPage() {
+  const { chartSet } = useSettings();
+  const solver = useSolver(chartSet === SOLVER_ID);
+  if (solver.status !== "ready")
+    return (
+      <div className="page">
+        <SetPicker />
+        <SolverSkeleton {...solver} />
+      </div>
+    );
+  return <ChartsView />;
+}
+
+function ChartsView() {
   const { chartSet } = useSettings();
   const set = getSet(chartSet);
   const [stageId, setStageId] = useState(set.stages[0].id);

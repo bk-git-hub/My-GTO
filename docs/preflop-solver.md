@@ -2,7 +2,8 @@
 
 Our own preflop solver for the game the app is built for: 9-handed tournament tables with a 1bb BB ante, every
 stack equal, chip EV. It solves a fixed preflop action tree with vectorized DCFR over the 169 hand classes and
-writes the `solver` chart set (`src/data/sets/preflopData.ts`). Postflop play is not solved: every flop the tree
+writes the `solver` chart set (`src/data/sets/preflopIndex.ts` and one file per stage in `src/data/sets/preflopStages/`).
+Postflop play is not solved: every flop the tree
 reaches is valued by a realization model fitted to our own heads-up postflop packs (`docs/solver-packs.md`,
 solved by `src/solver`, `docs/solver.md`).
 
@@ -25,13 +26,18 @@ The section numbers below are the ones the code comments cite (`§2.3`, `§3.4`,
 | `src/poker/preflop/export.ts` | Scenario mapping, size ladder, export, confidence, sensitivity variants, data checks, close calls and artifact flags (§5.2, §6) |
 | `src/poker/preflop/*.test.ts` | Engine tests (§5.1) |
 | `scripts/fit-realization.mjs` | Pack extraction, the shipped fit and its three alternatives, κ_3 and κ_4 (§3.7) |
-| `scripts/make-preflop.mjs` | Solves, gates, checks, sensitivity and two-start solves, size ladder, the data file (§6.1) |
+| `scripts/make-preflop.mjs` | Solves, gates, checks, sensitivity and two-start solves, size ladder, the data files (§6.1) |
+| `scripts/preflop-files.mjs` | The generated files' layout and PF-SIZE-1's limits: index, stage files, compare and write (§6.2) |
 | `scripts/equity-cache.mjs` | The 169×169 equity table, cached in `node_modules/.cache/pubaj-equity-12000.json` (§4.10) |
+| `scripts/make-nash.mjs`, `scripts/make-shortnash.mjs` | The push/fold (`nashData.ts`) and open/jam (`shortNashData.ts`) sets, solved by this engine on the reduced games (§7) |
+| `src/data/nashData.test.ts` | Data tests on those two sets; nash 10bb against the `10bb-pf` stage, cell for cell (§7) |
 | `src/data/sets/preflopTypes.ts` | Hand-written shape of the generated data (§6.2) |
-| `src/data/sets/preflopData.ts` | Generated chart data (§6.2) |
-| `src/data/sets/preflop.ts` | The `solver` chart set built from the data on first use, and the cautions of its flags (§6.3, §6.10) |
-| `src/data/preflopData.test.ts` | Data tests on the committed file (§5.2) |
-| `src/data/lazySolver.test.ts` | Only a use of the solver set builds it (§6.3) |
+| `src/data/sets/preflopIndex.ts` | Generated: every shipped stage's metadata, loaded with the app (§6.2) |
+| `src/data/sets/preflopStages/<id>.ts` | Generated: one stage per file, its default export, one lazily loaded chunk each (§6.2, §6.3) |
+| `src/data/sets/preflop.ts` | The `solver` chart set: loads the stage files on first use, builds the set, and the cautions of its flags (§6.3, §6.10) |
+| `src/data/charts.ts`, `src/data/useSolver.ts` | `loadSolver`, `loadSolverStage`, `solverStage`, `useSolver`: the app's entry points to the solver set (§6.3) |
+| `src/data/preflopData.test.ts` | Data tests on the committed files (§5.2) |
+| `src/data/lazySolver.test.ts` | No stage loads before a solver screen; the loader API (§6.3) |
 
 ## 1. Game and stages
 
@@ -57,7 +63,10 @@ The section numbers below are the ones the code comments cite (`§2.3`, `§3.4`,
 | `100bb-3` | 100bb · 펍 사이즈 오픈 3bb | shipped | 100 | 3 | 3.5 | 3.5 | 3 / 3.5 / 3 |
 | `55bb-2.2` | 55bb · 오픈 2.2bb | shipped | 55 | 2.2 | 3 | 3.5 | 3 / 4 / 3 |
 | `35bb-2` | 35bb · 오픈 2bb | optional | 35 | 2 | 2.5 | 3 | 3 / 4 / 3 |
-| `25bb-2` | (none) | validation only | 25 | 2 | 2.5 | 3 | 3 / 4 / 3 |
+| `25bb-2` | 25bb · 오픈 2bb | check only, `cold4: "none"` by preset | 25 | 2 | 2.5 | 3 | 3 / 4 / 3 |
+| `20bb-2` | 20bb · 오픈 2bb | check only | 20 | 2 | 2.5 | 3 | 3 / 4 / 3 |
+| `15bb-2` | 15bb · 오픈 2bb | check only | 15 | 2 | 2.5 | 3 | 3 / 4 / 3 |
+| `10bb-pf` | 10bb · 푸시/폴드 | optional, `mode: "pushfold"`, showdown equity | 10 | (jam) | (jam) | – | – |
 
 Shared by every stage: a squeeze adds 1.0 × r_open per caller in position and 1.25 × from the blinds; 4-bets are
 2.3 × the 3-bet when the 4-bettor is in position postflop and 2.5 × out of position; the SB re-raises an iso to
@@ -72,8 +81,22 @@ Why these stages:
   `threeBetSize`). It separates what the ranges do from what the size does.
 - **35bb** covers the late 30–40bb stacks. It is optional: it ships only if it passes every gate (after the cold-jam
   fallback of §2.8); otherwise the generator drops it with a printed reason and writes the other stages.
-- **25bb** is solved only for PF-OVERLAP (§5.4) against our shortNash 25bb set and is never exported. Below 25bb the
-  NASH and SHORT_NASH sets stay the reference.
+- **25bb, 20bb, 15bb (check only)** are solved, gated (with PF-DEGEN-1 and PF-TWOSTART-RFI, §5.3), exported in memory
+  and checked on every run, with PF-OVERLAP against shortNash at the same stack (§5.4), but they are not written to the
+  app's data yet. Their BB defense is set by the realization model at SPR 1–4, which no pack calibrates (§3.8): the
+  defensible low-SPR rules differ by 25–50pp there, while the open and jam ranges move only 2–9pp. They ship once the
+  calibration packs `cal-srp-btn-bb-20` (SPR ≈ 3.1) and its 15bb twin (SPR ≈ 2.2) are solved and the low-SPR part of the
+  fit is refitted (the user's choice: calibrate first). Until then shortNash, regenerated with this engine, is the
+  chart for 12–25bb. 25bb has no cold jam behind a 3-bet by preset: with them the main and the two-start solve land in
+  different equilibria (one in which UTG+1 and LJ only jam; 65 of 182 nodes differ by more than 2pp, 2 of 97 without).
+  At 20bb and below every 3-bet is a jam, so no cold node sits behind one and both short stages have the same tree.
+  A stage covers the stacks between the geometric midpoints of its neighbours (25bb: 22.4–29.6, 20bb: 17.3–22.4,
+  15bb: 12.2–17.3).
+- **10bb push/fold** (`mode: "pushfold"`, `valuation: "equity"`) covers 8.4–12.2bb. It has no flop, so no realization
+  model and nothing for the sensitivity solves to vary: every spot is 높음 (§6.6). It is the same game as the nash set's
+  10bb, which this engine also solves (§7), and PF-OVERLAP-PF requires the two to agree cell for cell. Below 8.4bb the
+  nash set is the chart. 12bb with opens breaks PF-TREE-1 (35 flops below SPR 1) and 10bb with opens fails PF-DATA-1
+  (17 vs-open spots), so neither is a stage.
 
 ### 1.3 Blind vs blind and limps
 
@@ -181,7 +204,9 @@ Snapshot in `tree.test.ts`; any change to these counts must be deliberate.
 | 100bb-2.2, 100bb-3 | 5,190 | 11,213 | 6,024 | 1,710 / 3,517 / 657 / 84 / 56 | 1,764 (672) |
 | 55bb-2.2 | 5,160 | 11,123 | 5,964 | 1,680 / 3,502 / 642 / 84 / 56 | 1,764 (672) |
 | 35bb-2 | 2,490 | 5,346 | 2,857 | 669 / 1,903 / 145 / 84 / 56 | 700 (224) |
-| 25bb-2 | 1,613 | 3,457 | 1,845 | 387 / 1,258 / 60 / 84 / 56 | 413 (77) |
+| 25bb-2 (`cold4: "none"` by preset; with cold jams 1,613 / 3,457 / 1,845, 413 (77)) | 1,256 | 2,743 | 1,488 | 310 / 978 / 60 / 84 / 56 | 336 (0) |
+| 20bb-2, 15bb-2 | 1,212 | 2,611 | 1,400 | 266 / 956 / 38 / 84 / 56 | 336 (0) |
+| 10bb-pf (push/fold) | 44 | 88 | 45 | 9 / 36 / 0 / 0 / 0 | 0 |
 | 100bb-2.2, `cold4: "none"` | 3,468 | 7,769 | 4,302 | 1,374 / 2,131 / 657 / 84 / 56 | 1,050 (336) |
 | 100bb-2.2, `allinOrder: "table"` | 5,190 | 11,213 | 6,024 | same | 2,100 (1,974) |
 | open-or-3-bet test tree | 188 | 492 | 305 | 153 / 72 / 80 / 0 / 0 | 0 |
@@ -241,8 +266,10 @@ defense 66.9% against the prototype's 66.9%, max per-seat gain 3.76 against 3.70
 cross-checks both.
 
 **Fallback.** If a stage with cold jams fails a gate at 4,000 iterations (§4.6), or passes its gates but its reach
-leaves too few spots for PF-DATA-1's counts at every ladder step (`chooseLadder`, §6.5), the generator re-solves it
-once with `cold4: "none"`. If that passes, it ships with "3벳 뒤 콜드 올인 없음." in its description and
+leaves too few spots for PF-DATA-1's counts at every ladder step (`chooseLadder`, §6.5), or fails PF-DEGEN-1 or
+PF-TWOSTART-RFI (§5.3: a seat that never min-raises first in, or first-in nodes that differ between two solves), the
+generator re-solves it once with `cold4: "none"`. A stage already on "none" (25bb-2 by preset, or after the fallback)
+and a stage whose tree has no cold node to remove (20bb-2, 15bb-2: every 3-bet is a jam) get no re-solve. If that passes, it ships with "3벳 뒤 콜드 올인 없음." in its description and
 `tree.cold4: "none"` in the data. The second trigger was added with the 9-feature fit: its 35bb cold-jam solve passes
 every gate at 1,500 iterations (fit 4acfad77aa35: max gain 0.328, NashConv 1.95, snapped 1.08 mbb; the release fit
 2862daa7a90f: 0.246, 1.19, 2.30) in the same degenerate equilibrium
@@ -851,9 +878,9 @@ the frozen incoming reach, then checks again. In the generator the exported set 
 §6.5 applied to that check's occ.
 
 A stage that still fails gets the `cold4: "none"` re-solve (§2.8), and so does a cold-jam stage whose main solve
-passes but whose reach cannot meet PF-DATA-1's counts at any ladder step. If the re-solve fails too, an optional
-stage is dropped with a printed reason and a required one (100bb-2.2, 100bb-3, 55bb-2.2) fails the run: exit 1,
-nothing written.
+passes but whose reach cannot meet PF-DATA-1's counts at any ladder step, or that fails PF-DEGEN-1 or PF-TWOSTART-RFI
+(§5.3). If the re-solve fails too, an optional or check-only stage is dropped with a printed reason and a required one
+(100bb-2.2, 100bb-3, 55bb-2.2) fails the run: exit 1, nothing written.
 
 ### 4.7 Runtime and memory
 
@@ -924,7 +951,7 @@ table, not the shipped one.
 | Metrics (`solve.test.ts`) | §4.5 against their definitions | Gains match the push/fold decomposition; brEv is a pure best response built bottom-up; local regret, reach and occ as defined; the best-response action values B (§6.9): B ≥ V − 1e-12 on every edge and hand, B = V exactly on edges into a terminal and on the fold, Σ cw·max_a B / Σ cw at the root equals the root actor's brEv within 1e-12, and V is bit-identical with and without B |
 | DCFR update | §4.2 against its definition | First and later iterations on a tree with multiway flops and seats acting twice; checking never changes the run; convergence on a full tree |
 | Schedule, polish, two-start | §4.6, §5.4 | `runSchedule` stops at the first passing check; polish changes nothing outside its subtrees; two-start discards earlier work |
-| Export (`export.test.ts`) | §6.4–6.6, §6.9, §6.10 | Unique ids for every node of every shipped tree; range strings read back exactly; the ladder; the written data reproduces the snapped strategy; confidence rules; the five sensitivity valuations; PF-SANITY-5 to -14 on synthetic stages (which flag a badge, which only print); `closeString` (mixed cells, a near set without the chart's action, an action under 1%, the inclusive ε, a no-fold legend, a 3-action set, out of reach, more than 4 legend actions); `stageFlags` per code (the clear-cell restriction, `vs` against the remaining hands, no -9 flag against a CO opener, -13 only at 100bb, -14 offsuit only and never A5o, numeric order); `annotateStage` keeps every field and places the new keys; `dropClose` drops the rarest spots first, recomputes the flags of a stage that lost a string (a dropped mark makes its cell clear) and leaves a stage that lost none as it was; `flagProblems`; deterministic |
+| Export (`export.test.ts`) | §6.4–6.6, §6.9, §6.10 | Unique ids for every node of every shipped tree; range strings read back exactly; the ladder; the written data reproduces the snapped strategy; confidence rules; the five sensitivity valuations; PF-SANITY-5 to -14 on synthetic stages (which flag a badge, which only print); `closeString` (mixed cells, a near set without the chart's action, an action under 1%, the inclusive ε, a no-fold legend, a 3-action set, out of reach, more than 4 legend actions); `stageFlags` per code (the clear-cell restriction, `vs` against the remaining hands, no -9 flag against a CO opener, -13 only at 100bb, -14 offsuit only and never A5o, numeric order); `annotateStage` keeps every field and places the new keys; `dropClose` drops the rarest spots first, recomputes the flags of a stage that lost a string (a dropped mark makes its cell clear) and leaves a stage that lost none as it was; `flagProblems`; deterministic. Short stacks and push/fold: PF-DATA-1 per mode (`dataLimits`, `chooseLadder` picking the tree's mode); a push/fold export (showdown equity, never a draft for lacking sensitivity solves, every spot 높음 with move 0 and its reason, a two-start flag still lowers a spot); `to` on every raise and jam; the PF-SANITY-3 SB rule; PF-BANDS only from 35bb; `degenGates`, `degenerateOpeners`, `twoStartRfiProblems` on synthetic strategies; `sensString` (the 0.5 line, the union of top actions, a single-bit mask not marked, out of reach) and `annotateStage`'s `sens` placement, kinds filter and removal, kept by `dropClose` |
 | Features and fit (`features.test.ts`) | The features and `EQR_FIT` | The 9 names and means; definitions on sample hands (the 5-high floor: 54s, 43s, 32s and 42o share 5-high's hi2f5); every non-pair feature raw 0 on pairs; every column centered (combo-weighted sum within 1e-12 of 0); hi2f5 and aceTop equal across kickers, lo2 rising, gap not rising, suitConn not falling with the kicker, wheel stepping only between A6 and A5, hi2f5 rising above 5-high and flat at and below it, pairRank2 rising; `EQR_FIT`'s sha256 matches its contents; model `modelB-rank9`, fitted on these features with α = `alphaPrior` = 0.553; θ_lo2 ≥ 0, θ_gap ≤ 0, θ_gap − θ_suitConn ≤ 0, θ_pairRank2 ≥ 0 on both sides (the joint fit with the UTG pack breaks θ_I.lo2 ≥ 0, §3.7 bias 2); the measured signs θ_aceTop < 0, θ_wheel > 0, θ_suitConn < 0 on both sides (a regression guard, 3.2–25 jackknife SE from zero; a flip or swap among these three scores RMS ≤ 0.029 and passes the metric bounds); u from `EQR_FIT` never falls along PF-SANITY-7's same-row kicker ladder (wheel aces excepted, as there); the stored metrics, which the script scores on the parameters as written, within bounds (RMS and CV RMS ≤ 0.03 and R² of the gap ≥ 0.8 per side; the alternatives' RMS ≤ 0.06) and c_fit < 0, so a swapped write or a flipped c fails (θ_O / θ_I swapped scores RMS 0.045, c flipped 0.158); every κ positive |
 | Equity pin (`equityPin.test.ts`) | §4.10 | The 4-shard scheme gives the pinned table hash, in process and through the script |
 
@@ -937,11 +964,11 @@ write, PF-CLOSE-1 to -3 and the flags below).
 
 | Check | What | Severity |
 |---|---|---|
-| PF-DATA-1 | Per stage exactly 8 rfi, 30–36 vsOpen, 1–6 vsLimp, at most 72 of each other kind (cold nodes count as vs3bet), at most 180 in all; every non-rfi scenario at or above its kind's threshold (the data test also checks every cold spot against `occThresholdCold`); unique ids; every `reachFrom` entry names an exported action of the same hero; ranges parse; per hand the frequencies sum to at most 1 and are 0 out of reach | fail |
+| PF-DATA-1 | Per stage exactly 8 rfi, 30–36 vsOpen, 1–6 vsLimp, at most 72 of each other kind (cold nodes count as vs3bet), at most 180 in all; a push/fold stage (`tree.mode: "pushfold"`, `PUSHFOLD_LIMITS`) exactly 8 rfi and 36 vsShove and nothing else; every non-rfi scenario at or above its kind's threshold (the data test also checks every cold spot against `occThresholdCold`); unique ids; every `reachFrom` entry names an exported action of the same hero; ranges parse; per hand the frequencies sum to at most 1 and are 0 out of reach | fail |
 | Reproduction | The written data reproduces the snapped strategy and its reach for every scenario and class within 1e-12 | fail (generator) |
 | PF-SANITY-1 | RFI rises UTG → BTN: no later seat more than 2pp below an earlier one (0.5–2pp warns) | fail above 2pp |
 | PF-SANITY-2 | Monotone chains on "plays" (1 − fold) in RFI and BB defense, tolerance 0.15: AA ≥ KK ≥ … ≥ 22, suited ≥ offsuit, AKo ≥ AQo ≥ AJo ≥ ATo, KQo ≥ KJo ≥ KTo, QJo ≥ QTo | fail |
-| PF-SANITY-3 | BB defense rises from UTG to BTN (2pp), and vs SB ≥ vs BTN − 2pp | fail |
+| PF-SANITY-3 | BB defense rises from UTG to BTN (2pp), and vs SB ≥ vs BTN − 2pp. The vs-SB clause is only a warning where the SB first in raises less than it limps (`rfi-sb`): then its raise range is the strong part of a split range and a narrower defense against it is right, not a fault (25bb draft: the SB limps 49.2% and raises 19.7% first in, and the BB defends 85.1% against its raise, 87.1% against the BTN). It never applies to 35bb and deeper, where the SB raises 27–35% and the clause passes | fail (the vs-SB clause a warning as stated) |
 | PF-SANITY-4 | BTN, SB and BB 3-bet more against later openers (2pp) | warn |
 | PF-SANITY-5 | A non-blind cold call vs a UTG–LJ open is at most 10% of all hands | warn; the scenario is badged 낮음 |
 | PF-SANITY-6 | At 55bb and more, the opener's 4-bet-jam share is at most its small-4-bet share + 2pp. Only vs3bet spots whose tree offers both a small 4-bet and a jam: where the size rules leave no small 4-bet (e.g. 55bb `utg-open-vs-bb-3bet`, call or jam) or the spot is cold (fold or jam), the split is the tree's, not the solver's, and says nothing about the low-SPR α rule this check watches | warn; the scenario is badged 낮음 |
@@ -957,11 +984,23 @@ write, PF-CLOSE-1 to -3 and the flags below).
 | PF-CLOSE-2 | Marks only on cells the chart shows pure (one legend action ≥ 0.999); the chart's action is always in the set; no bit for a non-fold action whose share of the reaching range is below 1% | fail (data test) |
 | PF-CLOSE-3 | Per stage 1–12% of the in-reach cells are marked (release data 5.1 / 3.9 / 5.7 / 5.5) | fail (data test) |
 | Flags | The five rules written out again in the data test (with the clear-cell restriction read from the stored `close`) give exactly the stored flags; every flagged hand is in reach, pure and unmarked; the cautions quote the chart's numbers and every example is true; `quizSkip` is every flag's `hands` plus the `vs` of PF-SANITY-9 and -14; every spot the quiz can pick keeps a hand to deal | fail (data test) |
-| PF-SIZE-1 | gzip of `preflopData.ts` (Node's default level) ≤ 80,000 bytes; after the annotations, close strings are dropped from the rarest spots first (§6.9) rather than failing | fail |
+| sens | Each `sens` string is 169 characters of `.` and lowercase hex, never all dots; every mark is in reach on a cell the chart shows pure, with 2+ bits inside the legend and the chart's action among them; only on stages that ran their sensitivity solves (never on a draft or a push/fold stage); the built set decodes it to the same legend keys | fail (data test) |
+| PF-OVERLAP-PF | A push/fold stage's push and call ranges equal the nash set's at the same stack, cell for cell (§5.4) | fail (data test) |
+| PF-SIZE-1 | gzip (Node's default level) of each stage file ≤ 30,000 bytes and of every generated file together (the index and the stage files) ≤ 200,000. A stage file over its limit raises its own ladder groups, the total over its limit raises every shipped stage's; after the annotations, close strings are dropped from the rarest spots first, per file and then over all files (§6.9), rather than failing | fail |
 
 ### 5.3 Generator gates
 
-The §4.6 gates per stage, with the cold-jam fallback and the optional/required rule. The snapped gain is checked
+The §4.6 gates per stage, with the cold-jam fallback and the optional/required rule, and two gates for the degenerate
+first-in equilibria of §2.8 on every stage with first-in jams (S ≤ jamMax, `degenGates`; at 55bb and deeper neither
+applies, so those stages' gates are unchanged):
+- **PF-DEGEN-1**: in the main solve every seat from UTG to the BTN min-raises (the open action) at least 1% of its hands
+  first in (`degenerateOpeners`). Full tree only.
+- **PF-TWOSTART-RFI**: every first-in node (the SB's included) agrees within 2pp between the main and the two-start
+  solve (`twoStartRfiProblems`). Full tree and push/fold. It runs only with the two-start solve.
+
+A failure of either on a cold-jam solve gets the single `cold4: "none"` re-solve (and the two-start and sensitivity
+solves are redone for it); on a stage that cannot re-solve, an optional or check-only stage is dropped and a required one
+fails the run. The snapped gain is checked
 again on the final export set (a gzip step changes it) with the same per-stage rule: an optional stage over it is
 dropped and the other stages restart from their count ladders; a required one fails the run (there is no cold4
 re-solve at that point). Any failed data check, reproduction check or PF-SANITY-1/2/3 failure also fails the run
@@ -984,11 +1023,18 @@ fitted on, and a `--stages` subset that leaves out a shipped stage without an ex
 
 They are third-party aggregates and the only third-party numbers in this document. They are generic, not made for
 this game's exact sizes and stacks (a 3bb open, 55bb or 35bb), so a number outside a band is a prompt to look, not an
-error. Nothing is ever tuned to them.
+error. Nothing is ever tuned to them. They are deep-stack bands, so they are printed only for stages of 35bb or more
+(`BANDS_MIN_STACK`).
 
-**PF-OVERLAP.** The 25bb solve against our shortNash 25bb set (same 2bb open): open + jam per seat within 5pp, BB
-defense difference printed. The trees are not the same game (ours has flats from any seat, small 3- and 4-bets and
-the R1 order), so this is a loose check.
+**PF-OVERLAP.** Every full-tree stage whose stack has a shortNash stage (25, 20, 15bb) against it (same 2bb open):
+open + jam per seat within 5pp (a seat from UTG to CO more than 8pp off is printed as HOLD, the bar for shipping such a
+stage), and printed per action: the BB defense difference, the open/jam split per seat, the BB's call/jam against
+each opener, re-jams over an open, calls of a first-in jam and the opener's call of a re-jam. The trees are not the
+same game (ours has flats from any seat, small 3- and 4-bets, SB limps and the R1 order), so this is a loose check;
+the BB-defense gap is the realization disagreement of §3.8, not a bug.
+
+**PF-OVERLAP-PF.** A push/fold stage against the nash set at the same stack, printed per range; the data test requires
+them to be equal cell for cell (the same game, engine, schedule and snapping, §7).
 
 **PF-TWOSTART.** Each shipped stage is solved a second time from a different start: fold regret +1 and every other
 regret 0 at every node with a fold, 50 iterations, then strategy sums reset and the discount counter restarted, then
@@ -1206,36 +1252,57 @@ more. That is the realization disagreement the check exists to surface, not a bu
 ### 6.1 Generator flow
 
 `scripts/make-preflop.mjs`, each solve in its own worker thread, at most `--workers` at once (default min(4, CPUs)):
-1. Per stage, the main solve on the §4.6 schedule; on a gate failure the `cold4: "none"` re-solve; then the
-   optional/required rule. 25bb-2 stops here (PF-OVERLAP only).
-2. Per shipped stage, PF-TWOSTART and the five sensitivity solves (1,000 iterations each, cold start).
+1. Per stage, the main solve on the §4.6 schedule; on a gate failure, a PF-DATA-1 count failure or a PF-DEGEN-1 failure
+   the `cold4: "none"` re-solve (§2.8); then the optional/required rule (a check-only stage is treated as optional).
+2. PF-TWOSTART with PF-TWOSTART-RFI (§5.3, §5.4) on every stage, and the five sensitivity solves (1,000 iterations
+   each, cold start) on every shipped stage with a flop: not on a check-only stage (it is not shipped) nor on a
+   push/fold stage (nothing to vary). A PF-TWOSTART-RFI failure on a cold-jam solve sends the stage back to step 1 on
+   cold4 "none".
 3. The size ladder (§6.5), the export (§6.2–6.6), the data checks (§5.2), the reproduction check, the snapped gain on
-   the final export set. The ladder and the gate run on the data without annotations.
-4. The close calls and flags (§6.9, §6.10) on the final export sets: per stage one evaluation of σ̄ with the
-   best-response action values (about 0.8 s), then `annotateStage`; PF-SIZE-1 on the annotated file, with the close
-   fallback of §6.9. They never change which spots ship.
-5. Summaries per stage (`summary-<stage>.txt`, with the marked cells and the flags per code), then the data file:
-   written, or with `--check` compared (exit 1 if it would change). `--check`'s PF-DET compares the annotated export
+   the final export set, PF-SIZE-1 per stage file and in total. The ladder and the gate run on the data without
+   annotations. Check-only stages go through all of it in memory, for their numbers.
+4. The close calls, model-sensitive cells and flags (§6.6, §6.9, §6.10) on the final export sets: per stage one
+   evaluation of σ̄ with the best-response action values (about 0.8 s), then `annotateStage` with the five
+   sensitivity solves' σ̄ for `sens`; `sens` stays on every spot unless it adds more than 3,000 gzip bytes to the
+   stage file, then only on rfi, vsOpen and vsShove spots; PF-SIZE-1 on the annotated files, with the close fallback
+   of §6.9. They never change which spots ship.
+5. Summaries per stage (`summary-<stage>.txt`, with PF-DEGEN-1, PF-TWOSTART-RFI, the marked cells, the flags per code
+   and PF-OVERLAP / PF-OVERLAP-PF), then the data files: written (stage files no longer produced and the old single
+   `preflopData.ts` are removed), or with `--check` compared file by file (exit 1 if any would change, be added or be
+   removed). Check-only stages are never written; `--check-stage-out DIR` writes their exports as `DIR/<id>.json`
+   (the calibration packs take the short stages' ranges from there). `--check`'s PF-DET compares the annotated export
    of its two solves, so the determinism check covers the annotations.
 
 ### 6.2 Generated data format
 
-`src/data/sets/preflopData.ts` starts with a header comment saying it is generated by `scripts/make-preflop.mjs` and
-must not be edited, imports its types (`import type { PreflopStage } from "./preflopTypes";`) and exports
-`PREFLOP_DRAFT_STAGES` (stages written by a development run; empty in a release run) and
-`PREFLOP_STAGES: PreflopStage[]`, written with `JSON.stringify(…, null, 1)`. The shape is
+The generator writes one index and one file per shipped stage (`scripts/preflop-files.mjs`), each starting with a
+header comment saying it is generated by `scripts/make-preflop.mjs` and must not be edited, and importing its types:
+- `src/data/sets/preflopIndex.ts` exports `PREFLOP_DRAFT_STAGES` (stages written by a development run; empty in a
+  release run) and `PREFLOP_STAGE_META: PreflopStageMeta[]`, every shipped stage in chart order without its scenarios
+  (about 7 KB, loaded with the app), and `PREFLOP_STAGE_FILES`, one `() => import("./preflopStages/<id>")` per stage;
+- `src/data/sets/preflopStages/<id>.ts` holds `const stage: PreflopStage = …; export default stage;`, the whole stage
+  (its metadata again, so a file reads on its own).
+
+Both are written with `JSON.stringify(…, null, 1)`. The split exists because one file cannot hold the short stages: the
+release file was 78,255 of 80,000 gzip bytes, and inlined in the main chunk the data would bring it near workbox's
+2 MiB precache cap, above which the main chunk silently drops out of the precache. The shape is
 `src/data/sets/preflopTypes.ts`, hand-written and shared by the generator, the chart set and the tests. Per stage:
-id, label, Korean description, stack, open, every size, `tree.cold4`, iterations, `occThreshold` (the lowest
+id, label, Korean description, stack, open, every size, `tree.cold4` (and `tree.mode: "pushfold"` on a push/fold
+stage), iterations, `occThreshold` (the lowest
 threshold, 0.1) and `occThresholdByKind`, `occThresholdCold` (the cold vs3bet spots' own threshold), per-seat gains, NashConv, snapped
 gain, per-seat own-world EV (whose sum is not 0, §4.3), the diagnostics, the model (`modelB-rank9`, fit hash,
-SPR_ALPHA, SPR_SURPLUS, pack versions and flop counts), the equity table's sha256, `closeEps` (the close-call threshold,
+SPR_ALPHA, SPR_SURPLUS, pack versions and flop counts; `{ id: "showdown-equity" }` on a push/fold stage, which uses no
+fit), the equity table's sha256, `closeEps` (the close-call threshold,
 0.05 bb per arrival), `closeMinOcc` (only on a stage that PF-SIZE-1's fallback took close strings from: spots below it carry none)
 and the scenarios. Per scenario: id, kind, hero, villain(s), chip, title,
 description, public line, `reachFrom`, `reachPct`, `noFold`, occ (% of dealt hands), local regret, confidence,
 move, `close` (§6.9: 169 characters in grid order, "." or a hex bitmask over the legend; omitted when no hand is
-marked), `flags` (§6.10: `{ code, hands, vs? }`, range strings; omitted when none) and the non-fold actions with their
-range strings. Fold is always the remainder. The new keys sit before `actions` and `scenarios`, so the rest of the file
-reads as before.
+marked), `sens` (§6.6, the same encoding: model-sensitive cells; omitted when none and on stages without sensitivity
+solves), `flags` (§6.10: `{ code, hands, vs? }`, range strings; omitted when none) and the non-fold actions with their
+key, label, color, `to` (the hero's total bet in bb after a raise or a jam, from the tree: the open, 3-bet, squeeze,
+4-bet or iso size, and on a jam the stack, less the ante for the BB, capped by the largest stack still in; never on a
+call, limp or check; about 0.6K gzip per stage) and range strings. Fold is always the remainder. The new keys sit
+before `actions` and `scenarios`, so the rest of the file reads as before.
 
 ### 6.3 The chart set
 
@@ -1250,19 +1317,36 @@ PF-SANITY-9 and -14, where both sides of the comparison are distorted. The `vs` 
 there are mostly ties, and AA's small 4-bet is the line §8 recommends. A spot whose hands are all skipped falls back
 to its reaching hands.
 
-The set is built on first use. `CHART_SETS` holds the four hand-made sets (built at load; `CHART_SETS[0]` is `pub`,
-`getSet`'s fallback for an unknown id; the default chart set is `solver`, §9). The solver set sits in `LAZY_SETS` and is built once, synchronously, by the
-first `getSet("solver")`, `allSets()`, `allScenarios()` without a set, or `getNamedRanges()` (the calculator's villain
-ranges, memoized; a set pushed into `CHART_SETS` later is not added). The set picker reads `chartSetMenu()` (the solver
-set first) and `chartSetId(id)`, so listing it builds nothing. Before, every app start built it and its calculator ranges
-(measured on the fit-4acfad data, 718,737 bytes; the release file is 725,029): in Chromium (iPhone 13 viewport, the
-built app, median of 5) the pub home screen's first render took 478 ms at 1× CPU and 1,601 ms at 4×, with 38.0 MB of JS
-heap; now 219 ms, 843 ms and 17.6 MB. The first solver screen costs 295 ms (1×) / 1,187 ms (4×) and 25.7 MB; switching
-to the solver set the first time 161 / 605 ms, the second time 15 / 64 ms. In Node the first `getSet("solver")` takes
-about 120 ms and holds 15 MB, the first `getNamedRanges()` about 110 ms and 7 MB more. There is no separate chunk: the
-data stays in the main bundle (about 1.30 MB minified, under workbox's 2 MiB precache limit).
-`src/data/lazySolver.test.ts` checks that the menu, the other sets, the pub quiz pool and the pub charts and quiz pages
-do not build it. Hand-play bots and grading do not use it in v1 (§9).
+The set is loaded on first use, a stage at a time. `CHART_SETS` holds the four hand-made sets (built at load;
+`CHART_SETS[0]` is `pub`, `getSet`'s fallback for an unknown id; the default chart set is `solver`, §9). The solver set
+is listed by `chartSetMenu()` (the solver set first) and `chartSetId(id)` without loading anything, and its stage
+labels, stacks, descriptions and the set's texts come from the index (`SOLVER_STAGE_IDS`, `stageInfo`,
+`solverSetInfo`). Each stage file is its own chunk, precached by the service worker like any other chunk: the index
+exports `PREFLOP_STAGE_FILES`, one literal dynamic import per stage, written by the generator. (Not `import.meta.glob`:
+Vitest's file-system module cache keys a transform on the file's own content, so a glob in a file that does not change
+kept a stale list when a stage file was added; the index changes whenever the stages do.) The API in `src/data/charts.ts`:
+- `loadSolverStage(id)` fetches one stage (once; a failed fetch may be retried) and builds it; `solverStage(id)` reads a
+  loaded stage synchronously (undefined before);
+- `loadSolver()` loads every stage and resolves to the whole set, whose stages are the same objects;
+- `getSet("solver")`, `allSets()` and `allScenarios()` without a set throw until every stage is loaded; `solverLoaded()`
+  and `subscribeSolver(f)` tell a screen when it can read them; `getNamedRanges()` needs the set loaded;
+- `useSolver(needed)` (`src/data/useSolver.ts`) starts the load when `needed` and returns `{ status, retry }`: the charts
+  page and the preflop quiz pass whether the picked set is the solver set, the calculator always needs it (its villain
+  ranges list every set). Until the status is "ready" they render `SolverSkeleton` ("솔버 차트 불러오는 중…", or the
+  error with a retry), which from the precache lasts about one frame. Nothing is preloaded when the app idles.
+
+Scripts that load modules through Vite's `runnerImport` (`scripts/equity-cache.mjs load`) cannot use `loadSolver`: the
+runner is closed once the import returns, so a lazy chunk cannot be fetched afterwards. A script reads a stage file
+directly instead (`load("src/data/sets/preflopStages/<id>.ts")`, its `default`).
+
+Measured on the build (`vite build`, the four release stages): the main chunk went from 1,330.05 kB (gzip 293.34 kB)
+with the data inline to 711.61 kB (gzip 214.71 kB); the stage chunks are 118.5–158.7 kB (gzip 16.6–21.5 kB), and the
+precache holds 25 entries (2,048.8 KiB). Before the split, building the set on first use instead of at every app start
+had already taken the pub home screen's first render from 478 to 219 ms at 1× CPU (1,601 to 843 ms at 4×, 38.0 to
+17.6 MB of JS heap; Chromium, iPhone 13 viewport, median of 5). `src/data/lazySolver.test.ts` checks that the menu, the
+other sets, the pub quiz pool and the pub charts and quiz pages load no stage, that the solver screens show the skeleton
+until the stages are in and the chart after, and the loader API. Hand-play bots and grading do not use the set in v1
+(§9).
 
 ### 6.4 Scenario mapping
 
@@ -1384,6 +1468,22 @@ A stage is a draft (listed in `PREFLOP_DRAFT_STAGES`, its description adding "�
 임시예요.") when the sensitivity or two-start solves did not run, the gates were ignored, `--iterations` set any
 schedule but §4.6's, or the two-start solve failed its own gates. The data test requires every non-draft stage to
 have run at least 1,500 iterations.
+
+**Push/fold stages** have no flop terminal, so nothing for the sensitivity solves to vary and no realization model at
+all: the generator skips them, every spot is 높음 with move 0 (exact, not unmeasured), the stage is not a draft for
+lacking them, its `model` is `{ id: "showdown-equity" }`, and each description ends "신뢰도 높음: 푸시/폴드만 하는 구간이라
+실현율 가정이 없어요." Only the checks can lower a spot (PF-SANITY-7, PF-TWOSTART: 낮음 with the reason; a kicker inversion
+there reads as table noise or convergence, not a model artifact). The stage description says the push/fold rule, points
+to the '푸시/폴드 내쉬' set for shorter stacks and, while no full-tree stage below 35bb ships, to '숏스택 내쉬' for 12–25bb.
+
+**Model-sensitive cells (`sens`).** A cell the chart shows pure can still flip under another realization assumption. In
+each shipped stage with sensitivity solves, a hand is marked where the chart shows it pure but the chart's action takes
+less than half of the hand in at least one of the five variants' σ̄; its mask is the chart's action plus the action on
+top (the largest share) in the main solve and in every variant (`sensString`), and a mask of one bit (the chart's
+action fell below half but stayed on top) is not marked. It is written as `sens`, encoded like `close` (§6.9), and
+the app decodes it to legend keys per hand (`ScenarioDef.sens`); the charts page and the quiz do not show it yet (its
+note "실현율 가정에 따라 {A·B}로 바뀌어요" and the quiz's "모델에 따라 갈려요" come with the short stages). `sens` stays on every
+spot unless it adds more than 3,000 gzip bytes to the stage file; then only rfi, vsOpen and vsShove spots keep it.
 
 ### 6.7 Chart set texts
 
@@ -1544,13 +1644,48 @@ PACKS=srp-btn-bb-100,pub-srp-btn-bb-55
 node scripts/fit-realization.mjs --packs $PACKS          # refit model B, its alternatives and κ → src/poker/preflop/eqrFit.ts
 node scripts/fit-realization.mjs --packs $PACKS --check  # recompute and compare with the committed fit; exit 1 if it differs
 node scripts/fit-realization.mjs --packs all             # every manifest pack, pub-srp-utg-bb-55 included: a diagnostic (§3.7 bias 2)
-node scripts/make-preflop.mjs                            # every stage with two-start and sensitivity solves → preflopData.ts
-node scripts/make-preflop.mjs --check                    # the same plus PF-DET; compares with the committed file, writes nothing
+node scripts/make-preflop.mjs                            # every stage with two-start and sensitivity solves → preflopIndex.ts, preflopStages/*.ts
+node scripts/make-preflop.mjs --check                    # the same plus PF-DET; compares every file with the committed ones, writes nothing
+node scripts/make-preflop.mjs --no-sensitivity --out DIR --check-stage-out DIR2   # a draft into DIR, the check-only stages' exports into DIR2
 ```
 
 Without `--packs` the fit script takes the packs the committed `eqrFit.ts` names, today the same two BTN packs, and
 prints which manifest packs it left out; naming them is still the safe habit, since the manifest now also lists the
 UTG pack.
+
+**The nash and shortNash sets** (`nashData.ts`, `shortNashData.ts`) are solved by this engine too, on the reduced
+games of §5.1, with no realization fit:
+
+```
+node scripts/make-nash.mjs              # push/fold 4–20bb: pushFoldConfig, showdown equity → nashData.ts (about 2 min, one core)
+node scripts/make-nash.mjs --check      # solve again and compare byte for byte; exit 1 if it would change
+node scripts/make-shortnash.mjs         # open/jam 10–25bb: openJamConfig, the "oneSided" valuation → shortNashData.ts (1–2 min, 4 workers)
+node scripts/make-shortnash.mjs --check
+```
+
+- **Schedule and grid.** DCFR on the §4.6 schedule with the §4.6 gates (the generator's export filter, occ ≥ 0.1%),
+  snapped with `snapStrategy` (§6.5), written with `rangeText`. Push/fold passes every stack at the first check
+  (1,500 iterations), so nash 10bb is the solver's `10bb-pf` stage (the same tree, engine, schedule and snapping; the
+  valuation does not matter without a flop) cell for cell, and `src/data/nashData.test.ts` checks it. The open/jam
+  game keeps §4.6's start, step and gates with a cap of 16,000 instead of 4,000: at 10bb nobody opens, and the
+  answers to an open that keep the openers from opening settle late (it passes at 5,000; every other stack at
+  1,500–2,000). The file holds every spot on the 0.1 grid, not only the exported ones, so `make-shortnash.mjs` also
+  requires the written chart's own max gain to be within the 3 mbb/hand snapped gate.
+- **Out-of-reach cells.** shortNash has no reach field and its grid shows all 169 hands, so the opener's call of a
+  re-jam (`callReJam`), the one spot a seat reaches after its own action, gives a hand the snapped chart never opens
+  its pure best response to the chart ("if you had opened it"), as the fictitious-play file did. Those cells carry no
+  weight in any EV.
+- **Against the fictitious-play files they replace** (NashConv of the snapped chart in this engine, mbb/hand, old →
+  new). nash: 4bb 0.53 → 0.00, 5bb 15.11 → 0.01, 6bb 9.52 → 0.01, 7bb 15.04 → 0.00, 8bb 15.24 → 0.03, 9bb 9.19 → 0.06,
+  10bb 7.53 → 0.08, 11bb 6.80 → 0.06, 12bb 6.19 → 0.03, 13bb 5.97 → 0.12, 14bb 5.62 → 0.03, 15bb 5.65 → 0.12,
+  17bb 7.06 → 0.17, 20bb 8.18 → 0.18. shortNash: 10bb 60.35 → 5.61, 12bb 124.98 → 3.51, 15bb 87.87 → 0.67,
+  17bb 79.53 → 0.46, 20bb 61.11 → 0.37, 25bb 47.53 → 0.49. From 8bb up push totals move by at most 1.2pp and call
+  totals by at most 1.8pp; at 5–7bb UTG to LJ push 2–8pp less (5bb UTG 38.7 → 30.6%) and the calls of a UTG jam are up
+  to 10pp narrower (5bb SB vs UTG). In shortNash the open + jam totals per seat move by at most 2.1pp, but the split
+  moves by up to 5.5pp: from 15 to 17bb the early seats open where the old file jammed (15bb UTG open 7.5 + jam 5.0 →
+  12.5 + 0). The BB's defense against an open moves by at most 3.5pp from 15bb up (7.4pp at 10–12bb, against opens
+  made by at most 4% of hands), and calls of a first-in jam are up to 3.6pp wider. shortNash is the interim chart for
+  12–25bb until the calibrated short-stack stages ship.
 
 The fit comes first because the charts depend on it. `make-preflop.mjs --check` is how a reviewer confirms that the
 committed data is exactly what the committed code, fit and table give. Useful flags: `--stages a,b` (a subset),
@@ -1820,12 +1955,35 @@ caution, and the quiz skips the flagged cells.
   are badged 높음 or 보통 except 100bb-3 vs the SB and 35bb vs the CO and the BTN (낮음, move over 20pp). Next: the short stacks (15–25bb and push/fold) in
   the solver, so 빠른 기록, hand play and the 아재 can move to it too, and a u that depends on the opponent's range,
   fitted with the UTG pack (v1.5).
+- **Short stacks, phase 1 (calibrate first; the user's choice, 2026-11-17).** In the code: the solver data split into
+  one lazily loaded file per stage behind `loadSolver` / `loadSolverStage` / `solverStage` / `useSolver` (§6.2, §6.3;
+  the main chunk 1,330 → 712 kB, gzip 293 → 215 kB, no visible change); the stages `25bb-2` (cold4 "none" by preset),
+  `20bb-2`, `15bb-2` (check only) and `10bb-pf` (push/fold, shipped, §1.2); PF-DATA-1 per mode, the PF-SANITY-3 SB rule,
+  the push/fold confidence rule, `to` on every raise and jam, the `sens` model-sensitive cells (§6.6), PF-DEGEN-1 and
+  PF-TWOSTART-RFI (§5.3), PF-OVERLAP at 25 / 20 / 15bb and PF-OVERLAP-PF (§5.4), PF-SIZE-1 per file and in total.
+  The committed data files are still the 2026-11-17 release, split without a solve and with `to` added from each stage's
+  tree (its ranges equal the single file's exactly); the release run writes `10bb-pf` and `sens`. **Draft run**
+  (`--no-sensitivity`, two-start on, 4 workers shared with other jobs, 12 min): the four shipped stages reproduce the
+  release's gates and every action range exactly (100bb-2.2 0.948 / 4.69 / 2.12 at 2,000 iterations, 100bb-3 0.800 /
+  4.64 / 1.70, 55bb 0.712 / 3.71 / 1.14, 35bb again on the cold4 "none" fallback 0.190 / 0.93 / 0.80; max gain,
+  NashConv, snapped gain in mbb/hand), and PF-DEGEN-1 and PF-TWOSTART-RFI pass on 35bb (largest first-in difference
+  0.28pp). `10bb-pf`: 0.007 / 0.013 / 0.022 at 1,500, 44 spots, all 높음, 1.3% of cells close-marked, its stage file
+  3,709 gzip bytes, and PF-OVERLAP-PF identical to the regenerated nash 10bb (44 ranges, 7,436 cells). Check only, at
+  1,500 iterations each: 25bb 0.158 / 0.67 / 1.10 (162 spots, 16,755 gzip bytes; PF-SANITY-3's vs-SB clause warns:
+  85.1 against 87.1 − 2 with the SB raising 19.7% and limping 49.2%), 20bb 0.115 / 0.29 / 0.43 (128 spots, 13,758),
+  15bb 0.034 / 0.15 / 0.14 (153 spots, 13,411; no `bb-vs-sb-open`, the SB never raises); every one passes PF-DEGEN-1
+  and PF-TWOSTART-RFI (largest first-in difference 0.18 / 0.52 / 0.99pp) and PF-TWOSTART flags 6 / 19 / 17 nodes
+  (multiway squeeze spots at 20bb up to 75pp). PF-OVERLAP against the regenerated shortNash: open + jam within 5pp at
+  every seat but the BTN at 25bb (41.7 against 47.4) and 20bb (39.8 against 44.9) and the SB at 25bb (ours limps); no
+  seat from UTG to CO more than 8pp off. BB defense: 25bb vs UTG −5.0 / vs BTN +21.3pp, 20bb +2.9 / +15.0, 15bb
+  −24.8 / −25.1 against shortNash, the realization disagreement of §3.8 that the calibration packs
+  (`cal-srp-btn-bb-20` and its 15bb twin, built from these stages' own ranges) are for. With the files written,
+  the data total is 82,983 gzip bytes of 200,000 (largest stage file 21,787 of 30,000, before `sens`).
 - **v1.1, UX:** a GTO hand-play mode (table "GTO 9인") whose bots and grading use the solver chart, with exact lookups
   by the §6.4 id of the node reached and the solved sizes; a "GTO 참고" line in pub mode; a "GTO vs 펍" compare view
   on the charts page; a tappable seat selector and a 단순화 toggle; a `55bb-2.5` stage if hand-play grading at mid
-  stacks needs it; regenerating the nash and shortNash sets with the DCFR engine, in a separate PR because it changes
-  existing charts (in PF-RED-4 the FP solutions of the two test games are 60 and 330 mbb/hand from equilibrium,
-  DCFR's 0.02 and 0.4).
+  stacks needs it. (Regenerating the nash and shortNash sets with the DCFR engine, planned here, is done: §7, "The
+  nash and shortNash sets".)
 - **v1.5, the next model:** the refit on all 1,755 + 1,755 flops of the BTN packs is done (2026-11-17, the same form).
   Next a model selection (2-fold CV plus the cash → pub transfer and the 20-group CV; candidates model B on 3 or 9
   features, an α for flop SRPs kept apart from the low-SPR prior (§3.7 bias 9; a monotone pair curve with α held does

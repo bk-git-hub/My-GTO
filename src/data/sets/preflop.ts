@@ -1,13 +1,14 @@
 import type { ChartSetDef, Scenario, ScenarioDef, StageDef } from "../charts";
 import { ALL_HANDS, type HandClass } from "../../poker/cards";
 import { parseRange, type Range } from "../../poker/range";
-import { PREFLOP_STAGES } from "./preflopData";
-import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage } from "./preflopTypes";
+import { PREFLOP_STAGE_FILES, PREFLOP_STAGE_META } from "./preflopIndex";
+import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage, PreflopStageMeta } from "./preflopTypes";
 
 /**
  * 솔버 프리플랍: the chart set built from our own 9-handed preflop solver (src/poker/preflop; the data is generated
- * by scripts/make-preflop.mjs into preflopData.ts). This file only adapts the generated data to the app's
- * ChartSetDef (design §6.3, §6.7): every range, frequency and text of a spot comes from the data unchanged.
+ * by scripts/make-preflop.mjs into preflopIndex.ts and one file per stage under preflopStages/). This file only adapts
+ * the generated data to the app's ChartSetDef (design §6.3, §6.7): every range, frequency and text of a spot comes
+ * from the data unchanged.
  *
  * What it adds on top of the data:
  *  - reachRange: the hero's own reach at a spot deep in a line, ρ(h) = Π of the frequencies of the hero's earlier
@@ -29,9 +30,13 @@ import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage } from
  *    caution of each flag, with the chart's own numbers, and `cautionFacts` the coach's lines about them.
  *  - `quizCloseActions` and `bigPairCloseNote`: the close-call set the quiz accepts (no AA/KK passive tie) and the
  *    caveat under such a tie (§6.8, §8 "More KK flats").
+ *  - sens: the data's model-sensitive cells (§6.6) decoded like close, per marked hand the legend keys of its set.
  *
- * The set itself is built on first use (solverSetDef, through charts.ts's lazy sets): building its 633 spots costs
- * about 120 ms and 15 MB, which an app start on a set without it should not pay (docs §6.3).
+ * Loading (docs §6.3): the index (every stage's metadata: label, stack, description, tree) loads with the app; each
+ * stage's scenarios are a separate chunk (the index's PREFLOP_STAGE_FILES), fetched on first use by loadSolverStageData, and the set
+ * definition (solverSetDef) is built only once every stage is in. charts.ts's loadSolver / loadSolverStage / useSolver
+ * are the app's entry points. Building every stage's spots costs about 120 ms and 15 MB in Node (docs §6.3), which an
+ * app start on another set should not pay.
  */
 
 const POS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -76,13 +81,13 @@ export function stageReach(stage: PreflopStage): Map<string, Range> {
 /** The legend keys of a scenario: its actions in order, then fold unless noFold (the bit order of `close`). */
 const legendKeys = (sc: PreflopScenario) => [...sc.actions.map((a) => a.key), ...(sc.noFold ? [] : ["fold"])];
 
-/** The close string decoded: per marked hand, the legend keys of its set bits, in legend order. */
-function decodeClose(sc: PreflopScenario): Partial<Record<HandClass, string[]>> | undefined {
-  if (!sc.close) return undefined;
+/** A close or sens string decoded: per marked hand, the legend keys of its set bits, in legend order. */
+function decodeMarks(sc: PreflopScenario, text: string | undefined): Partial<Record<HandClass, string[]>> | undefined {
+  if (!text) return undefined;
   const keys = legendKeys(sc);
   const out: Partial<Record<HandClass, string[]>> = {};
   ALL_HANDS.forEach((h, i) => {
-    const ch = sc.close![i];
+    const ch = text[i];
     if (ch === undefined || ch === ".") return;
     const mask = parseInt(ch, 16);
     out[h] = keys.filter((_, j) => mask & (1 << j));
@@ -105,7 +110,8 @@ function quizSkipOf(flags: PreflopFlag[] | undefined): Partial<Record<HandClass,
 
 function scenario(sc: PreflopScenario, reach: Map<string, Range>, stack: number): ScenarioDef {
   const reachRange = reach.get(sc.id);
-  const close = decodeClose(sc);
+  const close = decodeMarks(sc, sc.close);
+  const sens = decodeMarks(sc, sc.sens);
   const quizSkip = quizSkipOf(sc.flags);
   return {
     id: sc.id,
@@ -121,29 +127,105 @@ function scenario(sc: PreflopScenario, reach: Map<string, Range>, stack: number)
     ...(sc.noFold ? { noFold: true } : {}),
     weight: quizWeight(sc, stack),
     ...(close ? { close } : {}),
+    ...(sens ? { sens } : {}),
     ...(sc.flags?.length ? { flags: sc.flags } : {}),
     ...(quizSkip ? { quizSkip } : {}),
   };
 }
 
-function stage(st: PreflopStage): StageDef {
-  const reach = stageReach(st);
+/** A stage's label, stack text and description as the app shows them, from its metadata alone. */
+export function stageInfo(st: PreflopStageMeta): Omit<StageDef, "scenarios"> {
   const stack = `모두 ${st.stack}bb`;
   // The charts page and the coach facts print `stack` right before the description ("모두 100bb · …"), and the
   // generated description opens with the same words, so they are dropped here instead of showing twice.
   const description = st.description.startsWith(`${stack}. `) ? st.description.slice(stack.length + 2) : st.description;
-  return {
-    id: st.id,
-    label: st.label,
-    stack,
-    description,
-    scenarios: st.scenarios.map((sc) => scenario(sc, reach, st.stack)),
-    ...(st.closeEps !== undefined ? { closeEps: st.closeEps } : {}),
-  };
+  return { id: st.id, label: st.label, stack, description, ...(st.closeEps !== undefined ? { closeEps: st.closeEps } : {}) };
+}
+
+function stage(st: PreflopStage): StageDef {
+  const reach = stageReach(st);
+  return { ...stageInfo(st), scenarios: st.scenarios.map((sc) => scenario(sc, reach, st.stack)) };
 }
 
 export const SOLVER_ID = "solver";
 export const SOLVER_LABEL = "솔버 프리플랍 (9인·BB 앤티)";
+
+/** Every shipped stage's id, in chart order (from the index: nothing is loaded). */
+export const SOLVER_STAGE_IDS: readonly string[] = PREFLOP_STAGE_META.map((st) => st.id);
+
+const stageData = new Map<string, PreflopStage>();
+const stagePending = new Map<string, Promise<PreflopStage>>();
+
+/** Loads one stage's data file (once; later calls get the same promise or the loaded stage). */
+export function loadSolverStageData(id: string): Promise<PreflopStage> {
+  const done = stageData.get(id);
+  if (done) return Promise.resolve(done);
+  let p = stagePending.get(id);
+  if (!p) {
+    // The index's literal dynamic imports: one chunk per stage file (docs §6.3).
+    const file = Object.hasOwn(PREFLOP_STAGE_FILES, id) ? PREFLOP_STAGE_FILES[id] : undefined;
+    if (!file || !SOLVER_STAGE_IDS.includes(id)) return Promise.reject(new Error(`no solver stage ${id}`));
+    p = file().then(
+      ({ default: st }) => {
+        if (st.id !== id) throw new Error(`preflopStages/${id}.ts holds stage ${st.id}`);
+        stageData.set(id, st);
+        stagePending.delete(id);
+        return st;
+      },
+      (e: unknown) => {
+        // A failed fetch (offline before the chunk was cached) may be retried.
+        stagePending.delete(id);
+        throw e;
+      },
+    );
+    stagePending.set(id, p);
+  }
+  return p;
+}
+
+/** A loaded stage's data, or undefined. */
+export function solverStageData(id: string): PreflopStage | undefined {
+  return stageData.get(id);
+}
+
+/** The ids of the stages whose data is loaded, in chart order (tests: nothing but a solver screen loads them). */
+export function solverStagesLoaded(): string[] {
+  return SOLVER_STAGE_IDS.filter((id) => stageData.has(id));
+}
+
+const stageDefs = new Map<string, StageDef>();
+
+/** One loaded stage as the app's StageDef (built once), or undefined while its data is not loaded. */
+export function solverStageDef(id: string): StageDef | undefined {
+  let def = stageDefs.get(id);
+  if (!def) {
+    const st = stageData.get(id);
+    if (!st) return undefined;
+    stageDefs.set(id, (def = stage(st)));
+  }
+  return def;
+}
+
+/** The solver set without its stages: label, game line, source text and seats, from the index alone. */
+export function solverSetInfo(): Omit<ChartSetDef, "stages"> {
+  // After the cold4 fallback (§2.8), or by its preset, a stage has no cold jam behind a 3-bet: the cold seat only
+  // folds there. A push/fold stage has no 3-bet at all.
+  const noColdJam = PREFLOP_STAGE_META.filter((st) => st.tree.cold4 === "none" && st.tree.mode !== "pushfold").map((st) => st.label);
+  const COLD_TEXT =
+    "3벳 뒤에 처음 액션하는 자리는 폴드나 올인만 해요 (콜드콜·작은 콜드 4벳 없음)." +
+    (noColdJam.length ? ` ${noColdJam.join("·")}에서는 그 자리가 폴드만 해요.` : "");
+  const pushFold = PREFLOP_STAGE_META.filter((st) => st.tree.mode === "pushfold").map((st) => `${st.stack}bb`);
+  const PUSH_TEXT = pushFold.length ? ` ${pushFold.join("·")}는 푸시/폴드만 하는 구간이라 실현율 모델 없이 올인 승률로만 계산했어요.` : "";
+  return {
+    id: SOLVER_ID,
+    label: SOLVER_LABEL,
+    game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)",
+    source:
+      `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요.${PUSH_TEXT} 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`,
+    positions: POS,
+    heroFilter: true,
+  };
+}
 
 let solverDef: ChartSetDef | null = null;
 
@@ -152,24 +234,12 @@ export function solverSetDefBuilt(): boolean {
   return solverDef !== null;
 }
 
-/** The solver set's definition, built on the first call (stageReach and the close strings parse every spot). */
+/** The solver set's definition, built on the first call once every stage is loaded; throws before that. */
 export function solverSetDef(): ChartSetDef {
   if (solverDef) return solverDef;
-  // After the cold4 fallback (§2.8) a stage has no cold jam behind a 3-bet: the cold seat only folds there.
-  const noColdJam = PREFLOP_STAGES.filter((st) => st.tree.cold4 === "none").map((st) => st.label);
-  const COLD_TEXT =
-    "3벳 뒤에 처음 액션하는 자리는 폴드나 올인만 해요 (콜드콜·작은 콜드 4벳 없음)." +
-    (noColdJam.length ? ` ${noColdJam.join("·")}에서는 그 자리가 폴드만 해요.` : "");
-  solverDef = {
-    id: SOLVER_ID,
-    label: SOLVER_LABEL,
-    game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)",
-    source:
-      `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요. 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`,
-    positions: POS,
-    heroFilter: true,
-    stages: PREFLOP_STAGES.map(stage),
-  };
+  const missing = SOLVER_STAGE_IDS.filter((id) => !stageData.has(id));
+  if (missing.length) throw new Error(`solver stages not loaded: ${missing.join(", ")} (await loadSolver() first)`);
+  solverDef = { ...solverSetInfo(), stages: SOLVER_STAGE_IDS.map((id) => solverStageDef(id)!) };
   return solverDef;
 }
 
