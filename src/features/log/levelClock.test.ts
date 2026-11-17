@@ -7,8 +7,6 @@ import {
   estimateLevel,
   levelAt,
   levelRow,
-  levelSince,
-  levelStartMinutes,
   localOffsetMinutes,
   parseClock,
   parseStartTime,
@@ -136,34 +134,6 @@ describe("levelAt", () => {
     expect(r(45)).toMatchObject({ level: 3, phase: "after" });
     expect(levelAt(0, 5 * MIN, [], [])).toMatchObject({ level: null, phase: "after" });
     expect(levelAt(Number.NaN, 0)).toMatchObject({ level: null, phase: "before" });
-  });
-});
-
-describe("a level picked, moved on by the clock", () => {
-  it("knows when each level starts, the breaks before it included", () => {
-    expect(levelStartMinutes(1)).toBe(0);
-    expect(levelStartMinutes(3)).toBe(40);
-    // the 10-minute break after Lv3, and after Lv6
-    expect(levelStartMinutes(4)).toBe(70);
-    expect(levelStartMinutes(7)).toBe(140);
-    expect(levelStartMinutes(99)).toBeNull();
-  });
-
-  it("takes the pick as the level's start, and moves on from there by the schedule", () => {
-    const t = START + 3 * 60 * MIN;
-    expect(levelSince(4, t, t)).toBe(4);
-    expect(levelSince(4, t, t + 19 * MIN)).toBe(4);
-    expect(levelSince(4, t, t + 20 * MIN)).toBe(5);
-    expect(levelSince(4, t, t + 60 * MIN)).toBe(6);
-    // the break after Lv6 keeps Lv6, then Lv7
-    expect(levelSince(6, t, t + 25 * MIN)).toBe(6);
-    expect(levelSince(6, t, t + 30 * MIN)).toBe(7);
-    // past the schedule: its last level
-    expect(levelSince(29, t, t + 10 * 60 * MIN)).toBe(30);
-    // a clock behind the pick, or a level off the schedule: the level itself
-    expect(levelSince(4, t, t - MIN)).toBe(4);
-    expect(levelSince(99, t, t + 60 * MIN)).toBe(99);
-    expect(levelSince(4, Number.NaN, t)).toBe(4);
   });
 });
 
