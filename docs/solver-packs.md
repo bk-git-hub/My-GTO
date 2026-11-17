@@ -27,7 +27,9 @@ prefix is left out for 6-max cash.
 
 The UTG pack pairs a tight opener (12% of hands) with a wide BB call (46%): the BTN packs only show realization
 against wide ranges, and the preflop solver's realization model (`docs/preflop-solver.md` §3.7) also needs
-dominated hands such as Q7s or A4o against a strong range.
+dominated hands such as Q7s or A4o against a strong range. It is measured, not fitted: the shipped fit leaves it out
+on purpose and uses it as held-out data, which shows that the BB realizes more against a strong range than the
+range-blind model says (§3.7 bias 2 there). It is the data for a model that depends on the opponent's range.
 
 The pot counts all dead money (SB, ante): pot = 2 × open + 0.5 + ante, and the effective stack is the BB's,
 start − open − ante (the BB paid the ante too). `src/presolve/scenarios.ts` derives both from the play-mode rules
@@ -340,6 +342,34 @@ within minutes.
   bump for that pack.
 - Old version directories stay until no manifest from the last few days references them.
 - The job runs `validateFlopFile` on every file and `validateManifest` on the manifest before committing.
+
+## Calibration of the preflop solver
+
+The 9-handed preflop solver (`docs/preflop-solver.md`) does not solve flops: it values them with a realization model
+fitted to these packs. `scripts/fit-realization.mjs` reads every flop file of the packs it fits, takes each combo's EV
+at OOP's root and at IP's node after OOP checks, and fits the model to the per-class pot shares. The result,
+`src/poker/preflop/eqrFit.ts`, records each pack's version, flop count and a hash of its file list. For the packs
+this means:
+- New flops change the fit's inputs, but the charts move only when the fit is rerun. The committed fit (`2862daa7a90f`,
+  2026-11-17) names the pack state it used: `srp-btn-bb-100` v1 and `pub-srp-btn-bb-55` v2 with all 1,755 flops
+  each, at their exact class weights. Both packs are complete, so the presolve job cannot change its inputs any more;
+  the planned refit on every flop class is done.
+- Which packs are fitted is a decision, not a side effect of the manifest. `fit-realization.mjs --packs <ids>` names
+  them; without `--packs` it fits the packs the committed `eqrFit.ts` names, and `--packs all` takes every manifest
+  pack. Every fit and `--check` names its packs (`--packs srp-btn-bb-100,pub-srp-btn-bb-55`).
+- `pub-srp-utg-bb-55` is in the manifest but kept out of the fit. Predicted as held-out data (1,728 of its 1,755
+  flops), the fit misses it by a weighted RMS of 0.056 of the pot OOP and 0.083 IP, against 0.014 / 0.019 on the pub
+  BTN pack (the same game, pot and tree; only the ranges differ): against UTG the BB realizes about 0.046 of the pot
+  more than the model says, and UTG's big pairs 0.14–0.17 less. A joint fit with all three packs broke a sign guard
+  of the model and moved the charts back toward known artifacts, so it was rejected (`docs/preflop-solver.md` §3.7
+  bias 2). The pack's last flops cannot change the shipped fit.
+- The fit reads IP's root EV at IP's node after OOP's check, which is IP's root only because OOP never bets the flop
+  in these trees (`sizes.flop[0].bet` is `[]`); the opponent's EV at a node is not stored. It stops if OOP checks
+  less than 99.9% of its range at the root, so a pack that gives OOP a donk bet first needs IP's root EV in the flop
+  file.
+- The trees (no OOP donk bet, two IP sizes) and the hand-made chart ranges are the calibration's known biases.
+  Calibration-only packs (a ghost-combo pack at 100bb, then other pot types) are planned in this same file format,
+  outside `public/packs` and never listed by the app.
 
 ## API (`src/presolve/format.ts`)
 

@@ -17,14 +17,15 @@
  *  - `MW_C_POS` = 0.02: multiway c_pos of the last seat to act (the first gets −0.02, the middles 0).
  *  - `Z_FLOOR` = 0.2: a multiway normalizer Z at or below this is replaced by 1.
  *  - `alphaShrink(spr, sprAlpha?)`, `surplusShrink(spr, sprSurplus?)`: s_α and s.
- *  - `FEATURE_COUNT` = 5, `COMPAT` = 1225, `MASS_EPS` = 1e-300 (V = CFV / M only where M > MASS_EPS, else 0).
+ *  - `FEATURE_COUNT` = 9, `COMPAT` = 1225, `MASS_EPS` = 1e-300 (V = CFV / M only where M > MASS_EPS, else 0).
  *
  * Matrices and buffers (built once per solve)
  *  - `kernelMatrices(eq, cnt, N?)`: K[h,x] = cnt[h,x] / 1225 and KE[h,x] = K[h,x]·eq[h,x], row-major N×N. K is not
  *    symmetric: every kernel reads the row of the hand being valued.
  *  - `kernelScratch(N)`: the gather buffers one kernel call uses (reusable across calls, not across threads).
  *  - `featureMatrix(N, f)`: the N×FEATURE_COUNT feature matrix, row-major, e.g.
- *    `featureMatrix(169, handFeatures)` with handFeatures from ./features.
+ *    `featureMatrix(169, handFeatures)` with handFeatures from ./features (pair, suited, hi2f5, lo2, gap, pairRank2,
+ *    aceTop, wheel, suitConn, each centered on its combo-weighted mean).
  *
  * Kernels (§3.3–3.6). Arguments: `rOpp` is the opponent's reach vector (indexed by its class). `pot` and `paid`
  * are the pot and the valued seat's total investment: P and T_s (termPot, termCommit) at a flop; P' and
@@ -86,8 +87,8 @@ export const SPR_SURPLUS = 6;
 export const MW_C_POS = 0.02;
 /** A multiway normalizer at or below this means the live seats have almost no reach; Z = 1 is used instead. */
 export const Z_FLOOR = 0.2;
-/** Model B's hand features: pair, suited, bway, conn, weakAce (./features). */
-export const FEATURE_COUNT = 5;
+/** Model B's hand features: pair, suited, hi2f5, lo2, gap, pairRank2, aceTop, wheel, suitConn, centered (./features). */
+export const FEATURE_COUNT = 9;
 /** Combos one opponent can hold once my two cards are out: K = cnt / COMPAT is a conditional probability. */
 export const COMPAT = 1225;
 /** Values are normalized by the opponent's mass only above this; below it V = 0 (§4.2). */
@@ -475,7 +476,7 @@ export interface ModelBParams {
 
 /** Model B with no realization edge at all: α = c = θ = 0 and no multiway c_pos (PF-ZERO-1). */
 export function zeroModelB(kappa3: ArrayLike<number>, kappa4: ArrayLike<number>): ModelBParams {
-  return { alpha: 0, cFit: 0, thetaO: [0, 0, 0, 0, 0], thetaI: [0, 0, 0, 0, 0], kappa3, kappa4, mwCPos: 0 };
+  return { alpha: 0, cFit: 0, thetaO: new Array(FEATURE_COUNT).fill(0), thetaI: new Array(FEATURE_COUNT).fill(0), kappa3, kappa4, mwCPos: 0 };
 }
 
 /** ModelBParams with every default filled in and the per-class vectors precomputed. */

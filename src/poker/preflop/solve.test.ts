@@ -18,10 +18,10 @@ const K = Float64Array.from(table.cnt, (c) => c / 1225);
 // Model B with fixed parameters of the shipped fit's size rather than EQR_FIT, so regenerating the fit never moves
 // these numbers. κ = 1: a constant κ cancels in the multiway normalization Z anyway.
 const PARAMS: ModelBParams = {
-  alpha: 0.55,
-  cFit: -0.075,
-  thetaO: [0.056, 0.077, -0.016, 0.062, -0.062],
-  thetaI: [0.09, 0.066, -0.07, 0.078, -0.103],
+  alpha: 0.553,
+  cFit: -0.079,
+  thetaO: [-0.071, 0.064, -0.139, 0.061, -0.02, 0.204],
+  thetaI: [-0.184, 0.056, -0.245, 0.054, -0.02, 0.308],
   kappa3: new Float64Array(N).fill(1),
   kappa4: new Float64Array(N).fill(1),
 };

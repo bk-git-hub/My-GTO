@@ -1,32 +1,43 @@
 // Fits the postflop realization model of the preflop solver to our own flop packs and writes
 // src/poker/preflop/eqrFit.ts (design: model B, §3.4 and §3.7 of the preflop solver design, docs/preflop-solver.md).
 //
-// Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--limit <n>]
+// Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--packs <id,id,...>] [--limit <n>]
 //   --check        compute everything and compare with the committed eqrFit.ts; write nothing, exit 1 if it differs
 //   --workers <n>  flop files decoded and enumerated in parallel (default: one per CPU); the result does not depend on it
+//   --packs <ids>  fit on these packs of the manifest only, comma-separated ids, or "all" for every pack in the manifest.
+//                  Default: the packs the committed eqrFit.ts was fitted on (every pack in the manifest if it names none
+//                  or names one the manifest lacks), so a new pack in the manifest, such as pub-srp-utg-bb-55, kept out
+//                  of the fit on purpose (docs/preflop-solver.md §3.7), does not silently enter a bare run or --check.
+//                  The rest of the run is unchanged: the pack records, metrics and fit hash name only the packs used,
+//                  and --check compares that fit with the committed file. An unknown id is an error.
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
 //
 // What it does:
-// 1. For every flop file of every pack in public/packs/manifest.json: decode it with the app's decoder, read each
-//    combo's EV at OOP's root (node []) and at IP's first decision after OOP checks (node [check]), and compute each
-//    combo's flop equity against the opponent's stored range by full turn and river enumeration. The packs give OOP
-//    no flop bet, so IP's node after the check is IP's root; the script asserts OOP checks at least MIN_CHECK of its
-//    reach-weighted range, since IP's root EV is not stored otherwise.
+// 1. For every flop file of every pack fitted (the --packs ones of public/packs/manifest.json, or the default above):
+//    decode it with the app's decoder, read each combo's EV at OOP's root (node []) and at IP's first decision after
+//    OOP checks (node [check]), and compute each combo's flop equity against the opponent's stored range by full turn
+//    and river enumeration. The packs give OOP no flop bet, so IP's node after the check is IP's root; the script
+//    asserts OOP checks at least MIN_CHECK of its reach-weighted range, since IP's root EV is not stored otherwise.
 // 2. Per pack, side and hand class, with w = node weight × file weight: share = Σ w·EV / Σ w / pot (a pack's EV is
 //    what the combo gets out of the flop pot) and e = Σ w·equity / Σ w. Every class with Σ w > 0 is a row.
-// 3. Fits three forms by weighted least squares with ridge RIDGE on every parameter, rows of all packs jointly; a
-//    row's weight is its Σ w normalized so each side of each pack sums to 1, times the pack's flop count:
-//    - model B, 5 features (shipped):  OOP row h: share − e = α(e − ½) + c + θ_O·F(h) − θ_I·E_x[F(x)]
+// 3. Fits four forms by weighted least squares with ridge RIDGE on every fitted parameter, rows of all packs jointly;
+//    a row's weight is its Σ w normalized so each side of each pack sums to 1, times the pack's flop count:
+//    - model B, all 9 features, α held at ALPHA_PRIOR (shipped):
+//                                       OOP row h: share − e = α(e − ½) + c + θ_O·F(h) − θ_I·E_x[F(x)]
 //                                       IP row x:  share − e = α(e − ½) − c + θ_I·F(x) − θ_O·E_h[F(h)]
-//    - model B, 3 features (sensitivity solve c);
-//    - the equity-scaled surplus form, 5 features (sensitivity solve d), R(h) = r0 + θ·F(h):
+//      with α(e − ½) moved into the offset, so only c, θ_O and θ_I are fitted;
+//    - model B on the first 3 features (pair, suited, hi2f5), α held (sensitivity solve c);
+//    - model B, all 9 features, α fitted too (alphaFree: a diagnostic, recorded for provenance);
+//    - the equity-scaled surplus form, all 9 features (sensitivity solve d), R(h) = r0 + θ·F(h):
 //                                       OOP row h: share = R_O(h)·e − E_x[(R_I(x) − 1)(1 − eq[h,x])], IP mirrored.
 //    E is over the opponent's pack range (its manifest range string) with card removal through the equity table's
-//    cnt, the same pairwise model the preflop engine uses; F is src/poker/preflop/features.ts.
+//    cnt, the same pairwise model the preflop engine uses; F is src/poker/preflop/features.ts (rank features and the
+//    ace, wheel and suited-connectivity indicators, centered on the combo-weighted means).
 // 4. Metrics per fit: R² and RMS of the per-class pot share per side, the cash → pub transfer RMS (fit on the cash
 //    packs alone, predict the pub packs) next to the pub packs' own refit (the noise floor), and a 2-fold flop-split
 //    cross-validation RMS (flops split by even and odd index in FLOPS_BY_PRIORITY, so a flop is in the same fold in
-//    every pack).
+//    every pack). The R², RMS and per-pack metrics written score the parameters as written (rounded and rebuilt from
+//    their fields), so they describe the stored values.
 // 5. κ_3 and κ_4 (design §3.6): per class, the Monte Carlo k-way pot share over the product of its pairwise
 //    equities, from KAPPA_DEALS seeded deals per k against fixed reference ranges.
 // Every sum runs in a fixed order, so the output depends only on the packs and the equity table.
@@ -41,6 +52,14 @@ const root = new URL("..", import.meta.url).pathname;
 const OUT = "src/poker/preflop/eqrFit.ts";
 const N = 169;
 const RIDGE = 1e-4;
+// α of model B is held at this prior: the 5-feature fit's α (pair, suited, bway, conn, weakAce; fit 45018e13c176).
+// With the rank features the class rows pin α down only weakly. Freed on the 9 features and the 1,755 + 1,755 flops
+// of the BTN packs (fit 2862daa7a90f), every subset puts it below 0 (joint −0.187, cash −0.176, pub −0.321, the two CV
+// training folds −0.090 and −0.201), and the CV RMS is 0.0163 / 0.0136 free against 0.0166 / 0.0183 held (OOP / IP:
+// holding costs IP about 0.005). Against the strong range of the held-out UTG pack the effective α is about 0.27 OOP
+// and −0.21 IP, so no single α fits both contexts (docs §3.7, bias 2). α decides the low-SPR 4-bet / jam split (§3.4),
+// so 0.553 is held deliberately, as a named prior, until a 3-bet-pot or ghost-combo calibration pack measures it.
+const ALPHA_PRIOR = 0.553;
 const MIN_CHECK = 0.999;
 // Design §3.6 budgeted 200k deals per k, but that is about 1,183 deals per class and leaves each κ with a 5–7%
 // relative standard error (single classes off by up to 17% against an independent Monte Carlo), more than the
@@ -193,7 +212,9 @@ if (!isMainThread && workerData?.eqrFit) {
 // ───────────────────────── main ─────────────────────────
 
 if (isMainThread) {
-  const { values: opt } = parseArgs({ options: { check: { type: "boolean", default: false }, workers: { type: "string" }, limit: { type: "string" } } });
+  const { values: opt } = parseArgs({
+    options: { check: { type: "boolean", default: false }, workers: { type: "string" }, packs: { type: "string" }, limit: { type: "string" } },
+  });
   const limit = opt.limit ? Number(opt.limit) : Infinity;
   const T0 = Date.now();
   const { ALL_HANDS, comboCount, combosOf } = await load("src/poker/cards.ts");
@@ -205,7 +226,35 @@ if (isMainThread) {
   const table = await loadEquityTable();
   const { eq, cnt } = table;
   const F = Array.from({ length: N }, (_, h) => handFeatures(h));
+  const K = FEATURE_NAMES.length;
   const manifest = JSON.parse(readFileSync(root + "public/packs/manifest.json", "utf8"));
+  if (opt.packs === undefined) {
+    // Default: the committed fit's packs (see --packs above).
+    let committed = [];
+    try {
+      committed = Object.keys((await load(OUT)).EQR_FIT?.packs ?? {});
+    } catch {
+      committed = [];
+    }
+    const ids = manifest.packs.map((p) => p.id);
+    if (committed.length && committed.every((id) => ids.includes(id))) {
+      opt.packs = committed.join(",");
+      const left = ids.filter((id) => !committed.includes(id));
+      console.log(`packs: ${committed.join(", ")} (the committed fit's)${left.length ? `; not in the fit: ${left.join(", ")} (--packs all to include)` : ""}`);
+    } else opt.packs = "all";
+  }
+  if (opt.packs === "all") opt.packs = manifest.packs.map((p) => p.id).join(",");
+  {
+    // The packs to fit (--packs, or the default above): the named packs only, in manifest order (so the sums and the output keep the manifest's order).
+    const want = opt.packs.split(",").map((s) => s.trim()).filter(Boolean);
+    const known = new Set(manifest.packs.map((p) => p.id));
+    const unknown = want.filter((id) => !known.has(id));
+    if (!want.length || unknown.length) {
+      console.error(`--packs: ${want.length ? `unknown pack id(s) ${unknown.join(", ")}` : "no pack ids"}; the manifest has ${[...known].join(", ")}`);
+      process.exit(2);
+    }
+    manifest.packs = manifest.packs.filter((p) => want.includes(p.id));
+  }
   for (const pack of manifest.packs) pack.files = pack.files.slice(0, limit);
   const prio = new Map(FLOPS_BY_PRIORITY.map((f, i) => [f.key, i]));
 
@@ -271,14 +320,14 @@ if (isMainThread) {
     const opp = [range(1), range(0)];
     const cond = [0, 1].map((s) =>
       Array.from({ length: N }, (_, h) => {
-        let EF = new Float64Array(5), E1e = 0, Ex1e = new Float64Array(5), tot = 0;
+        let EF = new Float64Array(K), E1e = 0, Ex1e = new Float64Array(K), tot = 0;
         for (let x = 0; x < N; x++) {
           const k = cnt[h * N + x] * opp[s][x];
           if (!k) continue;
           tot += k;
           const q = 1 - eq[h * N + x];
           E1e += k * q;
-          for (let j = 0; j < 5; j++) (EF[j] += k * F[x][j]), (Ex1e[j] += k * F[x][j] * q);
+          for (let j = 0; j < K; j++) (EF[j] += k * F[x][j]), (Ex1e[j] += k * F[x][j] * q);
         }
         EF = EF.map((v) => v / tot);
         Ex1e = Ex1e.map((v) => v / tot);
@@ -304,20 +353,23 @@ if (isMainThread) {
     return rows;
   }
 
-  // ── 3. the three forms, each linear in its parameters ──
+  // ── 3. the four forms, each linear in its parameters ──
   const MODELS = {
-    modelB5: { k: 5, form: "modelB" },
-    modelB3: { k: 3, form: "modelB" },
-    product5: { k: 5, form: "product" },
+    modelB9: { k: K, form: "modelB", alpha: "held" },
+    modelB3: { k: 3, form: "modelB", alpha: "held" },
+    modelB9Free: { k: K, form: "modelB", alpha: "free" },
+    product: { k: K, form: "product" },
   };
   /** Design row x and offset: prediction = offset + x·β. */
   function design(model, rw) {
-    const { k, form } = MODELS[model];
+    const { k, form, alpha } = MODELS[model];
     const f = F[rw.h].slice(0, k), EF = rw.EF.slice(0, k), me = rw.side === 0;
     if (form === "modelB") {
-      // β = [α, c, θ_O(k), θ_I(k)]
       const neg = EF.map((v) => -v);
-      return { x: [rw.e - 0.5, me ? 1 : -1, ...(me ? f : neg), ...(me ? neg : f)], off: rw.e };
+      const rest = [me ? 1 : -1, ...(me ? f : neg), ...(me ? neg : f)];
+      // Held α: β = [c, θ_O(k), θ_I(k)], α(e − ½) in the offset. Free α: β = [α, c, θ_O(k), θ_I(k)].
+      if (alpha === "held") return { x: rest, off: rw.e + ALPHA_PRIOR * (rw.e - 0.5) };
+      return { x: [rw.e - 0.5, ...rest], off: rw.e };
     }
     // β = [r_O0, θ_O(k), r_I0, θ_I(k)]: share = R_me·e − (R_opp0 − 1)·E[1 − eq] − θ_opp·E[F·(1 − eq)]
     const mine = [rw.e, ...f.map((v) => v * rw.e)];
@@ -375,9 +427,8 @@ if (isMainThread) {
   const ts = Date.now();
   const allRows = packs.flatMap((pk) => rowsOf(pk, pk.all, pk.flops));
   const cash = packs.filter((pk) => pk.format === "cash"), pub = packs.filter((pk) => pk.format === "pub");
-  const fits = {};
-  for (const model of Object.keys(MODELS)) {
-    const beta = fit(model, allRows);
+  /** R², R² of the gap, RMS and the per-pack R² and RMS of parameters `beta` on the joint rows. */
+  function jointMetrics(model, beta) {
     const err = errors(model, beta, allRows);
     const perPack = Object.fromEntries(
       packs.map((pk) => {
@@ -385,6 +436,11 @@ if (isMainThread) {
         return [pk.id, { r2: e.map((x) => 1 - x.sse / x.sst), rms: rmsOf(e) }];
       }),
     );
+    return { r2: err.map((e) => 1 - e.sse / e.sst), r2Gap: err.map((e) => 1 - e.sse / e.sstGap), rms: rmsOf(err), perPack };
+  }
+  const fits = {};
+  for (const model of Object.keys(MODELS)) {
+    const beta = fit(model, allRows);
     let transferRms = null, transferRefitRms = null, cashOnly = null;
     if (cash.length && pub.length) {
       const train = cash.flatMap((pk) => rowsOf(pk, pk.all, pk.flops));
@@ -400,19 +456,7 @@ if (isMainThread) {
       const test = packs.flatMap((pk) => rowsOf(pk, pk.folds[f], pk.foldFlops[f]));
       errors(model, fit(model, train), test).forEach((e, s) => ((cv[s].sse += e.sse), (cv[s].W += e.W)));
     }
-    fits[model] = {
-      beta,
-      cashOnly,
-      metrics: {
-        r2: err.map((e) => 1 - e.sse / e.sst),
-        r2Gap: err.map((e) => 1 - e.sse / e.sstGap),
-        rms: rmsOf(err),
-        perPack,
-        transferRms,
-        transferRefitRms,
-        cvRms: rmsOf(cv),
-      },
-    };
+    fits[model] = { beta, cashOnly, metrics: { ...jointMetrics(model, beta), transferRms, transferRefitRms, cvRms: rmsOf(cv) } };
   }
   const fitSeconds = (Date.now() - ts) / 1000;
 
@@ -517,41 +561,54 @@ if (isMainThread) {
   const r6 = (v) => Math.round(v * 1e6) / 1e6;
   const r4 = (v) => Math.round(v * 1e4) / 1e4;
   const pair = (a) => (a ? a.map(r4) : null);
-  const metricsOut = (m) => ({
-    r2: pair(m.r2),
-    r2Gap: pair(m.r2Gap),
-    rms: pair(m.rms),
-    perPack: Object.fromEntries(Object.entries(m.perPack).map(([id, v]) => [id, { r2: pair(v.r2), rms: pair(v.rms) }])),
-    transferRms: pair(m.transferRms),
-    transferRefitRms: pair(m.transferRefitRms),
-    cvRms: pair(m.cvRms),
-  });
-  const modelB = (model) => {
-    const { k } = MODELS[model], b = fits[model].beta.map(r6);
-    return { form: "modelB", features: FEATURE_NAMES.slice(0, k), alpha: b[0], cFit: b[1], thetaO: b.slice(2, 2 + k), thetaI: b.slice(2 + k), metrics: metricsOut(fits[model].metrics) };
+  // The joint-fit metrics written (R², R² of the gap, RMS, per pack) score the parameters as written: rounded, sliced
+  // into their fields and rebuilt into β from those fields. So they describe the stored values, and a slip in the
+  // slicing or the field order below shows up in them (features.test.ts bounds them). The transfer and CV metrics
+  // come from fits that are not written.
+  const metricsOut = (model, written) => {
+    const m = { ...fits[model].metrics, ...jointMetrics(model, written) };
+    return {
+      r2: pair(m.r2),
+      r2Gap: pair(m.r2Gap),
+      rms: pair(m.rms),
+      perPack: Object.fromEntries(Object.entries(m.perPack).map(([id, v]) => [id, { r2: pair(v.r2), rms: pair(v.rms) }])),
+      transferRms: pair(m.transferRms),
+      transferRefitRms: pair(m.transferRefitRms),
+      cvRms: pair(m.cvRms),
+    };
   };
-  const b5 = modelB("modelB5");
-  const pb = fits.product5.beta.map(r6);
-  const product5 = {
+  /** β of a written model B record (its fields, in the design's order). */
+  const betaOfModelB = (model, o) => (MODELS[model].alpha === "held" ? [o.cFit, ...o.thetaO, ...o.thetaI] : [o.alpha, o.cFit, ...o.thetaO, ...o.thetaI]);
+  const modelB = (model) => {
+    const { k, alpha } = MODELS[model], b = fits[model].beta.map(r6);
+    const out = alpha === "held" ? { alpha: ALPHA_PRIOR, cFit: b[0], thetaO: b.slice(1, 1 + k), thetaI: b.slice(1 + k) } : { alpha: b[0], cFit: b[1], thetaO: b.slice(2, 2 + k), thetaI: b.slice(2 + k) };
+    return { form: "modelB", features: FEATURE_NAMES.slice(0, k), ...out, metrics: metricsOut(model, betaOfModelB(model, out)) };
+  };
+  const b9 = modelB("modelB9");
+  const pb = fits.product.beta.map(r6);
+  const product = {
     form: "product",
     features: [...FEATURE_NAMES],
     rO0: pb[0],
-    thetaO: pb.slice(1, 6),
-    rI0: pb[6],
-    thetaI: pb.slice(7),
+    thetaO: pb.slice(1, 1 + K),
+    rI0: pb[1 + K],
+    thetaI: pb.slice(2 + K),
     rO: F.map((f) => r6(pb[0] + f.reduce((s, v, j) => s + v * pb[1 + j], 0))),
-    rI: F.map((f) => r6(pb[6] + f.reduce((s, v, j) => s + v * pb[7 + j], 0))),
-    metrics: metricsOut(fits.product5.metrics),
+    rI: F.map((f) => r6(pb[1 + K] + f.reduce((s, v, j) => s + v * pb[2 + K + j], 0))),
+    metrics: null,
   };
+  product.metrics = metricsOut("product", [product.rO0, ...product.thetaO, product.rI0, ...product.thetaI]);
   const body = {
-    model: "modelB-5f",
+    model: "modelB-rank9",
     features: [...FEATURE_NAMES],
-    alpha: b5.alpha,
-    cFit: b5.cFit,
-    thetaO: b5.thetaO,
-    thetaI: b5.thetaI,
-    metrics: b5.metrics,
-    alternatives: { modelB3: modelB("modelB3"), product5 },
+    alphaPrior: ALPHA_PRIOR,
+    alpha: b9.alpha,
+    cFit: b9.cFit,
+    thetaO: b9.thetaO,
+    thetaI: b9.thetaI,
+    metrics: null,
+    alternatives: { modelB3: modelB("modelB3"), product },
+    alphaFree: modelB("modelB9Free"),
     ridge: RIDGE,
     packs: Object.fromEntries(
       packs.map((pk) => [pk.id, { version: pk.version, format: pk.format, flops: pk.flops, pot: pk.pot, stack: pk.stack, minCheck: r4(pk.minCheck), filesSha256: pk.filesSha256 }]),
@@ -561,6 +618,8 @@ if (isMainThread) {
     kappaSampling: { deals: KAPPA_DEALS, seeds: [KAPPA[3].seed, KAPPA[4].seed], ranges3: KAPPA[3].ranges, ranges4: KAPPA[4].ranges },
     equityTable: equityTableSha256(table),
   };
+  // Scored on the top-level fields as written, which the engine reads (the key keeps its place in the order).
+  body.metrics = metricsOut("modelB9", betaOfModelB("modelB9", body));
   const sha256 = createHash("sha256").update(JSON.stringify(body)).digest("hex");
   const data = { ...body, sha256 };
 
@@ -578,14 +637,18 @@ if (isMainThread) {
 //
 // The postflop realization model of the preflop solver (model B), fitted to our own packs. For a heads-up flop
 // where O acts first holding class h and I holds x, with e = eq[h, x]: O's share of the pot is
-//   e + alpha·(e − ½) + c + u_O(h) − u_I(x),   u(h) = theta · handFeatures(h)   (src/poker/preflop/features.ts),
+//   e + alpha·(e − ½) + c + u_O(h) − u_I(x),   u(h) = theta · handFeatures(h)   (src/poker/preflop/features.ts:
+// pair, suited, hi2f5, lo2, gap, pairRank2, aceTop, wheel, suitConn, each centered on its combo-weighted mean),
 // fitted in the (single raised pot, IP aggressor) context, so thetaO is the caller's u and thetaI the aggressor's.
+// alpha is held at alphaPrior (the rows pin it down only weakly); c and theta are fitted. alphaFree is the same
+// model with alpha fitted too, recorded as a diagnostic.
 // kappa3 / kappa4: per class (ALL_HANDS order), the k-way pot share over the product of pairwise equities.
 // sha256 is over JSON.stringify of every other field, in the order written.
 
 /** R² and RMS of the per-class pot share, [OOP, IP]. */
 export interface EqrFitMetrics {
-  /** Joint fit, rows of every pack pooled with the fit's weights. */
+  /** Joint fit, rows of every pack pooled with the fit's weights; r2, r2Gap, rms and perPack score the parameters as
+   *  written here. */
   r2: [number, number];
   /** R² of the gap share − e, which the model explains beyond raw equity. */
   r2Gap: [number, number];
@@ -599,7 +662,10 @@ export interface EqrFitMetrics {
   cvRms: [number, number];
 }
 
-/** Model B: share_O = e + alpha·(e − ½) + c + thetaO·F(h) − thetaI·F(x), F = the first features.length features. */
+/**
+ * Model B: share_O = e + alpha·(e − ½) + c + thetaO·F(h) − thetaI·F(x), F = the first features.length features.
+ * alpha is EqrFit.alphaPrior where it was held, the fitted value in alphaFree.
+ */
 export interface EqrModelB {
   form: "modelB";
   features: string[];
@@ -625,15 +691,20 @@ export interface EqrProduct {
 }
 
 export interface EqrFit {
-  model: "modelB-5f";
+  model: "modelB-rank9";
   features: string[];
+  /** The α model B is fitted with: held, not fitted (the class rows pin it down only weakly). alpha === alphaPrior. */
+  alphaPrior: number;
   alpha: number;
   cFit: number;
   thetaO: number[];
   thetaI: number[];
   metrics: EqrFitMetrics;
-  /** For the sensitivity solves: model B on the first 3 features, and the equity-scaled surplus form. */
-  alternatives: { modelB3: EqrModelB; product5: EqrProduct };
+  /** For the sensitivity solves: model B on the first 3 features with α held (c), and the equity-scaled surplus
+   *  form on all features (d). */
+  alternatives: { modelB3: EqrModelB; product: EqrProduct };
+  /** Diagnostic: model B on all features with α fitted as well (not used by any solve). */
+  alphaFree: EqrModelB;
   ridge: number;
   packs: Record<string, { version: number; format: string; flops: number; pot: number; stack: number; minCheck: number; filesSha256: string }>;
   kappa3: number[];
@@ -653,12 +724,13 @@ export const EQR_FIT: EqrFit = ${fmt(data, 0)};
   for (const model of Object.keys(MODELS)) {
     const m = fits[model].metrics;
     console.log(`${model.padEnd(9)} R² ${f3(m.r2)}  R²(gap) ${f3(m.r2Gap)}  RMS ${f3(m.rms)}  transfer ${f3(m.transferRms)} (pub refit ${f3(m.transferRefitRms)})  CV ${f3(m.cvRms)}`);
-    console.log(`          joint β ${fits[model].beta.map((v) => v.toFixed(3)).join(", ")}`);
+    const held = MODELS[model].alpha === "held" ? ` (α held at ${ALPHA_PRIOR}: β = c, θ_O, θ_I)` : "";
+    console.log(`          joint β ${fits[model].beta.map((v) => v.toFixed(3)).join(", ")}${held}`);
     if (fits[model].cashOnly) console.log(`          cash-only β ${fits[model].cashOnly.map((v) => v.toFixed(3)).join(", ")}`);
   }
   // EQR of hands outside the BB's pack range, against the cash BTN range: the extrapolation risk of design §3.7.
   const cashPk = cash[0] ?? packs[0];
-  const probe = ["72o", "32o", "T2o", "K2o", "AA", "AKo"];
+  const probe = ["72o", "32o", "T2o", "K2o", "AA", "AKo", "A7s", "K7s", "KTo", "K9o"];
   console.log(`\nOOP EQR vs ${cashPk.id}'s IP range (extrapolated for hands outside its OOP range):`);
   for (const hs of probe) {
     const h = ALL_HANDS.indexOf(hs);

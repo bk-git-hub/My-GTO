@@ -123,11 +123,12 @@ function randomVectors(rand: () => number, n: number): PairwiseVectors {
 
 /** The model of the fit's shape, with numbers of the fit's size (not the fit itself, which is regenerated). */
 const F = featureMatrix(N, handFeatures);
-const THETA_O = [0.056, 0.077, -0.016, 0.062, -0.062];
-const THETA_I = [0.09, 0.066, -0.07, 0.078, -0.103];
-const ALPHA = 0.55;
-const C_FIT = -0.076;
-const u = (theta: number[], h: number) => handFeatures(h).reduce((s, f, k) => s + f * theta[k], 0);
+const THETA_O = [-0.071, 0.064, -0.139, 0.061, -0.02, 0.204];
+const THETA_I = [-0.184, 0.056, -0.245, 0.054, -0.02, 0.308];
+const ALPHA = 0.553;
+const C_FIT = -0.079;
+/** u = θ·F over the first θ.length features, summed in feature order as value.ts does. */
+const u = (theta: number[], h: number) => theta.reduce((s, t, k) => s + t * handFeatures(h)[k], 0);
 
 describe("preflop terminal valuation", () => {
   // The coarse table the other solver tests use.
@@ -479,8 +480,17 @@ describe("preflop terminal valuation", () => {
       expect(fit.mwCPos).toBe(0.02);
       const v = modelBVectors(fit, { potType: "srp", aggressor: "I", spr: 17.7 });
       for (let h = 0; h < N; h++) expect(Number.isFinite(v.qO[h]) && Number.isFinite(v.qI[h])).toBe(true);
+      // The engine applies every fitted weight: u_call = θ_O·F and u_aggr = θ_I·F over all nine columns (an engine
+      // that drops a column, e.g. aceTop, wheel or suitConn, passes every other test here).
+      expect(EQR_FIT.thetaO).toHaveLength(handFeatures(0).length);
+      expect(EQR_FIT.thetaI).toHaveLength(handFeatures(0).length);
+      for (let h = 0; h < N; h++) {
+        expect(fit.uCall[h], ALL_HANDS[h]).toBeCloseTo(u(EQR_FIT.thetaO, h), 15);
+        expect(fit.uAggr[h], ALL_HANDS[h]).toBeCloseTo(u(EQR_FIT.thetaI, h), 15);
+      }
       expect(() => prepareModelB({ ...EQR_FIT, kappa3: [1, 2] }, F)).toThrow();
-      expect(() => prepareModelB({ ...EQR_FIT, thetaO: [0, 0, 0, 0, 0, 0] }, F)).toThrow();
+      // More weights than features (FEATURE_COUNT = 9).
+      expect(() => prepareModelB({ ...EQR_FIT, thetaO: new Array(10).fill(0) }, F)).toThrow();
     });
   });
 
