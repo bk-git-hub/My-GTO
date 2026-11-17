@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { RANKS } from "../../poker/cards";
 import {
   afterSave,
+  backKey,
+  blockOf,
   cancelEdit,
   classDone,
   cleanFastState,
@@ -9,30 +11,47 @@ import {
   draftOf,
   draftReady,
   fastHand,
+  fastLevel,
+  fastLineText,
   fastStats,
+  freshDraft,
+  keptAction,
   newDraft,
   nextSeat,
+  pickRes,
   pickSuited,
   sessionOf,
   sessionText,
+  SESSION_IDLE_MS,
   startEdit,
+  switchUnit,
+  tapBoardRank,
+  tapBoardSuit,
   tapRank,
+  typeDigit,
   undoTap,
+  withFastResult,
   withSeat,
   withSpot,
   type FastDraft,
+  type FastLevel,
   type FastState,
 } from "./fastLog";
 import {
   emptyHand,
   exportData,
+  fastActed,
   fastActText,
+  fastOnly,
   fastVerdictOf,
   handFacts,
+  handLogStore,
   holeClass,
   holeGuessed,
+  localDay,
   mergeImport,
   migrateStore,
+  rememberedText,
   resumable,
   sanitize,
   tableOf,
@@ -294,5 +313,307 @@ describe("빠른 기록: on file and in the backup", () => {
     expect(migrateStore({ hands: [h], lastLevel: null }, null)).toBeNull();
     const fixed = migrateStore({ hands: [{ ...h, fastSpot: "nope" as never }], lastLevel: null }, null);
     expect(fixed?.hands[0]).not.toHaveProperty("fastSpot");
+  });
+});
+
+describe("빠른 기록 v2: a hand saved without a decision, with its chips and board", () => {
+  const LV5: FastLevel = { level: 5, guessed: false };
+  /** The draft saved as the default screen saves it: no decision, the result, board and 지금 스택 at `lv`. */
+  const saved = (d: FastDraft, lv = LV5, bbAnte = true, b: LoggedHand = base()) => {
+    const h = fastHand(d, null, b, "mid", 9);
+    return h && withFastResult(h, d, lv, bbAnte);
+  };
+
+  it("is a 빠른 기록 hand with no spot or preflop block, no verdict, complete as it is", () => {
+    const h = fastHand(typed("BTN", "AKs"), null, { ...base(), quickPre: { stage: "deep", pinned: true, action: "open" }, fastSpot: "none" }, "mid", 9)!;
+    expect(h).toMatchObject({ seat: "BTN", fast: true, result: null, net: null });
+    expect(h).not.toHaveProperty("fastSpot");
+    expect(h).not.toHaveProperty("quickPre");
+    expect(holeClass(h)).toBe("AKs");
+    expect([fastActed(h), fastVerdictOf(h), fastOnly(h), unfinished(h)]).toEqual([false, null, true, false]);
+    // only my seat at the table and a complete class are needed
+    expect(fastHand(typed("BTN", "AK"), null, base(), "mid", 9)).toBeNull();
+    expect(fastHand(typed("UTG+2", "AKs"), null, base(), "mid", 6)).toBeNull();
+    // the walk keeps being a decision (graded as 워크): a BB result-only hand isn't one
+    expect(fastActed(fastHand(typed("BB", "72o"), undefined, base(), "mid", 9)!)).toBe(true);
+    expect(fastVerdictOf(saved(typed("BB", "72o"))!)).toBeNull();
+  });
+
+  it("saves 폴드 by the seat, 워크, + / − in chips or bb, a chop, at the level given", () => {
+    const fold = (seat: string, extra: Partial<FastDraft> = {}, lv = LV5, ante = true) => saved({ ...pickRes(typed(seat, "94o"), "fold"), ...extra }, lv, ante)!;
+    expect([fold("CO").result, fold("CO").net]).toEqual(["fold", 0]);
+    expect(fold("SB").net).toBe(-300);
+    expect(fold("BB").net).toBe(-1200);
+    expect(fold("BB", {}, LV5, false)).toMatchObject({ net: -600, bbAnte: false });
+    expect(fold("BB", {}, { level: null, guessed: false })).toMatchObject({ result: "fold", net: null, level: null });
+    expect(saved(pickRes(typed("BB", "94o"), "walk"))).toMatchObject({ result: "win", net: 300 });
+    const win = saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" })!;
+    expect(win).toMatchObject({ result: "win", net: 12000, level: 5 });
+    expect(win).not.toHaveProperty("levelGuess");
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "-"), amount: "8", unit: "bb" })).toMatchObject({ result: "lose", net: -4800 });
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "0" })).toMatchObject({ result: "chop", net: 0 });
+    // the start-time estimate is marked as one
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" }, { level: 9, guessed: true })).toMatchObject({ level: 9, levelGuess: true });
+    // blocked: an amount without its sign, bb without a level
+    expect(saved({ ...typed("BTN", "AKs"), amount: "12000" })).toBeNull();
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "20", unit: "bb" }, { level: null, guessed: false })).toBeNull();
+    expect(blockOf({ ...typed("BTN", "AKs"), amount: "12000" }, 9, 5, true)).toBe("sign");
+    expect(blockOf({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "20", unit: "bb" }, 9, null, true)).toBe("level");
+    expect(blockOf(typed("BTN", "AK"), 9, 5, true)).toBe("class");
+    expect(blockOf(typed("BTN", "AKs"), 9, 5, true)).toBeNull();
+  });
+
+  it("saves the board remembered with the 숫자만 marks, a typed card winning over the guessed hole cards", () => {
+    const h = saved({ ...typed("BTN", "AKs"), board: [{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }] })!;
+    expect(h.board).toHaveLength(3);
+    expect(h.guess).toEqual({ hole: true, board: [1, 2] });
+    expect(rememberedText(h)).toBe("K♥ 7 2");
+    expect(fastOnly(h)).toBe(true);
+    // the class guessed as A♠K♠; a K♠ typed on the board moves the guess, the board keeps every card
+    const ks = saved({ ...typed("BTN", "AKs"), board: [{ r: R("K"), s: 0 }, { r: R("7") }, { r: R("2") }] })!;
+    expect(ks.board[0]).toBe(R("K") * 4);
+    expect(ks.hole).not.toContain(R("K") * 4);
+    expect(holeClass(ks)).toBe("AKs");
+    expect(ks.board).toHaveLength(3);
+    // a board the class can't be dealt with is refused, not cut: AKs with A♠ A♦ K♥ K♣ out leaves no suited AK
+    const none = { ...typed("BTN", "AKs"), board: [{ r: R("A"), s: 0 }, { r: R("A"), s: 2 }, { r: R("K"), s: 1 }, { r: R("K"), s: 3 }] };
+    expect(saved(none)).toBeNull();
+    expect(blockOf(none, 9, 5, true)).toBe("board");
+  });
+
+  it("keeps 지금 스택 as the hand's start stack (now − net), refused below zero", () => {
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", stackNow: "64200" })).toMatchObject({ stack: 52200 });
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "20", unit: "bb", stackNow: "107" })).toMatchObject({ net: 12000, stack: 52200 });
+    expect(saved({ ...pickRes(typed("BB", "AKs"), "fold"), stackNow: "30000" })).toMatchObject({ net: -1200, stack: 31200 });
+    expect(saved({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", stackNow: "5000" })).toBeNull();
+    expect(blockOf({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", stackNow: "5000" }, 9, 5, true)).toBe("stack");
+    expect(saved(typed("BTN", "AKs"))?.stack).toBeNull();
+  });
+
+  it("comes back in the editor as it was typed, and saves the same hand untouched", () => {
+    const d: FastDraft = { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", stackNow: "64200", board: [{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }] };
+    const h = saved(d)!;
+    const back = draftOf(h);
+    expect(back).toMatchObject({ seat: "BTN", res: "+", amount: "12000", stackNow: "64200", board: d.board, level: 5, editing: h.id });
+    expect(back).not.toHaveProperty("unit");
+    const again = withFastResult(fastHand(back, null, h, "mid", 9)!, back, { level: back.level ?? null, guessed: !!back.levelGuess }, !back.noAnte)!;
+    expect(again).toEqual(h);
+    // in bb when exact there to 0.1bb, else in chips
+    expect(draftOf(h, "bb")).toMatchObject({ unit: "bb", amount: "20", stackNow: "107" });
+    const odd = saved({ ...pickRes(typed("BTN", "AKs"), "-"), amount: "12345" })!;
+    expect(draftOf(odd, "bb")).toMatchObject({ res: "-", amount: "12345" });
+    expect(draftOf(odd, "bb")).not.toHaveProperty("unit");
+    // a fold, a chop, a hand without a result
+    expect(draftOf(saved(pickRes(typed("BB", "94o"), "fold"))!)).toMatchObject({ res: "fold" });
+    expect(draftOf(saved({ ...pickRes(typed("BB", "94o"), "+"), amount: "0" })!)).toMatchObject({ res: "+", amount: "0" });
+    expect(draftOf(saved(typed("BB", "94o"))!)).not.toHaveProperty("res");
+    // an old hand: no result fields, its level and ante only
+    const old = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    expect(Object.keys(draftOf(old)).sort()).toEqual(["editing", "level", "opener", "players", "ranks", "seat", "spot", "stage", "suited"]);
+  });
+
+  it("keeps a corrected hand's decision while it still fits, drops it when it doesn't", () => {
+    const call = fastHand(typed("HJ", "K9s", { spot: "open", opener: "UTG" }), "call", base(), "mid", 9)!;
+    expect(keptAction(call, draftOf(call))).toBe("call");
+    expect(keptAction(call, withSpot(draftOf(call), "none"))).toBeNull();
+    const walk = fastHand(typed("BB", "72o"), undefined, base(), "mid", 9)!;
+    expect(keptAction(walk, draftOf(walk))).toBeUndefined();
+    expect(keptAction(walk, withSeat(draftOf(walk), "SB", 9))).toBeNull();
+    expect(keptAction(saved(typed("BTN", "AKs"))!, typed("BTN", "AKs"))).toBeNull();
+  });
+});
+
+describe("빠른 기록 v2: the keypad's fields", () => {
+  const done = typed("BTN", "AKs");
+  it("takes 땄음 / 잃음 to the amount, 폴드 / 워크 drop it; digits go where the keypad is", () => {
+    const won = pickRes(done, "+");
+    expect(won).toMatchObject({ res: "+", focus: "result" });
+    const typedIn = ["1", "2", "000"].reduce(typeDigit, won);
+    expect(typedIn.amount).toBe("12000");
+    expect(pickRes(typedIn, "fold")).not.toHaveProperty("amount");
+    // 지금 스택 has its own text
+    const st = ["6", "4", "2", "00"].reduce(typeDigit, { ...typedIn, focus: "stack" as const });
+    expect([st.amount, st.stackNow]).toEqual(["12000", "64200"]);
+    // the hand has the keypad: digits do nothing; an amount typed after 폴드 asks for its sign
+    expect(typeDigit(done, "5")).toBe(done);
+    expect(typeDigit({ ...done, res: "fold", focus: "result" }, "5")).toEqual({ ...done, focus: "result", amount: "5" });
+    // the class not complete yet: the keypad is the hand's whatever the focus says
+    expect(typeDigit({ ...typed("BTN", "AK"), focus: "result" }, "5").amount).toBeUndefined();
+  });
+
+  it("puts board ranks and the last card's suit, refusing what can't be dealt", () => {
+    let d: FastDraft = { ...done, focus: "board" };
+    d = tapBoardRank(d, R("K"));
+    d = tapBoardSuit(d, 1);
+    d = tapBoardRank(tapBoardRank(d, R("7")), R("2"));
+    expect(d.board).toEqual([{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }]);
+    // the suit again: back to the rank only; a card already there: refused
+    expect(tapBoardSuit(d, 2).board?.[2]).toEqual({ r: R("2"), s: 2 });
+    expect(tapBoardSuit(tapBoardSuit(d, 2), 2).board?.[2]).toEqual({ r: R("2") });
+    const twoK = tapBoardRank(d, R("K"));
+    expect(tapBoardSuit(twoK, 1)).toBe(twoK);
+    // a fifth K counting the class's, and a sixth card: refused
+    const kkk = [1, 2, 3].reduce((x) => tapBoardRank(x, R("K")), { ...done, board: [] } as FastDraft);
+    expect(kkk.board).toHaveLength(3);
+    expect(tapBoardRank(kkk, R("K"))).toBe(kkk);
+    const five = [3, 4, 5].reduce((x, r) => tapBoardRank(x, r), d);
+    expect(five.board).toHaveLength(5);
+    expect(tapBoardRank(five, 6)).toBe(five);
+  });
+
+  it("walks ⌫ back through the field: the board's suit, its cards, the amount, its sign, the hand", () => {
+    let d: FastDraft = { ...pickRes(done, "-"), amount: "48", board: [{ r: R("K"), s: 1 }], focus: "board" };
+    d = backKey(d);
+    expect(d.board).toEqual([{ r: R("K") }]);
+    d = backKey(d);
+    expect(d).not.toHaveProperty("board");
+    d = backKey(d);
+    expect(d.focus).toBe("result");
+    d = backKey(backKey(d));
+    expect(d).not.toHaveProperty("amount");
+    d = backKey(d);
+    expect(d).not.toHaveProperty("res");
+    d = backKey(d);
+    expect(d).not.toHaveProperty("focus");
+    expect(draftClass(backKey(d))).toBe("AK");
+    // 지금 스택 empties, then the board has the keypad
+    expect(backKey(backKey({ ...done, stackNow: "5", focus: "stack" }))).toMatchObject({ focus: "board" });
+  });
+
+  it("turns the amounts into the other unit at the level, or keeps the digits without one when they fit", () => {
+    const d: FastDraft = { ...pickRes(done, "+"), amount: "12345", stackNow: "64200" };
+    expect(switchUnit(d, "bb", 5)).toMatchObject({ unit: "bb", amount: "20.6", stackNow: "107" });
+    expect(switchUnit(switchUnit(d, "bb", 5), "chips", 5)).toMatchObject({ amount: "12360", stackNow: "64200" });
+    expect(switchUnit(switchUnit(d, "bb", 5), "chips", 5)).not.toHaveProperty("unit");
+    expect(switchUnit({ ...done, amount: "20" }, "bb", null)).toMatchObject({ unit: "bb", amount: "20" });
+    const big = { ...done, amount: "12000" };
+    expect(switchUnit(big, "bb", null)).toBe(big);
+  });
+});
+
+describe("빠른 기록 v2: the editor state", () => {
+  it("starts the next hand in the unit last used, clear of the result, board and focus", () => {
+    const s = state({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "20", unit: "bb", board: [{ r: 3 }], focus: "board" }, { unit: "bb" });
+    const h = fastHand(s.draft, null, base(), "mid", 9)!;
+    expect(afterSave(s, h, [h]).draft).toEqual({ ...newDraft("CO"), unit: "bb" });
+    expect(freshDraft({}, "CO")).toEqual(newDraft("CO"));
+    expect(cancelEdit({ ...s, draft: { ...s.draft, editing: "x" } }).draft).toEqual({ ...newDraft("BTN"), unit: "bb" });
+    // a correction opens in the unit shown
+    const won = withFastResult(fastHand({ ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" }, null, base(), "mid", 9)!, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" }, { level: 5, guessed: false }, true)!;
+    expect(startEdit(s, won).draft).toMatchObject({ unit: "bb", amount: "20" });
+  });
+
+  it("reads the stored state with the new fields kept when valid and dropped when not", () => {
+    const at = 1_000;
+    const good = cleanFastState({
+      stage: "mid",
+      players: 9,
+      unit: "bb",
+      view: "bb",
+      actions: true,
+      noAnte: true,
+      levelPick: { level: 5, at },
+      draft: { seat: "BB", ranks: [12, 11], suited: true, res: "walk", amount: "20.5", stackNow: "107", unit: "bb", board: [{ r: 11, s: 1 }, { r: 5 }], focus: "board" },
+    });
+    expect(good).toMatchObject({ unit: "bb", view: "bb", actions: true, noAnte: true, levelPick: { level: 5, at } });
+    expect(good.draft).toMatchObject({ res: "walk", amount: "20.5", stackNow: "107", unit: "bb", board: [{ r: 11, s: 1 }, { r: 5 }], focus: "board" });
+    expect(cleanFastState({ levelPick: { level: null, at } }).levelPick).toEqual({ level: null, at });
+    const bad = cleanFastState({
+      unit: "x",
+      view: 1,
+      actions: "yes",
+      levelPick: { level: 99, at },
+      draft: { seat: "CO", ranks: [12, 11], suited: true, res: "walk", amount: "12a", stackNow: "1.5", board: [{ r: 12 }, { r: 12 }, { r: 12 }, { r: 12 }, { r: 12 }], focus: "x", level: 5, levelGuess: true, noAnte: true },
+    });
+    expect(bad).toEqual(state({ seat: "CO", ranks: [12, 11], suited: true, spot: "none", opener: null, editing: null }));
+    expect(cleanFastState({ draft: { seat: "CO", board: [{ r: 1, s: 0 }, { r: 1, s: 0 }] } }).draft).not.toHaveProperty("board");
+    expect(cleanFastState({ draft: { seat: "CO", board: [1, 2, 3, 4, 5, 6].map((r) => ({ r })) } }).draft).not.toHaveProperty("board");
+    expect(cleanFastState({ draft: { seat: "CO", amount: "20.5" } }).draft).not.toHaveProperty("amount");
+    expect(cleanFastState({ levelPick: { level: 5 } })).not.toHaveProperty("levelPick");
+    // a correction keeps its own level, the estimate's mark only with a level
+    const fixing = cleanFastState({ draft: { seat: "CO", editing: "h1", level: 5, levelGuess: true, noAnte: true } }).draft;
+    expect(fixing).toMatchObject({ level: 5, levelGuess: true, noAnte: true });
+    expect(cleanFastState({ draft: { seat: "CO", editing: "h1", level: null, levelGuess: true } }).draft).toMatchObject({ level: null });
+    expect(cleanFastState({ draft: { seat: "CO", editing: "h1", level: null, levelGuess: true } }).draft).not.toHaveProperty("levelGuess");
+  });
+
+  it("takes the level picked for the session, else the start time's estimate, never a stale last level", () => {
+    const NOW = new Date(2026, 10, 7, 22, 5).getTime();
+    const initial = handLogStore.get();
+    try {
+      handLogStore.set({ ...initial, hands: [], lastLevel: 12 });
+      expect(fastLevel({}, [], NOW)).toEqual({ level: null, guessed: false, picked: false });
+      expect(fastLevel({ levelPick: { level: 7, at: NOW - 60_000 } }, [], NOW)).toEqual({ level: 7, guessed: false, picked: true });
+      // the pick lapses 12 hours after the later of the pick and the session's newest hand
+      expect(fastLevel({ levelPick: { level: 7, at: NOW - SESSION_IDLE_MS - 1 } }, [], NOW).picked).toBe(false);
+      expect(fastLevel({ levelPick: { level: 7, at: NOW - SESSION_IDLE_MS - 1 } }, [{ ...base(NOW - 60_000) }], NOW).picked).toBe(true);
+      handLogStore.set({ ...initial, hands: [], lastLevel: 12, startClock: { day: localDay(NOW), clock: "19:00" } });
+      expect(fastLevel({}, [], NOW)).toEqual({ level: 9, guessed: true, picked: false });
+      expect(fastLevel({ levelPick: { level: null, at: NOW } }, [], NOW)).toEqual({ level: null, guessed: false, picked: true });
+    } finally {
+      handLogStore.set(initial);
+    }
+  });
+});
+
+describe("빠른 기록 v2: the copy text and the coach", () => {
+  const NOW = new Date(2026, 10, 8, 23, 0).getTime();
+  const at = (t: number, d: FastDraft, act: Parameters<typeof fastHand>[1] = null, lv = 5) => {
+    const h = fastHand(d, act, base(t), "mid", 9)!;
+    return withFastResult(h, d, { level: lv, guessed: false }, true)!;
+  };
+
+  it("adds the chips and the board to a hand's line, and leaves an old hand's line as it was", () => {
+    const won = at(NOW - 10 * 60_000, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", board: [{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }] });
+    expect(fastLineText(won)).toBe("22:50 BTN AKs +12,000 (+20bb) · 보드 K♥ 7 2");
+    expect(fastLineText(at(NOW, pickRes(typed("CO", "72o"), "fold")))).toBe("23:00 CO 72o 폴드");
+    expect(fastLineText(at(NOW, pickRes(typed("SB", "T4o"), "fold")))).toBe("23:00 SB T4o 폴드 −300 (−0.5bb)");
+    expect(fastLineText(at(NOW, typed("HJ", "QJs")))).toBe("23:00 HJ QJs");
+    const acted = at(NOW, { ...pickRes(typed("BTN", "AJo"), "+"), amount: "3000" }, "open");
+    expect(fastLineText(acted)).toBe("23:00 미들 BTN AJo 오픈 ✓ 차트대로 · +3,000 (+5bb)");
+  });
+
+  it("copies the session's chips, the stack, the big pots, then every hand; the verdict line only with decisions", () => {
+    const hands = [
+      at(NOW - 10 * 60_000, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", board: [{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }] }),
+      at(NOW - 20 * 60_000, pickRes(typed("SB", "T4o"), "fold")),
+      at(NOW - 30 * 60_000, { ...pickRes(typed("HJ", "QJs"), "-"), amount: "4800", stackNow: "45200" }),
+      at(NOW - 40 * 60_000, typed("CO", "K9s")),
+    ];
+    const lines = sessionText(hands).split("\n");
+    expect(lines[0]).toMatch(/^PubAJ 빠른 기록 · 11월 8일 \(일\) · 4핸드 \(펍 토너먼트\)$/);
+    expect(lines[1]).toBe("결과 +6,900칩 (+11.5bb) · 땄음 1 · 잃음 1 · 폴드 1 · 결과 없음 1");
+    expect(lines[2]).toBe("스택 50,000 → 56,900 (지금 스택 기준)");
+    expect(lines).not.toContain(expect.stringMatching(/^차트대로/));
+    expect(sessionText(hands)).toContain("[큰 팟 · 10bb 이상]\n- 22:50 BTN AKs +12,000 (+20bb) · 보드 K♥ 7 2\n\n[전체 · 시간순]");
+    expect(sessionText(hands)).toContain("1. 22:20 CO K9s\n2. 22:30 HJ QJs −4,800 (−8bb)\n3. 22:40 SB T4o 폴드 −300 (−0.5bb)\n4. 22:50 BTN AKs");
+    // with a decision on some hand: the chart line after the chips
+    const mixed = sessionText([...hands, at(NOW - 50 * 60_000, typed("BTN", "AJo"), "open")]).split("\n");
+    expect(mixed[0]).toContain("(펍 토너먼트, 펍아재 차트 기준)");
+    expect(mixed[3]).toBe("차트대로 1/1 (100%) · 섞는 핸드 0 · 오버플레이 0 · 언더플레이 0 · 차트 없음 0");
+  });
+
+  it("tells the coach the board as remembered, without the guessed suits as facts", () => {
+    const h = at(NOW, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", board: [{ r: R("K"), s: 1 }, { r: R("7") }, { r: R("2") }] });
+    const facts = handFacts(h);
+    expect(facts).toContain("보드 (빠른 기록 · 기억나는 카드만, 숫자만 적힌 건 수트 모름): K♥ 7 2");
+    expect(facts).toContain("결과: 이김 +12,000칩 (+20bb)");
+    expect(facts).not.toContain("펍 차트 판정");
+    // carried on to the table it is a table hand again, its board a table board
+    expect(handFacts({ ...h, steps: [{ s: "UTG", k: "fold" }] })).toContain("보드: ");
+  });
+
+  it("stays complete with a board, and goes back to the table flow only with table actions", () => {
+    const h = { ...at(NOW, { ...typed("BTN", "AKs"), board: [{ r: 3 }, { r: 4 }] }), updatedAt: Date.now() };
+    expect([fastOnly(h), unfinished(h), resumable([h], Date.now())]).toEqual([true, false, null]);
+    expect(fastOnly({ ...h, steps: [{ s: "UTG", k: "fold" }] })).toBe(false);
+    expect(fastOnly({ ...h, showdowns: [{ name: "", seat: "CO", cards: [], did: "" }] })).toBe(false);
+  });
+
+  it("keeps the new hands through sanitize and the backup", () => {
+    const h = at(NOW, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000", stackNow: "64200", board: [{ r: R("K"), s: 1 }, { r: R("7") }] });
+    expect(sanitize(JSON.parse(JSON.stringify(h)))).toEqual(h);
+    expect(mergeImport(exportData([h]), []).hands[0]).toEqual(h);
+    expect(migrateStore({ hands: [h], lastLevel: null }, null)).toBeNull();
   });
 });
