@@ -13,7 +13,8 @@ import {
 import { countOuts, equityVsHand } from "../../poker/equity";
 import { categoryName, evaluate } from "../../poker/evaluator";
 import { bluffBreakEven, callEV, hitChance, mdf, requiredEquity, ruleOf2and4 } from "../../poker/odds";
-import { allScenarios, getSet, inReach, reachOf, type Scenario } from "../../data/charts";
+import { allScenarios, getSet, inReach, reachOf, type Scenario, type StageDef } from "../../data/charts";
+import { quizCloseActions } from "../../data/sets/preflop";
 
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const fmtPct = (x: number) => `${Math.round(x * 100)}%`;
@@ -99,12 +100,18 @@ export function quizPool(setId: string, filter: string): Scenario[] {
 
 /**
  * A hand drawn toward the edges of the scenario's ranges, times the hero's reach (reachRange): a hand that never
- * gets here is never dealt, and one that rarely does comes up rarely. Without reachRange every hand keeps its weight
- * (times 1, exactly), and the loop below draws exactly as it always has.
+ * gets here is never dealt, and one that rarely does comes up rarely. Hands in quizSkip (the solver set's flagged
+ * artifact cells, docs §6.10) are never dealt, unless they are all the spot has. Without reachRange and quizSkip
+ * every hand keeps its weight (times 1, exactly), and the loop below draws exactly as it always has.
  */
 export function weightedHand(scenario: Scenario): HandClass {
-  const weights = ALL_HANDS.map((h) => handWeight(scenario, h) * reachOf(scenario, h));
-  const total = weights.reduce((a, b) => a + b, 0);
+  const skip = scenario.quizSkip;
+  let weights = ALL_HANDS.map((h) => handWeight(scenario, h) * reachOf(scenario, h) * (skip?.[h] ? 0 : 1));
+  let total = weights.reduce((a, b) => a + b, 0);
+  if (!(total > 0) && skip) {
+    weights = ALL_HANDS.map((h) => handWeight(scenario, h) * reachOf(scenario, h));
+    total = weights.reduce((a, b) => a + b, 0);
+  }
   // Nothing reaches the spot (broken data): any hand beats a crash.
   if (!(total > 0)) return ALL_HANDS[Math.floor(Math.random() * ALL_HANDS.length)];
   let x = Math.random() * total;
@@ -129,13 +136,41 @@ export function generatePreflop(setId: string, filter = "all"): PreflopQuestion 
   return { uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, scenario, hand, cards: randomCombo(hand) };
 }
 
-export type Grade = "correct" | "mixed" | "wrong";
+export type Grade = "correct" | "close" | "mixed" | "wrong";
 
-/** Grade by how often the chart takes the chosen action. */
-export function gradePreflop(freq: number, best: number): Grade {
+/** The chart frequency from which a non-best action grades "부분 정답 (혼합 빈도)": the hand-made sets' value. */
+export const MIXED_MIN = 0.2;
+/**
+ * The solver set's (docs §6.8): half its data's 0.1 grid, so every action its chart plays (a tenth or more; buildScenario
+ * can give 0.09999…) grades at least "부분 정답". An equilibrium mixes only near-indifferent actions, and next to a 0%
+ * close-call action graded "정답 (EV 거의 같음)", a 10% action graded 오답 would contradict the chart.
+ */
+export const SOLVER_MIXED_MIN = 0.05;
+
+/**
+ * Grade by how often the chart takes the chosen action. `near`: the cell is a close call (the solver set, docs §6.9)
+ * and the chosen action is in its set, so an action the chart does not take is "close" (정답, EV 거의 같음), which
+ * counts as correct. `mixedMin`: see MIXED_MIN. With the defaults the grades are as they always were.
+ */
+export function gradePreflop(freq: number, best: number, near = false, mixedMin = MIXED_MIN): Grade {
   if (freq >= 0.5 || (freq > 0 && freq >= best - 0.001)) return "correct";
-  if (freq >= 0.2) return "mixed";
+  if (near) return "close";
+  if (freq >= mixedMin) return "mixed";
   return "wrong";
+}
+
+/** The mixed floor of a stage's quiz: SOLVER_MIXED_MIN where the stage carries close calls (the solver set). */
+export const quizMixedMin = (stage: Pick<StageDef, "closeEps">) => (stage.closeEps !== undefined ? SOLVER_MIXED_MIN : MIXED_MIN);
+
+/**
+ * The preflop quiz's grade of answer `key` with hand h at spot s (QuizPage): gradePreflop on the chart's frequency,
+ * with the close-call set the quiz accepts (quizCloseActions: closeActions without an AA or KK passive tie) and the
+ * stage's mixed floor (quizMixedMin). The hand-made sets have neither close calls nor closeEps, so they grade as before.
+ */
+export function gradeAnswer(s: Scenario, h: HandClass, key: string, mixedMin = MIXED_MIN): Grade {
+  const st = s.strategy[h];
+  const best = Math.max(...Object.values(st));
+  return gradePreflop(st[key] ?? 0, best, quizCloseActions(s, h)?.includes(key) ?? false, mixedMin);
 }
 
 // ───────────────────────── Multiple-choice quizzes ─────────────────────────

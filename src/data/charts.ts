@@ -3,6 +3,7 @@ import { parseRange, rangeCombos, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
 import { NASH } from "./sets/nash";
 import { solverSetDef } from "./sets/preflop";
+import type { PreflopFlag } from "./sets/preflopTypes";
 import { SHORT_NASH } from "./sets/shortNash";
 import { PUB_TOURNEY } from "./sets/pub";
 
@@ -58,6 +59,16 @@ export interface ScenarioDef {
   noFold?: boolean;
   /** Quiz pick weight against the other scenarios of the pool; default 1. */
   weight?: number;
+  /**
+   * Close calls (the solver set, docs §6.9): per hand whose chart cell is pure, the legend keys (legend order) whose
+   * best-response EV is within the stage's closeEps of the best: the chart's action and at least one other. The grid
+   * marks these cells, and the quiz grades the other actions in the set "정답 (EV 거의 같음)".
+   */
+  close?: Partial<Record<HandClass, string[]>>;
+  /** Known model or tree artifacts of this spot (the solver set, docs §6.10): the charts page shows their cautions. */
+  flags?: PreflopFlag[];
+  /** Hands the quiz never deals here (the solver set's flagged cells, docs §6.10). */
+  quizSkip?: Partial<Record<HandClass, true>>;
 }
 
 export interface StageDef {
@@ -67,6 +78,8 @@ export interface StageDef {
   stack: string;
   description: string;
   scenarios: ScenarioDef[];
+  /** bb per arrival: the threshold of the scenarios' close calls (the solver set). */
+  closeEps?: number;
 }
 
 export interface ChartSetDef {
@@ -156,6 +169,20 @@ export function getSet(id: string): ChartSet {
 
 export function allScenarios(set?: ChartSet): Scenario[] {
   return (set ? [set] : CHART_SETS).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
+}
+
+/** The close-call set of hand h (legend keys, the chart's action among them), or undefined where h is not marked. */
+export function closeActions(s: ScenarioDef, h: HandClass): string[] | undefined {
+  return s.close?.[h];
+}
+
+/** From this share of its in-reach cells marked close, a spot gets the charts page's "표시된 칸이 많아요" note (docs §6.8). */
+export const HEAVY_CLOSE_SHARE = 0.25;
+
+/** Whether at least HEAVY_CLOSE_SHARE of the spot's in-reach cells carry a close mark (never without marks). */
+export function isHeavyClose(s: Scenario): boolean {
+  const marked = s.close ? Object.keys(s.close).length : 0;
+  return marked > 0 && marked >= HEAVY_CLOSE_SHARE * ALL_HANDS.filter((h) => inReach(s, h)).length;
 }
 
 /** Actions in button order: fold first, then the scenario's actions. No fold where the hero cannot fold. */

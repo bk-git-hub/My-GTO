@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { CardRow } from "../../components/Cards";
 import { Choices } from "../../components/Choice";
-import { describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
+import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
 import { getSet, scenarioActions } from "../../data/charts";
+import { bigPairCloseNote, cautionFacts, quizCloseActions } from "../../data/sets/preflop";
 import { cardLabel } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { accuracy, recordAnswer, useStats } from "../../state/stats";
@@ -13,7 +14,8 @@ import {
   generateEquity,
   generateOdds,
   generatePreflop,
-  gradePreflop,
+  gradeAnswer,
+  quizMixedMin,
   type Grade,
   type MCQuestion,
   type PreflopQuestion,
@@ -67,6 +69,7 @@ export function QuizPage({ sub = "" }: { sub?: string }) {
 
 const GRADE_TEXT: Record<Grade, string> = {
   correct: "정답!",
+  close: "정답 (EV 거의 같음)",
   mixed: "부분 정답 (혼합 빈도)",
   wrong: "오답",
 };
@@ -91,9 +94,13 @@ function PreflopQuiz() {
 
   const s = q.scenario;
   const strategy = s.strategy[q.hand];
-  const best = Math.max(...Object.values(strategy));
-  const grade = chosen ? gradePreflop(strategy[chosen] ?? 0, best) : null;
   const stage = set.stages.find((x) => x.id === s.stageId)!;
+  // The solver set's close calls (gradeAnswer: the actions within ε of the best are "정답 (EV 거의 같음)", without an
+  // AA or KK passive tie) and its mixed floor (every action its chart plays is at least "부분 정답").
+  const mixedMin = quizMixedMin(stage);
+  const near = quizCloseActions(s, q.hand);
+  const caveat = bigPairCloseNote(s, q.hand);
+  const grade = chosen ? gradeAnswer(s, q.hand, chosen, mixedMin) : null;
 
   function next(f = filter) {
     setQ(generatePreflop(set.id, f));
@@ -103,13 +110,14 @@ function PreflopQuiz() {
   function answer(key: string) {
     if (chosen) return;
     setChosen(key);
-    const g = gradePreflop(strategy[key] ?? 0, best);
+    const g = gradeAnswer(s, q.hand, key, mixedMin);
     recordAnswer(["preflop", `preflop:${s.id}`], g !== "wrong");
   }
 
   function askCoach() {
     if (!chosen || !grade) return;
     const chosenLabel = scenarioActions(s).find((a) => a.key === chosen)?.label ?? chosen;
+    const close = near ? closeFact(s, q.hand, stage.closeEps, near) : null;
     coach.open({
       id: `quiz:${q.uid}`,
       title: `${s.title} · ${q.hand}`,
@@ -119,13 +127,18 @@ function PreflopQuiz() {
         `상황: ${s.title}${s.description ? ` — ${s.description}` : ""}`,
         `내 핸드: ${q.cards.map(cardLabel).join(" ")} (${q.hand})`,
         `차트 빈도: ${describeStrategy(s, strategy)}`,
+        ...(close ? [close] : []),
+        ...(caveat ? [`모델 한계: ${caveat}`] : []),
+        ...cautionFacts(s, q.hand),
         `사용자의 선택: ${chosenLabel} → ${GRADE_TEXT[grade]}`,
         `차트 출처: ${set.source}`,
       ].join("\n"),
       defaultQuestion:
         grade === "correct"
           ? "정답이었는데, 왜 이게 맞는지 이유를 쉽게 정리해줘."
-          : "내 선택이 왜 틀렸고 차트처럼 플레이하는 이유가 뭔지 쉽게 설명해줘.",
+          : grade === "close"
+            ? "EV가 거의 같다고 나왔는데, 두 선택이 실전에서 어떻게 다른지 쉽게 설명해줘."
+            : "내 선택이 왜 틀렸고 차트처럼 플레이하는 이유가 뭔지 쉽게 설명해줘.",
     });
   }
 
@@ -196,6 +209,12 @@ function PreflopQuiz() {
               </button>
             </div>
             <strong>{GRADE_TEXT[grade]}</strong>
+            {near && (grade === "close" || grade === "correct") && (
+              <>
+                <CloseNote scenario={s} hand={q.hand} eps={stage.closeEps} chosen={grade === "close" ? chosen : undefined} keys={near} />
+                {caveat && <p className="flag-note">{caveat}</p>}
+              </>
+            )}
             <FreqBar scenario={s} strategy={strategy} />
           </div>
         )}

@@ -7,6 +7,7 @@ import { ChartsPage } from "../features/charts/ChartsPage";
 import { ALL_HANDS, gridHand, type HandClass } from "../poker/cards";
 import { parseRange } from "../poker/range";
 import { settingsStore } from "../state/settings";
+import { cautionLines } from "./sets/preflop";
 import {
   actionTotals,
   allScenarios,
@@ -341,6 +342,37 @@ function renderPage(set?: ChartSet, chartSet = set?.id ?? "pub"): string {
 }
 
 describe("solver-style scenario fields", () => {
+  it("cautions pick each rule's extreme example where a flag lists several hands (docs §6.10)", () => {
+    // The shipped data's -9, -11 and -14 flags list one hand each, so these choices are checked here.
+    const vsOpen = (actions: [string, string, string][], flags: ScenarioDef["flags"]): Scenario =>
+      one({
+        id: "co-vs-utg-open",
+        kind: "vsOpen",
+        hero: "CO",
+        villain: "UTG",
+        chip: "vs UTG",
+        title: "CO vs UTG 오픈",
+        description: "",
+        actions: actions.map(([key, label, range]) => ({ key, label, color: key === "call" ? "call" : "raise", range })),
+        flags,
+      });
+    // -9: the connector that 3-bets most and the wheel ace that 3-bets most.
+    const nine = vsOpen([["3bet", "3벳 6.6bb", "54s, 65s:0.6, A4s:0.5"]], [{ code: "PF-SANITY-9", hands: "54s, 65s", vs: "A4s, A3s" }]);
+    expect(cautionLines(nine)[0]).toContain("(예: 54s 3벳 100%, A4s 3벳 50%)");
+    // -11: the big pair that 3-bets least (QQ 30%, JJ 0%) and the middle pair that 3-bets most (TT 100%, 99 60%).
+    const eleven = vsOpen(
+      [
+        ["3bet", "3벳 6.6bb", "AA, KK, QQ:0.3, TT, 99:0.6"],
+        ["call", "콜", "QQ:0.7, JJ, 99:0.4"],
+      ],
+      [{ code: "PF-SANITY-11", hands: "QQ, JJ", vs: "TT, 99" }],
+    );
+    expect(cautionLines(eleven)[0]).toContain("(예: JJ 3벳 0%, TT 3벳 100%)");
+    // -14: the widest gap in plays, A6o 0% against A4o 100% (A8o 20% and A3o 60% make the other pairs).
+    const fourteen = vsOpen([["call", "콜", "A4o, A3o:0.6, A8o:0.2"]], [{ code: "PF-SANITY-14", hands: "A8o, A6o", vs: "A4o, A3o" }]);
+    expect(cautionLines(fourteen)[0]).toContain("(예: A6o 0%, A4o 100%)");
+  });
+
   it("labels the new kinds", () => {
     expect(KIND_LABEL.vs4bet).toBe("vs 4벳");
     expect(KIND_LABEL.squeeze).toBe("스퀴즈·오버콜");
