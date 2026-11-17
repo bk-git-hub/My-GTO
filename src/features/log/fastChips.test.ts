@@ -241,38 +241,6 @@ describe("빠른 기록 chips: the session", () => {
     expect(bb.segments[0].map((p) => Math.round(p.y * 10) / 10)).toEqual([83.3, 82.8, 80.8, 100.8, 100.8, 92.8]);
   });
 
-  it("runs from a tournament's start stack: point 0 is the start, a first 지금 스택 that disagrees jumps at 0", () => {
-    const hs = fixture().map((h) => ({ ...h, stack: null }));
-    const s = chipSeries(hs, "chips", 50000)!;
-    expect(s.absolute).toBe(true);
-    expect(s.segments).toHaveLength(1);
-    expect(s.segments[0].map((p) => p.y)).toEqual([50000, 49700, 48500, 60500, 60500, 55700]);
-    expect([s.start, s.end, s.min, s.max, s.unknown]).toEqual([50000, 55700, 48500, 60500, 1]);
-    expect(s.jumps).toEqual([]);
-    expect(missedOf(hs, 50000)).toBeNull();
-    // the first hand's 지금 스택 says 47,700 after a 300 fold: 48,000 at its start, 2,000 gone before it was logged
-    const first = [hand(-300, { result: "fold", seat: "SB", stack: 48000 }), hand(2000)];
-    const j = chipSeries(first, "chips", 50000)!;
-    expect(j.jumps).toEqual([{ x: 0, from: 50000, to: 48000 }]);
-    expect(j.segments).toEqual([
-      [{ x: 0, y: 50000 }],
-      [
-        { x: 0, y: 48000 },
-        { x: 1, y: 47700 },
-        { x: 2, y: 49700 },
-      ],
-    ]);
-    expect(j.anchors).toEqual([{ x: 1, y: 47700 }]);
-    expect(missedOf(first, 50000)).toEqual({ chips: -2000, bb: -3.3 });
-    expect(sessionMoney(first).chips + missedOf(first, 50000)!.chips).toBe(j.end - j.start);
-    // in bb: point 0 at the first hand's big blind
-    expect(chipSeries(hs, "bb", 50000)!.segments[0].map((p) => Math.round(p.y * 10) / 10)).toEqual([83.3, 82.8, 80.8, 100.8, 100.8, 92.8]);
-    // a start stack alone is no run; none (or none known) is the run as before
-    expect(chipSeries([hand(null)], "chips", 50000)).toBeNull();
-    expect(chipSeries(hs, "chips", null)).toEqual(chipSeries(hs, "chips"));
-    expect(chipSeries(hs, "chips", 0)).toEqual(chipSeries(hs, "chips"));
-  });
-
   it("takes a missing level from the hand before it (else after), chips when no hand has one, nothing without a result", () => {
     const hs = [hand(-600, { level: null, stack: 30000 }), hand(1200, { level: 5 }), hand(600, { level: null })];
     const s = chipSeries(hs, "bb")!;

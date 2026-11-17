@@ -55,8 +55,6 @@ describe("menu and routes", () => {
     // 남의 핸드 is reached from 빠른 기록's toggle
     expect(lit("log/other")).toEqual(["log/fast"]);
     expect(lit("log/other/abc-123")).toEqual(["log/fast"]);
-    // 빠른 기록's tournaments are reached from its list
-    for (const r of ["log/fast/past", "log/fast/t/t-abc-123", "log/fast/s/abc-123"]) expect(lit(r)).toEqual(["log/fast"]);
     for (const r of ["log/list", "log/list/mine", "log/list/other", "log/players", "log/abc-123"]) expect(lit(r)).toEqual(["log/list"]);
     // the rest as before
     expect(lit("home")).toEqual(["home"]);
@@ -80,7 +78,6 @@ describe("menu and routes", () => {
     expect(titleOf("log/fast")).toBe("빠른 기록");
     expect(titleOf("log/other")).toBe("남의 핸드 기록");
     expect(titleOf("log/other/x")).toBe("남의 핸드 기록");
-    for (const r of ["log/fast/past", "log/fast/t/x", "log/fast/s/x"]) expect(titleOf(r)).toBe("토너먼트 기록");
     expect(titleOf("log/list")).toBe("지난 기록 보기");
     expect(titleOf("log/list/other")).toBe("지난 기록 보기");
     expect(titleOf("log/players")).toBe("지난 기록 보기");

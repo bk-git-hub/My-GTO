@@ -11,7 +11,6 @@ import {
   missedOf,
   netBoth,
   postedBy,
-  chipSeries,
   sessionMoney,
   toChips,
   typeAmount,
@@ -37,7 +36,7 @@ import {
   withLevel,
   type LoggedHand,
 } from "./handLog";
-import { levelRow, levelSince, type LevelEstimate } from "./levelClock";
+import { levelRow, levelSince } from "./levelClock";
 import { cleanPre, isStage, STAGE_LABEL, type PreAction, type PreStage } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
 import { cleanGuess, holeFromRanks, setBoardGuess } from "./suitGuess";
@@ -126,10 +125,9 @@ export interface FastState {
   actions?: true;
   /**
    * A level picked by hand for new hands (null: 레벨 모름 on purpose) and when. It holds for the session:
-   * until SESSION_IDLE_MS after the later of `at` and the session's newest hand. `t`: the tournament it was
-   * picked in (fastTourney.ts); it holds only while that tournament is the current one (without: while none is).
+   * until SESSION_IDLE_MS after the later of `at` and the session's newest hand.
    */
-  levelPick?: { level: number | null; at: number; t?: string };
+  levelPick?: { level: number | null; at: number };
   /** New hands without the BB ante (absent: the pub's BB ante). */
   noAnte?: true;
 }
@@ -543,21 +541,19 @@ export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "
 /**
  * The level new hands go in at: a level picked for the session, moved on by the schedule from the
  * moment it was picked (levelSince: once past the level picked it is an estimate, `guessed`); else
- * the start-time estimate `est` (default: today's start time; 빠른 기록 passes its tournament's); else
- * none (never a stale last level: folds and bb amounts would go wrong unseen). `picked`: it comes from a
- * pick (레벨 모름 picked on purpose among them). A pick holds only in the tournament it was made in
- * (`tid`: the current one's id, null for none), so starting or resuming another never carries it over.
+ * today's start-time estimate; else none (never a stale last level: folds and bb amounts would go
+ * wrong unseen). `picked`: it comes from a pick (레벨 모름 picked on purpose among them).
  */
-export function fastLevel(s: Pick<FastState, "levelPick">, session: LoggedHand[], now: number, est: LevelEstimate | null = levelEstimateAt(now), tid: string | null = null): FastLevel & { picked: boolean } {
+export function fastLevel(s: Pick<FastState, "levelPick">, session: LoggedHand[], now: number): FastLevel & { picked: boolean } {
   const newest = session.reduce((m, h) => Math.max(m, h.createdAt), 0);
   const pick = s.levelPick;
-  if (pick && (pick.t ?? null) === tid && now - Math.max(pick.at, newest) <= SESSION_IDLE_MS) {
+  if (pick && now - Math.max(pick.at, newest) <= SESSION_IDLE_MS) {
     if (pick.level === null) return { level: null, guessed: false, picked: true };
     const level = levelSince(pick.level, pick.at, now);
     return { level, guessed: level !== pick.level, picked: true };
   }
-  const lv = estimatedLevel(est);
-  return lv !== null ? { level: lv, guessed: true, picked: false } : { level: null, guessed: false, picked: false };
+  const est = estimatedLevel(levelEstimateAt(now));
+  return est !== null ? { level: est, guessed: true, picked: false } : { level: null, guessed: false, picked: false };
 }
 
 // ───────────── saving, correcting ─────────────
@@ -680,11 +676,7 @@ export function cleanFastState(x: unknown, stage: PreStage = "mid", size = 9): F
   const draft = cleanDraft(r.draft ?? {}, players);
   const parked = r.parked && draft.editing ? cleanDraft(r.parked, players) : null;
   const pick = obj(r.levelPick);
-  const pickT = typeof pick.t === "string" && pick.t && pick.t.length <= 64 ? pick.t : null;
-  const levelPick =
-    typeof pick.at === "number" && Number.isFinite(pick.at) && (pick.level === null || (typeof pick.level === "number" && levelRow(pick.level)))
-      ? { level: pick.level as number | null, at: pick.at, ...(pickT ? { t: pickT } : {}) }
-      : null;
+  const levelPick = typeof pick.at === "number" && Number.isFinite(pick.at) && (pick.level === null || (typeof pick.level === "number" && levelRow(pick.level))) ? { level: pick.level as number | null, at: pick.at } : null;
   return {
     stage: isStage(r.stage) ? r.stage : stage,
     players,
@@ -769,25 +761,12 @@ export function fastLineText(h: LoggedHand): string {
   return [clock(h.createdAt), stage, h.seat, holeClass(h), act, v && v.text !== act ? v.text : ""].filter(Boolean).join(" ") + (res ? ` · ${res}` : "") + board;
 }
 
-/** A tournament's lines for the copy text (fastTourney.ts infoOf). */
-export interface SessionInfo {
-  /** "11/17 토너먼트", or the name typed. */
-  title: string;
-  /** "11월 17일 (월) 19:00 시작", "11월 17일 (월) 21:05부터". */
-  when: string;
-  /** Chips at the start, null: not known. */
-  startStack: number | null;
-  memo: string;
-}
-
 /**
  * "오늘 요약 복사": the session in short text, for asking Claude later: my chips over the session (with
  * the stack where 지금 스택 was typed), the big pots, overplays and underplays, then every hand. In "other"
- * mode the hands are other players' (남의 핸드): looser and tighter than the chart first. With a
- * tournament's `info` (요약 복사), the first line names it and its start, the stack line runs from its start
- * stack when known, and its memo follows; without, the text is what it always was.
+ * mode the hands are other players' (남의 핸드): looser and tighter than the chart first.
  */
-export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?: SessionInfo): string {
+export function sessionText(hands: LoggedHand[], mode: FastMode = "mine"): string {
   if (!hands.length) return "";
   const other = mode === "other";
   const acted = other ? hands : hands.filter(fastActed);
@@ -795,19 +774,15 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
   const [over, under] = other ? ["차트보다 루즈", "차트보다 타이트"] : ["오버플레이", "언더플레이"];
   const old = [...hands].sort((a, b) => a.createdAt - b.createdAt);
   const day = new Date(old[0].createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" });
-  const head = info ? `${info.title} · ${info.when}` : day;
   const lines = [
     other
-      ? `PubAJ 남의 핸드 · ${head} · ${hands.length}핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)`
-      : `PubAJ 빠른 기록 · ${head} · ${hands.length}핸드 (펍 토너먼트${acted.length ? ", 펍아재 차트 기준" : ""})`,
+      ? `PubAJ 남의 핸드 · ${day} · ${hands.length}핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)`
+      : `PubAJ 빠른 기록 · ${day} · ${hands.length}핸드 (펍 토너먼트${acted.length ? ", 펍아재 차트 기준" : ""})`,
   ];
-  const memo = info?.memo.trim();
-  if (memo) lines.push(`메모: ${memo.replace(/\s*\n\s*/g, " / ")}`);
-  const startStack = info?.startStack ?? null;
   if (!other) {
     const m = sessionMoney(hands);
     // Where 지금 스택 disagreed with the count (hands missed), the result is the stack's change: the hands logged plus the rest.
-    const missed = missedOf(hands, startStack);
+    const missed = missedOf(hands);
     if (m.withResult || missed) {
       const sign = (n: number) => (n > 0 ? "+" : n < 0 ? "−" : "");
       const chips = (n: number) => `${sign(n)}${Math.abs(n).toLocaleString()}칩`;
@@ -818,11 +793,7 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
     }
     const first = old.find((h) => h.stack !== null);
     const lastAnchor = [...old].reverse().find((h) => h.stack !== null);
-    const run = startStack !== null ? chipSeries(hands, "chips", startStack) : null;
-    if (startStack !== null) {
-      // From the tournament's start stack to now: the graph's run (지금 스택 where typed, the nets between).
-      lines.push(`시작 스택 ${startStack.toLocaleString()}${run ? ` → 지금 ${Math.round(run.end).toLocaleString()}` : ""}`);
-    } else if (first && lastAnchor) {
+    if (first && lastAnchor) {
       // From the first stack typed back to the start, to the last one forward: the nets in between.
       const before = old.slice(0, old.indexOf(first)).reduce((t, h) => t + (h.net ?? 0), 0);
       const after = old.slice(old.indexOf(lastAnchor)).reduce((t, h) => t + (h.net ?? 0), 0);

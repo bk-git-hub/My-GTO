@@ -29,15 +29,6 @@ describe("the screen above (back with no earlier entry)", () => {
     expect(parentRoute("log/other/h_1")).toBe("log/fast");
   });
 
-  it("one tournament → 토너먼트 기록 → 빠른 기록", () => {
-    expect(parentRoute("log/fast/past")).toBe("log/fast");
-    expect(parentRoute("log/fast/t/t-abc")).toBe("log/fast/past");
-    expect(parentRoute("log/fast/s/abc-123")).toBe("log/fast/past");
-    const chain = ["log/fast/t/x"];
-    while (chain[chain.length - 1] !== "home" && chain.length < 6) chain.push(parentRoute(chain[chain.length - 1]));
-    expect(chain).toEqual(["log/fast/t/x", "log/fast/past", "log/fast", "home"]);
-  });
-
   it("a solver report or flop → the scenario list", () => {
     expect(parentRoute("solver/srp-btn-bb-100")).toBe("solver");
     expect(parentRoute("solver/srp-btn-bb-100/AsKd7c")).toBe("solver");

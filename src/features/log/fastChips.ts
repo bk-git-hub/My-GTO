@@ -292,19 +292,12 @@ export const oldestFirst = (hands: LoggedHand[]): LoggedHand[] => [...hands].sor
  * by adding them; a later stack that disagrees with the count (a hand missed) breaks the line there with
  * a jump to it. In bb each point is divided by its hand's big blind (a hand without a level takes the
  * nearest earlier one's, else the next's); no level at all gives chips. Null without any net or stack.
- *
- * With a tournament's `startStack` (chips) the run is absolute from it: point 0 is the start stack, each
- * hand adds its net, and a hand's own stack that disagrees with the count breaks the line there with a
- * jump (at x = 0: chips won or lost before the first hand logged). A start stack alone is no run: still
- * null without any net or stack.
  */
-export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number | null = null): ChipSeries | null {
+export function chipSeries(hands: LoggedHand[], unit: Unit): ChipSeries | null {
   const old = oldestFirst(hands);
   const n = old.length;
-  const fromStart = startStack !== null && Number.isFinite(startStack) && startStack > 0;
-  // With a start stack every hand is counted on from the one before (the start stack before the first).
-  const first = fromStart ? -1 : old.findIndex((h) => h.stack !== null);
-  if (!n || (old.every((h) => h.stack === null) && old.every((h) => h.net === null))) return null;
+  const first = old.findIndex((h) => h.stack !== null);
+  if (!n || (first < 0 && old.every((h) => h.net === null))) return null;
   const bbOf = old.map((h) => levelRow(h.level)?.bb ?? null);
   const u: Unit = unit === "bb" && bbOf.some((b) => b !== null) ? "bb" : "chips";
   const d = old.map((h) => h.net ?? 0);
@@ -313,7 +306,7 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
   const anchors: ChipPoint[] = [];
   let unknown = 0;
 
-  if (first < 0 && !fromStart) {
+  if (first < 0) {
     let y = 0;
     const seg: ChipPoint[] = [{ x: 0, y: 0 }];
     old.forEach((h, i) => {
@@ -325,16 +318,14 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
     segments.push(seg);
   } else {
     const start: number[] = new Array(n).fill(0);
-    if (first >= 0) {
-      start[first] = old[first].stack as number;
-      for (let i = first - 1; i >= 0; i--) start[i] = start[i + 1] - d[i];
-    }
-    let seg: ChipPoint[] = [{ x: 0, y: fromStart ? (startStack as number) : start[0] }];
+    start[first] = old[first].stack as number;
+    for (let i = first - 1; i >= 0; i--) start[i] = start[i + 1] - d[i];
+    let seg: ChipPoint[] = [{ x: 0, y: start[0] }];
     segments.push(seg);
     old.forEach((h, i) => {
       if (h.net === null) unknown++;
       if (i > first) {
-        const count = i === 0 ? (startStack as number) : start[i - 1] + d[i - 1];
+        const count = start[i - 1] + d[i - 1];
         if (h.stack !== null && h.stack !== count) {
           jumps.push({ x: i, from: count, to: h.stack });
           seg = [{ x: i, y: h.stack }];
@@ -360,21 +351,19 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
   }
   const all = segments.flat();
   const startY = all[0].y;
-  const absolute = fromStart || first >= 0;
-  const ys = [...all.map((p) => p.y), absolute ? startY : 0];
-  return { unit: u, absolute, segments, jumps, anchors, start: startY, end: all[all.length - 1].y, min: Math.min(...ys), max: Math.max(...ys), unknown };
+  const ys = [...all.map((p) => p.y), first < 0 ? 0 : startY];
+  return { unit: u, absolute: first >= 0, segments, jumps, anchors, start: startY, end: all[all.length - 1].y, min: Math.min(...ys), max: Math.max(...ys), unknown };
 }
 
 /**
  * The chips the session's 지금 스택 adds to the hands logged: the sum of its jumps (where a stack typed
  * disagreed with the count: hands missed), in chips and in bb (null without a level). Null without any
- * jump. The session's whole result is the hands' nets plus this (the graph's end minus its start). With
- * a tournament's start stack the run starts there, so a first 지금 스택 that disagrees with it counts too.
+ * jump. The session's whole result is the hands' nets plus this (the graph's end minus its start).
  */
-export function missedOf(hands: LoggedHand[], startStack: number | null = null): { chips: number; bb: number | null } | null {
-  const c = chipSeries(hands, "chips", startStack);
+export function missedOf(hands: LoggedHand[]): { chips: number; bb: number | null } | null {
+  const c = chipSeries(hands, "chips");
   if (!c || !c.jumps.length) return null;
-  const b = chipSeries(hands, "bb", startStack);
+  const b = chipSeries(hands, "bb");
   const bb = b && b.unit === "bb" ? Math.round(b.jumps.reduce((t, j) => t + j.to - j.from, 0) * 10) / 10 : null;
   return { chips: c.jumps.reduce((t, j) => t + j.to - j.from, 0), bb };
 }
