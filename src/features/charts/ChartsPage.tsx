@@ -2,10 +2,29 @@ import { useMemo, useState } from "react";
 import { describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
-import { actionTotals, FOLD, getSet, KIND_LABEL, type Scenario } from "../../data/charts";
+import {
+  actionTotals,
+  displayChips,
+  getSet,
+  heroFilterSeats,
+  inReach,
+  KIND_LABEL,
+  legendActions,
+  reachOf,
+  reachShare,
+  reachTotals,
+  type Scenario,
+} from "../../data/charts";
 import { comboCount, type HandClass } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
+
+const pct1 = (x: number) => `${(x * 100).toFixed(1)}%`;
+// Reach above 0 never shows as "0%", which would read as "never gets here" (that is what the dimmed cells say).
+/** The share of all hands that reach the spot. */
+const reachPct = (x: number) => (x > 0 && x < 0.0005 ? "0.1% 미만" : pct1(x));
+/** How often one hand reaches the spot. */
+const handReachPct = (x: number) => (x > 0 && x < 0.005 ? "1% 미만" : `${Math.round(x * 100)}%`);
 
 export function ChartsPage() {
   const { chartSet } = useSettings();
@@ -22,19 +41,34 @@ export function ChartsPage() {
   }, [stage]);
   const [group, setGroup] = useState(groups[0][0]);
   const list = groups.find(([g]) => g === group)?.[1] ?? groups[0][1];
+  // A big group (the solver set's 30–70 spots per kind) is filtered by hero seat. The seat picked is kept per
+  // set; a group where that seat never acts shows its first seat instead.
+  const seats = useMemo(() => heroFilterSeats(set, list), [set, list]);
+  const [seatBySet, setSeatBySet] = useState<Record<string, string>>({});
+  const seat = seats.includes(seatBySet[set.id]) ? seatBySet[set.id] : seats[0];
+  const shown = useMemo(() => (seats.length ? list.filter((s) => s.hero === seat) : list), [list, seats, seat]);
+  const chipTexts = useMemo(() => displayChips(shown), [shown]);
   const [scenarioId, setScenarioId] = useState(list[0].id);
-  const scenario = list.find((s) => s.id === scenarioId) ?? list[0];
+  const scenario = shown.find((s) => s.id === scenarioId) ?? shown[0];
   const [hand, setHand] = useState<HandClass | null>(null);
   const coach = useCoach();
-  const totals = useMemo(() => actionTotals(scenario), [scenario]);
+  // Deep in a line (reachRange set) the totals are shares of the hands that get here, not of all 1326 combos.
+  const reach = scenario.reachRange ? reachShare(scenario) : null;
+  const totals = useMemo(() => (scenario.reachRange ? reachTotals(scenario) : actionTotals(scenario)), [scenario]);
 
   function pickStage(id: string) {
     setStageId(id);
     setHand(null);
   }
 
+  function pickSeat(p: string) {
+    setSeatBySet((m) => ({ ...m, [set.id]: p }));
+    setHand(null);
+  }
+
   function askCoach(h: HandClass) {
     const s = scenario.strategy[h];
+    const all = legendActions(scenario).map((a) => `${a.label} ${(totals[a.key] * 100).toFixed(1)}%`).join(", ");
     coach.open({
       id: `chart:${scenario.id}:${h}`,
       title: `${scenario.title} · ${h}`,
@@ -43,8 +77,11 @@ export function ChartsPage() {
         `스택 구간: ${stage.label} (${stage.stack}) — ${stage.description}`,
         `상황: ${scenario.title}${scenario.description ? ` — ${scenario.description}` : ""}`,
         `핸드: ${h} (${comboCount(h)}콤보)`,
+        ...(reach === null ? [] : [`이 핸드가 여기까지 오는 빈도: ${handReachPct(reachOf(scenario, h))}`]),
         `차트 빈도: ${describeStrategy(scenario, s)}`,
-        `이 상황 전체: ${[...scenario.actions, FOLD].map((a) => `${a.label} ${(totals[a.key] * 100).toFixed(1)}%`).join(", ")} (전체 핸드 대비)`,
+        reach === null
+          ? `이 상황 전체: ${all} (전체 핸드 대비)`
+          : `이 상황 전체: ${all}, 도달 레인지 ${reachPct(reach)} (도달 핸드 대비)`,
         `차트 출처: ${set.source}`,
       ].join("\n"),
       defaultQuestion: "이 상황에서 이 핸드를 왜 이렇게 플레이하는지 쉽게 설명해줘.",
@@ -54,6 +91,7 @@ export function ChartsPage() {
   // Keep the selections valid when the set or stage changes.
   if (!set.stages.some((s) => s.id === stageId)) setStageId(set.stages[0].id);
   if (!groups.some(([g]) => g === group)) setGroup(groups[0][0]);
+  const handOut = hand !== null && !inReach(scenario, hand);
 
   return (
     <div className="page">
@@ -69,7 +107,7 @@ export function ChartsPage() {
         </select>
       ) : (
         set.stages.length > 1 && (
-          <div className="seg">
+          <div className="seg stage-row">
             {set.stages.map((st) => (
               <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
                 {st.label}
@@ -83,7 +121,8 @@ export function ChartsPage() {
       </p>
 
       {groups.length > 1 && (
-        <div className="seg small">
+        // More than 6 kinds (the solver's 35bb stage has 7) scroll sideways instead of breaking every label.
+        <div className={`seg small kind-row${groups.length > 6 ? " many" : ""}`}>
           {groups.map(([g]) => (
             <button key={g} className={g === group ? "on" : ""} onClick={() => { setGroup(g); setHand(null); }}>
               {g}
@@ -92,8 +131,18 @@ export function ChartsPage() {
         </div>
       )}
 
+      {seats.length > 0 && (
+        <div className="seg small seat-filter" aria-label="내 자리">
+          {seats.map((p) => (
+            <button key={p} className={p === seat ? "on" : ""} onClick={() => pickSeat(p)}>
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="chips scroll">
-        {list.map((s) => (
+        {shown.map((s, i) => (
           <button
             key={s.id}
             className={`chip ${s.id === scenario.id ? "on" : ""}`}
@@ -102,7 +151,7 @@ export function ChartsPage() {
               setHand(null);
             }}
           >
-            {s.chip}
+            {chipTexts[i]}
           </button>
         ))}
       </div>
@@ -112,13 +161,20 @@ export function ChartsPage() {
         {scenario.description && <p className="muted">{scenario.description}</p>}
         <SeatRow positions={set.positions} hero={scenario.hero} villains={scenario.villainSeats ?? (scenario.villain ? [scenario.villain] : [])} />
         <div className="legend">
-          {[...scenario.actions, FOLD].map((a) => (
+          {legendActions(scenario).map((a) => (
             <span key={a.key} className="legend-item">
               <i style={{ background: actionColor(a.color, a.key) }} />
               {a.label} {(totals[a.key] * 100).toFixed(1)}%
             </span>
           ))}
+          {reach !== null && (
+            <span className="legend-item">
+              <i className="out" />
+              도달 레인지 {reachPct(reach)}
+            </span>
+          )}
         </div>
+        {reach !== null && <p className="muted small">비율은 여기까지 온 핸드 기준이에요. 빗금 칸은 앞에서 이 라인으로 오지 않는 핸드예요.</p>}
       </section>
 
       <RangeGrid scenario={scenario} selected={hand} onPick={setHand} />
@@ -128,12 +184,21 @@ export function ChartsPage() {
           <div className="row-between">
             <h3>
               {hand} <span className="muted small">{comboCount(hand)}콤보</span>
+              {reach !== null && !handOut && reachOf(scenario, hand) < 1 && (
+                <span className="muted small"> · 도달 {handReachPct(reachOf(scenario, hand))}</span>
+              )}
             </h3>
-            <button className="primary small" onClick={() => askCoach(hand)}>
-              AI 해설 요청
-            </button>
+            {!handOut && (
+              <button className="primary small" onClick={() => askCoach(hand)}>
+                AI 해설 요청
+              </button>
+            )}
           </div>
-          <FreqBar scenario={scenario} strategy={scenario.strategy[hand]} />
+          {handOut ? (
+            <p className="muted small">이 핸드는 앞선 내 액션에서 이 라인으로 오지 않아요.</p>
+          ) : (
+            <FreqBar scenario={scenario} strategy={scenario.strategy[hand]} />
+          )}
         </section>
       ) : (
         <p className="muted center small">칸을 누르면 핸드별 빈도와 AI 해설을 볼 수 있어요.</p>

@@ -24,7 +24,11 @@ export interface ActionDef {
   range: string;
 }
 
-export type ScenarioKind = "rfi" | "vsOpen" | "vs3bet" | "vsShove";
+/**
+ * vs4bet, squeeze and vsLimp only occur in the solver set (src/data/sets/preflop.ts). Hand play looks scenarios up
+ * by the other kinds only (src/play/policy.ts), so the new ones never reach it.
+ */
+export type ScenarioKind = "rfi" | "vsOpen" | "vs3bet" | "vsShove" | "vs4bet" | "squeeze" | "vsLimp";
 
 export interface ScenarioDef {
   id: string;
@@ -42,6 +46,17 @@ export interface ScenarioDef {
   title: string;
   description: string;
   actions: ActionDef[];
+  /**
+   * The hero's own reach here: the product of the hero's earlier chart frequencies on this line (the solver set
+   * builds it from its data's reachFrom). Set only for spots deep in a line, where most hands never arrive: hands
+   * with reach 0 are dimmed on the grid and never dealt in the quiz, and reachTotals weights hands by it. Without
+   * it every hand reaches the spot, as in the hand-made sets.
+   */
+  reachRange?: Range;
+  /** The hero cannot fold here (the BB facing an SB limp checks instead): no 폴드 button, and no fold in texts. */
+  noFold?: boolean;
+  /** Quiz pick weight against the other scenarios of the pool; default 1. */
+  weight?: number;
 }
 
 export interface StageDef {
@@ -62,6 +77,12 @@ export interface ChartSetDef {
   source: string;
   positions: string[];
   stages: StageDef[];
+  /**
+   * Charts page: a kind group with more than HERO_FILTER_ABOVE scenarios gets a row of hero seats above its chips
+   * (heroFilterSeats). Opt-in: the Nash sets' 36-chip groups have always been one scrolling row of chips, and
+   * the existing sets keep their pages as they were.
+   */
+  heroFilter?: boolean;
 }
 
 /** action key → 빈도, 그리고 "fold" */
@@ -87,6 +108,7 @@ export interface ChartSet extends Omit<ChartSetDef, "stages"> {
 }
 
 function buildScenario(set: ChartSetDef, stage: StageDef, def: ScenarioDef): Scenario {
+  // ...def below carries reachRange, noFold and weight to the Scenario unchanged.
   const ranges: Record<string, Range> = {};
   for (const a of def.actions) ranges[a.key] = parseRange(a.range);
   const strategy: Record<HandClass, HandStrategy> = {};
@@ -113,13 +135,18 @@ function buildScenario(set: ChartSetDef, stage: StageDef, def: ScenarioDef): Sce
   };
 }
 
-function buildSet(def: ChartSetDef): ChartSet {
+/** Exported for tests, which build synthetic sets; the app reads sets through getSet and CHART_SETS. */
+export function buildSet(def: ChartSetDef): ChartSet {
   return {
     ...def,
     stages: def.stages.map((st) => ({ ...st, scenarios: st.scenarios.map((sc) => buildScenario(def, st, sc)) })),
   };
 }
 
+/**
+ * Every set, built at load. CHART_SETS[0] is getSet's fallback and "pub" the default chart set. Tests push synthetic
+ * sets here while they run.
+ */
 export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH].map(buildSet);
 
 export function getSet(id: string): ChartSet {
@@ -130,13 +157,38 @@ export function allScenarios(set?: ChartSet): Scenario[] {
   return (set ? [set] : CHART_SETS).flatMap((s) => s.stages.flatMap((st) => st.scenarios));
 }
 
-/** Actions in display order: fold first, then the scenario's actions. */
+/** Actions in button order: fold first, then the scenario's actions. No fold where the hero cannot fold. */
 export function scenarioActions(s: ScenarioDef): Omit<ActionDef, "range">[] {
-  return [FOLD, ...s.actions];
+  return s.noFold ? [...s.actions] : [FOLD, ...s.actions];
+}
+
+/** Actions in legend order: the scenario's actions, then fold (left out where the hero cannot fold). */
+export function legendActions(s: ScenarioDef): Omit<ActionDef, "range">[] {
+  return s.noFold ? [...s.actions] : [...s.actions, FOLD];
 }
 
 export function describeStrategy(s: ScenarioDef, st: HandStrategy): string {
-  return [...s.actions, FOLD].map((a) => `${a.label} ${Math.round((st[a.key] ?? 0) * 100)}%`).join(" / ");
+  return legendActions(s).map((a) => `${a.label} ${Math.round((st[a.key] ?? 0) * 100)}%`).join(" / ");
+}
+
+/** The hero's reach with hand h (0..1); 1 when the scenario has no reachRange. */
+export function reachOf(s: ScenarioDef, h: HandClass): number {
+  return s.reachRange ? Math.max(0, s.reachRange[h] ?? 0) : 1;
+}
+
+/** Whether the hero can hold h here. Out-of-reach hands are dimmed on the grid and never dealt in the quiz. */
+export function inReach(s: ScenarioDef, h: HandClass): boolean {
+  return reachOf(s, h) > 0;
+}
+
+/**
+ * Share of all 1326 combos that get here (Σ combos·reach / 1326): the "도달 레인지" of the charts page. Computed
+ * from reachRange rather than stored, so it always describes exactly the cells the grid leaves undimmed.
+ */
+export function reachShare(s: ScenarioDef): number {
+  let w = 0;
+  for (const h of ALL_HANDS) w += comboCount(h) * reachOf(s, h);
+  return w / 1326;
 }
 
 /** Share of all 1326 combos that take each action. */
@@ -151,12 +203,68 @@ export function actionTotals(s: Scenario): Record<string, number> {
   return out;
 }
 
+/**
+ * Share of the combos that get here taking each action, fold included: Σ combos·reach·f / Σ combos·reach. Deep in
+ * a line this is the meaningful total (a vs-3-bet chart as a share of all hands would read "폴드 9x%", most of it
+ * hands that never opened). Equal to actionTotals when the scenario has no reachRange; all 0 if nothing reaches.
+ */
+export function reachTotals(s: Scenario): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const a of [...s.actions, FOLD]) out[a.key] = 0;
+  let mass = 0;
+  for (const h of ALL_HANDS) {
+    const w = comboCount(h) * reachOf(s, h);
+    if (!(w > 0)) continue;
+    mass += w;
+    for (const k of Object.keys(out)) out[k] += (s.strategy[h][k] ?? 0) * w;
+  }
+  if (mass > 0) for (const k of Object.keys(out)) out[k] /= mass;
+  return out;
+}
+
 export const KIND_LABEL: Record<ScenarioKind, string> = {
   rfi: "오픈 (RFI)",
   vsOpen: "vs 오픈",
   vs3bet: "vs 3벳",
   vsShove: "vs 올인",
+  vs4bet: "vs 4벳",
+  squeeze: "스퀴즈·오버콜",
+  vsLimp: "림프 팟",
 };
+
+/** The charts page's hero-seat filter appears for groups with more scenarios than this (and heroFilter on). */
+export const HERO_FILTER_ABOVE = 12;
+
+/**
+ * The seats that occur as hero in `list`: those in `positions` in table order (UTG … BB), then any other hero in
+ * order of first appearance.
+ */
+export function heroSeats(list: ScenarioDef[], positions: string[]): string[] {
+  const heroes = new Set(list.map((s) => s.hero));
+  return [...positions.filter((p) => heroes.has(p)), ...[...heroes].filter((h) => !positions.includes(h))];
+}
+
+/**
+ * The seats the charts page offers above a kind group's chips, or [] when the group shows all its chips: the set
+ * has not opted in, the group is small enough to scan, or only one seat occurs (nothing to filter).
+ */
+export function heroFilterSeats(set: Pick<ChartSetDef, "heroFilter" | "positions">, list: ScenarioDef[]): string[] {
+  if (!set.heroFilter || list.length <= HERO_FILTER_ABOVE) return [];
+  const seats = heroSeats(list, set.positions);
+  return seats.length > 1 ? seats : [];
+}
+
+/**
+ * Chip texts as the charts page shows them for `shown`: a chip that occurs more than once in the list gets its hero
+ * in front ("SB: BTN오픈·SB3벳·BB올인"). A generic solver chip names the line, not the hero, which is enough once the
+ * seat row has picked the hero, but a small group shows every seat at once. Every other chip is left as it is, so a
+ * list without repeats (every hand-made set) is unchanged.
+ */
+export function displayChips(shown: ScenarioDef[]): string[] {
+  const count = new Map<string, number>();
+  for (const s of shown) count.set(s.chip, (count.get(s.chip) ?? 0) + 1);
+  return shown.map((s) => (count.get(s.chip)! > 1 ? `${s.hero}: ${s.chip}` : s.chip));
+}
 
 /** Named villain ranges for the calculator, one per (scenario, action). */
 export interface NamedRange {
