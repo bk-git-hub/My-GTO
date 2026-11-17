@@ -82,13 +82,11 @@ export interface LoggedHand {
   /** The level came from the tournament start time (levelEstimateAt), not from the user. */
   levelGuess?: true;
   /**
-   * Saved on 빠른 기록: my seat and class, and the chip result (`result`, `net`) and the board cards I
-   * remember (`board`, suits typed or guessed: `guess.board`); with `fastSpot` also my preflop decision
-   * (what happened before me, my action; the stage, the action and the opener are in `quickPre`). Kept
-   * if the hand is carried on to the table.
+   * Saved on 빠른 기록 (one preflop decision of mine: seat, class, what happened before me, my action;
+   * the stage, the action and the opener are in `quickPre`). Kept if the hand is carried on to the table.
    */
   fast?: true;
-  /** 빠른 기록: what happened before my decision, only when the decision was recorded. Only with `fast`. */
+  /** 빠른 기록: what happened before my decision. Only with `fast`. */
   fastSpot?: FastSpot;
 }
 
@@ -478,18 +476,12 @@ export const handRoute = (h: Pick<LoggedHand, "id">): string => `log/${h.id}`;
 
 // ───────────── 빠른 기록 ─────────────
 
-/**
- * A hand from 빠른 기록 with nothing recorded on the table yet (no steps or showdowns). A board alone
- * comes from 빠른 기록 itself (the cards remembered), so it stays one.
- */
-export const fastOnly = (h: LoggedHand): boolean => h.fast === true && h.steps.length === 0 && h.showdowns.length === 0;
+/** A hand from 빠른 기록 with nothing recorded on the table yet (no steps, board or showdowns). */
+export const fastOnly = (h: LoggedHand): boolean => h.fast === true && h.steps.length === 0 && h.board.length === 0 && h.showdowns.length === 0;
 
-/** 빠른 기록 with my preflop decision on file (a spot; an action, or a walk): what the chart grades. */
-export const fastActed = (h: Pick<LoggedHand, "fast" | "fastSpot" | "quickPre">): boolean => h.fast === true && (isFastSpot(h.fastSpot) || h.quickPre?.action !== undefined);
-
-/** A 빠른 기록 hand as the verdict reads it (null for a hand not from there, without its class, or saved without a decision). */
+/** A 빠른 기록 hand as the verdict reads it (null for a hand not from there, or without its class). */
 export function fastInputOf(h: LoggedHand): FastInput | null {
-  if (!fastActed(h) || h.hole.length !== 2) return null;
+  if (h.fast !== true || h.hole.length !== 2) return null;
   const cls = holeClass(h);
   if (cls.length < 2 || (cls.length === 2 && cls[0] !== cls[1])) return null;
   return {
@@ -586,7 +578,7 @@ export function logView(sub: string, hands: LoggedHand[]): LogView {
  */
 export function unfinished(h: LoggedHand): boolean {
   if (h.result !== null || h.net !== null) return false;
-  // A hand jotted on 빠른 기록 is complete as it is, until it is carried on to the table.
+  // One decision jotted on 빠른 기록 is complete as it is, until it is carried on to the table.
   if (fastOnly(h)) return false;
   if (h.hole.length < 2 || !h.seat) return true;
   if (isOther(h) && h.steps.length === 0) return h.quickPre?.action === undefined && h.note.trim() === "";
@@ -1106,12 +1098,6 @@ export function handHoleText(h: Pick<LoggedHand, "hole" | "guess" | "holeKind">)
   return holeGuessed(h) ? holeLabel(h) : holeText(h.hole);
 }
 
-/** The board as remembered on 빠른 기록: suits typed as "K♥", guessed ones as the rank only: "K♥ 7 2". */
-export function rememberedText(h: Pick<LoggedHand, "board" | "guess">): string {
-  const g = h.guess?.board ?? [];
-  return h.board.map((c, i) => (g.includes(i) ? RANKS[rankOf(c)] : cardLabel(c))).join(" ");
-}
-
 /** The board as text, with which streets' suits were guessed: "K♦ 9♦ 2♠ 6♣ (플랍 수트 추정)". */
 export function boardText(h: Pick<LoggedHand, "board" | "guess">): string {
   const g = boardGuessText(h);
@@ -1148,8 +1134,7 @@ export function handFacts(h: LoggedHand): string {
   ];
   if (other && h.mySeat) lines.push(`내 자리: ${h.mySeat} (같은 테이블에서 지켜봄)`);
   if (holeGuessed(h) || boardGuessText(h)) lines.push("참고: 수트를 추정한 카드가 있어 플러시 관련 승률은 근사값");
-  // A board remembered on 빠른 기록: the guessed suits would read as facts, so only what was typed.
-  if (h.board.length) lines.push(fastOnly(h) ? `보드 (빠른 기록 · 기억나는 카드만, 숫자만 적힌 건 수트 모름): ${rememberedText(h)}` : `보드: ${boardText(h)}`);
+  if (h.board.length) lines.push(`보드: ${boardText(h)}`);
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";

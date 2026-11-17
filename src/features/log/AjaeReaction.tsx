@@ -6,18 +6,20 @@ import "./ajae.css";
 
 /**
  * The 아재 by 빠른 기록's hand class: wraps the class (`children`, the real .fast-class) and, while a
- * reaction (`cue`) is on, draws him next to it. No words anywhere: faces, a jointed doll of him, props
- * and symbols (a mirror ball, chips, a mallet, cards, bursts, ?, z, notes, steam). Everything he draws is
- * absolutely positioned with pointer-events off, so the label row, the pad and everything below keep their
- * place, and every button stays live while he moves. The moves are CSS animations (ajae.css) that start
- * when their element mounts (keyed by the cue), so nothing here runs a timer.
+ * reaction (`cue`) is on, draws him next to it: the launch splash's 아재, bald with a mustache, shades, a red
+ * polka-dot shirt and a gold chain. No words anywhere: faces, a jointed doll of him, props and symbols (a
+ * mirror ball, chips, a mallet, cards, a thinking hand, bursts, ?, a thought cloud, notes, steam). Everything
+ * he draws is absolutely positioned with pointer-events off, so the label row, the pad and everything below
+ * keep their place, and every button stays live while he moves. The moves are CSS animations (ajae.css) that
+ * start when their element mounts (keyed by the cue), so nothing here runs a timer.
  *
  * Two kinds of move (ajae.ts, AJAE_MOVES):
- * - a face move (meh, fold, 72o, and the cramped stand-ins): the chest-up face in its slot pops up big,
- *   makes the tier's face and settles small with it;
- * - a body move (monster's shove, good's shuffle or robot, trash's kick, mallet or slam): the whole 아재
- *   performs beside the class (`.aj-act`), then shrinks away in a puff as the face pops into the slot and
- *   stays there at rest. The trash face stays furious: he never walks off.
+ * - a face move (meh's and fold's ponder, meh's 흠, fold's glare, and the cramped stand-ins): the chest-up
+ *   face in its slot pops up big, makes the tier's face and settles small with it (fold: pondering, the hand
+ *   on his chin and a thought cloud);
+ * - a body move (monster's shove, good's shuffle or robot, trash's kick, mallet or slam, 72o's rage): the
+ *   whole 아재 performs beside the class (`.aj-act`), then shrinks away in a puff as the face pops into the
+ *   slot and stays there at rest. The trash and 72o faces stay furious: he never walks off.
  * With the page scrolled so far that the full pop would reach under the sticky stage bar, a face move pops
  * smaller, from the face's middle (cue.low).
  * When the tier on screen is no longer the one he reacted to (my seat or the stage changed), the face
@@ -54,7 +56,8 @@ export function AjaeReaction({ cue, seat, stage, players, off = false, children 
 
 const INK = "#1b1400";
 const SKIN = "#f2c48d";
-const HAIR = "#3b2a1e";
+/** The mustache and the brows: the only hair he has (his head is bald). */
+const STACHE = "#3b2a1e";
 const SHIRT = "#ff4d5a";
 const GOLD = "#fbbf24";
 const SHADE = "#0b0f14";
@@ -63,8 +66,8 @@ const PANTS = "#4f6a9e";
 const SHOE = "#f8fafc";
 const MUSTACHE =
   "M0 14 C -8 6, -24 5, -34 14 C -39 19, -46 19, -50 14 C -46 28, -28 31, -14 23 C -7 19, -3 18, 0 21 C 3 18, 7 19, 14 23 C 28 31, 46 28, 50 14 C 46 19, 39 19, 34 14 C 24 5, 8 6, 0 14 Z";
-const HAIR_L = "M-44 -10 C -50 -30, -44 -44, -32 -50 C -36 -38, -38 -24, -36 -6 Z";
-const HAIR_R = "M44 -10 C 50 -30, 44 -44, 32 -50 C 36 -38, 38 -24, 36 -6 Z";
+/** The shine on his bald head: a tilted oval (a path: an SVG rotate attribute would turn about ajae.css's transform-box) and a dot. */
+const SHINE = "M-26.4 -42 A13 6.5 -18 1 1 -1.6 -50 A13 6.5 -18 1 1 -26.4 -42 Z";
 const GLINT = "M-35 -32 Q -33.6 -22.4 -24 -21 Q -33.6 -19.6 -35 -10 Q -36.4 -19.6 -46 -21 Q -36.4 -22.4 -35 -32 Z";
 
 /** A four-pointed sparkle centred on (x, y), r from the centre to a point. */
@@ -94,6 +97,35 @@ function Vein({ x, y, r }: { x: number; y: number; r: number }) {
   );
 }
 
+/** His ears, drawn before the head (it covers their inner half): with no hair, they keep the bald head reading as a head. */
+const Ears = () => (
+  <>
+    {[-1, 1].map((k) => (
+      <g key={k}>
+        <ellipse cx={43 * k} cy="-8" rx="7.5" ry="10.5" fill={SKIN} stroke={INK} strokeWidth="4" />
+        <path d={`M${47 * k} -14 Q ${50.5 * k} -8 ${47 * k} -2`} fill="none" stroke="#c98a5a" strokeWidth="2.2" strokeLinecap="round" />
+      </g>
+    ))}
+  </>
+);
+/** The shine on his bald head. */
+const Shine = () => (
+  <>
+    <path d={SHINE} fill="#fff" opacity="0.75" />
+    <circle cx="3" cy="-54.5" r="2.6" fill="#fff" opacity="0.6" />
+  </>
+);
+
+/** The thought cloud's puffs (cx, cy, r), up and right of his head, inside the face's box (the fold's resting face shows it). */
+const CLOUD: readonly (readonly [number, number, number])[] = [
+  [24, -66, 7],
+  [33, -73, 8.5],
+  [44, -71.5, 7.5],
+  [50, -64, 6],
+  [39, -61.5, 7],
+  [28, -60.5, 6],
+];
+
 function Shades({ className }: { className: string }) {
   return (
     <g className={className}>
@@ -106,8 +138,9 @@ function Shades({ className }: { className: string }) {
 }
 
 /**
- * The splash's 아재 (index.html, the J♥'s court picture) from the chest up, with every part the moves and
- * the resting faces need (hidden unless the tier or the move shows it). `move`: the face move playing now.
+ * The splash's 아재 (index.html, the J♥'s court picture, and the app icon) from the chest up, bald, with every
+ * part the moves and the resting faces need (hidden unless the tier or the move shows it). `move`: the face move
+ * playing now.
  */
 const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?: AjaeMove }) {
   return (
@@ -123,12 +156,10 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
           </g>
           <path d="M-22 36 Q 0 62 22 36" fill="none" stroke={GOLD} strokeWidth="6" />
           <circle cx="0" cy="58" r="6" fill={GOLD} stroke={INK} strokeWidth="2" />
+          <Ears />
           <ellipse cx="0" cy="-12" rx="44" ry="48" fill={SKIN} stroke={INK} strokeWidth="4" />
           <ellipse className="aj-flush" cx="0" cy="-13" rx="41" ry="45" fill="#ff3020" />
-          <ellipse cx="-12" cy="-48" rx="12" ry="6" fill="#fff" opacity="0.7" />
-          <path d={HAIR_L} fill={HAIR} />
-          <path d={HAIR_R} fill={HAIR} />
-          <path d="M-14 -56 q 14 -8 30 2" fill="none" stroke={HAIR} strokeWidth="4" strokeLinecap="round" />
+          <Shine />
           <g className="aj-eyes">
             <g transform="translate(-21 -12)">
               <ellipse rx="8" ry="7.2" fill="#fff" stroke={INK} strokeWidth="2.4" />
@@ -145,16 +176,32 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
               </g>
             </g>
           </g>
-          <path className="aj-brow-l" d="M-29 -14 Q -21 -19.5 -13 -15.5" fill="none" stroke={HAIR} strokeWidth="3.6" strokeLinecap="round" />
-          <path className="aj-brow-r" d="M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={HAIR} strokeWidth="3.6" strokeLinecap="round" />
+          <path className="aj-brow-l" d="M-29 -14 Q -21 -19.5 -13 -15.5" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
+          <path className="aj-brow-r" d="M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
           <path className="aj-smile" d="M-12 25 Q 0 35 12 25" fill="none" stroke="#6b2d1e" strokeWidth="3.4" strokeLinecap="round" />
           <path className="aj-flat" d="M-7 28 L 7 27" fill="none" stroke="#6b2d1e" strokeWidth="3" strokeLinecap="round" />
-          <ellipse className="aj-yawn" cx="0" cy="27" rx="7" ry="7" fill="#5a1d14" stroke={INK} strokeWidth="1.5" />
+          <path className="aj-purse" d="M2 28.5 q 3.5 -3.2 7 0 q 3.5 3.2 7 0" fill="none" stroke="#6b2d1e" strokeWidth="3" strokeLinecap="round" />
           <g className="aj-teeth">
             <rect x="-15" y="20" width="30" height="13" rx="3.5" fill="#fff" stroke={INK} strokeWidth="3" />
             <path d="M-15 26.5 H15 M-7.5 20 V33 M0 20 V33 M7.5 20 V33" stroke={INK} strokeWidth="2.2" />
           </g>
-          <path d={MUSTACHE} fill={HAIR} />
+          <path d={MUSTACHE} fill={STACHE} />
+          {/* the thinking hand (the ponder): up from his sleeve, his chin on his fist, its knuckles to us */}
+          <g className="aj-hand">
+            <path d="M-42 74 L -33 61" stroke={INK} strokeWidth="24.5" strokeLinecap="round" />
+            <path d="M-42 74 L -33 61" stroke={SHIRT} strokeWidth="20" strokeLinecap="round" />
+            <path d="M-33 61 L -16 47" stroke={INK} strokeWidth="15" strokeLinecap="round" />
+            <path d="M-33 61 L -16 47" stroke={SKIN} strokeWidth="11" strokeLinecap="round" />
+            <path
+              d="M-21 44 C -22 35.5, -15.5 32.5, -10.5 33.5 C -6.5 30.5, -0.5 30.5, 2.5 33.5 C 7 32.5, 10 36, 9 41.5 C 9 50, 2.5 53, -6 53 C -14.5 53, -20 50, -21 44 Z"
+              fill={SKIN}
+              stroke={INK}
+              strokeWidth="2.6"
+              strokeLinejoin="round"
+            />
+            <path d="M-11 34 C -11 36.8, -10.4 39, -11 41.5 M-3.8 32.5 C -3.8 35.2, -3.2 37.4, -3.8 40 M3.4 34 C 3.4 36.4, 3.9 38, 3.4 40.5" fill="none" stroke={INK} strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M-20 45.5 C -14.5 41.5, -8 41.5, -1.5 45.5" fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+          </g>
           <g className="aj-shades">
             <rect x="-36" y="-22" width="30" height="20" rx="7" fill={SHADE} />
             <rect x="6" y="-22" width="30" height="20" rx="7" fill={SHADE} />
@@ -166,17 +213,6 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
           <g className="aj-sweat">
             <path d="M42 -44 C 45 -39, 48 -35, 48 -32 A 6 6 0 0 1 36 -32 C 36 -35, 39 -39, 42 -44 Z" fill="#7dd3fc" stroke={INK} strokeWidth="2" />
             <path d="M39.5 -33 Q 39.5 -36 41 -38" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
-          </g>
-          <g className="aj-mug">
-            <rect x="30" y="2" width="18" height="24" rx="3" fill={GOLD} stroke={INK} strokeWidth="2.6" />
-            <path d="M48 8 q 8 0 8 7 q 0 7 -8 7" fill="none" stroke={INK} strokeWidth="2.6" />
-            <path d="M28 4 q 3 -7 9 -4 q 4 -5 9 0 q 5 -2 5 4 Z" fill="#fff" stroke={INK} strokeWidth="2" />
-            <path d="M35 10 v 12 M41 10 v 12" stroke="#fff" strokeWidth="2" opacity="0.6" />
-          </g>
-          <g fill="#fff" stroke={INK} strokeWidth="1.4">
-            <circle className="aj-foam aj-f1" cx="60" cy="-42" r="4.5" />
-            <circle className="aj-foam aj-f2" cx="68" cy="-38" r="3.6" />
-            <circle className="aj-foam aj-f3" cx="74" cy="-32" r="4" />
           </g>
         </g>
         <g fill={GOLD} stroke={INK} strokeWidth="1.6">
@@ -190,19 +226,25 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
         <text className="aj-qmark2" x="-52" y="-56" fontSize="20" fill={GOLD} stroke={INK} strokeWidth="1.2">
           ?
         </text>
-        <g fill="#cbd5e1" stroke={INK} strokeWidth="1">
-          <text className="aj-zfly aj-a" x="30" y="-40" fontSize="16">
-            z
-          </text>
-          <text className="aj-zfly aj-b" x="38" y="-48" fontSize="20">
-            z
-          </text>
-          <text className="aj-zfly aj-c" x="40" y="-58" fontSize="24">
-            Z
-          </text>
-          <text className="aj-zrest" x="36" y="-44" fontSize="20">
-            z
-          </text>
+        {/* the thought cloud (ponder): two bubbles up from his head, then the cloud with its three dots */}
+        <g className="aj-think">
+          <circle className="aj-tb1" cx="44.5" cy="-45.5" r="2.7" fill="#fff" stroke={INK} strokeWidth="1.8" />
+          <circle className="aj-tb2" cx="50.5" cy="-53" r="3.4" fill="#fff" stroke={INK} strokeWidth="1.8" />
+          <g className="aj-cloud">
+            <g fill={INK}>
+              {CLOUD.map(([x, y, r]) => (
+                <circle key={`o${x}`} cx={x} cy={y} r={r + 1.8} />
+              ))}
+            </g>
+            <g fill="#fff">
+              {CLOUD.map(([x, y, r]) => (
+                <circle key={`i${x}`} cx={x} cy={y} r={r} />
+              ))}
+            </g>
+            <circle className="aj-dot aj-d1" cx="27.5" cy="-66" r="2.9" fill={INK} />
+            <circle className="aj-dot aj-d2" cx="36.5" cy="-66" r="2.9" fill={INK} />
+            <circle className="aj-dot aj-d3" cx="45.5" cy="-66" r="2.9" fill={INK} />
+          </g>
         </g>
         <g className="aj-vein">
           <Vein x={31} y={-50} r={15} />
@@ -217,16 +259,17 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
   );
 });
 
-/** The head of the doll, in the splash face's coordinates (-58 -84 116 136): glad (an open grin) or mad (red, V brows, gritted teeth). */
-function DollHead({ mad }: { mad: boolean }) {
+/**
+ * The head of the doll, in the splash face's coordinates (-58 -84 116 136): glad (an open grin) or mad (red, V
+ * brows, gritted teeth). `rage` (72o): mad, with a shocked O for the mouth too (the rage shows it before the teeth).
+ */
+function DollHead({ mad, rage }: { mad: boolean; rage?: boolean }) {
   return (
     <>
+      <Ears />
       <ellipse cx="0" cy="-12" rx="44" ry="48" fill={SKIN} stroke={INK} strokeWidth="4" />
       {mad && <ellipse className="aj-r-flush" cx="0" cy="-12" rx="41.5" ry="45.5" fill="#ff2d2d" opacity="0.62" />}
-      <ellipse cx="-12" cy="-48" rx="12" ry="6" fill="#fff" opacity="0.7" />
-      <path d={HAIR_L} fill={HAIR} />
-      <path d={HAIR_R} fill={HAIR} />
-      <path d="M-14 -56 q 14 -8 30 2" fill="none" stroke={HAIR} strokeWidth="4" strokeLinecap="round" />
+      <Shine />
       <g transform="translate(-21 -12)">
         <ellipse rx="8" ry="7.2" fill="#fff" stroke={INK} strokeWidth="2.4" />
         <circle cx="1" cy="1" r="4.2" fill={INK} />
@@ -235,9 +278,9 @@ function DollHead({ mad }: { mad: boolean }) {
         <ellipse rx="8" ry="7.2" fill="#fff" stroke={INK} strokeWidth="2.4" />
         <circle cx="-1" cy="1" r="4.2" fill={INK} />
       </g>
-      <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={HAIR} strokeWidth="3.6" strokeLinecap="round" />
+      <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
       {mad ? (
-        <g>
+        <g className="aj-r-teeth">
           <rect x="-14" y="21" width="28" height="12" rx="3.5" fill="#fff" stroke={INK} strokeWidth="3" />
           <path d="M-14 27 H14 M-7 21 V33 M0 21 V33 M7 21 V33" stroke={INK} strokeWidth="2" />
         </g>
@@ -247,45 +290,70 @@ function DollHead({ mad }: { mad: boolean }) {
           <path d="M-8 33.5 Q 0 28 8 33.5 Q 0 39 -8 33.5 Z" fill="#e0565b" />
         </g>
       )}
-      <path d={MUSTACHE} fill={HAIR} />
+      {rage && <ellipse className="aj-r-oh" cx="0" cy="28" rx="7.5" ry="9" fill="#5a1d14" stroke={INK} strokeWidth="3" />}
+      <path d={MUSTACHE} fill={STACHE} />
       <Shades className="aj-r-shades" />
       {mad && <path className="aj-r-vbrows" d="M-40 -40 L -9 -24 M40 -40 L 9 -24" stroke={INK} strokeWidth="9" strokeLinecap="round" />}
     </>
   );
 }
 
+/** A small cloud of steam centred on (x, y), in the doll's units (for his ears in the rage). */
+const Jet = ({ x, y, className }: { x: number; y: number; className: string }) => (
+  <g className={className}>
+    <circle cx={x - 2.6} cy={y + 0.8} r="3.3" />
+    <circle cx={x + 2.6} cy={y + 1} r="3" />
+    <circle cx={x} cy={y - 1.6} r="3.8" />
+  </g>
+);
+
+/** The doll's colours: his own clothes, or the gorilla costume's fur (KK). */
+interface Garb {
+  shirt: string;
+  pants: string;
+  arm: string;
+  fist: string;
+  shoe: string;
+}
+const CLOTHES: Garb = { shirt: SHIRT, pants: PANTS, arm: SKIN, fist: SKIN, shoe: SHOE };
+/** The gorilla costume: a mid grey fur (it has to read on the dark screen), darker hands and feet. */
+const FUR = "#525866";
+const FUR_LIGHT = "#7b8494";
+const FUR_DARK = "#33373f";
+const COSTUME: Garb = { shirt: FUR, pants: FUR, arm: FUR, fist: FUR_DARK, shoe: FUR_DARK };
+
 /** A two-part leg (thigh, then shin and sneaker), turning at the hip and the knee. */
-function Leg({ side, x, foot }: { side: "l" | "r"; x: number; foot: number }) {
+function Leg({ side, x, foot, g }: { side: "l" | "r"; x: number; foot: number; g: Garb }) {
   return (
     <g className={`aj-r-leg-${side}`}>
       <path d={`M${x} 67 L ${x} 77.5`} stroke={INK} strokeWidth="10" strokeLinecap="round" />
-      <path d={`M${x} 67 L ${x} 77.5`} stroke={PANTS} strokeWidth="7" strokeLinecap="round" />
+      <path d={`M${x} 67 L ${x} 77.5`} stroke={g.pants} strokeWidth="7" strokeLinecap="round" />
       <g className={`aj-r-shin-${side}`}>
         <path d={`M${x} 78 L ${x} 87.5`} stroke={INK} strokeWidth="9.4" strokeLinecap="round" />
-        <path d={`M${x} 78 L ${x} 87.5`} stroke={PANTS} strokeWidth="6.4" strokeLinecap="round" />
-        <ellipse cx={foot} cy="90.2" rx="6.6" ry="3.6" fill={SHOE} stroke={INK} strokeWidth="1.8" />
+        <path d={`M${x} 78 L ${x} 87.5`} stroke={g.pants} strokeWidth="6.4" strokeLinecap="round" />
+        <ellipse cx={foot} cy="90.2" rx="6.6" ry="3.6" fill={g.shoe} stroke={INK} strokeWidth="1.8" />
       </g>
     </g>
   );
 }
 
 /** A two-part arm (red sleeve, then forearm and fist), turning at the shoulder and the elbow; the right one can hold something and point. */
-function Arm({ side, sx, ex, hx, hold }: { side: "l" | "r"; sx: number; ex: number; hx: number; hold?: ReactNode }) {
+function Arm({ side, sx, ex, hx, hold, g }: { side: "l" | "r"; sx: number; ex: number; hx: number; hold?: ReactNode; g: Garb }) {
   return (
     <g className={`aj-r-arm-${side}`}>
       <path d={`M${sx} 49 L ${ex} 58`} stroke={INK} strokeWidth="7.6" strokeLinecap="round" />
-      <path d={`M${sx} 49 L ${ex} 58`} stroke={SHIRT} strokeWidth="4.8" strokeLinecap="round" />
+      <path d={`M${sx} 49 L ${ex} 58`} stroke={g.shirt} strokeWidth="4.8" strokeLinecap="round" />
       <g className={`aj-r-fore-${side}`}>
         <path d={`M${ex} 58 L ${hx} 67`} stroke={INK} strokeWidth="6.4" strokeLinecap="round" />
-        <path d={`M${ex} 58 L ${hx} 67`} stroke={SKIN} strokeWidth="3.8" strokeLinecap="round" />
+        <path d={`M${ex} 58 L ${hx} 67`} stroke={g.arm} strokeWidth="3.8" strokeLinecap="round" />
         {hold}
         {side === "r" && (
           <g className="aj-r-finger">
             <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={INK} strokeWidth="3.6" strokeLinecap="round" />
-            <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={SKIN} strokeWidth="1.8" strokeLinecap="round" />
+            <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={g.fist} strokeWidth="1.8" strokeLinecap="round" />
           </g>
         )}
-        <circle cx={hx} cy="68.4" r="3.7" fill={SKIN} stroke={INK} strokeWidth="1.6" />
+        <circle cx={hx} cy="68.4" r="3.7" fill={g.fist} stroke={INK} strokeWidth="1.6" />
       </g>
     </g>
   );
@@ -306,29 +374,64 @@ const MALLET = (
 /**
  * The whole 아재, a jointed doll for the body moves (the doll's own units: 0 0 64 96, feet at y 93; ajae.css
  * gives each joint its pivot). The viewBox is padded past those units so every pose he strikes paints inside
- * the SVG's own box (a limb or the mallet swinging outside it is a paint risk on Safari): `wide` for the mallet.
+ * the SVG's own box (a limb or the mallet swinging outside it is a paint risk on Safari): `wide` for the mallet,
+ * `view` for a move with props of its own around him (the plane, a crown coming down, a mask lifted off).
+ * `rage` (72o): the mad head with its shocked O, shock lines over his head and steam that shoots out of his ears.
+ * The pairs' shows dress him up: `fur` puts him in the gorilla costume (KK; `mask`, its head, goes over his own),
+ * `under` is drawn behind him (the plane's tail, a cape), `over` in front of his body but under his arms (the
+ * plane's fuselage, a bow tie, the cape's collar), `top` on his head, turning with it (a crown).
  */
-function Doll({ mad, wide, hold }: { mad: boolean; wide?: boolean; hold?: ReactNode }) {
+function Doll({ mad, rage, wide, view, hold, fur, under, over, top }: { mad: boolean; rage?: boolean; wide?: boolean; view?: string; hold?: ReactNode; fur?: boolean; under?: ReactNode; over?: ReactNode; top?: ReactNode }) {
+  const g = fur ? COSTUME : CLOTHES;
   return (
-    <svg className="aj-rig" viewBox={wide ? "-32 -32 168 136" : "-24 -16 112 120"} xmlns="http://www.w3.org/2000/svg">
+    <svg className="aj-rig" viewBox={view ?? (wide ? "-32 -32 168 136" : "-24 -16 112 120")} xmlns="http://www.w3.org/2000/svg">
       <g className="aj-r-all">
-        <Leg side="l" x={26.5} foot={24.5} />
-        <Leg side="r" x={37.5} foot={39.5} />
-        <rect x="20" y="61" width="24" height="9" rx="2.5" fill={PANTS} stroke={INK} strokeWidth="2" />
-        <path d="M18 47 Q 32 40 46 47 L 44.5 64 L 19.5 64 Z" fill={SHIRT} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-        <g fill="#fff" opacity="0.9">
-          <circle cx="24" cy="56" r="1.8" />
-          <circle cx="39" cy="58" r="1.8" />
-          <circle cx="31" cy="61" r="1.5" />
-        </g>
-        <path d="M26 45 Q 32 53 38 45" fill="none" stroke={GOLD} strokeWidth="2.4" />
+        {under}
+        <Leg side="l" x={26.5} foot={24.5} g={g} />
+        <Leg side="r" x={37.5} foot={39.5} g={g} />
+        <rect x="20" y="61" width="24" height="9" rx="2.5" fill={g.pants} stroke={INK} strokeWidth="2" />
+        <path d="M18 47 Q 32 40 46 47 L 44.5 64 L 19.5 64 Z" fill={g.shirt} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+        {fur ? (
+          <>
+            {/* the costume's chest, and tufts of fur at the shoulders */}
+            <path d="M23.5 48.5 Q 32 45 40.5 48.5 Q 41 57 32 59.5 Q 23 57 23.5 48.5 Z" fill={FUR_LIGHT} stroke={INK} strokeWidth="1.4" />
+            <path d="M26 52 Q 32 54.5 38 52" fill="none" stroke={FUR} strokeWidth="1.3" strokeLinecap="round" />
+            <path d="M17.5 47.5 l -2 -2.4 M19.5 45.6 l -1.2 -2.8 M46.5 47.5 l 2 -2.4 M44.5 45.6 l 1.2 -2.8" stroke={INK} strokeWidth="1.3" strokeLinecap="round" />
+          </>
+        ) : (
+          <>
+            <g fill="#fff" opacity="0.9">
+              <circle cx="24" cy="56" r="1.8" />
+              <circle cx="39" cy="58" r="1.8" />
+              <circle cx="31" cy="61" r="1.5" />
+            </g>
+            <path d="M26 45 Q 32 53 38 45" fill="none" stroke={GOLD} strokeWidth="2.4" />
+          </>
+        )}
         <g className="aj-r-head">
           <g transform="translate(32 25) scale(0.4)">
-            <DollHead mad={mad} />
+            <DollHead mad={mad || !!rage} rage={rage} />
           </g>
+          {fur && <GorillaMask />}
+          {top}
+          {rage && (
+            <>
+              <g fill="#eef2f7" stroke={INK} strokeWidth="1.2">
+                <Jet x={10} y={21.5} className="aj-r-jet aj-r-jl1" />
+                <Jet x={10} y={21.5} className="aj-r-jet aj-r-jl2" />
+                <Jet x={54} y={21.5} className="aj-r-jet aj-r-jr1" />
+                <Jet x={54} y={21.5} className="aj-r-jet aj-r-jr2" />
+              </g>
+              <g className="aj-r-shock" strokeLinecap="round">
+                <path d="M15 7 L 10 2 M32 2.5 L 32 -4 M49 7 L 54 2" stroke={INK} strokeWidth="4.2" />
+                <path d="M15 7 L 10 2 M32 2.5 L 32 -4 M49 7 L 54 2" stroke="#fff" strokeWidth="2" />
+              </g>
+            </>
+          )}
         </g>
-        <Arm side="l" sx={21} ex={16} hx={13} />
-        <Arm side="r" sx={43} ex={48} hx={51} hold={hold} />
+        {over}
+        <Arm side="l" sx={21} ex={16} hx={13} g={g} />
+        <Arm side="r" sx={43} ex={48} hx={51} hold={hold} g={g} />
       </g>
     </svg>
   );
@@ -451,6 +554,307 @@ const Card = ({ pip, color }: { pip: string; color: string }) => (
     </svg>
   </>
 );
+/** A circle as a path (centre, radius), to join into one pip. */
+const circ = (x: number, y: number, r: number) => `M${x - r} ${y} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0 Z`;
+const CLUB = `${circ(8, 9.6, 2.7)} ${circ(5.2, 13.4, 2.7)} ${circ(10.8, 13.4, 2.7)} M8 12 L 6.3 17.8 L 9.7 17.8 Z`;
+const DIAMOND = "M8 7.6 L 11.7 13 L 8 18.4 L 4.3 13 Z";
+/** 72o's two cards, with their indices drawn (no text): the 7 of clubs and the 2 of diamonds. */
+const CARDS_72 = [
+  { rank: "M2.6 2.6 H 6.4 L 3.8 8.4", pip: CLUB, color: INK },
+  { rank: "M2.8 4.2 Q 3 2.5 4.6 2.5 Q 6.3 2.5 6.2 4.1 Q 6.1 5.5 2.7 8.4 H 6.5", pip: DIAMOND, color: "#d6202f" },
+] as const;
+/** One of 72o's cards (18 x 25 box): ajae.css cuts it into its two halves along a jagged tear (.aj-half.aj-hl / .aj-hr). */
+const Card72 = ({ rank, pip, color }: (typeof CARDS_72)[number]) => (
+  <svg viewBox="0 0 16 22">
+    <rect x="0.7" y="0.7" width="14.6" height="20.6" rx="2.4" fill="#fff" stroke={INK} strokeWidth="1.4" />
+    <path d={rank} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d={pip} fill={color} transform="translate(2.3 7.4) scale(0.3)" />
+    <path d={pip} fill={color} transform="translate(1.6 2.2) scale(0.8)" />
+  </svg>
+);
+/** A scrap of a torn card. */
+const BitSvg = () => (
+  <svg viewBox="0 0 8 6">
+    <path d="M0.6 0.8 L 7.2 0.6 L 6.4 2.4 L 7.4 5.2 L 0.8 5.4 L 1.6 3 Z" fill="#fff" stroke={INK} strokeWidth="0.9" strokeLinejoin="round" />
+  </svg>
+);
+
+// ───────────── the pairs' shows (AJAE_SPECIALS): their costumes and props ─────────────
+
+/** The gorilla costume's face: dark and leathery, under a heavy brow. */
+const GFACE = "#2a2c33";
+const MUZZLE = "#4a4d57";
+/**
+ * The gorilla costume's head (KK), over his own bald head, in the splash face's units: a dome with a crest, small
+ * ears, a heavy brow, small eyes, a big flat nose. Its jaw drops for the roar (.aj-r-roar); in the end he lifts the
+ * whole head off (.aj-r-mask) and it's him inside.
+ */
+function GorillaMask() {
+  return (
+    <g className="aj-r-mask">
+      <g transform="translate(32 25) scale(0.4)">
+        {[-1, 1].map((k) => (
+          <g key={k}>
+            <circle cx={53 * k} cy="-4" r="11" fill={FUR} stroke={INK} strokeWidth="4" />
+            <circle cx={53 * k} cy="-4" r="5" fill={GFACE} />
+          </g>
+        ))}
+        <path d="M-54 12 C -60 -38, -34 -80, 0 -82 C 34 -80, 60 -38, 54 12 C 52 42, 30 54, 0 54 C -30 54, -52 42, -54 12 Z" fill={FUR} stroke={INK} strokeWidth="4" />
+        <path d="M-30 -58 Q -14 -72 4 -70 M10 -66 Q 26 -64 36 -52 M-44 -30 Q -46 -14 -42 2 M44 -30 Q 46 -14 42 2" fill="none" stroke={FUR_LIGHT} strokeWidth="3.4" strokeLinecap="round" />
+        <path d="M-38 -16 C -40 -36, -12 -40, 0 -32 C 12 -40, 40 -36, 38 -16 C 42 8, 34 38, 0 46 C -34 38, -42 8, -38 -16 Z" fill={GFACE} stroke={INK} strokeWidth="3" />
+        <path d="M-41 -20 Q -22 -40 0 -27 Q 22 -40 41 -20 Q 22 -26 0 -15 Q -22 -26 -41 -20 Z" fill={FUR} stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        {[-1, 1].map((k) => (
+          <g key={k}>
+            <circle cx={16 * k} cy="-8" r="6" fill="#fff" stroke={INK} strokeWidth="2" />
+            <circle cx={15 * k} cy="-7" r="3.4" fill={INK} />
+            <circle cx={14 * k + 1} cy="-8.4" r="1.1" fill="#fff" />
+          </g>
+        ))}
+        <path d="M-26 14 C -27 0, 27 0, 26 14 C 28 34, 14 42, 0 42 C -14 42, -28 34, -26 14 Z" fill={MUZZLE} stroke={INK} strokeWidth="2.6" />
+        <path d="M-16 8 C -16 -2, 16 -2, 16 8 C 16 14, 8 16, 0 14 C -8 16, -16 14, -16 8 Z" fill={GFACE} stroke={INK} strokeWidth="2" />
+        <ellipse cx="-7" cy="8.5" rx="4.4" ry="3.2" fill={INK} />
+        <ellipse cx="7" cy="8.5" rx="4.4" ry="3.2" fill={INK} />
+        <path className="aj-r-shut" d="M-13 29 Q 0 34 13 29" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+        <g className="aj-r-roar">
+          <ellipse cx="0" cy="30" rx="15" ry="10" fill="#5a1d14" stroke={INK} strokeWidth="3" />
+          <path d="M-10 21.5 L -7 29 L -4 22 Z M10 21.5 L 7 29 L 4 22 Z" fill="#fff" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
+        </g>
+      </g>
+    </g>
+  );
+}
+
+/** A gold crown (KK), on his bald head (the splash face's units: it sits on the top of the dome), its jewels and pearls. */
+const CROWN = (
+  <g className="aj-r-crown">
+    <g transform="translate(32 25) scale(0.4)">
+      <path d="M-31 -46 L -36 -84 L -17 -63 L 0 -94 L 17 -63 L 36 -84 L 31 -46 Q 0 -54 -31 -46 Z" fill={GOLD} stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
+      <path d="M-31 -46 Q 0 -54 31 -46 L 31 -35 Q 0 -43 -31 -35 Z" fill="#f59e0b" stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
+      <path d="M-28 -52 L -31 -74 L -22 -62 Z M-6 -66 L 0 -84 L 3 -70 Z" fill="#fff" opacity="0.7" />
+      {[[-36, -87], [0, -98], [36, -87]].map(([x, y]) => (
+        <circle key={x} cx={x} cy={y} r="5.5" fill="#fff" stroke={INK} strokeWidth="2.4" />
+      ))}
+      <circle cx="-17" cy="-41" r="4.6" fill="#e11d48" stroke={INK} strokeWidth="2" />
+      <circle cx="0" cy="-43.5" r="5.6" fill="#2563eb" stroke={INK} strokeWidth="2" />
+      <circle cx="17" cy="-41" r="4.6" fill="#16a34a" stroke={INK} strokeWidth="2" />
+    </g>
+  </g>
+);
+/** The royal cape behind him (KK, the crown): red velvet with a gold hem; it swirls on as the crown lands. */
+const CAPE = (
+  <g className="aj-r-cape">
+    <path d="M17 46 Q 32 41 47 46 L 60 90 Q 32 97 4 90 Z" fill="#b4123a" stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+    <path d="M6 88.5 Q 32 95 58 88.5" fill="none" stroke={GOLD} strokeWidth="2.6" />
+    <path d="M22 52 L 14 86 M42 52 L 50 86" fill="none" stroke="#7f0d29" strokeWidth="1.6" strokeLinecap="round" />
+  </g>
+);
+/** The cape's white ermine collar over his shoulders, with its black tails. */
+const COLLAR = (
+  <g className="aj-r-collar">
+    <path d="M14.5 47.5 Q 32 37.5 49.5 47.5 Q 51 52 46.5 52.5 Q 32 45 17.5 52.5 Q 13 52 14.5 47.5 Z" fill="#fff" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M19 48.4 v 2 M25 45.4 v 2 M39 45.4 v 2 M45 48.4 v 2" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
+  </g>
+);
+/** The scepter in his right fist (like the mallet: it hangs from the fist, so it points up when he raises his arm). */
+const SCEPTER = (
+  <g className="aj-r-scep">
+    <path d="M51 64 L 51 95" stroke={INK} strokeWidth="5" strokeLinecap="round" />
+    <path d="M51 64 L 51 95" stroke={GOLD} strokeWidth="2.8" strokeLinecap="round" />
+    <path d="M46.5 91 L 55.5 91" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+    <path d="M46.5 91 L 55.5 91" stroke={GOLD} strokeWidth="2" strokeLinecap="round" />
+    <circle cx="51" cy="99" r="5" fill="#e11d48" stroke={INK} strokeWidth="1.6" />
+    <path d={spark(49.6, 97.6, 2.4)} fill="#fff" />
+  </g>
+);
+
+/** A bow tie (QQ: the ladies' man), over his chain. */
+const BOWTIE = (
+  <g className="aj-r-tie">
+    <path d="M32 46.5 L 24.5 42.6 Q 23.4 46.5 24.5 50.4 Z M32 46.5 L 39.5 42.6 Q 40.6 46.5 39.5 50.4 Z" fill={INK} stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
+    <circle cx="32" cy="46.5" r="2.3" fill="#2b2f3a" stroke={INK} strokeWidth="1" />
+    <path d="M26 44.6 L 26 48.4 M38 44.6 L 38 48.4" stroke="#6b7280" strokeWidth="1" strokeLinecap="round" />
+  </g>
+);
+
+/** The plane's light blue, its darker wings and tail. */
+const SKY = "#5ec8ff";
+const WING = "#2f8fe0";
+/**
+ * AA's plane, in the doll's units around him (he sits in its open cockpit): the far tail fin behind him
+ * (PLANE_BACK), then in front of his body the fuselage with its stripe, gold cowling, spinning propeller
+ * (.aj-r-prop), windshield, near wing, wheels, and his white scarf flying back (.aj-r-scarf). The nose is to the right.
+ */
+const PLANE_BACK = (
+  <g>
+    <path d="M-34 58 L -43 35 Q -40 31.5 -36 34 L -19 56 Z" fill={WING} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+    <path d={spark(-35.5, 45, 4.6)} fill={GOLD} stroke={INK} strokeWidth="1" />
+  </g>
+);
+const PLANE_FRONT = (
+  <g>
+    <path d="M-40 57 Q -12 51 13 55 L 50 55 Q 84 54 94 59 Q 101.5 66 94 74 Q 70 81.5 30 80.5 Q -8 77 -40 64 Z" fill={SKY} stroke={INK} strokeWidth="2.4" strokeLinejoin="round" />
+    <path d="M-32 61 Q 28 71 92 66" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" />
+    <path d="M13 56 Q 31.5 60 50 56" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+    <path d="M85 56 Q 101 59.5 101 66 Q 101 72.5 85 76.5 Z" fill={GOLD} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
+    <g className="aj-r-prop">
+      <ellipse cx="104.5" cy="66" rx="2.6" ry="17" fill="#e2e8f0" stroke={INK} strokeWidth="1.3" opacity="0.85" />
+    </g>
+    <circle cx="103" cy="66" r="3.6" fill="#e11d48" stroke={INK} strokeWidth="1.5" />
+    <path d="M50 55 L 55 43.5 Q 59 44 60.5 55 Z" fill="#c9eeff" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" opacity="0.85" />
+    <path d="M-40 64 L -18 63.5 L -26 70.5 L -46 70.5 Z" fill={WING} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
+    <path d="M28 80 L 25 88.5 M47 79.5 L 49 88.5" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+    <circle cx="25" cy="90.5" r="4.4" fill={INK} />
+    <circle cx="49" cy="90.5" r="4.4" fill={INK} />
+    <circle cx="25" cy="90.5" r="1.6" fill="#94a3b8" />
+    <circle cx="49" cy="90.5" r="1.6" fill="#94a3b8" />
+    <path d="M20 72 L 66 72 Q 72 74 66 77.5 L 13 86.5 Q 5 87.5 7.5 82 Z" fill={WING} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+    <path d="M16 79 L 60 74.5" stroke="#8fd6ff" strokeWidth="1.6" strokeLinecap="round" />
+    <g className="aj-r-scarf">
+      <path d="M31 43.5 Q 17 39.5 6 44 Q -5 48.5 -15 43 L -13 49.5 Q -3 54 7 49.5 Q 17 46 31 48 Z" fill="#fff" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
+    </g>
+  </g>
+);
+
+/** A firework's burst (its colour): twelve rays, twelve sparks further out, a white heart. */
+const FW_RAYS = Array.from({ length: 12 }, (_, i) => {
+  const a = (i * 30 * Math.PI) / 180;
+  const f = (r: number) => `${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}`;
+  return `M${f(7)} L ${f(18)}`;
+}).join(" ");
+const FW_SPARKS = Array.from({ length: 12 }, (_, i) => {
+  const a = ((i * 30 + 15) * Math.PI) / 180;
+  return circ(Number((24 * Math.cos(a)).toFixed(1)), Number((24 * Math.sin(a)).toFixed(1)), 1.9);
+}).join(" ");
+const Firework = ({ c }: { c: string }) => (
+  <svg viewBox="-28 -28 56 56">
+    <path d={FW_RAYS} stroke={c} strokeWidth="2.8" strokeLinecap="round" />
+    <path d={FW_SPARKS} fill={c} />
+    <circle r="4.6" fill="#fff" />
+  </svg>
+);
+/** The pairs' fireworks: colour, and the rest is ajae.css (where, when, how big). */
+const FIREWORKS: Record<string, readonly string[]> = {
+  plane: ["#ff4d8d", GOLD, "#38bdf8", "#a3e635", "#fff1a8"],
+  gorilla: [GOLD, "#38bdf8"],
+  crown: [GOLD, "#ff4d8d"],
+  waltz: ["#ff7ab6"],
+  split: [GOLD],
+};
+/** Confetti colours (a piece is a small rectangle; ajae.css throws it). */
+const CONFETTI = ["#fbbf24", "#ff4d8d", "#38bdf8", "#a3e635", "#fff", "#f97316", "#b36bff", "#fbbf24", "#ff4d8d", "#38bdf8", "#fff", "#a3e635"];
+const ROYAL = ["#fbbf24", "#fde68a", "#fff", "#e11d48", "#fbbf24", "#f59e0b", "#fff", "#fbbf24", "#e11d48", "#fde68a", "#fbbf24", "#fff"];
+
+/** A fanfare trumpet (KK, the crown): gold, with a red banner hanging from it (a gold crown on it, no words). */
+const Trumpet = () => (
+  <svg viewBox="-4 -14 60 44">
+    <path d="M10 6 L 30 22 L 18 26 L 6 10 Z" fill="#c8102e" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M30 22 L 26 27 L 22 23 L 18 26" fill="#c8102e" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
+    <path d="M13 14 L 15 10.5 L 17 13 L 19 9.5 L 20 14.5 Z" fill={GOLD} stroke={INK} strokeWidth="0.8" />
+    <path d="M0 4 L 40 4" stroke={INK} strokeWidth="5" strokeLinecap="round" />
+    <path d="M0 4 L 40 4" stroke={GOLD} strokeWidth="3" strokeLinecap="round" />
+    <path d="M38 4 L 52 -6 L 52 14 Z" fill={GOLD} stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
+    <ellipse cx="52" cy="4" rx="2.4" ry="10" fill="#f59e0b" stroke={INK} strokeWidth="1.6" />
+    <path d="M14 4 q 3 -6 6 0 M24 4 q 3 -6 6 0" fill="none" stroke={INK} strokeWidth="1.6" />
+  </svg>
+);
+
+/** The queen's index, drawn (no text): an oval with its tail. */
+const Q_INDEX = "M-8.6 -12.4 a 2.5 2.9 0 1 0 0.01 0 Z M-8 -9.6 L -6 -7.8";
+/**
+ * A queen card that dances (QQ): a card with a little gold crown, her index drawn (no text), a face, her suit's pip,
+ * white-gloved arms and legs in heels (each turns at its own pivot: .aj-qd-arm-l and the rest).
+ */
+function Queen({ pip, color }: { pip: string; color: string }) {
+  return (
+    <svg viewBox="-24 -32 48 66">
+      <g className="aj-qd">
+        {(["l", "r"] as const).map((k, i) => (
+          <g key={k} className={`aj-qd-leg-${k}`}>
+            <path d={`M${i ? 5 : -5} 17 L ${i ? 6 : -6} 27`} stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+            <path d={`M${i ? 6 : -6} 27.5 l ${i ? 4 : -4} 0.4`} stroke={color} strokeWidth="3" strokeLinecap="round" />
+          </g>
+        ))}
+        {(["l", "r"] as const).map((k, i) => (
+          <g key={k} className={`aj-qd-arm-${k}`}>
+            <path d={`M${i ? 12 : -12} -3 L ${i ? 21 : -21} -9`} stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+            <circle cx={i ? 21.5 : -21.5} cy="-9.4" r="2.6" fill="#fff" stroke={INK} strokeWidth="1.2" />
+          </g>
+        ))}
+        <rect x="-13" y="-18" width="26" height="36" rx="3.5" fill="#fff" stroke={INK} strokeWidth="1.6" />
+        <rect x="-10.6" y="-15.6" width="21.2" height="31.2" rx="2" fill="none" stroke={color} strokeWidth="0.9" />
+        <path d={Q_INDEX} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M-7 -18 L -8.5 -25.5 L -4 -21.5 L 0 -27.5 L 4 -21.5 L 8.5 -25.5 L 7 -18 Z" fill={GOLD} stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+        <circle cx="-4" cy="-6.5" r="1.5" fill={INK} />
+        <circle cx="4" cy="-6.5" r="1.5" fill={INK} />
+        <path d="M-6 -8.8 l -1.4 -1.2 M6 -8.8 l 1.4 -1.2" stroke={INK} strokeWidth="0.9" strokeLinecap="round" />
+        <circle cx="-6.6" cy="-3" r="1.9" fill="#ff8fb3" opacity="0.8" />
+        <circle cx="6.6" cy="-3" r="1.9" fill="#ff8fb3" opacity="0.8" />
+        <path d="M-2.6 -2.4 Q 0 0 2.6 -2.4" fill="none" stroke="#d6202f" strokeWidth="1.3" strokeLinecap="round" />
+        <path d={pip} fill={color} transform="translate(-5.6 0.4) scale(0.7)" />
+      </g>
+    </svg>
+  );
+}
+/** A heart rising (QQ). */
+const HeartSvg = ({ c }: { c: string }) => (
+  <svg viewBox="2 5 12 13">
+    <path d={HEART} fill={c} stroke={INK} strokeWidth="0.9" />
+  </svg>
+);
+
+/** The splash's J♥ index and heart (index.html), in the card's units (-150..150, -210..210). */
+const J_INDEX =
+  "M20.5 0.8L20.5 0.8Q11.9 0.8 7.3-2.9Q2.7-6.6 1.2-14.9L1.2-14.9L12.7-16.6Q13.4-12.3 15.3-10.3Q17.2-8.2 20.5-8.2L20.5-8.2Q24.0-8.2 25.8-10.5Q27.5-12.9 27.5-17.1L27.5-17.1L27.5-46.0L16.6-46.0L16.6-55.0L39.0-55.0L39.0-17.4Q39.0-8.8 34.1-4.0Q29.3 0.8 20.5 0.8Z";
+const J_HEART = "M0 44 C -30 16, -40 0, -40 -18 C -40 -38, -20 -48, 0 -30 C 20 -48, 40 -38, 40 -18 C 40 0, 30 16, 0 44 Z";
+/**
+ * JJ's jack: the launch splash's J♥ with the 아재 as its court picture (bald, shades, mustache; his brows under the
+ * shades), its gold frame, the J index and a heart. `pic`: the court picture is there (the second jack); without it
+ * the frame starts empty and he appears in it once he has dived in (.aj-jc-pic). The frame's clip has a useId id.
+ */
+function JackCard({ pic }: { pic?: boolean }) {
+  const clip = useId();
+  return (
+    <svg viewBox="-156 -216 312 432">
+      <clipPath id={clip}>
+        <rect x="-104" y="-150" width="208" height="300" rx="10" />
+      </clipPath>
+      <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke={INK} strokeWidth="8" />
+      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="#fff3d6" />
+      <g clipPath={`url(#${clip})`}>
+        <g className={pic ? undefined : "aj-jc-pic"} transform="translate(0 32) scale(1.6)">
+          <path d="M-78 74 Q -66 40 -26 34 L 26 34 Q 66 40 78 74 Z" fill={SHIRT} stroke={INK} strokeWidth="4" />
+          <g fill="#fff" opacity="0.9">
+            <circle cx="-50" cy="58" r="5" />
+            <circle cx="-30" cy="48" r="4" />
+            <circle cx="44" cy="56" r="5" />
+            <circle cx="28" cy="46" r="4" />
+          </g>
+          <path d="M-22 36 Q 0 62 22 36" fill="none" stroke={GOLD} strokeWidth="6" />
+          <circle cx="0" cy="58" r="6" fill={GOLD} stroke={INK} strokeWidth="2" />
+          <Ears />
+          <ellipse cx="0" cy="-12" rx="44" ry="48" fill={SKIN} stroke={INK} strokeWidth="4" />
+          <Shine />
+          <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M-12 25 Q 0 35 12 25" fill="none" stroke="#6b2d1e" strokeWidth="3.4" strokeLinecap="round" />
+          <path d={MUSTACHE} fill={STACHE} />
+          <Shades className="aj-jc-shades" />
+        </g>
+      </g>
+      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="none" stroke={GOLD} strokeWidth="6" />
+      <path transform="translate(-124 -136)" fill="#d6202f" d={J_INDEX} />
+      <path transform="translate(-105 -96) scale(0.5)" fill="#d6202f" d={J_HEART} />
+      <path transform="translate(124 136) rotate(180)" fill="#d6202f" d={J_INDEX} />
+      <path transform="translate(105 96) rotate(180) scale(0.5)" fill="#d6202f" d={J_HEART} />
+    </svg>
+  );
+}
+/** A suit pip flying out of the jacks' split (JJ). */
+const PipSvg = ({ pip, color }: { pip: string; color: string }) => (
+  <svg viewBox="3 4 10 15">
+    <path d={pip} fill={color} stroke={INK} strokeWidth="0.8" />
+  </svg>
+);
+
 const PuffSvg = () => (
   <svg viewBox="-12 -10 24 20">
     <g fill="#eef2f7" stroke={INK} strokeWidth="1.6">
@@ -662,6 +1066,43 @@ const AjaeAct = memo(function AjaeAct({ move }: { move: AjaeMove }) {
           </span>
           <span className="aj-burst">
             <Star />
+          </span>
+          <span className="aj-dust aj-d1">
+            <DustSvg />
+          </span>
+          <span className="aj-dust aj-d2">
+            <DustSvg />
+          </span>
+          <Fumes />
+          {poof}
+        </>
+      );
+    case "rage":
+      return (
+        <>
+          <span className="aj-aura" />
+          <span className="aj-body">
+            <Doll mad rage />
+          </span>
+          {CARDS_72.flatMap((c, i) =>
+            (["hl", "hr"] as const).map((h) => (
+              <span key={`${i}${h}`} className={`aj-half aj-q${i * 2 + (h === "hl" ? 1 : 2)} aj-${h}`}>
+                <Card72 {...c} />
+              </span>
+            )),
+          )}
+          {[1, 2, 3, 4].map((i) => (
+            <span key={`b${i}`} className={`aj-bit aj-b${i}`}>
+              <BitSvg />
+            </span>
+          ))}
+          <span className="aj-burst">
+            <Star />
+          </span>
+          <span className="aj-bang">
+            <svg viewBox="-20 -10 40 20">
+              <path d="M-18 6 L -8 2 M-14 -4 L -6 0 M18 6 L 8 2 M14 -4 L 6 0 M0 -9 L 0 -2" stroke={GOLD} strokeWidth="3" strokeLinecap="round" />
+            </svg>
           </span>
           <span className="aj-dust aj-d1">
             <DustSvg />
