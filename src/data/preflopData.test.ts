@@ -9,7 +9,6 @@ import { ALL_HANDS, comboCount, RANKS, type HandClass } from "../poker/cards";
 import { EQR_FIT } from "../poker/preflop/eqrFit";
 import { parseRange, rangeCombos } from "../poker/range";
 import { settingsStore } from "../state/settings";
-import { NASH_STAGES } from "./sets/nashData";
 import {
   actionTotals,
   CHART_SETS,
@@ -24,7 +23,6 @@ import {
   HEAVY_CLOSE_SHARE,
   KIND_LABEL,
   legendActions,
-  loadSolver,
   reachOf,
   reachShare,
   reachTotals,
@@ -43,13 +41,13 @@ import {
   RAISE_KEYS,
   solverSetDef,
 } from "./sets/preflop";
-import { PREFLOP_DRAFT_STAGES, PREFLOP_STAGE_FILES, PREFLOP_STAGE_META } from "./sets/preflopIndex";
+import { PREFLOP_DRAFT_STAGES, PREFLOP_STAGES } from "./sets/preflopData";
 import type { PreflopFlag, PreflopFlagCode, PreflopKind, PreflopScenario, PreflopStage } from "./sets/preflopTypes";
 
 /**
- * Data tests (design §5.2) on the committed solver data, src/data/sets/preflopIndex.ts and preflopStages/<id>.ts, read
- * the way the app reads it: through src/data/sets/preflop.ts and buildScenario (loadSolver, then getSet("solver")). They
- * are independent of the generator's own checks (src/poker/preflop/export.ts), so a bug there cannot hide itself here.
+ * Data tests (design §5.2) on the committed src/data/sets/preflopData.ts, read the way the app reads it: through
+ * src/data/sets/preflop.ts and buildScenario (getSet("solver")). They are independent of the generator's own
+ * checks (src/poker/preflop/export.ts), so a bug there cannot hide itself here.
  *
  * Severity follows §5.2: PF-DATA-1, PF-SANITY-1 above 2pp, -2, -3 and PF-SIZE-1 fail; PF-SANITY-1 between 0.5
  * and 2pp, -4, -5, -6, -7 and -8 only warn (console.warn). PF-SANITY-5, -6 and -7 hits must carry the 낮음 badge, which
@@ -62,15 +60,7 @@ import type { PreflopFlag, PreflopFlagCode, PreflopKind, PreflopScenario, Preflo
 // No @types/node here: reach node:fs and node:zlib through untyped handles (as cardColors.test.tsx does).
 const fs = (await import(/* @vite-ignore */ "node:fs" as string)) as { readFileSync(path: URL): Uint8Array };
 const zlib = (await import(/* @vite-ignore */ "node:zlib" as string)) as { gzipSync(data: Uint8Array): Uint8Array };
-const fsDir = fs as unknown as { readdirSync(path: URL): string[] };
-const INDEX_FILE = new URL("./sets/preflopIndex.ts", import.meta.url);
-const STAGE_DIR = new URL("./sets/preflopStages/", import.meta.url);
-const stageFile = (id: string) => new URL(`${id}.ts`, STAGE_DIR);
-/** Every stage file, through the index's loaders (the app loads them one chunk at a time). */
-const STAGE_MODULES: Record<string, PreflopStage> = Object.fromEntries(
-  await Promise.all(Object.entries(PREFLOP_STAGE_FILES).map(async ([id, load]) => [id, (await load()).default] as const)),
-);
-const PREFLOP_STAGES: PreflopStage[] = PREFLOP_STAGE_META.map((m) => STAGE_MODULES[m.id]);
+const DATA_FILE = new URL("./sets/preflopData.ts", import.meta.url);
 
 const POS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
 const OPENERS = POS.slice(0, 7); // UTG..BTN: the seats whose first-in raise is the stage's open
@@ -81,28 +71,16 @@ const STAGE_LABELS: Record<string, string> = {
   "100bb-3": "100bb · 펍 사이즈 오픈 3bb",
   "55bb-2.2": "55bb · 오픈 2.2bb",
   "35bb-2": "35bb · 오픈 2bb",
-  "10bb-pf": "10bb · 푸시/폴드",
 };
 const REQUIRED = ["100bb-2.2", "100bb-3", "55bb-2.2"];
-/** The optional stages, in preset order: each ships only if it passes every gate. */
-const OPTIONAL = ["35bb-2", "10bb-pf"];
-/** Solved and checked but never written until the low-SPR realization is calibrated (§1.2). */
-const CHECK_ONLY = ["25bb-2", "20bb-2", "15bb-2"];
-const isPushFold = (st: PreflopStage) => st.tree.mode === "pushfold";
 /** §4.6: the gates are first read at 1,500 iterations, never earlier. */
 const MIN_ITERATIONS = 1500;
 /** The 55bb+ cap sentences (§6.6): the small-4-bet split where the hero has both, the plain reason elsewhere. */
 const FOUR_BET_SPLIT = "작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.";
-/** A push/fold spot's confidence reason (§6.6). */
-const PUSHFOLD_CONFIDENCE = "푸시/폴드만 하는 구간이라 실현율 가정이 없어요.";
 const LOW_SPR_CAP = "3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요.";
 const LADDER = [0.1, 0.2, 0.5, 1];
 const LIMITS = { rfi: 8, vsOpen: [30, 36], vsLimp: [1, 6], otherMax: 72, total: 180 } as const;
-/** PF-DATA-1 for a push/fold stage: the 8 first-in pushes and the 36 calls of a first-in jam, nothing else. */
-const PUSHFOLD_COUNTS: Record<PreflopKind, number> = { rfi: 8, vsOpen: 0, vs3bet: 0, vs4bet: 0, squeeze: 0, vsLimp: 0, vsShove: 36 };
-/** PF-SIZE-1, the same reading as the generator: gzip of each stage file, and of every file together, in bytes. */
-const STAGE_GZIP_LIMIT = 30_000;
-const TOTAL_GZIP_LIMIT = 200_000;
+const GZIP_LIMIT = 80_000; // PF-SIZE-1, the same reading as the generator (80 KB as 80,000 bytes)
 
 const VERBS = "open|limp|iso|call|3bet|squeeze|4bet|jam|reraise|check";
 const SEATS = POS.map(seatId).join("|");
@@ -113,7 +91,6 @@ const LIMP_IDS = ["bb-vs-sb-limp", "sb-limp-vs-bb-iso", "sb-limp-vs-bb-jam", "bb
 /** Decision 1: a cold player facing a non-all-in 3-bet may only fold or jam. */
 const isCold = (s: Pick<PreflopScenario, "kind" | "id">) => s.kind === "vs3bet" && GENERIC.test(s.id);
 
-await loadSolver();
 const solver = getSet("solver");
 const builtStage = (id: string): Stage => solver.stages.find((s) => s.id === id)!;
 const byId = (stage: Stage) => new Map(stage.scenarios.map((s) => [s.id.split("/")[2], s]));
@@ -156,18 +133,18 @@ describe("solver chart set: registration and texts", () => {
       expect(solver.source).toContain(fact);
   });
 
-  it("ships the required stages in order, then the optional ones in preset order, never a check-only stage", () => {
+  it("ships the required stages in order, 35bb only after them, never the 25bb check stage", () => {
     const ids = PREFLOP_STAGES.map((s) => s.id);
     expect(ids.slice(0, 3)).toEqual(REQUIRED);
-    expect(ids.slice(3)).toEqual(OPTIONAL.filter((id) => ids.includes(id)));
-    for (const id of CHECK_ONLY) expect(ids).not.toContain(id);
+    expect(ids.slice(3).every((id) => id === "35bb-2")).toBe(true);
+    expect(ids.length).toBeLessThanOrEqual(4);
     expect(solver.stages.map((s) => s.id)).toEqual(ids);
     for (const st of PREFLOP_STAGES) {
       const b = builtStage(st.id);
       expect(st.label, st.id).toBe(STAGE_LABELS[st.id]);
       expect(b.label).toBe(st.label);
       expect(b.stack).toBe(`모두 ${st.stack}bb`);
-      expect(st.id, st.id).toBe(isPushFold(st) ? `${st.stack}bb-pf` : `${st.stack}bb-${st.open}`);
+      expect(st.id.startsWith(`${st.stack}bb-${st.open}`), st.id).toBe(true);
       // The page prints the stack right before the description, so the data's leading "모두 Nbb. " is dropped.
       expect(b.description.startsWith("모두"), st.id).toBe(false);
       expect(st.description, st.id).toBe(st.description.startsWith(`${b.stack}. `) ? `${b.stack}. ${b.description}` : b.description);
@@ -197,41 +174,20 @@ describe("solver chart set: registration and texts", () => {
     expect(PREFLOP_DRAFT_STAGES).toEqual([]);
   });
 
-  it("was made with the committed fit and the equity table the fit was made with (push/fold: showdown equity, no fit)", () => {
+  it("was made with the committed fit and the equity table the fit was made with", () => {
     for (const st of PREFLOP_STAGES) {
-      if (isPushFold(st)) expect(st.model, st.id).toEqual({ id: "showdown-equity" });
-      else {
-        expect(st.model.id, st.id).toBe("modelB-rank9");
-        expect("fitHash" in st.model && st.model.fitHash, st.id).toBe(EQR_FIT.sha256);
-      }
+      expect(st.model.fitHash, st.id).toBe(EQR_FIT.sha256);
       expect(st.equityTable, st.id).toBe(EQR_FIT.equityTable);
     }
   });
 
-  it("the data files are the generated, typed modules of decision 5: one index, one file per stage", () => {
-    const text = (u: URL) => new TextDecoder().decode(fs.readFileSync(u));
-    const index = text(INDEX_FILE);
-    expect(index.startsWith("// Generated by scripts/make-preflop.mjs. Do not edit by hand")).toBe(true);
-    expect(index).toContain('import type { PreflopStage, PreflopStageMeta } from "./preflopTypes";');
-    expect(index).toContain("export const PREFLOP_STAGE_META: PreflopStageMeta[] = [");
-    // Exactly one file per shipped stage, and no stale one; the index loads each stage from its own file.
-    expect(fsDir.readdirSync(STAGE_DIR).sort()).toEqual(PREFLOP_STAGE_META.map((m) => `${m.id}.ts`).sort());
-    expect(Object.keys(PREFLOP_STAGE_FILES)).toEqual(PREFLOP_STAGE_META.map((m) => m.id));
-    for (const m of PREFLOP_STAGE_META) expect(index, m.id).toContain(`${JSON.stringify(m.id)}: () => import("./preflopStages/${m.id}"),`);
-    for (const m of PREFLOP_STAGE_META) {
-      const t = text(stageFile(m.id));
-      expect(t.startsWith("// Generated by scripts/make-preflop.mjs. Do not edit by hand"), m.id).toBe(true);
-      expect(t, m.id).toContain('import type { PreflopStage } from "../preflopTypes";');
-      expect(t.trimEnd().endsWith("export default stage;"), m.id).toBe(true);
-      // No timestamps: identical inputs must give identical bytes.
-      expect(t, m.id).not.toMatch(/\d{4}-\d\d-\d\dT\d\d:\d\d/);
-      // The index holds every key of the stage but its scenarios, as written there.
-      const st = STAGE_MODULES[m.id];
-      expect(st.id).toBe(m.id);
-      const { scenarios: _drop, ...meta } = st;
-      expect(JSON.stringify(m), m.id).toBe(JSON.stringify(meta));
-    }
-    expect(index).not.toMatch(/\d{4}-\d\d-\d\dT\d\d:\d\d/);
+  it("the data file is the generated, typed module of decision 5", () => {
+    const text = new TextDecoder().decode(fs.readFileSync(DATA_FILE));
+    expect(text.startsWith("// Generated by scripts/make-preflop.mjs. Do not edit by hand")).toBe(true);
+    expect(text).toContain('import type { PreflopStage } from "./preflopTypes";');
+    expect(text).toContain("export const PREFLOP_STAGES: PreflopStage[] = [");
+    // No timestamps: identical inputs must give identical bytes.
+    expect(text).not.toMatch(/\d{4}-\d\d-\d\dT\d\d:\d\d/);
   });
 });
 
@@ -243,10 +199,6 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
   it("PF-DATA-1: scenario counts per kind", () => {
     const counts = Object.fromEntries(Object.keys(KIND_LABEL).map((k) => [k, 0])) as Record<PreflopKind, number>;
     for (const s of st.scenarios) counts[s.kind]++;
-    if (isPushFold(st)) {
-      expect(counts).toEqual(PUSHFOLD_COUNTS);
-      return;
-    }
     expect(counts.rfi).toBe(LIMITS.rfi);
     expect(counts.vsOpen).toBeGreaterThanOrEqual(LIMITS.vsOpen[0]);
     expect(counts.vsOpen).toBeLessThanOrEqual(LIMITS.vsOpen[1]);
@@ -315,8 +267,7 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
     const cold = st.scenarios.filter(isCold);
     for (const s of cold) {
       expect(s.title.startsWith(`${s.hero} — `) && s.title.endsWith(" (콜드: 폴드·올인)"), s.id).toBe(true);
-      expect(s.actions, s.id).toEqual([{ key: "shove", label: "콜드 올인", color: "allin", to: s.actions[0].to, range: s.actions[0].range }]);
-      expect(s.actions[0].to, s.id).toBeGreaterThan(0);
+      expect(s.actions, s.id).toEqual([{ key: "shove", label: "콜드 올인", color: "allin", range: s.actions[0].range }]);
       // A cold player has not acted on this line yet, so every hand gets here.
       expect(s.reachFrom, s.id).toBeUndefined();
       expect(sc(s.id)!.reachRange, s.id).toBeUndefined();
@@ -412,11 +363,6 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
   });
 
   it("the BB facing an SB limp checks instead of folding, and only there", () => {
-    if (isPushFold(st)) {
-      // Push/fold: nobody limps or checks, everybody can fold.
-      for (const s of stage.scenarios) expect(s.noFold || s.actions.some((a) => a.key === "check" || a.key === "limp"), s.id).toBeFalsy();
-      return;
-    }
     const limp = sc("bb-vs-sb-limp")!;
     expect(limp, "bb-vs-sb-limp").toBeDefined();
     expect(limp.noFold).toBe(true);
@@ -501,9 +447,7 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
     ladder(["KQo", "KJo", "KTo"]);
     ladder(["QJo", "QTo"]);
     const spots = stage.scenarios.filter((s) => s.kind === "rfi" || (s.kind === "vsOpen" && s.hero === "BB"));
-    // 8 first-in spots, and the BB against each opener where the stage has opens (at 15bb and below the SB never
-    // raises first in, so there is no BB vs SB open).
-    expect(spots.length, "RFI and BB defense spots").toBe(isPushFold(st) ? 8 : st.scenarios.some((s) => s.id === "bb-vs-sb-open") ? 16 : 15);
+    expect(spots.length).toBe(16);
     const fails: string[] = [];
     for (const s of spots)
       for (const [a, b] of chains) {
@@ -514,24 +458,13 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
     expect(fails).toEqual([]);
   });
 
-  it("PF-SANITY-3: BB defense rises from UTG to BTN (2pp), and vs SB at least vs BTN − 2pp unless the SB limps more than it raises", () => {
-    if (isPushFold(st)) return; // no opens
-    const def = OPENERS.map((p) => ({ seat: p, v: playsOfAll(sc(`bb-vs-${seatId(p)}-open`)!) }));
+  it("PF-SANITY-3: BB defense rises from UTG to BTN (2pp), and vs SB at least vs BTN − 2pp", () => {
+    const def = [...OPENERS, "SB"].map((p) => ({ seat: p, v: playsOfAll(sc(`bb-vs-${seatId(p)}-open`)!) }));
     const fails: string[] = [];
     for (let j = 1; j < 7; j++)
       for (let i = 0; i < j; i++)
         if (def[j].v < def[i].v - 2) fails.push(`BB vs ${def[j].seat} ${def[j].v.toFixed(1)}% < vs ${def[i].seat} ${def[i].v.toFixed(1)}%`);
-    // The vs-SB clause (§5.2): a warning only where the SB first in limps more than it raises, so its raise range is the
-    // strong part of a split range (the short stages).
-    const vsSb = sc("bb-vs-sb-open");
-    if (vsSb) {
-      const sb = reachTotals(sc("rfi-sb")!);
-      const msg = `BB vs SB ${playsOfAll(vsSb).toFixed(1)}% < vs BTN ${def[6].v.toFixed(1)}% − 2`;
-      if (playsOfAll(vsSb) < def[6].v - 2) {
-        if ((sb.raise ?? 0) < (sb.limp ?? 0)) warnAll(stageId, "PF-SANITY-3", [`${msg} (the SB raises ${((sb.raise ?? 0) * 100).toFixed(1)}% < limps ${((sb.limp ?? 0) * 100).toFixed(1)}%)`]);
-        else fails.push(msg);
-      }
-    }
+    if (def[7].v < def[6].v - 2) fails.push(`BB vs SB ${def[7].v.toFixed(1)}% < vs BTN ${def[6].v.toFixed(1)}% − 2`);
     expect(fails).toEqual([]);
   });
 
@@ -539,10 +472,7 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
     const warns: string[] = [];
     for (const hero of ["BTN", "SB", "BB"]) {
       const openers = POS.slice(0, POS.indexOf(hero)).filter((p) => p !== "BB");
-      const xs = openers
-        .map((o) => ({ seat: o, d: sc(`${seatId(hero)}-vs-${seatId(o)}-open`) }))
-        .filter((x) => x.d)
-        .map((x) => ({ seat: x.seat, v: shareOfAll(x.d!, ["3bet", "shove"]) }));
+      const xs = openers.map((o) => ({ seat: o, v: shareOfAll(sc(`${seatId(hero)}-vs-${seatId(o)}-open`)!, ["3bet", "shove"]) }));
       for (let j = 1; j < xs.length; j++)
         for (let i = 0; i < j; i++)
           if (xs[j].v < xs[i].v - 2) warns.push(`${hero} 3-bet vs ${xs[j].seat} ${xs[j].v.toFixed(1)}% < vs ${xs[i].seat} ${xs[i].v.toFixed(1)}%`);
@@ -636,112 +566,14 @@ describe.each(PREFLOP_STAGES.map((st) => [st.id, st] as const))("solver data %s"
       else if (s.move >= 8) expect(s.confidence, s.id).not.toBe("high");
     }
   });
-
-  it("§6.6 push/fold: no realization model, so every spot is 높음 with move 0 unless a check lowered it, and says why", () => {
-    if (!isPushFold(st)) {
-      for (const s of st.scenarios) expect(s.description.includes(PUSHFOLD_CONFIDENCE), s.id).toBe(false);
-      return;
-    }
-    expect(st.description).toContain("푸시/폴드");
-    expect(st.description).toContain("'푸시/폴드 내쉬'");
-    for (const s of st.scenarios) {
-      expect(s.move, s.id).toBe(0);
-      expect(s.description, s.id).toContain(`: ${PUSHFOLD_CONFIDENCE}`);
-      expect(s.description.includes("초안"), s.id).toBe(false);
-      // Only a check (PF-SANITY-7, PF-TWOSTART) can lower it, and then it says which.
-      if (s.confidence !== "high") expect(s.confidence, s.id).toBe("low");
-    }
-    // A push/fold stage is never a draft for lacking the sensitivity solves: there is nothing to vary.
-    expect(st.description.includes("민감도 풀이")).toBe(false);
-  });
-
-  it("every raise and jam carries `to`, the size its label and the stage's sizes say; calls, limps and checks none", () => {
-    const S = st.stack;
-    for (const s of st.scenarios)
-      for (const a of s.actions) {
-        const where = `${s.id}:${a.key}`;
-        if (!RAISES.has(a.key)) {
-          expect(a.to, where).toBeUndefined();
-          continue;
-        }
-        expect(typeof a.to === "number" && a.to > 0, where).toBe(true);
-        // At most the hero's stack (the BB's less its ante); a jam is all of it unless a smaller stack caps it, which
-        // with equal stacks only the BB's (S − ante) can.
-        const live = s.hero === "BB" ? S - 1 : S;
-        expect(a.to!, where).toBeLessThanOrEqual(live + 1e-9);
-        if (a.key === "shove") expect([live, S - 1], where).toContain(a.to);
-        else {
-          expect(a.to!, where).toBeLessThan(live);
-          // The label shows the same size, to one decimal.
-          expect(a.label, where).toContain(`${Math.round(a.to! * 10) / 10}bb`);
-        }
-      }
-    // First in: UTG..BTN open to the stage's open, the SB raises to its own size.
-    for (const p of OPENERS) {
-      const open = st.scenarios.find((x) => x.id === `rfi-${seatId(p)}`)!.actions.find((a) => a.key === "open");
-      if (open) expect(open.to, p).toBe(st.open);
-    }
-    const sbRaise = st.scenarios.find((x) => x.id === "rfi-sb")!.actions.find((a) => a.key === "raise");
-    if (sbRaise) expect(sbRaise.to).toBe(st.sizes.sbRaise);
-  });
-
-  it("§6.6 sens: 169 characters of '.' and hex, marks only in reach on pure cells, the chart's action and another", () => {
-    const measured = !PREFLOP_DRAFT_STAGES.includes(st.id) && !isPushFold(st);
-    for (const raw of st.scenarios) {
-      if (raw.sens === undefined) continue;
-      // Only a stage that ran its sensitivity solves has them.
-      expect(measured, raw.id).toBe(true);
-      const s = sc(raw.id)!;
-      const keys = legendKeys(raw);
-      expect(raw.sens, raw.id).toMatch(/^[.0-9a-f]{169}$/);
-      expect(raw.sens, raw.id).not.toMatch(/^\.+$/);
-      ALL_HANDS.forEach((h, i) => {
-        const ch = raw.sens![i];
-        if (ch === ".") return;
-        const bits = bitsOf(ch);
-        const where = `${raw.id} ${h}`;
-        expect(inReach(s, h), where).toBe(true);
-        expect(bits.length, where).toBeGreaterThanOrEqual(2);
-        expect(Math.max(...bits), where).toBeLessThan(keys.length);
-        const pure = pureKey(s, keys, h);
-        expect(pure, where).not.toBeNull();
-        expect(bits.map((b) => keys[b]), where).toContain(pure);
-        // The built set decodes it to the same legend keys.
-        expect(s.sens?.[h], where).toEqual(bits.map((b) => keys[b]));
-      });
-    }
-  });
 });
 
 describe("solver data: size and app smoke tests", () => {
-  it("PF-SIZE-1: gzip of each stage file is at most 30,000 bytes, of every file together at most 200,000", () => {
-    const sizes = PREFLOP_STAGES.map((st) => {
-      const bytes = fs.readFileSync(stageFile(st.id));
-      return { id: st.id, raw: bytes.length, gz: zlib.gzipSync(bytes).length, spots: st.scenarios.length };
-    });
-    const index = zlib.gzipSync(fs.readFileSync(INDEX_FILE)).length;
-    const total = index + sizes.reduce((a, x) => a + x.gz, 0);
-    console.info(`solver data: index gzip ${index}; ${sizes.map((x) => `${x.id} ${x.spots} spots ${x.raw} bytes gzip ${x.gz}`).join(", ")}; total gzip ${total} (limits ${STAGE_GZIP_LIMIT} per file, ${TOTAL_GZIP_LIMIT} in all)`);
-    for (const x of sizes) expect(x.gz, x.id).toBeLessThanOrEqual(STAGE_GZIP_LIMIT);
-    expect(total).toBeLessThanOrEqual(TOTAL_GZIP_LIMIT);
-  });
-
-  it("PF-OVERLAP-PF: a push/fold stage's ranges equal the nash set's at the same stack, cell for cell (the same game and engine)", () => {
-    for (const st of PREFLOP_STAGES.filter(isPushFold)) {
-      const nash = NASH_STAGES.find((x) => x.stack === st.stack);
-      expect(nash, `nash ${st.stack}bb`).toBeDefined();
-      const byId = new Map(st.scenarios.map((x) => [x.id, x]));
-      const diffs: string[] = [];
-      const cmp = (what: string, mine: string | undefined, theirs: string | undefined) => {
-        expect(mine, what).toBeDefined();
-        const a = parseRange(mine ?? ""), b = parseRange(theirs ?? "");
-        for (const h of ALL_HANDS) if (Math.abs((a[h] ?? 0) - (b[h] ?? 0)) > 1e-9) diffs.push(`${what} ${h}: ${a[h] ?? 0} vs nash ${b[h] ?? 0}`);
-      };
-      for (const p of POS.slice(0, 8)) cmp(`push ${p}`, byId.get(`rfi-${seatId(p)}`)?.actions.find((a) => a.key === "shove")?.range, nash!.push[p]);
-      for (let j = 0; j < 8; j++)
-        for (let c = j + 1; c < 9; c++) cmp(`${POS[c]} calls ${POS[j]}`, byId.get(`${seatId(POS[c])}-vs-${seatId(POS[j])}-jam`)?.actions.find((a) => a.key === "call")?.range, nash!.call[POS[c]]?.[POS[j]]);
-      expect(diffs.slice(0, 20), `${st.id}: ${diffs.length} cells differ from nash ${st.stack}bb`).toEqual([]);
-    }
+  it("PF-SIZE-1: gzip of preflopData.ts is at most 80 KB", () => {
+    const bytes = fs.readFileSync(DATA_FILE);
+    const gz = zlib.gzipSync(bytes).length;
+    console.info(`preflopData.ts: ${bytes.length} bytes, gzip ${gz} bytes (limit ${GZIP_LIMIT}); ${PREFLOP_STAGES.map((s) => `${s.id} ${s.scenarios.length}`).join(", ")}`);
+    expect(gz).toBeLessThanOrEqual(GZIP_LIMIT);
   });
 
   it("the module builds the set from the data as is (same stages, spots and actions)", () => {
