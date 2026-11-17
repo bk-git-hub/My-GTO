@@ -49,7 +49,7 @@ describe("ajaeTier: how good my two cards are from my seat (pub chart, first in)
     expect(ALL_HANDS.filter((h) => tier(h, "CO") === "trash")).toHaveLength(40);
   });
 
-  it("never kicks a hand any seat plays first in, at any stage or table size (K9o, A4o: a yawn at most)", () => {
+  it("never kicks a hand any seat plays first in, at any stage or table size (K9o, A4o: a ponder at most)", () => {
     for (const stage of PRE_STAGES) {
       for (const players of [3, 4, 5, 6, 7, 8, 9, 10]) {
         const seats = positionsFor(players);
@@ -204,7 +204,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
       expect(s.cue!.tier).toBe("trash");
       trash.push(s.cue!.move);
     }
-    expect(folds).toEqual(["yawn", "glare", "yawn", "glare"]);
+    expect(folds).toEqual(["ponder", "glare", "ponder", "glare"]);
     expect(trash).toEqual(["kick", "mallet", "slam", "kick"]);
     // good alternates, the mirror-ball shuffle first: at least every other good hand
     s = say("UTG", "J", "T", true, s);
@@ -215,33 +215,81 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     expect(s.cue!.move).toBe("robot");
     s = say("UTG", "J", "T", true, s);
     expect(s.cue!.move).toBe("shuffle");
-    // a monster always shoves, 72o always drinks, meh always "흠"
+    // a monster always shoves, 72o always rages, meh ponders, then "흠", in turn
     for (const [a, b] of [["A", "A"], ["K", "K"], ["Q", "Q"]]) {
       s = say("UTG", a, b, null, s);
       expect(s.cue).toMatchObject({ tier: "monster", move: "shove" });
     }
-    s = say("BTN", "7", "2", false, s);
-    expect(s.cue).toMatchObject({ tier: "hammer", move: "beer" });
-    s = say("CO", "Q", "9", false, s);
-    expect(s.cue).toMatchObject({ tier: "meh", move: "hmm" });
+    for (let i = 0; i < 2; i++) {
+      s = say("BTN", "7", "2", false, s);
+      expect(s.cue).toMatchObject({ tier: "hammer", move: "rage" });
+    }
+    const mehs: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      s = say("CO", "Q", "9", false, s);
+      expect(s.cue!.tier).toBe("meh");
+      mehs.push(s.cue!.move);
+    }
+    expect(mehs).toEqual(["ponder", "hmm", "ponder"]);
     // n counts every reaction; seen counts per tier
-    expect(s.cue!.n).toBe(17);
-    expect(s.seen).toEqual({ fold: 4, trash: 5, good: 3, monster: 3, hammer: 1, meh: 1 });
+    expect(s.cue!.n).toBe(20);
+    expect(s.seen).toEqual({ fold: 4, trash: 5, good: 3, monster: 3, hammer: 2, meh: 3 });
     // no words anywhere: the cue carries the move, nothing to say
     expect(Object.keys(s.cue!).sort()).toEqual(["cls", "key", "move", "n", "tier"]);
   });
 
   it("has a move list for every tier, the main move first; the body moves are the whole 아재's", () => {
-    expect(AJAE_MOVES).toEqual({ monster: ["shove"], good: ["shuffle", "robot"], meh: ["hmm"], fold: ["yawn", "glare"], trash: ["kick", "mallet", "slam"], hammer: ["beer"] });
+    expect(AJAE_MOVES).toEqual({ monster: ["shove"], good: ["shuffle", "robot"], meh: ["ponder", "hmm"], fold: ["ponder", "glare"], trash: ["kick", "mallet", "slam"], hammer: ["rage"] });
     for (const t of ["monster", "good", "meh", "fold", "trash", "hammer"] as AjaeTier[]) {
       expect(AJAE_MOVES[t].length).toBeGreaterThan(0);
       // each tier's move in turn, from the k-th reaction
       for (let k = 0; k < 6; k++) expect(ajaeMove(t, k)).toBe(AJAE_MOVES[t][k % AJAE_MOVES[t].length]);
     }
-    expect([...BODY_MOVES].sort()).toEqual(["kick", "mallet", "robot", "shove", "shuffle", "slam"]);
+    expect([...BODY_MOVES].sort()).toEqual(["kick", "mallet", "rage", "robot", "shove", "shuffle", "slam"]);
     // every body move knows the room it needs; the face's stand-ins are face moves
     for (const m of BODY_MOVES) expect(AJAE_ROOM[m]).toBeGreaterThan(0);
     for (const m of Object.values(AJAE_CRAMPED)) expect(BODY_MOVES.has(m)).toBe(false);
+  });
+
+  it("ponders the seat's call: meh and fold both open with the ponder, then take their own move (흠, the glare) in turn", () => {
+    for (const t of ["meh", "fold"] as AjaeTier[]) {
+      expect(AJAE_MOVES[t][0]).toBe("ponder");
+      expect([0, 1, 2, 3, 4].map((k) => ajaeMove(t, k))).toEqual(["ponder", AJAE_MOVES[t][1], "ponder", AJAE_MOVES[t][1], "ponder"]);
+      // face moves only: they play however far the page is scrolled
+      for (const room of [96, 30, 0, -40]) expect(ajaeMove(t, 0, room)).toBe("ponder");
+    }
+    expect(AJAE_MOVES.meh[1]).toBe("hmm");
+    expect(AJAE_MOVES.fold[1]).toBe("glare");
+    expect(BODY_MOVES.has("ponder")).toBe(false);
+    // the seat-dependent hands of the agreed examples ponder; a hand bad from every seat never does
+    const k9 = typed("UTG", "K", "9");
+    expect(ajaeStep(AJAE_START, k9, pickSuited(k9, false), "mid", 9).cue).toMatchObject({ tier: "fold", move: "ponder" });
+    const q9 = typed("CO", "Q", "9");
+    expect(ajaeStep(AJAE_START, q9, pickSuited(q9, false), "mid", 9).cue).toMatchObject({ tier: "meh", move: "ponder" });
+    const j4 = typed("CO", "J", "4");
+    expect(ajaeStep(AJAE_START, j4, pickSuited(j4, false), "mid", 9).cue?.move).not.toBe("ponder");
+  });
+
+  it("goes into a rage for 72o, and only 72o: a body move of its own, beyond the trash moves; scrolled, the furious face (fume)", () => {
+    expect(AJAE_MOVES.hammer).toEqual(["rage"]);
+    expect(BODY_MOVES.has("rage")).toBe(true);
+    for (const [t, moves] of Object.entries(AJAE_MOVES)) if (t !== "hammer") expect(moves as readonly string[]).not.toContain("rage");
+    for (let k = 0; k < 3; k++) expect(ajaeMove("hammer", k)).toBe("rage");
+    // it needs its room above the row like any body move; without it he boils over in the face, as trash does
+    const need = AJAE_ROOM.rage!;
+    expect(need).toBeGreaterThan(0);
+    expect(ajaeMove("hammer", 0, need)).toBe("rage");
+    expect(ajaeMove("hammer", 0, need - 1)).toBe("fume");
+    expect(AJAE_CRAMPED.hammer).toBe("fume");
+    expect(AJAE_CRAMPED.hammer).toBe(AJAE_CRAMPED.trash);
+    const h = typed("BTN", "7", "2");
+    expect(ajaeStep(AJAE_START, h, pickSuited(h, false), "mid", 9, need - 1).cue).toMatchObject({ tier: "hammer", move: "fume", low: true });
+    expect(ajaeStep(AJAE_START, h, pickSuited(h, false), "mid", 9).cue).toMatchObject({ tier: "hammer", move: "rage" });
+  });
+
+  it("has no beer, no yawn and no doze left anywhere in the moves", () => {
+    const all = [...Object.values(AJAE_MOVES).flat(), ...Object.values(AJAE_CRAMPED), ...BODY_MOVES, ...Object.keys(AJAE_ROOM)] as string[];
+    for (const m of all) expect(m).not.toMatch(/beer|yawn|doze|sleep|sip|cheers|drink/);
   });
 
   it("plays what fits above the hand row when the page is scrolled under the stage bar (no headless dancing)", () => {
@@ -261,11 +309,12 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     expect(ajaeMove("good", 0, 30)).toBe("nod");
     expect(ajaeMove("monster", 0, 30)).toBe("cheer");
     expect(ajaeMove("fold", 1, 30)).toBe("glare");
-    expect(ajaeMove("hammer", 0, 0)).toBe("beer");
+    expect(ajaeMove("hammer", 0, 0)).toBe("fume");
     // the row itself under the stage bar (negative room): the face's own moves still take their turn
     expect(ajaeMove("fold", 1, -5)).toBe("glare");
-    expect(ajaeMove("fold", 0, -5)).toBe("yawn");
-    expect(ajaeMove("meh", 0, -20)).toBe("hmm");
+    expect(ajaeMove("fold", 0, -5)).toBe("ponder");
+    expect(ajaeMove("meh", 0, -20)).toBe("ponder");
+    expect(ajaeMove("meh", 1, -20)).toBe("hmm");
     expect(ajaeMove("trash", 2, -5)).toBe("fume");
     // each body move plays from exactly the room it asks for, not a pixel less
     for (const [t, moves] of Object.entries(AJAE_MOVES) as [AjaeTier, readonly string[]][]) {
@@ -293,11 +342,11 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     const k9 = typed("UTG", "K", "9");
     const k9o = pickSuited(k9, false);
     const fold = (room?: number) => ajaeStep(AJAE_START, k9, k9o, "mid", 9, room).cue!;
-    expect(fold(POP_ROOM - 1)).toMatchObject({ move: "yawn", low: true });
+    expect(fold(POP_ROOM - 1)).toMatchObject({ move: "ponder", low: true });
     expect(fold(POP_ROOM).low).toBeUndefined();
     expect(fold(96).low).toBeUndefined();
     expect(fold().low).toBeUndefined();
-    expect(fold(-10)).toMatchObject({ move: "yawn", low: true });
+    expect(fold(-10)).toMatchObject({ move: "ponder", low: true });
     // a body move never: it plays only with the room it needs, and its face comes in after it, in the slot
     const j4 = typed("CO", "J", "4");
     const kick = ajaeStep(AJAE_START, j4, pickSuited(j4, false), "mid", 9, POP_ROOM - 1).cue!;
@@ -330,15 +379,15 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
   });
 
   it("never replays a reaction whose hand left the screen and came back (취소, the corrected hand deleted, its correction saved)", () => {
-    // K9o typed at UTG: he yawns
+    // K9o typed at UTG: he ponders
     const k9 = typed("UTG", "K", "9");
     const k9o = pickSuited(k9, false);
-    const yawned = tap(AJAE_START, k9, k9o);
-    expect(yawned.cue).toMatchObject({ key: "K9o|", tier: "fold" });
+    const pondered = tap(AJAE_START, k9, k9o);
+    expect(pondered.cue).toMatchObject({ key: "K9o|", tier: "fold", move: "ponder" });
     // JTs from earlier opened to correct: K9o is put aside, the screen shows JTs and he goes
     const jts = fastHand(pickSuited(typed("UTG", "J", "T"), true), "open", { ...emptyHand(null), id: "h1", createdAt: 1, updatedAt: 1 }, "mid", 9)!;
     const correcting = startEdit({ stage: "mid", players: 9, draft: k9o, parked: null } satisfies FastState, jts);
-    const seen = ajaeSeen(yawned, correcting.draft, "mid", 9);
+    const seen = ajaeSeen(pondered, correcting.draft, "mid", 9);
     expect(seen.cue).toBeNull();
     // K9o back on screen, the same class at the same table: 취소, JTs deleted (삭제 or 지난 기록), the correction saved
     for (const back of [cancelEdit(correcting), forgetHands(correcting, ["h1"]), afterSave(correcting, jts, [jts])]) {

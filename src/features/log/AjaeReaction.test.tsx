@@ -13,6 +13,8 @@ import { LogPage } from "./LogPage";
 // No @types/node here: reach node:fs through an untyped handle (vitest serves an imported .css as empty).
 const fs = (await import(/* @vite-ignore */ "node:fs" as string)) as { readFileSync(path: URL, encoding: "utf8"): string };
 const css = fs.readFileSync(new URL("./ajae.css", import.meta.url), "utf8");
+const indexHtml = fs.readFileSync(new URL("../../../index.html", import.meta.url), "utf8");
+const iconSvg = fs.readFileSync(new URL("../../../public/icons/icon.svg", import.meta.url), "utf8");
 
 const noop = () => {};
 /** renderToString puts <!-- --> between adjacent text nodes. */
@@ -132,21 +134,57 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     expect(row(low.s, low.d)).toContain('<span class="aj-act aj-mv-shuffle aj-noball" aria-hidden="true">');
   });
 
-  it("makes the face's moves for meh, fold and 72o: a ? for meh, a yawn or a glare at the seat row for a fold, the beer for 72o", () => {
+  it("ponders the seat's call: meh and fold first ponder it (hand on his chin, a thought cloud), then 흠 for meh and a glare for fold", () => {
     const typed = (seat: string, cls: string, s?: AjaeState) => {
       const r = typeIn(seat, cls, s);
       return { html: row(r.s, r.d), s: r.s };
     };
-    const yawn = typed("UTG", "K9o");
-    expect(yawn.html).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-fold aj-play aj-mv-yawn"><svg');
-    expect(typed("UTG", "K9o", yawn.s).html).toContain('<span class="aj-face aj-fold aj-play aj-mv-glare">');
-    const meh = typed("CO", "Q9o").html;
-    const beer = typed("BTN", "72o").html;
-    expect(meh).toContain('<span class="aj-face aj-meh aj-play aj-mv-hmm">');
-    expect(beer).toContain('<span class="aj-face aj-hammer aj-play aj-mv-beer">');
-    for (const h of [yawn.html, meh, beer]) {
+    const fold = typed("UTG", "K9o");
+    expect(fold.html).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-fold aj-play aj-mv-ponder"><svg');
+    expect(typed("UTG", "K9o", fold.s).html).toContain('<span class="aj-face aj-fold aj-play aj-mv-glare">');
+    const meh = typed("CO", "Q9o");
+    expect(meh.html).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder"><svg');
+    expect(typed("CO", "Q9o", meh.s).html).toContain('<span class="aj-face aj-meh aj-play aj-mv-hmm">');
+    for (const h of [fold.html, meh.html]) {
       expect(h).not.toContain("aj-act");
       expect(h).toMatch(/<span class="aj-jolt"><span class="fast-class done"/);
+      // what the ponder draws: the hand, the mouth pushed aside, the thought cloud with its two bubbles and three dots
+      for (const part of ["aj-hand", "aj-purse", "aj-think", "aj-tb1", "aj-tb2", "aj-cloud", "aj-dot aj-d1", "aj-dot aj-d2", "aj-dot aj-d3"]) expect(h).toContain(`class="${part}"`);
+    }
+  });
+
+  it("goes into a rage for 72o: the whole 아재 double-takes, boils over, rips both cards in half and stomps them, then stays furious", () => {
+    const { s, d } = typeIn("BTN", "72o");
+    expect(s.cue).toMatchObject({ tier: "hammer", move: "rage" });
+    const html = row(s, d);
+    // the furious face is in the slot from the start (it comes in as he vanishes) and stays there, as for trash
+    expect(html).toContain('<span class="aj-slot aj-after" aria-hidden="true"><span class="aj-face aj-hammer"><svg');
+    for (const part of ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-steam aj-st-rest"]) expect(html).toContain(`class="${part}"`);
+    expect(html).toContain('<span class="aj-act aj-mv-rage" aria-hidden="true">');
+    expect(html).toContain(`<span class="aj-jolt aj-x-rage aj-j${s.cue!.n % 2}"><span class="fast-class done" aria-live="polite">CLS</span></span>`);
+    const kids = actChildren(html);
+    expect(kids).toEqual([
+      "aj-aura", "aj-body",
+      "aj-half aj-q1 aj-hl", "aj-half aj-q2 aj-hr", "aj-half aj-q3 aj-hl", "aj-half aj-q4 aj-hr",
+      "aj-bit aj-b1", "aj-bit aj-b2", "aj-bit aj-b3", "aj-bit aj-b4",
+      "aj-burst", "aj-bang", "aj-dust aj-d1", "aj-dust aj-d2",
+      "aj-puff aj-p0", "aj-puff aj-p1", "aj-puff aj-p2", "aj-poof",
+    ]);
+    // more going on than in any trash move
+    for (const m of AJAE_MOVES.trash) {
+      const { cue, seat } = cueOf("trash", m);
+      expect(actChildren(render(<AjaeReaction cue={cue} seat={seat} stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>)).length, m).toBeLessThan(kids.length);
+    }
+    // the doll: mad, with the shocked O, the shock lines and steam out of both ears (two puffs a side)
+    for (const part of ["aj-r-flush", "aj-r-vbrows", "aj-r-teeth", "aj-r-oh", "aj-r-shock", "aj-r-jet aj-r-jl1", "aj-r-jet aj-r-jl2", "aj-r-jet aj-r-jr1", "aj-r-jet aj-r-jr2"]) expect(html).toContain(`class="${part}"`);
+    // the two cards are the hand's: drawn with their indices (paths, no text), each cut in two along the tear
+    expect((html.match(/class="aj-half /g) ?? []).length).toBe(4);
+    expect(html).not.toMatch(/<text[^>]*>[^<]*[27]/);
+    // the other body moves never draw the rage's parts
+    for (const m of ["kick", "mallet", "slam", "shove", "shuffle"] as AjaeMove[]) {
+      const tier = (Object.keys(AJAE_MOVES) as AjaeTier[]).find((t) => (AJAE_MOVES[t] as readonly string[]).includes(m))!;
+      const other = render(<AjaeReaction cue={cueOf(tier, m).cue} seat={cueOf(tier, m).seat} stage="mid" players={9}>X</AjaeReaction>);
+      expect(other).not.toMatch(/aj-r-oh|aj-r-shock|aj-r-jet|aj-half|aj-aura/);
     }
   });
 
@@ -193,15 +231,58 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
           expect(html).toContain("aj-slot");
           expect(html).not.toMatch(HANGUL);
           expect(html).not.toMatch(/aj-bubble|aj-kbubble|aj-boom|aj-kicker/);
-          // no text at all but the symbols ? and z (in the svg)
-          for (const t of html.matchAll(/<text[^>]*>([^<]*)<\/text>/g)) expect(["?", "z", "Z"]).toContain(t[1].trim());
-          expect(html.replace(/<[^>]*>/g, "").replace("CLS", "").replace(/[?zZ\s]/g, "")).toBe("");
+          // no text at all but the symbol ? (in the svg)
+          for (const t of html.matchAll(/<text[^>]*>([^<]*)<\/text>/g)) expect(t[1].trim()).toBe("?");
+          expect(html.replace(/<[^>]*>/g, "").replace("CLS", "").replace(/[?\s]/g, "")).toBe("");
+          // no beer, no yawn, no doze (the z's) anywhere
+          expect(html).not.toMatch(/aj-(mug|foam|yawn|zfly|zrest)|aj-mv-(beer|yawn)/);
           if (!c.settled) expect(html.includes("aj-act")).toBe(BODY_MOVES.has(move));
           else expect(html).not.toMatch(/aj-act|aj-play/);
         }
       }
     }
     expect([...left]).toEqual([]);
+  });
+
+  it("is bald everywhere he appears (the face, the doll, the launch splash, the app icon): brown only for the mustache and the brows", () => {
+    const MUSTACHE_D = "M0 14 C -8 6, -24 5, -34 14 C -39 19, -46 19, -50 14 C -46 28, -28 31, -14 23 C -7 19, -3 18, 0 21 C 3 18, 7 19, 14 23 C 28 31, 46 28, 50 14 C 46 19, 39 19, 34 14 C 24 5, 8 6, 0 14 Z";
+    const BROWS = new Set(["M-29 -14 Q -21 -19.5 -13 -15.5", "M13 -15.5 Q 21 -19.5 29 -14", "M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14"]);
+    const HAIR = ["M-44 -10 C -50 -30", "M44 -10 C 50 -30", "M-14 -56 q 14 -8 30 2", "M-32 -50", "M32 -50"];
+    /** Every shape painted in the hair brown, as its path (a brown group's paths each count). */
+    const brown = (markup: string): string[] => {
+      const out: string[] = [];
+      for (const m of markup.matchAll(/<(\w+)((?:[^>"]|"[^"]*")*)>/g)) {
+        if (!/#3b2a1e/i.test(m[2])) continue;
+        if (m[1] === "g") {
+          const inner = markup.slice(m.index! + m[0].length, markup.indexOf("</g>", m.index!));
+          for (const d of inner.matchAll(/ d="([^"]+)"/g)) out.push(d[1]);
+        } else out.push(/ d="([^"]+)"/.exec(m[2])?.[1] ?? `<${m[1]}>`);
+      }
+      return out;
+    };
+    const splash = indexHtml.slice(indexHtml.indexOf('<div id="splash"'), indexHtml.indexOf("<!-- /splash -->"));
+    expect(splash.length).toBeGreaterThan(1000);
+    // the reaction: every tier's face, every move (the doll's head too), settled or not
+    const faces: string[] = [];
+    for (const tier of Object.keys(SAMPLE) as AjaeTier[]) {
+      for (const move of [...(AJAE_MOVES[tier] as readonly AjaeMove[]), AJAE_CRAMPED[tier]]) {
+        const { cue, seat } = cueOf(tier, move);
+        faces.push(render(<AjaeReaction cue={cue} seat={seat} stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>));
+      }
+    }
+    for (const [name, markup] of [["splash", splash], ["icon", iconSvg], ...faces.map((f, i) => [`reaction ${i}`, f])] as [string, string][]) {
+      for (const h of HAIR) expect(markup, `${name} has hair`).not.toContain(h);
+      const shapes = brown(markup);
+      expect(shapes, name).toContain(MUSTACHE_D);
+      for (const d of shapes) expect(d === MUSTACHE_D || BROWS.has(d), `${name}: brown ${d}`).toBe(true);
+      // the same bald head everywhere: ears either side, the shine on top
+      expect(markup, name).toMatch(/<ellipse cx="-43" cy="-8" rx="7.5" ry="10.5"/);
+      expect(markup, name).toMatch(/<ellipse cx="43" cy="-8" rx="7.5" ry="10.5"/);
+      expect(markup, name).toContain("M-26.4 -42 A13 6.5 -18 1 1 -1.6 -50 A13 6.5 -18 1 1 -26.4 -42 Z");
+    }
+    // the doll's head is the same bald head (the body moves draw it at 0.4)
+    const doll = faces.find((f) => f.includes("aj-rig"))!;
+    expect(doll.match(/<ellipse cx="-43" cy="-8"/g)!.length).toBeGreaterThanOrEqual(2);
   });
 
   it("plays the face's stand-in when there is no room above the row for the whole 아재 (the page scrolled under the stage bar)", () => {
@@ -215,11 +296,14 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     expect(row(good.s, good.d)).toContain('<span class="aj-face aj-good aj-play aj-mv-nod">');
     const aa = typeIn("UTG", "AA", AJAE_START, 30);
     expect(row(aa.s, aa.d)).toContain('<span class="aj-face aj-monster aj-play aj-mv-cheer">');
+    // 72o boils over in the face, as trash does, and rests as furious
+    const h = typeIn("BTN", "72o", AJAE_START, 30);
+    expect(row(h.s, h.d)).toContain('<span class="aj-slot aj-pop aj-low" aria-hidden="true"><span class="aj-face aj-hammer aj-play aj-mv-fume"><svg');
     // a face move with room for the full pop pops as usual; settled, nothing pops at all
     const meh = typeIn("CO", "Q9o", AJAE_START, 70);
-    expect(row(meh.s, meh.d)).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-hmm">');
+    expect(row(meh.s, meh.d)).toContain('<span class="aj-slot aj-pop" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder">');
     const lowMeh = typeIn("CO", "Q9o", AJAE_START, 40);
-    expect(row(lowMeh.s, lowMeh.d)).toContain('<span class="aj-slot aj-pop aj-low" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-hmm">');
+    expect(row(lowMeh.s, lowMeh.d)).toContain('<span class="aj-slot aj-pop aj-low" aria-hidden="true"><span class="aj-face aj-meh aj-play aj-mv-ponder">');
     const settled = render(<AjaeReaction cue={{ ...lowMeh.s.cue!, settled: true }} seat="CO" stage="mid" players={9}>Q9o</AjaeReaction>);
     expect(settled).toContain('<span class="aj-slot" aria-hidden="true"><span class="aj-face aj-meh"><svg');
   });
@@ -239,7 +323,7 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     const html = row(next, btn);
     expect(html).toContain('<span class="aj-slot" aria-hidden="true"><span class="aj-face aj-good"><svg');
     expect(html).not.toMatch(/aj-play|aj-act|aj-pop|aj-after|aj-x-/);
-    // back at UTG (a fold again, as when the cards went in): the doze at rest, no pop
+    // back at UTG (a fold again, as when the cards went in): the pondering face at rest, no pop
     const atBtn = ajaeSeen(next, btn, "mid", 9);
     const utg = withSeat(btn, "UTG", 9);
     const back = row(ajaeStep(atBtn, btn, utg, "mid", 9), utg);
@@ -328,7 +412,7 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       expect(css).toContain(`@keyframes aj-x-${m}-1 `);
       expect(css).toContain(`.aj-mv-${m} .aj-poof {`);
     }
-    for (const m of ["hmm", "yawn", "glare", "beer", "cheer", "nod", "fume"]) expect(css).toContain(`.aj-play.aj-mv-${m} `);
+    for (const m of ["ponder", "hmm", "glare", "cheer", "nod", "fume"]) expect(css).toContain(`.aj-play.aj-mv-${m} `);
     // the class goes over the popped face and the lights (its letters stay readable) and under the doll
     expect(declsOf(".aj-jolt").join(";")).toMatch(/position: relative;[^}]*z-index: 2/);
     // every body move poses every joint of the doll, and its class's move alternates between its two keyframes
@@ -339,13 +423,15 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
     }
     // each face move moves the parts that make it
     const faceParts: Record<string, string[]> = {
-      hmm: ["aj-head", "aj-shades", "aj-qmark"], yawn: ["aj-head", "aj-yawn", "aj-zfly"], glare: ["aj-head", "aj-shades", "aj-sweat"], beer: ["aj-mug", "aj-head"],
+      ponder: ["aj-head", "aj-hand", "aj-shades", "aj-pupils", "aj-brow-r", "aj-purse", "aj-think", "aj-tb1", "aj-tb2", "aj-cloud", "aj-dot.aj-d1", "aj-dot.aj-d2", "aj-dot.aj-d3"],
+      hmm: ["aj-head", "aj-shades", "aj-qmark"], glare: ["aj-head", "aj-shades", "aj-sweat", "aj-hand", "aj-cloud", "aj-dot.aj-d3"],
       cheer: ["aj-shades", "aj-sp", "aj-smile"], nod: ["aj-head", "aj-smile"], fume: ["aj-head", "aj-vbrows", "aj-vein", "aj-flush"],
     };
     for (const [m, parts] of Object.entries(faceParts)) for (const part of parts) expect(declsOf(`.aj-play.aj-mv-${m} .${part}`).flatMap(animNames), `${m} ${part}`).not.toEqual([]);
     // the resting faces: hidden parts the tier shows at rest (the trash face's fury above all: red, brows, teeth, vein, steam)
     const resting: Record<string, string[]> = {
-      trash: ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-st-rest"], monster: ["aj-smile", "aj-sp.aj-one"], good: ["aj-smile"], meh: ["aj-flat", "aj-qmark"], fold: ["aj-zrest"], hammer: ["aj-mug"],
+      trash: ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-st-rest"], hammer: ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-st-rest"],
+      monster: ["aj-smile", "aj-sp.aj-one"], good: ["aj-smile"], meh: ["aj-flat", "aj-qmark"], fold: ["aj-hand", "aj-think", "aj-purse"],
     };
     for (const [tier, parts] of Object.entries(resting)) {
       for (const part of parts) {
@@ -353,6 +439,43 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
         expect(Math.max(0, ...shown), `${tier} ${part}`).toBeGreaterThan(0.3);
       }
     }
+    // no beer, no yawn, no doze left in the stylesheet
+    expect(css.replace(/\/\*[\s\S]*?\*\//g, "")).not.toMatch(/aj-(mug|foam|yawn|zfly|zrest)|aj-mv-(beer|yawn)|aj-f-|aj-k-/);
+    // the ponder is the fold's resting face: the ponder stops short of its end (each part then goes to the tier's own
+    // resting face) on the fold's resting face, and the glare ends right on it
+    const transformOf = (selector: string) => declsOf(selector).map((d) => /transform: ([^;]+);/.exec(d)?.[1]).find(Boolean) ?? "none";
+    const steps = (name: string) => [...keyframes(name).matchAll(/([\d.%, ]+)\{([^}]*)\}/g)].map((m) => ({ at: m[1].split(",").map((x) => parseFloat(x)), decl: m[2] }));
+    const at = (name: string, pct: number) => steps(name).filter((x) => x.at.includes(pct)).map((x) => x.decl).join(" ");
+    const lastAt = (name: string) => Math.max(...steps(name).flatMap((x) => x.at));
+    const foldRest: Record<string, string> = { "aj-head": "rotate(5deg)", "aj-shades": "translateY(-21px) rotate(-5deg)", "aj-pupils": "translate(2px, -2.4px)", "aj-brow-r": "translateY(-5px) rotate(8deg)" };
+    for (const [part, tf] of Object.entries(foldRest)) {
+      expect(transformOf(`.aj-fold .${part}`), part).toBe(tf);
+      const [p] = declsOf(`.aj-play.aj-mv-ponder .${part}`).flatMap(animNames);
+      expect(lastAt(p), `${p} ends early`).toBe(84);
+      expect(at(p, 84), p).toContain(`transform: ${tf};`);
+      const [g] = declsOf(`.aj-play.aj-mv-glare .${part}`).flatMap(animNames);
+      expect(at(g, 100), g).toContain(`transform: ${tf};`);
+    }
+    for (const part of ["aj-hand", "aj-purse", "aj-think"]) {
+      const [p] = declsOf(`.aj-play.aj-mv-ponder .${part}`).flatMap(animNames);
+      expect(lastAt(p), `${p} ends early`).toBe(84);
+      expect(at(p, 84), p).toContain("opacity: 1;");
+    }
+    for (const part of ["aj-hand", "aj-purse", "aj-tb1", "aj-tb2", "aj-cloud", "aj-dot.aj-d1", "aj-dot.aj-d2", "aj-dot.aj-d3"]) {
+      const [g] = declsOf(`.aj-play.aj-mv-glare .${part}`).flatMap(animNames);
+      expect(at(g, 100), g).toContain("opacity: 1;");
+    }
+    // meh's ponder ends on the 흠 face: the parts the ponder leaves for it to set (the brow, the mouth, the ?) stop at 84% too
+    for (const part of ["aj-brow-l", "aj-flat", "aj-qmark"]) for (const p of declsOf(`.aj-play.aj-mv-ponder .${part}`).flatMap(animNames)) expect(lastAt(p), p).toBe(84);
+    // 72o rests furious, exactly as trash does
+    for (const part of ["aj-flush", "aj-teeth", "aj-vbrows", "aj-vein", "aj-st-rest"]) expect(RULES.some((r) => r.sel.includes(`.aj-trash .${part}`) && r.sel.includes(`.aj-hammer .${part}`))).toBe(true);
+    expect(RULES.some((r) => r.sel.includes(".aj-trash .aj-head") && r.sel.includes(".aj-hammer .aj-head"))).toBe(true);
+    // the rage is longer than the other body moves (its act, its class's move and the face coming in after it)
+    expect(declsOf(".aj-act.aj-mv-rage *").join(";")).toContain("animation-duration: 3.2s");
+    expect(declsOf(".aj-act *").join(";")).toContain("animation-duration: 2.5s");
+    for (const p of [0, 1]) expect(declsOf(`.aj-jolt.aj-x-rage.aj-j${p}`).join(";")).toContain(" 3.2s ");
+    expect(RULES.some((r) => r.sel.includes(".aj-after .aj-face.aj-hammer") && r.sel.includes(".aj-after .aj-hammer *") && r.decl.includes("animation-duration: 3.2s"))).toBe(true);
+    expect(RULES.some((r) => r.sel.includes(".aj-after .aj-face.aj-trash") && r.sel.includes(".aj-after .aj-face.aj-hammer") && animNames(r.decl).includes("aj-after-mad"))).toBe(true);
     // the dance without its ball hides the ball and its beams
     expect(RULES.some((r) => r.sel.includes(".aj-noball .aj-ball") && r.sel.includes(".aj-noball .aj-beams") && r.decl.includes("display: none"))).toBe(true);
     // the smaller pop (the page scrolled): its own keyframes, smaller than the full pop's

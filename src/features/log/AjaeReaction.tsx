@@ -6,18 +6,20 @@ import "./ajae.css";
 
 /**
  * The 아재 by 빠른 기록's hand class: wraps the class (`children`, the real .fast-class) and, while a
- * reaction (`cue`) is on, draws him next to it. No words anywhere: faces, a jointed doll of him, props
- * and symbols (a mirror ball, chips, a mallet, cards, bursts, ?, z, notes, steam). Everything he draws is
- * absolutely positioned with pointer-events off, so the label row, the pad and everything below keep their
- * place, and every button stays live while he moves. The moves are CSS animations (ajae.css) that start
- * when their element mounts (keyed by the cue), so nothing here runs a timer.
+ * reaction (`cue`) is on, draws him next to it: the launch splash's 아재, bald with a mustache, shades, a red
+ * polka-dot shirt and a gold chain. No words anywhere: faces, a jointed doll of him, props and symbols (a
+ * mirror ball, chips, a mallet, cards, a thinking hand, bursts, ?, a thought cloud, notes, steam). Everything
+ * he draws is absolutely positioned with pointer-events off, so the label row, the pad and everything below
+ * keep their place, and every button stays live while he moves. The moves are CSS animations (ajae.css) that
+ * start when their element mounts (keyed by the cue), so nothing here runs a timer.
  *
  * Two kinds of move (ajae.ts, AJAE_MOVES):
- * - a face move (meh, fold, 72o, and the cramped stand-ins): the chest-up face in its slot pops up big,
- *   makes the tier's face and settles small with it;
- * - a body move (monster's shove, good's shuffle or robot, trash's kick, mallet or slam): the whole 아재
- *   performs beside the class (`.aj-act`), then shrinks away in a puff as the face pops into the slot and
- *   stays there at rest. The trash face stays furious: he never walks off.
+ * - a face move (meh's and fold's ponder, meh's 흠, fold's glare, and the cramped stand-ins): the chest-up
+ *   face in its slot pops up big, makes the tier's face and settles small with it (fold: pondering, the hand
+ *   on his chin and a thought cloud);
+ * - a body move (monster's shove, good's shuffle or robot, trash's kick, mallet or slam, 72o's rage): the
+ *   whole 아재 performs beside the class (`.aj-act`), then shrinks away in a puff as the face pops into the
+ *   slot and stays there at rest. The trash and 72o faces stay furious: he never walks off.
  * With the page scrolled so far that the full pop would reach under the sticky stage bar, a face move pops
  * smaller, from the face's middle (cue.low).
  * When the tier on screen is no longer the one he reacted to (my seat or the stage changed), the face
@@ -136,8 +138,9 @@ function Shades({ className }: { className: string }) {
 }
 
 /**
- * The splash's 아재 (index.html, the J♥'s court picture) from the chest up, with every part the moves and
- * the resting faces need (hidden unless the tier or the move shows it). `move`: the face move playing now.
+ * The splash's 아재 (index.html, the J♥'s court picture, and the app icon) from the chest up, bald, with every
+ * part the moves and the resting faces need (hidden unless the tier or the move shows it). `move`: the face move
+ * playing now.
  */
 const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?: AjaeMove }) {
   return (
@@ -183,16 +186,21 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
             <path d="M-15 26.5 H15 M-7.5 20 V33 M0 20 V33 M7.5 20 V33" stroke={INK} strokeWidth="2.2" />
           </g>
           <path d={MUSTACHE} fill={STACHE} />
-          {/* the thinking hand: up from his sleeve, the fist under his chin and the index finger along it */}
+          {/* the thinking hand (the ponder): up from his sleeve, his chin on his fist, its knuckles to us */}
           <g className="aj-hand">
-            <path d="M-46 96 L -33 66" stroke={INK} strokeWidth="18" strokeLinecap="round" />
-            <path d="M-46 96 L -33 66" stroke={SHIRT} strokeWidth="13.5" strokeLinecap="round" />
-            <path d="M-33 66 L -15 45" stroke={INK} strokeWidth="12.5" strokeLinecap="round" />
-            <path d="M-33 66 L -15 45" stroke={SKIN} strokeWidth="8.5" strokeLinecap="round" />
-            <ellipse cx="-11" cy="41" rx="9.5" ry="8" fill={SKIN} stroke={INK} strokeWidth="2.6" />
-            <path d="M-16 37.5 q 3 3 1.5 7.5 M-10 36.5 q 3 3 1.5 7.5" fill="none" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
-            <path d="M-6 36 L -1 28.5" stroke={INK} strokeWidth="7.6" strokeLinecap="round" />
-            <path d="M-6 36 L -1 28.5" stroke={SKIN} strokeWidth="4.6" strokeLinecap="round" />
+            <path d="M-42 74 L -33 61" stroke={INK} strokeWidth="24.5" strokeLinecap="round" />
+            <path d="M-42 74 L -33 61" stroke={SHIRT} strokeWidth="20" strokeLinecap="round" />
+            <path d="M-33 61 L -16 47" stroke={INK} strokeWidth="15" strokeLinecap="round" />
+            <path d="M-33 61 L -16 47" stroke={SKIN} strokeWidth="11" strokeLinecap="round" />
+            <path
+              d="M-21 44 C -22 35.5, -15.5 32.5, -10.5 33.5 C -6.5 30.5, -0.5 30.5, 2.5 33.5 C 7 32.5, 10 36, 9 41.5 C 9 50, 2.5 53, -6 53 C -14.5 53, -20 50, -21 44 Z"
+              fill={SKIN}
+              stroke={INK}
+              strokeWidth="2.6"
+              strokeLinejoin="round"
+            />
+            <path d="M-11 34 C -11 36.8, -10.4 39, -11 41.5 M-3.8 32.5 C -3.8 35.2, -3.2 37.4, -3.8 40 M3.4 34 C 3.4 36.4, 3.9 38, 3.4 40.5" fill="none" stroke={INK} strokeWidth="1.7" strokeLinecap="round" />
+            <path d="M-20 45.5 C -14.5 41.5, -8 41.5, -1.5 45.5" fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
           </g>
           <g className="aj-shades">
             <rect x="-36" y="-22" width="30" height="20" rx="7" fill={SHADE} />
@@ -293,9 +301,9 @@ function DollHead({ mad, rage }: { mad: boolean; rage?: boolean }) {
 /** A small cloud of steam centred on (x, y), in the doll's units (for his ears in the rage). */
 const Jet = ({ x, y, className }: { x: number; y: number; className: string }) => (
   <g className={className}>
-    <circle cx={x - 2} cy={y + 0.6} r="2.6" />
-    <circle cx={x + 2} cy={y + 0.8} r="2.3" />
-    <circle cx={x} cy={y - 1.2} r="3" />
+    <circle cx={x - 2.6} cy={y + 0.8} r="3.3" />
+    <circle cx={x + 2.6} cy={y + 1} r="3" />
+    <circle cx={x} cy={y - 1.6} r="3.8" />
   </g>
 );
 
@@ -380,7 +388,10 @@ function Doll({ mad, rage, wide, hold }: { mad: boolean; rage?: boolean; wide?: 
                 <Jet x={54} y={21.5} className="aj-r-jet aj-r-jr1" />
                 <Jet x={54} y={21.5} className="aj-r-jet aj-r-jr2" />
               </g>
-              <path className="aj-r-shock" d="M15 7 L 10 2 M32 2.5 L 32 -4 M49 7 L 54 2" stroke={GOLD} strokeWidth="2.4" strokeLinecap="round" />
+              <g className="aj-r-shock" strokeLinecap="round">
+                <path d="M15 7 L 10 2 M32 2.5 L 32 -4 M49 7 L 54 2" stroke={INK} strokeWidth="4.2" />
+                <path d="M15 7 L 10 2 M32 2.5 L 32 -4 M49 7 L 54 2" stroke="#fff" strokeWidth="2" />
+              </g>
             </>
           )}
         </g>
