@@ -118,9 +118,10 @@ afterEach(() => {
 });
 
 describe("solver chart set: registration and texts", () => {
-  it("is registered last; the default set and getSet's fallback stay pub", () => {
-    expect(chartSetMenu().at(-1)!.id).toBe("solver");
-    expect(chartSetMenu().at(-1)!.label).toBe(solver.label);
+  it("is the menu's first set and the default; getSet's fallback for an unknown id stays pub (nothing to build)", () => {
+    expect(chartSetMenu()[0].id).toBe("solver");
+    expect(chartSetMenu()[0].label).toBe(solver.label);
+    expect(settingsStore.get().chartSet === "solver" || settingsStore.get().chartSetPicked).toBeTruthy();
     expect(CHART_SETS[0].id).toBe("pub");
     expect(getSet("no-such-set").id).toBe("pub");
     expect(solver.label).toBe("솔버 프리플랍 (9인·BB 앤티)");

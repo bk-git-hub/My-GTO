@@ -24,7 +24,7 @@ describe("lazy solver set", () => {
   it("is not built by the menu, the other sets, the pub quiz pool or the pub charts and quiz pages", async () => {
     const { charts, built } = await fresh();
     expect(built()).toEqual([false, []]);
-    expect(charts.chartSetMenu().map((s) => s.id)).toEqual(["pub", "cash6", "nash", "shortnash", "solver"]);
+    expect(charts.chartSetMenu().map((s) => s.id)).toEqual(["solver", "pub", "cash6", "nash", "shortnash"]);
     expect(charts.chartSetId("solver")).toBe("solver");
     expect(charts.chartSetId("x")).toBe("pub");
     expect(charts.getSet("pub").id).toBe("pub");

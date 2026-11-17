@@ -34,8 +34,13 @@ export interface Settings {
   effort: Effort;
   /** 사용자가 직접 추가하는 해설 노트 (시스템 프롬프트에 함께 들어감) */
   userNotes: string;
-  /** 차트·퀴즈에 쓸 차트 세트 (src/data/sets) */
+  /** 차트·퀴즈에 쓸 차트 세트 (src/data/sets); the solver's computed tournament chart by default. */
   chartSet: string;
+  /**
+   * Set once I pick a chart set myself (SetPicker). Settings saved without it that still hold "pub", the default
+   * before the solver chart, move to the solver chart once at load (see below); a set I picked is kept.
+   */
+  chartSetPicked?: true;
   /** 핸드 플레이 모드: 펍아재 토너먼트 or 6맥스 100bb 캐시 */
   playMode: "pub" | "cash";
   /** 카드 색: 4색 (온라인 표준) or 2색 (실물 카드); read it through cardColorsOf. */
@@ -51,11 +56,18 @@ export const settingsStore = createStore<Settings>("mygto.settings", {
   model: "claude-opus-5-5",
   effort: "medium",
   userNotes: "",
-  chartSet: "pub",
+  chartSet: "solver",
   playMode: "pub",
   cardColors: "four",
   ajae: true,
 });
+
+// The solver's computed tournament chart replaced the hand-made pub chart as the default chart set (2026-11-17):
+// settings saved before that, still on the old default and never picked by hand, move to it once.
+{
+  const s = settingsStore.get();
+  if (!s.chartSetPicked && s.chartSet === "pub") settingsStore.set({ ...s, chartSet: "solver" });
+}
 
 export const useSettings = settingsStore.use;
 

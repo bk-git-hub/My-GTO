@@ -1250,11 +1250,11 @@ PF-SANITY-9 and -14, where both sides of the comparison are distorted. The `vs` 
 there are mostly ties, and AA's small 4-bet is the line §8 recommends. A spot whose hands are all skipped falls back
 to its reaching hands.
 
-The set is built on first use. `CHART_SETS` holds the four hand-made sets (built at load; `CHART_SETS[0]` is `pub`, the
-default chart set and `getSet`'s fallback). The solver set sits in `LAZY_SETS` and is built once, synchronously, by the
+The set is built on first use. `CHART_SETS` holds the four hand-made sets (built at load; `CHART_SETS[0]` is `pub`,
+`getSet`'s fallback for an unknown id; the default chart set is `solver`, §9). The solver set sits in `LAZY_SETS` and is built once, synchronously, by the
 first `getSet("solver")`, `allSets()`, `allScenarios()` without a set, or `getNamedRanges()` (the calculator's villain
 ranges, memoized; a set pushed into `CHART_SETS` later is not added). The set picker reads `chartSetMenu()` (the solver
-set last) and `chartSetId(id)`, so listing it builds nothing. Before, every app start built it and its calculator ranges
+set first) and `chartSetId(id)`, so listing it builds nothing. Before, every app start built it and its calculator ranges
 (measured on the fit-4acfad data, 718,737 bytes; the release file is 725,029): in Chromium (iPhone 13 viewport, the
 built app, median of 5) the pub home screen's first render took 478 ms at 1× CPU and 1,601 ms at 4×, with 38.0 MB of JS
 heap; now 219 ms, 843 ms and 17.6 MB. The first solver screen costs 295 ms (1×) / 1,187 ms (4×) and 25.7 MB; switching
@@ -1788,7 +1788,7 @@ caution, and the quiz skips the flagged cells.
 
 - **v1 (this):** the engine, the four stages (35bb shipped on the cold4 "none" fallback, which passes its gates; its
   cold-jam solve is degenerate, §5.5), the `solver` chart set next to the existing ones, honest labels, confidence
-  badges, the seat filter. The default chart set stays `pub`.
+  badges, the seat filter. `solver` is the default chart set since 2026-11-17 (below).
   **Status (2026-11-17): the release.** Realization model v3 (`modelB-rank9`, §3.4) is refitted on every flop of the
   two BTN packs, 1,755 + 1,755 (fit `2862daa7a90f`, §3.7): every coefficient moved by 0.81 SE or less from fit
   `4acfad77aa35`, every sign guard holds, and the charts moved little (median 0.20–0.33pp per scenario, at most
@@ -1810,12 +1810,16 @@ caution, and the quiz skips the flagged cells.
   over-shoot, the role rule's 3-bet bluffs, the small-pair curve (from α held at the prior), the KK and cold QQ flats
   and the A6-below-wheel-ace cells remain (biases 5, 7, 8, 9; §8); the 55bb two-start solve found a second equilibrium
   in multiway spots behind a UTG+2 open (badged 낮음 where exported, §5.5).
-  **The default chart set stays `pub`.** Of the criteria below (v1.5) for making `solver` the default, the gates pass
+  **`solver` is the default chart set (2026-11-17), by the user's choice:** they want the computed tournament chart
+  first, not the hand-made pub chart, knowing the open items below. The charts page, the preflop quiz and the
+  calculator open on it (settings saved on the old default move once; a set picked by hand is kept); `pub` stays in
+  the picker, and 빠른 기록's verdict, hand play and the 아재 still read the pub chart, which covers the short stacks
+  the solver does not solve yet. Of the criteria below (v1.5) that were set for this switch, the gates pass
   but with the snapped-gain warning at 100bb-2.2; PF-SANITY warnings remain (PF-SANITY-5 on 4 / 1 / 7 / 2 spots, -6 on
   12 / 27 / 21 / 0, -8 on 0 / 0 / 0 / 1, -9 on 21 / 11 / 0 / 0, and -10 to -14, §5.5); and the BB-defense scenarios
-  are badged 높음 or 보통 except 100bb-3 vs the SB and 35bb vs the CO and the BTN (낮음, move over 20pp). Next: a u that
-  depends on the opponent's range, fitted with the UTG pack (v1.5), before the solver chart can be recommended as the
-  default.
+  are badged 높음 or 보통 except 100bb-3 vs the SB and 35bb vs the CO and the BTN (낮음, move over 20pp). Next: the short stacks (15–25bb and push/fold) in
+  the solver, so 빠른 기록, hand play and the 아재 can move to it too, and a u that depends on the opponent's range,
+  fitted with the UTG pack (v1.5).
 - **v1.1, UX:** a GTO hand-play mode (table "GTO 9인") whose bots and grading use the solver chart, with exact lookups
   by the §6.4 id of the node reached and the solved sizes; a "GTO 참고" line in pub mode; a "GTO vs 펍" compare view
   on the charts page; a tappable seat selector and a 단순화 toggle; a `55bb-2.5` stage if hand-play grading at mid

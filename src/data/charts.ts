@@ -184,9 +184,9 @@ export function lazySetsBuilt(): string[] {
   return [...lazyBuilt.keys()];
 }
 
-/** Every set the picker offers, in menu order (the solver set last): id and label only, nothing is built. */
+/** Every set the picker offers, in menu order (the solver set, the default, first): id and label only, nothing is built. */
 export function chartSetMenu(): { id: string; label: string }[] {
-  return [...CHART_SETS, ...LAZY_SETS].map(({ id, label }) => ({ id, label }));
+  return [...LAZY_SETS, ...CHART_SETS].map(({ id, label }) => ({ id, label }));
 }
 
 /** `id` if a set has it, else the fallback's id (what getSet(id).id gives), without building a set. */

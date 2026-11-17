@@ -10,7 +10,7 @@ export function SetPicker() {
       <select
         className="select"
         value={chartSetId(chartSet)}
-        onChange={(e) => settingsStore.set((s) => ({ ...s, chartSet: e.target.value }))}
+        onChange={(e) => settingsStore.set((s) => ({ ...s, chartSet: e.target.value, chartSetPicked: true }))}
       >
         {chartSetMenu().map((s) => (
           <option key={s.id} value={s.id}>
