@@ -1,10 +1,8 @@
 // Presolve pipeline: solves flops of the scenarios in src/presolve/scenarios.ts with our solver (src/solver)
-// and writes solver chart packs to public/packs/ (format: docs/solver-packs.md, src/presolve/format.ts), and the
-// calibration packs (CAL_SCENARIOS) in the same format to calibration/packs/, a separate manifest the app never reads.
+// and writes solver chart packs to public/packs/ (format: docs/solver-packs.md, src/presolve/format.ts).
 //
 // Usage: node scripts/presolve.mjs [options]
-//   --scenario <id|all>     which pack(s), comma-separated (default all: the app's and the calibration packs; ids in
-//                           src/presolve/scenarios.ts)
+//   --scenario <id|all>     which pack(s) (default all; ids in src/presolve/scenarios.ts)
 //   --count <n>             cover the first n flops of FLOPS_BY_PRIORITY per pack (default 100)
 //   --shard <i>/<n>         solve only shard i of n (0 ≤ i < n; default 0/1, everything): flop k of FLOPS_BY_PRIORITY
 //                           (its index in the full order) belongs to shard k % n, so parallel jobs started from the
@@ -16,9 +14,7 @@
 //   --workers <n>           flops solved in parallel, one per worker thread (default: CPU count)
 //   --max-mb <mb>           skip a flop whose estimateMemory is above this (default 2000)
 //   --check-every <n>       iterations between exploitability checks (default 10)
-//   --out <dir>             output directory of the app's packs (default public/packs)
-//   --cal-out <dir>         output directory of the calibration packs (default calibration/packs with the default
-//                           --out, else <out>/calibration, so an experiment never writes into the committed packs)
+//   --out <dir>             output directory (default public/packs)
 //   --accept-above-target   write a flop even when its exploitability is above the scenario's target × TARGET_TOLERANCE
 //   --allow-dirty           write to the default --out although src/solver has uncommitted changes
 //   --dry-run               print the plan (flops, memory estimates) and write nothing
@@ -36,8 +32,6 @@
 // exploitability is within TARGET_TOLERANCE × the scenario's target and its summary nodes match the pack's
 // (the files of a version never change, so a bad or mismatched file would stay forever). The manifest is only
 // rewritten when something other than `generatedAt` changes, so a run that adds nothing leaves no diff.
-// Each set of packs (scenario.set: "app" or "calibration") has its own directory and manifest.json; a run touches
-// only the manifests of the sets it solves, and a calibration pack never enters public/packs/manifest.json.
 // The presolve workflow runs n shards in parallel, copies their new files into one checkout and runs
 // --rebuild-manifest there (.github/workflows/presolve.yml).
 import { execSync } from "node:child_process";
@@ -122,7 +116,6 @@ if (isMainThread) {
       "max-mb": { type: "string", default: "2000" },
       "check-every": { type: "string", default: "10" },
       out: { type: "string", default: "public/packs" },
-      "cal-out": { type: "string" },
       "accept-above-target": { type: "boolean", default: false },
       "allow-dirty": { type: "boolean", default: false },
       "dry-run": { type: "boolean", default: false },
@@ -148,22 +141,12 @@ if (isMainThread) {
   const workers = Math.floor(num("workers", opt.workers ?? cpus().length, 1));
   const maxMb = num("max-mb", opt["max-mb"], 1);
   const checkEvery = Math.floor(num("check-every", opt["check-every"], 1));
-  const { ALL_SCENARIOS, PACK_SET_DIRS, getScenario, solverInput } = await load("src/presolve/scenarios.ts");
-  const { misplacedPacks, setDirs: dirsOf, writesCommitted } = await load("src/presolve/sets.ts");
-  const committed = { app: resolve(root, PACK_SET_DIRS.app), calibration: resolve(root, PACK_SET_DIRS.calibration) };
-  let setDirs;
-  try {
-    setDirs = dirsOf({ out: resolve(root, opt.out), calOut: opt["cal-out"] !== undefined ? resolve(root, opt["cal-out"]) : undefined, committed });
-  } catch (e) {
-    usage(e.message);
-  }
-  const scenarios = opt.scenario === "all" ? ALL_SCENARIOS : opt.scenario.split(",").map((id) => getScenario(id.trim()));
-  const sets = [...new Set(scenarios.map((sc) => sc.set))];
-  // The committed packs: every file written there stays for good (paths are immutable), so no experiments.
-  const isPublicOut = writesCommitted(setDirs, sets, committed);
+  const outDir = resolve(root, opt.out);
+  // The committed packs: every file written here stays for good (paths are immutable), so no experiments.
+  const isPublicOut = outDir === resolve(root, "public/packs");
   if (isPublicOut && !opt["dry-run"] && (opt.iterations !== undefined || opt.target !== undefined)) {
     console.error(
-      "--iterations and --target change the numbers but are not recorded in the pack, so they are only allowed with --out <scratch dir> (and --cal-out, if given, also a scratch dir). " +
+      "--iterations and --target change the numbers but are not recorded in the pack, so they are only allowed with --out <scratch dir>. " +
         "To change a pack's solve targets, edit src/presolve/scenarios.ts and bump its version.",
     );
     process.exit(1);
@@ -173,6 +156,7 @@ if (isMainThread) {
   const mins = (ms) => (ms / 60_000).toFixed(1);
   const log = (msg) => console.log(`[${mins(Date.now() - t0).padStart(5)} min] ${msg}`);
 
+  const { SCENARIOS, getScenario, solverInput } = await load("src/presolve/scenarios.ts");
   const { FLOPS_BY_PRIORITY, describeTexture, representativeWeightsFor } = await load("src/presolve/flops.ts");
   const { estimateMemory } = await load("src/solver/index.ts");
   const { PACK_FORMAT, packFilePath, validateManifest, validateFlopFile, decodeFlopFile, summaryNodeDefs } = await load("src/presolve/format.ts");
@@ -186,20 +170,9 @@ if (isMainThread) {
   }
   const shardTag = shard.count > 1 ? ` (shard ${shard.index}/${shard.count})` : "";
 
-  // One store per set the run touches: its directory, its manifest as the run found it and as it is on disk now.
-  const stores = new Map(
-    sets.map((set) => {
-      const file = `${setDirs[set]}/manifest.json`;
-      const old = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : { v: PACK_FORMAT, packs: [] };
-      return [set, { set, dir: setDirs[set], manifestFile: file, old, current: old }];
-    }),
-  );
-  const storeOf = (sc) => stores.get(sc.set);
-  // A pack lives in its own set's manifest only: a calibration pack in the app's manifest would be listed by the app.
-  for (const store of stores.values()) {
-    const wrong = misplacedPacks(store.old.packs.map((p) => p.id), store.set, ALL_SCENARIOS);
-    if (wrong.length) usage(`${store.manifestFile} lists ${wrong.join(", ")}, of the other set of packs; remove them there.`);
-  }
+  const scenarios = opt.scenario === "all" ? SCENARIOS : opt.scenario.split(",").map((id) => getScenario(id.trim()));
+  const manifestFile = `${outDir}/manifest.json`;
+  const oldManifest = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, "utf8")) : { v: PACK_FORMAT, packs: [] };
   const priorityIndex = new Map(FLOPS_BY_PRIORITY.map((f, i) => [f.key, i]));
 
   // The last commit that changed the solver's code (test files don't change the numbers), "-dirty" with local edits.
@@ -221,7 +194,7 @@ if (isMainThread) {
     process.exit(1);
   }
 
-  const packDir = (sc) => `${storeOf(sc).dir}/${sc.id}/v${sc.version}`;
+  const packDir = (sc) => `${outDir}/${sc.id}/v${sc.version}`;
   const existingBoards = (sc) => {
     const dir = packDir(sc);
     if (!existsSync(dir)) return [];
@@ -233,7 +206,7 @@ if (isMainThread) {
   // A pack's settings may not change within a version: the files of one version must come from one tree.
   const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   for (const sc of scenarios) {
-    const old = storeOf(sc).old.packs.find((p) => p.id === sc.id);
+    const old = oldManifest.packs.find((p) => p.id === sc.id);
     if (old && old.version === sc.version && !sameJson(old.scenario, sc.meta)) {
       console.error(`${sc.id}: the scenario settings differ from the manifest's v${sc.version}. Bump its version in src/presolve/scenarios.ts.`);
       process.exit(1);
@@ -303,17 +276,18 @@ if (isMainThread) {
             .map((k) => `${JSON.stringify(k)}:${canon(x[k])}`)
             .join(",")}}`
         : JSON.stringify(x);
+  let current = oldManifest; // the manifest as it is on disk now
 
   // The summary template of a pack's current version: what every new file of the version must match.
   const templates = new Map(); // scenario id → summaryNodes
   function packTemplate(sc) {
     if (templates.has(sc.id)) return templates.get(sc.id);
     let tpl;
-    const old = storeOf(sc).current.packs.find((p) => p.id === sc.id);
+    const old = current.packs.find((p) => p.id === sc.id);
     if (old && old.version === sc.version) tpl = old.summaryNodes;
     else {
       const board = existingBoards(sc)[0];
-      if (board) tpl = summarizeFile(JSON.parse(readFileSync(`${storeOf(sc).dir}/${packFilePath(sc.id, sc.version, board)}`, "utf8"))).summaryNodes;
+      if (board) tpl = summarizeFile(JSON.parse(readFileSync(`${outDir}/${packFilePath(sc.id, sc.version, board)}`, "utf8"))).summaryNodes;
     }
     if (tpl) templates.set(sc.id, tpl);
     return tpl;
@@ -321,7 +295,6 @@ if (isMainThread) {
 
   function packEntry(sc) {
     const boards = existingBoards(sc).sort((a, b) => priorityIndex.get(a) - priorityIndex.get(b));
-    const { dir, old: oldManifest } = storeOf(sc);
     const old = oldManifest.packs.find((p) => p.id === sc.id);
     if (!boards.length) return old ?? null;
     const oldFiles = new Map((old?.files ?? []).map((f) => [f.path, f]));
@@ -329,7 +302,7 @@ if (isMainThread) {
     let summaryNodes = old && old.version === sc.version ? old.summaryNodes : undefined;
     const files = boards.map((board) => {
       const path = packFilePath(sc.id, sc.version, board);
-      const buf = readFileSync(`${dir}/${path}`);
+      const buf = readFileSync(`${outDir}/${path}`);
       const hash = sha256(buf);
       let file;
       try {
@@ -372,7 +345,7 @@ if (isMainThread) {
       }
       return { path, sha256: hash, bytes: buf.length, board, weight: weights.get(board), exploitability: file.exploitability, summary: info.summary };
     });
-    if (!summaryNodes) summaryNodes = summarizeFile(JSON.parse(readFileSync(`${dir}/${files[0].path}`, "utf8"))).summaryNodes;
+    if (!summaryNodes) summaryNodes = summarizeFile(JSON.parse(readFileSync(`${outDir}/${files[0].path}`, "utf8"))).summaryNodes;
     const entry = { id: sc.id, title: sc.title, version: sc.version, tier: sc.tier, scenario: sc.meta, summaryNodes, files };
     // The solver commit that started this version stays; a later solver change is logged above (bump the version).
     const commit = old?.version === sc.version && old.solverCommit ? old.solverCommit : solverCommit;
@@ -382,23 +355,18 @@ if (isMainThread) {
 
   const packErrors = new Map(); // scenario id → message, counted as one failure per pack and run
 
-  /**
-   * Rebuilds one set's manifest from the files on disk; writes it only when more than `generatedAt` changed. Packs of
-   * the set that this run doesn't cover keep their entries; packs of the other set never enter it.
-   */
-  function writeManifest(set) {
-    const store = stores.get(set);
-    const mine = scenarios.filter((s) => s.set === set);
-    const ids = new Set(mine.map((s) => s.id));
+  /** Rebuilds the manifest from the files on disk; writes it only when more than `generatedAt` changed. */
+  function writeManifest() {
+    const ids = new Set(scenarios.map((s) => s.id));
     const packs = [];
-    for (const p of store.current.packs) if (!ids.has(p.id)) packs.push(p);
-    for (const sc of mine) {
+    for (const p of current.packs) if (!ids.has(p.id)) packs.push(p);
+    for (const sc of scenarios) {
       let e;
       try {
         e = packEntry(sc);
       } catch (err) {
         // One broken pack must not stop the others: keep its last good entry.
-        e = store.current.packs.find((p) => p.id === sc.id) ?? null;
+        e = current.packs.find((p) => p.id === sc.id) ?? null;
         if (!packErrors.has(sc.id)) {
           packErrors.set(sc.id, err.message);
           stats.failed++;
@@ -407,18 +375,16 @@ if (isMainThread) {
       }
       if (e) packs.push(e);
     }
-    const order = new Map(ALL_SCENARIOS.map((s, i) => [s.id, i]));
+    const order = new Map(SCENARIOS.map((s, i) => [s.id, i]));
     packs.sort((a, b) => (order.get(a.id) ?? 99) - (order.get(b.id) ?? 99) || a.id.localeCompare(b.id));
     const m = { v: PACK_FORMAT, generatedAt: new Date().toISOString().replace(/\.\d+Z$/, "Z"), packs };
     const errs = validateManifest(m);
-    if (errs.length) throw new Error(`${set} manifest invalid: ${errs.slice(0, 5).join("; ")}`);
-    if (canon({ ...m, generatedAt: undefined }) === canon({ ...store.current, generatedAt: undefined })) return { manifest: store.current, written: false, file: store.manifestFile };
-    writeAtomic(store.manifestFile, JSON.stringify(m));
-    store.current = m;
-    return { manifest: m, written: true, file: store.manifestFile };
+    if (errs.length) throw new Error(`manifest invalid: ${errs.slice(0, 5).join("; ")}`);
+    if (canon({ ...m, generatedAt: undefined }) === canon({ ...current, generatedAt: undefined })) return { manifest: current, written: false };
+    writeAtomic(manifestFile, JSON.stringify(m));
+    current = m;
+    return { manifest: m, written: true };
   }
-  /** writeManifest for every set the run covers; the first error stops it, as one manifest did before. */
-  const writeManifests = () => sets.map((set) => writeManifest(set));
 
   // ───── --rebuild-manifest: no solving ─────
 
@@ -436,23 +402,23 @@ if (isMainThread) {
       for (const p of m.packs) for (const f of p.files) hints.set(`${f.path} ${f.sha256}`, f.summary);
     }
     if (opt["summaries-from"].length) log(`${hints.size} file summaries read from ${opt["summaries-from"].length} manifest(s)`);
-    let results;
+    let result;
     try {
-      results = new Map(sets.map((set) => [set, writeManifest(set)]));
+      result = writeManifest();
     } catch (e) {
       log(`manifest not written: ${e.message}`);
       process.exit(1);
     }
     for (const sc of scenarios) {
-      const before = storeOf(sc).old.packs.find((p) => p.id === sc.id);
-      const after = results.get(sc.set).manifest.packs.find((p) => p.id === sc.id);
+      const before = oldManifest.packs.find((p) => p.id === sc.id);
+      const after = result.manifest.packs.find((p) => p.id === sc.id);
       const known = new Set((before?.files ?? []).map((f) => f.path));
       const added = (after?.files ?? []).filter((f) => !known.has(f.path)).length;
       const state = packErrors.has(sc.id) ? "kept as it was" : after ? `v${after.version}, ${after.files.length} flops (${added} new)` : "no files";
       log(`${sc.id}: ${state}${after && after.version !== sc.version && !packErrors.has(sc.id) ? ` (no v${sc.version} files yet)` : ""}`);
     }
     if (hinted) log(`${hinted} summaries taken from --summaries-from, the rest rebuilt from the files`);
-    for (const r of results.values()) log(r.written ? `manifest written → ${r.file}` : `${r.file}: ${existsSync(r.file) ? "unchanged, not rewritten" : "no files yet, not written"}`);
+    log(result.written ? `manifest written → ${manifestFile}` : "manifest unchanged, not rewritten");
     if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `failed=${stats.failed}\n`);
     process.exit(packErrors.size ? 1 : 0);
   }
@@ -536,7 +502,7 @@ if (isMainThread) {
           return;
         }
         const path = packFilePath(sc.id, sc.version, flop.key);
-        writeAtomic(`${storeOf(sc).dir}/${path}`, msg.json);
+        writeAtomic(`${outDir}/${path}`, msg.json);
         if (!tpl) templates.set(sc.id, msg.summaryNodes);
         fresh.set(`${sc.id}/${flop.key}`, { summary: msg.summary, summaryNodes: msg.summaryNodes });
         (seconds.get(sc.id) ?? seconds.set(sc.id, []).get(sc.id)).push(msg.solveSeconds);
@@ -546,7 +512,7 @@ if (isMainThread) {
             `exploitability ${msg.exploitability}%, ${msg.memMb} MB in the worker, ${(msg.bytes / 1024).toFixed(1)} KB (${msg.nodes} nodes, ${msg.leftOut} left out) → ${path}`,
         );
         try {
-          const { manifest: m } = writeManifest(sc.set);
+          const { manifest: m } = writeManifest();
           const p = m.packs.find((x) => x.id === sc.id);
           log(`manifest: ${p ? p.files.length : 0} flops in ${sc.id}`);
         } catch (e) {
@@ -571,7 +537,7 @@ if (isMainThread) {
   }
 
   const pending = [];
-  log(`${queue.length} flops queued${shardTag}, ${workers} workers, budget ${mins(budgetMs)} min, memory ${(totalmem() / 1e9).toFixed(1)} GB; ${sets.map((set) => `${set} packs → ${setDirs[set]}`).join(", ")}`);
+  log(`${queue.length} flops queued${shardTag}, ${workers} workers, budget ${mins(budgetMs)} min, memory ${(totalmem() / 1e9).toFixed(1)} GB`);
   while (queue.length && !stopping) {
     const job = queue[0];
     const est = estimate(job);
@@ -598,17 +564,16 @@ if (isMainThread) {
   // Keep the manifest in sync even when nothing new was solved (e.g. files added by hand); unchanged → not rewritten.
   let total = 0;
   try {
-    for (const { manifest: m, written, file } of writeManifests()) {
-      total += m.packs.reduce((s, p) => s + p.files.length, 0);
-      if (!written) log(`${file}: ${existsSync(file) ? "unchanged, not rewritten" : "no files yet, not written"}`);
-    }
+    const { manifest: m, written } = writeManifest();
+    total = m.packs.reduce((s, p) => s + p.files.length, 0);
+    if (!written) log("manifest unchanged, not rewritten");
   } catch (e) {
     stats.failed++;
     log(`manifest not written: ${e.message}`);
   }
   log(
     `finished: ${stats.done} new flops, ${stats.stopped} stopped by the budget, ${stats.skipped} skipped (memory), ` +
-      `${stats.tooBig} too big, ${stats.rejected} above the exploitability limit, ${stats.failed} failed; ${total} flops in the manifest(s)`,
+      `${stats.tooBig} too big, ${stats.rejected} above the exploitability limit, ${stats.failed} failed; ${total} flops in the manifest`,
   );
   if (process.env.GITHUB_OUTPUT)
     appendFileSync(process.env.GITHUB_OUTPUT, `new_flops=${stats.done}\nfailed=${stats.failed}\nrejected=${stats.rejected}\n`);

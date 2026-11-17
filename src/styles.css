@@ -171,15 +171,6 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
  * "스퀴즈·오버콜" one unbreakable word and squeezing breaks every label.
  */
 .seg.stage-row button { word-break: keep-all; }
-/*
- * Charts page depth row (the solver set, docs §6.8): one "100bb"-style button per depth, never wrapped; from 6 depths
- * on the text gets smaller so 7 still fit a 360px phone. A depth with several stages gets the size row under it,
- * pulled up to read as one control with the depth row.
- */
-.seg.depth-row button { white-space: nowrap; min-width: 0; padding-left: 2px; padding-right: 2px; }
-.seg.depth-row.many button { font-size: 0.85rem; }
-.seg.size-row { margin-top: -4px; }
-.seg.size-row button { word-break: keep-all; }
 .seg.kind-row.many { overflow-x: auto; scrollbar-width: none; }
 .seg.kind-row.many button { flex: 1 0 auto; white-space: nowrap; }
 
@@ -1123,7 +1114,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-sec { display: flex; flex-direction: column; gap: 4px; }
 /* "내 핸드 | 남의 핸드": small, at the right end of the first label line. */
 .fast-label .fast-toggle { margin-left: auto; flex: none; padding: 2px; gap: 2px; }
-.fast-label .fast-toggle button { flex: none; height: 30px; padding: 0 10px; font-size: 0.76rem; }
+.fast-label .fast-toggle button { flex: none; height: 32px; padding: 0 10px; font-size: 0.76rem; }
 .fast-label { display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
 .fast-label > b { color: var(--accent); font-size: 0.86rem; }
 .fast-row { display: flex; gap: 3px; }
@@ -1166,7 +1157,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-acts button.on { box-shadow: 0 0 0 2px var(--accent); }
 .fast-acts button:disabled { opacity: 0.32; }
 .fast-editing { display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); font-size: 0.78rem; }
-.fast-editing > span { flex: 1; min-width: 0; }
+.fast-editing > span { flex: 1; min-width: 0; word-break: keep-all; }
 .fast-editing b { color: var(--accent); }
 .fast-mini { flex: none; height: 38px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 800; }
 .fast-mini.danger { color: var(--err); }
@@ -1216,6 +1207,105 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-result.v-under { border-color: rgba(56, 189, 248, 0.7); background: rgba(56, 189, 248, 0.08); }
 .fast-result.v-under b { color: var(--info); }
 @keyframes fast-result-in { from { opacity: 0; } to { opacity: 1; } }
+/*
+ * 빠른 기록's chips and board (내 핸드). Everything above .fast-res keeps its size whatever is typed: the
+ * keypad turns to digits or board ranks in the same grid, the row under it to 칩 | bb or ♠♥♦♣ at the same
+ * height. 결과 (32 + 44), 보드 (44), the save slot (48) and 액션도 기록 (36) fit under the hand on a 390×664 screen.
+ */
+.fast-pad.digits button { font-variant-numeric: tabular-nums; }
+.fast-pad.digits .k-dd { font-size: 1.05rem; letter-spacing: -0.04em; }
+.fast-pad .k-d:disabled, .fast-pad .k-b:disabled { opacity: 0.25; }
+/* Board ranks: the same keys, a thin blue edge ("these go to the board"). */
+.fast-pad.board button { border-color: rgba(56, 189, 248, 0.45); }
+.fast-suits.suit4 { grid-template-columns: repeat(4, 1fr); }
+.fast-suits.suit4 button { font-size: 1.35rem; }
+.fast-suits.suit4 .s-s { color: var(--suit-s); } .fast-suits.suit4 .s-h { color: var(--suit-h); } .fast-suits.suit4 .s-d { color: var(--suit-d); } .fast-suits.suit4 .s-c { color: var(--suit-c); }
+.fast-suits.suit4 button.on { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+/* The hand line takes the keypad back to the hand: one clear button laid over the line, a little taller than it, without moving it. */
+.fast-label.hand-line { position: relative; }
+.hand-hit { position: absolute; inset: -4px 0 -1px; z-index: 1; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+.hand-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fast-res-head { display: flex; align-items: center; gap: 6px; height: 32px; }
+.frh-label, .fb-label { flex: none; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
+.fr-amt { flex: 1; min-width: 0; height: 32px; padding: 0 8px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text); font-size: 0.95rem; font-weight: 800; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.fr-amt.hint { color: var(--muted); font-size: 0.78rem; font-weight: 700; }
+/* 50bb or more: amber, a 00 / 000 slip would show here first. */
+.fr-amt.big { color: var(--open); }
+.fr-amt:disabled { opacity: 0.6; }
+/* Where the keypad types: the gold ring. */
+.fr-amt.on, .fb-slots.on, .fast-stack.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.fr-amt.on { background: var(--accent-soft); }
+.fast-lv { flex: none; height: 32px; padding: 0 9px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
+.fast-lv i { font-style: normal; color: var(--muted); font-size: 0.66rem; }
+/* An estimate (from the start time, or a level picked a while ago moved on by the schedule): dashed. Needed: gold. */
+.fast-lv.est { border-style: dashed; }
+.fast-lv.ask { border: 1px dashed var(--accent); color: var(--accent); background: var(--accent-soft); }
+.fast-res .flow-row-box { margin: 2px 0; }
+.fast-res-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.fast-res-chips.n2 { grid-template-columns: repeat(2, 1fr); }
+.fast-res-chips.n4 { grid-template-columns: repeat(4, 1fr); }
+.fast-res-chips button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 2px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.95rem; font-weight: 800; line-height: 1.12; white-space: nowrap; overflow: hidden; }
+.fast-res-chips small { font-size: 0.7rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fast-res-chips .r-fold, .fast-res-chips .r-walk { background: #1c2532; }
+.fast-res-chips .r-lose.on { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
+.fast-res-chips .r-win.on { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
+.fast-res-chips .r-fold.on, .fast-res-chips .r-walk.on { border-color: var(--accent); }
+.fast-res-chips button.ask { border-color: var(--accent); color: var(--accent); }
+.fast-res-chips button:disabled { opacity: 0.3; }
+.fast-board { display: flex; align-items: center; gap: 6px; height: 44px; }
+.fb-slots { flex: none; display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 3px; border-radius: 10px; background: transparent; border: 1px solid transparent; }
+.fb-slots.off { opacity: 0.35; }
+.fb-slot { display: flex; align-items: center; justify-content: center; width: 36px; height: 38px; margin: 0; padding: 0; border-radius: 7px; background: var(--panel); border: 1px dashed var(--line); color: var(--muted); font: inherit; font-size: 1rem; font-weight: 900; line-height: 1; }
+.fb-slot:disabled { opacity: 1; }
+/* The card the suit row is for. */
+.fb-slot.target { border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.fb-slot.turn { margin-left: 4px; }
+.fb-slot.set { border-style: solid; background: var(--panel-2); color: var(--text); }
+.fb-slot .nos, .fi-board .nos { color: #c7d0dd; }
+.fb-slot .s-s, .fi-board .s-s { color: var(--suit-s); } .fb-slot .s-h, .fi-board .s-h { color: var(--suit-h); } .fb-slot .s-d, .fi-board .s-d { color: var(--suit-d); } .fb-slot .s-c, .fi-board .s-c { color: var(--suit-c); }
+.fast-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 6px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; }
+.fast-stack small { font-size: 0.68rem; font-weight: 700; color: var(--muted); }
+.fast-stack.set { color: var(--text); }
+.fast-stack:disabled { opacity: 0.35; }
+/* The save slot's button: gold with a result, plain without one, the reason when it waits. */
+.fast-result .fs-save { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 12px; background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); font-size: 0.95rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fast-result .fs-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-weight: 800; }
+.fast-result .fs-save:disabled { background: transparent; border: 1px dashed var(--line); color: var(--accent); font-size: 0.84rem; font-weight: 800; }
+.fast-result.r-win { border-color: rgba(34, 197, 94, 0.7); }
+.fast-result.r-win b { color: var(--ok); }
+.fast-result.r-lose { border-color: rgba(255, 90, 100, 0.7); }
+.fast-result.r-lose b { color: #ff8a92; }
+.fast-more { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border-radius: 10px; background: transparent; border: 1px dashed var(--line); color: #c7d0dd; font-size: 0.82rem; font-weight: 800; text-align: left; }
+.fast-more small { margin-left: auto; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
+.fast-more.open { border-style: solid; }
+/* today's chips: the total, the graph (inline SVG, no animation), the rows' chips and board */
+.fast-money { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.fm-split { flex-basis: 100%; color: var(--muted); font-size: 0.74rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fm-total { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.fm-total.up { color: var(--ok); }
+.fm-total.down { color: var(--err); }
+.fm-sub { color: var(--muted); font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fast-view { margin-left: auto; align-self: center; padding: 2px; gap: 2px; }
+.fast-view button { flex: none; min-width: 44px; min-height: 32px; padding: 0 10px; font-size: 0.78rem; }
+.chip-graph-box { display: flex; flex-direction: column; gap: 2px; }
+.chip-graph { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.cg-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cg-area { fill: rgba(251, 191, 36, 0.1); stroke: none; }
+.cg-base { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 3; }
+.cg-base-label { fill: var(--muted); font-size: 8px; font-weight: 700; }
+.cg-anchor { fill: var(--panel); stroke: var(--text); stroke-width: 1.5; }
+.cg-jump { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 2; }
+.cg-last { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.cg-cross { stroke: var(--muted); stroke-width: 1; }
+.cg-read { margin: 0; height: 1.35em; line-height: 1.35em; font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.fast-note { margin: 0; }
+.cg-note { margin: -2px 0 0; font-size: 0.7rem; }
+.fi-net { flex: none; min-width: 62px; color: #c7d0dd; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fi-net.up { color: var(--ok); }
+.fi-net.down { color: var(--err); }
+/* A fold, even one that cost a blind: muted, not a loss. */
+.fi-net.fold { color: var(--muted); font-weight: 700; }
+.fi-board { flex: 1 1 auto; min-width: 0; display: flex; gap: 5px; overflow: hidden; white-space: nowrap; font-weight: 800; }
 /* 지난 기록: a 빠른 기록 hand's tag and verdict. */
 .log-tag.fast { border-color: rgba(34, 197, 94, 0.5); color: var(--ok); }
 .log-verdict { font-weight: 800; }

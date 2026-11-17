@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { CardPicker, CardRow } from "../../components/Cards";
-import { SolverSkeleton } from "../../components/SolverSkeleton";
 import { getNamedRanges, getSet } from "../../data/charts";
-import { useSolver } from "../../data/useSolver";
 import { useSettings } from "../../state/settings";
 import { cardLabel, type Card } from "../../poker/cards";
 import { equityVsHand, equityVsRange, type EquityResult } from "../../poker/equity";
@@ -21,26 +19,14 @@ interface Result {
   villainLabel: string;
 }
 
-/** The villain ranges list every chart set, the solver set's too, whose stages load on first use (docs §6.3). */
 export function CalcPage() {
-  const solver = useSolver();
-  if (solver.status !== "ready")
-    return (
-      <div className="page">
-        <SolverSkeleton {...solver} />
-      </div>
-    );
-  return <CalcView />;
-}
-
-function CalcView() {
   const [hero, setHero] = useState<Card[]>([]);
   const [board, setBoard] = useState<Card[]>([]);
   const [villainCards, setVillainCards] = useState<Card[]>([]);
   const [villainMode, setVillainMode] = useState<"range" | "hand">("range");
   const { chartSet } = useSettings();
   const set = getSet(chartSet);
-  // Every set's villain ranges; the first open of the calculator builds them once (about 110 ms).
+  // Every set's villain ranges; the first open of the calculator builds the solver set once (about 120 ms).
   const NAMED_RANGES = getNamedRanges();
   const [rangeId, setRangeId] = useState(
     (NAMED_RANGES.find((r) => r.id === `${set.id}/${set.stages[0].id}/rfi-btn:open`) ?? NAMED_RANGES[0]).id,
