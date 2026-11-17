@@ -8,13 +8,19 @@ import {
   inBb,
   levelChip,
   MINUS,
+  missedPart,
+  netBoth,
+  overBefore,
   postedBy,
   signedText,
+  stackNet,
   toChips,
   walkWin,
   type BoardMark,
   type FastRes,
+  type Missed,
   type SessionMoney,
+  type StackAt,
   type Unit,
 } from "./fastChips";
 
@@ -120,9 +126,45 @@ const shown = (text: string, unit: Unit): string => (unit === "bb" ? `${text}bb`
 /** An amount this many big blinds or more is tinted on the 결과 line: a 00 / 000 slip makes it ten times too big. */
 const BIG_BB = 50;
 
+/** A stack in whole chips while it fits ("64,200"), in 만 past a million. */
+export const fullChips = (n: number): string => (n < 1_000_000 ? n.toLocaleString() : chipsShort(n));
+
+/**
+ * The 결과 line: its text, a small second line under it (스택's sum), whether it is only a hint, whether the
+ * amount is unusually big, and whether 스택 is likely what was meant (an amount bigger than the stack before).
+ */
+interface Line {
+  text: string;
+  sub?: string;
+  hint: boolean;
+  big?: boolean;
+  toStack?: boolean;
+}
+
+/**
+ * 스택 on the 결과 line: what to type (with the stack before it), then the result worked out as typed, over
+ * the sum that gives it ("+3,600 (+6bb)" over "지금 61,800 − 전 58,200"; 자동 계산 is on the 스택 chip lit
+ * under it); the stack before not known: 지금 스택 goes on file with no result, and the next hand is worked
+ * out from it.
+ */
+function stackResultLine(p: { stackNow?: string; stackUnit: Unit; level: number | null; before: StackAt }): Line {
+  const b = p.before.chips;
+  // Why the stack before isn't known: no stack on file yet, or a hand since without chips.
+  const why = p.before.chips === null && p.before.why === "gap" ? "결과 없는 핸드 있음" : "전 스택 모름";
+  const t = p.stackNow ?? "";
+  if (amountValue(t) === null) return { text: "지금 스택 얼마?", sub: b !== null ? `전 ${fullChips(b)} · 빼기는 앱이 해요` : `${why} · 스택만 저장돼요`, hint: true };
+  const now = toChips(t, p.stackUnit, p.level);
+  if (now === null) return { text: `스택 ${t}bb`, sub: "레벨을 골라 주세요", hint: false };
+  const net = stackNet(now, b);
+  if (net === null) return { text: `스택 ${fullChips(now)} · 결과 모름`, sub: `${why} · 다음 핸드부터 계산`, hint: false };
+  const bbs = inBb(Math.abs(net), p.level);
+  return { text: net === 0 ? "본전" : netBoth(net, p.level), sub: `지금 ${fullChips(now)} − 전 ${fullChips(b as number)}`, hint: false, big: bbs !== null && bbs >= BIG_BB };
+}
+
 /** What the 결과 line reads for the draft (whether it is only a hint, whether the amount is unusually big). */
-function resultLine(p: { res?: FastRes; amount?: string; unit: Unit; level: number | null; seat: string; bbAnte: boolean }): { text: string; hint: boolean; big?: boolean } {
+function resultLine(p: { res?: FastRes; amount?: string; unit: Unit; level: number | null; seat: string; bbAnte: boolean; stackNow?: string; stackUnit: Unit; before: StackAt }): Line {
   const { res, amount, unit, level, seat, bbAnte } = p;
+  if (res === "stack") return stackResultLine(p);
   if (res === "fold") {
     const posted = postedBy(seat, level, bbAnte);
     return { text: posted === null ? "폴드 · 블라인드 (레벨 모름)" : posted ? `폴드 ${signedText(-posted, "chips")}` : "폴드", hint: false };
@@ -133,12 +175,14 @@ function resultLine(p: { res?: FastRes; amount?: string; unit: Unit; level: numb
   }
   const sign = res === "+" ? "+" : res === "-" ? MINUS : "";
   if (!amount) {
-    if (res === "+") return { text: "+ 얼마 땄어요?", hint: true };
-    if (res === "-") return { text: `${MINUS} 얼마 잃었어요?`, hint: true };
-    return { text: "폴드 한 번, 아니면 금액", hint: true };
+    if (res === "+") return { text: "+ 수익 얼마?", hint: true };
+    if (res === "-") return { text: `${MINUS} 손실 얼마?`, hint: true };
+    // 지금 스택 typed with no result: 스택 works it out.
+    if (p.stackNow) return { text: "스택을 누르면 자동 계산", hint: true };
+    return { text: "폴드 한 번, 아니면 금액·스택", hint: true };
   }
   const main = `${sign}${shown(amount, unit)}`;
-  if (!res) return { text: `${main} · 땄어요? 잃었어요?`, hint: false };
+  if (!res) return { text: `${main} · 수익? 손실?`, hint: false };
   // "0." on its way to "0.5": nothing to work out yet.
   if (amountValue(amount) === null) return { text: main, hint: false };
   const chips = toChips(amount, unit, level);
@@ -146,8 +190,13 @@ function resultLine(p: { res?: FastRes; amount?: string; unit: Unit; level: numb
   if (chips === 0) return { text: `${main} = 본전`, hint: false };
   const b = inBb(chips, level);
   const big = b !== null && b >= BIG_BB;
-  if (unit === "bb") return { text: `${main} = ${sign}${chips.toLocaleString()}`, hint: false, big };
-  return { text: b === null ? main : `${main} = ${sign}${bbText1(b)}`, hint: false, big };
+  const text = unit === "bb" ? `${main} = ${sign}${chips.toLocaleString()}` : b === null ? main : `${main} = ${sign}${bbText1(b)}`;
+  // More than my whole stack before the hand: a loss can't be (the save waits), a win that big is rare; most likely 지금 스택.
+  const pre = p.before.chips;
+  if (pre !== null && overBefore(chips, pre, p.stackNow)) {
+    return { text, sub: `지금 스택이면 → 스택 · 전 ${fullChips(pre)}`, hint: false, big: true, toStack: true };
+  }
+  return { text, hint: false, big };
 }
 
 /** A blind's fold or a walk on its chip: the chips in the unit being typed, short ("−1,200", "−80만", "−2bb"). */
@@ -158,8 +207,10 @@ function chipAmount(n: number, unit: Unit, level: number | null): string {
 /**
  * 결과: the line (what will be saved, as typed: "+12,000 = +20bb"; tap it to type the amount) with the
  * level chip at its right, the level picker under it when open, then the chips: 폴드 (one tap, saves, with
- * the blind it costs), 워크 for the BB, − 손실 / + 수익 (the sign; the keypad turns to digits). With
- * 액션도 기록 open, 폴드 / 워크 are the action row's, so only the signs are here.
+ * the blind it costs), 워크 for the BB, − 손실 / + 수익 (the sign; the keypad turns to digits), and 스택
+ * (자동 계산: the keypad types 지금 스택, my chips counted after the hand, and the line works the result out
+ * from my stack before it: "+3,600 (+6bb)" over "지금 61,800 − 전 58,200"). With 액션도 기록 open,
+ * 폴드 / 워크 are the action row's, so only the signs and 스택 are here.
  */
 export function ResultSec(p: {
   seat: string;
@@ -169,6 +220,10 @@ export function ResultSec(p: {
   unit: Unit;
   res?: FastRes;
   amount?: string;
+  /** 지금 스택 as typed, its unit, and my stack before the hand (for 스택). */
+  stackNow?: string;
+  stackUnit: Unit;
+  before: StackAt;
   bbAnte: boolean;
   focused: boolean;
   enabled: boolean;
@@ -183,14 +238,24 @@ export function ResultSec(p: {
   const line = resultLine(p);
   const posted = postedBy(p.seat, p.level, p.bbAnte);
   const walk = !p.actionsView && p.seat === "BB";
-  const n = (p.actionsView ? 0 : 1) + (walk ? 1 : 0) + 2;
+  const n = (p.actionsView ? 0 : 1) + (walk ? 1 : 0) + 3;
   const w = walkWin(p.level);
+  const byStack = p.res === "stack";
+  // 지금 스택 typed with no result yet, or an amount bigger than the stack before: 스택 is the way to work it out.
+  const askStack = (!p.res && !p.amount && !!p.stackNow) || !!line.toStack;
   return (
     <div className="fast-sec fast-res">
       <div className="fast-res-head">
         <span className="frh-label">결과</span>
-        <button type="button" className={`fr-amt${p.focused ? " on" : ""}${line.hint ? " hint" : ""}${line.big ? " big" : ""}`} disabled={!p.enabled} onClick={p.onAmount}>
-          {line.text}
+        <button type="button" className={`fr-amt${p.focused ? " on" : ""}${line.hint ? " hint" : ""}${line.big ? " big" : ""}${line.sub ? " two" : ""}`} disabled={!p.enabled} onClick={p.onAmount}>
+          {line.sub ? (
+            <>
+              <span>{line.text}</span>
+              <small>{line.sub}</small>
+            </>
+          ) : (
+            line.text
+          )}
         </button>
         <button type="button" className={`fast-lv${p.levelClass}`} aria-expanded={p.pickerOpen} aria-label={`블라인드 ${p.levelLabel} · 바꾸기`} onClick={p.onLevel}>
           {levelChip(p.level)} <i>{p.pickerOpen ? "▴" : "▾"}</i>
@@ -216,6 +281,10 @@ export function ResultSec(p: {
         <button type="button" className={`r-win${p.res === "+" ? " on" : ""}${p.askSign ? " ask" : ""}`} aria-pressed={p.res === "+"} disabled={!p.enabled} onClick={() => p.onRes("+")}>
           + 수익
         </button>
+        <button type="button" className={`r-stack${byStack ? " on" : ""}${askStack ? " ask" : ""}`} aria-pressed={byStack} aria-label="스택으로 입력 · 지금 스택에서 자동 계산" disabled={!p.enabled} onClick={() => p.onRes("stack")}>
+          <span>스택</span>
+          <small>자동 계산</small>
+        </button>
       </div>
     </div>
   );
@@ -224,11 +293,9 @@ export function ResultSec(p: {
 /** 지금 스택 as typed: "스택 64,200" over "107bb" (typed in bb: "스택 107bb" over the chips). */
 function stackLine(text: string, unit: Unit, level: number | null): [string, string] {
   const chips = toChips(text, unit, level);
-  // Whole chips while they fit the chip ("64,200"), in 만 past a million.
-  const full = (n: number) => (n < 1_000_000 ? n.toLocaleString() : chipsShort(n));
-  if (unit === "bb") return [`스택 ${text}bb`, chips === null ? "레벨 ?" : full(chips)];
+  if (unit === "bb") return [`스택 ${text}bb`, chips === null ? "레벨 ?" : fullChips(chips)];
   const b = chips === null ? null : inBb(chips, level);
-  return [`스택 ${full(Number(text))}`, b === null ? "" : bbText1(b)];
+  return [`스택 ${fullChips(Number(text))}`, b === null ? "" : bbText1(b)];
 }
 
 /**
@@ -306,10 +373,11 @@ const totalText = (n: number, unit: Unit): string => (n === 0 ? (unit === "bb" ?
 
 /**
  * The day's total: in the unit shown, the other unit small, and the 칩 | bb toggle for the list and the
- * graph. Where 지금 스택 disagreed with the count (`missed`: hands not logged), the total is the stack's
- * change, as the graph shows it, with the hands logged and the rest on a line under it.
+ * graph. Where 지금 스택 or a 칩 업데이트 disagreed with the count (`missed`: hands not logged, a count put
+ * right), the total is the stack's change, as the graph shows it, with the hands logged and the rest
+ * (빠진 핸드; 결과 모름: after hands without chips; 칩 업데이트) on a line under it.
  */
-export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney; missed: { chips: number; bb: number | null } | null; view: Unit; onView: (u: Unit) => void }) {
+export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney; missed: Missed | null; view: Unit; onView: (u: Unit) => void }) {
   const total = money.chips + (missed?.chips ?? 0);
   const totalBb = money.bb === null || (missed && missed.bb === null) ? null : Math.round((money.bb + (missed?.bb ?? 0)) * 10) / 10;
   const chips = totalText(total, "chips");
@@ -318,6 +386,10 @@ export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney
   const [main, sub] = inBbView ? [bb, chips] : [chips, bb];
   const tone = total > 0 ? " up" : total < 0 ? " down" : "";
   const part = (c: number, b: number | null) => (inBbView && b !== null ? totalText(b, "bb") : totalText(c, "chips"));
+  const upd = missed?.upd ?? null;
+  const gap = missed?.gap ?? null;
+  // The hands missed: the jumps other than 칩 업데이트 and 결과 모름 (shown when there are any, or nothing else to show).
+  const lost = missed ? missedPart(missed) : null;
   return (
     <div className="fast-money">
       <b className={`fm-total${tone}`}>{main}</b>
@@ -330,9 +402,12 @@ export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney
           bb
         </button>
       </div>
-      {missed && (
+      {missed && lost && (
         <span className="fm-split">
-          기록한 핸드 {part(money.chips, money.bb)} · 빠진 핸드 {part(missed.chips, missed.bb)}
+          기록한 핸드 {part(money.chips, money.bb)}
+          {(!upd && !gap) || lost.chips ? ` · 빠진 핸드 ${part(lost.chips, lost.bb)}` : ""}
+          {gap ? ` · 결과 모름 ${part(gap.chips, gap.bb)}` : ""}
+          {upd ? ` · 칩 업데이트 ${part(upd.chips, upd.bb)}` : ""}
         </span>
       )}
     </div>

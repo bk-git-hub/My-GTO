@@ -2,6 +2,7 @@ import { makeCard, rankOf, suitOf, type Card } from "../../poker/cards";
 import type { LoggedHand, Result } from "./handLog";
 import { levelRow } from "./levelClock";
 import { nextBoardCard } from "./suitGuess";
+import type { StackCheck } from "./tourney";
 
 /**
  * 빠른 기록's chips: what a hand cost or won, typed in chips or in big blinds at the hand's level, the
@@ -11,8 +12,11 @@ import { nextBoardCard } from "./suitGuess";
 
 /** What an amount is typed in. */
 export type Unit = "chips" | "bb";
-/** The draft's result: 수익 "+", 손실 "-", 폴드, 워크 (the BB, everyone folded). */
-export type FastRes = "+" | "-" | "fold" | "walk";
+/**
+ * The draft's result: 수익 "+", 손실 "-", 폴드, 워크 (the BB, everyone folded), or 스택: the chips worked
+ * out from 지금 스택 (my chips after the hand) less my stack before it (stackAt).
+ */
+export type FastRes = "+" | "-" | "fold" | "walk" | "stack";
 /** A remembered board card: rank 0–12 (cards.ts RANKS), suit 0–3 only when remembered. */
 export interface BoardMark {
   r: number;
@@ -154,16 +158,52 @@ export function levelChip(level: number | null): string {
 
 // ───────────── the draft's result ─────────────
 
-export type ResultOut = { result: Result | null; net: number | null } | { block: "sign" | "level" };
+export type ResultOut = { result: Result | null; net: number | null } | { block: "sign" | "level" | "stackNow" | "over" };
+
+/** A hand's chips as a result: up, down or even (본전). */
+export const resultOfNet = (net: number): Result => (net > 0 ? "win" : net < 0 ? "lose" : "chop");
+
+/**
+ * The chips a hand made by 스택: 지금 스택 `now` less the stack before it. Unknown (null) when the stack
+ * before isn't known: nothing is made up.
+ */
+export const stackNet = (now: number, before: number | null): number | null => (before === null ? null : now - before);
+
+/**
+ * An amount bigger than my stack before the hand (known), with no 지금 스택 typed: a loss that can't be, or a
+ * win more than doubling up (a multiway pot, or 지금 스택 typed under 수익 by mistake).
+ */
+export const overBefore = (chips: number, before: number | null, stackNow?: string): boolean => before !== null && chips > before && amountValue(stackNow ?? "") === null;
 
 /**
  * What the draft saves as: 폴드 loses what the seat posted (nothing for the seats before the blinds; a
  * blind's fold without a level is a fold of unknown chips), 워크 wins the small blind, + / − with an
  * amount wins or loses it (0 is a chop), a sign without an amount is a win or loss of unknown chips.
- * Blocked: an amount without a sign, or a bb amount without a level to turn it into chips.
+ * 스택: 지금 스택 less `before` (my stack before the hand, null: not known: then the result is left
+ * unknown, and the stack goes on file all the same). Blocked: an amount without a sign, a bb amount
+ * without a level to turn it into chips, 스택 with no 지금 스택 typed, a loss bigger than the stack before
+ * (`over`: most likely 지금 스택 typed under 손실; not with 지금 스택 typed too, which says the stack itself).
  */
-export function draftResult(i: { res?: FastRes; amount?: string; unit: Unit; seat: string; level: number | null; bbAnte: boolean }): ResultOut {
+export function draftResult(i: {
+  res?: FastRes;
+  amount?: string;
+  unit: Unit;
+  seat: string;
+  level: number | null;
+  bbAnte: boolean;
+  stackNow?: string;
+  stackUnit?: Unit;
+  before?: number | null;
+}): ResultOut {
   const amount = i.amount ?? "";
+  if (i.res === "stack") {
+    const t = i.stackNow ?? "";
+    if (amountValue(t) === null) return { block: "stackNow" };
+    const now = toChips(t, i.stackUnit ?? "chips", i.level);
+    if (now === null) return { block: "level" };
+    const net = stackNet(now, i.before ?? null);
+    return net === null ? { result: null, net: null } : { result: resultOfNet(net), net };
+  }
   if (i.res === "fold") {
     const posted = postedBy(i.seat, i.level, i.bbAnte);
     return { result: "fold", net: posted === null ? null : posted === 0 ? 0 : -posted };
@@ -176,6 +216,7 @@ export function draftResult(i: { res?: FastRes; amount?: string; unit: Unit; sea
   if (v === 0) return { result: "chop", net: 0 };
   const chips = toChips(amount, i.unit, i.level);
   if (chips === null) return { block: "level" };
+  if (!win && overBefore(chips, i.before ?? null, i.stackNow)) return { block: "over" };
   return { result: win ? "win" : "lose", net: win ? chips : -chips };
 }
 
@@ -270,9 +311,13 @@ export interface ChipSeries {
   absolute: boolean;
   /** x = hands done (0: before the first), broken where a stack on file disagrees with the running count. */
   segments: ChipPoint[][];
-  /** Where a stack on file disagrees with the count: at x, from the count to the stack. */
-  jumps: { x: number; from: number; to: number }[];
-  /** Points where the stack was known (지금 스택 typed on that hand). */
+  /**
+   * Where a stack on file disagrees with the count: at x, from the count to the stack (`check`: a 칩 업데이트's;
+   * `gap`: a hand's, with a hand since the stack before it on file, or itself, without chips: results not known,
+   * not hands missed).
+   */
+  jumps: { x: number; from: number; to: number; check?: true; gap?: true }[];
+  /** Points where the stack was known (지금 스택 typed on that hand, or a 칩 업데이트 between hands). */
   anchors: ChipPoint[];
   start: number;
   end: number;
@@ -297,14 +342,18 @@ export const oldestFirst = (hands: LoggedHand[]): LoggedHand[] => [...hands].sor
  * hand adds its net, and a hand's own stack that disagrees with the count breaks the line there with a
  * jump (at x = 0: chips won or lost before the first hand logged). A start stack alone is no run: still
  * null without any net or stack.
+ *
+ * `checks` (the tournament's 칩 업데이트) are stacks on file between hands: one at `at` says the stack after
+ * the hands logged by then (x = their number), ahead of the next hand's own 지금 스택. Like a hand's stack it
+ * starts the run when nothing before it does, and breaks the line with a jump (marked `check`: an
+ * adjustment, not a hand) where it disagrees with the count. A 칩 업데이트 after the last hand ends the run.
  */
-export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number | null = null): ChipSeries | null {
+export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number | null = null, checks: readonly StackCheck[] = []): ChipSeries | null {
   const old = oldestFirst(hands);
   const n = old.length;
   const fromStart = startStack !== null && Number.isFinite(startStack) && startStack > 0;
-  // With a start stack every hand is counted on from the one before (the start stack before the first).
-  const first = fromStart ? -1 : old.findIndex((h) => h.stack !== null);
-  if (!n || (old.every((h) => h.stack === null) && old.every((h) => h.net === null))) return null;
+  const cs = [...checks].sort((a, b) => a.at - b.at);
+  if (!n || (old.every((h) => h.stack === null) && old.every((h) => h.net === null) && !cs.length)) return null;
   const bbOf = old.map((h) => levelRow(h.level)?.bb ?? null);
   const u: Unit = unit === "bb" && bbOf.some((b) => b !== null) ? "bb" : "chips";
   const d = old.map((h) => h.net ?? 0);
@@ -312,6 +361,13 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
   const jumps: ChipSeries["jumps"] = [];
   const anchors: ChipPoint[] = [];
   let unknown = 0;
+  // What says the stack at x (after x hands, before hand x): the 칩 업데이트 made by then, then hand x's own 지금 스택.
+  const sets: { y: number; check: boolean }[][] = Array.from({ length: n + 1 }, () => []);
+  for (const c of cs) sets[old.filter((h) => h.createdAt <= c.at).length].push({ y: c.stack, check: true });
+  old.forEach((h, i) => {
+    if (h.stack !== null) sets[i].push({ y: h.stack, check: false });
+  });
+  const first = sets.findIndex((x) => x.length > 0);
 
   if (first < 0 && !fromStart) {
     let y = 0;
@@ -324,28 +380,36 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
     });
     segments.push(seg);
   } else {
-    const start: number[] = new Array(n).fill(0);
-    if (first >= 0) {
-      start[first] = old[first].stack as number;
-      for (let i = first - 1; i >= 0; i--) start[i] = start[i + 1] - d[i];
-    }
-    let seg: ChipPoint[] = [{ x: 0, y: fromStart ? (startStack as number) : start[0] }];
+    // With a start stack every hand is counted on from it; else back from the first stack on file by taking the nets off.
+    let v = fromStart ? (startStack as number) : sets[first][0].y;
+    if (!fromStart) for (let i = first - 1; i >= 0; i--) v -= d[i];
+    let seg: ChipPoint[] = [{ x: 0, y: v }];
     segments.push(seg);
-    old.forEach((h, i) => {
-      if (h.net === null) unknown++;
-      if (i > first) {
-        const count = i === 0 ? (startStack as number) : start[i - 1] + d[i - 1];
-        if (h.stack !== null && h.stack !== count) {
-          jumps.push({ x: i, from: count, to: h.stack });
-          seg = [{ x: i, y: h.stack }];
+    // A hand without chips since the last stack on file: a jump after it is (partly) its result, not hands missed.
+    let blind = false;
+    for (let x = 0; x <= n; x++) {
+      for (const st of sets[x]) {
+        if (st.y !== v) {
+          // A hand's own stack (sets[x] < n: hand x's) with its own result unknown counts that result in.
+          const gap = !st.check && (blind || old[x].net === null);
+          jumps.push({ x, from: v, to: st.y, ...(st.check ? { check: true as const } : {}), ...(gap ? { gap: true as const } : {}) });
+          seg = [{ x, y: st.y }];
           segments.push(seg);
+          v = st.y;
         }
-        start[i] = h.stack ?? count;
+        if (st.check) anchors.push({ x, y: st.y });
       }
-      const y = start[i] + d[i];
-      seg.push({ x: i + 1, y });
-      if (h.stack !== null) anchors.push({ x: i + 1, y });
-    });
+      if (sets[x].length) blind = false;
+      if (x === n) break;
+      const h = old[x];
+      if (h.net === null) {
+        unknown++;
+        blind = true;
+      }
+      v += d[x];
+      seg.push({ x: x + 1, y: v });
+      if (h.stack !== null) anchors.push({ x: x + 1, y: v });
+    }
     if (u === "bb") {
       // Each point at its hand's big blind: point x is after hand x (point 0: the first hand's).
       const filled = bbOf.map((b, i) => b ?? [...bbOf.slice(0, i)].reverse().find((x) => x !== null) ?? bbOf.slice(i + 1).find((x) => x !== null) ?? 1);
@@ -365,18 +429,88 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
   return { unit: u, absolute, segments, jumps, anchors, start: startY, end: all[all.length - 1].y, min: Math.min(...ys), max: Math.max(...ys), unknown };
 }
 
+/** Chips and bb (null: no level) the stack moved by. */
+export interface ChipPart {
+  chips: number;
+  bb: number | null;
+}
+
 /**
- * The chips the session's 지금 스택 adds to the hands logged: the sum of its jumps (where a stack typed
- * disagreed with the count: hands missed), in chips and in bb (null without a level). Null without any
- * jump. The session's whole result is the hands' nets plus this (the graph's end minus its start). With
- * a tournament's start stack the run starts there, so a first 지금 스택 that disagrees with it counts too.
+ * Where the stacks on file disagreed with the hands logged: the chips of all the jumps (hands missed, results
+ * not known, and 칩 업데이트 corrections), with `upd` the 칩 업데이트 part and `gap` the part after hands without
+ * chips (결과 모름) when there are such (the rest is 빠진 핸드: missedPart).
  */
-export function missedOf(hands: LoggedHand[], startStack: number | null = null): { chips: number; bb: number | null } | null {
-  const c = chipSeries(hands, "chips", startStack);
+export interface Missed extends ChipPart {
+  upd?: ChipPart;
+  gap?: ChipPart;
+}
+
+/** The hands-missed part of `m` (빠진 핸드): all of it less the 칩 업데이트 and the 결과 모름 parts; bb null when any part's is. */
+export function missedPart(m: Missed): ChipPart {
+  const parts = [m.upd, m.gap].filter((x): x is ChipPart => !!x);
+  const bb = m.bb === null || parts.some((x) => x.bb === null) ? null : Math.round((m.bb - parts.reduce((t, x) => t + (x.bb as number), 0)) * 10) / 10;
+  return { chips: m.chips - parts.reduce((t, x) => t + x.chips, 0), bb };
+}
+
+/**
+ * The chips the session's 지금 스택 and 칩 업데이트 add to the hands logged: the sum of the jumps (where a
+ * stack on file disagreed with the count: hands missed, results not known, or a count put right), in chips
+ * and in bb (null without a level), with `upd`: the 칩 업데이트 part, and `gap`: the 결과 모름 part, when any. Null without any jump. The session's whole
+ * result is the hands' nets plus this (the graph's end minus its start). With a tournament's start stack
+ * the run starts there, so a first stack on file that disagrees with it counts too.
+ */
+export function missedOf(hands: LoggedHand[], startStack: number | null = null, checks: readonly StackCheck[] = []): Missed | null {
+  const c = chipSeries(hands, "chips", startStack, checks);
   if (!c || !c.jumps.length) return null;
-  const b = chipSeries(hands, "bb", startStack);
-  const bb = b && b.unit === "bb" ? Math.round(b.jumps.reduce((t, j) => t + j.to - j.from, 0) * 10) / 10 : null;
-  return { chips: c.jumps.reduce((t, j) => t + j.to - j.from, 0), bb };
+  const b = chipSeries(hands, "bb", startStack, checks);
+  const inBbUnit = !!b && b.unit === "bb";
+  type Kind = "upd" | "gap" | "miss";
+  const kindOf = (j: ChipSeries["jumps"][number]): Kind => (j.check ? "upd" : j.gap ? "gap" : "miss");
+  const sum = (js: ChipSeries["jumps"], k: Kind | null) => js.filter((j) => k === null || kindOf(j) === k).reduce((t, j) => t + j.to - j.from, 0);
+  const part = (k: Kind | null): ChipPart => ({ chips: sum(c.jumps, k), bb: inBbUnit ? Math.round(sum((b as ChipSeries).jumps, k) * 10) / 10 : null });
+  const has = (k: Kind) => c.jumps.some((j) => kindOf(j) === k);
+  return { ...part(null), ...(has("upd") ? { upd: part("upd") } : {}), ...(has("gap") ? { gap: part("gap") } : {}) };
+}
+
+/** What is known of my stack at a moment: its chips, or why not (`none`: nothing says it; `gap`: a hand since has no chips on file). */
+export type StackAt = { chips: number } | { chips: null; why: "none" | "gap" };
+
+/**
+ * My stack at `at` (a hand's stack before it: `at` its time, `skip` its id): from the last thing on file that
+ * says it — the tournament's start stack, a 칩 업데이트, a hand's 지금 스택 (its chips after that hand: its
+ * stack plus its net) — plus the net of every hand logged since. Unknown when nothing says it (`none`), or when
+ * a hand since has no chips on file (`gap`: a result without an amount, a blind's fold without a level): never
+ * guessed. A hand and a 칩 업데이트 at the same moment: the hand first.
+ */
+export function stackAt(hands: LoggedHand[], startStack: number | null, checks: readonly StackCheck[], at = Infinity, skip?: string): StackAt {
+  type Ev = { t: number; k: 0; h: LoggedHand } | { t: number; k: 1; c: StackCheck };
+  const evs: Ev[] = [
+    ...hands.filter((h) => h.createdAt <= at && h.id !== skip).map((h): Ev => ({ t: h.createdAt, k: 0, h })),
+    ...checks.filter((c) => c.at <= at).map((c): Ev => ({ t: c.at, k: 1, c })),
+  ].sort((a, b) => a.t - b.t || a.k - b.k);
+  let known: number | null = startStack !== null && Number.isFinite(startStack) && startStack > 0 ? startStack : null;
+  let gap = false;
+  for (const e of evs) {
+    if (e.k === 1) {
+      known = e.c.stack;
+      gap = false;
+    } else if (e.h.stack !== null) {
+      known = e.h.stack + (e.h.net ?? 0);
+      gap = false;
+    } else if (e.h.net === null) gap = true;
+    else if (known !== null) known += e.h.net;
+  }
+  if (known === null) return { chips: null, why: "none" };
+  return gap || known < 0 ? { chips: null, why: "gap" } : { chips: known };
+}
+
+/** Each 칩 업데이트 with what it changed: its stack less the stack counted just before it (null: not known then). */
+export function checkSteps(hands: LoggedHand[], startStack: number | null, checks: readonly StackCheck[]): (StackCheck & { diff: number | null })[] {
+  const cs = [...checks].sort((a, b) => a.at - b.at);
+  return cs.map((c, i) => {
+    const b = stackAt(hands, startStack, cs.slice(0, i), c.at);
+    return { ...c, diff: b.chips === null ? null : c.stack - b.chips };
+  });
 }
 
 /** The value after hand x (x = 0: before the first hand): the running count where a jump follows it. */

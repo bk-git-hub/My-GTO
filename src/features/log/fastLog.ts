@@ -5,10 +5,13 @@ import {
   amountValue,
   boardCards,
   canAddRank,
+  checkSteps,
+  chipsText,
   convertText,
   draftResult,
   marksOf,
   missedOf,
+  missedPart,
   netBoth,
   postedBy,
   chipSeries,
@@ -41,6 +44,7 @@ import { levelRow, levelSince, type LevelEstimate } from "./levelClock";
 import { cleanPre, isStage, STAGE_LABEL, type PreAction, type PreStage } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
 import { cleanGuess, holeFromRanks, setBoardGuess } from "./suitGuess";
+import type { StackCheck } from "./tourney";
 
 export type { BoardMark, FastRes } from "./fastChips";
 
@@ -65,7 +69,7 @@ const kindFits = (h: Pick<LoggedHand, "kind">, mode: FastMode): boolean => isOth
 
 /** Which field the keypad types into: the hand (ranks), the result or 지금 스택 (digits), the board (ranks). */
 export type FastFocus = "hand" | "result" | "board" | "stack";
-const FAST_RES: readonly FastRes[] = ["+", "-", "fold", "walk"];
+const FAST_RES: readonly FastRes[] = ["+", "-", "fold", "walk", "stack"];
 const FOCI: readonly FastFocus[] = ["result", "board", "stack"];
 
 /**
@@ -86,7 +90,7 @@ export interface FastDraft {
   /** A hand being corrected keeps its own stage and table size (absent for a new hand: the session's). */
   stage?: PreStage;
   players?: number;
-  /** 결과: 수익 "+", 손실 "-", 폴드, 워크 (the BB). */
+  /** 결과: 수익 "+", 손실 "-", 폴드, 워크 (the BB), 스택 (worked out from `stackNow`). */
   res?: FastRes;
   /** The amount typed on the pad, in `unit`: digits, in bb with one decimal ("12000", "20.5"). Only when non-empty. */
   amount?: string;
@@ -310,21 +314,37 @@ function withMarks(h: LoggedHand, marks: BoardMark[]): LoggedHand | null {
   return { ...rest, board: b.cards, ...(guess ? { guess } : {}) };
 }
 
+/** The draft's result as draftResult takes it: the sign and amount, 지금 스택 and the stack before the hand (for 스택). */
+const resultIn = (d: FastDraft, seat: string, level: number | null, bbAnte: boolean, before: number | null) => ({
+  res: d.res,
+  amount: d.amount,
+  unit: unitOf(d),
+  seat,
+  level,
+  bbAnte,
+  stackNow: d.stackNow,
+  stackUnit: stackUnitOf(d),
+  before,
+});
+
 /**
  * The draft's result, board and 지금 스택 on the hand, at the level `lv`; null while the draft says why
  * not (blockOf). The net is in chips; 지금 스택 (my chips after the hand) is kept as the hand's start
  * stack, `stack = now − net`. Known board cards win over the guessed hole cards (tidyHand re-picks them);
- * a board that can't be placed in full is refused rather than cut.
+ * a board that can't be placed in full is refused rather than cut. 스택: the net is 지금 스택 less
+ * `before` (my stack before the hand, stackAt; null: not known, and the hand keeps 지금 스택 with no result),
+ * and the hand says so (`fastStack`).
  */
-export function withFastResult(h: LoggedHand, d: FastDraft, lv: FastLevel, bbAnte: boolean): LoggedHand | null {
+export function withFastResult(h: LoggedHand, d: FastDraft, lv: FastLevel, bbAnte: boolean, before: number | null = null): LoggedHand | null {
   const unit = unitOf(d);
-  const { fastUnit: _u, ...was } = withLevel(h, lv.level, lv.guessed);
+  const { fastUnit: _u, fastStack: _s, ...was } = withLevel(h, lv.level, lv.guessed);
   void _u;
-  const out = draftResult({ res: d.res, amount: d.amount, unit, seat: was.seat, level: lv.level, bbAnte });
+  void _s;
+  const out = draftResult(resultIn(d, was.seat, lv.level, bbAnte, before));
   if ("block" in out) return null;
   // An amount typed in bb says so on the hand, so a correction opens it as it was typed.
-  const typedBb = unit === "bb" && out.net !== null && amountValue(d.amount ?? "") !== null;
-  const x: LoggedHand = { ...was, result: out.result, net: out.net, bbAnte, ...(typedBb ? { fastUnit: "bb" as const } : {}) };
+  const typedBb = d.res !== "stack" && unit === "bb" && out.net !== null && amountValue(d.amount ?? "") !== null;
+  const x: LoggedHand = { ...was, result: out.result, net: out.net, bbAnte, ...(typedBb ? { fastUnit: "bb" as const } : {}), ...(d.res === "stack" ? { fastStack: true as const } : {}) };
   const marks = d.board ?? [];
   const placed = withMarks(x, marks);
   if (!placed) return null;
@@ -338,8 +358,8 @@ export function withFastResult(h: LoggedHand, d: FastDraft, lv: FastLevel, bbAnt
   return done.board.length === marks.length ? done : null;
 }
 
-/** Why the draft can't be saved yet. */
-export type FastBlock = "class" | "sign" | "level" | "stack" | "board";
+/** Why the draft can't be saved yet ("stackNow": 스택 with no 지금 스택 typed; "over": a loss bigger than the stack before). */
+export type FastBlock = "class" | "sign" | "level" | "stack" | "stackNow" | "over" | "board";
 
 /** The marks fit the class: every card can be placed, none on top of the hole cards that can't move. */
 export function boardFits(d: FastDraft): boolean {
@@ -351,11 +371,10 @@ export function boardFits(d: FastDraft): boolean {
   return !!h && tidyHand(h).board.length === marks.length;
 }
 
-/** Why the draft can't be saved yet ("class" | "sign" | "level" | "stack" | "board"), or null. */
-export function blockOf(d: FastDraft, players: number, level: number | null, bbAnte: boolean): FastBlock | null {
+/** Why the draft can't be saved yet ("class" | "sign" | "level" | "stack" | "stackNow" | "over" | "board"), or null. `before`: my stack before the hand (스택, and a loss can't be bigger). */
+export function blockOf(d: FastDraft, players: number, level: number | null, bbAnte: boolean, before: number | null = null): FastBlock | null {
   if (!positionsFor(players).includes(d.seat) || !classDone(d)) return "class";
-  const unit = unitOf(d);
-  const out = draftResult({ res: d.res, amount: d.amount, unit, seat: d.seat, level, bbAnte });
+  const out = draftResult(resultIn(d, d.seat, level, bbAnte, before));
   if ("block" in out) return out.block;
   if (d.stackNow) {
     const now = toChips(d.stackNow, stackUnitOf(d), level);
@@ -388,13 +407,24 @@ export const focusOf = (d: FastDraft): FastFocus => (classDone(d) ? (d.focus ?? 
 /** `d` with the text field `k` set, or left out when empty. */
 const withText = (d: FastDraft, k: "amount" | "stackNow", t: string): FastDraft => (t ? { ...d, [k]: t } : omit(d, k));
 
-/** 수익 / 손실 set the sign and take the keypad to the amount; 폴드 / 워크 set the result and drop the amount. */
+/**
+ * 수익 / 손실 set the sign and take the keypad to the amount; 스택 takes the keypad to 지금 스택 (what is typed
+ * there stays; with nothing there, an amount typed under 수익 / 손실 moves over to it: most likely my stack
+ * typed under the wrong chip, not typed twice); 폴드 / 워크 set the result and drop the amount.
+ */
 export function pickRes(d: FastDraft, res: FastRes): FastDraft {
   if (res === "+" || res === "-") return { ...d, res, focus: "result" };
+  if (res === "stack") {
+    const carry = !d.stackNow && d.amount && unitOf(d) === stackUnitOf(d) ? { stackNow: d.amount } : {};
+    return { ...omit(d, "amount"), ...carry, res, focus: "stack" };
+  }
   return { ...omit(d, "amount"), res };
 }
 
-/** A digit key ("0"–"9", "00", "000", ".") into the amount or 지금 스택, whichever has the keypad. */
+/**
+ * A digit key ("0"–"9", "00", "000", ".") into the amount or 지금 스택, whichever has the keypad. 지금 스택
+ * typed with no result picked (and no amount) is 스택: the result is worked out from it.
+ */
 export function typeDigit(d: FastDraft, key: string): FastDraft {
   const f = focusOf(d);
   if (f !== "result" && f !== "stack") return d;
@@ -402,8 +432,13 @@ export function typeDigit(d: FastDraft, key: string): FastDraft {
   const was = d[k] ?? "";
   const t = typeAmount(was, key, f === "result" ? unitOf(d) : stackUnitOf(d));
   if (t === was) return d;
-  // An amount typed after 폴드 / 워크 asks for its sign.
-  const base = f === "result" && (d.res === "fold" || d.res === "walk") ? omit(d, "res") : d;
+  // An amount typed after 폴드 / 워크 / 스택 asks for its sign; 지금 스택 typed with no result is 스택.
+  const base =
+    f === "result" && (d.res === "fold" || d.res === "walk" || d.res === "stack")
+      ? omit(d, "res")
+      : f === "stack" && !d.res && !d.amount
+        ? { ...d, res: "stack" as const }
+        : d;
   return withText(base, k, t);
 }
 
@@ -449,8 +484,8 @@ export function tapBoardSuit(d: FastDraft, s: number): FastDraft {
 
 /**
  * ⌫ on whatever has the keypad: the hand as always (undoTap); the amount's last character, then its
- * sign, then back to the hand; 지금 스택's last character, then back to the board; the last board card's
- * suit, then the card, then back to the result.
+ * sign, then back to the hand; 지금 스택's last character, then back to the board (스택: back to the
+ * result, 스택 let go); the last board card's suit, then the card, then back to the result.
  */
 export function backKey(d: FastDraft): FastDraft {
   switch (focusOf(d)) {
@@ -459,7 +494,8 @@ export function backKey(d: FastDraft): FastDraft {
       if (d.res) return omit(d, "res");
       return setFocus(d, "hand");
     case "stack":
-      return d.stackNow ? withText(d, "stackNow", d.stackNow.slice(0, -1)) : setFocus(d, "board");
+      if (d.stackNow) return withText(d, "stackNow", d.stackNow.slice(0, -1));
+      return d.res === "stack" ? setFocus(omit(d, "res"), "result") : setFocus(d, "board");
     case "board": {
       const marks = d.board ?? [];
       const last = marks[marks.length - 1];
@@ -503,7 +539,7 @@ function textIn(chips: number, unit: Unit, level: number | null): string | null 
 /**
  * A saved 빠른 기록 hand back in the editor, to correct it. A hand of mine also brings its result (the
  * amount in the unit it was typed in, `fastUnit`; a hand without an amount takes `unit` for one typed
- * now), its board as remembered, 지금 스택 (the chips after the hand: its start stack plus the net) in
+ * now; one worked out from 지금 스택, `fastStack`: 스택 again), its board as remembered, 지금 스택 (the chips after the hand: its start stack plus the net) in
  * `stackUnit` when it is exact there to 0.1bb (else in chips), its level and BB ante.
  */
 export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "chips"): FastDraft {
@@ -516,7 +552,9 @@ export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "
   if (isOther(h)) return d;
   const posted = postedBy(h.seat, h.level, h.bbAnte);
   const fold = h.result === "fold" && (h.net === null || h.net === 0 || (posted !== null && h.net === -posted));
-  const res: FastRes | undefined = fold ? "fold" : (h.net ?? 0) > 0 ? "+" : (h.net ?? 0) < 0 ? "-" : h.result === "win" || h.result === "chop" ? "+" : h.result === "lose" ? "-" : h.result === "fold" ? "fold" : undefined;
+  // Worked out from 지금 스택: opened that way, to work it out again.
+  const byStack = h.fastStack === true && h.stack !== null && h.result !== "fold";
+  const res: FastRes | undefined = byStack ? "stack" : fold ? "fold" : (h.net ?? 0) > 0 ? "+" : (h.net ?? 0) < 0 ? "-" : h.result === "win" || h.result === "chop" ? "+" : h.result === "lose" ? "-" : h.result === "fold" ? "fold" : undefined;
   const absNet = res === "+" || res === "-" ? (h.net === null ? null : Math.abs(h.net)) : null;
   const after = h.stack !== null ? h.stack + (h.net ?? 0) : null;
   // Each text in its unit when it is exact there, else in chips: the amount's as typed (or, with none, the unit asked for).
@@ -792,6 +830,8 @@ export interface SessionInfo {
   /** Chips at the start, null: not known. */
   startStack: number | null;
   memo: string;
+  /** Its 칩 업데이트, when any. */
+  checks?: StackCheck[];
 }
 
 /**
@@ -818,29 +858,40 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
   const memo = info?.memo.trim();
   if (memo) lines.push(`메모: ${memo.replace(/\s*\n\s*/g, " / ")}`);
   const startStack = info?.startStack ?? null;
+  const checks = info?.checks ?? [];
   if (!other) {
     const m = sessionMoney(hands);
-    // Where 지금 스택 disagreed with the count (hands missed), the result is the stack's change: the hands logged plus the rest.
-    const missed = missedOf(hands, startStack);
+    // Where 지금 스택 or a 칩 업데이트 disagreed with the count (hands missed, a count put right), the result is the stack's change: the hands logged plus the rest.
+    const missed = missedOf(hands, startStack, checks);
     if (m.withResult || missed) {
       const sign = (n: number) => (n > 0 ? "+" : n < 0 ? "−" : "");
       const chips = (n: number) => `${sign(n)}${Math.abs(n).toLocaleString()}칩`;
       const bbOf = (n: number | null) => (n !== null ? ` (${sign(n)}${Math.abs(Math.round(n * 10) / 10)}bb)` : "");
       const bb = missed ? (m.bb !== null && missed.bb !== null ? m.bb + missed.bb : null) : m.bb;
-      const split = missed ? ` (기록한 핸드 ${chips(m.chips)} · 빠진 핸드 ${chips(missed.chips)})` : "";
+      // 빠진 핸드: the jumps other than 칩 업데이트 and 결과 모름 (shown when there are any, or nothing else to show).
+      const lost = missed ? missedPart(missed).chips : 0;
+      const split = missed
+        ? ` (기록한 핸드 ${chips(m.chips)}${(!missed.upd && !missed.gap) || lost ? ` · 빠진 핸드 ${chips(lost)}` : ""}${missed.gap ? ` · 결과 모름 ${chips(missed.gap.chips)}` : ""}${missed.upd ? ` · 칩 업데이트 ${chips(missed.upd.chips)}` : ""})`
+        : "";
       lines.push(`결과 ${chips(m.chips + (missed?.chips ?? 0))}${bbOf(bb)}${split} · 수익 ${m.won} · 손실 ${m.lost} · 폴드 ${m.folds} · 결과 없음 ${m.noResult}`);
     }
     const first = old.find((h) => h.stack !== null);
     const lastAnchor = [...old].reverse().find((h) => h.stack !== null);
-    const run = startStack !== null ? chipSeries(hands, "chips", startStack) : null;
+    const run = startStack !== null || checks.length ? chipSeries(hands, "chips", startStack, checks) : null;
     if (startStack !== null) {
-      // From the tournament's start stack to now: the graph's run (지금 스택 where typed, the nets between).
+      // From the tournament's start stack to now: the graph's run (지금 스택 and 칩 업데이트 where typed, the nets between).
       lines.push(`시작 스택 ${startStack.toLocaleString()}${run ? ` → 지금 ${Math.round(run.end).toLocaleString()}` : ""}`);
+    } else if (run?.absolute) {
+      lines.push(`스택 ${Math.round(run.start).toLocaleString()} → ${Math.round(run.end).toLocaleString()} (지금 스택·칩 업데이트 기준)`);
     } else if (first && lastAnchor) {
       // From the first stack typed back to the start, to the last one forward: the nets in between.
       const before = old.slice(0, old.indexOf(first)).reduce((t, h) => t + (h.net ?? 0), 0);
       const after = old.slice(old.indexOf(lastAnchor)).reduce((t, h) => t + (h.net ?? 0), 0);
       lines.push(`스택 ${((first.stack as number) - before).toLocaleString()} → ${((lastAnchor.stack as number) + after).toLocaleString()} (지금 스택 기준)`);
+    }
+    if (checks.length) {
+      const steps = checkSteps(hands, startStack, checks).map((c) => `${clock(c.at)} ${chipsText(c.stack)}${c.diff ? ` (${netBoth(c.diff, null)})` : ""}`);
+      lines.push(`칩 업데이트 ${steps.join(" · ")}`);
     }
   }
   if (acted.length) lines.push(`차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · ${over} ${s.by.over} · ${under} ${s.by.under} · 차트 없음 ${s.by.none}`);

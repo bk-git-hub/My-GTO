@@ -1231,6 +1231,12 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fr-amt.hint { color: var(--muted); font-size: 0.78rem; font-weight: 700; }
 /* 50bb or more: amber, a 00 / 000 slip would show here first. */
 .fr-amt.big { color: var(--open); }
+/* 스택's result over its sum, two lines in the same 32px: "+3,600 (+6bb)" over "지금 61,800 − 전 58,200". */
+.fr-amt.two { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding-top: 0; padding-bottom: 0; line-height: 1.08; }
+.fr-amt.two > span, .fr-amt.two > small { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-amt.two > span { font-size: 0.88rem; }
+.fr-amt.two > small { color: var(--muted); font-size: 0.66rem; font-weight: 700; }
+.fr-amt.two.hint > span { font-size: 0.8rem; }
 .fr-amt:disabled { opacity: 0.6; }
 /* Where the keypad types: the gold ring. */
 .fr-amt.on, .fb-slots.on, .fast-stack.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
@@ -1244,12 +1250,15 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-res-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .fast-res-chips.n2 { grid-template-columns: repeat(2, 1fr); }
 .fast-res-chips.n4 { grid-template-columns: repeat(4, 1fr); }
+.fast-res-chips.n5 { grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .fast-res-chips button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 2px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.95rem; font-weight: 800; line-height: 1.12; white-space: nowrap; overflow: hidden; }
 .fast-res-chips small { font-size: 0.7rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
 .fast-res-chips .r-fold, .fast-res-chips .r-walk { background: #1c2532; }
 .fast-res-chips .r-lose.on { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
 .fast-res-chips .r-win.on { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
 .fast-res-chips .r-fold.on, .fast-res-chips .r-walk.on { border-color: var(--accent); }
+/* 스택: the result worked out from 지금 스택 (자동 계산). */
+.fast-res-chips .r-stack.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 .fast-res-chips button.ask { border-color: var(--accent); color: var(--accent); }
 .fast-res-chips button:disabled { opacity: 0.3; }
 .fast-board { display: flex; align-items: center; gap: 6px; height: 44px; }
@@ -1331,6 +1340,23 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-memo { color: #c7d0dd; font-size: 0.82rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .tn-invite { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px dashed var(--accent); color: var(--accent); font-size: 0.82rem; font-weight: 800; text-align: left; }
 .tn-invite small { margin-left: auto; color: var(--muted); font-size: 0.7rem; font-weight: 700; }
+/* The tournament's line with 칩 업데이트 at its right. */
+.tn-meta-row { display: flex; align-items: center; gap: 8px; margin-top: -4px; }
+.tn-meta-row .tn-meta { flex: 1; min-width: 0; margin: 0; }
+.tn-upd { flex: none; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+/* A 칩 업데이트 among the hands: a thin row, not a hand. */
+.fast-check { display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 2px 4px 2px 10px; border-radius: 10px; border: 1px dashed rgba(251, 191, 36, 0.45); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.fast-check .fc-name { color: var(--accent); font-weight: 800; }
+.fast-check .fc-stack { font-weight: 900; }
+.fast-check .fc-diff { color: var(--muted); font-weight: 700; }
+.fast-check .fc-diff.up { color: var(--ok); }
+.fast-check .fc-diff.down { color: var(--err); }
+.fast-check .fast-mini { margin-left: auto; height: 34px; padding: 0 10px; color: var(--muted); }
+/* 칩 업데이트's sheet: what the app counts now. */
+.tn-count { display: flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tn-count b { margin-left: auto; color: var(--text); font-size: 1.05rem; font-weight: 900; }
+.tn-count b small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.tn-count > small { margin-left: auto; font-size: 0.78rem; }
 .tn-cancel { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .tn-cancel button { margin-left: auto; height: 40px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.82rem; font-weight: 800; }
 .tn-all { height: auto; min-height: 32px; padding: 0 2px; font-size: inherit; vertical-align: baseline; }
@@ -1365,6 +1391,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-field textarea { min-height: 64px; color: var(--text); font-size: 16px; }
 .tn-field small { color: var(--muted); font-size: 0.72rem; font-weight: 600; word-break: keep-all; }
 .tn-field small.tn-lv { color: var(--accent); font-weight: 800; }
+.tn-field small.tn-big { color: var(--open); font-weight: 800; }
 .tn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tn-join { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.84rem; font-weight: 700; word-break: keep-all; }
 .tn-join input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }

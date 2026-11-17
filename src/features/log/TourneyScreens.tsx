@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import type { Go } from "../../backNav";
-import { chipSeries, chipsText, MINUS, type Unit } from "./fastChips";
+import { checkSteps, chipSeries, chipsText, MINUS, type Unit } from "./fastChips";
 import { fastStats, fastStore, sessionText } from "./fastLog";
-import { ChipsBlock, copyText, FastItem, FastStatsRow } from "./FastParts";
+import { CheckRow, ChipsBlock, copyText, FastItem, FastStatsRow } from "./FastParts";
 import {
   defaultTitle,
   deleteTourney,
@@ -25,7 +25,7 @@ import {
   type TourneyGroup,
 } from "./fastTourney";
 import { fastActed, handLogStore, type LoggedHand } from "./handLog";
-import { cleanTourneys } from "./tourney";
+import { cleanTourneys, type StackCheck } from "./tourney";
 import { TourneySheet } from "./TourneySheet";
 
 /**
@@ -36,6 +36,7 @@ import { TourneySheet } from "./TourneySheet";
  */
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
+const NO_CHECKS: readonly StackCheck[] = [];
 
 /** Now, or the newest hand's time if the clock is behind it (fixed for the screen: an action moves it on itself). */
 function useNow(hands: LoggedHand[]): number {
@@ -45,7 +46,7 @@ function useNow(hands: LoggedHand[]): number {
 
 /** A group's chips, toned: "+14,200", "−8,500", "본전", or "결과 없음". */
 export function GroupRes({ g }: { g: TourneyGroup }) {
-  const n = groupChips(g.hands, g.t?.startStack ?? null);
+  const n = groupChips(g.hands, g.t?.startStack ?? null, g.t?.checks ?? []);
   if (n === null) return <span className="tn-res none">결과 없음</span>;
   return <span className={`tn-res${n > 0 ? " up" : n < 0 ? " down" : ""}`}>{n === 0 ? "본전" : `${n > 0 ? "+" : MINUS}${chipsText(Math.abs(n))}`}</span>;
 }
@@ -181,11 +182,21 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
   const t = g.t;
   const title = groupTitle(g, hands);
   const total = g.hands.length + g.others;
-  const end = t && t.startStack !== null ? (chipSeries(g.hands, "chips", t.startStack)?.end ?? null) : null;
+  const checks = t?.checks ?? NO_CHECKS;
+  // Its stack at the end, as the graph ends (a 칩 업데이트 with no hand: that stack).
+  const run = t ? chipSeries(g.hands, "chips", t.startStack, checks) : null;
+  const end = run?.absolute ? Math.round(run.end) : checks.length ? checks[checks.length - 1].stack : null;
   const meta =
     `${groupWhen(g, hands)} · ${g.hands.length}핸드` +
-    (t && t.startStack !== null ? ` · 시작 ${chipsText(t.startStack)}${end !== null ? ` → ${chipsText(Math.round(end))}` : ""}` : "") +
+    (t && t.startStack !== null ? ` · 시작 ${chipsText(t.startStack)}${end !== null ? ` → ${chipsText(end)}` : ""}` : end !== null ? ` · 끝 ${chipsText(end)}` : "") +
     (g.others ? ` · 남의 핸드 ${g.others}` : "");
+  // Its 칩 업데이트 among the hands shown, by time.
+  const shown = g.hands.slice(0, limit);
+  const oldest = g.hands.length > limit ? shown[shown.length - 1].createdAt : -Infinity;
+  const rows = [
+    ...shown.map((h) => ({ t: h.createdAt, k: 0 as const, h })),
+    ...(t ? checkSteps(g.hands, t.startStack, checks) : []).filter((c) => c.at >= oldest).map((c) => ({ t: c.at, k: 1 as const, c })),
+  ].sort((a, b) => b.t - a.t || b.k - a.k);
   const memo = t?.memo.trim() ?? "";
   const setView = (u: Unit) => {
     const raw = fastStore.get();
@@ -244,12 +255,16 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
         {memo && <p className="tn-memo">메모: {memo}</p>}
         {g.hands.length ? (
           <>
-            <ChipsBlock hands={g.hands} view={view} onView={setView} startStack={t?.startStack ?? null} title="칩 흐름" />
+            <ChipsBlock hands={g.hands} view={view} onView={setView} startStack={t?.startStack ?? null} checks={checks} title="칩 흐름" />
             <FastStatsRow stats={fastStats(g.hands.filter(fastActed))} other={false} />
             <div className="fast-list">
-              {g.hands.slice(0, limit).map((h) => (
-                <FastItem key={h.id} h={h} view={view} other={false} editing={false} onClick={() => openHand(h, go)} />
-              ))}
+              {rows.map((r) =>
+                r.k === 1 ? (
+                  <CheckRow key={`c${r.c.at}`} c={r.c} />
+                ) : (
+                  <FastItem key={r.h.id} h={r.h} view={view} other={false} editing={false} onClick={() => openHand(r.h, go)} />
+                ),
+              )}
             </div>
             {g.hands.length > limit && (
               <button type="button" className="ghost" onClick={() => setLimit(limit + 100)}>

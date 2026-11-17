@@ -1,6 +1,19 @@
 import type { Go } from "../../backNav";
-import { levelChip, missedOf, sessionMoney } from "./fastChips";
-import { cleanFastState, fastStore, SESSION_GAP_MS, SESSION_IDLE_MS, sessionOf, startEdit, type FastMode, type FastState, type SessionInfo } from "./fastLog";
+import { levelChip, missedOf, oldestFirst, resultOfNet, sessionMoney, stackAt, type StackAt } from "./fastChips";
+import {
+  cleanFastState,
+  fastStore,
+  SESSION_GAP_MS,
+  SESSION_IDLE_MS,
+  sessionOf,
+  startEdit,
+  withFastResult,
+  type FastDraft,
+  type FastLevel,
+  type FastMode,
+  type FastState,
+  type SessionInfo,
+} from "./fastLog";
 import {
   cleanStartClock,
   fastOnly,
@@ -19,7 +32,7 @@ import {
   type LoggedHand,
 } from "./handLog";
 import { durationText, levelAt, parseClock, type LevelEstimate } from "./levelClock";
-import { cleanTourneys, TOURNEY_MEMO_MAX, TOURNEY_NAME_MAX, withoutTourney, withTourney, type Tourney } from "./tourney";
+import { cleanChecks, cleanTourneys, isStackChips, TOURNEY_MEMO_MAX, TOURNEY_NAME_MAX, withoutTourney, withTourney, type StackCheck, type Tourney } from "./tourney";
 
 /**
  * 빠른 기록's tournaments: which one is current, the hands of each, the level clock its start gives, the
@@ -234,7 +247,7 @@ export function tourneyWhen(t: Tourney, hands: LoggedHand[]): string {
 
 /** The tournament's lines for the copy text (sessionText). */
 export function infoOf(t: Tourney, hands: LoggedHand[]): SessionInfo {
-  return { title: tourneyTitle(t, hands), when: `${dateOf(tourneyDay(t, hands))} ${tourneyWhen(t, hands)}`, startStack: t.startStack, memo: t.memo };
+  return { title: tourneyTitle(t, hands), when: `${dateOf(tourneyDay(t, hands))} ${tourneyWhen(t, hands)}`, startStack: t.startStack, memo: t.memo, ...(t.checks?.length ? { checks: t.checks } : {}) };
 }
 
 // ───────────── the groups the 토너먼트 기록 screens list ─────────────
@@ -334,10 +347,10 @@ export function groupFor(kind: "tourney" | "legacy", key: string, ts: Tourney[],
   return t ? groupOf(t, allOf(hands, key), currentTourney(ts, hands, now)) : null;
 }
 
-/** The chips of a group's hands: Σ net plus the chips 지금 스택 shows beyond them (from the start stack when known); null with no result at all. */
-export function groupChips(hands: LoggedHand[], startStack: number | null): number | null {
+/** The chips of a group's hands: Σ net plus the chips 지금 스택 and 칩 업데이트 show beyond them (from the start stack when known); null with no result at all. */
+export function groupChips(hands: LoggedHand[], startStack: number | null, checks: readonly StackCheck[] = []): number | null {
   const m = sessionMoney(hands);
-  const missed = missedOf(hands, startStack);
+  const missed = missedOf(hands, startStack, checks);
   if (!m.withResult && !missed) return null;
   return m.chips + (missed?.chips ?? 0);
 }
@@ -359,6 +372,63 @@ export function groupWhen(g: TourneyGroup, hands: LoggedHand[]): string {
 export function fastSession(cur: Tourney | null, hands: LoggedHand[], now: number, mode: FastMode = "mine"): LoggedHand[] {
   return cur ? tourneyHands(hands, cur.id, mode) : sessionOf(hands.filter((h) => !h.tourney), now, mode);
 }
+
+/**
+ * My stack before a hand of mine (stackAt), for 스택: a new one at `now` (the current tournament's hands, its
+ * start stack and 칩 업데이트; none current: today's hands logged before tournaments), or `edit`, a saved hand
+ * being corrected (its own tournament's, else its group from before tournaments, up to its time, itself left out).
+ */
+export function stackBefore(s: Pick<HandLogState, "hands" | "tourneys">, edit: LoggedHand | null, now: number): StackAt {
+  const ts = cleanTourneys(s.tourneys);
+  if (edit) {
+    const t = edit.tourney ? recordOf(edit.tourney, ts, s.hands) : null;
+    const own = edit.tourney ? tourneyHands(s.hands, edit.tourney) : (legacyFor(edit.id, s.hands)?.hands ?? []);
+    return stackAt(own, t?.startStack ?? null, t?.checks ?? [], edit.createdAt, edit.id);
+  }
+  const cur = currentTourney(ts, s.hands, now);
+  return stackAt(fastSession(cur, s.hands, now), cur?.startStack ?? null, cur?.checks ?? []);
+}
+
+/**
+ * The draft's hand as 저장 or an action saves it (withFastResult; null: it waits), with my stack before it
+ * for 스택 (stackBefore) read from the store at `now`: a corrected hand's (`edit`) own, else the current
+ * tournament's. `before` is returned too, for why a save waits (blockOf).
+ */
+export function fastResultNow(made: LoggedHand, d: FastDraft, lv: FastLevel, ante: boolean, edit: LoggedHand | null, now: number): { hand: LoggedHand | null; before: number | null } {
+  const before = stackBefore(handLogStore.get(), edit, now).chips;
+  return { hand: withFastResult(made, d, lv, ante, before), before };
+}
+
+/**
+ * Every hand of tournament `id` worked out by 스택 (fastStack) worked out again from what is on file before it
+ * now, oldest first: what it says is my stack after it (its stack plus its net: 지금 스택 as typed), so when
+ * something before it changes (a hand corrected or deleted, a 칩 업데이트 taken off, the start stack set) its
+ * result follows, rather than the difference turning up as a hand missed. The stack before it not known: no
+ * result, 지금 스택 kept as its stack. Only the hands that change are touched (their updatedAt moved on to
+ * `now`); the same state back when none does. Run twice, it changes nothing more.
+ */
+export function restack(s: HandLogState, id: string | undefined, now: number): HandLogState {
+  if (!id) return s;
+  const t = recordOf(id, cleanTourneys(s.tourneys), s.hands);
+  let own = tourneyHands(s.hands, id);
+  const changed = new Map<string, LoggedHand>();
+  for (const { id: hid } of oldestFirst(own)) {
+    const h = own.find((x) => x.id === hid) as LoggedHand;
+    if (h.fastStack !== true || h.stack === null || h.result === "fold") continue;
+    const after = h.stack + (h.net ?? 0);
+    const before = stackAt(own, t?.startStack ?? null, t?.checks ?? [], h.createdAt, h.id).chips;
+    const net = before === null ? null : after - before;
+    const stack = before ?? after;
+    if (net === h.net && stack === h.stack) continue;
+    const next: LoggedHand = { ...h, net, result: net === null ? null : resultOfNet(net), stack, updatedAt: Math.max(now, h.updatedAt) };
+    changed.set(h.id, next);
+    own = own.map((x) => (x.id === h.id ? next : x));
+  }
+  return changed.size ? { ...s, hands: s.hands.map((x) => changed.get(x.id) ?? x) } : s;
+}
+
+/** restack for each of the tournaments `ids`. */
+export const restackAll = (s: HandLogState, ids: Iterable<string | undefined>, now: number): HandLogState => [...new Set(ids)].reduce((x, id) => restack(x, id, now), s);
 
 // ───────────── the sheet's fields ─────────────
 
@@ -534,7 +604,8 @@ export function editTourney(id: string, f: TourneyFields, now: number = Date.now
   void _a;
   void _s;
   const next: Tourney = { ...rest, name: v.name, memo: v.memo, start: v.start ?? t.start, ...(v.start !== null ? { startSet: true as const } : {}), startStack: v.startStack, updatedAt: now };
-  return write(withTourney(prev, next), prev);
+  // A start stack set or changed: the hands by 스택 work from it.
+  return write(restack(withTourney(prev, next), id, now), prev);
 }
 
 /**
@@ -554,6 +625,51 @@ export function deleteTourney(id: string): boolean {
   const prev = handLogStore.get();
   if (prev.hands.some((h) => h.tourney === id) || !cleanTourneys(prev.tourneys).some((t) => t.id === id)) return false;
   return write(withoutTourney(prev, id), prev);
+}
+
+/**
+ * 칩 업데이트: my stack counted at `now`, on tournament `id` (a stub made from its hands is stored by it). A
+ * 칩 업데이트 with no hand of mine logged in it since (a count typed again: a typo, a rebuy just after) is put
+ * right in place rather than added. False for a stack that isn't 0 … 999,999,999 chips, or a refused write.
+ */
+export function checkStack(id: string, stack: number, now: number = Date.now()): boolean {
+  if (!isStackChips(stack)) return false;
+  const prev = handLogStore.get();
+  const t = recordOf(id, cleanTourneys(prev.tourneys), prev.hands);
+  if (!t) return false;
+  const was = cleanChecks(t.checks);
+  const last = was[was.length - 1];
+  const redo = !!last && !tourneyHands(prev.hands, id).some((h) => h.createdAt > last.at);
+  const checks = cleanChecks([...(redo ? was.slice(0, -1) : was), { at: Math.max(now, last?.at ?? -Infinity), stack }]);
+  return write(restack(withTourney(prev, { ...t, checks, updatedAt: Math.max(now, t.updatedAt) }), id, now), prev);
+}
+
+/** The 칩 업데이트 of tournament `id` made at `at` taken off. False when there is none such, or the write was refused. */
+export function removeCheck(id: string, at: number, now: number = Date.now()): boolean {
+  const prev = handLogStore.get();
+  const t = cleanTourneys(prev.tourneys).find((x) => x.id === id);
+  const was = cleanChecks(t?.checks);
+  if (!t || !was.some((c) => c.at === at)) return false;
+  const { checks: _c, ...rest } = t;
+  void _c;
+  const left = was.filter((c) => c.at !== at);
+  // The hands by 스택 after it work from what is on file without it.
+  return write(restack(withTourney(prev, { ...rest, ...(left.length ? { checks: left } : {}), updatedAt: Math.max(now, t.updatedAt) }), id, now), prev);
+}
+
+/** The 칩 업데이트 that could be put right in place (checkStack): the last one, when no hand of mine has been logged in tournament `t` since. */
+export function openCheck(t: Tourney, hands: LoggedHand[]): StackCheck | null {
+  const last = t.checks?.[t.checks.length - 1];
+  return last && !tourneyHands(hands, t.id).some((h) => h.createdAt > last.at) ? last : null;
+}
+
+/**
+ * What a 칩 업데이트 on tournament `t` now is measured against: the app's count (stackAt: its start stack or the
+ * last stack on file, plus every result since), the 칩 업데이트 it would put right in place (openCheck) left out.
+ */
+export function countFor(t: Tourney, hands: LoggedHand[]): StackAt {
+  const open = openCheck(t, hands);
+  return stackAt(tourneyHands(hands, t.id), t.startStack, (t.checks ?? []).filter((c) => c !== open));
 }
 
 /** The tournament started or resumed last before `id`, among the others (any age), or null. */

@@ -5,6 +5,7 @@ import { hasChips, type FastStats } from "./fastLog";
 import { MarksText, MoneyHead } from "./FastResult";
 import { VERDICT_MARK } from "./fastVerdict";
 import { fastActed, fastActText, fastVerdictOf, holeClass, type LoggedHand } from "./handLog";
+import type { StackCheck } from "./tourney";
 
 /**
  * The pieces 빠른 기록's list of hands is made of, shared by its own screen and the tournament screens: a
@@ -12,6 +13,8 @@ import { fastActed, fastActText, fastVerdictOf, holeClass, type LoggedHand } fro
  */
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
+const NO_CHECKS: readonly StackCheck[] = [];
+
 /** "21:05". */
 export const clock = (t: number) => {
   const d = new Date(t);
@@ -22,11 +25,15 @@ export const clock = (t: number) => {
 const shortVerdict = (t: string) =>
   t.replace(/ · 솔버 \d+bb 기준$/, "").replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
 
-/** A list row's chips: "+12,000" / "−6bb" in the unit shown, 폴드 (with the blind it cost: "폴드 −200"), 본전, or – for none. */
+/**
+ * A list row's chips: "+12,000" / "−6bb" in the unit shown, 폴드 (with the blind it cost: "폴드 −200"), 본전,
+ * my stack after it when only that is on file ("스택 90,000": 스택 with the stack before unknown), or – for none.
+ */
 function netShown(h: LoggedHand, view: Unit): string {
   if (h.result === "fold") return h.net ? `폴드 ${signedText(h.net, view, h.level)}` : "폴드";
   if (h.net !== null && h.net !== 0) return signedText(h.net, view, h.level);
   if (h.net === 0) return "본전";
+  if (h.result === null && h.stack !== null) return `스택 ${h.stack.toLocaleString()}`;
   return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : "–";
 }
 
@@ -56,13 +63,14 @@ export async function copyText(text: string): Promise<boolean> {
 
 /**
  * One hand in the list. 빠른 기록's chips and board: the hand, its seat, the chips (in the unit shown), the
- * board as remembered (a decision's mark at the end). Else (another player's, or an old hand with no chips):
- * its action and the chart's verdict. `editing`: the hand open in the editor (ringed).
+ * board as remembered (a decision's mark at the end). Else (another player's, or an old hand with a decision
+ * and no chips): its action and the chart's verdict. `editing`: the hand open in the editor (ringed).
  */
 export function FastItem({ h, view, other, editing, onClick }: { h: LoggedHand; view: Unit; other: boolean; editing: boolean; onClick: () => void }) {
   const v = fastVerdictOf(h);
   const k = v?.kind ?? "none";
-  if (!other && hasChips(h)) {
+  // Mine without a decision on file: its chips row even with nothing typed (never a 워크 it wasn't).
+  if (!other && (hasChips(h) || !fastActed(h))) {
     const net = h.net ?? 0;
     return (
       <button type="button" className={`fast-item res v-${k}${editing ? " editing" : ""}`} onClick={onClick}>
@@ -108,13 +116,47 @@ export function FastStatsRow({ stats, other }: { stats: FastStats; other: boolea
 }
 
 /**
- * The hands' total with the 칩 | bb toggle and the chip graph (from the tournament's start stack when known),
- * or what to do for one. `title` names the graph ("오늘 칩 흐름", a tournament's "칩 흐름").
+ * One 칩 업데이트 in the list, among the hands by its time: "21:40 칩 업데이트 65,000 +3,200" (what it changed
+ * from the count; nothing when that wasn't known), with 지우기 when it can be taken off here.
  */
-export function ChipsBlock({ hands, view, onView, startStack = null, title = "오늘 칩 흐름" }: { hands: LoggedHand[]; view: Unit; onView: (u: Unit) => void; startStack?: number | null; title?: string }) {
+export function CheckRow({ c, onRemove }: { c: StackCheck & { diff: number | null }; onRemove?: () => void }) {
+  return (
+    <div className="fast-check">
+      <span className="fi-time">{clock(c.at)}</span>
+      <b className="fc-name">칩 업데이트</b>
+      <b className="fc-stack">{c.stack.toLocaleString()}</b>
+      {c.diff ? <span className={`fc-diff${c.diff > 0 ? " up" : " down"}`}>{signedText(c.diff, "chips")}</span> : null}
+      {onRemove && (
+        <button type="button" className="fast-mini" aria-label={`${clock(c.at)} 칩 업데이트 ${c.stack.toLocaleString()} 지우기`} onClick={onRemove}>
+          지우기
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The hands' total with the 칩 | bb toggle and the chip graph (from the tournament's start stack when known,
+ * its 칩 업데이트 as adjustments), or what to do for one. `title` names the graph ("오늘 칩 흐름", a tournament's "칩 흐름").
+ */
+export function ChipsBlock({
+  hands,
+  view,
+  onView,
+  startStack = null,
+  checks = NO_CHECKS,
+  title = "오늘 칩 흐름",
+}: {
+  hands: LoggedHand[];
+  view: Unit;
+  onView: (u: Unit) => void;
+  startStack?: number | null;
+  checks?: readonly StackCheck[];
+  title?: string;
+}) {
   const money = useMemo(() => sessionMoney(hands), [hands]);
-  const series = useMemo(() => chipSeries(hands, view, startStack), [hands, view, startStack]);
-  const missed = useMemo(() => missedOf(hands, startStack), [hands, startStack]);
+  const series = useMemo(() => chipSeries(hands, view, startStack, checks), [hands, view, startStack, checks]);
+  const missed = useMemo(() => missedOf(hands, startStack, checks), [hands, startStack, checks]);
   return series ? (
     <>
       <MoneyHead money={money} missed={missed} view={view} onView={onView} />

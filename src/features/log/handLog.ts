@@ -94,6 +94,11 @@ export interface LoggedHand {
   /** 빠른 기록: the amount (`net`) was typed in bb, so a correction opens it in bb. Only with `fast`; absent: chips. */
   fastUnit?: "bb";
   /**
+   * 빠른 기록: the result was worked out from 지금 스택 (스택: my chips after the hand less my stack before it;
+   * the stack before unknown: no result), so a correction opens it that way and works it out again. Only with `fast`.
+   */
+  fastStack?: true;
+  /**
    * 빠른 기록 / 남의 핸드: the tournament (Tourney.id, tourney.ts) the hand was logged in. Absent: logged before
    * tournaments existed (grouped by time gaps under 이전 기록). Never set by the table flow.
    */
@@ -227,6 +232,13 @@ export function tidyGuess(h: LoggedHand): LoggedHand {
   return { ...rest, ...(guess ? { guess } : {}), ...(holeKind ? { holeKind } : {}) };
 }
 
+/** 빠른 기록's marks out of step: the flag other than true, or a spot, a unit or a 스택 mark without it or not a known one. */
+const badFastMarks = (h: LoggedHand): boolean =>
+  ("fast" in h && h.fast !== true) ||
+  ("fastSpot" in h && (h.fast !== true || !isFastSpot(h.fastSpot))) ||
+  ("fastUnit" in h && (h.fast !== true || h.fastUnit !== "bb")) ||
+  ("fastStack" in h && (h.fast !== true || h.fastStack !== true));
+
 /**
  * The hand with every derived marker in step with the rest: tidyGuess, my seat only in another player's
  * hand and never the subject's seat or one missing at this table size, an estimated level only with a
@@ -245,10 +257,10 @@ export function tidyHand(h: LoggedHand): LoggedHand {
     void _l;
     next = rest;
   }
-  // 빠른 기록's marks: the flag only as true, its spot and its unit only with it and only known ones.
-  if (("fast" in next && next.fast !== true) || ("fastSpot" in next && (next.fast !== true || !isFastSpot(next.fastSpot))) || ("fastUnit" in next && (next.fast !== true || next.fastUnit !== "bb"))) {
-    const { fast, fastSpot, fastUnit, ...rest } = next;
-    next = fast === true ? { ...rest, fast, ...(isFastSpot(fastSpot) ? { fastSpot } : {}), ...(fastUnit === "bb" ? { fastUnit } : {}) } : rest;
+  // 빠른 기록's marks: the flag only as true, its spot, its unit and its 스택 mark only with it and only known ones.
+  if (badFastMarks(next)) {
+    const { fast, fastSpot, fastUnit, fastStack, ...rest } = next;
+    next = fast === true ? { ...rest, fast, ...(isFastSpot(fastSpot) ? { fastSpot } : {}), ...(fastUnit === "bb" ? { fastUnit } : {}), ...(fastStack === true ? { fastStack } : {}) } : rest;
   }
   // The tournament it was logged in: only a usable id.
   if ("tourney" in next && !isTourneyId(next.tourney)) {
@@ -761,23 +773,29 @@ export interface Deletion {
 }
 
 /**
- * Delete the hands `ids` from the log (the rest of the store untouched). A pointer to one of them (the
- * hand put aside from 이어서) is let go too. Null when none of them was on file.
+ * Delete the hands `ids` from the log (the rest of the store untouched, but for what `also` changes in the
+ * same write: 빠른 기록's hands by 스택 after them). A pointer to one of them (the hand put aside from 이어서)
+ * is let go too. Null when none of them was on file.
  */
-export function deleteHands(ids: Iterable<string>): Deletion | null {
+export function deleteHands(ids: Iterable<string>, also?: (s: HandLogState) => HandLogState): Deletion | null {
   const prev = handLogStore.get();
   const { hands, removed } = removeHands(prev.hands, ids);
   if (!removed.length) return null;
-  handLogStore.set({ ...prev, hands });
+  const next: HandLogState = { ...prev, hands };
+  handLogStore.set(also ? also(next) : next);
   const aside = asideId !== null && removed.some((r) => r.hand.id === asideId) ? asideId : null;
   if (aside) asideId = null;
   return { removed, aside };
 }
 
-/** 되돌리기: the deleted hands back in their places. False if the browser refused to store them (they stay on screen until reload). */
-export function undoDeletion(d: Deletion): boolean {
+/**
+ * 되돌리기: the deleted hands back in their places (`also`: the rest of the same write, as for deleteHands).
+ * False if the browser refused to store them (they stay on screen until reload).
+ */
+export function undoDeletion(d: Deletion, also?: (s: HandLogState) => HandLogState): boolean {
   const prev = handLogStore.get();
-  const ok = handLogStore.set({ ...prev, hands: restoreHands(prev.hands, d.removed) });
+  const next: HandLogState = { ...prev, hands: restoreHands(prev.hands, d.removed) };
+  const ok = handLogStore.set(also ? also(next) : next);
   if (d.aside && asideId === null) asideId = d.aside;
   if (ok) requestPersistence();
   return ok;
@@ -1258,7 +1276,7 @@ const OLD_EXPORT_KIND = "pubaz-hand-log";
 
 /**
  * The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess, fast, fastSpot, fastUnit,
- * tourney), the start times and 빠른 기록's tournaments. An older app reading it drops the tournaments and the
+ * fastStack, tourney), the start times and 빠른 기록's tournaments (with their 칩 업데이트). An older app reading it drops the tournaments and the
  * hands' `tourney` (it loses only the grouping), so the file keeps its marker and version.
  */
 export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[], tourneys?: Tourney[]): string {
@@ -1332,7 +1350,14 @@ export function sanitize(x: unknown): LoggedHand | null {
     ...(guess ? { guess } : {}),
     ...(isHoleKind(r.holeKind) ? { holeKind: r.holeKind } : {}),
     ...(r.levelGuess === true && level !== null ? { levelGuess: true as const } : {}),
-    ...(r.fast === true ? { fast: true as const, ...(isFastSpot(r.fastSpot) ? { fastSpot: r.fastSpot } : {}), ...(r.fastUnit === "bb" ? { fastUnit: "bb" as const } : {}) } : {}),
+    ...(r.fast === true
+      ? {
+          fast: true as const,
+          ...(isFastSpot(r.fastSpot) ? { fastSpot: r.fastSpot } : {}),
+          ...(r.fastUnit === "bb" ? { fastUnit: "bb" as const } : {}),
+          ...(r.fastStack === true ? { fastStack: true as const } : {}),
+        }
+      : {}),
     ...(isTourneyId(r.tourney) ? { tourney: r.tourney } : {}),
   };
   return tidyHand(hand);
@@ -1497,7 +1522,7 @@ function needsSanitize(x: unknown): boolean {
   if ("kind" in h && h.kind !== "other") return true;
   if ("mySeat" in h && (h.kind !== "other" || typeof h.mySeat !== "string" || h.mySeat === h.seat || !positionsFor(h.players).includes(h.mySeat))) return true;
   if ("levelGuess" in h && (h.levelGuess !== true || h.level === null)) return true;
-  if (("fast" in h && h.fast !== true) || ("fastSpot" in h && (h.fast !== true || !isFastSpot(h.fastSpot))) || ("fastUnit" in h && (h.fast !== true || h.fastUnit !== "bb"))) return true;
+  if (badFastMarks(h)) return true;
   if (("guess" in h || "holeKind" in h) && (tidyGuess(h) !== h || ("holeKind" in h && !isHoleKind(h.holeKind)))) return true;
   if ("tourney" in h && !isTourneyId(h.tourney)) return true;
   return false;
