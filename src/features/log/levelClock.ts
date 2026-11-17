@@ -146,6 +146,23 @@ export function levelAt(startMs: number, atMs: number, schedule: LevelRow[] = PU
   return r;
 }
 
+/** Minutes from the tournament's start to the start of `level` (the breaks before it included), or null off the schedule. */
+export function levelStartMinutes(level: number, schedule: LevelRow[] = PUB_SCHEDULE, breaks: BreakRow[] = PUB_BREAKS): number | null {
+  const seg = timeline(schedule, breaks).find((s) => s.kind === "level" && s.level === level);
+  return seg ? seg.start / MIN : null;
+}
+
+/**
+ * The level running at `atMs` when `level` was running at `pickMs`, taking the pick as that level's
+ * start (so it never runs ahead of what was said): the schedule moves it on from there, breaks
+ * included (in a break: the level just played). `level` itself before the pick or off the schedule.
+ */
+export function levelSince(level: number, pickMs: number, atMs: number, schedule: LevelRow[] = PUB_SCHEDULE, breaks: BreakRow[] = PUB_BREAKS): number {
+  const off = levelStartMinutes(level, schedule, breaks);
+  if (off === null || !Number.isFinite(pickMs) || !Number.isFinite(atMs) || atMs <= pickMs) return level;
+  return levelAt(pickMs - off * MIN, atMs, schedule, breaks).level ?? level;
+}
+
 /** The blinds of a level in a schedule, or null when the schedule doesn't have it. */
 export function levelRow(level: number | null, schedule: LevelRow[] = PUB_SCHEDULE): LevelRow | null {
   return schedule.find((r) => r.level === level) ?? null;

@@ -206,8 +206,10 @@ export function LevelRow(props: {
   onToggle: () => void;
   editRef?: Ref<HTMLDivElement>;
   unknownLabel?: string;
+  /** 레벨 모름's second line: what happens without a level (the table flow counts in bb). */
+  unknownSub?: string;
 }) {
-  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름" } = props;
+  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름", unknownSub = "bb로 계산" } = props;
   const starts = handLogStore.use();
   const est = levelEstimateAt(h.createdAt, starts);
   const estLv = estimatedLevel(est);
@@ -289,7 +291,7 @@ export function LevelRow(props: {
           }}
         >
           <b>{unknownLabel}</b>
-          <small>bb로 계산</small>
+          <small>{unknownSub}</small>
         </button>
         {BLIND_LEVELS.map(([lv, sb, big]) => (
           <button key={lv} type="button" role="option" aria-selected={h.level === lv} className={`${h.level === lv ? "on" : ""}${estLv === lv ? " est" : ""}`} onClick={() => onLevel(lv, false)}>
