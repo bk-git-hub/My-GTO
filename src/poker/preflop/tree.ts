@@ -12,9 +12,8 @@ import type { OpenJamSetup } from "../openjam";
  * ------------
  * Configuration
  *  - `StageConfig`: every size and switch of one tree (§2.0).
- *  - `STAGE_PRESETS` / `stageConfig(id, overrides?)`: the stages of §1.2 ("100bb-2.2", "100bb-3", "55bb-2.2"
- *    required; "35bb-2" and the push/fold "10bb-pf" optional; "25bb-2" (cold4 "none"), "20bb-2", "15bb-2" check only
- *    until the low-SPR calibration).
+ *  - `STAGE_PRESETS` / `stageConfig(id, overrides?)`: the stages of §1.2
+ *    ("100bb-2.2", "100bb-3", "55bb-2.2", "35bb-2" optional, "25bb-2" check only).
  *  - `pushFoldConfig(setup)`: mode "pushfold", the game of `solvePushFold` for the same `TableSetup`.
  *  - `openJamConfig(setup)`: mode "openjam", the game of `solveOpenJam` (valuation "oneSided").
  *  - `openOr3BetConfig(overrides?)`: the small 100bb test tree of §5.1 (no cold calls, overcalls,
@@ -103,15 +102,14 @@ export interface StageConfig {
   valuation: "modelB" | "oneSided" | "equity";
 }
 
-export type StageId = "100bb-2.2" | "100bb-3" | "55bb-2.2" | "35bb-2" | "25bb-2" | "20bb-2" | "15bb-2" | "10bb-pf";
+export type StageId = "100bb-2.2" | "100bb-3" | "55bb-2.2" | "35bb-2" | "25bb-2";
 
 export interface StagePreset {
   id: StageId;
-  /** Korean label (tree.ts's own; the shipped labels are export.ts's STAGE_LABELS). */
+  /** Korean label shown in the chart set ("" for the stage that is solved but never shipped). */
   label: string;
   /** required: the generator fails without it; optional: dropped with a warning if a gate fails;
-   *  check: solved, gated, exported in memory and checked (PF-OVERLAP, sizes, the data checks) but never written to
-   *  the app's data, e.g. the short stages until the low-SPR realization is calibrated (§1.2). */
+   *  check: solved only for the PF-OVERLAP comparison with shortNash 25bb. */
   status: "required" | "optional" | "check";
   cfg: StageConfig;
 }
@@ -150,16 +148,7 @@ export const STAGE_PRESETS: readonly StagePreset[] = [
   { id: "100bb-3", label: "100bb · 3bb 오픈 (펍 사이즈)", status: "required", cfg: stage(100, 3, 3.5, 3.5, 3.5) },
   { id: "55bb-2.2", label: "55bb · 2.2bb 오픈", status: "required", cfg: stage(55, 2.2, 3, 3.5, 4) },
   { id: "35bb-2", label: "35bb · 2bb 오픈", status: "optional", cfg: stage(35, 2, 2.5, 3, 4) },
-  // The short stages (§1.2): solved and checked, not shipped until the low-SPR realization is calibrated (the
-  // cal-srp-btn-bb-20 / -15 packs and a refit). 25bb has no cold jam behind a 3-bet by preset: with them two solves
-  // land in different equilibria (one where UTG+1 and LJ only jam, §2.8). At 20bb and below every 3-bet is a jam,
-  // so there is no cold node behind one and cold4 changes nothing.
-  { id: "25bb-2", label: "25bb · 2bb 오픈", status: "check", cfg: { ...stage(25, 2, 2.5, 3, 4), cold4: "none" } },
-  { id: "20bb-2", label: "20bb · 2bb 오픈", status: "check", cfg: stage(20, 2, 2.5, 3, 4) },
-  { id: "15bb-2", label: "15bb · 2bb 오픈", status: "check", cfg: stage(15, 2, 2.5, 3, 4) },
-  // Push or fold, valued by showdown equity only: no flop, so no realization model (§1.2, §6.6). The size fields are
-  // never read in this mode.
-  { id: "10bb-pf", label: "10bb · 푸시/폴드", status: "optional", cfg: { ...stage(10, 2, 2.5, 3, 4), mode: "pushfold", valuation: "equity" } },
+  { id: "25bb-2", label: "", status: "check", cfg: stage(25, 2, 2.5, 3, 4) },
 ];
 
 /** A fresh copy of a stage's config, with optional overrides (ablations, the cold4 fallback). */
