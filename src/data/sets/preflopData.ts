@@ -9,13 +9,13 @@ import type { PreflopStage } from "./preflopTypes";
  * Stages written by a development run (--no-sensitivity, --no-twostart or --ignore-gates): their confidence comes
  * only from the checks that ran and their `move` is 0. Empty in a release run.
  */
-export const PREFLOP_DRAFT_STAGES: string[] = ["100bb-2.2","100bb-3","55bb-2.2","35bb-2"];
+export const PREFLOP_DRAFT_STAGES: string[] = [];
 
 export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "100bb-2.2",
   "label": "100bb · 오픈 2.2bb",
-  "description": "모두 100bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 100bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님).",
   "stack": 100,
   "open": 2.2,
   "sizes": {
@@ -48,47 +48,47 @@ export const PREFLOP_STAGES: PreflopStage[] = [
   },
   "occThresholdCold": 1,
   "brGainMbb": [
-   0.374,
-   0.513,
-   0.829,
-   0.461,
-   0.451,
-   0.303,
-   0.29,
-   0.392,
-   0.899
+   0.46,
+   0.494,
+   0.803,
+   0.429,
+   0.474,
+   0.326,
+   0.33,
+   0.43,
+   0.948
   ],
-  "nashConvMbb": 4.513,
-  "snappedGainMbb": 1.792,
+  "nashConvMbb": 4.694,
+  "snappedGainMbb": 2.122,
   "ev": [
-   0.1568,
-   0.177,
-   0.2004,
+   0.1564,
+   0.1768,
+   0.2002,
    0.2242,
-   0.2557,
-   0.2962,
-   0.357,
-   -0.1451,
-   -1.3909
+   0.2558,
+   0.2966,
+   0.3576,
+   -0.1449,
+   -1.3914
   ],
   "diag": {
-   "evSum": 0.1312,
+   "evSum": 0.1313,
    "frozenOccPct": 0.686,
-   "negativeShares": 12423
+   "negativeShares": 12974
   },
   "model": {
    "id": "modelB-rank9",
-   "fitHash": "4acfad77aa3500701d753c64e54abaaa38d2e0ce1a6b596e4d397a4210b83e74",
+   "fitHash": "2862daa7a90faa1cded8a882a0d6b65a25da69be37cd4e848879b33f50d73c23",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
     "srp-btn-bb-100": {
      "version": 1,
-     "flops": 1476
+     "flops": 1755
     },
     "pub-srp-btn-bb-55": {
      "version": 2,
-     "flops": 1457
+     "flops": 1755
     }
    }
   },
@@ -101,20 +101,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......3..3........3....................3...3..........3..3..........................3...................................................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": "..........3........3....................3...3..........3..3..........................3...................................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "77+, A9s+, K9s+, QTs+, J9s+, T8s+, 98s, AJo+, KJo+, QJo:0.9, Q9s:0.7, A5s:0.5, 66:0.2, A8s:0.2"
+      "range": "77+, A9s+, K9s+, QTs+, J9s+, T8s+, 98s, AJo+, KJo+, QJo:0.9, Q9s:0.7, A5s:0.5, A8s:0.2, 66:0.1"
      }
     ]
    },
@@ -124,20 +124,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 85.67,
+    "occ": 85.719,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.8,
     "close": "...................33...........3............3........3....3............3..........................3............3........................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A8s+, K8s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, 87s:0.8, A5s:0.6, A7s:0.2, ATo:0.2, KTo:0.2, JTo:0.1"
+      "range": "66+, A8s+, K8s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, 87s:0.9, A5s:0.6, A7s:0.3, KTo:0.2, ATo:0.1, JTo:0.1"
      }
     ]
    },
@@ -147,20 +147,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 71.869,
+    "occ": 71.911,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.4,
     "close": ".......33.3........3.3..........3...................3.3...33............3..........................3..........................3..........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A7s+, K8s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, A5s:0.7, 87s:0.7, KTo:0.6, K7s:0.5, JTo:0.5, J8s:0.4"
+      "range": "66+, A7s+, K8s+, Q8s+, J9s+, T8s+, 98s, ATo+, KJo+, QJo, A5s:0.7, 87s:0.7, KTo:0.7, K7s:0.6, J8s:0.4, JTo:0.4"
      }
     ]
    },
@@ -170,20 +170,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 58.601,
+    "occ": 58.621,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3...........33..........3............3.......333...3............3............3.............3.....................................................................",
+    "confidence": "high",
+    "move": 2.6,
+    "close": "........3...........33..........3............3.......33....3............3............3.............3.....................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A5s+, K7s+, Q8s+, J8s+, T8s+, 97s+, 87s, ATo+, KTo+, QTo+, JTo, A4s:0.2"
+      "range": "55+, A5s+, K7s+, Q8s+, J8s+, T8s+, 97s+, 87s, ATo+, KTo+, QTo+, JTo:0.9, A4s:0.2"
      }
     ]
    },
@@ -193,20 +193,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 45.854,
+    "occ": 45.888,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.9,
     "close": "...........3..........33.........333.......................3.....3.33....3....3.......3..........................3.............3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A3s+, K5s+, Q7s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, A9o+, KTo+, QTo+, JTo, T9o:0.8, K9o:0.2, A2s:0.1, J7s:0.1"
+      "range": "55+, A3s+, K5s+, Q7s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, A9o+, KTo+, QTo+, JTo, T9o:0.7, J7s:0.3, K9o:0.2, A2s:0.1"
      }
     ]
    },
@@ -216,20 +216,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 33.951,
+    "occ": 33.962,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.6,
     "close": "........................33.........33..........3............3.................33...3........3.....................3.......................................3..............",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "44+, A2s+, K3s+, Q5s+, J6s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, A8o+, K8o+, Q9o+, J9o+, T9o, J5s:0.2, 85s:0.2, A7o:0.1"
+      "range": "44+, A2s+, K3s+, Q5s+, J6s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, A8o+, K8o+, Q9o+, J9o+, T9o, J5s:0.3, 85s:0.2, A7o:0.2"
      }
     ]
    },
@@ -239,20 +239,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 22.146,
+    "occ": 22.116,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.6,
     "close": "...................................................3..........3.3..........3............3.....3333......3.3....3...3.............3.3.....................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T4s+, 95s+, 84s+, 74s+, 63s+, 53s+, 43s, A5o+, K5o+, Q6o+, J7o+, T8o+, 98o, 87o, T3s:0.5, A4o:0.4"
+      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T4s+, 95s+, 84s+, 74s+, 63s+, 53s+, 43s, A5o+, K5o+, Q6o+, J7o+, T8o+, 98o, 87o, T3s:0.9, A4o:0.5"
      }
     ]
    },
@@ -262,26 +262,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28.3%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 10.164,
+    "occ": 10.111,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3..3...33.3......3..33..3.....33.......3...33......3.33.33.......333.3.......33..........3.33..33.3..533.....33..35.3...555.3.3.....555555.35....55.....35...55........",
+    "confidence": "low",
+    "move": 28.3,
+    "close": "..3..3..333.3......3..33..3.....33.......3...33......3.3..33.......333.3......333..........3.33..33.3..53....3.33..35.3...555.3.3.....555555.35....55.....35...55........",
     "actions": [
      {
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, 33-22, AQs-A9s, A2s, K5s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-72s, 63s-62s, 42s, 32s, AJo-A9o, A7o-A2o, KTo, K4o-K2o, Q5o-Q2o, J9o, J6o-J2o, T9o, T6o-T3o, 96o-95o, 85o, 75o, 54o, KK:0.9, 99:0.9, A6s:0.9, 97s:0.9, A8o:0.9, 86o:0.9, 65o:0.8, A8s:0.7, T8o:0.7, 98o:0.7, 52s:0.6, 97o:0.6, 44:0.5, KJo:0.5, Q6o:0.5, AKs:0.4, A7s:0.4, K6s:0.4, 64s:0.4, KQo:0.4, J8o:0.4, 88:0.3, T7o:0.3, JJ:0.2, A3s:0.2, KQs:0.2, K7s:0.2, QTo:0.2, QQ:0.1, 86s:0.1, K9o:0.1, K7o:0.1"
+      "range": "AA, 33-22, AQs-A9s, A6s, A2s, K5s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-72s, 63s-62s, 42s, 32s, AJo-A2o, KTo, K4o-K2o, Q5o-Q2o, J9o, J6o-J2o, T9o, T6o-T3o, 96o-95o, 85o, 75o, 54o, KK:0.9, 99:0.9, 97s:0.9, 65o:0.9, T8o:0.8, 86o:0.8, 98o:0.7, 44:0.5, A8s:0.5, K6s:0.5, KJo:0.5, 97o:0.5, AKs:0.4, A7s:0.4, 52s:0.4, KQo:0.4, Q6o:0.4, J8o:0.4, 88:0.3, A3s:0.3, K7s:0.3, 64s:0.3, JJ:0.2, KQs:0.2, K9o:0.2, T7o:0.2, QQ:0.1, TT:0.1, 86s:0.1, K7o-K6o:0.1, QTo:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "TT, 77-55, A5s-A4s, KJs-K8s, Q8s+, J8s+, T8s+, 98s, 87s, 75s+, 65s, 53s+, 43s, AQo+, K8o, K6o-K5o, QJo, Q9o-Q7o, JTo, J7o, 87o, 76o, QQ:0.9, 86s:0.9, K9o:0.9, K7o:0.9, JJ:0.8, A3s:0.8, KQs:0.8, K7s:0.8, QTo:0.8, 88:0.7, T7o:0.7, AKs:0.6, A7s:0.6, K6s:0.6, 64s:0.6, KQo:0.6, J8o:0.6, 44:0.5, KJo:0.5, Q6o:0.5, 52s:0.4, 97o:0.4, A8s:0.3, T8o:0.3, 98o:0.3, 65o:0.2, KK:0.1, 99:0.1, A6s:0.1, 97s:0.1, A8o:0.1, 86o:0.1"
+      "range": "77-55, A5s-A4s, KJs-K8s, Q8s+, J8s+, T8s+, 98s, 87s, 75s+, 65s, 53s+, 43s, AQo+, K8o, K5o, QJo, Q9o-Q7o, JTo, J7o, 87o, 76o, QQ:0.9, TT:0.9, 86s:0.9, K7o-K6o:0.9, QTo:0.9, JJ:0.8, KQs:0.8, K9o:0.8, T7o:0.8, 88:0.7, A3s:0.7, K7s:0.7, 64s:0.7, AKs:0.6, A7s:0.6, 52s:0.6, KQo:0.6, Q6o:0.6, J8o:0.6, 44:0.5, A8s:0.5, K6s:0.5, KJo:0.5, 97o:0.5, 98o:0.3, T8o:0.2, 86o:0.2, KK:0.1, 99:0.1, 97s:0.1, 65o:0.1"
      }
     ]
    },
@@ -295,13 +295,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 14.33,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 14.281,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 2.7,
     "close": "......6...6.....3.................................................................................5......................................................................",
     "flags": [
      {
@@ -315,13 +315,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, KQs, QJs, AQs:0.8, JJ:0.7, KQo:0.7, AJs:0.6, 88:0.5, AQo:0.4, AKs:0.3, QTs:0.3, JTs:0.3, 99:0.2, KK:0.1, TT:0.1"
+      "range": "QQ, KQs, QJs, AQs:0.9, KQo:0.7, JJ:0.6, AJs:0.6, 88:0.5, AQo:0.4, AKs:0.3, QTs:0.3, JTs:0.3, 99:0.2, KK:0.1, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, ATs, KJs-KTs, AKo, KK:0.9, TT:0.9, 99:0.8, T9s:0.8, AKs:0.7, JTs:0.7, AQo:0.6, 88:0.5, AJs:0.4, A9s:0.4, JJ:0.3, KQo:0.3, AQs:0.2, A5s:0.1, 54s:0.1, AJo:0.1"
+      "range": "AA, ATs, KJs-KTs, AKo, KK:0.9, TT:0.9, T9s:0.9, 99:0.8, AKs:0.7, JTs:0.7, AQo:0.6, 88:0.5, JJ:0.4, AJs:0.4, A9s:0.4, KQo:0.3, AQs:0.1, A5s:0.1, 54s:0.1, AJo:0.1"
      }
     ]
    },
@@ -335,14 +335,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 13.012,
+    "occ": 12.966,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6...6.....3.............7.........................36...............................................................................................................",
+    "confidence": "high",
+    "move": 3.3,
+    "close": "..3...6...6.....3.............7..........................6...............................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -355,13 +355,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs, KQs, QTs+, KQo:0.9, JJ:0.7, 88:0.7, AJs:0.7, 77:0.5, JTs:0.4, AQo:0.4, AKs:0.3, 99:0.2, KK:0.1"
+      "range": "QQ, AQs, KQs, QTs+, KQo:0.9, JJ:0.7, 88:0.7, AJs:0.7, 77:0.5, JTs:0.5, AQo:0.4, AKs:0.3, 99:0.2, KK:0.1, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, TT, ATs, KJs-KTs, T9s, AKo, KK:0.9, 99:0.8, AKs:0.7, JTs:0.6, 54s:0.6, AQo:0.6, JJ:0.3, 88:0.3, AJs:0.3, K9s:0.3, AJo:0.2, A9s:0.1, A5s:0.1, KQo:0.1"
+      "range": "AA, ATs, KJs-KTs, T9s, AKo, KK:0.9, TT:0.9, 99:0.8, 54s:0.8, AKs:0.7, AQo:0.6, JTs:0.5, JJ:0.3, 88:0.3, AJs:0.3, K9s:0.3, AJo:0.2, A9s:0.1, A5s:0.1, KQo:0.1"
      }
     ]
    },
@@ -375,14 +375,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 13.801,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3.6..6....3.........................6..............................6............36............3......................................................................",
+    "occ": 13.808,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 3.3,
+    "close": "....3.6..6....3.........................6.............................36.................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -395,13 +395,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs, KQs, QTs+, KQo, JJ:0.8, AJs:0.7, TT:0.4, AQo:0.3, 99:0.1, AKs:0.1, KJs:0.1, JTs:0.1, AJo:0.1"
+      "range": "QQ, 77, KQs, QTs+, KQo, AQs:0.9, JJ:0.8, AJs:0.7, TT:0.4, AKs:0.2, JTs:0.2, AQo:0.2, 88:0.1, KJs:0.1, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 88, ATs, KTs, T9s, AKo, 99:0.9, AKs:0.9, KJs:0.9, JTs:0.9, K9s:0.7, AQo:0.7, TT:0.6, AJs:0.3, JJ:0.2, A9s:0.2, AJo:0.2, 54s:0.1"
+      "range": "KK+, 99, ATs, KTs, T9s, AKo, 88:0.9, KJs:0.9, AKs:0.8, K9s:0.8, JTs:0.8, AQo:0.8, TT:0.6, AJs:0.3, A9s:0.3, JJ:0.2, AJo:0.2, AQs:0.1, 54s:0.1"
      }
     ]
    },
@@ -415,14 +415,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 11.718,
+    "occ": 11.671,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3.3.6...6...3...........................................6............6.............6...........................6.......................................................",
+    "confidence": "high",
+    "move": 3.7,
+    "close": "....3.6..66...3.........................................3.6............6.............6.............6.....................................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -440,13 +440,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs, KQs, QTs+, KQo, AJs:0.8, JJ:0.7, JTs:0.6, AQo:0.6, 88:0.5, AKs:0.4, 99:0.3, TT:0.1, KJs:0.1, AJo:0.1"
+      "range": "QQ, 77, AQs, KQs, QTs+, KQo, AJs:0.9, JJ:0.7, JTs:0.7, AQo:0.6, 88:0.5, 99:0.4, AKs:0.4, AJo:0.2, KJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, ATs, KTs, T9s, 54s, AKo, TT:0.9, KJs:0.9, 99:0.7, AKs:0.6, K9s:0.6, 88:0.5, JTs:0.4, AQo-AJo:0.4, JJ:0.3, AJs:0.2, A9s:0.2, A5s:0.1"
+      "range": "KK+, TT, ATs, KTs, T9s, 54s, AKo, KJs:0.9, K9s:0.7, 99:0.6, AKs:0.6, 88:0.5, AQo:0.4, JJ:0.3, JTs:0.3, AJo:0.3, A9s:0.2, AJs:0.1, 65s:0.1"
      }
     ]
    },
@@ -460,14 +460,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 12.391,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3..........3..37.........................6............3...........................6.............6.............6.......................................................",
+    "occ": 12.393,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 4.6,
+    "close": "......6..6...33..37.........................6............3............3............................6.............6.......................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -480,13 +480,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs-AJs, KQs, QTs+, KQo, JTs:0.8, AJo:0.7, JJ:0.6, KJs:0.5, TT:0.4, A9s:0.4, ATs:0.3, 88:0.2, AKs:0.2, AQo:0.2, 99:0.1"
+      "range": "QQ, 77, AQs-AJs, KQs, QTs+, KQo, JTs:0.8, AJo:0.8, JJ:0.6, A9s:0.5, KJs:0.5, TT:0.4, ATs:0.3, AQo:0.3, 88:0.2, AKs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, KTs-K9s, T9s, AKo, 99:0.9, 88:0.8, AKs:0.8, AQo:0.8, ATs:0.7, TT:0.6, 98s:0.6, KJs:0.5, 54s:0.5, JJ:0.4, KJo:0.4, A9s:0.3, JTs:0.2, AJo:0.1"
+      "range": "KK+, 99, KTs-K9s, T9s, AKo, 88:0.8, AKs:0.8, ATs:0.7, AQo:0.7, TT:0.6, 98s:0.6, 54s:0.6, KJs:0.5, JJ:0.4, KJo:0.4, A9s:0.3, JTs:0.2, 87s:0.1, AJo:0.1"
      }
     ]
    },
@@ -500,26 +500,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 13.268,
+    "occ": 13.29,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....7....6..33..3........3.3...............6............7............3.............3...........................5........................................................",
+    "confidence": "high",
+    "move": 4,
+    "close": "...3.3....6..33..3........3...3.............6............7..........................3...........................5..............6.........................................",
+    "flags": [
+     {
+      "code": "PF-SANITY-11",
+      "hands": "QQ",
+      "vs": "99-88"
+     }
+    ],
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs, QTs+, AJs:0.9, KJs:0.8, KQo:0.7, TT:0.6, 77:0.6, AJo:0.6, KQs:0.5, JTs:0.4, ATs:0.2, JJ:0.1, Q9s:0.1"
+      "range": "QQ, AQs-AJs, QTs+, KJs:0.8, TT:0.7, KQo:0.7, 77:0.6, AJo:0.6, KQs:0.5, JTs:0.3, ATs:0.2, JJ:0.1, Q9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99-88, AKs, A9s, KTs-K9s, T9s, AQo+, JJ:0.9, ATs:0.8, KJo:0.7, JTs:0.6, KQs:0.5, TT:0.4, 77:0.4, A5s:0.4, AJo:0.4, KQo:0.3, KJs:0.2, AJs:0.1, A8s:0.1"
+      "range": "KK+, 99-88, AKs, A9s, KTs-K9s, T9s, AQo+, JJ:0.9, ATs:0.8, JTs:0.7, KJo:0.7, KQs:0.5, 77:0.4, A5s:0.4, AJo:0.4, TT:0.3, KQo:0.3, KJs:0.2, A8s:0.1"
      }
     ]
    },
@@ -533,13 +540,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.3%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 10.474,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 10.424,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 4.3,
     "close": "..........6.......7........3...............3..............6..........................6.............6............5...............6........................................",
     "flags": [
      {
@@ -558,13 +565,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs, A9s, KQs, QTs+, JTs, KQo, AJs:0.8, AJo:0.8, KJs:0.6, JJ:0.5, T9s:0.5, AQo:0.5, TT-88:0.4, AKs:0.4, ATs:0.3, KK:0.1"
+      "range": "QQ, 77, AQs, A9s, KQs, QTs+, JTs, KQo, AJs:0.9, AJo:0.8, KJs:0.6, JJ:0.5, T9s:0.5, AQo:0.5, TT-88:0.4, AKs:0.4, ATs:0.3, KK:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, KTs-K9s, 54s, AKo, KK:0.9, ATs:0.7, TT-88:0.6, AKs:0.6, JJ:0.5, A5s:0.5, T9s:0.5, 65s:0.5, AQo:0.5, KJs:0.4, AJs:0.2, AJo:0.2, KJo:0.2, A8s:0.1, 98s:0.1"
+      "range": "AA, KTs-K9s, 54s, AKo, KK:0.9, ATs:0.7, TT-88:0.6, AKs:0.6, 65s:0.6, JJ:0.5, A5s:0.5, T9s:0.5, AQo:0.5, KJs:0.4, AJo:0.2, KJo:0.2, AJs:0.1, A8s:0.1, 98s:0.1"
      }
     ]
    },
@@ -578,14 +585,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.1%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 10.956,
+    "occ": 10.94,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........6...3..3.........3..........................................3.............3.............36.............6.......................................................",
+    "confidence": "high",
+    "move": 5.1,
+    "close": "..............3..3.........3..........................................3.............3..............6.............6.......................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -598,13 +605,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77, AQs-AJs, A9s, KQs, QJs, KQo, QTs:0.9, AJo:0.9, JTs:0.8, KJs:0.6, TT:0.5, JJ:0.4, ATs:0.4, K9s:0.4, Q9s:0.4, T9s:0.4, 66:0.3, AQo:0.3, AKs:0.1, J9s:0.1"
+      "range": "QQ, 77, AQs-AJs, A9s, KQs, QJs, KQo, QTs:0.9, JTs:0.9, AJo:0.9, KJs:0.6, TT:0.5, Q9s:0.5, JJ:0.4, ATs:0.4, K9s:0.4, T9s:0.4, AQo:0.3, 66:0.2, AKs:0.1, J9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99-88, KTs, AKo, AKs:0.9, KJo:0.8, AQo:0.7, JJ:0.6, ATs:0.6, K9s:0.6, T9s:0.6, 98s:0.6, 54s:0.6, TT:0.5, A8s:0.4, KJs:0.4, 87s:0.3, JTs:0.2, A5s:0.1, QTs:0.1, AJo:0.1"
+      "range": "KK+, 99-88, KTs, AKo, AKs:0.9, KJo:0.8, 54s:0.7, AQo:0.7, JJ:0.6, ATs:0.6, K9s:0.6, T9s:0.6, 98s:0.6, TT:0.5, A8s:0.4, KJs:0.4, 87s:0.3, A5s:0.1, QTs:0.1, JTs:0.1, AJo:0.1"
      }
     ]
    },
@@ -618,26 +625,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 11.678,
+    "occ": 11.695,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..33......6..3..3.3.......3...35....................6...............................3...........................5........................................................",
+    "confidence": "high",
+    "move": 4.6,
+    "close": "..33......6..3..3.3.......3.3.3.....................6...............................3...........................5........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-AJs, KJs, Q9s+, QQ:0.9, KQs:0.9, TT:0.7, A8s:0.6, KQo:0.6, AJo:0.5, A9s:0.4, 77:0.3, JTs:0.3, 99:0.2, T9s:0.2, KJo:0.2, ATs:0.1, KTs:0.1, J9s:0.1"
+      "range": "QQ, 66, AQs-AJs, KJs, Q9s+, KQs:0.9, A8s:0.7, KQo:0.7, TT:0.6, AJo:0.5, 77:0.4, A9s:0.4, JTs:0.3, T9s:0.3, KJo:0.3, 99:0.2, ATs:0.1, KTs:0.1, J9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ, 88, AKs, K9s, AQo+, ATs:0.9, KTs:0.9, 99:0.8, T9s:0.8, KJo:0.8, 77:0.7, JTs:0.7, A9s:0.6, A5s:0.6, AJo:0.5, KQo:0.4, TT:0.3, 54s:0.2, QQ:0.1, KQs:0.1, J9s:0.1, 98s:0.1"
+      "range": "KK+, JJ, 88, AKs, K9s, AQo+, ATs:0.9, KTs:0.9, 99:0.8, A5s:0.7, JTs:0.7, T9s:0.7, KJo:0.7, 77:0.6, A9s:0.6, AJo:0.5, TT:0.4, 54s:0.3, KQo:0.3, J9s:0.2, A8s:0.1, KQs:0.1, 98s:0.1"
      }
     ]
    },
@@ -651,26 +658,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.3%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 12.747,
+    "occ": 12.732,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........6....3.3.........3..3.....................6................................6............36.............6.............6.........................................",
+    "confidence": "high",
+    "move": 5.3,
+    "close": "..........6................3..3.....................6...............................36............36.............6.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs, QTs+, KJo, 66:0.8, ATs:0.8, A8s:0.8, TT:0.7, Q9s:0.6, QQ:0.5, A7s:0.3, JJ:0.2, AJs:0.2, J9s:0.2, QJo:0.2, 99-88:0.1, JTs:0.1, AKo:0.1"
+      "range": "KJs, QTs+, KJo, 66:0.8, ATs:0.8, A8s:0.8, QQ:0.6, TT:0.6, Q9s:0.6, A7s:0.4, JJ:0.2, AJs:0.2, J9s:0.2, QJo:0.2, 99:0.1, KQs:0.1, KTs:0.1, JTs:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 77, AQs+, A9s, KQs, KTs-K9s, T9s, 98s, AQo-AJo, KQo, 99-88:0.9, A5s:0.9, JTs:0.9, AKo:0.9, JJ:0.8, AJs:0.8, J9s:0.8, QQ:0.5, Q9s:0.4, TT:0.3, 66:0.2, ATs:0.2, A8s:0.2, K8s:0.2"
+      "range": "KK+, 88-77, AQs+, A9s, A5s, K9s, T9s, 98s, AQo-AJo, KQo, 99:0.9, KQs:0.9, KTs:0.9, JTs:0.9, AKo:0.9, JJ:0.8, AJs:0.8, J9s:0.8, QQ:0.4, TT:0.4, Q9s:0.4, 66:0.2, ATs:0.2, A8s:0.2, K8s:0.1, 54s:0.1"
      }
     ]
    },
@@ -684,14 +691,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.2%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 9.214,
+    "occ": 9.168,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......5.3....3..3.........3..35........6........................................................................6............5.6............6...........................",
+    "confidence": "high",
+    "move": 7.2,
+    "close": ".......5.3....3..3.........3...5........6........................................................................6............5.6............6...........................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -709,13 +716,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77-66, AQs-AJs, A9s, A5s, KJs+, Q9s+, JTs, T9s, KQo, 99:0.9, A8s:0.9, AJo:0.9, ATs:0.8, K9s:0.8, 98s:0.7, AQo:0.7, 88:0.6, A4s:0.5, J9s:0.5, JJ-TT:0.2, AKs:0.1, A3s:0.1, T8s:0.1"
+      "range": "QQ, 77-66, AQs-AJs, A9s, A5s, KJs+, Q9s+, JTs, T9s, KQo, 99:0.9, A8s:0.9, AJo:0.9, ATs:0.8, K9s:0.8, AQo:0.7, 88:0.6, J9s:0.6, 98s:0.6, A4s:0.4, JJ:0.3, A3s:0.3, TT:0.2, AKs:0.2, T8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, KTs, 65s, 54s, AKo, KJo, AKs:0.9, JJ-TT:0.8, A4s:0.5, 87s:0.5, 88:0.4, 98s:0.3, AQo:0.3, ATs:0.2, K9s:0.2, 76s:0.2, 99:0.1, A8s:0.1, AJo:0.1"
+      "range": "KK+, KTs, 65s, 54s, AKo, KJo, TT:0.8, AKs:0.8, JJ:0.7, A4s:0.6, 88:0.4, 98s:0.4, 87s:0.4, AQo:0.3, ATs:0.2, K9s:0.2, 76s:0.2, 99:0.1, A8s:0.1, AJo:0.1"
      }
     ]
    },
@@ -729,14 +736,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.3%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 9.561,
+    "occ": 9.54,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....3...........3.6.....................7.33............3............3..............7.............6.............6.............6.........................................",
+    "confidence": "high",
+    "move": 6.3,
+    "close": ".....3...........3.6.....................7.33.......6....3............33.............6.............6.............6.............6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -749,13 +756,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77-66, AQs-AJs, A9s, KQs, QJs, J9s+, T9s, 98s, A8s:0.9, Q9s:0.9, AJo:0.9, KQo:0.9, K9s:0.8, ATs:0.7, T8s:0.7, A5s:0.6, QTs:0.6, KJs:0.5, 88:0.3, TT:0.2, AQo:0.2, JJ:0.1"
+      "range": "QQ, 77-66, AQs-AJs, A9s, KQs, QJs, J9s+, T9s, 98s, A8s:0.9, Q9s:0.9, AJo:0.9, KQo:0.9, K9s:0.8, T8s:0.8, A5s:0.6, KJs:0.6, QTs:0.6, ATs:0.5, 88:0.3, TT:0.2, JJ:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99, AKs, KTs, 87s, 54s, AKo, KJo, JJ:0.9, TT:0.8, AQo:0.8, 88:0.7, KJs:0.5, A5s:0.4, QTs:0.4, ATs:0.3, A4s:0.2, K9s:0.2, A8s-A7s:0.1, Q9s:0.1, AJo:0.1, KQo:0.1"
+      "range": "KK+, 99, AKs, KTs, 87s, 54s, AKo, KJo, JJ:0.9, AQo:0.9, TT:0.8, 88:0.7, ATs:0.5, A5s:0.4, KJs:0.4, QTs:0.4, A4s:0.2, K9s:0.2, A8s-A7s:0.1, Q9s:0.1, AJo:0.1, KQo:0.1"
      }
     ]
    },
@@ -769,14 +776,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.4%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 10.121,
+    "occ": 10.123,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3..3......3......6.........3.5......3............6..................3...........................6.....................................................................",
+    "confidence": "high",
+    "move": 7.4,
+    "close": "...3..3......3....3.6.........3.5......3............6..................3...........................6.....................................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -789,13 +796,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AJs, A8s, KJs, Q9s+, 98s, AQs:0.9, J9s:0.9, KJo:0.8, 77:0.7, QQ:0.6, A9s:0.5, QJo:0.5, A7s:0.4, A5s:0.4, KQs:0.4, JTs:0.4, T9s:0.4, ATs:0.3, TT:0.2, 88:0.2, 99:0.1, KQo:0.1"
+      "range": "66, AJs, A8s, KJs, Q9s+, 98s, AQs:0.9, J9s:0.9, KJo:0.9, 77:0.7, A7s:0.7, QQ:0.6, QJo:0.6, A9s:0.5, T9s:0.5, A5s:0.4, KQs:0.4, 88:0.3, ATs:0.3, JTs:0.3, TT:0.2, 99:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ, AKs, KTs-K9s, 54s, AJo+, 99:0.9, KQo:0.9, TT:0.8, 88:0.8, ATs:0.7, A5s:0.6, KQs:0.6, JTs:0.6, T9s:0.6, A9s:0.5, 65s:0.5, QQ:0.4, QJo:0.4, 77:0.3, KJo:0.2, AQs:0.1, A4s:0.1, K8s:0.1, J9s:0.1, T8s:0.1, 87s:0.1"
+      "range": "KK+, JJ, AKs, KTs-K9s, 54s, AJo+, 99:0.9, KQo:0.9, TT:0.8, 88:0.7, ATs:0.7, JTs:0.7, 65s:0.7, A5s:0.6, KQs:0.6, A9s:0.5, T9s:0.5, QQ:0.4, 77:0.3, QJo:0.3, AQs:0.1, A4s:0.1, K8s:0.1, J9s:0.1, T8s:0.1, 87s:0.1, KJo:0.1"
      }
     ]
    },
@@ -809,26 +816,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 10.925,
+    "occ": 10.908,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3.333.5..5.3.3...........3....5........3.3........7....36...........33.........................................6.......................................................",
+    "confidence": "high",
+    "move": 7.1,
+    "close": "..3.3.3.5..5.3.3...........3....5........3.3........7.....6...........33.........................................6.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs-ATs, A8s-A7s, KJs, QJs, KJo, QJo, QTs:0.9, KTs:0.8, 88:0.7, QQ:0.6, TT:0.5, 66:0.5, J9s:0.5, 55:0.4, A4s:0.4, Q9s:0.3, JJ:0.1, 77:0.1, A5s:0.1"
+      "range": "AJs-ATs, A8s-A7s, KJs, QJs, KJo, QJo, QTs:0.9, 88:0.7, KTs:0.7, QQ:0.6, 66:0.5, A4s:0.5, J9s:0.5, TT:0.4, Q9s:0.4, 55:0.3, 77:0.2, JJ:0.1, A5s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99, AQs+, A9s, KQs, K9s, JTs, T9s, 98s, AJo+, KQo, JJ:0.9, 77:0.9, A5s:0.9, K8s:0.7, Q9s:0.7, TT:0.5, 66:0.5, J9s:0.5, 76s:0.5, QQ:0.4, 88:0.3, 87s:0.3, 54s:0.3, A4s:0.2, KTs:0.2, QTs:0.1"
+      "range": "KK+, 99, AQs+, A9s, KQs, K9s, JTs, T9s, 98s, AJo+, KQo, JJ:0.9, A5s:0.9, 77:0.8, K8s:0.8, TT:0.6, Q9s:0.6, 66:0.5, J9s:0.5, 76s:0.5, QQ:0.4, 54s:0.4, 88:0.3, KTs:0.3, 87s:0.2, A4s:0.1, QTs:0.1"
      }
     ]
    },
@@ -842,26 +849,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.3%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 11.904,
+    "occ": 11.926,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........3.6....3.3...........33...........3.7.......6...3............33............36..........................3........................................................",
+    "confidence": "high",
+    "move": 5.3,
+    "close": ".......3.3.6....3.3...........33........3..3.7.......6...3............33............3..............6............3........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs, QJs, J9s+, Q8s:0.9, KJo:0.9, A7s:0.8, QJo:0.8, ATs:0.6, 77:0.5, 55:0.5, K8s:0.5, JJ:0.4, AQs:0.4, KTs:0.4, K7s:0.3, QQ:0.2, AKo:0.1"
+      "range": "A7s, KJs, QJs, J9s+, KJo, Q8s:0.9, QJo:0.8, 55:0.6, ATs:0.6, 77:0.5, K8s:0.5, JJ:0.4, AQs:0.4, KTs:0.4, K7s:0.4, QQ:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT-88, 66, AKs, AJs, A9s-A8s, A5s, KQs, K9s, QTs-Q9s, T9s, 98s, AQo-ATo, KQo, AKo:0.9, QQ:0.8, JJ:0.6, AQs:0.6, KTs:0.6, 77:0.5, 55:0.5, K8s:0.5, ATs:0.4, A4s:0.4, T8s:0.4, A7s:0.2, QJo:0.2, A6s:0.1, KJo:0.1"
+      "range": "KK+, TT-88, 66, AKs, AJs, A9s-A8s, A5s, KQs, K9s, QTs-Q9s, T9s, 98s, AQo-ATo, KQo, AKo:0.9, QQ:0.8, JJ:0.6, AQs:0.6, KTs:0.6, 77:0.5, A4s:0.5, K8s:0.5, 55:0.4, ATs:0.4, T8s:0.3, A6s:0.2, QJo:0.2, 87s:0.1"
      }
     ]
    },
@@ -875,14 +882,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 9.3%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 7.829,
+    "occ": 7.784,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": ".....3.753..........5......33...5...................6...............................335............36............3............5.6............6...........................",
+    "move": 9.3,
+    "close": ".......753..........5......33...5...................6...............................335............76............3............5.6............6...........................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -895,13 +902,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 88-55, AQs-AJs, A9s, A7s, A5s, A3s, KJs+, K9s, Q8s+, J9s+, T8s+, 98s, 87s, 76s, 65s, KQo, AJo:0.9, 99:0.7, 97s:0.7, ATs:0.6, A8s:0.6, A4s:0.6, QJo:0.6, A2s:0.4, KTs:0.4, K8s:0.4, J8s:0.3, AQo:0.2, T7s:0.1"
+      "range": "QQ, 88-55, AQs-AJs, A9s, A7s, A5s, A3s, KJs+, K9s, Q8s+, J9s+, T8s+, 98s, 87s, 76s, 65s, KQo, AJo:0.9, 99:0.7, QJo:0.7, ATs:0.6, A8s:0.6, A2s:0.6, 97s:0.6, A4s:0.5, J8s:0.5, KTs:0.4, K8s:0.4, AQo:0.3, T7s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, 53s+, 43s, AKo, KJo, AQo:0.8, KTs:0.6, ATs:0.4, A8s:0.4, A4s:0.4, 99:0.3, AJo:0.1"
+      "range": "KK+, JJ-TT, AKs, 53s+, 43s, AKo, KJo, AQo:0.7, KTs:0.6, A4s:0.5, ATs:0.4, A8s:0.4, 99:0.3, K8s:0.2, AJo:0.1"
      }
     ]
    },
@@ -915,26 +922,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8.9%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 8.134,
+    "occ": 8.114,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": "..3..33353.75...33.77.......3...........33...5......6.6.3..5..........3..............35.............6............3............5.6............6...........................",
+    "move": 8.9,
+    "close": "..3..33353.75...33.77......33...........33...5......6.6....5..........3..............35.............6............3............5.6............6...........................",
+    "flags": [
+     {
+      "code": "PF-SANITY-9",
+      "hands": "54s",
+      "vs": "A5s-A2s"
+     }
+    ],
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77-55, AQs-AJs, A9s-A7s, A5s, A3s, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 65s, QJo, KQo:0.9, A4s:0.5, AJo:0.5, 88:0.3, ATs:0.2, 76s:0.2"
+      "range": "QQ, 77-55, AQs-AJs, A9s-A7s, A5s, A3s, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 65s, KQo, QJo, A4s:0.7, AJo:0.5, 88:0.4, ATs:0.2, 76s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-99, AKs, 54s, AQo+, KJo, ATs:0.8, 76s:0.8, 88:0.7, A4s:0.5, AJo:0.5, KTo:0.4, JTo:0.2, KQo:0.1"
+      "range": "KK+, JJ-99, AKs, 54s, AQo+, KJo, 76s:0.9, ATs:0.8, 88:0.6, AJo:0.5, KTo:0.4, A4s:0.3, JTo:0.2"
      }
     ]
    },
@@ -948,14 +962,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8.5%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 8.546,
+    "occ": 8.534,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": ".....3.353375...3..........3...........3..3..7........6....5...........33............35...........3.6...........................6............6...........................",
+    "move": 8.5,
+    "close": ".....3.3.3375...3.3..5.....3..............3..7........6..3.5...........33............35...........3.6...........................6............6...........................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -968,13 +982,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs, A7s, A5s-A3s, KJs, QJs, Q9s-Q8s, J8s+, 97s+, 87s, KJo, A8s:0.9, T9s:0.9, QTs:0.8, QJo:0.8, KTs:0.7, T8s:0.7, QQ:0.5, AQs:0.5, 76s:0.5, 65s:0.5, ATs:0.4, KQs:0.4, K8s:0.4, 88:0.3, K7s:0.3, K9s:0.1"
+      "range": "77-55, AJs, A7s, A5s-A3s, KJs, QJs, Q9s-Q8s, J8s+, T9s, 97s+, 87s, KJo, A8s:0.9, QJo:0.9, QTs:0.8, T8s:0.8, KTs:0.6, QQ:0.5, AQs:0.5, K8s-K7s:0.5, ATs:0.4, KQs:0.4, 76s:0.4, 65s:0.4, 88:0.3, A6s:0.1, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, JJ-99, AKs, A9s, 54s, AJo+, KQo, K9s:0.9, 88:0.7, K7s:0.7, ATs:0.6, KQs:0.6, K8s:0.6, QQ:0.5, AQs:0.5, 76s:0.5, 65s:0.5, KTs:0.3, T8s:0.3, QTs:0.2, KTo:0.2, QJo:0.2, JTo:0.2, A8s:0.1, T9s:0.1, ATo:0.1"
+      "range": "KK+, JJ-99, AKs, A9s, K9s, 54s, AQo+, KQo, AJo:0.9, 88:0.7, ATs:0.6, KQs:0.6, 76s:0.6, 65s:0.6, QQ:0.5, AQs:0.5, K8s-K7s:0.5, KTs:0.4, QTs:0.2, T8s:0.2, ATo:0.2, KTo:0.2, JTo:0.2, A8s:0.1, QJo:0.1"
      }
     ]
    },
@@ -988,14 +1002,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 12%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 9.163,
+    "occ": 9.147,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": "..........3.53.....33555.........5............5.......7...3...........333...........3..............3..........................3..........................................",
+    "move": 8,
+    "close": "......3...3.53.....33555.........5............5.......7...3...........333...........3..............3..........................3..........................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -1008,13 +1022,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, ATs, A7s-A6s, A4s-A2s, KJs-KTs, K8s-K6s, QTs+, Q8s, J8s+, T8s, 97s+, KJo, QJo, 77:0.9, 87s:0.9, 66:0.7, K9s:0.7, Q9s:0.7, ATo:0.6, A5s:0.5, T7s:0.5, QQ:0.4, AJs:0.4, T9s:0.4, JJ:0.3, 65s:0.3, KTo:0.3, A8s:0.1, 86s:0.1"
+      "range": "55, ATs, A7s-A6s, A4s-A2s, KJs-KTs, K8s-K6s, QTs+, Q8s, J8s+, T8s, 97s+, KJo, QJo, 77:0.9, T7s:0.9, 87s:0.9, K9s:0.8, 66:0.7, A5s:0.7, Q9s:0.6, ATo:0.5, KTo:0.5, QQ-JJ:0.3, T9s:0.3, 86s:0.2, 65s:0.2, AJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT-88, AQs+, A9s, KQs, 76s, 54s, AJo+, KQo, A8s:0.9, JJ:0.7, 65s:0.7, QQ:0.6, AJs:0.6, T9s:0.6, JTo:0.6, A5s:0.5, ATo:0.4, KTo:0.4, 66:0.3, K9s:0.3, Q9s:0.3, 77:0.1, 87s:0.1"
+      "range": "KK+, TT-88, AQs+, A9s-A8s, KQs, 76s, 54s, AJo+, KQo, AJs:0.9, 65s:0.8, QQ-JJ:0.7, T9s:0.7, JTo:0.6, ATo:0.5, Q9s:0.4, 66:0.3, A5s:0.3, KTo:0.3, K9s:0.2, 77:0.1, 87s:0.1"
      }
     ]
    },
@@ -1028,26 +1042,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.5%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 9.819,
-    "regret": 0.0001,
+    "occ": 9.826,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "..3....3....73.....3.355.......337.....333..........3..7...5..........3.............3.7...........37.....................................................................",
+    "move": 9.5,
+    "close": "..3....3.....3.....3.375.......337.....333.............7...5..........3.............3.7............7.....................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A7s, KJs-KTs, K8s-K6s, QTs+, Q8s-Q7s, J8s+, T7s+, KJo, QJo, A4s:0.9, KTo:0.9, QTo:0.8, 55:0.7, A6s:0.7, A3s:0.7, 65s:0.7, J7s:0.5, ATs:0.4, 97s:0.4, 87s:0.4, JJ:0.3, 66:0.3, K9s:0.1, 98s:0.1"
+      "range": "A7s, KJs-KTs, K8s-K6s, QTs+, Q8s-Q7s, J8s+, T7s+, KJo, QJo, KTo:0.9, A4s-A3s:0.8, QTo:0.8, 55:0.7, A6s:0.7, J7s:0.6, 65s:0.6, ATs:0.4, 97s:0.4, JJ:0.3, 66:0.3, 87s:0.3, A2s:0.2, 77:0.1, K9s:0.1, 98s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, TT-77, AJs+, A9s-A8s, A5s, KQs, Q9s, 76s, ATo+, KQo, JTo, K9s:0.9, 98s:0.9, 54s:0.8, JJ:0.7, 66:0.7, ATs:0.6, 97s:0.6, 87s:0.6, 55:0.3, A6s:0.3, A3s:0.3, QTo:0.2, A4s:0.1, KTo:0.1"
+      "range": "QQ+, TT-88, AJs+, A9s-A8s, A5s, KQs, Q9s, 76s, ATo+, KQo, JTo, 77:0.9, K9s:0.9, 98s:0.9, 54s:0.8, JJ:0.7, 66:0.7, 87s:0.7, ATs:0.6, 97s:0.6, 55:0.3, A6s:0.3, A4s-A3s:0.2, QTo:0.2, KTo:0.1"
      }
     ]
    },
@@ -1061,26 +1075,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 11.804,
+    "occ": 11.846,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3........333.33.........3.....355.....3..................5.....6....333.............6...........3.6............6............3.............7............................",
+    "confidence": "high",
+    "move": 7.8,
+    "close": "..3........333.333....5...3.....355.....3..................5..........337.............6...........3..............6............3.............7............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, KTs-K9s, K7s-K6s, Q7s+, J9s, T7s, KTo, QTo, K8s:0.9, K5s:0.9, J7s:0.9, J8s:0.8, T9s:0.7, QJo:0.6, JTo:0.4, TT:0.3, 66:0.1, K4s:0.1, JTs:0.1"
+      "range": "44, KTs-K9s, K7s-K5s, Q7s+, J9s, T7s, KTo, QTo, J7s:0.9, K8s:0.8, J8s:0.8, T9s:0.7, QJo:0.6, JTo:0.4, TT:0.3, K4s:0.3, 66:0.1, JTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, 99-77, 55, A2s+, KJs+, T8s, 97s+, 87s, 76s, 65s, 54s, ATo+, KJo+, 66:0.9, JTs:0.9, TT:0.7, JTo:0.6, QJo:0.4, T9s:0.3, J8s:0.2, K8s:0.1"
+      "range": "JJ+, 99-77, 55, A2s+, KJs+, T8s, 97s+, 87s, 76s, 65s, 54s, ATo+, KJo+, 66:0.9, JTs:0.9, TT:0.7, JTo:0.6, QJo:0.4, T9s:0.3, K8s:0.2, J8s:0.2, A9o:0.1"
      }
     ]
    },
@@ -1094,26 +1108,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.4%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 6.347,
+    "occ": 6.29,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "......3.5........3.75......3....5............5.............5...........3..............7............3..............5............3............56...........................",
+    "move": 15.4,
+    "close": ".3....3.5...5....3.75......3....5............5.............5............5.............7............3..............5............3............56...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-AJs, A5s-A3s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s, 76s, 65s, AJo, KQo, KJo:0.9, A7s:0.8, AQo:0.8, 87s:0.6, 75s:0.5, ATs-A9s:0.1, A2s:0.1, QJo:0.1"
+      "range": "99-55, AQs-AJs, A5s-A3s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s, 76s, 65s, AJo, KQo, KJo:0.9, AQo:0.8, A7s:0.7, 87s:0.7, A9s:0.2, ATs:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, A8s, KTs, 54s, AKo, ATs-A9s:0.9, 87s:0.4, A7s:0.2, AQo:0.2, 53s:0.1"
+      "range": "TT+, AKs, A8s, KTs, 54s, AKo, ATs:0.9, A9s:0.8, A7s:0.3, 87s:0.3, 53s:0.2, AQo:0.2, 75s:0.1"
      }
     ]
    },
@@ -1127,26 +1141,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.6%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 6.495,
-    "regret": 0.0001,
+    "occ": 6.478,
+    "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": "..3..333.........3.35......3..................5........5..............3..5...........35.............7.............5.............5...........5............................",
+    "move": 16.6,
+    "close": "..3..333....5....3.35......3..................5........5..............3..5...........35.............7.............5.........................5............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AQs-AJs, A9s-A7s, A5s-A3s, KJs+, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s, 75s, 65s, AJo, KQo, QJo, A2s:0.9, ATs:0.8, 54s:0.7, A6s:0.6, 76s:0.4, KJo:0.3, QQ:0.2"
+      "range": "88-55, AQs-AJs, A9s-A7s, A5s-A2s, KJs+, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s, 75s, 65s, AJo, KQo, QJo, A6s:0.8, 54s:0.7, ATs:0.6, 76s:0.4, KJo:0.4, QQ:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-99, AKs, KTs, 87s, AQo+, QQ:0.8, KJo:0.7, 76s:0.6, 54s:0.3, ATs:0.2"
+      "range": "KK+, JJ-99, AKs, KTs, 87s, AQo+, QQ:0.9, 76s:0.6, KJo:0.6, ATs:0.4, 54s:0.3"
      }
     ]
    },
@@ -1160,26 +1174,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.5%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 6.851,
-    "regret": 0.0006,
+    "occ": 6.833,
+    "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
-    "close": "....3...7...5..33.....55..........5.................565.3..............................5.........................3.......................................................",
+    "move": 16.5,
+    "close": "....3...3...5...3.....55..........5.................565.3..............................5.........................3...........................7...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs-ATs, A8s-A2s, KJs+, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s, 65s, AJo, QJo, 88:0.9, K6s:0.9, 96s:0.9, 64s:0.9, 44:0.8, AQs:0.8, 75s:0.8, KQo:0.8, J7s:0.7, A9s:0.6, KJo:0.5, QQ:0.4, Q7s:0.4, 54s:0.4, 87s:0.3, 76s:0.3, 53s:0.3, KTs:0.1, JTo:0.1"
+      "range": "77-55, AJs-ATs, A8s-A2s, KJs, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s, 65s, AJo, QJo, 88:0.9, 44:0.9, KQs:0.9, K6s:0.9, 96s:0.9, 64s:0.9, KQo:0.9, AQs:0.8, 75s:0.8, J7s:0.7, A9s:0.6, KJo:0.5, QQ:0.4, Q7s:0.4, 87s:0.4, 54s:0.3, 76s:0.2, KTs:0.1, 53s:0.1, JTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-99, AKs, AQo+, KTs:0.9, 87s:0.7, 76s:0.7, QQ:0.6, 54s:0.6, KJo:0.5, A9s:0.4, AQs:0.2, 75s:0.2, KQo:0.2, 88:0.1, 43s:0.1, JTo:0.1"
+      "range": "KK+, JJ-99, AKs, AQo+, KTs:0.9, 76s:0.8, 54s:0.7, QQ:0.6, 87s:0.6, KJo:0.5, A9s:0.4, AQs:0.2, 75s:0.2, 88:0.1, KQs:0.1, KQo:0.1, JTo:0.1"
      }
     ]
    },
@@ -1193,26 +1207,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 7.103,
+    "occ": 7.065,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "..33..3........33..33...5..........5....................333............3............3..5..........3.3.......................................55...........................",
+    "move": 11.5,
+    "close": "..33..3........33.33....5..............................3333.........................3..5..........3.3.......................................55...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs, A8s-A2s, KJs, K8s-K4s, Q5s+, J7s+, T7s+, 96s+, 86s, 75s, 64s+, ATo, QTo+, 76s:0.9, 53s:0.9, KJo:0.9, JTo:0.9, K9s:0.8, KTo:0.7, ATs:0.5, 87s:0.5, KTs:0.4, 54s:0.4, QQ:0.2, KQo:0.2, AJo:0.1"
+      "range": "77-44, AJs, A8s-A2s, KJs, K9s-K4s, Q6s+, J7s+, T7s+, 96s+, 86s, 75s, 64s+, ATo, QTo+, JTo, Q5s:0.9, 76s:0.9, 53s:0.8, KJo:0.8, KTo:0.7, KTs:0.5, 87s:0.5, KQo:0.4, QQ:0.3, ATs:0.3, AJo:0.3, 54s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-88, AQs+, A9s, KQs, AQo+, AJo:0.9, QQ:0.8, KQo:0.8, KTs:0.6, 54s:0.6, ATs:0.5, 87s:0.5, KTo:0.3, K9s:0.2, 76s:0.1, KJo:0.1, JTo:0.1"
+      "range": "KK+, JJ-88, AQs+, A9s, KQs, AQo+, 54s:0.8, QQ:0.7, ATs:0.7, AJo:0.7, KQo:0.6, KTs:0.5, 87s:0.5, KTo:0.3, KJo:0.2, 76s:0.1"
      }
     ]
    },
@@ -1226,26 +1240,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.1%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 7.452,
+    "occ": 7.451,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "....3...3....3...3.3.3..55..........55..3.3.....55.....3.33..........5.3.............3.5..........................5............3.............5...........................",
+    "move": 14.1,
+    "close": "....3...3.......33.3.3..55..........55..3.3.....55.....3.33.5.......55.3.............3.5..........3...............5............35............5...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, A7s-A2s, K8s-K3s, Q4s+, J5s+, T7s+, 96s+, 86s-85s, 75s, 64s+, 54s, KJo-KTo, QTo+, JTo, T9o, 44:0.9, K9s:0.9, T6s:0.9, KJs:0.8, ATo:0.8, 76s:0.6, QQ:0.1, 53s:0.1, J9o:0.1"
+      "range": "66-55, A7s-A2s, KJs, K8s-K3s, Q4s+, J5s+, T6s+, 96s+, 86s-85s, 75s, 64s+, 54s, KJo-KTo, QTo+, JTo, T9o, 44:0.9, K9s:0.9, ATo:0.8, 76s:0.5, QQ:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-77, A8s+, KQs, KTs, 87s, AJo+, KQo, QQ:0.9, 76s:0.4, KJs:0.2, ATo:0.2, K9s:0.1"
+      "range": "KK+, JJ-77, A8s+, KQs, KTs, 87s, AQo-AJo, KQo, QQ:0.9, AKo:0.9, 76s:0.5, ATo:0.2, K9s:0.1"
      }
     ]
    },
@@ -1259,26 +1273,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 8.795,
-    "regret": 0,
+    "occ": 8.811,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........33...............5...3.......5...3.333...55.....33...5....5...3...5..........3.5...........3..............5.............5........................................",
+    "move": 12,
+    "close": "........33...............5...3.......55.33..33...55.....33...5....5...3...5..........3.5...........3..............5.............5........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, A6s-A2s, K9s-K2s, Q3s+, J4s+, T7s-T6s, 97s-96s, 86s-85s, 75s, 64s+, KTo-K9o, Q9o+, J9o, T9o, KTs:0.9, Q2s:0.9, KJo:0.9, T8s:0.8, 98s:0.8, 54s:0.7, 55:0.6, JTo:0.6, JJ:0.3, A7s:0.2, AKo:0.1"
+      "range": "44, A6s-A2s, K9s-K2s, Q2s+, J9s-J4s, T7s-T6s, 97s-96s, 86s-85s, 75s, 64s+, KJo-K9o, Q9o+, J9o, T9o, T8s:0.9, KTs:0.8, JTs:0.8, 98s:0.8, 55:0.7, JTo:0.7, 54s:0.6, A7s:0.4, JJ:0.3, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-66, A8s+, KJs+, T9s, 87s, 76s, AQo-ATo, KQo, AKo:0.9, A7s:0.8, JJ:0.7, 55:0.4, JTo:0.4, 54s:0.3, T8s:0.2, 98s:0.2, KTs:0.1, KJo:0.1"
+      "range": "QQ+, TT-66, A8s+, KJs+, T9s, 87s, 76s, AQo-ATo, KQo, AKo:0.9, JJ:0.7, A7s:0.6, 54s:0.4, 55:0.3, JTo:0.3, KTs:0.2, JTs:0.2, 98s:0.2, T8s:0.1"
      }
     ]
    },
@@ -1292,26 +1306,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.9%p 움직여요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 11.982,
-    "regret": 0,
+    "occ": 12.005,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.9,
     "close": "..3................................................5.3.3.3...5..........3.5.......55...5....5.....3.5.............5............5............3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "K9s-K2s, Q9s-Q2s, J3s+, T9s, T7s-T5s, 95s+, 86s-85s, 75s, 65s, 54s, K9o-K7o, QTo-Q8o, J8o+, T8o+, 98o, AQo:0.8, 99:0.7, 76s:0.7, QTs:0.6, T8s:0.6, 87s:0.6, 88:0.5, KQs:0.5, QJs:0.4, 33:0.3, KJs:0.3, QJo:0.3"
+      "range": "K9s-K2s, Q9s-Q2s, J3s+, T9s, T7s-T5s, 95s+, 86s-85s, 75s, 65s, 54s, K9o-K7o, QTo-Q8o, J8o+, T8o+, 98o, AQo:0.8, 99:0.7, T8s:0.7, 76s:0.7, QTs:0.6, 87s:0.6, 88:0.5, KQs:0.5, QJs:0.4, 33:0.3, KJs:0.3, QJo:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, 77-44, A2s+, KTs, AKo, AJo-A8o, KTo+, KJs:0.7, QJo:0.7, QJs:0.6, 88:0.5, KQs:0.5, QTs:0.4, T8s:0.4, 87s:0.4, 99:0.3, 76s:0.3, AQo:0.2"
+      "range": "TT+, 77-44, A2s+, KTs, AKo, AJo-A8o, KTo+, KJs:0.7, QJo:0.7, QJs:0.6, 88:0.5, KQs:0.5, QTs:0.4, 87s:0.4, 99:0.3, T8s:0.3, 76s:0.3, AQo:0.2"
      }
     ]
    },
@@ -1325,26 +1339,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.8%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 5.168,
+    "occ": 5.125,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "..................333333.3.........5....3..3..5...........335........6................337.............5.............5............3............3............3.............",
+    "move": 13.8,
+    "close": "..................333333.3.........5....3..3..5...........337........6...............3337.............5..........33.5............3............3............3.............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A2s, KJs+, K9s-K4s, K2s, Q8s+, J7s+, T8s-T6s, 97s-96s, 84s+, 73s+, 62s+, 52s, 42s, 32s, AQo-A9o, KJo, QJo, KTo:0.9, K3s:0.8, 43s:0.8, QTo:0.8, JTo:0.8, Q7s:0.7, KQo:0.7, Q6s:0.6, 53s:0.6, TT:0.5, 95s:0.5, AKs:0.3, KTs:0.2, 98s:0.2, 54s:0.2, T9s:0.1, AKo:0.1"
+      "range": "99-22, AQs-A2s, KJs+, K9s-K4s, K2s, Q8s+, J7s+, T8s-T6s, 97s-96s, 84s+, 73s+, 62s+, 52s, 42s, 32s, AQo-A9o, KJo, QJo, KTo:0.9, K3s:0.8, KQo:0.8, QTo:0.8, JTo:0.8, TT:0.7, Q7s:0.6, 43s:0.6, AKs:0.5, Q6s:0.5, 53s:0.5, KTs:0.4, 95s:0.3, 54s:0.3, 98s:0.2, T9s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "JJ+, T9s:0.9, AKo:0.9, KTs:0.8, 98s:0.8, 54s:0.8, AKs:0.7, TT:0.5, 53s:0.4, KQo:0.3, K3s:0.2, 43s:0.2, JTo:0.2, KTo:0.1"
+      "range": "JJ+, T9s:0.9, AKo:0.9, 98s:0.8, 54s:0.7, KTs:0.6, AKs:0.5, 53s:0.5, 43s:0.4, TT:0.3, K3s:0.2, KQo:0.2, JTo:0.2, KTo:0.1"
      }
     ]
    },
@@ -1358,26 +1372,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.2%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 5.154,
+    "occ": 5.133,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............33...3..33.3..33....5555.3..3...55....33..3...55........3.............3..............33..........................3.............3..........................",
+    "move": 16.2,
+    "close": "...............33...3...3....33....555..3..3...55....33..33..55........3.............3..............33..............5...........33............3..........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A2s, KJs+, K9s-K2s, Q4s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 53s-52s, 42s, 32s, AQo-A8o, KJo-KTo, QTo, QJo:0.9, JTo:0.7, KQo:0.6, 43s:0.5, KTs:0.3, T9o:0.3, 54s:0.1, A5o:0.1"
+      "range": "99-22, AQs-A2s, KJs+, K9s-K2s, Q4s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 53s-52s, 42s, 32s, AQo-A8o, KJo-KTo, QTo, QJo:0.9, JTo:0.7, KQo:0.6, 43s:0.4, T9o:0.3, KTs:0.2, 54s:0.1, A5o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, AKo, 54s:0.9, KTs:0.7, T9o:0.7, 43s:0.5, KQo:0.4, JTo:0.3, QJo:0.1"
+      "range": "TT+, AKs, AKo, 54s:0.9, KTs:0.8, T9o:0.7, 43s:0.6, KQo:0.4, JTo:0.3, QJo:0.1"
      }
     ]
    },
@@ -1391,19 +1405,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.4%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 5.3,
+    "occ": 5.291,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............33.3..3333...............33.3....5555...3.3....5....5.3..3..555...........555.......333.........5.33..........5..3.5..........335.........................",
+    "move": 12.4,
+    "close": "...............3333..3333...............33.......555...3.3....5....5.3..3..555...........555.......333.........5.33..........5..335...........35.........................",
     "flags": [
      {
       "code": "PF-SANITY-14",
       "hands": "A6o",
-      "vs": "A4o-A2o"
+      "vs": "A4o-A3o"
      }
     ],
     "actions": [
@@ -1411,13 +1425,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AJs-A2s, KJs+, K9s-K8s, K6s-K2s, Q2s+, J4s+, T6s+, 97s-93s, 86s-83s, 73s+, 62s+, 53s-52s, 42s+, 32s, AJo-A7o, A5o-A3o, KJo, K9o, QTo+, JTo, T9o, 72s:0.9, AQo:0.9, KTo:0.9, AQs:0.8, KQo:0.7, 54s:0.6, K7s:0.4, 98s:0.4, 87s:0.4, A2o:0.3, 98o:0.3, T5s:0.2, KTs:0.1, 54o:0.1"
+      "range": "99-22, AJs-A2s, KJs+, K9s-K8s, K6s-K2s, Q2s+, J4s+, T6s+, 97s-93s, 86s-83s, 73s+, 62s+, 53s-52s, 42s, 32s, AJo-A7o, A5o-A3o, KJo, K9o, QTo+, JTo, T9o, 43s:0.9, AQo:0.9, KTo:0.9, AQs:0.8, 72s:0.7, KQo:0.7, 98s:0.5, K7s:0.4, 87s:0.4, 54s:0.4, 98o:0.3, T5s:0.2, A2o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, AKo, KTs:0.9, 98o:0.7, K7s:0.6, 98s:0.6, 87s:0.6, 54s:0.4, KQo:0.3, AQs:0.2, 54o:0.2, AQo:0.1, KTo:0.1"
+      "range": "TT+, AKs, KTs, AKo, 98o:0.7, K7s:0.6, 87s:0.6, 54s:0.6, 98s:0.5, KQo:0.3, AQs:0.2, 43s:0.1, AQo:0.1, KTo:0.1, 54o:0.1"
      }
     ]
    },
@@ -1431,20 +1445,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.7%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 5.123,
+    "occ": 5.099,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............3..3.33....3................33......5.....3...55.5...33.33......5.....33...5......7.33............3.........................7.............................",
+    "move": 10.7,
+    "close": "...............3..3.33....3................33......5.....3...55.5...33.33......5.....33...5......7.33............3.............3...........7.............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AJs-A2s, K2s+, Q2s+, J2s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A2o, KJo-K9o, Q9o+, J9o, T9o, 87o, 54o, 98o:0.9, 65o:0.7, KQo:0.4, AQs:0.3, T3s:0.3, 76o:0.3, JTo:0.1"
+      "range": "88-22, AJs-A2s, K2s+, Q2s+, J2s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A2o, KJo-K9o, Q9o+, J9o, T9o, 87o, 54o, 98o:0.9, 65o:0.7, KQo:0.4, AQs:0.3, 76o:0.3, T3s:0.2, JTo:0.1"
      },
      {
       "key": "3bet",
@@ -1464,26 +1478,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.7%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 5.189,
+    "occ": 5.191,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...3.......................3...............33............33..........3.33.......55.3.33.........5..3.....5....53...3.........3.33........................................",
+    "move": 10.7,
+    "close": "...........................3...............33.............3..........3.3........55.3.33.........5..3.....5....5....3...........33..........3.............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, ATs, A8s-A2s, KJs-K2s, Q2s+, J9s-J2s, T2s+, 97s-92s, 82s+, 75s-72s, 63s-62s, 53s-52s, 42s, 32s, AJo-A2o, KJo-K7o, Q8o+, J9o-J8o, T8o+, 98o, 87o, 76o, 65o, 54o:0.9, 64s:0.7, 43s:0.7, A9s:0.4, JTo:0.4, 65s:0.3"
+      "range": "77-22, ATs, A8s-A2s, KJs-K2s, Q2s+, J9s-J2s, T8s-T2s, 97s-92s, 82s+, 75s-72s, 63s-62s, 53s-52s, 42s, 32s, AJo-A2o, KJo-K7o, Q8o+, J9o-J8o, T8o+, 98o, 87o, 76o, 65o, 54o, T9s:0.9, 64s:0.6, 43s:0.6, A9s:0.5, JTo:0.5, 65s:0.2, AJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, AJs+, KQs, JTs, 98s, 76s, 54s, AQo+, KQo, 65s:0.7, A9s:0.6, JTo:0.6, 64s:0.3, 43s:0.3, 54o:0.1"
+      "range": "88+, AQs+, KQs, JTs, 98s, 76s, 54s, AQo+, KQo, AJs:0.9, 65s:0.8, A9s:0.5, JTo:0.5, 64s:0.4, 43s:0.4, T9s:0.1"
      }
     ]
    },
@@ -1497,26 +1511,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 5.787,
+    "occ": 5.795,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "....33.3...................................333.........3..3..........3..3............33......5.5...33.....5.......3................5......53....5........5...5...........",
+    "move": 11,
+    "close": "....33.3...................................333.........3..3..........3..3............33......5.5...33.....5.....3.3.............3..5......53.3...............5...........",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, A9s, A7s-A2s, KTs-K2s, QTs-Q2s, J9s-J2s, T7s-T2s, 97s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, ATo-A2o, KJo-K3o, QTo-Q7o, J8o+, T7o+, 97o, 86o+, 75o+, 64o+, 54o, 43o, 66:0.9, 65s:0.9, 53o:0.9, J7o:0.8, QJo:0.7, KJs:0.6, 98o:0.5"
+      "range": "66-22, A9s, A7s-A2s, KTs-K2s, QTs-Q2s, J9s-J2s, T7s-T2s, 97s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, ATo-A2o, KJo-K4o, QTo-Q7o, J8o+, T7o+, 97o, 86o+, 75o+, 64o+, 54o, 65s:0.9, K3o:0.9, 43o:0.9, QJo:0.8, J7o:0.7, 53o:0.7, KJs:0.5, 98o:0.5"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "77+, ATs+, A8s, KQs, QJs, JTs, T8s+, 98s, 87s, 76s, 54s, AJo+, KQo, 98o:0.5, KJs:0.4, QJo:0.3, 66:0.1, 65s:0.1"
+      "range": "77+, ATs+, A8s, KQs, QJs, JTs, T8s+, 98s, 87s, 76s, 54s, AJo+, KQo, KJs:0.5, 98o:0.5, QJo:0.2, 65s:0.1"
      }
     ]
    },
@@ -1530,26 +1544,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.7%p 움직여요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 6.924,
+    "occ": 6.933,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........33..............................3.3..........33...3............33.........3...3.........3.3.3.........3.33............33....5...5.............5..............55.",
+    "move": 18.7,
+    "close": ".........33..............................3.3..........33...3............33.........3.3.............3.3.........3.33............33....5.................5..............55.",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, A4s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-72s, 64s-62s, 53s-52s, 42s+, 32s, A9o-A2o, K9o-K2o, QTo-Q2o, J4o+, T8o-T6o, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, 44:0.9, A8s:0.9, A6s:0.9, 75s:0.9, KTo:0.7, A7s:0.4, 86s:0.4, 95o:0.4, T8s:0.3, T9o:0.3"
+      "range": "33-22, A4s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-72s, 64s-62s, 53s-52s, 42s+, 32s, A9o-A2o, K9o-K2o, QTo-Q2o, J4o+, T8o-T6o, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, 44:0.9, A8s:0.9, A6s:0.9, 75s:0.8, KTo:0.7, 74o:0.7, A7s:0.4, 86s:0.4, T9o:0.4, T8s:0.3, 95o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "55+, A9s+, A5s, KTs+, QTs+, JTs, T9s, 97s+, 87s, 76s, 65s, 54s, ATo+, KJo+, QJo, T8s:0.7, T9o:0.7, A7s:0.6, 86s:0.6, KTo:0.3, 44:0.1, A8s:0.1, A6s:0.1, 75s:0.1"
+      "range": "55+, A9s+, A5s, KTs+, QTs+, JTs, T9s, 97s+, 87s, 76s, 65s, 54s, ATo+, KJo+, QJo, T8s:0.7, A7s:0.6, 86s:0.6, T9o:0.6, KTo:0.3, 75s:0.2, 44:0.1, A8s:0.1, A6s:0.1"
      }
     ]
    },
@@ -1563,26 +1577,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.1%p 움직여요.",
     "line": "SB 3",
     "reachPct": 100,
-    "occ": 3.069,
+    "occ": 3.059,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........3.33..........3.....3..........3............3...3...........3.............3.3...........3......3...3.3...........333.3....3..75.7......................5......7.",
+    "move": 18.1,
+    "close": "...........3...........3.....3...........................3...........3.............3.3...........3......3.....3...........333.3.3..3..37.7.....................55......7.",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, A7s, A5s, A3s-A2s, K9s-K7s, K4s-K2s, QTs-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, A7o-A2o, KTo-K2o, Q9o-Q2o, J9o-J3o, T8o-T6o, T4o, 97o+, 95o, 85o+, 75o-74o, 32o, A4s:0.9, JTs:0.9, 76s:0.9, J2o:0.9, 96o:0.9, 76o:0.9, 54o:0.9, K6s:0.8, 65o:0.8, 53o:0.8, 84o:0.7, 43o:0.7, A6s:0.6, 65s:0.6, T3o:0.6, K5s:0.5, 64o:0.5, 54s:0.4, 63o:0.4, 52o:0.4, 42o:0.4, A8o:0.3, JTo:0.3, T5o:0.2, QTo:0.1"
+      "range": "55-22, A7s, A3s-A2s, K9s-K7s, K4s-K2s, QTs-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, A7o-A2o, K9o-K2o, Q9o-Q2o, J9o-J2o, T8o-T7o, T4o, 97o+, 95o, 85o+, 75o-74o, 32o, A5s-A4s:0.9, K6s:0.9, JTs:0.9, KTo:0.9, T6o:0.9, 76o:0.9, 65o:0.9, 54o:0.9, 76s:0.8, 96o:0.8, 43o:0.8, T3o:0.7, 84o:0.7, 53o:0.7, A6s:0.6, K5s:0.6, 65s:0.5, 54s:0.5, 64o:0.5, 42o:0.4, A8o:0.3, 63o:0.3, QTo:0.2, JTo:0.2, T5o:0.2, 52o:0.2, KJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "66+, A8s+, KTs+, QJs, A9o+, KJo+, QJo, T9o, QTo:0.9, T5o:0.8, A8o:0.7, JTo:0.7, 54s:0.6, 42o:0.6, K5s:0.5, 64o-63o:0.5, A6s:0.4, 65s:0.4, 52o:0.3, 43o:0.3, K6s:0.2, 65o:0.2, 53o:0.2, A4s:0.1, JTs:0.1, 76s:0.1, 96o:0.1, 76o:0.1, 54o:0.1"
+      "range": "66+, A8s+, KTs+, QJs, A9o+, KQo, QJo, T9o, KJo:0.9, QTo:0.8, JTo:0.8, T5o:0.8, A8o:0.7, 42o:0.6, 65s:0.5, 54s:0.5, 64o-63o:0.5, A6s:0.4, K5s:0.4, 53o-52o:0.3, 76s:0.2, 96o:0.2, 43o:0.2, A5s-A4s:0.1, K6s:0.1, JTs:0.1, KTo:0.1, T6o:0.1, 76o:0.1, 65o:0.1, 54o:0.1"
      }
     ]
    },
@@ -1596,28 +1610,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+1 3벳",
     "title": "UTG 오픈 후 vs UTG+1 3벳",
-    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.1%p 움직여요.",
     "line": "UTG 2.2 · UTG+1 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.718,
-    "regret": 0.0012,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.715,
+    "regret": 0.0009,
+    "confidence": "low",
+    "move": 20.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-77, AQs, KQs, JJ:0.9, AKs:0.9, ATs:0.9, KJs:0.9, AJs:0.7, 66:0.5, AQo:0.3, AKo:0.2"
+      "range": "QQ, TT-77, AQs, KQs, JJ:0.9, ATs:0.9, KJs:0.9, AKs:0.8, AJs:0.7, 66:0.4, AQo+:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, JTs:0.9, AA:0.4, AKo:0.4, JJ:0.1, AKs:0.1, KJs:0.1"
+      "range": "KK, JTs:0.9, AA:0.4, AKo:0.3, AKs:0.2, JJ:0.1, KJs:0.1"
      },
      {
       "key": "shove",
@@ -1637,28 +1651,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+2 3벳",
     "title": "UTG 오픈 후 vs UTG+2 3벳",
-    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.1%p 움직여요.",
     "line": "UTG 2.2 · UTG+2 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.655,
-    "regret": 0.0036,
+    "occ": 0.651,
+    "regret": 0.0033,
     "confidence": "mid",
-    "move": 0,
+    "move": 19.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-77, AQs, KJs+, AKs:0.9, JJ:0.8, 66:0.8, ATs:0.8, AJs:0.7, AQo:0.4, AKo:0.2, JTs:0.1"
+      "range": "QQ, TT-77, AQs, KJs+, 66:0.9, AKs:0.9, JJ:0.8, ATs:0.8, AJs:0.7, AQo:0.4, AKo:0.2, QJs:0.1, JTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, JTs:0.8, AA:0.4, AKo:0.4, JJ:0.2, QJs:0.2, AKs:0.1, AJs-ATs:0.1"
+      "range": "KK, JTs:0.8, AA:0.4, AKo:0.4, JJ:0.2, QJs:0.2, AKs:0.1, AJs:0.1"
      },
      {
       "key": "shove",
@@ -1678,34 +1692,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs LJ 3벳",
     "title": "UTG 오픈 후 vs LJ 3벳",
-    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18%p 움직여요.",
     "line": "UTG 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.595,
-    "regret": 0.0031,
+    "occ": 0.584,
+    "regret": 0.0039,
     "confidence": "mid",
-    "move": 0,
+    "move": 18,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-66, AQs, KJs+, AJs:0.9, JJ:0.7, AKs:0.7, ATs:0.6, AQo:0.5, JTs:0.3, QJs:0.2, AKo:0.2"
+      "range": "QQ, TT-66, AQs, KJs+, AJs:0.9, JJ:0.8, ATs:0.7, AKs:0.6, AQo:0.5, QJs:0.4, JTs:0.3, AKo:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, JTs:0.7, AA:0.4, QJs:0.4, AKo:0.4, JJ:0.3, AKs:0.2, ATs:0.2"
+      "range": "KK, JTs:0.7, AA:0.5, AKo:0.4, AKs:0.3, QJs:0.3, JJ:0.2, ATs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.6, AKo:0.4, AKs:0.1, AJs-ATs:0.1"
+      "range": "A5s, AA:0.5, AKo:0.3, AKs:0.1, AJs-ATs:0.1"
      }
     ]
    },
@@ -1719,34 +1733,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.3%p 움직여요.",
     "line": "UTG 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.547,
-    "regret": 0.004,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.542,
+    "regret": 0.0038,
+    "confidence": "low",
+    "move": 21.3,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-66, AQs, KJs+, JJ:0.8, AJs-ATs:0.8, JTs:0.8, AQo:0.5, AKs:0.4, AKo:0.2"
+      "range": "QQ, TT-66, AQs, KJs+, JJ:0.9, AJs-ATs:0.8, JTs:0.8, AQo:0.5, AKs:0.4, AKo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, QJs:0.9, AKs:0.5, AA:0.4, AKo:0.4, JJ:0.2, ATs:0.2, JTs:0.2"
+      "range": "KK, QJs:0.9, AKs:0.5, AKo:0.5, AA:0.4, ATs:0.2, JTs:0.2, JJ:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.6, AKo:0.4, AJs:0.2, AKs:0.1"
+      "range": "A5s, AA:0.6, AKo:0.3, AJs:0.2, AKs:0.1"
      }
     ]
    },
@@ -1760,35 +1774,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.6%p 움직여요.",
     "line": "UTG 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.495,
+    "occ": 0.491,
     "regret": 0.0039,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..5.5......................9.............................................................................................................................................",
+    "confidence": "low",
+    "move": 21.6,
+    "close": "..5........................9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs-ATs, KJs+, JTs:0.7, T9s:0.5, AQo:0.3, AKs:0.2, AKo:0.2"
+      "range": "QQ-66, AQs-ATs, KJs+, JTs:0.7, T9s:0.4, AQo:0.4, AKo:0.2, AKs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, AKs:0.7, QJs:0.7, AKo:0.4, AA:0.3, AQo:0.2, JTs:0.1"
+      "range": "KK, QJs:0.8, AKs:0.7, AKo:0.4, AA:0.3, AQo:0.2, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.7, AKo:0.4, A8s:0.2, AKs:0.1, A9s:0.1, AQo:0.1"
+      "range": "A5s, AA:0.7, AKo:0.4, AKs:0.2, A8s:0.2, A9s:0.1"
      }
     ]
    },
@@ -1802,34 +1816,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BTN 3벳",
     "title": "UTG 오픈 후 vs BTN 3벳",
-    "description": "UTG 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.5%p 움직여요.",
     "line": "UTG 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.472,
-    "regret": 0.0039,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.466,
+    "regret": 0.0046,
+    "confidence": "low",
+    "move": 22.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AJs, KJs+, AQs:0.9, JTs:0.9, QQ:0.8, ATs:0.5, T9s:0.4, AQo+:0.2, AKs:0.1"
+      "range": "JJ-66, AJs, KJs+, QQ:0.9, AQs:0.9, JTs:0.9, ATs:0.5, T9s:0.5, AQo:0.3, AKo:0.2, AKs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, QJs:0.7, AKs:0.6, ATs:0.4, AQo+:0.3, QQ:0.2, AA:0.1, JTs:0.1"
+      "range": "KK, QJs:0.7, AKs:0.6, ATs:0.4, AKo:0.3, AQo:0.2, AA:0.1, QQ:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA:0.9, A5s:0.9, A8s:0.6, AKo:0.5, AKs:0.3, AQs:0.1, ATs:0.1"
+      "range": "A5s, AA:0.9, A8s:0.8, AKo:0.5, AKs:0.3, AQs:0.1, ATs:0.1"
      }
     ]
    },
@@ -1843,16 +1857,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.335,
-    "regret": 0.0022,
+    "occ": 0.326,
+    "regret": 0.002,
     "confidence": "low",
-    "move": 0,
+    "move": 12.8,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -1864,7 +1878,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-66, KQs, AQs:0.9, AJs:0.8, AKs:0.6, KJs:0.6, AKo:0.5, QJs:0.3, ATs:0.2"
+      "range": "KK-66, KQs, AQs-AJs:0.9, AKs:0.5, KJs:0.5, AKo:0.5, ATs:0.3, QJs:0.3"
      },
      {
       "key": "4bet",
@@ -1876,7 +1890,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, AKo:0.5, AKs:0.4, AJs:0.2, A8s:0.2, AQs:0.1, ATs:0.1"
+      "range": "AA, A5s, AKs:0.5, AKo:0.5, A8s:0.2, AQs-ATs:0.1"
      }
     ]
    },
@@ -1890,16 +1904,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 15.1%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.3,
-    "occ": 0.25,
-    "regret": 0.0019,
+    "occ": 0.235,
+    "regret": 0.0028,
     "confidence": "low",
-    "move": 0,
+    "move": 15.1,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -1911,7 +1925,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-88, KQs, AQs:0.9, KJs:0.9, AJs-ATs:0.8, QJs:0.8, 77:0.7, AKo:0.3, AKs:0.2"
+      "range": "KK-88, AQs, KQs, KJs:0.9, AJs-ATs:0.8, 77:0.7, QJs:0.7, AKs:0.3, AKo:0.2"
      },
      {
       "key": "4bet",
@@ -1923,7 +1937,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs:0.8, AKo:0.7, AJs:0.2, A5s:0.2, AQs:0.1, ATs:0.1"
+      "range": "AA, AKo:0.8, AKs:0.7, AJs:0.2, ATs:0.1, A5s:0.1"
      }
     ]
    },
@@ -1937,34 +1951,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.8%p 움직여요.",
     "line": "UTG+1 2.2 · UTG+2 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
+    "reachPct": 16.1,
     "occ": 0.717,
-    "regret": 0.0026,
+    "regret": 0.0025,
     "confidence": "mid",
-    "move": 0,
+    "move": 18.8,
+    "close": "....5....................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-77, AQs+, KJs+, ATs:0.9, 66:0.8, QJs:0.8, AJs:0.7, AQo:0.7, JJ:0.6, AKo:0.3, JTs:0.2"
+      "range": "QQ, TT-77, AQs+, ATs, KJs+, 66:0.8, AQo:0.8, QJs:0.7, JJ:0.6, AJs:0.5, AKo:0.3, JTs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, JTs:0.8, AA:0.4, JJ:0.4, AKo:0.3, AJs:0.2, QJs:0.2, KTs:0.1, AQo:0.1"
+      "range": "KK, JTs:0.8, JJ:0.4, AKo:0.4, AA:0.3, AJs:0.3, QJs:0.2, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.6, AKo:0.4, AJs-ATs:0.1"
+      "range": "A5s, AA:0.7, AKo:0.3, AJs:0.2"
      }
     ]
    },
@@ -1978,16 +1993,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.4%p 움직여요.",
     "line": "UTG+1 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.68,
+    "reachPct": 16.1,
+    "occ": 0.666,
     "regret": 0.0031,
     "confidence": "mid",
-    "move": 0,
+    "move": 18.4,
+    "close": ".................b.......................................................................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -1999,13 +2015,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, QJs:0.8, JJ:0.5, AKo:0.5, AA:0.3, JTs:0.3, AJs:0.2, TT:0.1, KTs:0.1, AQo:0.1"
+      "range": "KK, QJs:0.8, JJ:0.5, AKo:0.5, AA:0.3, JTs:0.3, AJs:0.2, TT:0.1, AKs:0.1, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.9, AA:0.7, AKo:0.4, AJs:0.3, AKs:0.1"
+      "range": "A5s, AA:0.7, AKo:0.4, AJs:0.3"
      }
     ]
    },
@@ -2019,29 +2035,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs HJ 3벳",
     "title": "UTG+1 오픈 후 vs HJ 3벳",
-    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.6%p 움직여요.",
     "line": "UTG+1 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.652,
-    "regret": 0.0025,
+    "reachPct": 16.1,
+    "occ": 0.646,
+    "regret": 0.0026,
     "confidence": "mid",
-    "move": 0,
-    "close": "..5......................................................................................................................................................................",
+    "move": 18.6,
+    "close": "..5..............a.........9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs, ATs, KJs+, JTs, QQ:0.9, TT:0.9, AJs:0.9, JJ:0.6, AQo:0.6, T9s:0.4, AKo:0.3, AKs:0.2, QJs:0.2, QTs:0.1"
+      "range": "99-66, AQs, ATs, KJs+, JTs, QQ:0.9, TT:0.9, AJs:0.9, JJ:0.7, AQo:0.6, T9s:0.4, AKo:0.3, AKs:0.2, QJs:0.2, QTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK, QJs:0.8, AKs:0.5, JJ:0.4, AQo:0.4, AA:0.2, AKo:0.2, QQ:0.1, TT:0.1, KTs:0.1"
+      "range": "KK, QJs:0.8, AKs:0.5, AQo:0.4, JJ:0.3, AA:0.2, AKo:0.2, QQ:0.1, TT:0.1"
      },
      {
       "key": "shove",
@@ -2061,35 +2077,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs CO 3벳",
     "title": "UTG+1 오픈 후 vs CO 3벳",
-    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.3%p 움직여요.",
     "line": "UTG+1 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.621,
-    "regret": 0.0017,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................9...............................................................................................................",
+    "reachPct": 16.1,
+    "occ": 0.622,
+    "regret": 0.0012,
+    "confidence": "low",
+    "move": 21.3,
+    "close": "....3....................................................9...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs, KJs+, T9s, JJ:0.9, ATs:0.9, JTs:0.9, AJs:0.7, QQ:0.6, AQo:0.6, AKo:0.1, KQo:0.1"
+      "range": "TT-66, AQs, ATs, KJs+, T9s, JJ:0.9, JTs:0.9, AJs:0.7, QQ:0.6, AQo:0.5, AKo:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.9, AKs:0.8, QJs:0.5, QQ:0.4, AQo:0.4, KTs:0.3, AA:0.2, AKo:0.2, JJ:0.1, ATs:0.1, JTs:0.1"
+      "range": "KK:0.9, AKs:0.8, QJs:0.5, AQo:0.5, QQ:0.4, AA:0.2, KTs:0.2, JJ:0.1, JTs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA:0.8, A5s:0.7, AKo:0.7, AJs:0.3, AKs:0.2, KK:0.1"
+      "range": "AA:0.8, A5s:0.8, AKo:0.8, AJs:0.3, AKs:0.2, KK:0.1"
      }
     ]
    },
@@ -2103,35 +2119,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.5%p 움직여요.",
     "line": "UTG+1 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.589,
+    "reachPct": 16.1,
+    "occ": 0.582,
     "regret": 0.0016,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...5......................................3............................9.............9...................................................................................",
+    "confidence": "low",
+    "move": 21.5,
+    "close": "...5..........................9........................................9.............9...................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-AJs, KJs+, JTs, T9s, ATs:0.9, AQo:0.6, QQ:0.4, QJs:0.4, QTs:0.1, KQo:0.1"
+      "range": "JJ-66, AQs-AJs, KJs+, JTs, T9s, ATs:0.9, AQo:0.6, QQ:0.5, QJs:0.4, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AKs:0.8, KK:0.7, QQ:0.6, QJs:0.6, KTs:0.5, AQo:0.4, AA:0.3, AKo:0.2"
+      "range": "AKs:0.9, KK:0.7, QJs:0.6, QQ:0.5, KTs:0.5, AQo:0.4, AA:0.3, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AKo:0.8, AA:0.7, KK:0.3, AKs:0.2, ATs:0.1"
+      "range": "A5s, AKo:0.8, AA:0.7, KK:0.3, AKs:0.1, ATs:0.1"
      }
     ]
    },
@@ -2145,22 +2161,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
+    "reachPct": 16.1,
     "occ": 0.399,
-    "regret": 0.0013,
+    "regret": 0.0014,
     "confidence": "low",
-    "move": 0,
+    "move": 11.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KJs+, 66:0.9, KK:0.8, AJs:0.8, AKs:0.7, JTs:0.5, AQo:0.5, ATs:0.3, AKo:0.2"
+      "range": "QQ-77, AQs, KJs+, 66:0.9, KK:0.8, AJs:0.8, AKs:0.7, JTs:0.4, AQo:0.4, ATs:0.3, AKo:0.2"
      },
      {
       "key": "4bet",
@@ -2186,23 +2202,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 14.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.2,
-    "occ": 0.285,
-    "regret": 0.0023,
+    "reachPct": 16.1,
+    "occ": 0.283,
+    "regret": 0.0034,
     "confidence": "low",
-    "move": 0,
-    "close": "....5.........5..........................................................................................................................................................",
+    "move": 14.8,
+    "close": ".5..5....................................................................................................................................................................",
+    "flags": [
+     {
+      "code": "PF-SANITY-12",
+      "hands": "KK"
+     }
+    ],
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-77, ATs, KJs+, QJs, AJs:0.8, JTs:0.7, AQs:0.6, AQo:0.4, 66:0.3, AKo:0.3, A5s:0.1, QTs:0.1, KQo:0.1"
+      "range": "KK-77, ATs, KJs+, QJs, AJs:0.8, AQs:0.6, JTs:0.6, 66:0.4, AQo:0.4, AKo:0.3, A5s:0.1, QTs:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -2228,16 +2250,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs LJ 3벳",
     "title": "UTG+2 오픈 후 vs LJ 3벳",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.1%p 움직여요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
-    "occ": 0.922,
+    "reachPct": 18.5,
+    "occ": 0.921,
     "regret": 0.0027,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 25.1,
     "close": ".3.......................................................................................................................................................................",
     "actions": [
      {
@@ -2250,13 +2272,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK+, AKs, KTs, QJs, QQ:0.9, JJ:0.7, AKo:0.7, AQo:0.3, JTs:0.2, T9s:0.1, AJo:0.1"
+      "range": "KK, AKs, KTs, QJs, AA:0.9, QQ:0.9, JJ:0.7, AKo:0.7, AQo:0.3, JTs:0.2, T9s:0.1, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.1"
+      "range": "A5s:0.2, AA:0.1"
      }
     ]
    },
@@ -2270,35 +2292,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs HJ 3벳",
     "title": "UTG+2 오픈 후 vs HJ 3벳",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.3%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
-    "occ": 0.85,
+    "reachPct": 18.5,
+    "occ": 0.849,
     "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....9...................................................3...............................................................................................................",
+    "confidence": "low",
+    "move": 26.3,
+    "close": "........................................................3................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs-A9s, KJs+, T9s, TT:0.9, QTs:0.9, JTs:0.8, AQo:0.7, JJ:0.4, KQo:0.4, QQ:0.1, AJo:0.1"
+      "range": "TT-66, AQs-ATs, KJs+, A9s:0.9, QTs:0.9, JTs:0.9, T9s:0.9, AQo:0.7, KQo:0.5, JJ:0.4, QQ:0.1, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AKs, KTs, QJs, AA:0.9, QQ:0.9, KK:0.7, AKo:0.7, JJ:0.6, AQo:0.3, JTs:0.2, TT:0.1, QTs:0.1"
+      "range": "AKs, KTs, QJs, AA:0.9, QQ:0.9, KK:0.8, AKo:0.7, JJ:0.6, AQo:0.3, QTs:0.1, JTs:0.1, T9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.3, AKo:0.3, A5s:0.2, AA:0.1"
+      "range": "AKo:0.3, KK:0.2, A5s:0.2, AA:0.1"
      }
     ]
    },
@@ -2312,28 +2334,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs CO 3벳",
     "title": "UTG+2 오픈 후 vs CO 3벳",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.2%p 움직여요.",
     "line": "UTG+2 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
-    "occ": 0.872,
-    "regret": 0.0016,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 18.5,
+    "occ": 0.865,
+    "regret": 0.0014,
+    "confidence": "low",
+    "move": 20.2,
+    "close": ".....9...................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-A9s, KQs, T9s, JTs:0.9, QTs:0.8, KJs:0.7, AQo:0.7, 98s:0.6, 87s:0.6, JJ:0.5, QJs:0.5, AJo:0.3, KQo:0.3, QQ:0.2"
+      "range": "TT-66, AQs-A9s, KQs, T9s, QTs:0.9, JTs:0.9, KJs:0.8, AQo:0.8, 87s:0.7, 98s:0.6, JJ:0.5, QJs:0.5, KQo:0.4, AJo:0.3, QQ:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AKs, KTs, QQ:0.8, KK+:0.7, JJ:0.5, QJs:0.5, AKo:0.5, KJs:0.3, AQo:0.3, JTs:0.1"
+      "range": "AKs, KTs, QQ:0.8, KK+:0.7, JJ:0.5, QJs:0.5, AKo:0.5, KJs:0.2, AQo:0.2, K9s:0.1, JTs:0.1"
      },
      {
       "key": "shove",
@@ -2353,35 +2376,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BTN 3벳",
     "title": "UTG+2 오픈 후 vs BTN 3벳",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.4%p 움직여요.",
     "line": "UTG+2 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
-    "occ": 0.784,
-    "regret": 0.0021,
+    "reachPct": 18.5,
+    "occ": 0.772,
+    "regret": 0.0016,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................9...................................................................................",
+    "move": 18.4,
+    "close": "..................a........................3.............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KQs, T9s, 87s, A9s:0.9, JTs:0.9, 98s:0.9, JJ:0.7, KJs:0.7, QTs:0.7, QJs:0.5, AQo:0.5, AJo:0.4, KQo:0.2, QQ:0.1, KTs:0.1"
+      "range": "TT-66, AQs-ATs, KQs, JTs, T9s, 87s, A9s:0.9, 98s:0.9, JJ:0.8, KJs:0.7, QTs:0.7, QJs:0.5, AQo:0.5, AJo:0.4, KQo:0.2, QQ:0.1, KTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AKs, KTs:0.9, QQ:0.8, AA:0.7, KK:0.5, QJs:0.5, AQo:0.5, JJ:0.3, KJs:0.3, AKo:0.3, J9s:0.2, K9s:0.1, JTs:0.1"
+      "range": "AKs, QQ:0.9, KTs:0.9, AA:0.6, KK:0.5, QJs:0.5, AQo:0.5, KJs:0.3, AKo:0.3, JJ:0.2, J9s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AKo:0.7, KK:0.5, AA:0.3, QQ:0.1"
+      "range": "A5s, AKo:0.7, KK:0.5, AA:0.4"
      }
     ]
    },
@@ -2395,22 +2418,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 9.6%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
-    "occ": 0.437,
-    "regret": 0.0209,
+    "reachPct": 18.5,
+    "occ": 0.433,
+    "regret": 0.018,
     "confidence": "low",
-    "move": 0,
+    "move": 9.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs, KQs, JTs:0.9, AQo:0.9, AJs:0.8, KJs:0.8, ATs:0.7, QJs:0.7, AKs:0.6, KK:0.3, KTs:0.3, QTs:0.3, T9s:0.3, AKo:0.3, 87s:0.1"
+      "range": "QQ-66, AQs, KQs, KJs:0.9, JTs:0.9, AQo:0.9, AJs:0.8, ATs:0.7, QJs:0.7, AKs:0.6, KK:0.4, KTs:0.3, QTs:0.3, T9s:0.3, AKo:0.3"
      },
      {
       "key": "4bet",
@@ -2422,7 +2445,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s:0.7, AKo:0.6, AKs:0.4, KK:0.2, AJs:0.2, ATs:0.1, A8s-A7s:0.1"
+      "range": "AA, A5s:0.7, AKo:0.6, AKs:0.4, AJs:0.2, KK:0.1, ATs:0.1, A8s-A7s:0.1"
      }
     ]
    },
@@ -2436,23 +2459,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 9.7%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.4,
+    "reachPct": 18.5,
     "occ": 0.304,
-    "regret": 0.0022,
+    "regret": 0.0035,
     "confidence": "low",
-    "move": 0,
-    "close": "......9..................................................................................................................................................................",
+    "move": 9.7,
+    "close": ".5....9..................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, KJs+, QJs, JTs, AQs:0.9, ATs:0.9, AQo:0.9, AJs:0.8, KK:0.7, QTs:0.7, 66:0.6, KTs:0.6, A9s:0.2, KQo:0.2, AKs:0.1, A5s:0.1, T9s:0.1, AKo:0.1"
+      "range": "QQ-77, KJs+, QJs, JTs, AQs:0.9, ATs:0.9, AQo:0.9, QTs:0.8, KK:0.7, AJs:0.7, 66:0.6, KTs:0.6, A5s:0.2, KQo:0.2, A9s:0.1, T9s:0.1, AKo:0.1"
      },
      {
       "key": "4bet",
@@ -2464,7 +2487,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs:0.9, AKo:0.9, KK:0.3, AJs:0.2, A5s:0.2, AQs:0.1, ATs:0.1, AQo:0.1"
+      "range": "AA, AKs, AKo:0.9, KK:0.3, AJs:0.3, A5s:0.2, AQs:0.1, ATs:0.1"
      }
     ]
    },
@@ -2478,29 +2501,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs HJ 3벳",
     "title": "LJ 오픈 후 vs HJ 3벳",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.9%p 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21.8,
-    "occ": 1.163,
+    "reachPct": 21.7,
+    "occ": 1.153,
     "regret": 0.0007,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........c............................................................3.................................................................................................",
+    "move": 19.9,
+    "close": "6.........c.......a....................................................3.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-A9s, KQs, QTs+, JTs, T9s, 98s, AJo, KQo:0.9, TT:0.7, AQo:0.4, KJs:0.3, J9s:0.3, JJ:0.2"
+      "range": "99-55, AQs-A9s, KQs, QTs+, JTs, T9s, 98s, AJo, KQo:0.9, TT:0.7, AQo:0.4, J9s:0.3, JJ:0.2, KJs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, QQ, AKs, KTs, JJ:0.8, KJs:0.7, AQo:0.6, KK:0.4, TT:0.3, T8s:0.3, AKo:0.2"
+      "range": "AA, QQ, AKs, KTs, JJ:0.8, KJs:0.8, AQo:0.6, KK:0.4, TT:0.3, T8s:0.3, AKo:0.2"
      },
      {
       "key": "shove",
@@ -2520,17 +2543,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs CO 3벳",
     "title": "LJ 오픈 후 vs CO 3벳",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.3%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21.8,
-    "occ": 1.023,
+    "reachPct": 21.7,
+    "occ": 1.018,
     "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........c.......b........b...........9...3............33....................................................................3..........................................",
+    "confidence": "low",
+    "move": 20.3,
+    "close": "6.........c.......b........b...............3............33...............................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -2562,35 +2585,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BTN 3벳",
     "title": "LJ 오픈 후 vs BTN 3벳",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.6%p 움직여요.",
     "line": "LJ 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21.8,
-    "occ": 0.94,
-    "regret": 0.0015,
+    "reachPct": 21.7,
+    "occ": 0.947,
+    "regret": 0.0016,
     "confidence": "mid",
-    "move": 0,
-    "close": "............................6..9........................3................................................................................................................",
+    "move": 19.6,
+    "close": "............................6...........................3................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-A9s, KQs, QTs+, J9s+, T9s, 98s, 87s, AJo, KQo:0.7, KTs:0.5, T8s:0.5, KJs:0.4, 97s:0.4, AQo:0.3"
+      "range": "TT-55, AQs-A9s, KQs, QTs+, J9s+, T9s, 98s, 87s, AJo, KQo:0.7, KTs:0.6, T8s:0.6, KJs:0.5, 97s:0.5, AQo:0.3, Q9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "QQ-JJ, AKs, AA:0.7, AQo:0.7, KJs:0.6, KK:0.5, KTs:0.5, K9s:0.4, AKo:0.3, KQo:0.3, T8s:0.1"
+      "range": "QQ-JJ, AKs, AA:0.7, AQo:0.7, KK:0.5, KJs:0.5, KTs-K9s:0.4, AKo:0.3, KQo:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AKo:0.7, A5s:0.6, KK:0.5, AA:0.3, A4s:0.2"
+      "range": "AKo:0.7, A5s:0.6, KK:0.5, AA:0.3, A4s:0.3"
      }
     ]
    },
@@ -2604,23 +2627,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21.8,
-    "occ": 0.6,
-    "regret": 0.001,
+    "reachPct": 21.7,
+    "occ": 0.586,
+    "regret": 0.0016,
     "confidence": "low",
-    "move": 0,
-    "close": "6...5.....................................5..............................................................................................................................",
+    "move": 11.2,
+    "close": "6........................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-ATs, KQs, JTs, T9s, 98s, AQo, KJs:0.9, QJs:0.9, 87s:0.8, KTs:0.7, AKs:0.5, A9s:0.4, QTs:0.4, AKo:0.2, AJo:0.2"
+      "range": "QQ-55, AQs-AJs, KQs, JTs, T9s, 98s, AQo, ATs:0.9, KJs:0.9, QJs:0.9, KTs:0.7, 87s:0.7, AKs:0.5, A9s:0.5, QTs:0.5, AKo:0.2, AJo:0.2"
      },
      {
       "key": "4bet",
@@ -2632,7 +2655,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s-A4s, KK:0.7, AKo:0.7, AKs:0.5, A7s:0.2, A6s:0.1, KJs:0.1"
+      "range": "AA, A5s-A4s, KK:0.7, AKo:0.7, AKs:0.5, A7s:0.2, ATs:0.1, A6s:0.1, KJs:0.1"
      }
     ]
    },
@@ -2646,23 +2669,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 21.8,
-    "occ": 0.382,
-    "regret": 0.0011,
+    "reachPct": 21.7,
+    "occ": 0.378,
+    "regret": 0.001,
     "confidence": "low",
-    "move": 0,
+    "move": 8.8,
     "close": ".........................................................9...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs, KTs+, QTs+, JTs, T9s, AQo, 55:0.9, ATs:0.9, AJs:0.7, Q9s:0.6, KQo:0.4, A9s:0.2, K9s:0.1"
+      "range": "QQ-66, AQs, KTs+, QTs+, JTs, T9s, AQo, ATs:0.9, 55:0.8, AJs:0.7, Q9s:0.6, KQo:0.4, A9s:0.2, K9s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
@@ -2689,13 +2712,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "HJ — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.055,
+    "occ": 1.054,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.1,
     "close": "..........3..............................................................................................................................................................",
     "actions": [
      {
@@ -2716,17 +2739,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs CO 3벳",
     "title": "HJ 오픈 후 vs CO 3벳",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.1%p 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26,
-    "occ": 1.36,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3.3.......3............3............a....................................................................................................................",
+    "occ": 1.355,
+    "regret": 0.0005,
+    "confidence": "low",
+    "move": 22.1,
+    "close": "................3.3....................3............a....................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -2739,19 +2762,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AQs-A8s, KJs+, K9s, QTs+, J9s, T8s+, 98s, 87s, 76s, 65s, AJo, JTs:0.9, 99:0.8, KTs:0.8, Q9s:0.8, KQo:0.7, 97s:0.4"
+      "range": "88-55, AQs-A8s, KJs+, K9s, QTs+, J9s, T8s+, 98s, 87s, 76s, 65s, AJo, KTs:0.9, Q9s:0.9, JTs:0.9, 99:0.8, KQo:0.7, 97s:0.3, AQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, QQ-TT, AKs, AQo, AKo:0.5, KJo:0.5, KQo:0.3, 99:0.2, KTs:0.2, JTs:0.1"
+      "range": "AA, QQ-TT, AKs, AQo:0.9, AKo:0.5, KJo:0.5, KQo:0.3, 99:0.2, KTs:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A5s-A4s:0.7, AKo:0.5"
+      "range": "KK, A5s:0.7, A4s:0.6, AKo:0.5"
      }
     ]
    },
@@ -2765,29 +2788,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.3%p 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26,
-    "occ": 1.261,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................3......................9..........a....................................................................................................................",
+    "occ": 1.258,
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 26.3,
+    "close": "..................3.................................a....................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AJs-A8s, K9s+, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, AQs:0.9, AJo:0.9, KQo:0.4, J8s:0.3, 99:0.2, TT:0.1, A5s:0.1"
+      "range": "88-55, AJs-A8s, K9s+, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, AJo:0.9, AQs:0.8, KQo:0.5, J8s:0.4, 99:0.2, TT:0.1, QJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "AA, JJ, AKs, AQo, QQ:0.9, TT:0.9, 99:0.8, AKo:0.7, KQo:0.6, KJo:0.4, KK:0.3, AQs:0.1, AJo:0.1"
+      "range": "AA, JJ, AKs, AQo, QQ:0.9, TT:0.9, 99:0.8, AKo:0.7, KQo:0.5, KJo:0.4, KK:0.3, AQs:0.2, AJo:0.1"
      },
      {
       "key": "shove",
@@ -2807,35 +2830,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 15.9%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26,
-    "occ": 0.735,
+    "occ": 0.733,
     "regret": 0.001,
     "confidence": "low",
-    "move": 0,
-    "close": ".................................................................................................................9.......................................................",
+    "move": 15.9,
+    "close": "........................................................................9................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-A9s, KQs, QTs+, J9s+, T8s+, 98s, 87s, 76s, 65s, AQo-AJo, KJs:0.9, 97s:0.9, QQ:0.8, KTs:0.8, KQo:0.6"
+      "range": "JJ-55, AQs-A9s, KQs, QTs+, J9s+, T8s+, 97s+, 87s, 76s, AQo-AJo, KJs:0.9, QQ:0.8, KTs:0.8, 65s:0.8, KQo:0.6"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AKs:0.2, KTs:0.2, QQ+:0.1"
+      "range": "AKs:0.2, KTs:0.2, QQ+:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AKo, KK+:0.9, AKs:0.8, A4s:0.5, QQ:0.1, KJs:0.1"
+      "range": "A5s, AKo, KK+:0.9, AKs:0.8, A4s:0.5, QQ:0.1"
      }
     ]
    },
@@ -2849,23 +2872,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 10.6%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26,
     "occ": 0.489,
-    "regret": 0.0012,
+    "regret": 0.0006,
     "confidence": "low",
-    "move": 0,
-    "close": "...5........................5........................................................9...................................................................................",
+    "move": 10.6,
+    "close": "............................5........................................................9...................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-A8s, A5s, KTs+, Q9s+, J9s+, T9s, 98s, AQo, KQo, T8s:0.3, AJo:0.3, A4s:0.2, K9s:0.2"
+      "range": "QQ-55, AQs, ATs-A8s, A5s, KTs+, Q9s+, J9s+, T9s, 98s, AQo, KQo, AJs:0.9, T8s:0.5, K9s:0.3, AJo:0.3, A4s:0.2"
      },
      {
       "key": "4bet",
@@ -2877,7 +2900,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, AKo, A4s-A3s:0.8"
+      "range": "KK+, AKs, AKo, A4s-A3s:0.8, AJs:0.1"
      }
     ]
    },
@@ -2892,13 +2915,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ3벳",
     "title": "CO — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachPct": 100,
     "occ": 1.027,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.1,
     "close": "..........3..............................................................................................................................................................",
     "actions": [
      {
@@ -2920,13 +2943,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "CO — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.316,
+    "occ": 1.305,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.2,
     "close": "..........3.............................................3................................................................................................................",
     "actions": [
      {
@@ -2947,17 +2970,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BTN 3벳",
     "title": "CO 오픈 후 vs BTN 3벳",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.7%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 34.8,
-    "occ": 1.87,
-    "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................55...............9......b.............a..................................................................................................................",
+    "reachPct": 34.9,
+    "occ": 1.877,
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 21.7,
+    "close": "..............6.55...............9......9.....9.....3.a..................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -2970,19 +2993,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs-A5s, A2s, KJs+, K9s-K8s, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, KJo, QJo, J7s:0.9, ATo:0.9, K7s:0.8, 88:0.6, A3s:0.6, AJo:0.6, 85s:0.5, KQo:0.4, A4s:0.2"
+      "range": "77-44, AJs-A5s, A2s, KJs+, K9s-K8s, Q8s+, J7s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, ATo, KJo, QJo, K7s:0.9, 88:0.6, A3s:0.6, AJo:0.6, 85s:0.4, KQo:0.4, A4s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK+, TT-99, AQs+, AQo, JJ:0.9, KQo:0.6, AKo:0.5, JTo:0.5, 88:0.4, AJo:0.4, ATo:0.1"
+      "range": "KK+, TT-99, AQs+, AQo, JJ:0.9, KQo:0.6, AKo:0.5, JTo:0.5, 88:0.4, AJo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ, KTs, A4s:0.8, AKo:0.5, A3s:0.4, JJ:0.1"
+      "range": "QQ, KTs, A4s:0.9, AKo:0.5, A3s:0.4, JJ:0.1"
      }
     ]
    },
@@ -2996,17 +3019,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.3%p 움직여요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 34.8,
-    "occ": 1.071,
+    "reachPct": 34.9,
+    "occ": 1.067,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........5.......3.......................9.............9.................................................................................................................",
+    "move": 14.3,
+    "close": ".........5...............................9.............9.................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -3019,7 +3042,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A7s, A5s, K9s+, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, JJ:0.4, K8s:0.4, J7s:0.4"
+      "range": "TT-44, AQs-A7s, A5s, K9s+, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, J7s:0.5, JJ:0.4, K8s:0.4"
      },
      {
       "key": "4bet",
@@ -3031,7 +3054,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s, AKo:0.6, A3s:0.4, QQ:0.2, AA:0.1"
+      "range": "KK, A4s, AKo:0.6, A3s:0.5, QQ:0.2, AA:0.1"
      }
     ]
    },
@@ -3045,62 +3068,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 15.7%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "CO 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 34.8,
-    "occ": 0.712,
+    "reachPct": 34.9,
+    "occ": 0.713,
     "regret": 0.0008,
     "confidence": "low",
-    "move": 0,
+    "move": 15.7,
     "close": ".............6.............................................9.........................9...................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A7s, A2s, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, AJo, KQo, A5s:0.9, K7s:0.9, 76s:0.8, 54s:0.8, QJo:0.8, 97s:0.6, AQo:0.6, A6s:0.5, A3s:0.4, QQ:0.1, JTo:0.1"
+      "range": "JJ-44, AQs-A7s, A2s, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, AJo, KQo, A5s:0.9, K7s:0.8, QJo:0.8, A6s:0.7, 97s:0.7, 76s:0.7, AQo:0.6, 54s:0.5, A3s:0.3, QQ:0.1, JTo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "AKs, QQ:0.8, AQo:0.4, KJo:0.3, AA:0.2"
+      "range": "AKs, QQ:0.8, AQo:0.4, KJo:0.3, AA:0.2, KK:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s, AKo, AA:0.8, A3s:0.6, QQ:0.1, A5s:0.1"
-     }
-    ]
-   },
-   {
-    "id": "btn-at-utgp2-open-lj-3bet",
-    "kind": "vs3bet",
-    "hero": "BTN",
-    "villain": "LJ",
-    "villainSeats": [
-     "UTG+2",
-     "LJ"
-    ],
-    "chip": "UTG+2오픈·LJ3벳",
-    "title": "BTN — UTG+2 오픈 → LJ 3벳 (콜드: 폴드·올인)",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
-    "line": "UTG+2 2.2 · LJ 3벳 6.6",
-    "reachPct": 100,
-    "occ": 1,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "actions": [
-     {
-      "key": "shove",
-      "label": "콜드 올인",
-      "color": "allin",
-      "range": "KK+, AKs, AKo, A5s-A4s:0.9"
+      "range": "A4s, AKo, KK:0.9, AA:0.8, A3s:0.7, QQ:0.1, A5s:0.1"
      }
     ]
    },
@@ -3115,20 +3111,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "BTN — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.28,
+    "occ": 1.269,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........3..............................................................................................................................................................",
+    "move": 0.6,
+    "close": "..........3.....................................................................................................3........................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.3, 66:0.1"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.2"
      }
     ]
    },
@@ -3143,20 +3139,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "BTN — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.126,
+    "occ": 1.12,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.5,
     "close": "..........3.....................................................................................................3........................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.2"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.9, QQ:0.1"
      }
     ]
    },
@@ -3171,13 +3167,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.52,
+    "occ": 1.514,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.4,
+    "close": "..............................................................................................................................3..........................................",
     "actions": [
      {
       "key": "shove",
@@ -3197,23 +3194,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.2%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 54.1,
-    "occ": 1.927,
+    "reachPct": 54.3,
+    "occ": 1.931,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........5............c....5.................9......................3....................a.............................................................................",
+    "move": 18.2,
+    "close": "...........5.................5.................9......................3....................a.............................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-99, 77-22, AQs-A2s, K6s+, QJs, Q9s-Q6s, J6s+, T6s+, 95s+, 84s+, 74s+, 63s+, 53s+, 43s, AJo-A9o, KJo, JTo, KQo:0.9, QJo:0.9, K5s:0.8, 87o:0.8, QTs:0.7, A8o:0.7, Q5s:0.6, 88:0.5, T9o:0.2, 98o:0.1"
+      "range": "TT-99, 77-22, AQs-A2s, K6s+, QJs, Q9s-Q6s, J6s+, T6s+, 95s+, 84s+, 74s+, 63s+, 53s+, 43s, AJo-A9o, KJo, JTo, KQo:0.9, QJo:0.9, 87o:0.9, K5s:0.8, QTs:0.7, Q5s:0.7, A8o:0.7, 88:0.5, T9o:0.3, 98o:0.1"
      },
      {
       "key": "4bet",
@@ -3225,7 +3222,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK:0.3, QTs:0.3, K5s:0.2, AKo:0.2, QQ:0.1, QJo:0.1"
+      "range": "KK:0.3, QTs:0.3, K5s:0.2, AKo:0.2, QQ:0.1, K3s:0.1, QJo:0.1"
      }
     ]
    },
@@ -3239,35 +3236,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.1%p 움직여요.",
     "line": "BTN 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 54.1,
-    "occ": 1.262,
-    "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 54.3,
+    "occ": 1.259,
+    "regret": 0.001,
+    "confidence": "low",
+    "move": 20.1,
     "close": "........................5...............3.....................................a........b.................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, 22, AJs-A5s, A2s, K3s+, Q6s+, J7s+, T7s+, 96s+, 85s+, 76s, 64s+, 54s, ATo, KJo+, QJo, JTo, 88:0.9, 33:0.9, 75s:0.9, AJo:0.9, A3s:0.7, A9o:0.7, QTo:0.7, 99:0.6, T9o:0.6, TT:0.4, K2s:0.3, 53s:0.3, KTo:0.3, T6s:0.2, A4s:0.1"
+      "range": "77-44, 22, AJs-A5s, A2s, K3s+, Q6s+, J7s+, T7s+, 96s+, 85s+, 76s, 64s+, 54s, ATo, KJo+, QJo, JTo, 88:0.9, 33:0.9, AJo:0.9, 75s:0.8, A3s:0.7, A9o:0.7, T9o:0.7, 99:0.6, QTo:0.6, T6s:0.5, TT:0.4, KTo:0.4, K2s:0.3, A4s:0.2, 53s:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 20.2bb",
       "color": "raise",
-      "range": "KK+, AQs+, AQo, AKo:0.7, KTo:0.7, JJ-TT:0.6, QQ:0.4, 99:0.4, A9o:0.3, QTo:0.3, 88:0.1, 75s:0.1, AJo:0.1"
+      "range": "KK+, AQs+, AQo, AKo:0.8, JJ-TT:0.6, KTo:0.6, QQ:0.4, 99:0.4, QTo:0.4, A9o:0.3, 75s:0.2, 88:0.1, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A4s:0.9, QQ:0.6, JJ:0.4, A3s:0.3, AKo:0.3, 33:0.1"
+      "range": "A4s:0.8, QQ:0.6, JJ:0.4, A3s:0.3, AKo:0.2, 33:0.1"
      }
     ]
    },
@@ -3282,13 +3279,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "SB — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.244,
+    "occ": 1.234,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.3,
     "actions": [
      {
       "key": "shove",
@@ -3309,13 +3306,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "SB — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.095,
+    "occ": 1.089,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.4,
     "actions": [
      {
       "key": "shove",
@@ -3336,19 +3333,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN3벳",
     "title": "SB — LJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.006,
-    "regret": 0.0005,
+    "occ": 1.013,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.4,
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, A4s:0.9, A5s:0.6, AQs:0.4, 66:0.2, A3s:0.1"
+      "range": "QQ+, AKs, AKo, A4s:0.9, A5s:0.6, AQs:0.4, 66:0.2, A3s:0.2"
      }
     ]
    },
@@ -3363,20 +3360,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.47,
+    "occ": 1.464,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.4,
     "close": "..3......................................................................................................................................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AQs+, A4s, AKo, 66:0.6, 55:0.3, A5s:0.1"
+      "range": "QQ+, AQs+, A4s, AKo, 66:0.5, 55:0.3, A5s:0.1"
      }
     ]
    },
@@ -3391,13 +3388,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.364,
+    "occ": 1.361,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.4,
     "actions": [
      {
       "key": "shove",
@@ -3418,13 +3415,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 2.066,
+    "occ": 2.074,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.7,
     "close": "..............................................................................................................................3..........................................",
     "actions": [
      {
@@ -3445,17 +3442,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 3bb → BB 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "SB 오픈 3bb → BB 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 36.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "SB 3 · BB 3벳 9",
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 30.2,
-    "occ": 0.662,
-    "regret": 0.001,
+    "reachPct": 30.1,
+    "occ": 0.658,
+    "regret": 0.0011,
     "confidence": "low",
-    "move": 0,
-    "close": "..........................................6............3...........................a.....................................................................................",
+    "move": 36.2,
+    "close": "....................3.......6.............6............3.................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -3468,19 +3465,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, A8s-A5s, KJs, K8s-K6s, Q8s+, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, QTo+, JTo, 88:0.9, 44:0.9, KQs:0.9, K9s:0.7, A4s:0.6, KQo:0.6, 99:0.1, A3s:0.1, KTs:0.1, JTs:0.1"
+      "range": "77-55, A8s-A7s, A5s, KJs, K8s-K6s, Q8s+, J9s-J8s, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, KJo, QTo+, JTo, 88:0.9, 44:0.9, KQs:0.9, K9s:0.7, KQo:0.6, A4s:0.5, 99:0.2, JTs:0.2, A3s:0.1, KTs:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK, A8o, QQ:0.9, AKs:0.9, AQo:0.9, 99:0.5, KQo:0.4, K9o:0.2, 88:0.1, KQs:0.1"
+      "range": "KK-QQ, AKs:0.9, AQo:0.9, 99:0.6, KQo:0.4, K9o:0.2, 88:0.1, KQs:0.1, 98o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, AKo, A3s:0.9, KTs:0.9, JTs:0.9, 99:0.4, A4s:0.4, K9s:0.3, QQ:0.1, 44:0.1, AKs:0.1, AQo:0.1"
+      "range": "JJ-TT, AKo, A3s:0.9, KTs:0.9, JTs:0.8, A4s:0.5, K9s:0.3, 99:0.2, 44:0.1, AKs:0.1, AQo:0.1"
      }
     ]
    },
@@ -3495,13 +3492,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ3벳",
     "title": "BB — LJ 오픈 → HJ 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.203,
+    "occ": 1.194,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.6,
     "actions": [
      {
       "key": "shove",
@@ -3522,13 +3519,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO3벳",
     "title": "BB — LJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.06,
+    "occ": 1.054,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.5,
     "actions": [
      {
       "key": "shove",
@@ -3549,19 +3546,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.418,
+    "occ": 1.413,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.6,
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, A4s, AKo, 55:0.6, 66:0.3, A5s:0.3"
+      "range": "JJ+, AQs+, A4s, AKo, 55:0.6, A5s:0.3, 66:0.2"
      }
     ]
    },
@@ -3576,13 +3573,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "BB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.315,
-    "regret": 0,
+    "occ": 1.312,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.8,
     "actions": [
      {
       "key": "shove",
@@ -3603,20 +3600,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.2%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.975,
+    "occ": 1.982,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": "............................................................................................................................................3............................",
+    "move": 1.2,
+    "close": ".........3...............................................................................................................................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, 55, AJs+, A4s, KQs, AKo, 66:0.4, A5s:0.1"
+      "range": "TT+, 55, AJs+, A4s, KQs, AKo, 66:0.4"
      }
     ]
    },
@@ -3631,13 +3628,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.12,
+    "occ": 1.116,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.8,
     "close": "................................................................................................................3........................................................",
     "actions": [
      {
@@ -3659,13 +3656,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 2.086,
+    "occ": 2.089,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.3,
     "actions": [
      {
       "key": "shove",
@@ -3685,28 +3682,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2 4벳",
     "title": "LJ 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.4%p 움직여요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 8,
-    "occ": 0.181,
-    "regret": 0.0036,
+    "reachPct": 7.9,
+    "occ": 0.177,
+    "regret": 0.0034,
     "confidence": "mid",
-    "move": 0,
+    "move": 17.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, KJs+, AKo:0.7, KK:0.6, ATs:0.6, AQo:0.5, AJs:0.2"
+      "range": "JJ-77, KJs+, AKo:0.7, KK:0.6, ATs:0.5, AQo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s, A8s:0.9, AJs:0.8, KK:0.4, AKo:0.3, A9s:0.2"
+      "range": "AA, AKs, A8s, A5s, KK:0.4, AKo:0.3, A9s:0.2"
      }
     ]
    },
@@ -3720,28 +3717,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2 4벳",
     "title": "HJ 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.7%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
     ],
-    "reachPct": 8.1,
+    "reachPct": 8,
     "occ": 0.154,
-    "regret": 0.002,
+    "regret": 0.0021,
     "confidence": "mid",
-    "move": 0,
+    "move": 18.7,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, KQs, ATs:0.9, AKo:0.7, KK:0.6, AQo:0.5"
+      "range": "JJ-77, KQs, ATs:0.9, AKo:0.7, KK:0.6, AQo:0.5"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s, KK:0.4, AKo:0.3, A9s:0.2"
+      "range": "AA, AKs, A5s, A8s:0.9, KK:0.4, AKo:0.3, A9s:0.2"
      }
     ]
    },
@@ -3755,28 +3752,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳",
     "title": "HJ 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.4%p 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
     "reachPct": 10.3,
-    "occ": 0.177,
-    "regret": 0.0018,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.176,
+    "regret": 0.0017,
+    "confidence": "low",
+    "move": 20.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KQs, AQo, AJs-ATs:0.9, AKo:0.7, 66:0.4, KK:0.2"
+      "range": "QQ-77, AQs, KQs, AQo, AJs:0.9, ATs:0.7, AKo:0.7, 66:0.4, KK:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s, KK:0.8, 66:0.6, A8s:0.6, AKo:0.3, AJs:0.1"
+      "range": "AA, AKs, A5s, KK:0.8, A8s:0.7, 66:0.5, AKo:0.3, ATs:0.2, AJs:0.1"
      }
     ]
    },
@@ -3790,29 +3787,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2 4벳",
     "title": "CO 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18%p 움직여요.",
     "line": "UTG+2 2.2 · CO 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
     ],
-    "reachPct": 9.5,
-    "occ": 0.133,
-    "regret": 0.001,
+    "reachPct": 9.3,
+    "occ": 0.132,
+    "regret": 0.0009,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........................5..............................................................................................................................................",
+    "move": 18,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, ATs, KQs, AQo, AKo:0.7, KK:0.4"
+      "range": "QQ-77, AQs, ATs, KQs, AQo:0.9, AKo:0.7, KK:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s-A4s, A9s:0.7, KK:0.6, AKo:0.3"
+      "range": "AA, AKs, A5s-A4s, KK:0.6, A9s:0.6, AKo:0.3"
      }
     ]
    },
@@ -3826,28 +3822,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳",
     "title": "CO 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.8%p 움직여요.",
     "line": "LJ 2.2 · CO 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "co-vs-lj-open:3bet"
     ],
     "reachPct": 10.3,
-    "occ": 0.166,
-    "regret": 0.0013,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.164,
+    "regret": 0.0012,
+    "confidence": "low",
+    "move": 24.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KQs, AQo, AKo:0.9, 66:0.5, A9s:0.4, KK:0.1"
+      "range": "QQ-77, AQs, KQs, AQo, AKo:0.9, 66:0.5, A9s:0.3, KK:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s-A4s, KK:0.9, 66:0.5, A9s:0.2, AKo:0.1"
+      "range": "AA, AKs, A5s-A4s, KK:0.9, 66:0.5, A9s:0.3, AKo:0.1"
      }
     ]
    },
@@ -3861,28 +3857,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳",
     "title": "CO 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6 · HJ 4벳 16.5",
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
-    "reachPct": 12.8,
-    "occ": 0.229,
-    "regret": 0.0009,
+    "reachPct": 12.7,
+    "occ": 0.228,
+    "regret": 0.001,
     "confidence": "mid",
-    "move": 0,
+    "move": 19.2,
+    "close": "..............................................................................................................................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KQs, AQo, 55:0.9, A9s-A8s:0.9, QQ:0.6, AKo:0.5, KQo:0.2"
+      "range": "JJ-55, AQs-ATs, KQs, AQo, A9s-A8s:0.9, QQ:0.6, AKo:0.5, KQo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, A7s:0.5, AKo:0.5, QQ:0.4, 55:0.1"
+      "range": "KK+, AKs, A5s-A4s, AKo:0.5, QQ:0.4"
      }
     ]
    },
@@ -3896,16 +3893,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2 4벳",
     "title": "BTN 3벳 후 vs UTG+2 4벳",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb → UTG+2 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.1%p 움직여요.",
     "line": "UTG+2 2.2 · BTN 3벳 6.6 · UTG+2 4벳 16.5",
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
     ],
-    "reachPct": 9.7,
-    "occ": 0.113,
-    "regret": 0.0013,
+    "reachPct": 9.6,
+    "occ": 0.11,
+    "regret": 0.0014,
     "confidence": "mid",
-    "move": 0,
+    "move": 14.1,
     "actions": [
      {
       "key": "call",
@@ -3931,28 +3928,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳",
     "title": "BTN 3벳 후 vs LJ 4벳",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.4%p 움직여요.",
     "line": "LJ 2.2 · BTN 3벳 6.6 · LJ 4벳 16.5",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
-    "reachPct": 10.9,
-    "occ": 0.147,
-    "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 11.1,
+    "occ": 0.146,
+    "regret": 0.0012,
+    "confidence": "low",
+    "move": 21.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, A9s, KQs, AQo+, 66:0.1"
+      "range": "QQ-77, AQs, A9s, KQs, AQo+, AJs:0.9, 66:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A8s, A5s, 66:0.9"
+      "range": "KK+, AKs, A8s, A5s, 66:0.9, AJs:0.1"
      }
     ]
    },
@@ -3966,29 +3963,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳",
     "title": "BTN 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.1%p 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6 · HJ 4벳 16.5",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
     "reachPct": 13.9,
     "occ": 0.246,
-    "regret": 0.0008,
+    "regret": 0.0019,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........3..............................................................................................................................................................",
+    "move": 18.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-AJs, A9s-A8s, A3s, KQs, AQo, 66:0.9, ATs:0.8, 54s:0.6, AKo:0.5, QQ:0.3, AJo:0.3, 55:0.1"
+      "range": "JJ-77, AQs-AJs, A9s-A8s, A3s, KQs, AQo, 66:0.9, ATs:0.9, AKo:0.5, 54s:0.4, QQ:0.3, AJo:0.3, 55:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, 55:0.9, QQ:0.7, AKo:0.5, ATs:0.2, 66:0.1"
+      "range": "KK+, AKs, A5s-A4s, 55:0.9, QQ:0.7, AKo:0.5, 66:0.1, ATs:0.1"
      }
     ]
    },
@@ -4002,28 +3998,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳",
     "title": "BTN 3벳 후 vs CO 4벳",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 4벳 16.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 27.3%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · CO 4벳 16.5",
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 17.5,
-    "occ": 0.314,
-    "regret": 0.0012,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 17.6,
+    "occ": 0.312,
+    "regret": 0.0011,
+    "confidence": "low",
+    "move": 27.3,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-A9s, KJs+, JTs, AQo-AJo, A8s:0.9, JJ:0.8, 54s:0.8, A3s:0.6, AKo:0.5, T9s:0.4, KQo:0.4"
+      "range": "TT-55, AQs-A9s, KJs+, JTs, AQo-AJo, A8s:0.9, JJ:0.8, 54s:0.8, A3s:0.6, AKo:0.6, KQo:0.4, T9s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s-A4s, AKo:0.5, A7s:0.4, A3s:0.4, JJ:0.2"
+      "range": "QQ+, AKs, A5s-A4s, A7s:0.4, A3s:0.4, AKo:0.4, JJ:0.2"
      }
     ]
    },
@@ -4038,16 +4034,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳·BB올인",
     "title": "BTN — CO 오픈 → BTN 3벳 → BB 올인",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · BB 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 17.5,
+    "reachPct": 17.6,
     "occ": 0.105,
-    "regret": 0.0001,
+    "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.8,
     "actions": [
      {
       "key": "call",
@@ -4067,16 +4063,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인·SB폴드",
     "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인 → SB 폴드",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인 · SB 폴드",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 54.1,
+    "reachPct": 54.3,
     "occ": 0.123,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.3,
     "actions": [
      {
       "key": "call",
@@ -4096,22 +4092,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳",
     "title": "SB 3벳 후 vs BTN 4벳",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.2%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BTN 4벳 20.2",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
     "reachPct": 17.4,
     "occ": 0.181,
-    "regret": 0.0017,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.002,
+    "confidence": "low",
+    "move": 20.2,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A8s, KTs+, QJs, AQo, A3s:0.9, AJo:0.9, KQo:0.9, AKo:0.5, A5s:0.4, QQ:0.3, A7s:0.3, A2s:0.1, KJo:0.1"
+      "range": "JJ-44, AQs-A8s, KTs+, QJs, AQo, A3s:0.9, AJo:0.9, KQo:0.9, AKo:0.5, A5s:0.4, QQ:0.3, A7s:0.3, KJo:0.2"
      },
      {
       "key": "shove",
@@ -4132,16 +4128,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
     "reachPct": 17.4,
     "occ": 0.158,
-    "regret": 0,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.9,
     "actions": [
      {
       "key": "call",
@@ -4161,28 +4157,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳",
     "title": "BB 3벳 후 vs BTN 4벳",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 4벳 20.2bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.8%p 움직여요.",
     "line": "BTN 2.2 · BB 3벳 8.8 · BTN 4벳 20.2",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
-    "reachPct": 18.2,
-    "occ": 0.126,
-    "regret": 0.0019,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 18.1,
+    "occ": 0.125,
+    "regret": 0.0025,
+    "confidence": "low",
+    "move": 24.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KTs+, QJs, AQo, 44:0.9, AJo:0.9, 55:0.8, A9s:0.7, AKo:0.7, KJo:0.3"
+      "range": "JJ-66, AQs-ATs, KTs+, QJs, AQo, AJo:0.9, 55-44:0.8, AKo:0.8, A9s:0.7, KJo:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A7s-A5s, A8s:0.9, JTs:0.3, AKo:0.3, 55:0.2, 44:0.1"
+      "range": "QQ+, AKs, A7s-A5s, A8s:0.9, JTs:0.3, 55-44:0.2, AKo:0.2"
      }
     ]
    },
@@ -4197,26 +4193,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "UTG 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.549,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................6..............35.............5.............5.................................................................................................",
+    "occ": 0.555,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 2.6,
+    "close": "...........................................5.............5.............5.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs, AQo:0.9, TT:0.8, QQ:0.6, QJs:0.2, 65s:0.1, 54s:0.1"
+      "range": "99, AQs, TT:0.9, AQo:0.8, QQ:0.4, QJs:0.4, 54s:0.3, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ, AKs, AJs, KJs+, AKo, KTs:0.9, QQ:0.4, QJs:0.4, TT:0.2, AQo:0.1"
+      "range": "KK+, JJ, AKs, AJs, KJs+, AKo, KTs:0.9, QQ:0.6, QJs:0.2, AQo:0.2, TT:0.1, KQo:0.1"
      }
     ]
    },
@@ -4231,26 +4227,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.581,
-    "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................5.............5.....................................................................5.........................................",
+    "occ": 0.584,
+    "regret": 0.0013,
+    "confidence": "high",
+    "move": 2.8,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, AQo:0.7, 88:0.4, AJs:0.4, 98s:0.2, QJs:0.1, 65s:0.1"
+      "range": "99, AQs, TT:0.8, 88:0.5, AJs:0.4, AQo:0.4, QJs:0.3, 98s:0.3, QQ-JJ:0.1, AKs:0.1, JTs:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, QJs:0.9, AJs:0.6, KQo:0.6, KTs:0.5, AQo:0.3"
+      "range": "KK+, KJs+, AKo, QQ-JJ:0.9, AKs:0.9, QJs:0.7, AQo:0.6, KQo:0.6, AJs:0.5, KTs:0.5, TT:0.2"
      }
     ]
    },
@@ -4265,26 +4260,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "HJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.3%p 움직여요.",
     "line": "UTG 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.513,
-    "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................5.............5.............5.................................................................................................",
+    "occ": 0.518,
+    "regret": 0.0009,
+    "confidence": "high",
+    "move": 2.3,
+    "close": ".........................................................5.............5.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs:0.9, TT:0.7, 54s:0.6, QJs:0.5, AQo:0.5, 65s:0.3"
+      "range": "99, AQs:0.9, TT:0.7, QJs:0.5, 54s:0.4, AQo:0.4, QQ:0.1, JTs:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, AJs:0.9, KTs:0.8, AQo:0.5, TT:0.3, KQo:0.3, AQs:0.1"
+      "range": "KK+, JJ, AKs, KJs+, AKo, QQ:0.9, AJs:0.8, KTs:0.8, AQo:0.6, TT:0.3, KQo:0.2, AQs:0.1"
      }
     ]
    },
@@ -4299,26 +4294,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "HJ vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.58,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................5.......................................................5.............5.........................................",
+    "occ": 0.594,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 2.9,
+    "close": ".............................5...........................5.......................................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs, QJs:0.9, JTs:0.8, 98s:0.7, QQ:0.5, 88:0.4, AQo:0.4"
+      "range": "99, AQs, QJs, JTs:0.9, 98s:0.7, QQ:0.4, AQo:0.4, 88:0.3, TT:0.2, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, KTs+, AKo, AJs:0.9, AQo:0.6, QQ:0.5, KQo:0.4"
+      "range": "KK+, JJ, AKs, AJs, KTs+, AKo, TT:0.8, QQ:0.6, AQo:0.6, KQo:0.5"
      }
     ]
    },
@@ -4333,25 +4328,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.1%p 움직여요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.539,
-    "regret": 0.0015,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.541,
+    "regret": 0.0029,
+    "confidence": "high",
+    "move": 3.1,
+    "close": ".................................................................................................................5.............5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs:0.9, TT:0.8, 88:0.7, AQo:0.6, AJs:0.4, 98s:0.4, QJs:0.3, JTs:0.2, T9s:0.2, KQs:0.1, 65s:0.1, 54s:0.1, KQo:0.1"
+      "range": "99, AQs:0.9, 88:0.8, TT:0.4, AJs:0.3, QJs:0.3, 98s:0.3, AQo:0.3, JJ:0.2, KQs:0.2, JTs:0.1, T9s:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, AKo, KJs+:0.9, KQo:0.7, AJs:0.5, KTs:0.5, QJs:0.4, AQo:0.4, TT:0.2, AQs:0.1"
+      "range": "QQ+, AKs, AKo, KJs:0.9, JJ:0.8, KQs:0.8, AQo:0.7, KQo:0.7, TT:0.6, AJs:0.6, KTs:0.5, QJs:0.5, AQs:0.1, ATs:0.1, QTs:0.1"
      }
     ]
    },
@@ -4366,26 +4362,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "HJ vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.8%p 움직여요.",
     "line": "UTG+1 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.664,
-    "regret": 0.0068,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................5.............5..............5.............5............5...........................",
+    "occ": 0.698,
+    "regret": 0.0055,
+    "confidence": "high",
+    "move": 5.8,
+    "close": ".3...................................................................................5.............5..............5.............5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, 88:0.6, AQs:0.5, T9s:0.4, AQo:0.4, TT:0.3, AJs:0.3, KQs:0.3, QJs:0.3, JTs:0.3, 98s:0.3, QQ-JJ:0.1, 77:0.1"
+      "range": "99, 88:0.6, AQs:0.5, QJs:0.4, JTs:0.4, TT:0.3, AJs:0.3, T9s:0.3, 98s:0.3, AQo:0.3, QQ:0.2, KQs:0.2, 77:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, AKs, AKo, QQ-JJ:0.9, KJs:0.8, TT:0.7, KQs:0.7, KTs:0.7, KQo:0.6, AQs:0.5, AQo:0.5, ATs:0.4, AJs:0.3, QJs:0.3, QTs:0.2, A9s:0.1, AJo:0.1"
+      "range": "KK+, JJ, AKs, AKo, KJs:0.9, QQ:0.8, KQs:0.8, TT:0.7, KTs:0.7, AQo:0.6, KQo:0.6, AQs:0.5, AJs-ATs:0.3, QJs:0.3, QTs:0.2, AJo:0.1"
      }
     ]
    },
@@ -4400,13 +4396,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "HJ vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.8%p 움직여요.",
     "line": "UTG+2 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.535,
+    "occ": 0.541,
     "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.8,
     "actions": [
      {
       "key": "overcall",
@@ -4418,7 +4414,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AQo+, KQo, TT:0.9, AQs:0.9, KTs:0.9, 99:0.3, AJs:0.2, QTs:0.2, QJs:0.1"
+      "range": "JJ+, AKs, KJs+, AQo+, KQo, TT:0.9, AQs:0.9, KTs:0.9, 99:0.3, AJs:0.3, QTs:0.2, QJs:0.1"
      }
     ]
    },
@@ -4433,26 +4429,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "CO vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.536,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................3..............................................................................................................................",
+    "occ": 0.549,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 2.8,
+    "close": ".............................5.............5...........................5.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs, 88:0.9, QJs:0.9, JTs:0.9, 98s:0.9, 54s:0.9, TT:0.5, T9s:0.4, AQo:0.4, 65s:0.1"
+      "range": "99, AQs, QJs, JTs, 98s, 54s:0.6, TT:0.5, 88:0.5, T9s:0.5, AQo:0.4, 65s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, KTs+, AKo, AJs:0.7, AQo:0.6, KQo:0.6, TT:0.5"
+      "range": "JJ+, AKs, KTs+, AKo, KQo:0.7, AQo:0.6, TT:0.5, AJs:0.5"
      }
     ]
    },
@@ -4467,26 +4463,59 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.66,
-    "regret": 0.0015,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.662,
+    "regret": 0.0014,
+    "confidence": "high",
+    "move": 3.7,
     "close": "...........................................5.............................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, JTs, AQs:0.9, T9s:0.9, 54s:0.8, 99:0.7, 65s:0.6, 88:0.4, QTs:0.4, 98s:0.4, TT:0.2, AJs:0.2, QQ-JJ:0.1"
+      "range": "QJs, JTs, AQs:0.9, T9s:0.9, 54s:0.8, 99:0.7, 65s:0.5, 88:0.4, 98s:0.4, QTs:0.3, TT:0.2, AJs:0.2, QQ-JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, AKs, KJs+, AQo+, QQ-JJ:0.9, KTs:0.9, KQo:0.9, TT:0.8, 99:0.3, AJs:0.2, AQs:0.1"
+      "range": "KK+, AKs, KJs+, AQo+, QQ-JJ:0.9, KTs:0.9, KQo:0.9, TT:0.8, 99:0.3, AQs-AJs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-utgp2-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "UTG+2"
+    ],
+    "chip": "UTG+1오픈·UTG+2콜",
+    "title": "CO vs UTG+1 오픈 + UTG+2 콜",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
+    "line": "UTG+1 2.2 · UTG+2 콜",
+    "reachPct": 100,
+    "occ": 0.5,
+    "regret": 0.0009,
+    "confidence": "high",
+    "move": 3.7,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99, AQs:0.9, 98s:0.9, QJs:0.8, TT:0.6, 88:0.5, AJs:0.5, T9s:0.5, JTs:0.4, 65s:0.4, AQo:0.4, 54s:0.3"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KJs+, AKo, KTs:0.9, KQo:0.7, AQo:0.6, TT:0.4, AJs:0.4, QJs:0.2, AQs:0.1"
      }
     ]
    },
@@ -4501,25 +4530,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "CO vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "UTG+1 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.613,
-    "regret": 0.0024,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.644,
+    "regret": 0.0026,
+    "confidence": "high",
+    "move": 3.4,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99:0.8, 88:0.5, 54s:0.5, AQs:0.4, 98s:0.4, 65s:0.4, JJ-TT:0.3, QJs:0.3, T9s:0.3, AJs:0.2, KQs:0.2, JTs:0.2"
+      "range": "99:0.9, 88:0.5, 98s:0.5, 54s:0.5, QJs:0.4, 65s:0.4, TT:0.3, AQs:0.3, JTs:0.3, T9s:0.3, AJs:0.2, QQ-JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, AKs, AKo, KJs:0.9, AQo:0.9, KQs:0.8, JJ-TT:0.7, KQo:0.7, AQs:0.6, KTs:0.6, QJs:0.4, 99:0.2, AJs:0.2, QTs:0.2, K9s:0.1, JTs:0.1"
+      "range": "KK+, AKs, KJs+, AKo, QQ-JJ:0.9, AQo:0.9, KQo:0.8, TT:0.7, AQs:0.7, KTs:0.7, QJs:0.3, AJs:0.2, QTs:0.2, 99:0.1"
      }
     ]
    },
@@ -4534,25 +4563,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "CO vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.673,
-    "regret": 0.0012,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.685,
+    "regret": 0.0006,
+    "confidence": "high",
+    "move": 2.9,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs:0.9, JTs:0.8, 88:0.7, 98s:0.7, T9s:0.6, 65s:0.3, 54s:0.3, 99:0.2, QTs:0.2, QQ:0.1"
+      "range": "QJs, JTs, T9s:0.8, 98s:0.8, 88:0.7, QTs:0.6, 99:0.2, QQ:0.1, 65s:0.1, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AQs+, KTs+, AQo+, KQo, QQ:0.9, 99:0.8, AJs:0.6, 88:0.2, QTs:0.2, QJs:0.1"
+      "range": "KK+, JJ-TT, AQs+, KTs+, AQo+, QQ:0.9, KQo:0.9, 99:0.8, AJs:0.7, 88:0.2, QTs:0.1"
      }
     ]
    },
@@ -4567,25 +4596,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "CO vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.609,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.627,
+    "regret": 0.0011,
+    "confidence": "high",
+    "move": 2.9,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, JTs:0.4, 88:0.3, 98s:0.3, JJ:0.2, QTs:0.2, 77:0.1, T9s:0.1, 65s:0.1"
+      "range": "QJs, 98s:0.4, 88:0.3, JTs:0.3, JJ:0.2, QTs:0.2, 77:0.1, AJs:0.1, T9s:0.1, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AJs+, KTs+, AQo+, KQo, ATs:0.9, JJ:0.8, QTs:0.8, 88:0.7, K9s:0.1"
+      "range": "QQ+, TT-99, AQs+, KTs+, AQo+, KQo, AJs-ATs:0.9, JJ:0.8, QTs:0.8, 88:0.7, K9s:0.1"
      }
     ]
    },
@@ -4600,26 +4629,60 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "LJ 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.506,
+    "occ": 0.52,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3.........3...........................................................................................................................................................",
+    "confidence": "high",
+    "move": 3.9,
+    "close": ".............3...........................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, KQs:0.9, QJs:0.5, 98s:0.4, 77:0.3, 65s:0.3, JJ:0.1, KQo:0.1"
+      "range": "KJs+, QJs:0.9, 98s:0.6, JJ:0.1, T9s:0.1, 65s:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-88, ATs+, KTs, QTs, AQo+, JJ:0.9, AJo:0.9, KQo:0.9, JTs:0.8, QJs:0.5, 77:0.4, K9s:0.2, Q9s:0.2, KQs:0.1"
+      "range": "QQ+, TT-88, ATs+, KTs, QTs, AQo+, JJ:0.9, JTs:0.9, AJo:0.9, KQo:0.9, 77:0.5, K9s:0.4, Q9s:0.2, A9s:0.1, QJs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utg-open-lj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "LJ"
+    ],
+    "chip": "UTG오픈·LJ콜",
+    "title": "BTN vs UTG 오픈 + LJ 콜",
+    "description": "UTG 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
+    "line": "UTG 2.2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.503,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 3.4,
+    "close": "..3........................................5.............5.............5.......................................................5.........................................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "AQs, JTs, T9s, 98s, 54s, 99:0.9, QJs:0.9, 65s:0.9, 88:0.8, TT:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "JJ+, AKs, KTs+, AQo+, TT:0.9, KQo:0.7, AJs:0.2, 99:0.1, QJs:0.1"
      }
     ]
    },
@@ -4634,26 +4697,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BTN vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.2%p 움직여요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.603,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................5..........................5............................5.............5.........................................",
+    "occ": 0.605,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 4.2,
+    "close": ".........................................................5..........................5............................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, QJs, JTs, T9s, 65s, 54s, 98s:0.9, 99:0.8, AQs:0.1"
+      "range": "88, QJs, JTs, T9s, 65s, 54s, 98s:0.9, 99:0.7, AQs-AJs:0.3, QTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, KTs+, AQo+, AQs:0.9, KQo:0.9, 99:0.2"
+      "range": "TT+, AKs, KTs+, AQo+, KQo:0.8, AQs:0.7, 99:0.3"
      }
     ]
    },
@@ -4668,26 +4731,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.853,
+    "occ": 0.856,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.6,
     "close": "....................................................................................3..........................................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, QTs+, JTs, T9s, 98s, 65s:0.9, AJs:0.5"
+      "range": "88, QTs+, JTs, T9s, 98s, 65s:0.8, AJs:0.5"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "99+, AQs+, KTs+, AQo+, KQo:0.8, K9s:0.6, AJs:0.5"
+      "range": "99+, AQs+, KTs+, AQo+, KQo:0.9, K9s:0.6, AJs:0.4"
      }
     ]
    },
@@ -4702,26 +4765,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "BTN vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+1 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.566,
-    "regret": 0.0014,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................5.............................................................................................................................",
+    "occ": 0.594,
+    "regret": 0.0011,
+    "confidence": "high",
+    "move": 4,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, JTs, T9s, 98s, 65s, 54s, 99:0.9, QJs:0.9, AQs-AJs:0.4, QTs:0.4, TT:0.1, KQs:0.1"
+      "range": "QJs, T9s, 98s, JTs:0.9, 88:0.8, 54s:0.7, 99:0.5, 65s:0.5, QTs:0.3, 87s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs, AQo+, KQo, TT:0.9, KQs:0.9, KTs:0.9, AQs:0.6, QTs:0.2, 99:0.1, AJs:0.1, QJs:0.1"
+      "range": "TT+, AQs+, KTs+, AQo+, KQo, 99:0.5, AJs:0.2, QTs:0.1"
      }
     ]
    },
@@ -4736,26 +4798,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BTN vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.614,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.624,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 2.8,
     "close": "....6....................................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, JTs, 98s:0.9, T9s:0.7, 99:0.5, QTs:0.3, 65s:0.2, 54s:0.2, 88:0.1"
+      "range": "QJs, JTs, 98s:0.8, T9s:0.7, QTs:0.4, 99:0.3, 65s:0.3, 88:0.2, 54s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AJs+, KTs+, AQo+, KQo, 88:0.9, 99:0.5, QTs:0.1"
+      "range": "TT+, AJs+, KTs+, AQo+, KQo, 88:0.8, 99:0.7, QTs:0.1, 54s:0.1"
      }
     ]
    },
@@ -4770,14 +4832,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.755,
+    "occ": 0.754,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................................................................................................5......................................................................",
+    "confidence": "high",
+    "move": 2.7,
+    "close": "..................................................................................................7......................................................................",
     "actions": [
      {
       "key": "overcall",
@@ -4804,14 +4866,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "BTN vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.4%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.555,
-    "regret": 0.0013,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....6...................................................................................................................................................................",
+    "occ": 0.571,
+    "regret": 0.0014,
+    "confidence": "high",
+    "move": 6.4,
     "actions": [
      {
       "key": "overcall",
@@ -4823,7 +4884,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "88+, AJs+, KTs+, AQo+, KQo, ATs:0.9, QTs:0.9, K9s:0.6, JTs:0.3, QJs:0.2, 54s:0.2, 77:0.1, T9s:0.1"
+      "range": "88+, AJs+, KTs+, AQo+, KQo, ATs:0.9, QTs:0.9, K9s:0.6, JTs:0.3, 77:0.2, QJs:0.2, T9s:0.2, 54s:0.2, A9s:0.1, Q9s:0.1"
      }
     ]
    },
@@ -4838,26 +4899,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.4%p 움직여요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.622,
+    "occ": 0.645,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3.................................................................................................5.......................................................",
+    "confidence": "high",
+    "move": 4.4,
+    "close": "...............3.......................................................3.........................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, JTs, 98s, KJs:0.9, T9s:0.6, JJ:0.3, Q9s:0.2, AJs:0.1, QTs:0.1"
+      "range": "QJs, JTs, 98s, KJs:0.9, T9s:0.7, JJ:0.3, Q9s:0.2, AJs:0.1, QTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, TT-77, AQs+, ATs, KQs, KTs, AQo+, KQo, AJs:0.9, QTs:0.9, JJ:0.7, A9s:0.7, K9s:0.6, T9s:0.4, AJo:0.4, KJs:0.1, Q9s:0.1"
+      "range": "QQ+, TT-77, AQs+, ATs, KQs, KTs, AQo+, KQo, AJs:0.9, QTs:0.9, A9s:0.8, JJ:0.7, K9s:0.6, AJo:0.4, T9s:0.3, KJs:0.1, Q9s:0.1"
      }
     ]
    },
@@ -4872,26 +4933,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.2%p 움직여요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.636,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3......................................................7..........................3......................................................................",
+    "occ": 0.641,
+    "regret": 0.0005,
+    "confidence": "high",
+    "move": 4.2,
+    "close": "................3......................................................7.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QJs, 98s, 65s:0.4, JTs:0.1, T9s:0.1"
+      "range": "KJs, QJs, 98s, 65s:0.5, JTs:0.1, T9s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, KTs, QTs, AJo+, KQo, T9s:0.9, Q9s:0.7, A9s:0.5, K9s:0.3, JTs:0.3"
+      "range": "77+, ATs+, KQs, KTs, QTs, AJo+, KQo, T9s:0.9, Q9s:0.7, A9s:0.6, K9s:0.4, JTs:0.3"
      }
     ]
    },
@@ -4906,26 +4967,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.2%p 움직여요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.565,
+    "occ": 0.586,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................6...................................................................................",
+    "confidence": "high",
+    "move": 6.2,
+    "close": "..3.....................................................3............................6...................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, KJs:0.8, 98s:0.5, 65s:0.3, JTs:0.2, KQs:0.1"
+      "range": "QJs, KJs:0.8, 98s:0.6, K9s:0.3, JTs:0.2, 65s:0.2, KQs:0.1, QTs-Q9s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "77+, A9s+, KTs, QTs, AJo+, KJo+, KQs:0.9, A8s:0.8, JTs:0.8, 66:0.7, K9s:0.7, A5s:0.2, KJs:0.2, Q9s:0.2, 98s:0.2, QJo:0.1"
+      "range": "77+, A9s+, KTs, AJo+, KJo+, KQs:0.9, QTs:0.9, A8s:0.8, JTs:0.8, K9s:0.7, 66:0.6, KJs:0.2, Q9s:0.2, 98s:0.2, A7s:0.1, A5s:0.1, QJo:0.1"
      }
     ]
    },
@@ -4940,23 +5001,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜·BB스퀴즈",
     "title": "BTN — BTN 오픈 → SB 콜 → BB 스퀴즈",
-    "description": "BTN 오픈 2.2bb → SB 콜 → BB 스퀴즈 11.6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜 → BB 스퀴즈 11.6bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.6%p 움직여요.",
     "line": "BTN 2.2 · SB 콜 · BB 스퀴즈 11.6",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 54.1,
-    "occ": 0.617,
+    "reachPct": 54.3,
+    "occ": 0.618,
     "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": ".............................33..........................................................................................................................................",
+    "move": 9.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-33, AJs-A4s, Q9s-Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, 54s, AJo-A8o, QJo, JTo, 22:0.9, A3s:0.7, JTs:0.5, KQo:0.1"
+      "range": "99-33, AJs-A4s, Q9s-Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, 54s, AJo-A8o, QJo, JTo, 22:0.9, A3s:0.6, JTs:0.5, KQo:0.1"
      },
      {
       "key": "shove",
@@ -4977,26 +5037,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "SB vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → HJ 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.7%p 움직여요.",
     "line": "UTG 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.548,
-    "regret": 0.0005,
+    "occ": 0.549,
+    "regret": 0.0006,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................5...................................................................................",
+    "move": 9.7,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, 53s+, 43s, T8s:0.9, 64s:0.9, AJs:0.8, TT:0.3, 75s:0.3, AQo:0.3, 86s:0.1"
+      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 76s, 65s, 53s+, 43s, AJs:0.9, T8s:0.9, 87s:0.9, 64s:0.9, TT:0.3, 86s:0.3, 75s:0.3, AQo:0.3, KQs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, KTs:0.8, TT:0.7, AQo:0.7, KQo:0.5"
+      "range": "JJ+, AKs, KJs, AKo, KQs:0.9, KTs:0.8, TT:0.7, AQo:0.7, KQo:0.5"
      }
     ]
    },
@@ -5011,26 +5070,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "SB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.5%p 움직여요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.772,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................................5..........3......................................................................5...........................",
+    "occ": 0.775,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 7.5,
+    "close": "...........................................................5.............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AQs-AJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 43s, 64s:0.9, 53s:0.7, 97s:0.6, KQs:0.3, 86s:0.1, 75s:0.1"
+      "range": "99-88, AQs-AJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 64s:0.9, 43s:0.9, 53s:0.7, 97s:0.6, KQs:0.5, 86s:0.1, 75s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AKs, KJs-KTs, AQo+, KQs:0.7, KQo:0.5"
+      "range": "TT+, AKs, KJs-KTs, AQo+, KQs:0.5, KQo:0.5"
      }
     ]
    },
@@ -5045,20 +5104,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.985,
+    "occ": 1.005,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "....6...............................................................................................5...........................5............5...........................",
+    "move": 11.5,
+    "close": "....6.................................................................................5.............5...........................5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-77, AJs, KQs, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, 64s:0.6, KJs:0.5, KQo:0.4, 99:0.3"
+      "range": "88-77, AJs, KQs, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, 64s:0.8, KJs:0.5, KQo:0.4, 99:0.3"
      },
      {
       "key": "squeeze",
@@ -5079,26 +5138,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "SB vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6%p 움직여요.",
     "line": "UTG+1 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.512,
-    "regret": 0.0013,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................................................................................................................................5............5...........................",
+    "occ": 0.541,
+    "regret": 0.0014,
+    "confidence": "high",
+    "move": 6,
+    "close": "................................................................................................................................5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, QTs+, JTs, T9s, 98s, 87s, 76s, 65s, 53s+, 43s, T8s:0.8, 64s:0.8, AJs:0.7, AQs:0.6, 97s:0.6, KQs:0.3, J9s:0.2, 75s:0.2, TT:0.1, 86s:0.1, AQo:0.1, KQo:0.1"
+      "range": "99-88, QJs, JTs, T9s, 98s, 87s, 76s, 65s, 53s+, 43s, QTs:0.9, T8s:0.9, AJs:0.8, 64s:0.8, AQs:0.6, 97s:0.6, KQs:0.3, J9s:0.2, 75s:0.2, AQo:0.2, TT:0.1, 86s:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs, AKo, TT:0.9, AQo:0.9, KQs:0.7, KTs:0.6, KQo:0.6, AQs:0.4"
+      "range": "JJ+, AKs, KJs, AKo, TT:0.9, AQo:0.8, KQs:0.7, KTs:0.6, KQo:0.6, AQs:0.4, QTs:0.1"
      }
     ]
    },
@@ -5113,26 +5172,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "SB vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.6%p 움직여요.",
     "line": "UTG+1 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.559,
+    "occ": 0.567,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....................................................................................................5.............5.............5............5...........................",
+    "confidence": "high",
+    "move": 6.6,
+    "close": "..................................................................................................................5.............5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AJs, QTs+, JTs, T8s+, 98s, 87s, 75s+, 64s+, 53s+, 43s, 97s:0.9, AQs:0.7, 86s:0.6, KQs:0.1"
+      "range": "99-88, AJs, QTs+, JTs, T8s+, 98s, 87s, 76s, 64s+, 53s+, 43s, 97s:0.8, 75s:0.8, AQs:0.7, 86s:0.4, KQs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AKs, KJs, AQo+, KQs:0.9, KTs:0.9, KQo:0.5, AQs:0.3"
+      "range": "TT+, AKs, KJs, AQo+, KTs:0.9, KQs:0.8, KQo:0.5, AQs:0.3"
      }
     ]
    },
@@ -5147,26 +5206,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "SB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.2%p 움직여요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.683,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3...............5............5.............5..........................5.............5....................................................................",
+    "occ": 0.682,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 7.2,
+    "close": "................................5............5..........................5.............5.............5....................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-77, AJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, KQs:0.9, K9s:0.9, 97s:0.9, 99:0.3, 64s:0.3, 43s:0.2, KQo:0.2, 53s:0.1"
+      "range": "88-77, AJs, K9s, Q9s+, J9s+, T8s+, 97s+, 87s, 76s, 65s, 54s, KQs:0.9, 99:0.3, T7s:0.2, KQo:0.2, KJs:0.1, 64s:0.1, 53s:0.1, 43s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, KJs-KTs, AQo+, KQo:0.8, 99:0.7, KQs:0.1"
+      "range": "TT+, AQs+, KTs, AQo+, KJs:0.9, KQo:0.8, 99:0.7, KQs:0.1"
      }
     ]
    },
@@ -5181,26 +5240,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.4%p 움직여요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.018,
+    "occ": 1.022,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........................................5..........................................3.............................5......................................................",
+    "move": 14.4,
+    "close": ".........................................5............................................5...........................5......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KJs, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, QJo, KQs:0.3, 86s:0.1"
+      "range": "77, KJs, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, QJo, KQs:0.8, 88:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, KTs, AQo+, KQo, KQs:0.7, A9s:0.1"
+      "range": "99+, ATs+, KTs, AQo+, KQo, 88:0.8, KQs:0.2, A9s:0.1"
      }
     ]
    },
@@ -5215,25 +5274,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "SB vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.502,
+    "occ": 0.516,
     "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
+    "move": 9,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, QTs+, JTs, T9s, 97s+, 87s, 76s, 65s, 54s, T8s:0.9, Q9s:0.8, 77:0.7, 64s:0.7, J9s:0.6, KJs:0.5, 99:0.4, KQs:0.4, 53s:0.4, 43s:0.4, 75s:0.3, KQo:0.3, 86s:0.1"
+      "range": "88, AJs, QTs+, JTs, T9s, 97s+, 87s, 76s, 65s, 54s, Q9s:0.9, T8s:0.9, 77:0.8, J9s:0.7, 64s:0.7, 99:0.4, KJs+:0.4, 53s:0.4, 43s:0.4, KQo:0.3, 75s:0.2, 86s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, KTs, AQo+, KQo:0.7, 99:0.6, KQs:0.6, KJs:0.5"
+      "range": "TT+, AQs+, KTs, AQo+, KQo:0.7, 99:0.6, KJs+:0.6"
      }
     ]
    },
@@ -5248,26 +5307,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "SB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.555,
+    "occ": 0.575,
     "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": "...3...............................................................................................5............................5............5...........................",
+    "move": 11.5,
+    "close": "...................................................................................................5............................5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 97s:0.9, KQs:0.5, 64s:0.3, KQo:0.3, K9s:0.2"
+      "range": "77, KJs, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 54s, 97s:0.9, KQs:0.6, KQo:0.3, K9s:0.2, 64s:0.2, AJs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, KTs, AQo+, K9s:0.7, KQo:0.7, KQs:0.5, A9s:0.3"
+      "range": "88+, AQs+, ATs, KTs, AQo+, AJs:0.9, K9s:0.8, KQo:0.7, A9s:0.4, KQs:0.4"
      }
     ]
    },
@@ -5282,26 +5341,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.3%p 움직여요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.861,
+    "occ": 0.88,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...................5.......3...................................................................................................5.........................................",
+    "move": 14.3,
+    "close": ".....6.............5.......3...............................5...................................................................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, QJo, K9s:0.4, 86s:0.3"
+      "range": "KJs, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, QJo, K9s:0.5, 86s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, KTs, AQo+, KQo, AJo:0.7, K9s:0.6"
+      "range": "77+, ATs+, KQs, KTs, AQo+, KQo, AJo:0.6, K9s:0.5"
      }
     ]
    },
@@ -5316,26 +5375,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10%p 움직여요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.564,
+    "occ": 0.568,
     "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
-    "close": "..................7......................................................................................................................................................",
+    "move": 10,
+    "close": "..................3.........................5............................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K9s, QJs, JTs, T9s, 97s+, 87s, 76s, 65s, 54s, KQs:0.9, J9s:0.9, 86s:0.9, 64s:0.9, 53s:0.9, KJo:0.9, KTs:0.7, T8s:0.6, QTs:0.4, Q9s:0.3, 75s:0.2, 43s:0.1, QJo:0.1"
+      "range": "KJs, K9s, QJs, J9s+, T9s, 97s+, 87s, 76s, 65s, 54s, KQs:0.9, 86s:0.9, 64s:0.9, KJo:0.9, KTs:0.8, 53s:0.8, T8s:0.7, QTs:0.5, 75s:0.3, Q9s:0.2, QJo:0.2, 43s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, ATs+, AJo+, KQo, A9s:0.8, Q9s:0.7, QTs:0.6, A8s:0.4, KTs:0.3, 66:0.2, KQs:0.1"
+      "range": "77+, ATs+, AJo+, KQo, A9s:0.9, Q9s:0.8, A8s:0.5, QTs:0.5, 66:0.2, KTs:0.2, KQs:0.1"
      }
     ]
    },
@@ -5350,26 +5409,60 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.9%p 움직여요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.054,
+    "occ": 1.068,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............3.33.7......3...............................5..........................5.........................6........................................................",
+    "move": 9.9,
+    "close": ".....6.........3..3.7............5....................................................5...........................5.............5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, QJo, 64s:0.9, 75s:0.8, KJo:0.7, 53s:0.5"
+      "range": "KJs, K9s-K7s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, QJo, 75s:0.8, KJo:0.6, KTs:0.2, KQo:0.2, J7s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, ATs+, KQs, KTs, AJo+, KQo, A9s:0.7, KJo:0.3"
+      "range": "66+, A9s+, KQs, AJo+, KTs:0.8, KQo:0.8, KJo:0.4"
+     }
+    ]
+   },
+   {
+    "id": "sb-at-hj-open-co-call",
+    "kind": "squeeze",
+    "hero": "SB",
+    "villain": "HJ",
+    "villainSeats": [
+     "HJ",
+     "CO"
+    ],
+    "chip": "HJ오픈·CO콜",
+    "title": "SB vs HJ 오픈 + CO 콜",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.4%p 움직여요.",
+    "line": "HJ 2.2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.51,
+    "regret": 0.0003,
+    "confidence": "mid",
+    "move": 9.4,
+    "close": "...........................3.............3.3............................5.............5...........................5.............5........................................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KJs, K9s-K8s, QJs, Q9s-Q8s, JTs, T9s, 97s+, 86s+, 76s, 64s+, 53s+, QJo, J9s:0.9, QTs:0.8, T8s:0.6, 75s:0.5, KJo:0.5, K7s:0.2, 43s:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "77+, A9s+, KQs, KTs, AJo+, KQo, A8s:0.9, KJo:0.5, QTs:0.2, 66:0.1"
      }
     ]
    },
@@ -5384,26 +5477,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.1%p 움직여요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.003,
-    "regret": 0.0002,
+    "occ": 1.014,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......7.........................5.........3..........56..............................5.............5.............5...........6.5............5...........................",
+    "move": 9.1,
+    "close": ".......7.........................5.........3..........56..............................5.............5.............5.............5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s, KJs-K6s, Q7s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, QJo, A5s:0.8, K4s:0.5, K5s:0.4, KTo:0.4, KJo:0.3, J7s:0.1"
+      "range": "A7s, KJs-K6s, Q7s+, J8s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, QJo, A5s:0.9, K4s:0.8, K5s:0.7, KJo:0.5, KTo:0.4, J7s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, A8s+, KQs, ATo+, KQo, KJo:0.7, A5s:0.2, KTo:0.1"
+      "range": "66+, A8s+, KQs, ATo+, KQo, KJo:0.5, KTo:0.3, 55:0.2, A5s:0.1"
      }
     ]
    },
@@ -5418,26 +5511,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.7%p 움직여요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.944,
+    "occ": 0.962,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........5.............5....3...5...........5......33...5..................................................................................5...........................",
+    "move": 8.7,
+    "close": "...........5............55....3...............5......3....5..............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A5s, KTs-K4s, Q7s+, J9s-J8s, T9s, 98s, 87s, 76s, 65s, 54s, KTo, QTo, A7s:0.9, K3s:0.9, 53s:0.9, JTs:0.8, 86s:0.7, QJo:0.7, KJs:0.6, 97s:0.6, 64s:0.6, KJo:0.6, 75s:0.2, A6s:0.1, A4s:0.1"
+      "range": "A5s, KTs-K3s, Q7s+, J9s-J8s, T9s, 98s, 87s, 76s, 65s, 54s, KTo, QTo, A7s:0.9, JTs:0.9, 86s:0.9, QJo:0.9, 53s:0.8, 97s:0.6, KJo:0.6, KJs:0.5, 64s:0.4, A6s:0.3, Q6s:0.2, A4s:0.1, 75s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "55+, A8s+, KQs, ATo+, KQo, A6s:0.9, A4s:0.9, JTo:0.5, KJs:0.4, KJo:0.4, QJo:0.3, JTs:0.2, A7s:0.1"
+      "range": "55+, A8s+, KQs, ATo+, KQo, A4s:0.9, A6s:0.7, JTo:0.7, KJs:0.5, KJo:0.4, A7s:0.1, JTs:0.1, QJo:0.1"
      }
     ]
    },
@@ -5452,26 +5545,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.1%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.68,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3...........5......5........5..................5.............5................................................................................",
+    "occ": 0.683,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 30.1,
+    "close": "...........................3...........5.5....5...........................5.............5................................................................................",
+    "flags": [
+     {
+      "code": "PF-SANITY-11",
+      "hands": "JJ",
+      "vs": "TT-88"
+     }
+    ],
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, AJs, KJs+, Q8s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, JJ:0.9, ATs:0.7, K9s:0.1"
+      "range": "JJ, 77-66, AJs, KJs+, Q8s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, ATs:0.9, K9s:0.1, JTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "QQ+, TT-88, AQs+, KTs, AQo+, KQo, K9s:0.9, ATs:0.3, JJ:0.1"
+      "range": "QQ+, TT-88, AQs+, KTs, AQo+, KQo, K9s:0.9, ATs:0.1"
      }
     ]
    },
@@ -5486,26 +5586,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.2%p 움직여요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.847,
+    "occ": 0.863,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3.3...5...5.........5.............5............555.6.........5..................5..............5.............5.............5...........................................",
+    "confidence": "low",
+    "move": 23.2,
+    "close": "....3...5...5.........5.............5............55..6.........5.................................5.............5.............5...........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-55, AJs-A7s, A5s-A3s, KJs+, K9s-K4s, Q4s+, J4s+, T2s+, 94s+, 92s, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, 98o, 76o, 83s:0.9, 72s:0.7, 99:0.5, KQo:0.5, KJo:0.4, 93s:0.3"
+      "range": "88-55, AJs-A7s, A5s-A3s, KJs+, K9s-K4s, Q4s+, J4s+, T2s+, 94s+, 92s, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, 98o, 76o, 83s:0.8, 72s:0.6, 99:0.5, KQo:0.5, KJo:0.4, 93s:0.2, AQs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, KTs, AQo+, KJo:0.6, 99:0.5, KQo:0.5"
+      "range": "TT+, AKs, KTs, AQo+, AQs:0.9, KJo:0.6, 99:0.5, KQo:0.5"
      }
     ]
    },
@@ -5520,26 +5620,60 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·SB콜",
     "title": "BB vs UTG 오픈 + SB 콜",
-    "description": "UTG 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.6%p 움직여요.",
     "line": "UTG 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 0.836,
+    "occ": 0.83,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3.................5.............................................3....................................................................5..............5..............",
+    "confidence": "low",
+    "move": 33.6,
+    "close": "......3....................................................................................................................................5..............5..............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-33, AJs, A8s-A2s, KJs+, K9s-K3s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, KJo:0.8, A9s:0.7, K2s:0.2"
+      "range": "99-33, AJs, A8s-A2s, KJs+, K9s-K4s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, K3s:0.9, A9s:0.8, KJo:0.8, K2s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, ATs, KTs, AQo+, KTo:0.6, A9s:0.3, KJo:0.2"
+      "range": "TT+, AQs+, ATs, KTs, AQo+, KTo:0.6, A9s:0.2, KJo:0.2"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "BB vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.7%p 움직여요.",
+    "line": "UTG+1 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 0.501,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 30.7,
+    "close": ".........555..................................5............................5.............55....................5.............5.............5.............................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "99-66, AQs-ATs, K9s, Q9s+, J8s+, T6s+, 95s+, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, Q8s:0.9, AJo:0.9, 55:0.7, KQo:0.3, KQs:0.1, 72s:0.1, AQo:0.1"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "TT+, AKs, KJs-KTs, AKo, KQs:0.9, AQo:0.9, KQo:0.7"
      }
     ]
    },
@@ -5554,26 +5688,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24%p 움직여요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.597,
+    "occ": 0.596,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......5..55..........5..........................55....5......5555..........5.5...........55............5.....................55.............5............................",
+    "confidence": "low",
+    "move": 24,
+    "close": "......55..55.........5...............55..........5...........5555..........5.5.....5.....55............5.....................55.............5............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-55, AJs-A8s, A5s-A4s, K9s-K6s, K4s, Q5s+, J5s+, T5s+, 95s+, 84s+, 82s, 72s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, A7s:0.9, A3s:0.9, Q4s:0.8, 99:0.6, KQs:0.5, 76o:0.5, KJs:0.4, KQo:0.4"
+      "range": "88-55, AJs-A7s, A5s-A3s, K9s-K6s, K4s, Q5s+, J5s+, T5s+, 95s+, 84s+, 82s, 72s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, Q4s:0.9, KJs+:0.6, 99:0.5, KQo:0.4, 76o:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, KTs, AQo+, KJs:0.6, KQo:0.6, KQs:0.5, 99:0.4, KJo:0.3"
+      "range": "TT+, AQs+, KTs, AQo+, KQo:0.6, 99:0.5, KJs+:0.4, KJo:0.4"
      }
     ]
    },
@@ -5588,26 +5722,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "BB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.7%p 움직여요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.87,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..........3........5............553..........55...........5............5.....5......5.............5.....................5...........................................",
+    "occ": 0.873,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 26.7,
+    "close": "....3..........3........5............553..........5............5............5.....5......5.......5.....5.....................5...........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-55, AJs, A8s-A2s, K3s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KJo, QTo+, JTo, T9o, 98o, 76o, 65o, K2s:0.9, J9o:0.9, KQo:0.7, 44:0.6, A9s:0.1, KTo:0.1, 87o:0.1"
+      "range": "88-55, AJs, A8s-A2s, K3s+, Q2s+, J3s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KJo, QTo+, JTo, T9o, 98o, 76o, 65o, K2s:0.9, J2s:0.9, J9o:0.9, 44:0.8, KQo:0.6, A9s:0.3, KTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs, AQo+, A9s:0.9, KTo:0.9, KQo:0.3"
+      "range": "99+, AQs+, ATs, AQo+, KTo:0.9, A9s:0.7, KQo:0.4"
      }
     ]
    },
@@ -5622,26 +5756,60 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·SB콜",
     "title": "BB vs UTG+1 오픈 + SB 콜",
-    "description": "UTG+1 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 40.8%p 움직여요.",
     "line": "UTG+1 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 0.932,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3.3.........3.........................3..................................................................................................55...............",
+    "occ": 0.935,
+    "regret": 0,
+    "confidence": "low",
+    "move": 40.8,
+    "close": "....33.........3...........3............3............3..........................................5.............5.........................................55..............5",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-33, AJs, A8s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, 22:0.9, KJo:0.9, 88:0.7, A9s:0.7, 86o:0.1"
+      "range": "77-22, AJs, A9s-A2s, KJs+, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KJo+, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, KTs:0.9, 88:0.8"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs, AQo+, KTo, ATo:0.6, 88:0.3, A9s:0.3, KJo:0.1"
+      "range": "99+, AQs+, ATs, AQo+, KTo, ATo:0.7, 88:0.2, KTs:0.1"
+     }
+    ]
+   },
+   {
+    "id": "bb-at-utgp2-open-co-call",
+    "kind": "squeeze",
+    "hero": "BB",
+    "villain": "UTG+2",
+    "villainSeats": [
+     "UTG+2",
+     "CO"
+    ],
+    "chip": "UTG+2오픈·CO콜",
+    "title": "BB vs UTG+2 오픈 + CO 콜",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.8%p 움직여요.",
+    "line": "UTG+2 2.2 · CO 콜",
+    "reachPct": 100,
+    "occ": 0.501,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 24.8,
+    "close": "........3...............5.....................................555...........55.....5.....5.....................5.............5.............55............................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "66-44, AJs, A6s, A3s, KJs, K9s-K3s, Q5s+, J7s+, T5s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KJo, QTo+, JTo, T9o, 98o, 76o, 65o, 77:0.9, ATs:0.9, A4s:0.9, A2s:0.9, Q4s:0.9, KQo:0.9, KQs:0.8, 33:0.7, A8s:0.7, A7s:0.6, K2s:0.5, A9s:0.3, A5s:0.3, J6s:0.3, 88:0.2, J5s:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 11.6bb",
+      "color": "raise",
+      "range": "99+, AQs+, KTs, AQo+, 88:0.8, A9s:0.7, A5s:0.7, KTo:0.5, A7s:0.4, A8s:0.3, KQs:0.2, 77:0.1, ATs:0.1, A4s:0.1, A2s:0.1, KQo:0.1"
      }
     ]
    },
@@ -5656,26 +5824,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "BB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.9%p 움직여요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.73,
+    "occ": 0.747,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......................................3..........55...........5...5.....................5.......5...........................5..............5............................",
+    "confidence": "low",
+    "move": 26.9,
+    "close": ".......................................3..........55...........5...5.....................5.......5...........................5.............55............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-44, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, ATs:0.6, KQo:0.6, AJs:0.5, A9s:0.5, 33:0.3, ATo:0.3, KTo:0.3, KTs:0.1, 54o:0.1"
+      "range": "66-44, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, 33:0.7, ATo:0.7, AJs-ATs:0.6, KQo:0.6, A9s:0.5, KTo:0.3, KTs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AQs+, KQs, AJo+, KTs:0.9, KTo:0.7, AJs:0.5, A9s:0.5, ATs:0.4, KQo:0.4"
+      "range": "77+, AQs+, KQs, AJo+, KTs:0.8, KTo:0.7, A9s:0.5, AJs-ATs:0.4, KQo:0.4"
      }
     ]
    },
@@ -5690,26 +5858,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 38.3%p 움직여요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.1,
+    "occ": 1.095,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 38.3,
     "close": ".....3.........3.................................................................5..............5.............5..........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-33, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, Q9o+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, 22:0.8, ATs:0.7, ATo:0.6, 53o:0.6, KQo:0.5, KTs:0.4, AJs:0.2, KTo:0.2, 43o:0.2"
+      "range": "77-33, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, Q9o+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, 22:0.9, ATs:0.7, ATo:0.6, KQo:0.5, KTs:0.4, 53o:0.3, KTo:0.2, AJs:0.1, 43o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AQs+, A9s, KQs, AJo+, AJs:0.8, KTo:0.8, KTs:0.6, KQo:0.5, ATo:0.4, ATs:0.3, 22:0.2"
+      "range": "88+, AQs+, A9s, KQs, AJo+, AJs:0.9, KTo:0.8, KTs:0.6, KQo:0.5, ATo:0.4, ATs:0.3, 22:0.1"
      }
     ]
    },
@@ -5724,26 +5892,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28.8%p 움직여요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.859,
+    "occ": 0.867,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....33..............3.................................3.......555...............................................3.......................................................5",
+    "confidence": "low",
+    "move": 28.8,
+    "close": "....3.............3.33................................33......555.................5.....................................................................................5",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "55-33, ATs, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, 87o, 76o, 65o, 54o, JTo:0.9, KTs:0.8, ATo:0.8, KQo:0.2, KTo:0.2"
+      "range": "55-33, ATs, A8s-A2s, KJs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, 54o, KTs:0.8, ATo:0.8, KTo:0.3, KQo:0.2, Q9o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, AJs+, A9s, KQs, AJo+, KQo:0.8, KTo:0.8, KTs:0.2, ATo:0.2, Q9o:0.1, JTo:0.1"
+      "range": "66+, AJs+, A9s, KQs, AJo+, KQo:0.8, KTo:0.7, KTs:0.2, ATo:0.2, Q9o:0.1"
      }
     ]
    },
@@ -5758,26 +5926,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 35.6%p 움직여요.",
     "line": "LJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.361,
+    "occ": 1.362,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3.........................................................................55..........................................5.3.........................55...............",
+    "confidence": "low",
+    "move": 35.6,
+    "close": "......3.........................................................................5...........................................5...........................55...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "55-22, ATs, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, Q8o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 53o+, 43o, 66:0.7, ATo:0.3, KQo:0.3, K9o:0.1"
+      "range": "44-22, ATs, A8s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, Q8o+, J9o+, T8o+, 97o+, 86o+, 76o, 65o, 53o+, 43o, J8o:0.9, 55:0.8, 66:0.5, KQo:0.4, ATo:0.3, K9o:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "77+, AJs+, A9s, KQs, AJo+, K9o:0.9, ATo:0.7, KQo:0.7, 66:0.3"
+      "range": "77+, AJs+, A9s, KQs, AJo+, K9o:0.8, ATo:0.7, KQo:0.6, 66:0.5, 55:0.2"
      }
     ]
    },
@@ -5792,26 +5960,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 36.4%p 움직여요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.785,
+    "occ": 0.789,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............................................................556.5....................................................................................55...............",
+    "confidence": "low",
+    "move": 36.4,
+    "close": "...............................................................55..5....................................................................................55...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T5s+, T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 54o, KJo:0.8, JTo:0.8, KTo:0.6, 55:0.4, A8s:0.3, T4s:0.1"
+      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T5s+, T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 54o, KJo:0.8, JTo:0.8, KTo:0.6, A8s:0.5, 55:0.4, T4s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, A9s+, KQs, ATo+, KQo, A8s:0.7, 55:0.6, KTo:0.4, KJo:0.2, JTo:0.2, K9o:0.1"
+      "range": "66+, A9s+, KQs, ATo+, KQo, 55:0.6, A8s:0.5, KTo:0.4, KJo:0.2, JTo:0.2, A9o:0.1, K9o:0.1"
      }
     ]
    },
@@ -5826,26 +5994,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.5%p 움직여요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
     "occ": 1.501,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3.....................................6...........................5..............................5.............5.............55...............",
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 33.5,
+    "close": "...........................3.................................................................5..........................................................55...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-33, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K7o, Q7o+, J7o+, T8o+, 97o+, 86o+, 75o+, 65o, 53o+, 43o, 55:0.9, A8s:0.7, 22:0.6, K9o:0.4, A9s:0.2, Q6o:0.2, T7o:0.2, K6o:0.1"
+      "range": "44-33, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-KTo, K8o-K7o, Q7o+, J7o+, T8o+, 97o+, 86o+, 76o, 65o, 53o+, 43o, 55:0.9, 75o:0.9, A8s:0.8, 22:0.6, K9o:0.4, T7o:0.3, A9s:0.1, K6o:0.1, Q6o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "66+, ATs+, KQs, A9o+, KQo, A9s:0.8, K9o:0.6, 22:0.4, A8s:0.3, 55:0.1"
+      "range": "66+, ATs+, KQs, A9o+, KQo, A9s:0.9, K9o:0.6, 22:0.4, A8s:0.2, 55:0.1"
      }
     ]
    },
@@ -5860,26 +6028,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.3%p 움직여요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.715,
+    "occ": 0.727,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3........3............3......................3........55.........................................5...........5............5.....................5................",
+    "confidence": "low",
+    "move": 31.3,
+    "close": ".................3............3......................3........55.........................................5...........5............5......................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33-22, A7s-A2s, KTs-K2s, Q2s+, J9s-J2s, T5s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K7o, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 53o+, JTs:0.7, K9o:0.7, KJo:0.6, 43o:0.6, T2s:0.5, JTo:0.1"
+      "range": "33-22, A7s-A2s, KTs-K2s, Q2s+, J9s-J2s, T5s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K7o, Q9o+, J9o, T9o, 98o, 87o, 76o, 65o, 54o, 53o:0.9, K9o:0.8, T2s:0.7, KJo:0.6, JTs:0.5, 43o:0.3, JTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "44+, A8s+, KJs+, A9o+, KQo, JTo:0.9, A8o:0.4, KJo:0.4, JTs:0.3, K9o:0.3"
+      "range": "44+, A8s+, KJs+, A9o+, KQo, JTo:0.9, JTs:0.5, KJo:0.4, A8o:0.3, K9o:0.2"
      }
     ]
    },
@@ -5894,26 +6062,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 27.6%p 움직여요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.888,
+    "occ": 1.9,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......3.........3.......................................33.......3.....................................6..............5...5.......5.....55....5.........................",
+    "confidence": "low",
+    "move": 27.6,
+    "close": ".......3.........3.........3.............................33.............................................6............3.5...5.......5......5..............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33, A7s-A2s, KTs-K9s, K7s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A5o-A4o, K9o-K5o, Q6o+, J9o-J7o, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, 22:0.9, KTo:0.8, KJs:0.7, K8s:0.7, KJo:0.4, JTo:0.1"
+      "range": "33, A7s-A2s, KTs-K9s, K7s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A5o-A4o, K8o-K5o, Q6o+, J9o-J7o, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, 22:0.9, K9o:0.9, K8s:0.8, KTo:0.8, KJs:0.7, KJo:0.5, JTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "44+, A8s+, KQs, A7o+, KQo, JTo:0.9, KJo:0.6, KJs:0.3, K8s:0.3, KTo:0.2, 22:0.1"
+      "range": "44+, A8s+, KQs, A7o+, KQo, JTo:0.9, KJo:0.5, KJs:0.3, K8s:0.2, KTo:0.2, 22:0.1, K9o:0.1"
      }
     ]
    },
@@ -5928,26 +6096,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.6%p 움직여요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 2.973,
+    "occ": 2.982,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "............3.........................................3...........3.............................3............5..............5........5....5....3..5............5.......5.",
+    "move": 18.6,
+    "close": ".........3..3.........................................3...........3.............................3...........................5........5....5....3..5............5.......5.",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A4s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K2o, QTo, Q8o-Q2o, J4o+, T6o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, A5s:0.9, 22:0.8, QJo:0.8, Q9o:0.8, A4o:0.6, KJo:0.6"
+      "range": "A5s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K2o, QTo, Q8o-Q2o, J4o+, T6o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, Q9o:0.9, 22:0.8, QJo:0.8, 96o:0.8, A4o:0.6, KJo:0.6"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "33+, A6s+, KTs+, A5o+, A3o-A2o, KQo, A4o:0.4, KJo:0.4, 22:0.2, QJo:0.2, Q9o:0.2, A5s:0.1"
+      "range": "33+, A6s+, KTs+, A5o+, A3o-A2o, KQo, A4o:0.4, KJo:0.4, 22:0.2, QJo:0.2, Q9o:0.1"
      }
     ]
    },
@@ -5961,29 +6129,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.2%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
     ],
     "reachPct": 53.6,
-    "occ": 2.865,
+    "occ": 2.848,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......................3...................................3.........3........3....3.....55...............5...5.............................................5............",
+    "move": 11.2,
+    "close": ".......................3...................................3......3..3.............3.....553..............5...5.............................................5............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A3s-A2s, K4s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 95s-92s, 85s-83s, 74s-73s, 64s-63s, A6o-A3o, K9o, K7o, J9o-J8o, T7o+, 97o+, A7o:0.9, 96s:0.8, 86s:0.1"
+      "range": "44-22, A3s-A2s, K4s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 95s-92s, 85s-83s, 74s-73s, 64s-63s, A7o-A3o, K9o, K7o-K6o, J9o-J8o, T7o+, 97o+, 96s:0.9, 86s:0.1, A8o:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "JJ+, 99-88, A6s+, KQs, K7s-K5s, 97s, AJo-A8o, KTo+, QTo, 86s:0.9, 96s:0.2, A7o:0.1"
+      "range": "88+, A6s+, KQs, K7s-K5s, 97s, AJo-A9o, KTo+, QTo, 86s:0.9, A8o:0.9, 96s:0.1"
      }
     ]
    },
@@ -5997,27 +6165,27 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28.9%p 움직여요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 5.44,
+    "occ": 5.406,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................3...........3.3.3..........3.33..3......3.33.33......3333..33.......33...3........3....33.3.........33333.......333..3.......3.....33.....333333.33.",
+    "confidence": "low",
+    "move": 28.9,
+    "close": ".....................3...3.......3.3.33........33.33..3......3.33.33......3333..33.......33...3........3....33.3.........33333.......33..33.......3.....33.....333333333.",
     "actions": [
      {
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A2s+, K6s+, Q7s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A8o+, KTo+, Q9o+, J8o+, T8o+, 98o, 76o, 64o+, 53o+, 42o+, 32o, K5s:0.9, J4s:0.9, 86o:0.9, 52o:0.9, T7o:0.7, 87o:0.7, K4s:0.6, A7o:0.6, Q6s:0.5, 63o:0.5, 97o:0.4, 84o:0.4, T4s:0.3, T3o:0.3, 93o:0.3, 83o:0.3, K3s:0.2, Q4s:0.1, J6s:0.1, 74o-73o:0.1"
+      "range": "22+, A2s+, K6s+, Q7s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A8o+, KTo+, Q9o+, J8o+, T8o+, 98o, 76o, 64o+, 52o+, 42o+, 32o, K5s:0.9, J4s:0.9, 86o:0.9, A7o:0.7, T7o:0.7, 87o:0.7, K4s:0.6, T4s:0.5, 63o:0.5, Q6s:0.4, T3o:0.4, 97o:0.4, 93o:0.4, 84o-83o:0.3, K3s:0.1, Q4s:0.1, 94o:0.1, 73o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "K2s, Q5s, Q3s-Q2s, J5s, J3s-J2s, T5s, T3s-T2s, 94s-92s, 83s-82s, 72s, A6o-A2o, K9o-K2o, Q8o-Q2o, J7o-J2o, T6o-T4o, T2o, 96o-94o, 92o, 85o, 82o, 75o, 72o, 62o, Q4s:0.9, J6s:0.9, 74o-73o:0.9, K3s:0.8, T4s:0.7, T3o:0.7, 93o:0.7, 83o:0.7, 97o:0.6, 84o:0.6, Q6s:0.5, 63o:0.5, K4s:0.4, A7o:0.4, T7o:0.3, 87o:0.3, K5s:0.1, J4s:0.1, 86o:0.1, 52o:0.1"
+      "range": "K2s, Q5s, Q3s-Q2s, J6s-J5s, J3s-J2s, T5s, T3s-T2s, 94s-92s, 83s-82s, 72s, A6o-A2o, K9o-K2o, Q8o-Q2o, J7o-J2o, T6o-T4o, T2o, 96o-95o, 92o, 85o, 82o, 75o-74o, 72o, 62o, K3s:0.9, Q4s:0.9, 94o:0.9, 73o:0.9, 84o-83o:0.7, Q6s:0.6, T3o:0.6, 97o:0.6, 93o:0.6, T4s:0.5, 63o:0.5, K4s:0.4, A7o:0.3, T7o:0.3, 87o:0.3, K5s:0.1, J4s:0.1, 86o:0.1"
      }
     ]
    },
@@ -6031,28 +6199,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.6%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 52.4,
-    "occ": 0.529,
-    "regret": 0.0021,
+    "reachPct": 52.6,
+    "occ": 0.522,
+    "regret": 0.0016,
     "confidence": "mid",
-    "move": 0,
+    "move": 19.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AJs-A5s, A3s-A2s, KJs+, QJs, Q8s-Q6s, Q4s, J6s+, J4s, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo-A8o, KJo+, QJo, JTo, 65o, 54o, K7s:0.9, QTs:0.9, T4s:0.9, TT:0.8, KTs:0.8, K8s:0.8, QTo:0.8, KTo:0.6, AQs:0.5, 76o:0.5, JJ:0.3, A4s:0.3, Q9s:0.3, T9o:0.2, 98o:0.1"
+      "range": "99-22, AJs-A5s, A3s-A2s, KJs+, QJs, Q8s-Q6s, Q4s, J7s+, J4s, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo-A8o, KJo+, QJo, JTo, 65o, 54o, TT:0.9, KTs:0.9, K7s:0.9, QTs:0.9, T4s:0.9, QTo:0.8, K8s:0.7, AQs:0.6, KTo:0.6, 76o:0.4, JJ:0.3, A4s:0.3, Q9s:0.3, T9o:0.2, 98o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, K9s, K6s-K3s, AKo, JJ:0.7, A4s:0.7, Q9s:0.7, AQs:0.5, KTo:0.4, TT:0.2, KTs:0.2, K8s:0.2, K7s:0.1, QTs:0.1, QTo:0.1"
+      "range": "QQ+, AKs, K9s, K6s-K3s, AKo, JJ:0.7, A4s:0.7, Q9s:0.7, AQs:0.4, KTo:0.4, K8s:0.3, TT:0.1, KTs:0.1, K7s:0.1, QTs:0.1, QTo:0.1"
      }
     ]
    }
@@ -6061,7 +6229,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "100bb-3",
   "label": "100bb · 펍 사이즈 오픈 3bb",
-  "description": "모두 100bb. 오픈 3bb, SB는 림프·오픈 3.5bb, 3벳 IP 3배·블라인드 3.5배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 100bb. 오픈 3bb, SB는 림프·오픈 3.5bb, 3벳 IP 3배·블라인드 3.5배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님).",
   "stack": 100,
   "open": 3,
   "sizes": {
@@ -6094,47 +6262,47 @@ export const PREFLOP_STAGES: PreflopStage[] = [
   },
   "occThresholdCold": 1,
   "brGainMbb": [
-   0.538,
+   0.549,
+   0.429,
+   0.632,
    0.421,
-   0.577,
-   0.55,
-   0.39,
-   0.444,
-   0.579,
-   0.562,
-   0.742
+   0.377,
+   0.413,
+   0.427,
+   0.595,
+   0.8
   ],
-  "nashConvMbb": 4.802,
-  "snappedGainMbb": 1.882,
+  "nashConvMbb": 4.643,
+  "snappedGainMbb": 1.698,
   "ev": [
-   0.1496,
-   0.1694,
-   0.1941,
+   0.1494,
+   0.1692,
+   0.1939,
    0.2235,
-   0.2598,
-   0.3069,
-   0.3783,
-   -0.1313,
-   -1.4145
+   0.2599,
+   0.3071,
+   0.379,
+   -0.1315,
+   -1.4147
   ],
   "diag": {
-   "evSum": 0.136,
+   "evSum": 0.1359,
    "frozenOccPct": 0.633,
-   "negativeShares": 17887
+   "negativeShares": 17262
   },
   "model": {
    "id": "modelB-rank9",
-   "fitHash": "4acfad77aa3500701d753c64e54abaaa38d2e0ce1a6b596e4d397a4210b83e74",
+   "fitHash": "2862daa7a90faa1cded8a882a0d6b65a25da69be37cd4e848879b33f50d73c23",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
     "srp-btn-bb-100": {
      "version": 1,
-     "flops": 1476
+     "flops": 1755
     },
     "pub-srp-btn-bb-55": {
      "version": 2,
-     "flops": 1457
+     "flops": 1755
     }
    }
   },
@@ -6147,20 +6315,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........33........3....................33..........33.3...3............3..........................3.............3.............3.........................................",
+    "confidence": "high",
+    "move": 3.6,
+    "close": ".........33........3...........3.........3..........33.3...3............3..........................3.............3.............3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "77+, A9s+, A5s, K9s+, QTs+, J9s+, T8s+, 98s, AJo+, KJo+, A8s:0.3, 87s:0.2, Q9s:0.1"
+      "range": "77+, A9s+, A5s, K9s+, QTs+, J9s+, T8s+, 98s, AJo+, KQo, KJo:0.9, A8s:0.3, 87s:0.3"
      }
     ]
    },
@@ -6170,20 +6338,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 86.594,
+    "occ": 86.591,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......33.33.........3..........3........3....3.......3.3...3.........................33............3.............3.............3.........................................",
+    "confidence": "high",
+    "move": 3.6,
+    "close": "......33.33.........3..........3........3....3.......3.3...3............3............33............3.............3.............3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "77+, A8s+, A5s, K9s+, Q9s+, J9s+, T8s+, 98s, 87s, AJo+, KJo+, 66:0.6, ATo:0.5, QJo:0.5, K8s:0.2, 97s:0.1"
+      "range": "77+, A8s+, A5s, K9s+, Q9s+, J9s+, T8s+, 98s, 87s, AJo+, KJo+, 66:0.5, ATo:0.5, QJo:0.5, K8s:0.2"
      }
     ]
    },
@@ -6193,20 +6361,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 73.224,
+    "occ": 73.287,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......33..........33...........3........3...3........33...3.........................33..........................3.............3.........................................",
+    "confidence": "high",
+    "move": 3.9,
+    "close": ".......33..........33...........3........3...3........33...3............3............33..........................3.............3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "66+, A7s+, A5s, K8s+, Q9s+, J9s+, T8s+, 98s, 87s, ATo+, KJo+, QJo, 97s:0.9, 76s:0.8, A4s:0.4, KTo:0.4, 55:0.2"
+      "range": "66+, A7s+, A5s, K8s+, Q9s+, J9s+, T8s+, 97s+, 87s, ATo+, KJo+, QJo, 76s:0.9, A4s:0.4, KTo:0.4, 55:0.1"
      }
     ]
    },
@@ -6216,20 +6384,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.5%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 59.955,
+    "occ": 60.01,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.5,
     "close": "..........3.3.......33..........3............3.......3.....3.....3......3.............3............33..........................3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "55+, A4s+, K7s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, ATo+, KTo+, QJo, QTo:0.6, 65s:0.5, JTo:0.4, A3s:0.2"
+      "range": "55+, A4s+, K7s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, ATo+, KTo+, QJo, 65s:0.6, QTo:0.5, A3s:0.4, JTo:0.4"
      }
     ]
    },
@@ -6239,20 +6407,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.5%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 47.03,
+    "occ": 47.043,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............3........333.........3...........33.......33...3......3..3...3............3............33............3.............3............3............................",
+    "confidence": "high",
+    "move": 3.5,
+    "close": "............3........3.3.........3...........33.......33..........3..3...3............3............33............3.............3............3............................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "44+, A2s+, K5s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, A9o+, KTo+, QTo+, JTo, A8o:0.5"
+      "range": "44+, A2s+, K6s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 76s, 65s, A9o+, KTo+, QTo+, JTo, K5s:0.9, T7s:0.9, A8o:0.5"
      }
     ]
    },
@@ -6262,20 +6430,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.1%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 34.716,
+    "occ": 34.71,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........................33........333.........333...........3........3...3.............3................3.........3.............3........................................",
+    "confidence": "high",
+    "move": 4.1,
+    "close": "........................33........3.3..........33...........3........3...3.............3.............3..3.........3.............3........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "33+, A2s+, K3s+, Q5s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 54s, A7o+, K9o+, QTo+, JTo, T9o, J9o:0.9, A5o:0.2, Q9o:0.2"
+      "range": "33+, A2s+, K3s+, Q6s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 54s, A7o+, K9o+, QTo+, JTo, T9o, Q5s:0.9, J9o:0.9, Q9o:0.3, A5o:0.2"
      }
     ]
    },
@@ -6285,20 +6453,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.5%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 22.768,
+    "occ": 22.774,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...................................................3..........3.3..........3............3....33333.............3...3..3..........3.............3............3............",
+    "confidence": "high",
+    "move": 4.5,
+    "close": "...................................................3..........333..........3.................33333.............3...3..3..........3.............3............3............",
     "actions": [
      {
       "key": "open",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T4s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, A3o+, K5o+, Q8o+, J8o+, T8o+, 98o, 87o, T3s:0.9"
+      "range": "22+, A2s+, K2s+, Q2s+, J2s+, T3s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, A3o+, K5o+, Q8o+, J8o+, T8o+, 98o, 87o, 84s:0.1"
      }
     ]
    },
@@ -6308,26 +6476,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.2%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 10.795,
+    "occ": 10.791,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3.....333.........3...3............3..3..3.........3...3......33.3.3......333..3........333..33..33.333...33333......5555.3.37....555555337....5.......5...55.......3",
+    "confidence": "low",
+    "move": 24.2,
+    "close": "....3.....333.......3.3...3............3..3..3.........3...3.....33333.3......333..3......5.333..33...3.333...33333......5555.3.37....55555.337....5.......5...55.......3",
     "actions": [
      {
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, 22, AQs, ATs, A2s, K5s-K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-73s, 64s, 42s, AJo-A8o, A5o-A2o, K4o-K2o, Q6o-Q2o, J7o-J2o, T9o, T6o-T3o, 96o-95o, 86o-85o, 75o, KK:0.9, AJs:0.9, Q8s:0.9, 97s:0.9, J9o:0.9, KJo:0.8, 99:0.7, 33:0.7, K6s:0.7, 86s:0.7, 62s:0.7, KTo:0.7, T8o:0.7, 72s:0.6, 97o:0.6, 65o:0.6, J8o:0.5, T7o:0.5, 75s:0.4, 63s:0.4, A7o:0.4, K5o:0.4, QJo:0.4, TT:0.3, QTo:0.3, 88:0.2, AKs:0.2, KQs:0.2, KQo:0.2, QQ:0.1"
+      "range": "AA, 22, AQs, ATs, A2s, K5s-K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-82s, 74s-73s, 64s, 42s, AJo-A8o, A5o-A2o, K4o-K2o, Q6o-Q2o, J9o, J7o-J2o, T9o, T6o-T3o, 96o-95o, 86o-85o, 75o, KK:0.9, AJs:0.9, K6s:0.9, 97s:0.9, 99:0.8, 33:0.8, Q8s:0.8, 86s:0.8, KJo:0.8, KTo:0.7, T8o:0.7, 97o:0.7, 72s:0.6, 62s:0.6, 65o:0.6, 75s:0.5, A7o:0.5, T7o:0.5, K5o:0.4, QJo:0.4, TT:0.3, QTo:0.3, J8o:0.3, 88:0.2, KQs:0.2, 63s:0.2, KQo:0.2, QQ:0.1, AKs:0.1, 54o:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3.5bb",
       "color": "raise",
-      "range": "JJ, 77-44, A9s-A3s, KJs-K7s, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 52s+, 43s, AQo+, A6o, K9o-K6o, Q9o-Q7o, JTo, 98o, 87o, 76o, QQ:0.9, 88:0.8, AKs:0.8, KQs:0.8, KQo:0.8, TT:0.7, QTo:0.7, 75s:0.6, 63s:0.6, A7o:0.6, K5o:0.6, QJo:0.6, J8o:0.5, T7o:0.5, 97o:0.4, 65o:0.4, 99:0.3, 33:0.3, K6s:0.3, 86s:0.3, KTo:0.3, T8o:0.3, KJo:0.2, KK:0.1, AJs:0.1, Q8s:0.1, 97s:0.1, J9o:0.1"
+      "range": "JJ, 77-44, A9s-A3s, KJs-K7s, Q9s+, J9s+, T8s+, 98s, 87s, 76s, 65s, 52s+, 43s, AQo+, A6o, K9o-K6o, Q9o-Q7o, JTo, 98o, 87o, 76o, QQ:0.9, AKs:0.9, 88:0.8, KQs:0.8, 63s:0.8, KQo:0.8, TT:0.7, QTo:0.7, J8o:0.7, K5o:0.6, QJo:0.6, 75s:0.5, A7o:0.5, T7o:0.5, 65o:0.4, KTo:0.3, T8o:0.3, 97o:0.3, 99:0.2, 33:0.2, Q8s:0.2, 86s:0.2, KJo:0.2, KK:0.1, AJs:0.1, K6s:0.1, 97s:0.1"
      }
     ]
    },
@@ -6341,13 +6509,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 13.406,
+    "occ": 13.409,
     "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2,
     "close": ".....6.......3..3........................................................................................................................................................",
     "flags": [
      {
@@ -6361,13 +6529,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, AQs-AJs, KQs, JJ:0.9, 88:0.9, AQo:0.7, AKs:0.6, KK:0.5, TT:0.4, KQo:0.4, 99:0.2"
+      "range": "QQ, AQs-AJs, KQs, JJ:0.9, 88:0.9, AKs:0.7, AQo:0.7, KK:0.4, KQo:0.4, TT:0.3, 99:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, ATs, KJs-KTs, AKo, 99:0.8, TT:0.6, KK:0.5, AKs:0.4, JTs:0.4, AQo:0.3, QJs:0.2, JJ:0.1, 88:0.1, KQo:0.1"
+      "range": "AA, ATs, KJs-KTs, AKo, 99:0.8, TT:0.7, KK:0.6, JTs:0.4, AKs:0.3, QJs:0.3, AQo:0.3, JJ:0.1, 88:0.1, KQo:0.1"
      }
     ]
    },
@@ -6381,18 +6549,18 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
     "occ": 12.378,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3..........3........................................................3....................................................................................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": "................3..........3..............3..............................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
-      "hands": "QQ-JJ",
+      "hands": "QQ",
       "vs": "TT-99"
      }
     ],
@@ -6401,13 +6569,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 88, AQs, KQs, KQo, AJs:0.9, QJs:0.9, AKs:0.6, AQo:0.6, KK:0.4, 99:0.3, TT:0.2, AKo:0.1"
+      "range": "QQ-JJ, 88, AQs, KQs, KQo, AJs:0.9, QJs:0.9, AKs:0.6, AQo:0.6, KK:0.5, 99:0.3, TT:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, ATs, KJs-KTs, JTs:0.9, AKo:0.9, TT:0.8, 99:0.7, KK:0.6, AKs:0.4, AQo:0.4, AJs:0.1, QJs:0.1"
+      "range": "AA, ATs, KJs-KTs, TT:0.9, JTs:0.9, AKo:0.9, 99:0.7, KK:0.5, AKs:0.4, AQo:0.4, AJs:0.1, QJs:0.1"
      }
     ]
    },
@@ -6421,14 +6589,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 13.37,
+    "occ": 13.304,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............3....6......................................6...............................................................................................................",
+    "confidence": "high",
+    "move": 2.9,
+    "close": ".............3....6...........6................................................................................................6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6441,13 +6609,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KQs, QJs, TT:0.7, 77:0.7, KQo:0.7, AQo:0.6, AKs:0.4, 88:0.3, KK:0.2, 99:0.2, KJs:0.2"
+      "range": "QQ-JJ, AQs-AJs, KQs, QJs, AQo:0.7, KQo:0.7, TT:0.6, 77:0.5, AKs:0.4, 99-88:0.3, KJs:0.3, KK:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, ATs, KTs, JTs, AKo, KK:0.8, 99:0.8, KJs:0.8, 88:0.7, AKs:0.6, AQo:0.4, TT:0.3, A9s:0.3, KQo:0.3"
+      "range": "AA, ATs, KTs, JTs, AKo, KK:0.8, 99-88:0.7, KJs:0.7, AKs:0.6, TT:0.4, T9s:0.4, AQo:0.3, KQo:0.3, A9s:0.1"
      }
     ]
    },
@@ -6461,14 +6629,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 11.319,
+    "occ": 11.318,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....6.......................3.............3...................................................................................6.........................................",
+    "confidence": "high",
+    "move": 3.6,
+    "close": "...3.........................3.............3........................................3..........................................6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6481,13 +6649,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs, KQs, QJs, 88:0.9, KQo:0.9, AJs:0.8, KJs:0.7, AQo:0.7, AKs:0.5, KK:0.3, 99:0.3, TT:0.2, 77:0.2, AKo:0.2, QTs:0.1"
+      "range": "QQ-JJ, 88, AQs-AJs, KQs, QJs, KQo:0.9, KJs:0.8, AQo:0.8, AKs:0.5, 99:0.4, KK:0.3, 77:0.2, QTs:0.2, TT:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, ATs, KTs, JTs, TT:0.8, AKo:0.8, KK:0.7, 99:0.7, AKs:0.5, KJs:0.3, QTs:0.3, T9s:0.3, AQo:0.3, AJs:0.2, 88:0.1, AJo:0.1, KQo:0.1"
+      "range": "AA, ATs, KTs, JTs, TT:0.9, AKo:0.9, KK:0.7, 99:0.6, AKs:0.5, QTs:0.3, T9s:0.3, A9s:0.2, KJs:0.2, AQo-AJo:0.2, KQo:0.1"
      }
     ]
    },
@@ -6501,14 +6669,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 12.165,
+    "occ": 12.111,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............33............................3........................................3..........................................6.........................................",
+    "confidence": "high",
+    "move": 2.9,
+    "close": ".3...........33.3..........................3........................................3..........................................6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6521,13 +6689,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, KQo:0.7, QTs:0.5, TT-99:0.3, AQo:0.3, KJs:0.1, AJo:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, KQo:0.7, QTs:0.5, TT-99:0.3, AQo:0.3, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, ATs, KTs, JTs, AKo, KJs:0.9, TT-99:0.7, AQo:0.7, KQo:0.3, A9s:0.2, T9s:0.1"
+      "range": "KK+, 88, AKs, ATs, KJs-KTs, JTs, AKo, TT-99:0.7, AQo:0.7, A9s:0.4, KQo:0.3, T9s:0.2"
      }
     ]
    },
@@ -6541,14 +6709,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 13.269,
+    "occ": 13.276,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6......33...6.....................6...........................................3.............3......................................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": "......6......3....6.................................................................3....................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6561,13 +6729,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, AJo:0.9, KQo:0.8, QTs:0.7, 99:0.5, TT:0.4, ATs:0.4, KJs:0.2, JTs:0.2, AQo:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, AJo:0.9, KQo:0.8, QTs:0.7, 99:0.5, ATs:0.5, TT:0.4, KJs:0.2, JTs:0.2, KK:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, KTs-K9s, AKo, T9s:0.9, AQo:0.9, KJs:0.8, JTs:0.8, TT:0.6, ATs-A9s:0.6, 99:0.5, KQo:0.2, QTs:0.1, AJo:0.1"
+      "range": "AA, 88, AKs, KTs-K9s, AKo, KK:0.9, T9s:0.9, AQo:0.9, KJs:0.8, JTs:0.8, TT:0.6, A9s:0.6, 99:0.5, ATs:0.5, KQo:0.2, QTs:0.1, AJo:0.1, KJo:0.1"
      }
     ]
    },
@@ -6581,14 +6749,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.4%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 10.301,
+    "occ": 10.278,
     "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................3.........................................3....................................................................................",
+    "confidence": "high",
+    "move": 4.4,
+    "close": "...........................3..............3.............3...........................3....................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6601,13 +6769,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 88, AQs-AJs, KQs, QJs, 77:0.9, AQo:0.9, KQo:0.9, QTs:0.8, KJs:0.5, 99:0.4, AKs:0.4, JTs:0.3, KK:0.2, TT:0.1, ATs:0.1, AKo:0.1"
+      "range": "QQ-JJ, 88, AQs-AJs, KQs, QJs, KQo, 77:0.9, AQo:0.9, QTs:0.8, 99:0.5, KJs:0.5, AKs:0.4, JTs:0.4, KK:0.2, ATs:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "AA, KTs, TT:0.9, ATs:0.9, T9s:0.9, AKo:0.9, KK:0.8, JTs:0.7, 99:0.6, AKs:0.6, KJs:0.5, 54s:0.3, A9s:0.2, QTs:0.2, AJo:0.2, AQo:0.1, KQo:0.1"
+      "range": "AA, TT, KTs, ATs:0.9, T9s:0.9, AKo:0.9, KK:0.8, AKs:0.6, JTs:0.6, 99:0.5, KJs:0.5, 54s:0.4, A9s:0.2, AJo:0.2, QTs:0.1, AQo:0.1"
      }
     ]
    },
@@ -6621,19 +6789,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 11.022,
+    "occ": 10.97,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3..3........3...............................6.................................................................................................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": ".............33............3...........3.................7...............................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
       "hands": "QQ-JJ",
-      "vs": "TT, 88"
+      "vs": "TT-88"
      }
     ],
     "actions": [
@@ -6641,13 +6809,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, AJo, KQo, 99:0.6, JTs:0.5, 88:0.3, AQo:0.3, TT:0.2"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, AJo, KQo, JTs:0.5, 99-88:0.4, TT:0.3, AQo:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, AKs, ATs, KJs-KTs, T9s, AKo, TT:0.8, 88:0.7, A9s:0.7, AQo:0.7, JTs:0.5, 99:0.4, 54s:0.4, K9s:0.3"
+      "range": "KK+, AKs, ATs, KJs-KTs, T9s, AKo, A9s:0.8, TT:0.7, AQo:0.7, 99-88:0.6, JTs:0.5, 54s:0.4, K9s:0.1"
      }
     ]
    },
@@ -6661,14 +6829,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.5%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 11.821,
+    "occ": 11.82,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6......33...6........3.............................7.............6.......................................................6.........................................",
+    "confidence": "high",
+    "move": 4.5,
+    "close": "......6......33...7.......33...........3.................7.............6.......................................................6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6681,13 +6849,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, KQo, AJo:0.9, QTs:0.8, KJs:0.6, 99:0.5, A9s:0.5, 66:0.4, JTs:0.3, TT:0.1, 88:0.1, ATs:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QJs, AJo, KQo, QTs:0.9, KJs:0.7, A9s:0.5, 99:0.4, 66:0.3, JTs:0.3, TT:0.1, 88:0.1, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, AKs, KTs-K9s, T9s, AQo+, TT:0.9, 88:0.9, ATs:0.9, JTs:0.7, KJo:0.7, 99:0.5, A9s:0.5, KJs:0.4, QTs:0.2, AJo:0.1"
+      "range": "KK+, AKs, KTs-K9s, T9s, AQo+, TT:0.9, 88:0.9, ATs:0.9, JTs:0.7, KJo:0.7, 99:0.6, A9s:0.5, KJs:0.3, QTs:0.1"
      }
     ]
    },
@@ -6701,26 +6869,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 12.926,
+    "occ": 12.967,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3...3.........3..6...........5..........3............................6........................................3........................................................",
+    "confidence": "high",
+    "move": 4.6,
+    "close": "..33..3.........3..6...........5.......................................6............3.............3.............3........................................................",
+    "flags": [
+     {
+      "code": "PF-SANITY-11",
+      "hands": "JJ",
+      "vs": "TT, 88-77"
+     }
+    ],
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 66, AQs, A9s-A8s, KJs, QJs, QQ:0.9, QTs:0.9, KQo:0.9, 99:0.8, AJs:0.8, KQs:0.7, KJo:0.5, JTs:0.4, ATs:0.3, AKo:0.3, TT:0.2, AJo:0.2, 88-77:0.1"
+      "range": "JJ, 66, AQs-AJs, A9s-A8s, KJs, QJs, QQ:0.9, 99:0.9, KQo:0.9, QTs:0.8, JTs:0.6, KQs:0.5, KJo:0.5, ATs:0.3, AKo:0.3, TT:0.1, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, AKs, KTs-K9s, T9s, AQo, 88-77:0.9, TT:0.8, AJo:0.8, ATs:0.7, AKo:0.7, JTs:0.6, KJo:0.5, A5s:0.4, KQs:0.3, 99:0.2, AJs:0.2, QQ:0.1, QTs:0.1, KQo:0.1"
+      "range": "KK+, 88-77, AKs, KTs-K9s, T9s, AQo, TT:0.9, AJo:0.9, ATs:0.7, AKo:0.7, A5s:0.5, KQs:0.5, KJo:0.5, JTs:0.4, QTs:0.2, QQ:0.1, 99:0.1, KQo:0.1"
      }
     ]
    },
@@ -6734,14 +6909,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.5%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 9.275,
+    "occ": 9.248,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............3.............3..3......................................................6..........................5........................................................",
+    "confidence": "high",
+    "move": 4.5,
+    "close": "...........................3..3......................................................6..........................5........................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -6759,13 +6934,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 88-77, AQs-AJs, KQs, QTs+, KQo, 99:0.8, JTs:0.8, JJ:0.7, AQo-AJo:0.7, KJs:0.6, A9s:0.5, AKs:0.3, TT:0.2, ATs:0.2"
+      "range": "QQ, 88-77, AQs-AJs, KQs, QTs+, KQo, 99:0.9, JTs:0.9, AQo:0.8, JJ:0.7, KJs:0.7, AJo:0.7, A9s:0.6, AKs:0.4, ATs:0.4, TT:0.3, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, KTs, T9s, 54s, AKo, TT:0.8, ATs:0.8, AKs:0.7, 98s:0.5, KJs:0.4, JJ:0.3, A9s:0.3, 65s:0.3, AQo-AJo:0.3, 99:0.2, JTs:0.2"
+      "range": "KK+, KTs, T9s, 54s, AKo:0.9, TT:0.7, AKs:0.6, ATs:0.6, 98s:0.6, JJ:0.3, A9s:0.3, KJs:0.3, 65s:0.3, AJo:0.3, AQo:0.2, 99:0.1, JTs:0.1"
      }
     ]
    },
@@ -6779,14 +6954,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.8%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 9.813,
+    "occ": 9.769,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....36..................................................3..........................3..............6............5........................................................",
+    "confidence": "high",
+    "move": 4.8,
+    "close": ".....36......3....6........3..............3..............3.........................................6............5........................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -6795,7 +6970,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      },
      {
       "code": "PF-SANITY-11",
-      "hands": "QQ-JJ",
+      "hands": "QQ",
       "vs": "TT-99"
      }
     ],
@@ -6804,13 +6979,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 88-66, AQs-AJs, A9s, KQs, QTs+, AJo, KQo, JTs:0.6, ATs:0.5, AQo:0.5, TT-99:0.2"
+      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, KQs, QTs+, AJo, KQo, 88:0.9, JTs:0.9, ATs:0.6, AQo:0.5, 99:0.2, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, AKs, KJs-K9s, T9s, 54s, AKo, TT-99:0.8, ATs:0.5, AQo:0.5, JTs:0.4, 98s:0.2, KJo:0.2, 87s:0.1, 65s:0.1"
+      "range": "KK+, AKs, KJs-K9s, T9s, 54s, AKo, TT:0.9, 99:0.8, AQo:0.5, ATs:0.4, 98s:0.3, KJo:0.3, 65s:0.2, 88:0.1, JTs:0.1, 87s:0.1"
      }
     ]
    },
@@ -6824,14 +6999,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.4%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 10.407,
+    "occ": 10.408,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........6..3..3.........33..35.......3..3.5...........3...........................36...................................................................................",
+    "confidence": "high",
+    "move": 5.4,
+    "close": "..........6..3..3.........33..35..........3.5.......................................36...........................6.......................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -6844,13 +7019,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, KJs+, QTs+, AJo, KQo, A8s:0.8, T9s:0.8, 99:0.7, K9s:0.5, ATs:0.3, JTs:0.1"
+      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, KJs+, QTs+, AJo, KQo, A8s:0.9, T9s:0.8, 99:0.7, K9s:0.5, ATs:0.2, TT:0.1, JTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, 88, AKs, KTs, AQo+, JTs:0.9, 54s:0.9, KJo:0.9, ATs:0.7, A5s:0.5, K9s:0.5, 99:0.3, A8s:0.2, T9s:0.2, 98s:0.1"
+      "range": "KK+, 88, AKs, KTs, AQo+, TT:0.9, JTs:0.9, 54s:0.9, KJo:0.9, ATs:0.8, A5s:0.6, K9s:0.5, 99:0.3, T9s:0.2, 98s:0.2, A8s:0.1"
      }
     ]
    },
@@ -6864,26 +7039,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.4%p 움직여요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 11.26,
+    "occ": 11.285,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3.......5.....3..6.6...................533.........6..............................36............36.............6.......................................................",
+    "confidence": "high",
+    "move": 5.4,
+    "close": "..33.3....5.....3..6.6....................33.........6..............................36.............6.............6.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-AJs, A9s-A7s, KJs, QJs, Q9s, J9s+, 99:0.9, 66:0.9, KJo:0.9, QQ:0.8, QTs:0.8, ATs:0.7, KQs:0.7, KQo:0.6, A5s:0.4, T9s:0.4, 55:0.3, AKo:0.3, ATo:0.3, TT:0.2, 98s:0.2"
+      "range": "JJ, AQs-AJs, A9s-A7s, KJs, QJs, Q9s, J9s+, 99:0.9, 66:0.9, KJo:0.9, QQ:0.8, KQs:0.8, QTs:0.8, ATs:0.7, KQo:0.6, A5s:0.4, T9s:0.4, TT:0.2, 55:0.2, AKo:0.2, ATo:0.2, 77:0.1, 98s:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88-77, AKs, KTs-K8s, AQo-AJo, TT:0.8, 98s:0.8, AKo:0.7, A5s:0.6, T9s:0.6, KQo:0.4, ATs:0.3, KQs:0.3, QQ:0.2, QTs:0.2, 99:0.1, 66:0.1, K7s:0.1, KJo:0.1"
+      "range": "KK+, 88, AKs, KTs-K8s, AQo-AJo, 77:0.9, 98s:0.9, TT:0.8, AKo:0.8, A5s:0.6, T9s:0.6, KQo:0.4, ATs:0.3, QQ:0.2, KQs:0.2, QTs:0.2, 99:0.1, 66:0.1, K7s:0.1, KJo:0.1"
      }
     ]
    },
@@ -6897,26 +7072,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.2%p 움직여요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 12.313,
+    "occ": 12.333,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3...............66.........3...........3.3............3..........................3....................................................................................",
+    "confidence": "high",
+    "move": 5.2,
+    "close": "...3...............66.........3.............3............3..........................3....................................................................................",
+    "flags": [
+     {
+      "code": "PF-SANITY-11",
+      "hands": "JJ",
+      "vs": "TT, 88-77"
+     }
+    ],
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AQs-AJs, A7s, KJs, QTs+, J9s, KJo, QJo, 99:0.9, ATs:0.9, A8s:0.9, 55:0.8, JTs:0.7, Q9s:0.5, ATo:0.5, A5s:0.4, KTs:0.4, 77:0.3, KQs:0.3, QQ:0.2, TT:0.2, 66:0.2, 98s:0.2, AKo:0.2"
+      "range": "JJ, AQs-AJs, A7s, KJs, QTs+, J9s, KJo, QJo, 99:0.9, ATs:0.9, 55:0.8, A8s:0.8, JTs:0.8, Q9s:0.5, ATo:0.5, A5s:0.4, KTs:0.4, 77:0.3, KQs:0.3, QQ:0.2, TT:0.2, 66:0.2, 98s:0.2, AKo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, 88, AKs, A9s, K9s-K8s, T9s, AQo-AJo, KQo, QQ:0.8, TT:0.8, 66:0.8, 98s:0.8, AKo:0.8, 77:0.7, KQs:0.7, A5s:0.6, KTs:0.6, Q9s:0.5, ATo:0.5, JTs:0.3, 55:0.2, 99:0.1, ATs:0.1, A8s:0.1"
+      "range": "KK+, 88, AKs, A9s, K9s-K8s, T9s, AQo-AJo, KQo, QQ:0.8, TT:0.8, 66:0.8, 98s:0.8, AKo:0.8, 77:0.7, KQs:0.7, A5s:0.6, KTs:0.6, Q9s:0.5, ATo:0.5, 55:0.2, A8s:0.2, JTs:0.2, 99:0.1, ATs:0.1"
      }
     ]
    },
@@ -6930,14 +7112,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.7%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 8.226,
+    "occ": 8.195,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............3....6.........................5.............6............6.............6.............6.....................................................................",
+    "confidence": "high",
+    "move": 5.7,
+    "close": ".............3...36............5............5..........................6.............6.............6.....................................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -6950,13 +7132,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 99-66, AQs-A9s, KQs, QTs+, JTs, AJo:0.9, TT:0.6, KQo:0.6, AQo:0.5, 55:0.4, T9s:0.4, JJ:0.1, AKs:0.1, A5s:0.1, KJs:0.1"
+      "range": "QQ, 99-66, AQs-A9s, KQs, QTs+, JTs, AJo:0.9, TT:0.7, AQo:0.6, KQo:0.6, T9s:0.5, 55:0.3, AKs:0.2, KJs:0.2, JJ:0.1, A8s:0.1, A5s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, KTs, 98s, 54s, AKo, JJ:0.9, AKs:0.9, KJs:0.9, T9s:0.6, 65s:0.6, AQo:0.5, TT:0.4, KQo:0.4, A8s:0.1, AJo:0.1"
+      "range": "KK+, KTs, 98s, 54s, AKo, JJ:0.9, AKs:0.8, KJs:0.8, 65s:0.8, T9s:0.5, AQo:0.4, KQo:0.4, TT:0.3, AJo:0.1"
      }
     ]
    },
@@ -6970,14 +7152,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.5%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 8.612,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3..77.....3..........................3............3..............7............3..............6.....................................................................",
+    "occ": 8.566,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 6.5,
+    "close": "......3..77..3..3.............35...........3............33.............7............3..............6..........................5..........................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -6995,13 +7177,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 88-66, AQs-AJs, A9s-A8s, A5s, KJs+, QTs+, JTs, T9s, AJo, KQo, 55:0.9, ATs:0.9, Q9s:0.9, 99:0.8, JJ:0.6, J9s:0.5, K9s:0.4, AQo:0.4"
+      "range": "QQ, 88-55, AQs-AJs, A9s-A8s, A5s, KJs+, Q9s+, JTs, T9s, AJo, KQo, ATs:0.9, 99:0.8, J9s:0.7, JJ:0.6, K9s:0.5, AQo:0.5"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, KTs, 98s, 54s, AKo, KJo:0.8, 87s:0.7, K9s:0.6, AQo:0.6, JJ:0.4, 65s:0.3, 99:0.2, ATs:0.1"
+      "range": "KK+, TT, AKs, KTs, 98s, 54s, AKo, KJo:0.8, 87s:0.7, K9s:0.5, AQo:0.5, JJ:0.4, 65s:0.4, 99:0.2, ATs:0.1"
      }
     ]
    },
@@ -7015,14 +7197,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
     "occ": 9.03,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......5........3..6.......3............................3.........................................36.....................................................................",
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 7.1,
+    "close": ".............3..3..6......3.............................3..........................................6.....................................................................",
     "flags": [
      {
       "code": "PF-SANITY-9",
@@ -7032,7 +7214,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
      {
       "code": "PF-SANITY-11",
       "hands": "QQ",
-      "vs": "TT-88"
+      "vs": "TT, 88"
      }
     ],
     "actions": [
@@ -7040,13 +7222,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 77-55, AQs-AJs, A9s-A7s, KJs+, QJs, Q9s, J9s, T9s, 98s, AJo, KQo, A5s:0.8, QTs:0.8, JTs:0.8, T8s:0.8, JJ:0.7, A4s:0.6, 99:0.5, ATs:0.5, 88:0.4, K9s:0.3, A3s:0.2, AKo:0.1, KJo:0.1"
+      "range": "QQ, 77-55, AQs-AJs, A9s-A7s, KJs+, QJs, Q9s, J9s, T9s, 98s, AJo, KQo, A5s:0.9, QTs:0.9, JJ:0.8, JTs:0.7, T8s:0.7, 99:0.6, A4s:0.5, 88:0.4, ATs:0.4, K9s:0.2, KJo:0.2, A3s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, KTs, 54s, AQo, AKo:0.9, KJo:0.9, K9s:0.7, 87s:0.7, 88:0.6, 99:0.5, ATs:0.5, A4s:0.4, JJ:0.3, A5s:0.2, QTs:0.2, JTs:0.2, 65s:0.2, ATo:0.2"
+      "range": "KK+, TT, AKs, KTs, 54s, AQo+, K9s:0.8, KJo:0.8, 88:0.6, ATs:0.6, A4s:0.5, 87s:0.5, 99:0.4, JTs:0.3, JJ:0.2, 65s:0.2, ATo:0.2, A5s:0.1, QTs:0.1"
      }
     ]
    },
@@ -7060,26 +7242,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "LJ 오픈 3bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8.6%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 9.562,
+    "occ": 9.592,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": "....3.....33.....333............5......3............3...3...............5..........................6.....................................................................",
+    "move": 8.6,
+    "close": "....3.....335..3..33............5......3...3........36..3...............5..........................6.....................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, AJs-ATs, A8s-A7s, A4s-A3s, KJs+, Q9s+, J9s+, 98s, ATo, KJo, QJo, JJ:0.9, 66:0.9, A6s:0.9, 87s:0.9, AQs:0.8, A2s:0.8, A5s:0.7, QQ:0.6, A9s:0.6, 88-77:0.5, T8s+:0.3, KQo:0.3, AKo:0.2, 99:0.1"
+      "range": "55, AJs-ATs, A8s-A7s, A4s-A2s, KJs+, Q9s+, J9s+, 98s, ATo, KJo, QJo, JJ:0.9, 66:0.9, AQs:0.9, 87s:0.9, A9s:0.8, A6s:0.8, T8s:0.8, A5s:0.7, QQ:0.6, 77:0.6, 88:0.5, T9s:0.4, KQo:0.3, AKo:0.2, 99:0.1, KTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, KTs-K8s, 76s, AQo-AJo, 99:0.9, 54s:0.8, AKo:0.8, T9s:0.7, KQo:0.7, 88-77:0.5, QQ:0.4, A9s:0.4, 65s:0.4, A5s:0.3, K7s:0.3, AQs:0.2, JJ:0.1, 66:0.1, A6s:0.1, 87s:0.1"
+      "range": "KK+, TT, AKs, K9s-K8s, 76s, AQo-AJo, 99:0.9, KTs:0.9, AKo:0.8, 54s:0.7, KQo:0.7, T9s:0.6, 88:0.5, QQ:0.4, 77:0.4, 65s:0.4, A5s:0.3, A9s:0.2, A6s:0.2, K7s:0.2, T8s:0.2, JJ:0.1, 66:0.1, AQs:0.1, 87s:0.1"
      }
     ]
    },
@@ -7093,26 +7275,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 10.233,
+    "occ": 10.249,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3.3........335........3.3......3..33.5.........6.............................3...........................7.............6............5............................",
+    "confidence": "high",
+    "move": 7.1,
+    "close": "..3.....3.3....3...337......3...3......3..33.5.........6..3..........................3...........................6.............6............5............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, AJs-ATs, A7s-A6s, A4s-A3s, KJs-KTs, K8s-K7s, QTs+, Q8s, JTs, J8s, 87s, KJo, QJo, AQs:0.9, A5s:0.9, KQs:0.9, T8s:0.9, J9s:0.8, 66:0.6, TT:0.5, 77:0.5, 55:0.5, A8s:0.5, 98s:0.4, 88:0.3, ATo:0.3, A2s:0.2, 76s:0.2, K9s:0.1, AKo:0.1"
+      "range": "JJ, AQs-ATs, A7s-A6s, A4s-A3s, KTs+, K8s-K7s, QTs+, Q8s, JTs, J8s, T8s, 87s, KJo, QJo, A5s:0.9, J9s:0.8, 66:0.6, 77:0.5, TT:0.4, 88:0.4, 55:0.4, A8s:0.4, 98s:0.4, A2s:0.3, ATo:0.3, K9s:0.2, 76s:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "QQ+, 99, AKs, A9s, Q9s, T9s, AQo-AJo, KQo, K9s:0.9, AKo:0.9, 88:0.7, 97s:0.7, ATo:0.7, 98s:0.6, KTo:0.6, TT:0.5, 77:0.5, 55:0.5, A8s:0.5, 66:0.4, 76s:0.4, J9s:0.2, AQs:0.1, A5s:0.1, KQs:0.1, T8s:0.1"
+      "range": "QQ+, 99, AKs, A9s, Q9s, T9s, AQo-AJo, KQo, AKo:0.9, K9s:0.8, 97s:0.7, ATo:0.7, TT:0.6, 88:0.6, 55:0.6, A8s:0.6, 98s:0.6, KTo:0.6, 77:0.5, 76s:0.5, 66:0.4, J9s:0.2, A5s:0.1"
      }
     ]
    },
@@ -7126,26 +7308,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9%p 움직여요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 11.948,
+    "occ": 11.936,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........33...3...33...5........3..........3.33........5...3............36...........33............3.............3........................................................",
+    "move": 9,
+    "close": "..3.....33..53...33...5........33.........3..3............3............36...........3.............3.............3........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, ATs, A3s, KTs-K9s, K7s-K6s, Q8s+, J8s+, T8s, KTo, QTo, AQs:0.9, A2s:0.9, KJs:0.9, KJo:0.9, TT:0.8, 44:0.8, KQs:0.8, AJs:0.7, A4s:0.7, 99:0.5, T9s:0.4, QJo:0.3, JTo:0.3, A9s:0.2, AQo:0.2, A7s:0.1, K8s:0.1"
+      "range": "77, AQs, ATs, A3s-A2s, KTs-K9s, K7s-K6s, Q8s+, JTs, J8s, T8s, KTo, QTo, A4s:0.9, KQs:0.9, J9s:0.9, KJo:0.9, TT:0.8, KJs:0.8, 44:0.7, AJs:0.6, 99:0.5, A9s:0.4, T9s:0.4, QJo:0.4, JTo:0.4, A7s:0.2, AQo:0.2, K8s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "JJ+, 88, 66-55, AKs, A8s, A6s-A5s, 98s, 87s, AKo, AJo-ATo, KQo, A7s:0.9, K8s:0.9, A9s:0.8, AQo:0.8, QJo:0.7, JTo:0.7, T9s:0.6, A9o:0.6, 99:0.5, AJs:0.3, A4s:0.3, 76s:0.3, TT:0.2, 44:0.2, KQs:0.2, AQs:0.1, KJs:0.1, KJo:0.1"
+      "range": "JJ+, 88, 66-55, AKs, A8s, A6s-A5s, 98s, 87s, AKo, AJo-ATo, KQo, K8s:0.9, A7s:0.8, AQo:0.8, A9o:0.7, A9s:0.6, T9s:0.6, QJo:0.6, JTo:0.6, 99:0.5, AJs:0.4, 44:0.3, TT:0.2, KJs:0.2, 76s:0.2, A4s:0.1, KQs:0.1, J9s:0.1, KJo:0.1"
      }
     ]
    },
@@ -7159,26 +7341,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 7.207,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".................6.........................3.............................................................................................................................",
+    "occ": 7.179,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 3.7,
+    "close": "...........................................3.............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-77, AQs-ATs, KQs, KJs:0.7, QJs:0.6, KQo:0.6, AQo:0.5"
+      "range": "99-77, AQs-ATs, KQs, QJs:0.7, KQo:0.6, AQo:0.5, KJs:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, AKs, KTs, JTs, AKo, QTs:0.6, AQo:0.5, QJs:0.4, KQo:0.4, KJs:0.3"
+      "range": "TT+, AKs, KTs, JTs, AKo, KJs:0.7, QTs:0.5, AQo:0.5, KQo:0.4, QJs:0.3"
      }
     ]
    },
@@ -7192,26 +7374,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 7.346,
+    "occ": 7.296,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................33............37...............................................................................................................",
+    "confidence": "high",
+    "move": 3.3,
+    "close": ".............3............................33............36...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-66, AQs-A9s, KQs, QTs+, AJo, KJs:0.8, KQo:0.7, 99:0.5, QQ:0.4, AQo:0.2"
+      "range": "88-66, AQs-A9s, KQs, QTs+, AJo, KQo:0.7, 99:0.6, KJs:0.6, QQ:0.4, AQo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, KTs, JTs, T9s, AKo, AQo:0.8, QQ:0.6, 99:0.5, KQo:0.3, KJs:0.2"
+      "range": "KK+, JJ-TT, AKs, KTs, JTs, T9s, AKo, AQo:0.8, QQ:0.6, 99:0.4, KJs:0.4, KQo:0.3"
      }
     ]
    },
@@ -7225,26 +7407,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.6%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 7.573,
+    "occ": 7.579,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3...5.........3.3............5..........3.............33............3.............36........................................5..........................................",
+    "confidence": "high",
+    "move": 5.6,
+    "close": "..3...5.........3.3............5..........3.5...........33............3.............3.........................................5..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-66, AQs-A8s, KJs+, QJs, T9s, AJo, JTs:0.8, QQ:0.6, KQo:0.5, 98s:0.3, QTs:0.1, J9s:0.1"
+      "range": "88-66, AQs-A8s, KJs+, QJs, T9s, AJo, JTs:0.8, QQ:0.6, KQo:0.5, 98s:0.3, QTs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "KK+, JJ-99, AKs, KTs-K9s, AQo+, QTs:0.9, KQo:0.5, QQ:0.4, 98s:0.3, KJo:0.3, JTs:0.2"
+      "range": "KK+, JJ-99, AKs, KTs-K9s, AQo+, QTs:0.8, KQo:0.5, QQ:0.4, 98s:0.3, KJo:0.3, JTs:0.2"
      }
     ]
    },
@@ -7258,26 +7440,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.2%p 움직여요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 7.73,
+    "occ": 7.733,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........5....3...........3..33..........33........7...33............33............36.............6..........................5..........................................",
+    "confidence": "high",
+    "move": 6.2,
+    "close": "...3......5....3...........3..33..........33........7...3.............33............3..............6..........................5..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, ATs-A7s, A5s, KJs+, Q9s+, J9s+, T9s, 98s, AJs:0.9, KJo:0.8, QQ:0.3, 77:0.2, K9s:0.1, QJo:0.1"
+      "range": "66-55, AJs-A7s, A5s, KJs+, Q9s+, J9s+, 98s, T9s:0.9, KJo:0.8, QQ:0.3, 77:0.3, K9s:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "KK+, JJ-88, AQs+, KTs, AJo+, KQo, K9s:0.9, 77:0.8, QQ:0.7, KJo:0.2, AJs:0.1"
+      "range": "KK+, JJ-88, AQs+, KTs, AJo+, KQo, K9s:0.9, QQ:0.7, 77:0.7, KJo:0.2, T9s:0.1, 87s:0.1"
      }
     ]
    },
@@ -7291,26 +7473,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.2%p 움직여요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 8.149,
+    "occ": 8.155,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..3.355......3.5...........5.......3...35.........................37..........................7..........................3..........................................",
+    "confidence": "high",
+    "move": 6.2,
+    "close": "....3..37355......3.5...........5.......3...35.........................37..........................7..........................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55, ATs, A7s, A5s-A4s, KJs, K8s-K7s, QTs+, Q8s, J9s-J8s, T8s, 98s, KJo, QJo, A6s:0.9, 87s:0.9, 66:0.8, KTs:0.7, Q9s:0.7, ATo:0.6, JJ:0.3, JTs:0.2, T9s:0.2, AKo:0.1"
+      "range": "55, ATs, A7s-A4s, KJs, K8s-K7s, QTs+, Q8s, J9s-J8s, T8s, 98s, KJo, QJo, 66:0.9, 87s:0.8, Q9s:0.7, KTs:0.6, ATo:0.6, JJ:0.3, JTs:0.2, T9s:0.1, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "QQ+, TT-77, AJs+, A9s-A8s, KQs, K9s, AQo-AJo, KQo, AKo:0.9, JTs:0.8, T9s:0.8, JJ:0.7, ATo:0.4, KTs:0.3, Q9s:0.3, 66:0.2, 87s:0.1"
+      "range": "QQ+, TT-77, AJs+, A9s-A8s, KQs, K9s, AQo-AJo, KQo, T9s:0.9, AKo:0.9, JTs:0.8, JJ:0.7, KTs:0.4, ATo:0.4, Q9s:0.3, 87s:0.2, 66:0.1"
      }
     ]
    },
@@ -7324,26 +7506,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.4%p 움직여요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 9.116,
+    "occ": 9.095,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3....3.3..5.....3...5....................3..............3..........................3.............5........................................5............................",
+    "confidence": "high",
+    "move": 6.4,
+    "close": "..3....333........3...5....................3.3............3..........................3.............5........................................5............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, AQs, A5s-A3s, KJs, K9s, K7s-K6s, Q8s+, J8s+, T8s, 87s, KTo, QTo, A6s:0.9, Q7s:0.9, 98s:0.9, QJo:0.9, KJo:0.7, KTs:0.4, JTo:0.4, TT:0.3, K8s:0.3, T9s:0.3, 97s:0.3, 55:0.2, JJ:0.1, 99:0.1, KQs:0.1, T7s:0.1"
+      "range": "44, AQs, A6s-A3s, KJs, K9s, K7s-K6s, Q8s+, J8s+, T8s, 87s, KTo, QTo, Q7s:0.9, 98s:0.9, QJo:0.9, KJo:0.7, KTs:0.5, JTo:0.5, TT:0.4, 55:0.2, T9s:0.2, JJ:0.1, 99:0.1, A2s:0.1, KQs:0.1, K8s:0.1, T7s:0.1, 97s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "QQ+, 88-66, AKs, AJs-A7s, ATo+, KQo, JJ:0.9, 99:0.9, KQs:0.9, 55:0.8, TT:0.7, K8s:0.7, T9s:0.7, KTs:0.6, JTo:0.6, KJo:0.3, A6s:0.1, 98s:0.1, QJo:0.1"
+      "range": "QQ+, 88-66, AKs, AJs-A7s, ATo+, KQo, JJ:0.9, 99:0.9, KQs:0.9, K8s:0.9, 55:0.8, T9s:0.8, TT:0.6, KTs:0.5, JTo:0.5, KJo:0.3, 98s:0.1, QJo:0.1"
      }
     ]
    },
@@ -7357,26 +7539,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.7%p 움직여요.",
     "line": "BTN 3",
     "reachPct": 100,
-    "occ": 11.973,
+    "occ": 11.982,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3...333.......................5....3.....5......3...........5.55.33............3...........................5............3.............3.............5..............",
+    "confidence": "high",
+    "move": 7.7,
+    "close": "......3...333.......................5....3.....5......3...3.......5.55.33............3...........................5..........................3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88, 44, A2s, K9s-K4s, Q5s+, J7s+, T9s, T7s, 97s+, QTo, J9o, JTo:0.9, AQo:0.6, 99:0.3, KTs:0.3, KJs+:0.2, Q9o:0.2, 77:0.1, T8s:0.1, KTo:0.1"
+      "range": "88, 44, A2s, K9s-K4s, Q5s+, J7s+, T9s, T7s, 97s+, QTo, J9o, JTo:0.9, AQo:0.6, Q9o:0.5, 99:0.3, KTs:0.3, KJs+:0.2, 77:0.1, 55:0.1, KTo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, 66-55, A3s+, 87s, AKo, AJo-A9o, KJo+, QJo, 77:0.9, T8s:0.9, KTo:0.9, KJs+:0.8, 99:0.7, KTs:0.7, A8o:0.7, AQo:0.4, 76s:0.3, JTo:0.1"
+      "range": "TT+, 66, A3s+, T8s, 87s, AKo, AJo-A9o, KJo+, QJo, 77:0.9, 55:0.9, KTo:0.9, KJs+:0.8, 99:0.7, KTs:0.7, A8o:0.7, AQo:0.4, 76s:0.2, JTo:0.1"
      }
     ]
    },
@@ -7390,20 +7572,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.8%p 움직여요.",
     "line": "UTG 3",
     "reachPct": 100,
-    "occ": 6.54,
+    "occ": 6.517,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................337.......3..33............3........5................................5...........................3......................................................5",
+    "confidence": "high",
+    "move": 5.8,
+    "close": "................337.......3..33............37.......5................................5.............5.............7......................................................5",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A7s, A5s-A2s, KJs+, QTs+, JTs, 87s, 76s, 65s, AQo-AJo, Q9s:0.9, J9s:0.9, T8s:0.9, KQo:0.5, 54s:0.4, A6s:0.3, TT:0.2, T9s:0.2, 98s:0.2"
+      "range": "99-22, AQs-A7s, A5s-A2s, KJs+, QTs+, J9s+, 87s, 76s, 65s, AQo-AJo, Q9s:0.9, T8s:0.9, KQo:0.5, 54s:0.4, TT:0.2, T9s:0.2, 98s:0.2, A6s:0.1"
      },
      {
       "key": "3bet",
@@ -7423,26 +7605,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.1%p 움직여요.",
     "line": "UTG+1 3",
     "reachPct": 100,
-    "occ": 6.516,
+    "occ": 6.471,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 6.1,
     "close": "..................3........................33.........................................5.............7............35.............7............7...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A2s, KJs+, K9s, Q9s+, J9s+, 76s, 65s, AJo-ATo, KQo, 54s:0.9, 97s:0.8, T9s:0.6, AQo:0.6, T8s:0.5, KJo:0.4, KTs:0.3, TT:0.2, 98s:0.2, 87s:0.2"
+      "range": "99-22, AQs-A2s, KJs+, K9s, Q9s+, J9s+, 76s, 65s, AJo-ATo, KQo, 54s:0.9, T8s:0.7, T9s:0.6, AQo:0.6, 97s:0.4, KJo:0.4, TT:0.2, KTs:0.2, 87s:0.2, 98s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "JJ+, AKs, AKo, TT:0.8, 98s:0.8, 87s:0.8, KTs:0.7, KJo:0.6, K8s:0.5, T8s:0.5, T9s:0.4, AQo:0.4, 54s:0.1"
+      "range": "JJ+, AKs, AKo, 98s:0.9, TT:0.8, KTs:0.8, 87s:0.8, KJo:0.6, T9s:0.4, AQo:0.4, K8s:0.3, T8s:0.3, 54s:0.1"
      }
     ]
    },
@@ -7456,26 +7638,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.7%p 움직여요.",
     "line": "UTG+2 3",
     "reachPct": 100,
-    "occ": 6.631,
+    "occ": 6.639,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3..............3..............5..........3.............33...........3.35............3............3..............7.............3............5...........................",
+    "confidence": "high",
+    "move": 7.7,
+    "close": "..3..............3.........3....5..........3.............335..........3335............3............3..............7.............7............7...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A2s, K9s+, Q8s+, J8s+, T8s+, 97s, 86s, 76s, 64s, 53s, 43s, AJo-ATo, QJo, 54s:0.9, KQo:0.9, 98s:0.8, 65s:0.8, KJo:0.7, K8s:0.6, 75s:0.6, K7s:0.4, T7s:0.1, 87s:0.1"
+      "range": "99-22, AQs-A2s, K9s+, Q8s+, J8s+, T8s+, 97s+, 86s, 76s, 64s, 53s, 43s, AJo-ATo, KQo, QJo, 65s:0.8, 75s:0.7, KJo:0.7, K8s:0.6, 54s:0.6, K7s:0.4, 87s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "TT+, AKs, AQo+, 87s:0.9, K6s:0.7, K7s:0.6, KTo:0.5, K8s:0.4, 75s:0.4, KJo:0.3, 98s:0.2, 65s:0.2, 54s:0.1, KQo:0.1"
+      "range": "TT+, AKs, AQo+, 87s:0.9, K6s:0.7, K7s:0.6, KTo:0.5, K8s:0.4, 54s:0.4, 75s:0.3, KJo:0.3, 65s:0.2"
      }
     ]
    },
@@ -7489,26 +7671,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.6%p 움직여요.",
     "line": "LJ 3",
     "reachPct": 100,
-    "occ": 6.578,
+    "occ": 6.574,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............3.3..3.3..5.3.....5.....3..............5..3..............3.....5.......35............35...........33......................................................",
+    "move": 9.6,
+    "close": "...............3.3..333.55.3.....5.....3..............7..3.............33.....5.......3............335............3......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AJs-A2s, K7s+, K5s, Q8s+, J8s+, T7s+, 97s-96s, 86s-85s, 75s, 64s+, 53s, 43s, AJo, A9o, KJo, QJo, 98s:0.9, K6s:0.8, K4s:0.7, 54s:0.7, ATo:0.7, J7s:0.6, KTo:0.6, 87s:0.4, 88:0.1, K3s:0.1, 76s:0.1"
+      "range": "77-22, AJs-A2s, K5s+, Q8s+, J8s+, T7s+, 96s+, 86s, 75s, 64s, 53s, 43s, AJo, A9o, KJo, QJo, 85s:0.9, 65s:0.9, K4s:0.7, ATo:0.7, KTo:0.7, J7s:0.6, 54s:0.5, 87s:0.3, 88:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KQo, 88:0.9, 76s:0.9, 87s:0.6, JTo:0.5, KTo:0.4, 54s:0.3, ATo:0.3, K6s:0.2, 98s:0.1"
+      "range": "99+, AQs+, 76s, AQo+, KQo, 88:0.8, 87s:0.7, 54s:0.5, JTo:0.5, ATo:0.3, KTo:0.3, 65s:0.1"
      }
     ]
    },
@@ -7522,26 +7704,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.4%p 움직여요.",
     "line": "HJ 3",
     "reachPct": 100,
-    "occ": 6.602,
+    "occ": 6.606,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".................3............3.............3.........3..............7..................5............................5........................5..........................",
+    "move": 10.4,
+    "close": ".................3............3.............3.........3..............7..................5........................................5.........................5.............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, ATs, A8s-A2s, KJs-KTs, K8s-K2s, Q5s+, J9s-J7s, T8s-T6s, 97s-96s, 85s+, 75s-74s, 64s-63s, 53s-52s, 42s+, ATo, A8o, KJo-KTo, QTo+, 65s:0.9, 95s:0.8, A9o:0.8, 76s:0.7, 98s:0.5, JTs:0.4, 54s:0.3, J6s:0.2, T9s:0.2, 32s:0.2, JTo:0.2, K9s:0.1, Q4s:0.1, K9o:0.1"
+      "range": "66-22, ATs, A8s-A2s, KJs-KTs, K8s-K2s, Q5s+, J9s-J7s, T8s-T6s, 97s-96s, 85s+, 75s-74s, 64s-63s, 53s-52s, 43s, ATo, A8o, KJo-KTo, QTo+, 42s:0.9, A9o:0.9, 95s:0.8, 65s:0.8, 76s:0.6, 98s:0.5, JTs:0.3, J6s:0.3, T9s:0.3, 54s:0.3, JTo:0.3, K9o:0.2, K9s:0.1, Q4s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "77+, AJs+, A9s, KQs, AJo+, KQo, K9s:0.9, T9s:0.8, JTo:0.8, 54s:0.7, JTs:0.6, 98s:0.5, 76s:0.3, A9o:0.2, 65s:0.1"
+      "range": "77+, AJs+, A9s, KQs, AJo+, KQo, K9s:0.9, JTs:0.7, T9s:0.7, 54s:0.7, JTo:0.7, 98s:0.5, 76s:0.4, 65s:0.2, A9o:0.1"
      }
     ]
    },
@@ -7555,26 +7737,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.4%p 움직여요.",
     "line": "CO 3",
     "reachPct": 100,
-    "occ": 7.004,
+    "occ": 6.99,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "................3............3..........3...33....5......33...5.....3...3..5..35.....3...........5.33.5.........33..5..........................5............5............",
+    "move": 9.4,
+    "close": "................3.......................3...33....5......33...5.....33..3..5..35.....3...........5.33.5.........33..5..........................5............5............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, A9s, A7s-A2s, KTs-K2s, QTs-Q2s, J9s-J3s, T8s-T4s, 97s-95s, 84s+, 73s+, 62s+, 53s-52s, 42s+, 32s, A9o-A3o, KJo-K9o, QTo-Q9o, J9o, QJo:0.9, T9o:0.9, JTs:0.8, J2s:0.7, JTo:0.7, 98o:0.6, ATo:0.4"
+      "range": "55-22, A9s, A7s-A2s, KTs-K2s, QTs-Q2s, J9s-J3s, T8s-T4s, 97s-95s, 84s+, 73s+, 62s+, 53s-52s, 42s+, 32s, A9o-A3o, KJo-K9o, QTo-Q9o, J9o, T9o, QJo:0.9, JTs:0.6, J2s:0.6, JTo:0.6, 98o:0.6, ATo:0.3, QJs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "66+, ATs+, A8s, KJs+, QJs, T9s, 98s, 54s, AJo+, KQo, ATo:0.6, 98o:0.4, JTo:0.3, JTs:0.2, QJo:0.1, T9o:0.1"
+      "range": "66+, ATs+, A8s, KJs+, T9s, 98s, 54s, AJo+, KQo, QJs:0.9, ATo:0.7, JTs:0.4, JTo:0.4, 98o:0.4, QJo:0.1"
      }
     ]
    },
@@ -7588,26 +7770,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.9%p 움직여요.",
     "line": "BTN 3",
     "reachPct": 100,
-    "occ": 8.597,
+    "occ": 8.573,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......3.3.................................3..........33.33.3........3.3.3...........33.......55.3.33..5.......3.3...........5.3...5.......53............................",
+    "move": 10.9,
+    "close": ".......3.3....................3............3..........3..33.3........3.3.3...........33.......5533.333.5.......3.3...........5.3...5.......53............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A5s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T6s-T2s, 96s-92s, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A8o-A2o, K9o-K5o, QTo-Q8o, J8o+, T7o+, 97o, 87o, 76o, 65o, A8s:0.6, Q7o:0.6, 98o:0.6, T7s:0.4, KTo:0.4, A6s:0.3, QJo:0.3, 97s:0.1"
+      "range": "44-22, A5s-A2s, K9s-K2s, Q9s-Q2s, J9s-J2s, T6s-T2s, 96s-92s, 86s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A8o-A2o, K9o-K5o, QTo-Q8o, J8o+, T7o+, 97o, 87o, 76o, 65o, A8s:0.8, Q7o:0.7, 98o:0.6, KTo:0.4, A6s:0.3, T7s:0.3, QJo:0.2, 97s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "55+, A9s+, A7s, KTs+, QTs+, JTs, T8s+, 98s, 87s, 76s, A9o+, KJo+, 97s:0.9, A6s:0.7, QJo:0.7, T7s:0.6, KTo:0.6, A8s:0.4, 98o:0.4"
+      "range": "55+, A9s+, A7s, KTs+, QTs+, JTs, T8s+, 98s, 87s, 76s, A9o+, KJo+, 97s:0.9, QJo:0.8, A6s:0.7, T7s:0.7, KTo:0.6, 98o:0.4, A8s:0.2"
      }
     ]
    },
@@ -7621,26 +7803,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3.5bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.2%p 움직여요.",
     "line": "SB 3.5",
     "reachPct": 100,
-    "occ": 3.355,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3..................3...............3.........3..............3...........................333........3333........33.33........3......3...33........3...3...........",
+    "occ": 3.336,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 20.2,
+    "close": "........3..................3...............3.........3..............33..........................3.......3.33333........33.33........3......3....3........3...3...........",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, A7s-A2s, KTs-K2s, QTs-Q2s, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o, A3o, KTo-K6o, K3o-K2o, Q9o-Q7o, Q5o-Q4o, J9o-J5o, T8o-T6o, 95o+, 85o+, 54o, 43o, 66:0.9, A8s:0.9, Q6o:0.9, T9o:0.9, A5o:0.8, A2o:0.8, K5o:0.8, 75o:0.8, 64o:0.8, KJs:0.7, Q3o:0.7, 65o:0.7, 76o:0.6, QJs:0.5, QTo:0.5, 53o:0.5, A4o:0.4, J4o:0.4, KJo:0.3, K4o:0.3, A8o:0.1"
+      "range": "55-22, A7s-A2s, KTs-K2s, QTs-Q2s, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A7o, A3o, KTo-K6o, K3o-K2o, Q9o-Q4o, J9o-J5o, T6o+, 95o+, 85o+, 54o, 43o, A8s:0.9, A2o:0.9, 66:0.8, K5o:0.8, 75o+:0.8, KJs:0.7, Q3o:0.7, QJs:0.6, A5o:0.6, 64o:0.6, A4o:0.5, K4o:0.5, 65o:0.5, 53o:0.5, QTo:0.4, J4o:0.4, KJo:0.2, 77:0.1, A8o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 10.5bb",
       "color": "raise",
-      "range": "77+, A9s+, KQs, A9o+, A6o, KQo, QJo, JTo, A8o:0.9, T5o:0.8, KJo:0.7, K4o:0.7, A4o:0.6, QJs:0.5, QTo:0.5, 53o:0.5, 76o:0.4, KJs:0.3, 65o:0.3, A5o:0.2, A2o:0.2, K5o:0.2, 75o:0.2, 64o:0.2, 66:0.1, A8s:0.1, Q6o:0.1, T9o:0.1"
+      "range": "88+, A9s+, KQs, A9o+, A6o, KQo, QJo, JTo, 77:0.9, A8o:0.9, KJo:0.8, T5o:0.8, QTo:0.6, A4o:0.5, K4o:0.5, 65o:0.5, 53o:0.5, QJs:0.4, A5o:0.4, 64o:0.4, KJs:0.3, 66:0.2, K5o:0.2, 75o+:0.2, A8s:0.1, A2o:0.1"
      }
     ]
    },
@@ -7654,16 +7836,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+1 3벳",
     "title": "UTG 오픈 후 vs UTG+1 3벳",
-    "description": "UTG 오픈 3bb → UTG+1 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → UTG+1 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.6%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · UTG+1 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.457,
-    "regret": 0.0087,
+    "reachPct": 13.4,
+    "occ": 0.459,
+    "regret": 0.011,
     "confidence": "low",
-    "move": 0,
+    "move": 12.6,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -7675,19 +7857,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-88, AQs-AJs, AKs:0.9, KQs:0.9, AKo:0.8, 77:0.7, ATs:0.4"
+      "range": "KK-88, AQs, AJs:0.9, KQs:0.9, AKs:0.8, AKo:0.8, 77:0.6, ATs:0.5"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "AA:0.2"
+      "range": "AA:0.2, AKs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.8, A8s:0.4, ATs:0.2, AKo:0.2, AKs:0.1"
+      "range": "A5s:0.9, AA:0.8, A8s:0.3, AKs:0.1, AJs-ATs:0.1, AKo:0.1"
      }
     ]
    },
@@ -7701,17 +7883,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+2 3벳",
     "title": "UTG 오픈 후 vs UTG+2 3벳",
-    "description": "UTG 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 15.1%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · UTG+2 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.438,
+    "reachPct": 13.4,
+    "occ": 0.434,
     "regret": 0.0052,
     "confidence": "low",
-    "move": 0,
-    "close": "..........................................3a.............................................................................................................................",
+    "move": 15.1,
+    "close": "..........................................3..............................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -7723,19 +7905,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-88, AQs, 77:0.9, AKs:0.9, AJs:0.9, KQs:0.9, ATs:0.7, AKo:0.7, KJs:0.4"
+      "range": "KK-88, AQs, KQs, AKs:0.9, ATs:0.9, 77:0.8, AJs:0.8, AKo:0.7, KJs:0.4"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "AA:0.2, AKo:0.1"
+      "range": "AA:0.2, JTs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.8, A8s:0.2, AKo:0.2, AKs:0.1, AJs-ATs:0.1"
+      "range": "A5s, AA:0.8, AJs:0.2, A8s:0.2, AKo:0.2, AKs:0.1"
      }
     ]
    },
@@ -7749,16 +7931,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs LJ 3벳",
     "title": "UTG 오픈 후 vs LJ 3벳",
-    "description": "UTG 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · LJ 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.416,
+    "reachPct": 13.4,
+    "occ": 0.413,
     "regret": 0.0013,
     "confidence": "low",
-    "move": 0,
+    "move": 12.4,
     "close": "..........................9..............................................................................................................................................",
     "flags": [
      {
@@ -7797,16 +7979,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 13.6%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · HJ 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.397,
-    "regret": 0.0065,
+    "reachPct": 13.4,
+    "occ": 0.394,
+    "regret": 0.0066,
     "confidence": "low",
-    "move": 0,
+    "move": 13.6,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -7844,17 +8026,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.413,
-    "regret": 0.0017,
+    "reachPct": 13.4,
+    "occ": 0.394,
+    "regret": 0.002,
     "confidence": "low",
-    "move": 0,
-    "close": ".............................9...........................................................................................................................................",
+    "move": 12.2,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -7866,7 +8047,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-77, AQs, KJs+, AKs:0.9, AJs-ATs:0.8, AKo:0.7, AQo:0.3, JTs:0.2"
+      "range": "KK-77, AQs, KJs+, AKs:0.9, AJs:0.9, ATs:0.8, AKo:0.7, AQo:0.3, JTs:0.2"
      },
      {
       "key": "4bet",
@@ -7878,7 +8059,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, AKo:0.3, AJs:0.2, A8s:0.2, ATs:0.1"
+      "range": "AA, A5s, AKo:0.3, A8s:0.2, AJs-ATs:0.1"
      }
     ]
    },
@@ -7892,22 +8073,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BTN 3벳",
     "title": "UTG 오픈 후 vs BTN 3벳",
-    "description": "UTG 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 15.6%p 움직여요. 4벳 올인이 작은 4벳보다 많아요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.4,
-    "regret": 0.0034,
+    "reachPct": 13.4,
+    "occ": 0.393,
+    "regret": 0.003,
     "confidence": "low",
-    "move": 0,
+    "move": 15.6,
+    "close": "....5....................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, ATs, KQs, KJs:0.9, KK:0.8, AJs:0.7, AKs:0.5, AKo:0.5, JTs:0.3, AQo:0.3"
+      "range": "QQ-77, AQs, ATs, KQs, KJs:0.9, KK:0.8, AJs:0.8, AKs:0.5, AKo:0.5, JTs:0.3, AQo:0.3"
      },
      {
       "key": "4bet",
@@ -7919,7 +8101,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA:0.9, A5s:0.8, AKs:0.4, AKo:0.4, AJs:0.3"
+      "range": "AA:0.9, A5s:0.8, AKs:0.4, AKo:0.4, AJs:0.2"
      }
     ]
    },
@@ -7933,16 +8115,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 13%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.374,
-    "regret": 0.0029,
+    "reachPct": 13.4,
+    "occ": 0.371,
+    "regret": 0.0026,
     "confidence": "low",
-    "move": 0,
+    "move": 13,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -7954,7 +8136,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-88, AQs, KQs, AJs:0.9, KJs:0.7, 77:0.6, AKs:0.6, AKo:0.6, AQo:0.4, ATs:0.1"
+      "range": "KK-88, AQs, KQs, AJs:0.9, KJs:0.7, AKo:0.7, 77:0.5, AKs:0.5, AQo:0.4"
      },
      {
       "key": "4bet",
@@ -7966,7 +8148,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s:0.8, AKs:0.4, AKo:0.4, AJs-ATs:0.1"
+      "range": "AA, A5s:0.9, AKs:0.5, AKo:0.3, AJs-ATs:0.1"
      }
     ]
    },
@@ -7980,22 +8162,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 13.5,
-    "occ": 0.335,
-    "regret": 0.0025,
+    "reachPct": 13.4,
+    "occ": 0.333,
+    "regret": 0.0029,
     "confidence": "low",
-    "move": 0,
+    "move": 12.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-88, AQs, KQs, ATs:0.9, KK:0.8, AJs:0.8, 77:0.7, KJs:0.7, AKo:0.5, AQo:0.2, A5s:0.1"
+      "range": "QQ-88, AQs, KQs, ATs:0.9, KK:0.8, AJs:0.8, 77:0.7, KJs:0.7, AKo:0.5, AQo:0.2, AKs:0.1, A5s:0.1"
      },
      {
       "key": "4bet",
@@ -8007,7 +8189,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s:0.5, AKo:0.5, KK:0.2, AJs:0.2, ATs:0.1"
+      "range": "AA, AKs:0.9, A5s:0.5, AKo:0.5, KK:0.2, AJs:0.2, ATs:0.1"
      }
     ]
    },
@@ -8021,16 +8203,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 10.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · UTG+2 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.521,
-    "regret": 0.0024,
+    "occ": 0.525,
+    "regret": 0.0028,
     "confidence": "low",
-    "move": 0,
+    "move": 10.4,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -8042,7 +8224,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-77, AJs+, KQs, 66:0.6, ATs:0.6, AKo:0.6, AQo:0.4, KJs:0.3"
+      "range": "KK-77, AJs+, KQs, ATs:0.7, AKo:0.7, AQo:0.5, 66:0.4, KJs:0.3"
      },
      {
       "key": "4bet",
@@ -8054,7 +8236,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, ATs:0.4, AKo:0.4"
+      "range": "A5s, AA:0.9, ATs:0.3, AKo:0.3"
      }
     ]
    },
@@ -8068,28 +8250,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · LJ 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.583,
+    "occ": 0.579,
     "regret": 0.0017,
     "confidence": "low",
-    "move": 0,
+    "move": 11.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KJs+, KK:0.9, ATs:0.9, 66:0.7, AKs:0.7, AQo+:0.7, AJs:0.6"
+      "range": "QQ-77, AQs, KJs+, KK:0.9, ATs:0.9, AKs:0.7, AQo+:0.7, 66:0.6, AJs:0.6"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.1, JTs:0.1"
+      "range": "KK:0.1"
      },
      {
       "key": "shove",
@@ -8109,28 +8291,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs HJ 3벳",
     "title": "UTG+1 오픈 후 vs HJ 3벳",
-    "description": "UTG+1 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · HJ 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.536,
-    "regret": 0.0017,
+    "occ": 0.531,
+    "regret": 0.0023,
     "confidence": "low",
-    "move": 0,
+    "move": 11.5,
+    "close": ".................a.......................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs+, ATs, KQs, KJs:0.9, JTs:0.7, AQo:0.7, KK:0.6, AJs:0.6, AKo:0.5"
+      "range": "QQ-66, AQs+, ATs, KQs, KJs:0.9, KK:0.7, JTs:0.7, AQo:0.7, AJs:0.6, AKo:0.5, QJs:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.4, KJs-KTs:0.1, JTs:0.1, AKo:0.1"
+      "range": "KK:0.3, KJs:0.1, JTs:0.1, AKo:0.1"
      },
      {
       "key": "shove",
@@ -8150,35 +8333,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs CO 3벳",
     "title": "UTG+1 오픈 후 vs CO 3벳",
-    "description": "UTG+1 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.494,
-    "regret": 0.0015,
+    "occ": 0.489,
+    "regret": 0.0019,
     "confidence": "low",
-    "move": 0,
-    "close": "...........................................3.............................................................................................................................",
+    "move": 12.2,
+    "close": "6........................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs, ATs, KJs+, JTs, AQo:0.9, AKs:0.8, KK:0.5, AJs:0.5, AKo:0.4, QJs:0.2"
+      "range": "QQ-66, AQs, ATs, KJs+, JTs, AQo:0.9, AKs:0.7, KK:0.6, AJs:0.5, AKo:0.5, QJs:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.4, AKo:0.2, KTs:0.1"
+      "range": "KK:0.3, AKo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s:0.9, AJs:0.5, AKo:0.4, AKs:0.2, KK:0.1"
+      "range": "AA, A5s:0.9, AJs:0.5, AKs:0.3, AKo:0.3, KK:0.1"
      }
     ]
    },
@@ -8192,23 +8375,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 14%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.451,
-    "regret": 0.0038,
+    "occ": 0.445,
+    "regret": 0.002,
     "confidence": "low",
-    "move": 0,
-    "close": ".................a.........9.............................9...............................................................................................................",
+    "move": 14,
+    "close": "...5.............a.........9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs, KJs+, AJs-ATs:0.9, JTs:0.9, AQo:0.9, A9s:0.6, AKs:0.4, AKo:0.3, KK:0.2, A8s:0.1, QJs:0.1"
+      "range": "QQ-66, AQs-AJs, KJs+, JTs, ATs:0.9, AQo:0.9, A9s:0.6, AKs:0.4, AKo:0.3, KK:0.2, T9s:0.2"
      },
      {
       "key": "4bet",
@@ -8220,7 +8403,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, AKs:0.5, AKo:0.3, KK:0.1, AJs-ATs:0.1"
+      "range": "A5s, AA:0.9, AKs:0.5, AKo:0.3, KK:0.1, ATs:0.1"
      }
     ]
    },
@@ -8234,22 +8417,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 10.9%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.393,
-    "regret": 0.0012,
+    "occ": 0.391,
+    "regret": 0.0017,
     "confidence": "low",
-    "move": 0,
+    "move": 10.9,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KJs+, 66:0.9, AKs:0.9, AQo:0.9, AJs:0.8, KK:0.6, AKo:0.3, QJs:0.2"
+      "range": "QQ-77, AQs, KJs+, AQo:0.9, 66:0.8, AJs:0.8, AKs:0.7, KK:0.6, AKo:0.4, ATs:0.1, QJs:0.1"
      },
      {
       "key": "4bet",
@@ -8261,7 +8444,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, AKo:0.7, KK:0.4, AJs:0.2, AKs:0.1, ATs:0.1"
+      "range": "AA, A5s, AKo:0.6, KK:0.4, AKs:0.3, AJs:0.2"
      }
     ]
    },
@@ -8275,22 +8458,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 9.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 15.4,
-    "occ": 0.355,
+    "occ": 0.352,
     "regret": 0.0014,
     "confidence": "low",
-    "move": 0,
+    "move": 9.5,
+    "close": ".5.........................9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KJs+, AJs-ATs:0.9, AQo:0.9, KK:0.5, 66:0.4, AKo:0.2, AKs:0.1"
+      "range": "QQ-77, AQs, KJs+, AJs-ATs:0.9, AQo:0.8, KK:0.5, 66:0.5, AKo:0.2"
      },
      {
       "key": "4bet",
@@ -8302,7 +8486,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs:0.9, AKo:0.8, A5s:0.7, KK:0.5, AJs-ATs:0.1"
+      "range": "AA, AKs, AKo:0.8, A5s:0.6, KK:0.5, AJs-ATs:0.1"
      }
     ]
    },
@@ -8316,22 +8500,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs LJ 3벳",
     "title": "UTG+2 오픈 후 vs LJ 3벳",
-    "description": "UTG+2 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.5%p 움직여요.",
     "line": "UTG+2 3 · LJ 3벳 9",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
-    "occ": 0.688,
+    "occ": 0.683,
     "regret": 0.0023,
     "confidence": "mid",
-    "move": 0,
+    "move": 16.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs, ATs, KJs+, AQo, AJs:0.9, AKo:0.8, JTs:0.6, KTs:0.2, AKs:0.1, QJs:0.1"
+      "range": "QQ-55, AQs, ATs, KJs+, AQo, AJs:0.9, AKo:0.8, JTs:0.6, KTs:0.3, QJs:0.2, AKs:0.1"
      },
      {
       "key": "4bet",
@@ -8357,35 +8541,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs HJ 3벳",
     "title": "UTG+2 오픈 후 vs HJ 3벳",
-    "description": "UTG+2 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17%p 움직여요.",
     "line": "UTG+2 3 · HJ 3벳 9",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
-    "occ": 0.685,
-    "regret": 0.0018,
+    "occ": 0.683,
+    "regret": 0.002,
     "confidence": "mid",
-    "move": 0,
+    "move": 17,
     "close": "...........................9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-55, AQs-ATs, KJs+, JJ:0.9, JTs:0.9, AQo:0.8, A9s:0.7, AKo:0.7, QJs:0.4, AKs:0.2, KTs:0.2, AJo:0.1"
+      "range": "QQ, TT-55, AQs-ATs, KJs+, JJ:0.9, AQo:0.9, JTs:0.8, AKo:0.8, A9s:0.7, QJs:0.5, KTs:0.3, AKs:0.1, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.9, AKs:0.3, KTs:0.3, QJs:0.2, AQo:0.2, AA:0.1, JJ:0.1, JTs:0.1, AKo:0.1"
+      "range": "KK:0.9, AKs:0.3, KTs:0.2, QJs:0.2, JTs:0.2, AA:0.1, JJ:0.1, AQo+:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, AKs:0.5, AKo:0.2, KK:0.1"
+      "range": "A5s-A4s, AA:0.9, AKs:0.6, KK:0.1, AKo:0.1"
      }
     ]
    },
@@ -8399,35 +8583,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs CO 3벳",
     "title": "UTG+2 오픈 후 vs CO 3벳",
-    "description": "UTG+2 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.1%p 움직여요.",
     "line": "UTG+2 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
-    "occ": 0.613,
-    "regret": 0.0015,
+    "occ": 0.612,
+    "regret": 0.002,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........................................3.............................................................................................................................",
+    "move": 17.1,
+    "close": "..........c..............................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-55, AQs-A9s, KJs+, JTs, JJ:0.8, AQo:0.8, QJs:0.7, AKo:0.6, KQo:0.3, T9s:0.1, AJo:0.1"
+      "range": "QQ, TT-55, AQs-A9s, KJs+, JTs, QJs:0.9, JJ:0.8, AQo:0.8, AKo:0.6, KQo:0.3, T9s:0.2, AKs:0.1, AJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KK:0.8, AKs:0.6, KTs:0.6, JJ:0.2, AQo:0.2, AA:0.1, T9s:0.1, AKo:0.1"
+      "range": "KK:0.8, KTs:0.6, AKs:0.5, JJ:0.2, AQo:0.2, AA:0.1, T9s:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, A4s:0.9, AKs:0.4, AKo:0.3, KK:0.2"
+      "range": "A5s-A4s, AA:0.9, AKs:0.4, AKo:0.3, KK:0.2"
      }
     ]
    },
@@ -8441,35 +8625,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BTN 3벳",
     "title": "UTG+2 오픈 후 vs BTN 3벳",
-    "description": "UTG+2 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 16.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
-    "occ": 0.554,
-    "regret": 0.0022,
+    "occ": 0.553,
+    "regret": 0.0014,
     "confidence": "low",
-    "move": 0,
-    "close": "....5....................................................................................................................................................................",
+    "move": 16.5,
+    "close": "....5....................................................9...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-ATs, KJs+, JTs, A9s:0.9, T9s:0.9, AQo:0.9, QJs:0.4, AKo:0.3, KQo:0.3, AJo:0.2"
+      "range": "QQ-55, AQs-A9s, KJs+, JTs, T9s, AQo:0.9, QJs:0.5, AKo:0.3, KQo:0.3, AJo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs:0.8, AKs:0.7, KK:0.5, AKo:0.2, AA:0.1, QJs:0.1, AQo:0.1"
+      "range": "KTs:0.8, AKs:0.7, KK:0.6, AKo:0.2, AA:0.1, QJs:0.1, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s-A4s, AA:0.9, KK:0.5, AKo:0.5, AKs:0.3"
+      "range": "A5s-A4s, AA:0.9, AKo:0.5, KK:0.4, AKs:0.3"
      }
     ]
    },
@@ -8483,23 +8667,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 12%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
-    "occ": 0.467,
-    "regret": 0.0018,
+    "occ": 0.466,
+    "regret": 0.0016,
     "confidence": "low",
-    "move": 0,
-    "close": ".5....c..........9.........9.............................................................................................................................................",
+    "move": 12,
+    "close": ".5...............9.........9.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-AJs, KJs+, AQo, ATs:0.9, A9s:0.8, JTs:0.6, QJs:0.4, AKo:0.3, KK:0.2"
+      "range": "QQ-55, AQs-AJs, KJs+, AQo, ATs:0.9, A9s:0.8, JTs:0.7, QJs:0.5, AKo:0.4, KK:0.2"
      },
      {
       "key": "4bet",
@@ -8511,7 +8695,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, AKs, A5s-A4s, KK:0.8, AKo:0.7, ATs:0.1, A7s:0.1"
+      "range": "AA, AKs, A5s-A4s, KK:0.8, AKo:0.6, ATs:0.1, A7s:0.1"
      }
     ]
    },
@@ -8525,23 +8709,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
     "reachPct": 18.1,
     "occ": 0.411,
-    "regret": 0.0011,
+    "regret": 0.001,
     "confidence": "low",
-    "move": 0,
-    "close": ".5.......5...............................................................................................................................................................",
+    "move": 11,
+    "close": ".5............5..........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs, KJs+, AQo, AJs-ATs:0.9, KTs:0.6, QJs:0.6, A9s-A8s:0.2, KQo:0.2, JTs:0.1, AKo:0.1"
+      "range": "QQ-55, AQs, KJs+, AQo, AJs-ATs:0.9, QJs:0.7, KTs:0.6, KQo:0.3, A9s-A8s:0.2, AKo:0.2, A5s:0.1, JTs:0.1"
      },
      {
       "key": "4bet",
@@ -8553,7 +8737,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, AKo:0.9, AJs-ATs:0.1"
+      "range": "KK+, AKs, A4s, A5s:0.9, AKo:0.8, AJs-ATs:0.1"
      }
     ]
    },
@@ -8567,35 +8751,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs HJ 3벳",
     "title": "LJ 오픈 후 vs HJ 3벳",
-    "description": "LJ 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 20%p 움직여요.",
     "line": "LJ 3 · HJ 3벳 9",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 21.6,
-    "occ": 0.807,
-    "regret": 0.0023,
+    "occ": 0.815,
+    "regret": 0.0014,
     "confidence": "mid",
-    "move": 0,
-    "close": "......................................................................3..................................................................................................",
+    "move": 20,
+    "close": "....3.................................................................3..................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 99-55, AQs-AJs, KJs+, QTs, JTs, AQo, JJ:0.9, ATs:0.9, T9s:0.9, AJo:0.9, A9s:0.7, QJs:0.7, TT:0.6, AKo:0.3, KQo:0.2"
+      "range": "QQ, 99-55, AQs-ATs, KJs+, QTs, JTs, T9s, AQo, AJo:0.9, JJ:0.8, QJs:0.7, TT:0.6, A9s:0.6, AKo:0.4, KQo:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs, KK:0.8, AKs:0.5, AA:0.4, TT:0.4, AKo:0.3, QJs:0.2, JJ:0.1, T9s:0.1"
+      "range": "KTs, KK:0.8, AA:0.4, TT:0.4, AKs:0.4, QJs:0.3, AKo:0.3, JJ:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.7, AA:0.6, AKs:0.5, AKo:0.4, KK:0.2, ATs:0.1, A4s:0.1"
+      "range": "A5s:0.8, AA:0.6, AKs:0.6, AKo:0.3, KK:0.2, JJ:0.1"
      }
     ]
    },
@@ -8609,35 +8793,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs CO 3벳",
     "title": "LJ 오픈 후 vs CO 3벳",
-    "description": "LJ 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19%p 움직여요.",
     "line": "LJ 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 21.6,
-    "occ": 0.753,
-    "regret": 0.001,
+    "occ": 0.756,
+    "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
-    "close": "..................a.........................9.............9............9.................................................................................................",
+    "move": 19,
+    "close": "..................a....................9....9.............9............9.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 99-55, AQs-A9s, KJs+, QTs, JTs, T9s, AQo, TT:0.9, AJo:0.9, JJ:0.8, QJs:0.6, A8s:0.4, KTs:0.1, KQo:0.1"
+      "range": "QQ, 99-55, AQs-A9s, KJs+, QTs, JTs, T9s, AQo-AJo, TT:0.9, JJ:0.8, QJs:0.6, A8s:0.5, KTs:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs:0.9, AKs:0.8, KK:0.6, QJs:0.4, AA:0.3, AKo:0.3, JJ:0.2, TT:0.1"
+      "range": "KTs:0.9, AKs:0.7, KK:0.6, QJs:0.4, AKo:0.4, AA:0.3, JJ:0.2, TT:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.9, AA:0.7, AKo:0.7, KK:0.4, AKs:0.2, A4s:0.1"
+      "range": "A5s:0.9, AA:0.7, AKo:0.6, KK:0.4, AKs:0.3, A4s:0.1"
      }
     ]
    },
@@ -8651,35 +8835,34 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BTN 3벳",
     "title": "LJ 오픈 후 vs BTN 3벳",
-    "description": "LJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.5%p 움직여요.",
     "line": "LJ 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 21.6,
-    "occ": 0.729,
-    "regret": 0.001,
+    "occ": 0.715,
+    "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......................................9....9............................................................................................................................",
+    "move": 18.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, TT-55, AQs-A9s, KQs, QTs, JTs, T9s, AQo-AJo, KJs:0.9, 98s:0.9, QJs:0.8, KQo:0.8, JJ:0.7, A8s:0.2, T8s:0.2"
+      "range": "QQ, TT-55, AQs-A9s, KQs, QTs, JTs, T9s, AQo, KJs:0.9, 98s:0.9, AJo:0.9, KQo:0.9, JJ:0.7, QJs:0.7, A8s:0.2, T8s:0.2, J9s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "KTs, AKs:0.8, KK:0.4, AA:0.3, JJ:0.3, AKo:0.3, QJs:0.2, KJs:0.1"
+      "range": "KTs, AKs:0.8, KK+:0.4, JJ:0.3, QJs:0.3, AKo:0.3, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s:0.9, AA:0.7, AKo:0.7, KK:0.6, AKs:0.2, A4s:0.2"
+      "range": "A5s:0.9, AKo:0.7, KK+:0.6, AKs:0.2, A4s:0.1"
      }
     ]
    },
@@ -8693,23 +8876,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 13.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 21.6,
-    "occ": 0.629,
-    "regret": 0.0005,
+    "occ": 0.626,
+    "regret": 0.0003,
     "confidence": "low",
-    "move": 0,
-    "close": "..........................................5............................9.................................................................................................",
+    "move": 13.2,
+    "close": "..........................................5..............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-55, AQs-A9s, KTs+, JTs, T9s, AQo, AJo:0.8, QJs:0.6, QTs:0.3, AKo:0.2, KQo:0.1"
+      "range": "QQ-55, AQs-A9s, KTs+, JTs, T9s, AQo, AJo:0.9, QJs:0.6, QTs:0.2, AKo:0.2, KQo:0.2"
      },
      {
       "key": "4bet",
@@ -8735,23 +8918,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.9%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 21.6,
     "occ": 0.531,
-    "regret": 0.0005,
+    "regret": 0.0006,
     "confidence": "low",
-    "move": 0,
-    "close": "..........5..5................9..........................................................................................................................................",
+    "move": 11.9,
+    "close": ".............5...........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-A9s, KTs+, QTs+, JTs, AQo, QQ:0.9, KQo:0.6, A5s:0.5, T9s:0.4, A8s:0.3, AJo:0.2"
+      "range": "JJ-55, AQs-A9s, KTs+, QTs+, JTs, AQo, QQ:0.9, KQo:0.6, A8s:0.5, A5s:0.5, T9s:0.4, AJo:0.2"
      },
      {
       "key": "4bet",
@@ -8777,16 +8960,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs CO 3벳",
     "title": "HJ 오픈 후 vs CO 3벳",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.4%p 움직여요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26.2,
-    "occ": 1.043,
+    "occ": 1.045,
     "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 20.4,
     "close": ".......c..............................................................3............................9.....................................................................",
     "flags": [
      {
@@ -8800,19 +8983,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 77-44, AQs-A8s, KQs, QTs+, J9s+, T9s, 98s, AQo-AJo, KQo, KJs:0.9, JJ:0.7, 88:0.7, A5s:0.7, TT:0.6, T8s:0.6, 87s:0.4, QQ:0.2"
+      "range": "99, 77-44, AQs-A8s, KQs, QTs+, J9s+, T9s, 98s, AQo-AJo, KQo, KJs:0.9, JJ:0.7, 88:0.7, A5s:0.7, T8s:0.7, TT:0.6, 87s:0.3, QQ:0.2"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "AA, AKs, KTs, K9s:0.9, QQ:0.7, AKo:0.5, TT:0.4, JJ:0.3, 88:0.3, KJs:0.1, ATo:0.1"
+      "range": "AA, AKs, KTs, K9s:0.9, QQ:0.8, AKo:0.5, TT:0.4, JJ:0.3, 88:0.3, KJs:0.1, ATo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, A4s:0.9, AKo:0.5, A5s:0.3, QQ:0.1"
+      "range": "KK, A4s:0.9, AKo:0.5, A5s:0.3"
      }
     ]
    },
@@ -8826,29 +9009,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.1%p 움직여요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26.2,
-    "occ": 0.957,
+    "occ": 0.955,
     "regret": 0.001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........c...............3...9....................................................3....................................................................................",
+    "move": 18.1,
+    "close": "...........c......b........3........................................................39...................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A8s, KJs+, QTs+, J9s+, T9s, 98s, AJo, KQo, TT:0.9, T8s:0.9, 87s:0.9, JJ:0.7, KTs:0.7, 76s:0.7, AQo:0.7, A5s:0.3, A7s:0.1, ATo:0.1"
+      "range": "99-44, AQs-A8s, KJs+, QTs+, J9s+, T9s, 98s, 87s, AJo, KQo, TT:0.9, T8s:0.9, KTs:0.8, JJ:0.7, AQo:0.7, 76s:0.6, A5s:0.3, A7s:0.1, Q9s:0.1, ATo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "QQ, AKs, K9s, AA:0.4, JJ:0.3, KTs:0.3, AQo:0.3, AKo:0.2, ATo:0.2, TT:0.1"
+      "range": "QQ, AKs, K9s, AA:0.4, JJ:0.3, AQo:0.3, KTs:0.2, AKo:0.2, ATo:0.2, TT:0.1"
      },
      {
       "key": "shove",
@@ -8868,23 +9051,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 17%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26.2,
     "occ": 0.81,
-    "regret": 0.0005,
+    "regret": 0.0004,
     "confidence": "low",
-    "move": 0,
-    "close": ".....................................................................................9...................................................................................",
+    "move": 17,
+    "close": "..........5..............................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A8s, KTs+, QTs+, J9s+, T9s, 98s, 87s, 76s, AQo-AJo, KQo, QQ:0.9, T8s:0.5, 65s:0.5, AKo:0.3, K9s:0.2, A5s:0.1"
+      "range": "JJ-44, AQs-A8s, KTs+, QTs+, J9s+, T9s, 98s, AQo-AJo, KQo, QQ:0.9, 87s:0.9, 76s:0.9, T8s:0.5, K9s:0.3, AKo:0.3, 65s:0.2, A5s:0.1"
      },
      {
       "key": "4bet",
@@ -8896,7 +9079,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s:0.9, AKo:0.7, QQ:0.1"
+      "range": "KK+, AKs, A4s, A5s:0.9, AKo:0.7, QQ:0.1"
      }
     ]
    },
@@ -8910,23 +9093,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 10.7%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 26.2,
-    "occ": 0.715,
-    "regret": 0.0008,
+    "occ": 0.71,
+    "regret": 0.0012,
     "confidence": "low",
-    "move": 0,
-    "close": "............9......................................................................................9.....................................................................",
+    "move": 10.7,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A8s, K9s+, Q9s+, JTs, T9s, 98s, AQo-AJo, KQo, QQ:0.9, A3s:0.9, A5s:0.6, T8s:0.6, A7s:0.2, J9s:0.1, 87s:0.1"
+      "range": "JJ-44, AQs-A8s, K9s+, Q9s+, JTs, T9s, 98s, AQo-AJo, KQo, QQ:0.9, A3s:0.8, A5s:0.7, T8s:0.5, A7s:0.2, J9s:0.2, A2s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
@@ -8938,7 +9120,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A4s, AKo, A5s:0.4, QQ:0.1, A3s:0.1"
+      "range": "KK+, AKs, A4s, AKo, A5s:0.3, A3s:0.2, QQ:0.1"
      }
     ]
    },
@@ -8952,17 +9134,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BTN 3벳",
     "title": "CO 오픈 후 vs BTN 3벳",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.5%p 움직여요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachFrom": [
      "rfi-co:open"
     ],
     "reachPct": 34.4,
-    "occ": 1.402,
+    "occ": 1.388,
     "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........5.....5.....a.........39.........3.39.........a............................3....................................................................................",
+    "confidence": "low",
+    "move": 23.5,
+    "close": ".....................a..........b......................a...9........................3.............3......................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -8975,19 +9157,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-66, 44-33, AQs-A7s, A5s, KQs, KTs, K8s, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, 54s, AJo-ATo, 55:0.9, K9s:0.9, 65s:0.9, KQo:0.9, A6s:0.8, KJs:0.8, 86s:0.8, TT:0.6, QJo:0.4, AQo:0.2, KJo:0.1"
+      "range": "88-66, 44-33, AQs-A7s, A5s, KTs-K8s, QTs+, Q8s, J8s+, T8s+, 97s+, 87s, 76s, AJo-ATo, 55:0.9, KJs+:0.9, Q9s:0.9, 86s:0.9, 65s:0.9, 54s:0.9, KQo:0.9, TT:0.6, A6s:0.6, QJo:0.4, AQo:0.3, JJ:0.1, KJo:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 22.5bb",
       "color": "raise",
-      "range": "AA, JJ, 99, AKs, K7s:0.8, AQo:0.8, KK:0.6, AKo:0.6, TT:0.4, KJo:0.2, QJo:0.2, 55:0.1, K9s:0.1, 65s:0.1, KQo:0.1"
+      "range": "AA, 99, AKs, JJ:0.9, K7s:0.8, AQo:0.7, KK:0.6, AKo:0.6, TT:0.4, KJo:0.2, QJo:0.2, 55:0.1, Q9s:0.1, 65s:0.1, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ, A4s-A3s, KK:0.4, AKo:0.4, KJs:0.2"
+      "range": "QQ, A4s-A3s, KK:0.4, AKo:0.4, KJs+:0.1"
      }
     ]
    },
@@ -9001,35 +9183,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 11.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "CO 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-co:open"
     ],
     "reachPct": 34.4,
-    "occ": 1.072,
-    "regret": 0.0004,
+    "occ": 1.067,
+    "regret": 0.0003,
     "confidence": "low",
-    "move": 0,
+    "move": 11.4,
     "close": "........................................9................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-33, AQs-A7s, KQs, KTs-K9s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, A6s:0.9, A2s:0.9, K8s:0.9, KJs:0.2, A5s:0.1, 96s:0.1, QJo:0.1"
+      "range": "JJ-33, AQs-A7s, KQs, KTs-K9s, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-ATo, KQo, A2s:0.9, A6s:0.8, K8s:0.8, KJs:0.2, QJo:0.2, A5s:0.1, 96s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AKs:0.1"
+      "range": ""
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, A4s-A3s, AKo, AKs:0.9, A5s:0.9, KJs:0.8, A2s:0.1"
+      "range": "QQ+, AKs, A4s-A3s, AKo, A5s:0.9, KJs:0.8, A2s:0.1"
      }
     ]
    },
@@ -9043,23 +9225,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "CO 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 10.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "CO 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-co:open"
     ],
     "reachPct": 34.4,
-    "occ": 0.878,
+    "occ": 0.876,
     "regret": 0.0007,
     "confidence": "low",
-    "move": 0,
-    "close": "................5...9...................................................9................................................................................................",
+    "move": 10.5,
+    "close": "................5...9....................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-33, AQs-A7s, K8s+, Q8s+, J8s+, T8s+, 97s+, 87s, 76s, AQo-ATo, KQo, A6s:0.7, A2s:0.7, 54s:0.5, KJo:0.5, QJo:0.5, 65s:0.2"
+      "range": "JJ-33, AQs-A7s, K8s+, Q8s+, J8s+, T8s+, 98s, 87s, 76s, AQo-ATo, KQo, 97s:0.9, A6s:0.7, A2s:0.6, KJo:0.5, QJo:0.5, 54s:0.3, 65s:0.1"
      },
      {
       "key": "4bet",
@@ -9071,7 +9253,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s-A3s, AKo, A2s:0.3"
+      "range": "QQ+, AKs, A5s-A3s, AKo, A2s:0.4"
      }
     ]
    },
@@ -9086,19 +9268,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.162,
+    "occ": 1.164,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.7,
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, AKo, A5s:0.5, 66-55:0.1"
+      "range": "QQ+, AKs, AKo, A4s:0.9, A5s:0.5, 66-55:0.1, AQs:0.1"
      }
     ]
    },
@@ -9112,17 +9294,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 17.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "BTN 3 · SB 3벳 10.5",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.6,
-    "occ": 1.858,
-    "regret": 0.0005,
+    "reachPct": 52.7,
+    "occ": 1.853,
+    "regret": 0.0006,
     "confidence": "low",
-    "move": 0,
-    "close": "...........................3...............................................................b.............................................................................",
+    "move": 17.5,
+    "close": "...........................................................................................b.............................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -9135,19 +9317,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-88, 66-22, AJs-A5s, A3s-A2s, K6s+, Q9s-Q6s, J7s+, T6s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, AJo-A8o, KJo+, 77:0.9, KTo:0.9, QJo:0.9, TT:0.7, JTo:0.7, AQs:0.6, K5s:0.6, AQo:0.6, A4s:0.4"
+      "range": "99-88, 66-22, AJs-A5s, A3s-A2s, K6s+, Q9s-Q6s, J7s+, T6s+, 95s+, 85s+, 74s+, 63s+, 53s+, 43s, AJo-A8o, KJo+, 77:0.9, QJo:0.9, KTo:0.8, JTo:0.8, TT:0.7, K5s:0.7, AQs:0.6, AQo:0.6, A4s:0.3"
      },
      {
       "key": "4bet",
       "label": "4벳 24.2bb",
       "color": "raise",
-      "range": "AA, AKs:0.8, JJ:0.5, AQs:0.4, AQo:0.4, TT:0.3, QTo:0.3, JTo:0.3, 77:0.1"
+      "range": "AA, AKs:0.8, JJ:0.5, AQs:0.4, AQo:0.4, TT:0.3, QTo:0.3, JTo:0.2, 77:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-QQ, QTs+, AKo, K3s:0.7, A4s:0.6, JJ:0.5, K5s-K4s:0.4, AKs:0.2, QJo:0.1"
+      "range": "KK-QQ, QTs+, AKo, A4s:0.7, K3s:0.7, JJ:0.5, K4s:0.4, K5s:0.3, AKs:0.2, QJo:0.1"
      }
     ]
    },
@@ -9161,17 +9343,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "BTN 오픈 3bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 18.3%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "BTN 3 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.6,
-    "occ": 1.582,
-    "regret": 0.0008,
+    "reachPct": 52.7,
+    "occ": 1.569,
+    "regret": 0.0009,
     "confidence": "low",
-    "move": 0,
-    "close": ".......................5.....5..........3...................9........93......................................................................9...........................",
+    "move": 18.3,
+    "close": ".......................5.....5.....9....3............................93..................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-13",
@@ -9184,7 +9366,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 77-55, 22, AJs-A5s, A2s, KJs+, K9s-K4s, QJs, Q9s-Q6s, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, 43s, AJo-A9o, KJo+, QJo, 88:0.9, 44:0.9, KTs:0.9, K3s:0.9, A8o:0.9, 85s:0.8, KTo:0.8, JTo:0.8, 33:0.7, K2s:0.7, A3s:0.5, AQo:0.5, QTo:0.4, Q5s:0.1"
+      "range": "99, 77-55, 22, AJs-A5s, A2s, KJs+, K9s-K4s, QJs, Q9s-Q6s, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 53s+, AJo-A9o, KJo+, QJo, 88:0.9, 44:0.9, KTs:0.9, A8o:0.9, 85s:0.8, 43s:0.8, KTo:0.8, JTo:0.8, 33:0.7, K3s-K2s:0.7, A3s:0.5, AQo:0.5, QTo:0.4"
      },
      {
       "key": "4bet",
@@ -9196,7 +9378,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK, JJ, A4s, QTs, AKo, AKs:0.9, QQ:0.7, QTo:0.6, TT:0.5, A3s:0.5, 33:0.3, 44:0.1, KTs:0.1, K3s:0.1"
+      "range": "KK, JJ, A4s, QTs, AKo, AKs:0.9, QQ:0.7, QTo:0.6, TT:0.5, A3s:0.5, 33:0.3, K3s:0.3, 44:0.1, KTs:0.1"
      }
     ]
    },
@@ -9211,13 +9393,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.126,
+    "occ": 1.128,
     "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.9,
     "actions": [
      {
       "key": "shove",
@@ -9238,19 +9420,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.033,
+    "occ": 1.031,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.8,
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, AQs:0.9, 55:0.5, A4s:0.5, 66:0.3"
+      "range": "QQ+, AQs+, AKo, 55:0.5, A4s:0.4, 66:0.3"
      }
     ]
    },
@@ -9265,20 +9447,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.542,
+    "occ": 1.526,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": "..................................................................................................3...........................3..........................................",
+    "move": 0.6,
+    "close": "..............................................................................................................................3..........................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, 55, AQs+, KQs, AKo, A4s:0.3, 66:0.2"
+      "range": "JJ+, 55, AQs+, KQs, AKo, A4s:0.3, 77-66:0.1"
      }
     ]
    },
@@ -9292,23 +9474,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 3.5bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "SB 오픈 3.5bb → BB 3벳 10.5bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 32%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "SB 3.5 · BB 3벳 10.5",
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 31,
-    "occ": 0.673,
-    "regret": 0.0003,
+    "reachPct": 30.8,
+    "occ": 0.668,
+    "regret": 0.0004,
     "confidence": "low",
-    "move": 0,
-    "close": "...............5...............53.................................a................a.........................................................a...........................",
+    "move": 32,
+    "close": "................5..............53.................................a................a.........................................................a...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-44, AJs, A9s-A5s, KQs, K8s-K6s, QJs, Q9s-Q8s, J9s, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KJo-KTo, QTo+, JTo, KJs:0.9, KQo:0.9, A4s:0.8, QTs:0.8, A3s:0.5, AQo:0.4, K9s:0.2"
+      "range": "88-44, AJs, A9s-A5s, KJs+, K8s-K6s, QJs, Q9s-Q8s, J9s, T8s+, 97s+, 86s+, 75s+, 65s, 54s, KJo-KTo, QTo+, JTo, QTs:0.9, KQo:0.9, A4s:0.8, A3s:0.4, AQo:0.4, K9s:0.1"
      },
      {
       "key": "4bet",
@@ -9320,7 +9502,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ-TT, 33, KTs, JTs, AKo, KK:0.9, 99:0.9, AKs:0.8, K9s:0.8, QQ:0.7, A3s:0.5, AQo:0.3, A4s:0.2, QTs:0.2, KJs:0.1"
+      "range": "JJ-TT, 33, KTs, JTs, AKo, KK:0.9, 99:0.9, K9s:0.9, AKs:0.8, QQ:0.7, A3s:0.6, AQo:0.3, A4s:0.2, QTs:0.1"
      }
     ]
    },
@@ -9335,19 +9517,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 3 · CO 3벳 9",
     "reachPct": 100,
-    "occ": 1.089,
+    "occ": 1.091,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.6,
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, 55, AQs+, AKo, 66:0.6, A4s:0.5"
+      "range": "JJ+, 55, AQs+, AKo, 66:0.5, A4s:0.5"
      }
     ]
    },
@@ -9362,20 +9544,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 3 · BTN 3벳 9",
     "reachPct": 100,
-    "occ": 1.477,
+    "occ": 1.461,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": "..................................................................................................3......................................................................",
+    "move": 0.8,
+    "close": "............................................................................................................................................3............................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KQs, AKo, 66:0.6, AJs:0.6, 44:0.1"
+      "range": "TT+, 55, AQs+, KQs, AKo, AJs:0.6, 66:0.5, 77:0.2"
      }
     ]
    },
@@ -9390,13 +9572,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "CO 3 · SB 3벳 10.5",
     "reachPct": 100,
-    "occ": 1.126,
+    "occ": 1.121,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.6,
     "actions": [
      {
       "key": "shove",
@@ -9417,20 +9599,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1%p 움직여요.",
     "line": "BTN 3 · SB 3벳 10.5",
     "reachPct": 100,
-    "occ": 2.014,
+    "occ": 2.01,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 1,
     "close": "...........................................3........................................3....................................................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "99+, 55, ATs+, KTs+, QJs, AQo+, 66:0.8, QTs:0.1"
+      "range": "99+, 55, ATs+, KTs+, QJs, AQo+, 66:0.8, QTs:0.2"
      }
     ]
    },
@@ -9444,16 +9626,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳",
     "title": "CO 3벳 후 vs HJ 4벳",
-    "description": "HJ 오픈 3bb → CO 3벳 9bb → HJ 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 3벳 9bb → HJ 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 27.8%p 움직여요.",
     "line": "HJ 3 · CO 3벳 9 · HJ 4벳 22.5",
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
     "reachPct": 9.4,
     "occ": 0.107,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0011,
+    "confidence": "low",
+    "move": 27.8,
     "actions": [
      {
       "key": "call",
@@ -9479,28 +9661,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳",
     "title": "BTN 3벳 후 vs CO 4벳",
-    "description": "CO 오픈 3bb → BTN 3벳 9bb → CO 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 3벳 9bb → CO 4벳 22.5bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.2%p 움직여요.",
     "line": "CO 3 · BTN 3벳 9 · CO 4벳 22.5",
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
-    "reachPct": 13,
-    "occ": 0.167,
-    "regret": 0.0048,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 12.8,
+    "occ": 0.165,
+    "regret": 0.0033,
+    "confidence": "low",
+    "move": 25.2,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-88, 66, AQs-AJs, A9s-A8s, KJs+, AQo, JJ:0.9, 55:0.7, AKo:0.7, AJo:0.7, A7s:0.4, A5s:0.2, KQo:0.2, 44:0.1"
+      "range": "TT-88, 66, AJs, A9s-A8s, KJs+, AQo, JJ:0.9, AJo:0.8, 55:0.7, AKo:0.7, A7s:0.4, A5s:0.3, KQo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, 44:0.9, A5s:0.8, 55:0.3, AKo:0.3, JJ:0.1"
+      "range": "QQ+, 44, AKs, A4s, A5s:0.7, 55:0.3, AKo:0.3, JJ:0.1"
      }
     ]
    },
@@ -9514,16 +9696,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인·SB폴드",
     "title": "BTN — BTN 오픈 → SB 3벳 → BB 올인 → SB 폴드",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인 → SB 폴드. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "BTN 3 · SB 3벳 10.5 · BB 올인 · SB 폴드",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 52.6,
+    "reachPct": 52.7,
     "occ": 0.115,
-    "regret": 0.0002,
+    "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.9,
     "actions": [
      {
       "key": "call",
@@ -9543,16 +9725,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO 4벳 올인",
     "title": "SB 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 3bb → SB 3벳 10.5bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → SB 3벳 10.5bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "CO 3 · SB 3벳 10.5 · CO 올인",
     "reachFrom": [
      "sb-vs-co-open:3bet"
     ],
-    "reachPct": 12.4,
-    "occ": 0.113,
+    "reachPct": 12.3,
+    "occ": 0.115,
     "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
+    "move": 3,
     "actions": [
      {
       "key": "call",
@@ -9572,16 +9754,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 4.7%p 움직여요.",
     "line": "BTN 3 · SB 3벳 10.5 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
     "reachPct": 16.8,
-    "occ": 0.121,
-    "regret": 0.0003,
+    "occ": 0.12,
+    "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
+    "move": 4.7,
     "actions": [
      {
       "key": "call",
@@ -9602,16 +9784,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 3벳 10.5bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 2.4%p 움직여요.",
     "line": "BTN 3 · SB 3벳 10.5 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
     "reachPct": 16.8,
     "occ": 0.157,
-    "regret": 0.0001,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 2.4,
     "actions": [
      {
       "key": "call",
@@ -9631,16 +9813,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳 올인",
     "title": "BB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 3bb → BB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → BB 3벳 10.5bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 3.8%p 움직여요.",
     "line": "BTN 3 · BB 3벳 10.5 · BTN 올인",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
-    "reachPct": 18.3,
-    "occ": 0.127,
-    "regret": 0.0007,
+    "reachPct": 18.4,
+    "occ": 0.126,
+    "regret": 0.0009,
     "confidence": "mid",
-    "move": 0,
+    "move": 3.8,
     "actions": [
      {
       "key": "call",
@@ -9661,25 +9843,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+1콜",
     "title": "UTG+2 vs UTG 오픈 + UTG+1 콜",
-    "description": "UTG 오픈 3bb → UTG+1 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → UTG+1 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.6%p 움직여요.",
     "line": "UTG 3 · UTG+1 콜",
     "reachPct": 100,
     "occ": 0.506,
-    "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0006,
+    "confidence": "high",
+    "move": 1.6,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-TT, QQ:0.6, AQs:0.6"
+      "range": "JJ-TT, AQs:0.7, QQ:0.5"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, AKs, KQs, AKo, QQ:0.4, AQs:0.4, KJs:0.1"
+      "range": "KK+, AKs, KQs, AKo, QQ:0.5, AQs:0.3, KJs:0.2"
      }
     ]
    },
@@ -9694,26 +9876,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "LJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.5%p 움직여요.",
     "line": "UTG 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.564,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................3..............................................................................................................................",
+    "occ": 0.569,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 1.5,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-99, AQs, QQ:0.2, AKs:0.2"
+      "range": "TT-99, AQs, JJ:0.9, QQ:0.2, AKs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, KJs+, AKo, AJs:0.9, QQ:0.8, AKs:0.8"
+      "range": "KK+, KJs+, AKo, AJs:0.9, QQ:0.8, AKs:0.8, JJ:0.1"
      }
     ]
    },
@@ -9728,25 +9909,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG+1 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.602,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.586,
+    "regret": 0.0007,
+    "confidence": "high",
+    "move": 2.7,
+    "close": "..............3...........5..............................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-TT, AQs, 99:0.9, AQo:0.6, QQ:0.1, AKs:0.1"
+      "range": "TT, JJ:0.9, AQs:0.9, 99:0.8, QQ:0.1, AKs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, KJs+, AKo, QQ:0.9, AKs:0.9, AJs:0.8, KQo:0.1"
+      "range": "KK+, KJs+, AKo, QQ:0.9, AKs:0.9, AJs:0.6, KQo:0.2, JJ:0.1, AQs:0.1"
      }
     ]
    },
@@ -9761,26 +9943,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "HJ vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.9%p 움직여요.",
     "line": "UTG 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.535,
-    "regret": 0.0018,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.54,
+    "regret": 0.0014,
+    "confidence": "high",
+    "move": 1.9,
     "close": "..........................5......................................................................................5.............5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-TT, AQs, 99:0.9, QQ:0.3, AKs:0.1"
+      "range": "JJ-TT, 99:0.9, AQs:0.9, QQ:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, KQs, AKo, AKs:0.9, KJs:0.9, QQ:0.7, AJs:0.2, KQo:0.1"
+      "range": "KK+, AKs, KQs, AKo, KJs:0.9, QQ:0.7, AJs:0.5, AQs:0.1, KQo:0.1"
      }
     ]
    },
@@ -9795,26 +9977,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "HJ vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.9%p 움직여요.",
     "line": "UTG 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.556,
+    "occ": 0.581,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".3.......................................................................................................................................................................",
+    "confidence": "high",
+    "move": 1.9,
+    "close": "..........................5................5.....................................................................5.............5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JJ:0.9, QQ:0.1"
+      "range": "TT-99, AQs, JJ:0.8, QQ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, AKs, KJs+, AKo, QQ:0.9, AJs:0.5, KQo:0.2, JJ:0.1"
+      "range": "KK+, AKs, KJs+, AKo, QQ:0.9, AJs:0.6, JJ:0.2, KQo:0.2"
      }
     ]
    },
@@ -9829,19 +10011,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG+1 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.568,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.556,
+    "regret": 0,
+    "confidence": "high",
+    "move": 2.7,
+    "close": ".3........................................35.....................................................................5.............5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-99, AQs, AQo, JTs:0.4"
+      "range": "JJ-99, AQs, AQo"
      },
      {
       "key": "squeeze",
@@ -9862,26 +10045,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "HJ vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.666,
-    "regret": 0.0117,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.681,
+    "regret": 0.0111,
+    "confidence": "high",
+    "move": 2.9,
     "close": "...........................................5.............5.......................................................5.............5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99:0.9, AQs:0.9, AQo:0.8, JJ:0.7, 88:0.5, AJs:0.5, 98s:0.2, KQs:0.1"
+      "range": "TT-99:0.9, AQs:0.9, JJ:0.7, AQo:0.7, AJs:0.5, 88:0.4, 98s:0.2, KQs:0.1, QJs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, AKo, KQs:0.8, KQo:0.7, KJs:0.5, JJ:0.3, KTs:0.3, QJs:0.3, AQo:0.2, TT-99:0.1, AQs:0.1, KJo:0.1"
+      "range": "QQ+, AKs, AKo, KQs:0.8, KQo:0.8, KJs:0.5, JJ:0.3, KTs:0.3, QJs:0.3, AQo:0.3, TT-99:0.1, AQs:0.1, KJo:0.1"
      }
     ]
    },
@@ -9896,26 +10079,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·UTG+2콜",
     "title": "CO vs UTG 오픈 + UTG+2 콜",
-    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "UTG 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.508,
-    "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................3..............................................................................................................................",
+    "occ": 0.513,
+    "regret": 0.001,
+    "confidence": "high",
+    "move": 2.5,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ-99, AQs, 65s:0.3, 54s:0.3"
+      "range": "JJ-99, AQs, 65s:0.4, 54s:0.4, QQ:0.1, AKs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, AJs:0.8, KQo:0.1"
+      "range": "KK+, KJs+, AKo, QQ:0.9, AKs:0.9, AJs:0.8, KTs:0.1, KQo:0.1"
      }
     ]
    },
@@ -9930,25 +10112,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·LJ콜",
     "title": "CO vs UTG 오픈 + LJ 콜",
-    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2%p 움직여요.",
     "line": "UTG 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.527,
-    "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.551,
+    "regret": 0.001,
+    "confidence": "high",
+    "move": 2,
+    "close": ".................6.........................5.............5...............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT, 99:0.9, JJ:0.8, AQs:0.5, JTs:0.3, 65s:0.2, 54s:0.2"
+      "range": "TT-99, JJ:0.7, AQs:0.7, 65s:0.1, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, AJs:0.6, AQs:0.5, JJ:0.2, KQo:0.2, QJs:0.1"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.8, JJ:0.3, AQs:0.3, AQo:0.1, KQo:0.1"
      }
     ]
    },
@@ -9963,26 +10146,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.9%p 움직여요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.593,
-    "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......................................................................5............5..........................................5.........................................",
+    "occ": 0.599,
+    "regret": 0.0006,
+    "confidence": "high",
+    "move": 1.9,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JTs:0.9, JJ:0.2, T9s:0.2, QQ:0.1"
+      "range": "TT-99, AQs, JTs:0.9, JJ:0.4, T9s:0.4, AQo:0.2, 88:0.1, 98s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "KK+, AKs, KJs+, AKo, QQ:0.9, JJ:0.8, AJs:0.5, AQo:0.4, KQo:0.2, KTs:0.1"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.8, JJ:0.6, KTs:0.3, AQo:0.3, KQo:0.1"
      }
     ]
    },
@@ -9997,26 +10179,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "CO vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → UTG+2 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "UTG+1 3 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 0.533,
+    "occ": 0.522,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................5.............5.................................................................................................",
+    "confidence": "high",
+    "move": 2.5,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, AQo:0.7, JJ:0.5, JTs:0.5, 65s:0.2, 54s:0.1"
+      "range": "TT-99, AQs, AQo:0.8, JJ:0.7, 65s:0.5, 54s:0.2, JTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, JJ:0.5, AJs:0.5, AQo:0.3, KQo:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, AJs:0.6, JJ:0.3, AQo:0.2, KQo:0.2"
      }
     ]
    },
@@ -10031,25 +10212,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "CO vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.618,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.615,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 3,
+    "close": ".............3...............5.............5.............................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, 88:0.9, 98s:0.9, AJs:0.8, AQo:0.8, T9s:0.6, 54s:0.4, JJ:0.3, 65s:0.2, QJs:0.1, JTs:0.1"
+      "range": "TT-88, AQs, 98s:0.9, AJs:0.7, AQo:0.7, T9s:0.5, 54s:0.4, JJ:0.3, 65s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, KQo:0.8, JJ:0.7, AQo:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, KQo:0.8, JJ:0.7, AQo:0.3"
      }
     ]
    },
@@ -10064,25 +10246,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "CO vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.5%p 움직여요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.62,
-    "regret": 0.0031,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.633,
+    "regret": 0.0037,
+    "confidence": "high",
+    "move": 3.5,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, 88:0.9, AQs:0.9, 98s:0.9, AJs:0.8, AQo:0.7, T9s:0.6, 65s:0.3, 54s:0.3, QJs:0.2, JTs:0.2, JJ:0.1"
+      "range": "TT-99, 88:0.9, AQs:0.9, AJs:0.8, 98s:0.8, AQo:0.7, T9s:0.5, JJ:0.2, QJs:0.2, JTs:0.2, 65s:0.2, 54s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KQs, AKo, JJ:0.9, KJs:0.9, KQo:0.9, QJs:0.3, AQo:0.3, AQs:0.1, KTs:0.1"
+      "range": "QQ+, AKs, KQs, AKo, KJs:0.9, KQo:0.9, JJ:0.8, QJs:0.3, AQo:0.3, AQs:0.1, KTs:0.1"
      }
     ]
    },
@@ -10097,13 +10279,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "CO vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.4%p 움직여요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.651,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.652,
+    "regret": 0.0011,
+    "confidence": "high",
+    "move": 2.4,
     "actions": [
      {
       "key": "overcall",
@@ -10115,7 +10297,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, AQo:0.9, KQo:0.8, TT:0.6, QJs:0.4, KTs:0.3"
+      "range": "JJ+, AKs, KJs+, AKo, AQo:0.9, KQo:0.8, TT:0.6, KTs:0.4, QJs:0.4"
      }
     ]
    },
@@ -10130,26 +10312,60 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.754,
+    "occ": 0.762,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.6,
+    "close": "...............3.............3...........................5...............................................................................................................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88, AJs, JTs, 99:0.6, TT:0.4, 98s:0.3, 65s:0.2, KQo:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 12bb",
+      "color": "raise",
+      "range": "JJ+, AQs+, KJs+, QJs, AQo+, KTs:0.8, KQo:0.8, TT:0.6, 99:0.4"
+     }
+    ]
+   },
+   {
+    "id": "btn-at-utg-open-lj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "UTG",
+    "villainSeats": [
+     "UTG",
+     "LJ"
+    ],
+    "chip": "UTG오픈·LJ콜",
+    "title": "BTN vs UTG 오픈 + LJ 콜",
+    "description": "UTG 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.9%p 움직여요.",
+    "line": "UTG 3 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.521,
+    "regret": 0.0013,
+    "confidence": "high",
+    "move": 1.9,
     "close": ".........................................................5...............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs:0.9, JTs:0.9, 99:0.5, 98s:0.4, TT:0.3, 65s:0.2, QJs:0.1, KQo:0.1"
+      "range": "TT-99, AQs:0.8, JJ:0.4, JTs:0.4, 65s:0.4, 54s:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AQs+, KJs+, AQo+, QJs:0.9, KQo:0.9, KTs:0.8, TT:0.7, 99:0.5, AJs:0.1"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.6, AJs:0.5, AQo:0.3, AQs:0.2, KTs:0.2, QJs:0.1, KQo:0.1"
      }
     ]
    },
@@ -10164,26 +10380,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BTN vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.4%p 움직여요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.558,
-    "regret": 0.0012,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...6....................................................3...........................5....................................................................................",
+    "occ": 0.562,
+    "regret": 0.001,
+    "confidence": "high",
+    "move": 2.4,
+    "close": "....................................................................................5....................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JTs:0.9, T9s:0.9, 98s:0.7, JJ:0.3, 54s:0.3, 65s:0.2, AQo:0.1"
+      "range": "TT-99, AQs, JTs:0.9, T9s:0.9, 98s:0.9, JJ:0.3, 54s:0.3, 65s:0.2, AQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, JJ:0.7, KTs:0.5, KQo:0.4, AQo:0.3, QJs:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.7, KTs:0.5, AQo:0.5, QJs:0.2, KQo:0.2, AJs:0.1"
      }
     ]
    },
@@ -10198,26 +10414,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.606,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.63,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 2.7,
     "close": ".......................................................................5.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JTs, T9s, 98s, 88:0.9, 54s:0.9, AQo:0.8, QJs:0.4, JJ:0.3, 65s:0.1"
+      "range": "99, AQs, JTs, T9s, 98s, TT:0.9, 88:0.9, 54s:0.8, AQo:0.7, QJs:0.6, JJ:0.4, 65s:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, JJ:0.7, KQo:0.7, KTs:0.4, AQo:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, KTs:0.8, JJ:0.6, KQo:0.6, AQo:0.3, TT:0.1"
      }
     ]
    },
@@ -10232,26 +10448,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BTN vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.1%p 움직여요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.57,
+    "occ": 0.567,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................5...............................................................................................................",
+    "confidence": "high",
+    "move": 3.1,
+    "close": ".................6.......................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AQs, T9s, 98s, TT:0.9, AJs:0.9, 54s:0.9, JTs:0.8, 65s:0.7, QJs:0.6, AQo:0.5"
+      "range": "99, AQs, 98s, T9s:0.9, 54s:0.9, 88:0.8, TT:0.6, AJs:0.3, AQo:0.3, 65s:0.2, QJs:0.1, JTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, KQo:0.9, AQo:0.5, TT:0.1, KTs:0.1"
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.9, AQo:0.7, TT:0.4"
      }
     ]
    },
@@ -10266,13 +10482,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.2%p 움직여요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.667,
+    "occ": 0.677,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.2,
     "close": ".................................................................................................................5.......................................................",
     "actions": [
      {
@@ -10300,26 +10516,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "BTN vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.57,
-    "regret": 0.0014,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".................6.......................................................................................................................................................",
+    "occ": 0.583,
+    "regret": 0.0016,
+    "confidence": "high",
+    "move": 3,
+    "close": ".........................................................5...............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99, AQs, 98s, 88:0.9, T9s:0.9, TT:0.8, AJs:0.8, 65s:0.8, 54s:0.8, QJs:0.4, AQo:0.2, JJ:0.1, JTs:0.1"
+      "range": "99-88, AQs, T9s, 98s, AJs:0.9, 65s:0.9, 54s:0.9, TT:0.8, QJs:0.5, JTs:0.3, AQo:0.2, JJ:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, KQo, JJ:0.9, AQo:0.8, TT:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, KQo, JJ:0.9, AQo:0.8, TT:0.2, KTs:0.1"
      }
     ]
    },
@@ -10334,26 +10550,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "BTN vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
     "occ": 0.599,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............................................................................................................................5.........................................",
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 2.6,
+    "close": "..3......................................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, T9s, 98s, 99:0.9, AQs:0.8, JTs:0.8, QJs:0.3, 65s:0.3, TT:0.2"
+      "range": "88, AQs-AJs, T9s, 98s, 99:0.9, JTs:0.8, QJs:0.4, TT:0.3, 65s:0.3, 54s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AQo+, KQo:0.9, TT:0.8, QJs:0.7, KTs:0.6, AQs:0.2, 99:0.1"
+      "range": "JJ+, AKs, KJs+, AQo+, KQo:0.9, TT:0.7, KTs:0.7, QJs:0.6, 99:0.1"
      }
     ]
    },
@@ -10368,26 +10584,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.711,
+    "occ": 0.715,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3....................................................3................................................................................................................",
+    "confidence": "high",
+    "move": 2.5,
+    "close": ".................6.......................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, JTs, T9s, 98s, 88:0.9, QJs:0.5, 99:0.2"
+      "range": "AJs, JTs, T9s, 98s, 88:0.9, QJs:0.6, 99:0.2, TT:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "TT+, AQs+, KJs+, AQo+, KQo, KTs:0.9, 99:0.8, QJs:0.5, 88:0.1"
+      "range": "JJ+, AQs+, KTs+, AQo+, KQo, TT:0.9, 99:0.8, QJs:0.4, 88:0.1"
      }
     ]
    },
@@ -10402,26 +10618,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "BTN vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.691,
+    "occ": 0.698,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................5.............................................................................................................................",
+    "confidence": "high",
+    "move": 2.5,
+    "close": "...........................................5......................................................6......................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, JTs, 98s:0.9, 65s:0.9, T9s:0.4, 99:0.3, TT:0.2, QJs:0.2"
+      "range": "88, AJs, JTs, 98s:0.9, 65s:0.8, 99:0.4, QJs:0.4, T9s:0.4, TT:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AQs+, KJs+, AQo+, KQo, TT:0.8, QJs:0.8, 99:0.7, KTs:0.7, QTs:0.1"
+      "range": "JJ+, AQs+, KJs+, AQo+, KQo, TT:0.9, 99:0.6, KTs:0.6, QJs:0.6, QTs:0.3"
      }
     ]
    },
@@ -10436,26 +10652,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.867,
+    "occ": 0.86,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3.........................3..........................5...............................................................................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": ".........................................................5.............5.........................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, QTs+, JTs, 65s, AJs:0.9, 98s:0.8, TT:0.6, 99:0.1, 77:0.1"
+      "range": "88, AJs, QTs+, JTs, 98s, 65s, TT:0.7, 99:0.1, 77:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "JJ+, AQs+, ATs, KTs+, AQo+, KQo, 99:0.9, AJo:0.7, TT:0.4, AJs:0.1"
+      "range": "JJ+, AQs+, ATs, KTs+, AQo+, KQo, 99:0.9, AJo:0.8, TT:0.3"
      }
     ]
    },
@@ -10470,26 +10686,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.2%p 움직여요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.918,
+    "occ": 0.919,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3.........................................................................................................................................................",
+    "confidence": "high",
+    "move": 4.2,
+    "close": ".........................................................5...............................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QJs, 98s, 65s, 77:0.9, KJs:0.9, T9s:0.9, AJs:0.8, 88:0.3, QTs:0.2, JTs:0.2, 54s:0.2, ATs:0.1"
+      "range": "KJs+, QJs, T9s, 98s, 65s, 77:0.9, AJs:0.8, 88:0.3, QTs:0.3, JTs:0.2, 54s:0.2, ATs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 12bb",
       "color": "raise",
-      "range": "99+, AQs+, KTs-K9s, AJo+, KQo, ATs:0.9, QTs:0.8, JTs:0.8, 88:0.7, KJo:0.3, AJs:0.2, 77:0.1, KJs:0.1"
+      "range": "99+, AQs+, KTs-K9s, AJo+, KQo, ATs:0.9, JTs:0.8, 88:0.7, QTs:0.7, KJo:0.3, AJs:0.2, 77:0.1"
      }
     ]
    },
@@ -10504,25 +10720,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "SB vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.5%p 움직여요.",
     "line": "UTG 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.52,
-    "regret": 0.0017,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.524,
+    "regret": 0.0011,
+    "confidence": "high",
+    "move": 3.5,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JTs:0.9, T9s:0.6, JJ:0.5, 98s:0.5, 65s:0.4, 54s:0.4, 88:0.3, AQo:0.1"
+      "range": "TT-99, AQs, JTs:0.9, T9s:0.8, 98s:0.6, JJ:0.4, 54s:0.4, 88:0.3, 65s:0.3, AQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, JJ:0.5, QJs:0.4, AJs:0.2, KQo:0.2"
+      "range": "QQ+, AKs, KJs+, AKo, JJ:0.6, QJs:0.4, AJs:0.2, AQo:0.1, KQo:0.1"
      }
     ]
    },
@@ -10537,25 +10753,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "SB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.556,
+    "occ": 0.577,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.3,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-88, AQs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.8, JJ:0.2, QTs:0.1"
+      "range": "TT-88, AQs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.8, JJ:0.2, AKs:0.1, AJs:0.1, QTs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, JJ:0.8, KQo:0.6, AQo:0.2"
+      "range": "QQ+, KJs+, AKo, AKs:0.9, JJ:0.8, KQo:0.6, AQo:0.2"
      }
     ]
    },
@@ -10570,26 +10786,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.1%p 움직여요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.598,
+    "occ": 0.603,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................5.........................................5.........................................",
+    "confidence": "high",
+    "move": 4.1,
+    "close": ".................6.......................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 65s:0.8, AQo:0.7, TT:0.6, T8s:0.6, JJ:0.3, AJs:0.1, J9s:0.1"
+      "range": "99-88, AQs, QTs+, JTs, T9s, 98s, 65s:0.8, T8s:0.7, J9s:0.6, AQo:0.6, TT:0.5, JJ:0.4, AJs:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, AKs, KJs+, AKo, KTs:0.9, JJ:0.7, TT:0.4, AQo:0.3, KQo:0.3"
+      "range": "QQ+, AKs, KTs+, AKo, JJ:0.6, TT:0.5, AQo:0.4, KQo:0.3"
      }
     ]
    },
@@ -10604,26 +10820,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "SB vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "UTG+1 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.52,
+    "occ": 0.522,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............................................................................................................................................5...........................",
+    "confidence": "high",
+    "move": 3.4,
+    "close": "..............................5..............................................................................................................5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-88, AQs-AJs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.7"
+      "range": "TT-88, AQs-AJs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.8"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "JJ+, AKs, KJs+, AKo, KQo:0.6, AQo:0.3"
+      "range": "JJ+, AKs, KJs+, AKo, KQo:0.6, AQo:0.2"
      }
     ]
    },
@@ -10638,13 +10854,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "SB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.61,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.618,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 4,
     "close": "........................................................................5......................................................5.........................................",
     "actions": [
      {
@@ -10672,25 +10888,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.792,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.802,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 4,
+    "close": ".................................................................................................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s:0.8, 99:0.6, AQs:0.6, J9s:0.3, 87s:0.1"
+      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s, J9s:0.7, 99:0.6, AQs:0.5"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AKs, KTs+, AQo+, 99:0.4, AQs:0.4, KQo:0.4"
+      "range": "TT+, AKs, KTs+, AQo+, AQs:0.5, 99:0.4, KQo:0.4"
      }
     ]
    },
@@ -10705,19 +10922,19 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "SB vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.1%p 움직여요.",
     "line": "UTG+2 3 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.521,
-    "regret": 0.0014,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.532,
+    "regret": 0.0016,
+    "confidence": "high",
+    "move": 5.1,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "TT-99, AQs, JTs, T9s, 98s, 65s, 54s, 88:0.9, QJs:0.9, AJs:0.7, AQo:0.7, JJ:0.1"
+      "range": "TT-99, AQs, JTs, T9s, 98s, 65s, 54s, 88:0.9, QJs:0.9, AJs:0.8, AQo:0.7, JJ:0.1"
      },
      {
       "key": "squeeze",
@@ -10738,26 +10955,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "SB vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.5%p 움직여요.",
     "line": "UTG+2 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.546,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.547,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 3.5,
     "close": ".....................................................................................5...................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AQs-AJs, QJs, JTs, T9s, 98s, 65s, 54s, TT:0.2, AQo:0.2"
+      "range": "99-88, AQs-AJs, QJs, JTs, T9s, 98s, 65s, 54s, AQo:0.3, TT:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "JJ+, AKs, KQs, AKo, KJs:0.9, TT:0.8, AQo:0.8, KQo:0.7"
+      "range": "JJ+, AKs, KQs, AKo, KJs:0.9, TT:0.8, KQo:0.8, AQo:0.7"
      }
     ]
    },
@@ -10772,26 +10989,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "SB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.2%p 움직여요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.648,
+    "occ": 0.651,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............................................5.............5.............5............5............55.....................................................................",
+    "confidence": "high",
+    "move": 3.2,
+    "close": "............................................5.............5.............5............5............5............................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s, 99:0.9, AQs:0.8, 54s:0.1"
+      "range": "88, AJs, QTs+, JTs, T9s, 98s, 65s, 99:0.9, AQs:0.9"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AKs, KJs+, AQo+, KQo:0.8, AQs:0.2, 99:0.1"
+      "range": "TT+, AKs, KJs+, AQo+, KQo:0.8, 99:0.1, AQs:0.1"
      }
     ]
    },
@@ -10806,25 +11023,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.872,
+    "occ": 0.866,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, Q9s+, J9s+, T9s, 98s, T8s:0.9, AJs:0.5, 88:0.4, 65s:0.4"
+      "range": "77, Q9s+, J9s+, T9s, 98s, T8s:0.9, AJs:0.8, 88:0.6, 65s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, KTs+, AQo+, KQo, 88:0.6, AJs:0.5"
+      "range": "99+, AQs+, KTs+, AQo+, KQo, 88:0.4, AJs:0.2"
      }
     ]
    },
@@ -10839,26 +11056,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "SB vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.63,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........................................................................5............5...................................................................................",
+    "occ": 0.636,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 2.9,
+    "close": ".................6......................................................5............5...................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, AJs, QTs, JTs, T9s, 98s, 65s, 54s:0.8, QJs:0.6, 77:0.4, KQo:0.4, AQs:0.1, 76s:0.1"
+      "range": "99-88, AJs, QTs, JTs, T9s, 98s, 65s, 54s:0.9, 77:0.6, KQo:0.5, QJs:0.2, 76s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AKs, KJs+, AQo+, AQs:0.9, KQo:0.6, QJs:0.4, KTs:0.1"
+      "range": "TT+, AQs+, KJs+, AQo+, QJs:0.8, KQo:0.5"
      }
     ]
    },
@@ -10873,26 +11090,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.779,
+    "occ": 0.772,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....5..........3.........................................5.....................................................................5.........................................",
+    "confidence": "high",
+    "move": 3.9,
+    "close": "...............3...............5.........................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, QTs+, JTs, T9s, 98s, 65s, AJs:0.4, 77:0.1, KQo:0.1"
+      "range": "88, QTs+, JTs, T9s, 98s, 65s, 77:0.6, ATs:0.6, KJs:0.5, AJs:0.4, 54s:0.4, KQo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, KJs+, AQo+, KQo:0.9, AJs:0.6, KTs:0.4, 77:0.2"
+      "range": "99+, AQs+, KQs, AQo+, KTs:0.9, KQo:0.8, AJs:0.6, KJs:0.5, 77:0.3"
      }
     ]
    },
@@ -10907,26 +11124,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.052,
+    "occ": 1.093,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................................5....................................................................5.........................................",
+    "confidence": "high",
+    "move": 4.6,
+    "close": "..................6.......................................5.............5......................................................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "AJs, Q9s+, J9s+, T9s, 98s, 87s, 65s, 97s:0.9, 77:0.6, KJs:0.6, 76s:0.6, ATs:0.2"
+      "range": "Q9s+, J9s+, T9s, 97s+, 87s, 65s, AJs:0.9, 77:0.4, ATs:0.4, KJs:0.2, 76s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, KQs, KTs, AQo+, KQo, AJo:0.9, 77:0.4, KJs:0.4, ATs:0.3"
+      "range": "88+, AQs+, KQs, KTs, AQo+, KQo, AJo:0.9, KJs:0.8, 77:0.6, AJs-ATs:0.1"
      }
     ]
    },
@@ -10941,26 +11158,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.3%p 움직여요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.809,
+    "occ": 0.811,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3..3.........................................5............5.........................................5.........................................",
+    "confidence": "high",
+    "move": 6.3,
+    "close": "..............................3.........................................5............5............3............................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QTs+, T9s, 98s, 87s, 65s, 54s, 77:0.9, 76s:0.9, KQs:0.8, JTs:0.8, ATs:0.7, Q9s:0.1"
+      "range": "77, KJs, QTs+, T9s, 98s, 87s, 65s, 54s, 76s:0.9, KQs:0.8, ATs:0.7, JTs:0.7, Q9s:0.2, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AJs+, KTs, AJo+, KQo, K9s:0.4, ATs:0.3, KQs:0.2, JTs:0.2, 77:0.1"
+      "range": "88+, AJs+, KTs, AJo+, KQo:0.9, K9s:0.7, ATs:0.3, JTs:0.3, KQs:0.2"
      }
     ]
    },
@@ -10975,26 +11192,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.9%p 움직여요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.051,
+    "occ": 1.062,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................5...................................................................................",
+    "confidence": "high",
+    "move": 6.9,
+    "close": "...........................................3.........................................5...................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, Q9s+, J9s, T9s, 98s, 65s, JTs:0.9, 97s:0.8, KQs:0.7, ATs:0.1"
+      "range": "KJs, Q9s+, J9s+, T9s, 98s, 65s, 97s:0.9, KQs:0.8, ATs:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "77+, AJs+, KTs, AJo+, KQo, ATs:0.9, KJo:0.9, KQs:0.3, K9s:0.3, JTs:0.1"
+      "range": "77+, AJs+, KTs, AJo+, KQo, KJo:0.9, ATs:0.7, K9s:0.3, KQs:0.2"
      }
     ]
    },
@@ -11009,25 +11226,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.289,
+    "occ": 1.315,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 7.8,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs-K9s, Q9s+, J9s, T9s, 98s, 65s, QJo, 87s:0.7, 54s:0.7, JTs:0.6, 76s:0.4, Q8s:0.3, KQs:0.1"
+      "range": "KJs-K9s, Q9s+, J9s, T9s, 98s, 65s, QJo, 54s:0.8, 87s:0.7, JTs:0.6, Q8s:0.4, 76s:0.4, KQs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "66+, A9s+, ATo+, KJo+, KQs:0.9, JTs:0.4, 55:0.3"
+      "range": "66+, A9s+, ATo+, KJo+, KQs:0.8, JTs:0.4, 55:0.3"
      }
     ]
    },
@@ -11042,14 +11259,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.6%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.508,
+    "occ": 0.528,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................6.........3.................5...........................5................................................................................................",
+    "confidence": "low",
+    "move": 7.6,
+    "close": "............................................5...........................5................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -11062,13 +11279,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "JJ, 88, AQs-AJs, QTs+, JTs, T8s+, 98s, 76s, 64s+, 53s+, 43s, 87s:0.9, 86s:0.4, 75s:0.1"
+      "range": "JJ, 88, AQs-AJs, QTs+, JTs, T8s+, 98s, 76s, 64s+, 53s+, 43s, 87s:0.9, 86s:0.5, 75s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AKs, KJs+, AQo+, KTs:0.8, KQo:0.3"
+      "range": "QQ+, TT-99, AKs, KTs+, AQo+, KQo:0.2"
      }
     ]
    },
@@ -11083,20 +11300,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 3bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.2%p 움직여요.",
     "line": "UTG 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.546,
+    "occ": 0.549,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............................5...........................5......................................5.5...........................5........................................",
+    "move": 8.2,
+    "close": "...........................................................5....................................................................5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, AQs-AJs, QTs+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, AQo:0.1"
+      "range": "99-88, AQs-AJs, QTs+, J9s+, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, 43s, 77:0.9, 75s:0.8, AQo:0.1"
      },
      {
       "key": "squeeze",
@@ -11117,26 +11334,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.8%p 움직여요.",
     "line": "UTG+1 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.552,
-    "regret": 0.0003,
+    "occ": 0.56,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 9.8,
     "close": ".........................................................................5.........................................5.............5............5..........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, AQs-AJs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, T7s:0.9, TT:0.3, 85s:0.2, AQo:0.2"
+      "range": "99-88, AQs-AJs, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 77:0.9, T7s:0.8, 85s:0.3, TT:0.2, AQo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "JJ+, AKs, KTs+, AKo, AQo:0.8, TT:0.7, KQo:0.4"
+      "range": "JJ+, AKs, KTs+, AKo, TT:0.8, AQo:0.8, KQo:0.4"
      }
     ]
    },
@@ -11151,14 +11368,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "BB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 3bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.7%p 움직여요.",
     "line": "UTG+1 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.721,
-    "regret": 0.0001,
+    "occ": 0.729,
+    "regret": 0,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................................5.........................................5.....................................................",
+    "move": 15.7,
+    "close": "...............3.........................................................5.........................................5.....................................................",
     "actions": [
      {
       "key": "overcall",
@@ -11185,25 +11402,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.3%p 움직여요.",
     "line": "UTG+2 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.59,
+    "occ": 0.593,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 12.3,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, AJs, QTs+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 88:0.9, 85s:0.3"
+      "range": "77, AJs, QTs+, J9s+, T7s+, 97s+, 86s+, 75s+, 64s+, 53s+, 43s, 88:0.9, 85s:0.2, 63s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, KJs+, AQo+, KQo, KTs:0.8, 88:0.1"
+      "range": "99+, AQs+, KJs+, AQo+, KQo, KTs:0.7, 88:0.1"
      }
     ]
    },
@@ -11218,26 +11435,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "BB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 3bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.8%p 움직여요.",
     "line": "UTG+2 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.78,
-    "regret": 0.0005,
+    "occ": 0.774,
+    "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": "....3.........................................5........................................5........................5................5.......................................",
+    "move": 18.8,
+    "close": "....3.........................................5........................................5.................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, AJs-ATs, Q8s+, J8s+, T7s+, 96s+, 85s+, 75s+, 63s+, 52s+, 43s, 74s:0.6, K9s:0.5, AJo:0.5, 42s:0.4, 88:0.3"
+      "range": "77-66, AJs-ATs, Q8s+, J8s+, T7s+, 96s+, 85s+, 75s+, 63s+, 53s+, 43s, 52s:0.9, AJo:0.7, 88:0.4, 74s:0.4, K9s:0.2, 42s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, KTs+, AQo+, KQo, 88:0.7, K9s:0.5, AJo:0.2"
+      "range": "99+, AQs+, KTs+, AQo+, KQo, K9s:0.8, 88:0.6, AJo:0.1"
      }
     ]
    },
@@ -11252,26 +11469,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "BB vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → HJ 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.9%p 움직여요.",
     "line": "LJ 3 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.569,
-    "regret": 0.0001,
+    "occ": 0.574,
+    "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................................5.............5.....................................................",
+    "move": 14.9,
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-77, AJs-ATs, J9s+, T7s+, 97s+, 86s+, 75s+, 63s+, 53s+, 43s, QTs:0.8, 85s:0.7, KQo:0.5, 52s:0.2, 99:0.1, QJs:0.1, 96s:0.1, 42s:0.1"
+      "range": "88-77, AJs-ATs, J9s+, T7s+, 97s+, 86s+, 75s+, 63s+, 53s+, 43s, QTs:0.8, 85s:0.7, KQo:0.6, 52s:0.5, 96s:0.3, 74s:0.3, 99:0.2, 42s:0.2, QJs:0.1, AJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "TT+, AQs+, KTs+, AQo+, 99:0.9, QJs:0.9, KQo:0.5, QTs:0.2"
+      "range": "TT+, AQs+, KTs+, AQo+, QJs:0.9, 99:0.8, KQo:0.4, QTs:0.2"
      }
     ]
    },
@@ -11286,26 +11502,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.5%p 움직여요.",
     "line": "LJ 3 · CO 콜",
     "reachPct": 100,
-    "occ": 0.705,
+    "occ": 0.693,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........................................................................5.............5.............5........................................5............5.............",
+    "move": 15.5,
+    "close": ".....5...................................................................5.............5.............5..........5................5............5............5.............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, 66, AJs-ATs, Q9s+, J9s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, 77:0.7, AJo:0.7, KQo:0.1, QJo:0.1"
+      "range": "88, 66, AJs-ATs, Q9s+, J9s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, 77:0.8, AJo:0.6, K9s:0.1, KQo:0.1, QJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "99+, AQs+, KTs+, AQo+, KQo:0.9, 77:0.3, AJo:0.3, K9s:0.2"
+      "range": "99+, AQs+, KTs+, AQo+, KQo:0.9, AJo:0.4, 77:0.2, K9s:0.1"
      }
     ]
    },
@@ -11320,26 +11536,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.8%p 움직여요.",
     "line": "LJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.923,
+    "occ": 0.96,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......55..........3....................3......5.............5.................................................................5..........................................",
+    "confidence": "low",
+    "move": 20.8,
+    "close": "....................5............5.....3......................................................................................5..........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, AJs-ATs, KJs, K9s, Q8s+, J7s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, 77:0.9, 95s:0.7, KQs:0.5, A9s:0.4"
+      "range": "66, AJs-ATs, KJs, K9s, Q8s+, J7s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, 77:0.9, A8s:0.9, KQs:0.9, 95s:0.9, A9s:0.4, A7s:0.4, T6s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, KTs, AJo+, KQo, KJo:0.8, A9s:0.6, KQs:0.5, 77:0.1"
+      "range": "88+, AQs+, KTs, AJo+, KQo, KJo:0.9, A9s:0.6, 77:0.1, KQs:0.1"
      }
     ]
    },
@@ -11354,26 +11570,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 3bb → SB 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.5%p 움직여요.",
     "line": "LJ 3 · SB 콜",
     "reachPct": 100,
-    "occ": 0.502,
+    "occ": 0.512,
     "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......3.......3....3..............5...........................................................................5.........................................................",
+    "move": 19.5,
+    "close": ".......3.......3..3.3..............5.................................5................................5........5.........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, ATs-A9s, A7s, KJs, K9s, K7s, Q6s+, J7s+, T6s+, 96s+, 85s+, 73s+, 62s+, 52s+, 42s+, 32s, QJo, JTo, 55:0.9, AJs:0.9, QTo:0.9, A5s:0.8, 84s:0.7, T9o:0.7, A8s:0.6, J6s:0.6, KJo:0.6, K6s:0.5, 95s:0.5, A4s:0.3, KTs:0.3, A3s:0.2, 77:0.1, A6s:0.1, K8s:0.1"
+      "range": "66, ATs-A9s, A7s, KJs, K9s, K7s, Q6s+, J7s+, T6s+, 96s+, 85s+, 73s+, 62s+, 52s+, 42s+, 32s, QJo, JTo, T9o, AJs:0.9, A5s:0.9, K6s:0.9, 55:0.8, 84s:0.8, QTo:0.8, KJo:0.7, 95s:0.6, A8s:0.5, KTs:0.5, J6s:0.5, A4s:0.3, A6s:0.2, A3s:0.2, 77:0.1, K8s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, KQs, AJo+, KQo, 77:0.9, K8s:0.9, KTs:0.7, A8s:0.4, KJo:0.4, A5s:0.2, 55:0.1, AJs:0.1, A4s:0.1, KTo:0.1, QTo:0.1"
+      "range": "88+, AQs+, KQs, AJo+, KQo, 77:0.9, K8s:0.9, A8s:0.5, KTs:0.5, KJo:0.3, A4s:0.2, QTo:0.2, AJs:0.1, A5s:0.1, KTo:0.1"
      }
     ]
    },
@@ -11388,26 +11604,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.8%p 움직여요.",
     "line": "HJ 3 · CO 콜",
     "reachPct": 100,
     "occ": 0.711,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "...................5.5.......................5............................5.......................3......................................................................",
+    "move": 19.8,
+    "close": ".....................5.5.....................5............................5.......................3.............3........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, AJs-ATs, KJs, QJs, Q8s, J8s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, 66:0.9, K7s:0.9, Q9s:0.9, 55:0.8, A9s:0.5, K9s:0.5, KJo+:0.4, KQs:0.3, 62s:0.2, QTs:0.1"
+      "range": "77-66, AJs-ATs, KJs, K7s, QJs, Q8s, J8s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, 32s, QJo, Q9s:0.9, 55:0.8, K9s:0.6, A9s:0.5, KJo+:0.4, KQs:0.2, K8s:0.2, QTs:0.1, 62s:0.1, AJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "88+, AQs+, KTs, AJo+, QTs:0.9, KQs:0.7, KJo+:0.6, A9s:0.5, K9s:0.5, 66:0.1, Q9s:0.1"
+      "range": "88+, AQs+, KTs, AQo+, QTs:0.9, AJo:0.9, KQs:0.8, KJo+:0.6, A9s:0.5, K9s:0.4, Q9s:0.1"
      }
     ]
    },
@@ -11422,26 +11638,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.3%p 움직여요.",
     "line": "HJ 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.915,
+    "occ": 0.924,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........5........3.....5...3......5.....................................................5.............5.............5....................................................",
+    "move": 18.3,
+    "close": ".................3...5.5...3......5.....................................................5.............5.............5.......................5............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-55, ATs-A4s, KJs-K7s, K4s, Q6s+, J7s+, T6s+, 95s+, 85s+, 74s+, 62s+, 52s+, 42s+, 32s, QJo, K6s:0.9, T9o:0.9, KQs:0.7, A3s:0.6, Q5s:0.4, JTo:0.4, KJo:0.1"
+      "range": "66-55, ATs-A4s, KJs-K6s, K4s, Q6s+, J7s+, T6s+, 95s+, 85s+, 74s+, 62s+, 52s+, 42s+, 32s, QJo, A3s:0.9, T9o:0.9, Q5s:0.8, KQs:0.6, JTo:0.4, KJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "77+, AJs+, AJo+, KQo, KJo:0.9, JTo:0.6, KQs:0.3, ATo:0.2"
+      "range": "77+, AJs+, AJo+, KQo, KJo:0.9, JTo:0.6, KQs:0.4, ATo:0.2"
      }
     ]
    },
@@ -11456,26 +11672,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 3bb → SB 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.5%p 움직여요.",
     "line": "HJ 3 · SB 콜",
     "reachPct": 100,
-    "occ": 0.705,
+    "occ": 0.707,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............3....................5................7.......5......5.......5....................5.....5.................................................................",
+    "move": 19.5,
+    "close": "....................................5................7.......5......5.......5....................5.....5.....................5...........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A8s-A2s, KJs-K4s, Q4s+, J5s+, T5s+, 94s+, 92s, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, 76o, ATs:0.9, 55:0.8, K3s:0.7, 44:0.5, A9s:0.5, KQo:0.5, K2s:0.3, Q3s:0.3, 82s:0.3, 65o:0.2, Q2s:0.1, J4s:0.1, JTo:0.1"
+      "range": "A8s-A2s, KJs-K4s, Q4s+, J5s+, T5s+, 94s+, 92s, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, 76o, ATs:0.9, 55:0.8, 44:0.6, K3s:0.6, KQo:0.5, A9s:0.4, Q3s:0.3, 82s:0.3, K2s:0.2, Q2s:0.1, J4s:0.1, JTo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "66+, AJs+, KQs, ATo+, KTo, JTo:0.9, A9s:0.5, KQo:0.5, 44:0.4, 55:0.2, ATs:0.1"
+      "range": "66+, AJs+, KQs, ATo+, KTo, JTo:0.9, A9s:0.6, KQo:0.5, 44:0.3, 55:0.2, ATs:0.1"
      }
     ]
    },
@@ -11490,26 +11706,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.6%p 움직여요.",
     "line": "CO 3 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.079,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................3......5............................................................................................................",
+    "occ": 1.1,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 22.6,
+    "close": "............................................................5.........................................5..................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44, A7s-A2s, KJs-K4s, Q5s+, J5s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, QTo+, Q4s:0.9, JTo:0.8, A8s:0.4, KQo:0.3, K3s:0.2, KJo:0.1"
+      "range": "44, A7s-A2s, KJs-K4s, Q5s+, J5s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, QTo+, Q4s:0.9, JTo:0.9, A8s:0.4, K3s:0.4, KQo:0.3, KJo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "55+, A9s+, KQs, ATo+, KTo, KJo:0.9, KQo:0.7, A8s:0.6, JTo:0.2"
+      "range": "55+, A9s+, KQs, ATo+, KTo, KJo:0.9, KQo:0.7, A8s:0.6, JTo:0.1"
      }
     ]
    },
@@ -11524,26 +11740,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 3bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.6%p 움직여요.",
     "line": "CO 3 · SB 콜",
     "reachPct": 100,
-    "occ": 0.986,
+    "occ": 0.984,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....3....3.3.........................................3.............5......5.......5......5............5.......5.............5...........................................",
+    "confidence": "low",
+    "move": 22.6,
+    "close": ".....3....333.........................................3.............5......5.......5......5............5.......5.............5...........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s, A4s-A2s, KJs-K2s, Q2s+, J4s+, T5s+, 94s+, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, 76o, 65o, A5s:0.9, J3s:0.9, 92s:0.7, KQo:0.5, A6s:0.4, J2s:0.4, JTo:0.4, 33:0.2, A8s:0.1"
+      "range": "A7s, A4s-A2s, KJs-K2s, Q2s+, J4s+, T5s+, 94s+, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, KJo, QTo+, J9o, T9o, 98o, 76o, 65o, A5s:0.9, J3s:0.7, 92s:0.6, A6s:0.5, KQo:0.5, JTo:0.4, 33:0.3, A8s:0.3, J2s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "44+, A9s+, KQs, A9o+, KTo, A8s:0.9, 33:0.7, A6s:0.6, A8o:0.6, JTo:0.6, KQo:0.5, A5s:0.1, K9o:0.1"
+      "range": "44+, A9s+, KQs, A9o+, KTo, 33:0.7, A8s:0.7, A8o:0.7, JTo:0.6, A6s:0.5, KQo:0.5, A5s:0.1, K9o:0.1"
      }
     ]
    },
@@ -11558,26 +11774,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 3bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 3bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.6%p 움직여요.",
     "line": "BTN 3 · SB 콜",
     "reachPct": 100,
-    "occ": 1.362,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".................3.........................................................55....5........5...........................5..................................................",
+    "occ": 1.399,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 21.6,
+    "close": ".................3.........................................................5.....5........5.............6.............5..................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33, A7s-A3s, KTs-K2s, Q2s+, J2s+, T2s+, 94s+, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K6o, QTo+, J8o+, T8o+, 98o, A2s:0.9, 92s:0.9, KQo:0.9, Q9o:0.9, 76o:0.7, Q7o:0.6, KJo:0.5, Q8o:0.5, 65o:0.4, K9o:0.1"
+      "range": "33, A7s-A2s, KTs-K2s, Q2s+, J2s+, T2s+, 94s+, 84s+, 82s, 73s+, 62s+, 52s+, 42s+, 32s, KTo, K8o-K6o, QTo+, J8o+, T8o+, 98o, KQo:0.9, Q9o:0.9, 76o:0.8, 92s:0.7, KJo:0.5, Q8o:0.5, 65o:0.4, Q7o:0.3, K9o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 14.3bb",
       "color": "raise",
-      "range": "44+, A8s+, KJs+, A7o+, A5o, A6o:0.9, K9o:0.9, A4o:0.8, KJo:0.5, Q8o:0.5, A2s:0.1, KQo:0.1, Q9o:0.1"
+      "range": "44+, A8s+, KJs+, A5o+, K9o:0.9, A4o:0.8, KJo:0.5, Q8o:0.5, KQo:0.1, Q9o:0.1"
      }
     ]
    },
@@ -11591,29 +11807,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.6%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 51.3,
-    "occ": 3.029,
-    "regret": 0,
+    "reachPct": 51.5,
+    "occ": 3.036,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................33..............................................3...3...............55....5......5...............5..................................................",
+    "move": 12.6,
+    "close": ".....................33..............................................3...3...............5.....5......5...............5..................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33-22, A2s, K4s-K2s, Q8s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-83s, 74s-73s, 64s-63s, A5o-A3o, K5o, J9o-J8o, T7o+, 97o, 86s:0.9, J7o:0.9, 75s:0.5, A2o:0.4, A7o:0.2, QTo:0.1"
+      "range": "33-22, A2s, K4s-K2s, Q8s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-83s, 74s-73s, 64s-63s, A5o-A3o, K5o, J9o-J8o, T7o+, 97o, 86s:0.9, J7o:0.9, 75s:0.7, A7o:0.3, A2o:0.3, QTo:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "QQ+, TT-88, ATs+, KQs, K6s-K5s, 97s, AJo-A8o, KTo+, QJo, QTo:0.9, A7o:0.8, 75s:0.5, 86s:0.1"
+      "range": "QQ+, TT-88, ATs+, KQs, K6s-K5s, 97s, AJo-A8o, KTo+, QJo, QTo:0.9, A7o:0.7, 75s:0.3, 86s:0.1"
      }
     ]
    },
@@ -11627,27 +11843,27 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.8%p 움직여요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 5.532,
+    "occ": 5.547,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........................3.........3.333........33.33..3......3.33..3.......333.3.333.....333.3.........3....3.33..........333........333..3.......33.33.33.....333333.33.",
+    "confidence": "low",
+    "move": 26.8,
+    "close": "........................3.........3.333.........3.33..3......3.33..3.......333.3.333.....333.3.........3...33.33..........3333.......33...3.......33.33..3.....333333333.",
     "actions": [
      {
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A2s+, K3s+, Q6s+, Q4s, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A7o+, KTo+, Q9o+, J8o+, T8o+, 98o, 86o, 76o, 64o+, 53o+, 42o+, 32o, 87o:0.9, 52o:0.9, Q8o:0.7, 97o:0.7, T7o:0.6, J7o:0.5, 84o:0.5, J4s:0.4, K9o:0.4, K2s:0.3, T4s:0.3, 63o:0.3, Q5s:0.1, 96o:0.1, 93o:0.1, 74o:0.1"
+      "range": "22+, A2s+, K3s+, Q6s+, Q4s, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, A7o+, KTo+, Q9o+, J8o+, T8o+, 98o, 86o, 76o, 64o+, 54o, 52o, 42o+, 32o, 53o:0.9, Q8o:0.8, 87o:0.8, T7o:0.6, 97o:0.6, J4s:0.5, J7o:0.5, 84o:0.5, T4s:0.4, K9o:0.4, 63o:0.3, 96o:0.2, 94o-93o:0.2, K2s:0.1, Q5s:0.1, J6s:0.1, 74o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "Q3s-Q2s, J6s-J5s, J3s-J2s, T5s, T3s-T2s, 94s-92s, 83s-82s, 72s, A6o-A2o, K8o-K2o, Q7o-Q2o, J6o-J2o, T6o-T2o, 95o-94o, 92o, 85o, 83o-82o, 75o, 73o-72o, 62o, Q5s:0.9, 96o:0.9, 93o:0.9, 74o:0.9, K2s:0.7, T4s:0.7, 63o:0.7, J4s:0.6, K9o:0.6, J7o:0.5, 84o:0.5, T7o:0.4, Q8o:0.3, 97o:0.3, 87o:0.1, 52o:0.1"
+      "range": "Q3s-Q2s, J5s, J3s-J2s, T5s, T3s-T2s, 94s-92s, 83s-82s, 72s, A6o-A2o, K8o-K2o, Q7o-Q2o, J6o-J2o, T6o-T2o, 95o, 92o, 85o, 83o-82o, 75o, 73o-72o, 62o, K2s:0.9, Q5s:0.9, J6s:0.9, 74o:0.9, 96o:0.8, 94o-93o:0.8, 63o:0.7, T4s:0.6, K9o:0.6, J4s:0.5, J7o:0.5, 84o:0.5, T7o:0.4, 97o:0.4, Q8o:0.2, 87o:0.2, 53o:0.1"
      }
     ]
    },
@@ -11661,29 +11877,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.7%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 54.6,
+    "reachPct": 54.9,
     "occ": 0.554,
-    "regret": 0.0006,
+    "regret": 0.0012,
     "confidence": "mid",
-    "move": 0,
-    "close": "......................3....................................................................5.............................................................................",
+    "move": 13.7,
+    "close": "........................................................3................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-22, AJs-A5s, A3s-A2s, KTs+, K8s-K7s, QTs+, Q8s-Q4s, J7s+, J4s, T6s+, T4s, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo-A7o, KJo+, QJo, JTo, 65o, 54o, K6s:0.9, K2s:0.9, KTo:0.9, QTo:0.9, A4s:0.6, Q9s:0.6, 76o:0.4, JJ:0.2, AQs:0.2, 98o:0.2"
+      "range": "TT-22, AJs-A5s, A3s-A2s, KTs+, K8s-K7s, QTs+, Q8s-Q4s, J6s+, J4s, T6s+, T4s, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AQo-A8o, KJo+, QJo, JTo, 65o, 54o, A7o:0.9, KTo:0.9, QTo:0.9, K6s:0.7, A4s:0.6, K2s:0.6, Q9s:0.5, 98o:0.3, 76o:0.3, JJ:0.2, AQs:0.2, K4s-K3s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, K9s, K5s-K3s, AKo, K9o, JJ:0.8, AQs:0.8, A4s:0.4, Q9s:0.4, K6s:0.1, K2s:0.1, KTo:0.1, QTo:0.1, T9o:0.1"
+      "range": "QQ+, AKs, K9s, K5s, AKo, K9o, K4s-K3s:0.9, JJ:0.8, AQs:0.8, Q9s:0.5, A4s:0.4, K2s:0.4, K6s:0.3, KTo:0.1, QTo:0.1, T9o:0.1"
      }
     ]
    }
@@ -11692,7 +11908,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "55bb-2.2",
   "label": "55bb · 오픈 2.2bb",
-  "description": "모두 55bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님). 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 55bb. 오픈 2.2bb, SB는 림프·오픈 3bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 서로 최선인 균형 근사(착취 아님).",
   "stack": 55,
   "open": 2.2,
   "sizes": {
@@ -11725,47 +11941,47 @@ export const PREFLOP_STAGES: PreflopStage[] = [
   },
   "occThresholdCold": 1,
   "brGainMbb": [
-   0.429,
-   0.36,
-   0.33,
-   0.187,
-   0.435,
-   0.375,
-   0.414,
-   0.369,
+   0.425,
+   0.408,
+   0.328,
+   0.185,
+   0.432,
+   0.391,
+   0.459,
+   0.373,
    0.712
   ],
-  "nashConvMbb": 3.61,
-  "snappedGainMbb": 1.189,
+  "nashConvMbb": 3.714,
+  "snappedGainMbb": 1.139,
   "ev": [
-   0.1637,
+   0.1635,
    0.1816,
    0.2005,
-   0.2221,
-   0.2493,
-   0.2854,
-   0.3355,
-   -0.1327,
-   -1.3766
+   0.2223,
+   0.2494,
+   0.2855,
+   0.3361,
+   -0.1324,
+   -1.3773
   ],
   "diag": {
-   "evSum": 0.1287,
-   "frozenOccPct": 1.603,
-   "negativeShares": 3345
+   "evSum": 0.129,
+   "frozenOccPct": 1.598,
+   "negativeShares": 3123
   },
   "model": {
    "id": "modelB-rank9",
-   "fitHash": "4acfad77aa3500701d753c64e54abaaa38d2e0ce1a6b596e4d397a4210b83e74",
+   "fitHash": "2862daa7a90faa1cded8a882a0d6b65a25da69be37cd4e848879b33f50d73c23",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
     "srp-btn-bb-100": {
      "version": 1,
-     "flops": 1476
+     "flops": 1755
     },
     "pub-srp-btn-bb-55": {
      "version": 2,
-     "flops": 1457
+     "flops": 1755
     }
    }
   },
@@ -11778,20 +11994,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........33........33...........3.......3....3......3333..3.............3..........................3.............3.......................................................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": ".........33........33...........3.......3....3......3.33..3.............3..........................3.............3.......................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A8s+, A5s, K9s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, A7s:0.7, 87s:0.6"
+      "range": "66+, A8s+, A5s, K9s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, A7s:0.7, 87s:0.7"
      }
     ]
    },
@@ -11801,20 +12017,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 84.364,
+    "occ": 84.35,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......3333........33........................3.......33...3.............3..........................3.....................................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": ".......3333........33........................3.......33...33............3..........................3.....................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "66+, A7s+, A5s, K8s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, 87s:0.9, ATo:0.8, Q8s:0.5, JTo:0.5, 55:0.3"
+      "range": "66+, A7s+, A5s, K8s+, Q9s+, J9s+, T8s+, 98s, AJo+, KJo+, QJo, 87s:0.9, ATo:0.9, Q8s:0.7, JTo:0.4, 55:0.2"
      }
     ]
    },
@@ -11824,20 +12040,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 69.534,
+    "occ": 69.473,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3...........33..........3......................3..33............3............3.............3..........................3..........................................",
+    "confidence": "high",
+    "move": 3,
+    "close": "........3.3.........33..........3......................3..33............3............3.............3..........................3..........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A5s+, K7s+, Q8s+, J9s+, T8s+, 98s, 87s, ATo+, KJo+, QJo, JTo, A4s:0.9, J8s:0.9, QTo:0.3, KTo:0.1"
+      "range": "55+, A4s+, K7s+, Q8s+, J9s+, T8s+, 98s, 87s, ATo+, KJo+, QJo, JTo, J8s:0.8, QTo:0.3, KTo:0.2"
      }
     ]
    },
@@ -11847,20 +12063,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.9%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 55.454,
+    "occ": 55.41,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........33....................3............3............3.........3..3.............3............3...........................3.........................................",
+    "confidence": "high",
+    "move": 1.9,
+    "close": "...........33....................3............3............3.........3..3.............3............3...........................3............3............................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "55+, A3s+, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, ATo+, KTo+, QTo+, JTo, 65s:0.9, K6s:0.4, 44:0.1"
+      "range": "55+, A3s+, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, ATo+, KTo+, QTo+, JTo, 65s:0.9, K6s:0.4"
      }
     ]
    },
@@ -11870,20 +12086,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.4%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 42.51,
+    "occ": 42.487,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............3.........3...........33..........3....................3.3...3............3.............3..........................3.........................................",
+    "confidence": "high",
+    "move": 4.4,
+    "close": "............3.........3...........33..........3..................3.3.3...3............3.............3..........................3.........................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "44+, A2s+, K5s+, Q6s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, ATo+, KTo+, QTo+, JTo, T9o, A9o:0.8, J9o:0.7, K4s:0.6, K9o:0.6"
+      "range": "44+, A2s+, K5s+, Q6s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, A9o+, KTo+, QTo+, JTo, T9o, J9o:0.7, K4s:0.6, K9o:0.6"
      }
     ]
    },
@@ -11893,20 +12109,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.3%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 30.108,
+    "occ": 30.064,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.3,
     "close": "........................3...........3..........3............3.............3....33.33.......33.......3.............3.....................................................3",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "33+, A2s+, K3s+, Q5s+, J6s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, A8o+, K8o+, Q9o+, J9o+, T9o, 98o, 85s:0.8, J5s:0.7, K2s:0.1"
+      "range": "33+, A2s+, K3s+, Q5s+, J6s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, A8o+, K8o+, Q9o+, J9o+, T9o, 98o, 85s:0.9, J5s:0.8, K2s:0.4"
      }
     ]
    },
@@ -11916,20 +12132,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.7%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 19.15,
+    "occ": 19.078,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 7.7,
     "close": "..................................................33..........33...........3............3.....333....3.........3...3..3.........3.3..........3.3.........................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2.2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J3s+, T4s+, 95s+, 85s+, 74s+, 64s+, 53s+, A4o+, K5o+, Q7o+, J8o+, T8o+, 98o, 87o, Q6o:0.5"
+      "range": "22+, A2s+, K2s+, Q2s+, J3s+, T4s+, 95s+, 85s+, 74s+, 64s+, 53s+, A4o+, K5o+, Q7o+, J8o+, T8o+, 98o, 87o, Q6o:0.7"
      }
     ]
    },
@@ -11939,26 +12155,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.8%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 9.212,
+    "occ": 9.136,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3......33......33333...33...33.3....3.............33...3.....33333..3........3....3.......3..33.3.35..3...33333353......7..33.3.....55.5.3.....55...55.5....55.......",
+    "confidence": "low",
+    "move": 29.8,
+    "close": "....3......33......33333...33...33......3.............33...3.....33333..3........3....3...3...3..33.33353.3...33333373......7..33.3.....55.5.3.....55...55.5....55.......",
     "actions": [
      {
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "AA, AJs-ATs, A2s, K6s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 64s-62s, 53s, 42s+, 32s, AJo, A9o, A5o-A2o, K3o-K2o, Q4o-Q2o, J9o, J6o-J2o, T9o, T6o-T2o, 96o-95o, 85o, 75o, 54o, AKs:0.9, J8s:0.9, ATo:0.9, A7o-A6o:0.9, Q5o:0.9, T8o:0.8, 65o:0.8, 22:0.7, K4o:0.7, 97o:0.7, 99-88:0.6, 52s:0.6, T7o:0.6, TT:0.5, AQs:0.5, AQo:0.5, KK:0.4, A8o:0.4, KTo:0.4, 98o:0.4, 64o:0.4, 94o:0.2, AKo:0.1"
+      "range": "AA, AJs-ATs, A2s, K6s-K2s, Q7s-Q2s, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 64s-62s, 53s, 42s+, 32s, AJo, A9o, A6o-A2o, K3o-K2o, Q4o-Q2o, J9o, J6o-J2o, T9o, T6o-T2o, 96o-95o, 85o, 75o, 54o, AKs:0.9, J8s:0.9, ATo:0.9, A7o:0.9, Q5o:0.9, T8o:0.9, 65o:0.9, K4o:0.7, 97o:0.7, 88:0.6, 22:0.6, TT-99:0.5, AQs:0.5, AQo:0.5, T7o:0.5, KK:0.4, A8o:0.4, KTo:0.4, 98o:0.4, 64o:0.3, 94o:0.2, 52s:0.1, AKo:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 3bb",
       "color": "raise",
-      "range": "QQ-JJ, 77-33, A9s-A3s, K7s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, 54s, KJo+, K9o-K5o, Q6o+, JTo, J8o-J7o, 86o+, 76o, AKo:0.9, KK:0.6, A8o:0.6, KTo:0.6, 98o:0.6, TT:0.5, AQs:0.5, AQo:0.5, 99-88:0.4, 52s:0.4, T7o:0.4, 22:0.3, K4o:0.3, 97o:0.3, T8o:0.2, 65o:0.2, AKs:0.1, J8s:0.1, ATo:0.1, A7o-A6o:0.1, Q5o:0.1"
+      "range": "QQ-JJ, 77-33, A9s-A3s, K7s+, Q8s+, J9s+, T8s+, 97s+, 86s+, 76s, 65s, 54s, KJo+, K9o-K5o, Q6o+, JTo, J8o-J7o, 86o+, 76o, 52s:0.9, AKo:0.9, KK:0.6, A8o:0.6, KTo:0.6, 98o:0.6, TT-99:0.5, AQs:0.5, AQo:0.5, T7o:0.5, 88:0.4, 22:0.4, K4o:0.3, 97o:0.3, AKs:0.1, J8s:0.1, ATo:0.1, A7o:0.1, Q5o:0.1, T8o:0.1, 65o:0.1"
      }
     ]
    },
@@ -11972,14 +12188,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 15.636,
+    "occ": 15.65,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6...........6.................................................................3.............3......................................................................",
+    "confidence": "high",
+    "move": 2,
+    "close": "......6...........6......................................7..........................3.............3......................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -11992,13 +12208,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, KQo, KJs:0.9, JTs:0.8, 99:0.7, TT:0.6, AKs:0.4, KK:0.3, AQo+:0.2, ATs:0.1, AJo:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KQs, QTs+, KQo, KJs:0.9, JTs:0.9, 99:0.8, TT:0.6, KK:0.4, AKs:0.4, AJo+:0.2, ATs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, 88, KTs, ATs:0.9, AQo+:0.8, KK:0.7, AKs:0.6, TT:0.4, A9s:0.4, 99:0.3, JTs:0.2, KJs:0.1, AJo:0.1"
+      "range": "AA, 88, KTs, ATs:0.9, AQo+:0.8, KK:0.6, AKs:0.6, A9s:0.5, TT:0.4, 99:0.2, KJs:0.1, JTs:0.1, AJo:0.1"
      }
     ]
    },
@@ -12012,14 +12228,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 14.13,
+    "occ": 14.127,
     "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6...................3.....................................................................................5........................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": "......6..........3........3.....................................................................................5........................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12032,13 +12248,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, KQo, JTs:0.9, TT:0.8, 99:0.7, AJo:0.7, AKs:0.4, AKo:0.3, KK:0.2, T9s:0.2, 88:0.1"
+      "range": "QQ-JJ, 77, AQs-AJs, KJs+, QTs+, KQo, JTs:0.9, TT:0.8, 99:0.7, AJo:0.7, AKs:0.4, KK:0.3, T9s:0.3, AKo:0.3, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, ATs, KTs, AQo, 88:0.9, KK:0.8, A9s:0.8, AKo:0.7, AKs:0.6, 99:0.3, TT:0.2, T9s:0.2, K9s:0.1, JTs:0.1, AJo:0.1"
+      "range": "AA, ATs, KTs, AQo, 88:0.9, A9s:0.8, KK:0.7, AKo:0.7, AKs:0.6, 99:0.3, TT:0.2, T9s:0.2, AJo:0.2, K9s:0.1, JTs:0.1"
      }
     ]
    },
@@ -12052,14 +12268,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 14.83,
+    "occ": 14.876,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..6.........3.............5.........................................................................................................................................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": "...3...6.........3.......................................................................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12072,13 +12288,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KJs+, QTs+, JTs, KQo, TT:0.9, 99:0.8, K9s:0.8, AJo:0.8, 77:0.7, AKo:0.7, T9s:0.6, KK:0.4, 88:0.3, 66:0.3"
+      "range": "QQ-JJ, AQs-AJs, KJs+, QTs+, JTs, KQo, TT-99:0.9, K9s:0.8, AJo:0.8, 77:0.7, AKo:0.7, T9s:0.6, KK:0.4, 88:0.3, 66:0.3, ATs:0.1, Q9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, AKs, ATs-A9s, KTs, AQo, 88:0.7, KK:0.6, 77:0.3, AKo:0.3, 99:0.2, A8s:0.2, K9s:0.2, AJo:0.2, TT:0.1, A5s:0.1, KJo:0.1"
+      "range": "AA, AKs, A9s, KTs, AQo, ATs:0.9, 88:0.7, KK:0.6, 77:0.3, AKo:0.3, A8s:0.2, K9s:0.2, AJo:0.2, TT-99:0.1, A5s:0.1, KJo:0.1"
      }
     ]
    },
@@ -12092,14 +12308,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 12.65,
+    "occ": 12.639,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3....6................3..............................3............3...........................3......................................................................",
+    "confidence": "high",
+    "move": 2.7,
+    "close": "....3....6................3..............................3............3.............3.............3......................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12112,13 +12328,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ, 99, 77, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, JJ:0.9, AJo:0.8, TT:0.7, K9s:0.7, AKo:0.4, KK:0.2, 66:0.2, A9s:0.1"
+      "range": "QQ, 99, 77, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, JJ:0.9, K9s:0.8, AJo:0.8, TT:0.7, AKo:0.4, KK:0.2, 66:0.2, A9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, 88, AKs, ATs, KTs, AQo, A9s:0.9, KK:0.8, AKo:0.6, TT:0.3, A8s:0.3, K9s:0.3, 66:0.2, AJo:0.2, JJ:0.1"
+      "range": "AA, 88, AKs, ATs, KTs, AQo, A9s:0.9, KK:0.8, AKo:0.6, A8s:0.4, TT:0.3, 66:0.2, K9s:0.2, AJo:0.2, JJ:0.1"
      }
     ]
    },
@@ -12132,14 +12348,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 13.146,
+    "occ": 13.185,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....3.6.........3.......................................7...............................................................................................................",
+    "confidence": "high",
+    "move": 3,
+    "close": ".....3.6.........3.............5.........................7...............................................................................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12152,13 +12368,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, TT:0.9, 66:0.9, Q9s:0.9, AJo:0.8, 99:0.6, 77:0.6, K9s:0.5, AKo:0.5, ATs:0.4, KK:0.2, 88:0.2"
+      "range": "QQ-JJ, AQs-AJs, KJs+, Q9s+, JTs, T9s, KQo, TT:0.9, 66:0.8, AJo:0.8, 99:0.6, 77:0.6, K9s:0.5, AKo:0.5, ATs:0.4, 88:0.3, KK:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, AKs, A9s, KTs, AQo, KK:0.8, 88:0.8, ATs:0.6, K9s:0.5, AKo:0.5, 99:0.4, 77:0.4, A5s:0.2, AJo:0.2, KJo:0.2, TT:0.1, 66:0.1, A8s:0.1"
+      "range": "AA, AKs, A9s, KTs, AQo, KK:0.8, 88:0.7, ATs:0.6, K9s:0.5, AKo:0.5, 99:0.4, 77:0.4, A5s:0.3, 66:0.2, AJo:0.2, KJo:0.2, TT:0.1, A8s:0.1"
      }
     ]
    },
@@ -12172,26 +12388,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.8%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 14.08,
+    "occ": 14.064,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...33..6.........3..........3.............3.5............7....................................................................6..........................................",
+    "confidence": "high",
+    "move": 3.8,
+    "close": "...33..6.........3..........3.............3.5............3.............5......................................................6..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, AQs-ATs, KJs+, Q9s+, JTs, T9s, KQo, TT:0.8, 66:0.7, 99:0.6, K9s:0.6, QJo:0.6, AKo:0.5, 88:0.4, 77:0.3, AJo:0.3, KJo:0.2"
+      "range": "QQ-JJ, AQs-ATs, KJs+, Q9s+, JTs, T9s, KQo, TT:0.8, 66:0.7, QJo:0.7, K9s:0.6, 99:0.5, AKo:0.5, 88:0.4, 77:0.3, AJo:0.3, KJo:0.3, A8s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, A9s, KTs, AQo, A8s:0.8, 77:0.7, AJo:0.7, 88:0.6, AKo:0.5, 99:0.4, K9s:0.4, 66:0.3, TT:0.2, A5s:0.2, KJo:0.1"
+      "range": "KK+, AKs, A9s, KTs, AQo, 77:0.7, AJo:0.7, 88:0.6, A8s:0.6, 99:0.5, AKo:0.5, K9s:0.4, 66:0.3, A5s:0.3, TT:0.2, KJo:0.2"
      }
     ]
    },
@@ -12205,14 +12421,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 11.207,
+    "occ": 11.193,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......76..6......3........................................7...........37............36.............6.............6............66.........................................",
+    "confidence": "high",
+    "move": 3.9,
+    "close": "......36..6......3.....................3..................7...........37............36.............6.............6............66.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12225,13 +12441,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 99, AQs-AJs, KJs+, QTs+, JTs, T9s, KQo, A9s:0.9, AJo:0.9, 77-66:0.8, K9s:0.7, TT:0.5, AKo:0.4, Q9s:0.3, J9s:0.2, KK:0.1, ATs:0.1, AQo:0.1"
+      "range": "QQ-JJ, 99, AQs-AJs, KJs+, QTs+, JTs, T9s, AJo, KQo, A9s:0.9, 77-66:0.8, K9s:0.8, TT:0.5, Q9s:0.4, AKo:0.4, J9s:0.3, KK:0.1, ATs:0.1, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "AA, 88, AKs, A8s, KTs, KK:0.9, ATs:0.9, AQo:0.9, AKo:0.6, TT:0.5, K9s:0.3, 77-66:0.2, A5s:0.2, A9s:0.1, AJo:0.1, KJo:0.1"
+      "range": "AA, 88, AKs, A8s, KTs, KK:0.9, ATs:0.9, AQo:0.9, AKo:0.6, TT:0.5, 77-66:0.2, A5s:0.2, K9s:0.2, A9s:0.1, KJo:0.1"
      }
     ]
    },
@@ -12245,14 +12461,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.7%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 11.545,
+    "occ": 11.575,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......6...........6.....................5..7............3......................................................3........................................................",
+    "confidence": "high",
+    "move": 4.7,
+    "close": ".......6...........6........................7............3......................................................3........................................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12265,13 +12481,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 66, AQs-AJs, KJs+, Q9s+, J9s+, T9s, KQo, 99:0.8, K9s:0.8, 77:0.7, AJo:0.7, A8s:0.6, KJo:0.6, TT:0.5, ATs:0.5, 98s:0.4, 88:0.3, AKo:0.3, A9s:0.1, KTs:0.1"
+      "range": "QQ-JJ, 66, AQs-AJs, KJs+, Q9s+, J9s+, T9s, KQo, 99:0.8, K9s:0.8, AJo:0.7, 77:0.6, A8s:0.6, KJo:0.6, TT:0.5, ATs:0.5, 98s:0.5, 88:0.4, AKo:0.3, A9s:0.1, KTs:0.1, QJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, AQo, A9s:0.9, KTs:0.9, 88:0.7, AKo:0.7, TT:0.5, ATs:0.5, A8s:0.4, A5s:0.4, 77:0.3, 55:0.3, AJo:0.3, KJo:0.3, 99:0.2, K9s:0.2"
+      "range": "KK+, AKs, AQo, A9s:0.9, KTs:0.9, AKo:0.7, 88:0.6, TT:0.5, ATs:0.5, 77:0.4, A8s:0.4, KJo:0.4, 55:0.3, A5s:0.3, AJo:0.3, 99:0.2, K9s:0.2"
      }
     ]
    },
@@ -12285,26 +12501,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.8%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 12.245,
+    "occ": 12.196,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..............7.......3...........3............66...3...............................................................................................................",
+    "confidence": "high",
+    "move": 4.8,
+    "close": "....3..............7.......3...........3..3.........66...3...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, KJs+, Q9s+, J9s+, T9s, 98s, KQo, QJo, JJ:0.9, 66:0.8, QQ:0.7, TT:0.6, A8s:0.6, KJo:0.6, 77:0.5, 99-88:0.4, K9s:0.3, AKo:0.3, 55:0.1"
+      "range": "JJ, AQs-ATs, KJs+, Q9s+, J9s+, T9s, 98s, KQo, QJo, QQ:0.8, 66:0.8, TT:0.7, KJo:0.7, A8s:0.6, 99:0.5, 77:0.5, K9s:0.4, AKo:0.4, 88:0.3, 55:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, A9s, KTs, AQo-AJo, K9s:0.7, AKo:0.7, 99-88:0.6, 77:0.5, TT:0.4, A8s:0.4, KJo:0.4, QQ:0.3, 66:0.2, A5s:0.2, JJ:0.1, A7s:0.1"
+      "range": "KK+, AKs, A9s, KTs, AQo-AJo, 88:0.7, K9s:0.6, AKo:0.6, 99:0.5, 77:0.5, A8s:0.4, TT:0.3, KJo:0.3, QQ:0.2, 66:0.2, A7s:0.2, A5s:0.2"
      }
     ]
    },
@@ -12318,26 +12534,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.1%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 12.944,
+    "occ": 12.923,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......376........33666.....3.............................3.............7......................................................5..........................................",
+    "confidence": "high",
+    "move": 5.1,
+    "close": ".......76........33666.....3............................33.............7......................................................5..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, AQs-AJs, A7s, KTs+, QTs+, J9s+, T9s, 98s, KQo, QJo, Q9s:0.9, JJ:0.8, 77:0.8, 66:0.7, 99:0.6, ATs:0.6, KJo:0.6, QQ:0.4, 88:0.2, AKo:0.2, A5s:0.1"
+      "range": "TT, AQs-AJs, A7s, KTs+, QTs+, J9s+, T9s, 98s, KQo, QJo, Q9s:0.9, JJ:0.8, 77:0.8, 66:0.7, 99:0.6, KJo:0.6, ATs:0.5, QQ:0.4, 88:0.2, A8s:0.2, A5s:0.2, AKo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, A9s-A8s, K9s-K8s, AQo-AJo, A5s:0.9, 88:0.8, AKo:0.8, QQ:0.6, ATo:0.6, 99:0.4, ATs:0.4, KJo:0.4, 66:0.3, JJ:0.2, 77:0.2, Q9s:0.1"
+      "range": "KK+, AKs, A9s, K9s-K8s, AQo-AJo, 88:0.8, A8s:0.8, A5s:0.8, AKo:0.8, ATo:0.7, QQ:0.6, ATs:0.5, 99:0.4, KJo:0.4, 66:0.3, JJ:0.2, 77:0.2, Q9s:0.1"
      }
     ]
    },
@@ -12351,14 +12567,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 9.846,
+    "occ": 9.824,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........7.5......3....................3.5..........6.............................................3.............36.............6.........................................",
+    "move": 8,
+    "close": "........67.7......3....................3.5..........6.............................................3.............36.............6.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12371,13 +12587,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, A5s, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, AJo, KQo, 99:0.7, A8s:0.6, 88:0.5, KJo:0.5, TT:0.3, 55:0.2, A4s:0.2, AKo:0.2, ATs:0.1, KTs:0.1"
+      "range": "QQ-JJ, 77-66, AQs-AJs, A9s, A5s, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, AJo, KQo, 99:0.7, A8s:0.7, KJo:0.5, 88:0.4, TT:0.3, AKo:0.3, A4s:0.2, 55:0.1, ATs:0.1, KTs:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, AQo, ATs:0.9, KTs:0.9, AKo:0.8, TT:0.7, A7s:0.7, 88:0.5, KJo:0.5, A8s:0.4, 99:0.3, 55:0.2, 87s:0.2, 76s:0.1"
+      "range": "KK+, AKs, AQo, ATs:0.9, KTs:0.9, A7s:0.8, TT:0.7, AKo:0.7, 88:0.6, KJo:0.5, 99:0.3, A8s:0.3, 87s:0.3, 55:0.1, 76s:0.1"
      }
     ]
    },
@@ -12391,26 +12607,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.6%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 9.957,
-    "regret": 0.0001,
+    "occ": 9.968,
+    "regret": 0.0002,
     "confidence": "low",
-    "move": 0,
-    "close": "....3.3....5......3.6...........5.........3.........6.....7.............5..........................7............35.......................................................",
+    "move": 6.6,
+    "close": "....3.3...55.....33.6...........5.........3.........6.....5.............5..........................5............35.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 66, AQs-ATs, A8s, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, KQo, QJo, QQ:0.9, 77:0.9, A5s:0.8, 99:0.6, A9s:0.6, KJo:0.6, 88:0.5, 55:0.5, TT:0.4, 87s:0.4, AJo:0.3, AKo:0.2, A7s:0.1, A4s:0.1, KTs:0.1"
+      "range": "JJ, 66, AQs-ATs, A8s, KJs+, K9s, Q9s+, J9s+, T8s+, 98s, KQo, QJo, QQ:0.9, A5s:0.9, 77:0.8, 99-88:0.6, A9s:0.6, KJo:0.6, 55:0.5, TT:0.4, 87s:0.4, AJo:0.3, AKo:0.2, A7s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, AQo, A7s:0.9, KTs:0.9, AKo:0.8, AJo:0.7, TT:0.6, 88:0.5, 55:0.5, K8s:0.5, 99:0.4, A9s:0.4, KJo:0.4, A5s:0.2, QQ:0.1, 77:0.1"
+      "range": "KK+, AKs, KTs, AQo, A7s:0.9, AKo:0.8, AJo:0.7, TT:0.6, 55:0.5, 99-88:0.4, A9s:0.4, K8s:0.4, KJo:0.4, 77:0.2, QQ:0.1, A5s:0.1"
      }
     ]
    },
@@ -12424,26 +12640,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.8%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 10%라 확인이 필요해요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 10.437,
+    "occ": 10.385,
     "regret": 0.0002,
     "confidence": "low",
-    "move": 0,
-    "close": "....33.363.5.3....3.............5....................6....7.............5................................................................................................",
+    "move": 4.8,
+    "close": ".....3.363.5......3.............5....................6....5.............5................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AQs-ATs, A7s, A5s, KJs+, K9s, Q8s+, J9s+, T8s+, 98s, QJo, TT:0.8, 66:0.8, A8s:0.8, KQo:0.8, JJ:0.7, 88:0.7, 55:0.7, 87s:0.6, KJo:0.6, QQ:0.4, 77:0.4, KTs:0.4, K8s:0.4, 99:0.2, A4s:0.1"
+      "range": "AQs-ATs, A7s, A5s, KJs+, K9s, Q8s+, J9s+, T8s+, 98s, QJo, TT:0.8, 66:0.8, A8s:0.8, KQo:0.8, JJ:0.7, 88:0.6, 55:0.6, KJo:0.6, 77:0.5, K8s:0.5, 87s:0.5, QQ:0.4, KTs:0.3, 99:0.2, A4s:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, AKs, A9s, AJo+, 99:0.8, QQ:0.6, 77:0.6, KTs:0.6, K8s:0.6, ATo:0.6, K7s:0.5, KJo:0.4, JJ:0.3, 88:0.3, 55:0.3, TT:0.2, 66:0.2, A8s:0.2, KQo:0.2"
+      "range": "KK+, AKs, A9s, AQo-AJo, AKo:0.9, 99:0.8, KTs:0.7, QQ:0.6, ATo:0.6, 77:0.5, K8s-K7s:0.5, 88:0.4, KJo:0.4, JJ:0.3, 55:0.3, TT:0.2, 66:0.2, A8s:0.2, KQo:0.2"
      }
     ]
    },
@@ -12457,26 +12673,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 5%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 10.866,
+    "occ": 10.84,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": ".......37.5..........6....3....3.......................6337.............5............5..........................3.............7..........................................",
+    "move": 5,
+    "close": ".......37.5.........76....3............................6337.............5............5..........................3.............7..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, 66-55, AQs-AJs, A7s, A4s, KTs+, Q9s+, J9s+, T8s+, 98s, QJo, K9s:0.9, J8s:0.9, KQo:0.9, JJ:0.8, KJo:0.8, A5s:0.7, K8s:0.7, Q8s:0.7, 99:0.6, 88-77:0.5, ATs:0.5, A3s:0.4, A8s:0.2, K7s:0.1, AKo:0.1"
+      "range": "TT, 66-55, AQs-AJs, A7s, A4s, KTs+, QTs+, J9s+, T8s+, 98s, QJo, K9s:0.9, Q9s:0.9, KQo:0.9, JJ:0.8, K8s:0.8, Q8s:0.8, J8s:0.8, KJo:0.8, A5s:0.6, 99-77:0.5, ATs:0.5, A3s:0.5, A8s:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, AKs, A9s, A6s, AQo-ATo, K7s:0.9, AKo:0.9, A8s:0.8, 88-77:0.5, ATs:0.5, 99:0.4, A5s:0.3, K8s:0.3, Q8s:0.3, JJ:0.2, KJo-KTo:0.2, K9s:0.1, KQo:0.1"
+      "range": "QQ+, AKs, A9s, A6s, K7s, AQo-ATo, AKo:0.9, A8s:0.8, 99-77:0.5, ATs:0.5, A5s:0.4, KTo:0.3, JJ:0.2, K8s:0.2, Q8s:0.2, KJo:0.2, K9s:0.1, Q9s:0.1, KQo:0.1"
      }
     ]
    },
@@ -12490,20 +12706,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.5%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 12.401,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........3...........3.6...3.................33...........3...........................5...................................................................................",
+    "occ": 12.423,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 5.5,
+    "close": "........3...........3.6...3......5..........33...........3...........................5...................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, AQs-AJs, A4s, K9s+, K7s, Q8s+, J8s+, T9s, KJo, QJo, A7s:0.9, T8s:0.9, 98s:0.9, JJ-TT:0.7, 66:0.7, A5s:0.7, 88-77:0.6, 55:0.6, K8s:0.5, ATs:0.3, KQo:0.3, KTo:0.3, A3s:0.2, QTo:0.2, AKo:0.1"
+      "range": "99, AQs-AJs, A4s, K9s+, K7s, Q8s+, J8s+, T9s, KJo, QJo, A7s:0.9, T8s:0.9, 98s:0.9, JJ-TT:0.7, 66:0.7, A5s:0.7, 88-77:0.6, 55:0.6, K8s:0.5, KTo:0.4, ATs:0.3, KQo:0.3, QTo:0.3, A3s:0.2, AKo:0.1"
      },
      {
       "key": "3bet",
@@ -12523,14 +12739,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 15%라 확인이 필요해요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 8.381,
+    "occ": 8.363,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": "....333..3775......7.6................................663.............................5............7............33.............7.........................................",
+    "move": 7.8,
+    "close": "....3.33.33753...3.7.6................................66..............................5.........................33.............7.........................................",
     "flags": [
      {
       "code": "PF-SANITY-11",
@@ -12543,13 +12759,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 77-66, AQs-A8s, A5s-A3s, KJs+, K9s-K8s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, KQo, QJo, 88:0.9, QQ:0.8, A7s:0.8, 55:0.7, KTs:0.7, K7s:0.7, KJo:0.7, AJo:0.3, 99:0.2"
+      "range": "JJ, 77-66, AQs-A7s, A5s-A3s, K8s+, Q8s+, J8s+, T7s+, 97s+, 87s, 65s, 54s, KQo, QJo, QQ:0.9, 88:0.9, K7s:0.9, 76s:0.9, 55:0.7, KJo:0.7, AJo:0.4, 99:0.2, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, TT, AKs, AQo+, 99:0.8, AJo:0.7, ATo:0.6, A6s:0.4, 55:0.3, KTs:0.3, KJo:0.3, QQ:0.2, A7s:0.2, KTo:0.2, 88:0.1"
+      "range": "KK+, AKs, AQo+, TT:0.9, 99:0.8, ATo:0.7, AJo:0.6, A6s:0.5, 55:0.3, KJo:0.3, KTo:0.2, QQ:0.1, 88:0.1, 76s:0.1"
      }
     ]
    },
@@ -12563,26 +12779,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.7%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 13%라 확인이 필요해요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 8.336,
+    "occ": 8.35,
     "regret": 0.0002,
     "confidence": "low",
-    "move": 0,
-    "close": "....3.....77.....3.3.......3..............3............5...5..........3...............5...........3............................7.........................................",
+    "move": 5.7,
+    "close": "........73375....3.33......3.....5........3............5...5..........3...........................3............................5.........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ, 77-66, AJs-ATs, A4s-A3s, K8s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, KQo, QJo, K7s:0.9, A8s:0.8, A5s:0.8, 55:0.7, 88:0.6, AQs:0.6, KJo:0.5, A7s:0.4, QQ:0.3, A9s:0.3, TT:0.2"
+      "range": "JJ, 77-66, AJs-ATs, A5s-A3s, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, KQo, QJo, A8s:0.9, 55:0.7, AQs:0.6, A7s:0.6, KJo:0.6, A9s:0.5, QQ:0.4, TT:0.3, 88:0.3, 86s:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "KK+, 99, AKs, AJo+, TT:0.8, QQ:0.7, A9s:0.7, A7s:0.6, KTo:0.6, KJo:0.5, 88:0.4, AQs:0.4, ATo:0.4, 55:0.3, A8s:0.2, A5s:0.2, A6s:0.1, K7s-K6s:0.1"
+      "range": "KK+, 99, AKs, AJo+, TT:0.7, 88:0.7, KTo:0.7, QQ:0.6, A9s:0.5, ATo:0.5, AQs:0.4, A7s:0.4, KJo:0.4, 55:0.3, A8s:0.1, K6s:0.1"
      }
     ]
    },
@@ -12596,26 +12812,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.9%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 14%라 확인이 필요해요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 8.61,
+    "occ": 8.563,
     "regret": 0,
     "confidence": "low",
-    "move": 0,
-    "close": ".......37..75.......3............5......3............6.....5..........3..5............5.........................3.............3..........................................",
+    "move": 6.9,
+    "close": ".......33..75.......3......3.....5......3............6.7...5..........3..5............5.........................3........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AJs-ATs, A7s, A4s-A3s, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, KJo, QJo, TT:0.9, AQs:0.9, A5s:0.9, KQo:0.9, JJ:0.8, 77:0.7, K6s:0.7, 54s:0.7, A8s:0.4, QTo:0.3, 88:0.1, JTo:0.1"
+      "range": "66, AJs-ATs, A7s, A4s-A3s, K7s+, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, KJo+, QJo, TT:0.9, 55:0.9, AQs:0.9, A5s:0.9, JJ:0.8, K6s:0.8, 77:0.7, A8s:0.5, 54s:0.4, QTo:0.3, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, 99, AKs, A9s, A6s, ATo+, KTo, 88:0.9, A8s:0.6, 77:0.3, JJ:0.2, TT:0.1, AQs:0.1, A5s:0.1, KQo:0.1"
+      "range": "QQ+, 99, AKs, A9s, A6s, ATo+, KTo, 88:0.9, A8s:0.5, 77:0.3, JJ:0.2, TT:0.1, 55:0.1, AQs:0.1, A5s:0.1"
      }
     ]
    },
@@ -12629,26 +12845,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 16%라 확인이 필요해요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 16%라 확인이 필요해요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 8.802,
+    "occ": 8.778,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": "......333.........3.3.65.........5....................5....5.............5............5............5.............5............35............5............................",
+    "move": 7.1,
+    "close": "......333..37.....3.3.65.........5....................5....5.............5.........................5.............5............35............5............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-55, AJs-ATs, A7s, A4s-A3s, K7s+, Q7s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, KJo, QTo+, TT:0.9, A2s:0.9, J7s:0.9, AQs:0.8, A5s:0.8, KQo:0.7, JJ:0.6, 99:0.6, 77:0.6, KTo:0.5, JTo:0.4, K6s:0.3, 88:0.2"
+      "range": "66-55, AJs-ATs, A7s, A4s-A2s, K7s+, Q7s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, KJo, QTo+, TT:0.9, J7s:0.9, 86s:0.9, AQs:0.8, KQo:0.8, A5s:0.7, JJ:0.6, 99:0.6, 77:0.6, KTo:0.4, JTo:0.4, K6s:0.3, 88:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "QQ+, AKs, A9s-A8s, A6s, ATo+, 88:0.8, K6s:0.7, KTo:0.5, JJ:0.4, 99:0.4, 77:0.4, KQo:0.3, AQs:0.2, A5s:0.2, JTo:0.2, TT:0.1"
+      "range": "QQ+, AKs, A9s-A8s, A6s, ATo+, 88:0.9, K6s:0.7, KTo:0.6, JJ:0.4, 99:0.4, 77:0.4, A5s:0.3, AQs:0.2, KQo:0.2, JTo:0.2, TT:0.1"
      }
     ]
    },
@@ -12662,26 +12878,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.4%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 9.948,
+    "occ": 9.949,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......33..........3.3.5...........5......3..35............5.....6....33.............35.......................................3..........................................",
+    "confidence": "high",
+    "move": 6.4,
+    "close": "....3..33..........3.3.5...........5......3..35............5.....6....33.............35............5..........................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99, 55-44, A4s-A3s, K7s+, Q7s+, J7s+, T9s, T7s, 97s+, 87s, KJo, QTo+, 77-66:0.9, ATs:0.9, A5s:0.9, A2s:0.9, T8s:0.7, TT:0.6, 88:0.6, Q6s:0.6, KTo:0.6, AQs:0.5, JTo:0.5, AJs:0.3, 65s:0.3, KQo:0.3, 76s:0.1"
+      "range": "99, 55-44, ATs, A4s-A3s, K7s+, Q7s+, J7s+, T9s, T7s, 97s+, 87s, KJo, QTo+, 77-66:0.9, A5s:0.9, A2s:0.9, Q6s:0.8, T8s:0.7, TT:0.6, 88:0.6, KTo:0.6, AQs:0.5, JTo:0.5, AJs:0.4, KQo:0.3, 65s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, AKs, A9s-A6s, K6s, A9o+, K5s:0.8, AJs:0.7, KQo:0.7, AQs:0.5, JTo:0.5, TT:0.4, 88:0.4, KTo:0.4, T8s:0.3, 77-66:0.1, ATs:0.1, A5s:0.1"
+      "range": "JJ+, AKs, A9s-A6s, K6s, A9o+, K5s:0.8, KQo:0.7, AJs:0.6, AQs:0.5, JTo:0.5, TT:0.4, 88:0.4, KTo:0.4, T8s:0.3, 77-66:0.1, A5s:0.1"
      }
     ]
    },
@@ -12695,26 +12911,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 10.958,
-    "regret": 0.0002,
+    "occ": 10.985,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "..3.33...3337......3..37................3.....3...........3...................6...................3..............5..........................3............................",
+    "move": 18,
+    "close": "..3.33...3333......3..37................3.....3...........3...................6...................3..............5..........................3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, 44, ATs, A4s-A2s, K8s+, K4s, Q6s+, J7s+, T7s+, 97s+, KJo, QTo+, 88:0.8, 55:0.8, K7s:0.8, Q5s:0.8, KTo:0.8, TT-99:0.7, 66:0.7, 87s:0.7, AQo:0.6, JTo:0.6, KQo:0.4, AJs:0.2, K6s:0.1"
+      "range": "77, 44, ATs, A4s-A2s, K8s+, K4s, Q6s+, J7s+, T7s+, 97s+, KJo, QTo+, K7s:0.9, Q5s:0.9, 66-55:0.8, KTo:0.8, TT-88:0.7, 87s:0.6, AQo:0.6, JTo:0.6, KQo:0.4, AJs:0.2, K6s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6.6bb",
       "color": "raise",
-      "range": "JJ+, AQs+, A9s-A5s, K5s, AKo, AJo-A8o, K6s:0.9, AJs:0.8, KQo:0.6, AQo:0.4, JTo:0.4, TT-99:0.3, 66:0.3, 87s:0.3, 88:0.2, 55:0.2, K7s:0.2, 76s:0.2, KTo:0.2"
+      "range": "JJ+, AQs+, A9s-A5s, K5s, AKo, AJo-A8o, K6s:0.9, AJs:0.8, KQo:0.6, 87s:0.4, AQo:0.4, JTo:0.4, TT-88:0.3, 66-55:0.2, 76s:0.2, KTo:0.2, K7s:0.1"
      }
     ]
    },
@@ -12728,26 +12944,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.1%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 6.681,
+    "occ": 6.647,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 14.1,
     "close": "..3..3.37..55.......................................6..5.................5..........................5.............5......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AQs-A9s, A7s, A5s-A3s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, AJo, KQo, QJo, JJ:0.9, A8s:0.9, 86s:0.9, 88:0.8, KTs:0.8, QQ:0.7, K8s-K7s:0.7, KJo:0.4"
+      "range": "77-55, AQs-A9s, A7s, A5s-A3s, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 76s, 65s, 54s, AJo, KQo, QJo, JJ:0.9, A8s:0.9, KTs:0.9, 86s:0.9, 88:0.8, K8s-K7s:0.8, QQ:0.6, KJo:0.4"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "KK+, TT-99, AKs, AQo+, KJo:0.6, QQ:0.3, K8s:0.3, 88:0.2, KTs:0.2, KTo:0.2, JJ:0.1, A8s:0.1"
+      "range": "KK+, TT-99, AKs, AQo+, KJo:0.6, QQ:0.4, KTo:0.3, 88:0.2, K8s:0.2, JJ:0.1, A8s:0.1, KTs:0.1"
      }
     ]
    },
@@ -12761,26 +12977,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.8%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 6.619,
-    "regret": 0.0003,
+    "occ": 6.615,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....33...377......33..5...............3.................................5........................3.5.........................3.5...........5............................",
+    "move": 14.8,
+    "close": ".....33...377....3.33..5.........5......................3................5........................3.5.........................3.5...........5............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs-A8s, A4s-A3s, K7s+, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, KQo, QJo, A5s:0.7, K6s:0.7, JJ:0.6, J7s:0.6, 64s:0.6, JTo:0.5, AQs:0.3, A7s:0.3, KJo:0.3, Q7s:0.2, TT:0.1"
+      "range": "77-55, AJs-A8s, A4s-A3s, K7s+, Q8s+, J8s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, KQo, QJo, A5s:0.8, JJ:0.6, K6s:0.6, J7s:0.4, 64s:0.4, A7s:0.3, KJo:0.3, AQs:0.2, JTo:0.2, AJo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AKs, AJo+, TT:0.9, AQs:0.7, A7s:0.7, KJo:0.7, JJ:0.4, A5s:0.3, K6s:0.3, ATo:0.3, A6s:0.2, KTo:0.2, K5s:0.1"
+      "range": "QQ+, TT-88, AKs, AQo+, AJo:0.9, AQs:0.8, A7s:0.7, KJo:0.7, JJ:0.4, K6s:0.3, ATo:0.3, A6s-A5s:0.2, KTo:0.2, K5s:0.1"
      }
     ]
    },
@@ -12794,26 +13010,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.5%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 6.708,
+    "occ": 6.674,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........3..7........3.5...3......55....3...........................................3..5..........3.............3.5..........................5...........................",
+    "move": 13.5,
+    "close": ".........3..7........3.5...3......55....3............7.3............................3..5..........3.............3.5.............5............5...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AJs-A7s, A5s-A2s, K6s+, K4s, Q6s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, JTo, TT:0.9, 55:0.9, 44:0.8, A6s:0.8, K5s:0.8, JJ:0.6, ATo:0.4, AQs:0.2, 53s:0.2, KTo:0.1"
+      "range": "66, AJs-A7s, A5s-A2s, K6s+, K4s, Q6s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, KJo+, QTo+, JTo, TT:0.9, 55:0.9, A6s:0.9, K5s:0.9, JJ:0.6, 44:0.5, ATo:0.4, AQs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "QQ+, 99-77, AKs, AJo+, KTo:0.9, AQs:0.8, ATo:0.6, JJ:0.4, A6s:0.2, TT:0.1, 55:0.1, K5s:0.1"
+      "range": "QQ+, 99-77, AKs, AJo+, KTo, AQs:0.8, ATo:0.6, JJ:0.4, TT:0.1, 55:0.1, A6s:0.1, K5s:0.1"
      }
     ]
    },
@@ -12827,26 +13043,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.1%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 6.666,
+    "occ": 6.642,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "......3...33.......................5....3.3.................5.......67.............6.3.............33...........3.5.............5...........3............................",
+    "move": 16.1,
+    "close": "......3...33.......................5....3.3....5........3...5.......67.............6.3.............37...........3..............35...........3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, 44, AJs-ATs, A8s-A7s, A4s-A3s, K7s+, K4s, Q5s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, KJo, QTo+, TT:0.9, 55:0.9, K6s:0.9, 85s:0.9, JTo:0.9, 99:0.8, A5s:0.8, KQo:0.8, A9s:0.5, A2s:0.5, 77:0.4, A6s:0.4, K5s:0.2, KTo:0.2, 88:0.1, J6s:0.1"
+      "range": "TT, 66, 44, AJs-ATs, A8s-A7s, A4s-A3s, K7s+, K4s, Q5s+, J7s+, T7s+, 96s+, 86s+, 75s+, 65s, 54s, KJo, QTo+, 55:0.9, K6s:0.9, JTo:0.9, A5s:0.8, 64s:0.8, KQo:0.8, 99:0.7, A9s:0.6, 85s:0.6, 77:0.5, A2s:0.5, A6s:0.4, KTo:0.2, 88:0.1, K5s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "JJ+, AQs+, ATo+, 88:0.9, K5s:0.8, KTo:0.8, 77:0.6, A6s:0.6, A9s:0.5, A2s:0.5, 99:0.2, A5s:0.2, A9o:0.2, KQo:0.2, TT:0.1, 55:0.1, K6s:0.1, JTo:0.1"
+      "range": "JJ+, AQs+, ATo+, 88:0.9, K5s:0.9, KTo:0.8, A6s:0.6, 77:0.5, A2s:0.5, A9s:0.4, 99:0.3, A5s:0.2, A9o:0.2, KQo:0.2, 55:0.1, K6s:0.1, JTo:0.1"
      }
     ]
    },
@@ -12860,26 +13076,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.9%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 7.394,
+    "occ": 7.39,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "........3..........3.33.7............55..........5.....3....5.........3...5...6.6.6633..........................3............................5...........................",
+    "move": 12.9,
+    "close": "........3...3......3.33.7............55..........5....33....5.........3...5...6.6.6633..........................3.5...........3..............5...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-88, A9s, A7s-A2s, K3s+, Q3s+, J5s+, T9s, T7s-T6s, 96s+, 85s+, 75s+, 64s+, 54s, KJo, QTo+, J9o+, 77:0.8, Q9o:0.8, 44:0.7, ATs:0.7, T8s:0.7, 53s:0.7, T9o:0.7, KTo:0.5, A8s:0.4, KQo:0.4, K2s:0.3, TT:0.2, 55:0.1"
+      "range": "99-88, A9s, A7s-A2s, K3s+, Q3s+, J5s+, T9s, T7s-T6s, 96s+, 85s+, 75s+, 64s+, 54s, KJo, QTo+, J9o+, 77:0.8, Q9o:0.8, T9o:0.8, 44:0.7, ATs:0.7, T8s:0.6, A8s:0.5, 53s:0.5, KTo:0.5, K2s:0.4, KQo:0.4, TT:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "JJ+, 66, AJs+, ATo+, 55:0.9, TT:0.8, A8s:0.6, KQo:0.6, A9o:0.5, KTo:0.5, 44:0.3, ATs:0.3, K2s:0.3, T8s:0.3, T9o:0.3, 77:0.2, K9o:0.1, Q9o:0.1"
+      "range": "JJ+, 66-55, AJs+, ATo+, TT:0.8, KQo:0.6, A8s:0.5, A9o:0.5, KTo:0.5, T8s:0.4, 44:0.3, ATs:0.3, K2s:0.3, 77:0.2, T9o:0.2, K9o:0.1, Q9o:0.1"
      }
     ]
    },
@@ -12893,26 +13109,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.6%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 7.968,
+    "occ": 7.983,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...333..3.33............5............5..3........55..........5........3.......6......3.....6.......35.........................3..........................................",
+    "move": 12.6,
+    "close": "...333..3.33.............5...........5..3........55..........5........3..............3.....6.......35.........................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, A9s, A4s-A3s, KJs-K3s, Q3s+, J4s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, KJo, Q9o+, J9o, T9o, 44:0.9, A8s:0.9, KQs:0.9, KTo:0.9, 88:0.8, A2s:0.8, 85s:0.8, 64s:0.8, 66:0.7, K2s:0.7, JTo:0.6, A5s:0.3, 33:0.2, A7s:0.2, KQo:0.2, K9o:0.2, Q2s:0.1"
+      "range": "77, A9s, A4s-A3s, KJs-K2s, Q3s+, J4s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, KJo, Q9o+, J9o, T9o, 44:0.9, A8s:0.9, KQs:0.9, KTo:0.9, 88:0.8, A2s:0.8, 85s:0.7, 66:0.6, 64s:0.6, JTo:0.5, A5s:0.3, K9o:0.3, 33:0.2, Q2s:0.2, KQo:0.2, A7s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, 55, ATs+, A6s, A8o+, 33:0.8, A7s:0.8, KQo:0.8, K9o:0.8, A5s:0.7, JTo:0.4, 66:0.3, 88:0.2, A2s:0.2, 44:0.1, A8s:0.1, KQs:0.1, KTo:0.1"
+      "range": "99+, 55, ATs+, A6s, A8o+, A7s:0.9, 33:0.8, KQo:0.8, A5s:0.7, K9o:0.7, JTo:0.5, 66:0.4, 88:0.2, A2s:0.2, 44:0.1, A8s:0.1, KQs:0.1, KTo:0.1"
      }
     ]
    },
@@ -12926,26 +13142,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.7%p 움직여요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 9.939,
+    "occ": 9.942,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........3.3................3............33........55.33........................5..55........5.....3.5.............5............5..6.....................................5",
+    "move": 11.7,
+    "close": "........3.3................3............33........55..3......5.................5.555........5.....3...............5............5..6.....................................7",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, A8s-A7s, KJs-K2s, Q2s+, J3s+, T6s+, 96s+, 86s+, 75s+, 65s, 54s, KTo, K8o, Q8o+, J9o, T9o, T5s:0.9, K9o:0.8, A5s:0.7, JTo:0.6, 85s:0.5, 33:0.4, A9s:0.4, J8o:0.4, AJo:0.2, 95s:0.1"
+      "range": "77-44, A8s-A7s, KJs-K2s, Q2s+, J3s+, T5s+, 96s+, 86s+, 76s, 65s, 54s, K8o, Q8o+, J9o, T9o, 75s:0.9, KTo-K9o:0.9, A5s:0.7, JTo:0.7, A9s:0.5, 33:0.4, 85s:0.4, AJo:0.2, 95s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, ATs+, A6s, A4s-A2s, KQs, AQo+, ATo-A5o, KJo+, AJo:0.8, 33:0.6, A9s:0.6, JTo:0.4, A5s:0.3, K9o:0.2"
+      "range": "88+, ATs+, A6s, A4s-A2s, KQs, AQo+, ATo-A5o, KJo+, AJo:0.8, 33:0.6, A9s:0.5, A5s:0.3, JTo:0.3, KTo-K9o:0.1"
      }
     ]
    },
@@ -12959,26 +13175,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.6%p 움직여요.",
     "line": "UTG 2.2",
     "reachPct": 100,
-    "occ": 5.349,
+    "occ": 5.316,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "....................3..............55..........5.....33......55......73.......5.....................................5....................................................",
+    "move": 10.6,
+    "close": "....................3..............55..........5.....33......55.......3.......5.....................................5....................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-22, AQs-A2s, K2s+, Q5s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QTo+, T9o, JTo:0.6, AQo:0.1"
+      "range": "99-22, AQs-A2s, K2s+, Q5s+, J7s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QTo+, T9o:0.9, JTo:0.6, AQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "TT+, AKs, AKo, KTo, AQo:0.9, JTo:0.4"
+      "range": "TT+, AKs, AKo, KTo, AQo:0.9, JTo:0.4, T9o:0.1"
      }
     ]
    },
@@ -12992,26 +13208,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.6%p 움직여요.",
     "line": "UTG+1 2.2",
     "reachPct": 100,
-    "occ": 5.146,
+    "occ": 5.178,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "....................3......3..........5........5.5..33.......55..3...........5...........55............5...................................5.............................",
+    "move": 12.6,
+    "close": "....................3......3..........5........5555.33.3......5..3...........5...........55............5...................................5.............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AJs-A2s, K2s+, Q2s+, J6s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KQo, QTo+, JTo, J5s:0.9, 94s:0.9, KJo:0.9, K9o:0.8, A5o:0.6, T9o:0.5, 93s:0.4, 98o:0.2"
+      "range": "88-22, AJs-A2s, K2s+, Q2s+, J5s+, T6s+, 95s+, 84s+, 73s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KQo, QTo+, JTo, 94s:0.9, KJo:0.9, K9o:0.8, 93s:0.7, T9o:0.5, A5o:0.4, 98o:0.4, T5s:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KTo, T9o:0.5, A7o:0.3, K9o:0.2, KJo:0.1"
+      "range": "99+, AQs+, AQo+, KTo, T9o:0.5, A7o:0.3, K9o:0.2, A5o:0.1, KJo:0.1"
      }
     ]
    },
@@ -13025,26 +13241,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.4%p 움직여요.",
     "line": "UTG+2 2.2",
     "reachPct": 100,
-    "occ": 4.883,
+    "occ": 4.87,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "....................333................33........5.53..3.....55553.37........5...........553...........5.............3.........................5............5............",
+    "move": 9.4,
+    "close": "....................333................3.........5.53..3.....55553.3.........5...........553...........5.............3.....................5...5.........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AJs-A2s, K2s+, Q2s+, J4s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A7o, A5o-A2o, KJo, Q9o+, J9o+, 87o:0.9, K9o:0.8, 98o:0.8, 76o:0.8, J3s:0.7, T9o:0.7, KQo:0.6, 88:0.5, 65o:0.4, A6o:0.2, KTo:0.2, 54o:0.1"
+      "range": "77-22, AJs-A2s, K2s+, Q2s+, J4s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A7o, A5o-A3o, Q9o+, JTo, A2o:0.9, KJo:0.9, J9o:0.9, 87o:0.9, K9o:0.8, 98o:0.8, T9o:0.7, J3s:0.6, KQo:0.6, 76o:0.6, 88:0.5, A6o:0.2, KTo:0.2, 65o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KTo:0.8, 88:0.5, KQo:0.4, A6o:0.3, T9o:0.3, K9o:0.2, 98o:0.2"
+      "range": "99+, AQs+, AQo+, KTo:0.8, 88:0.5, KQo:0.4, A6o:0.3, T9o:0.3, K9o:0.2, 98o:0.2, KJo:0.1"
      }
     ]
    },
@@ -13058,13 +13274,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.4%p 움직여요.",
     "line": "LJ 2.2",
     "reachPct": 100,
-    "occ": 4.794,
+    "occ": 4.786,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 12.4,
     "close": ".....................33..............................3.3.......553..3..........7..5.3...........7............................5....3........5...3.........................",
     "actions": [
      {
@@ -13091,26 +13307,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.2%p 움직여요.",
     "line": "HJ 2.2",
     "reachPct": 100,
-    "occ": 4.936,
-    "regret": 0.0003,
+    "occ": 4.931,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "......................................................33............3.........3.3.33.......3.....3..............3....3............3........3...3............3............",
+    "move": 14.2,
+    "close": "......................................................33..........3.3.........3.3.33............733......3......3....3............3........3...3............3............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A7o, A5o-A2o, KJo-K7o, QTo+, Q8o, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, KQo:0.9, K6o:0.9, 97o:0.9, Q9o:0.8, J8o:0.8, A6o:0.7, 86o:0.7, A9o:0.5, 75o:0.5, ATo:0.3, 77:0.1"
+      "range": "66-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A8o-A7o, A5o-A2o, KJo-K6o, QTo+, Q8o, J9o+, T8o+, 97o+, 87o, 76o, 65o, 54o, KQo:0.8, J8o:0.8, A6o:0.7, Q9o:0.7, 86o:0.6, A9o:0.5, 75o:0.5, ATo:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "88+, AJs+, AJo+, 77:0.9, K5o:0.9, ATo:0.7, A9o:0.5, A6o:0.3, 86o:0.3, Q9o:0.2, J8o:0.2, KQo:0.1, K6o:0.1, 97o:0.1"
+      "range": "77+, AJs+, AJo+, K5o:0.9, ATo:0.7, A9o:0.5, 86o:0.4, A6o:0.3, Q9o:0.3, KQo:0.2, J8o:0.2"
      }
     ]
    },
@@ -13124,26 +13340,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.7%p 움직여요.",
     "line": "CO 2.2",
     "reachPct": 100,
-    "occ": 5.101,
+    "occ": 5.109,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".................................................................3............3...3...........33........3.5..5.........5......3....3......5.3..3........................3",
+    "move": 16.7,
+    "close": ".................................................................3............3...3...........33........3.5..5.........5......3....3......5.3..37.......5...............3",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, 22, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A6o-A2o, KJo-K4o, Q6o+, J9o, J7o, T7o+, 97o+, 86o+, 75o+, 64o+, 54o, 33:0.9, JTo:0.8, J8o:0.7, 43o:0.7, KQs:0.4, KQo:0.4, K2o:0.4, 53o:0.4, A7o:0.1, K3o:0.1"
+      "range": "44, 22, A9s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A6o-A2o, KJo-K4o, Q6o+, J9o, J7o, T7o+, 97o+, 86o+, 75o+, 64o+, 54o, 33:0.8, JTo:0.8, J8o:0.8, KQs:0.4, KQo:0.4, K2o:0.4, 43o:0.3, A7o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "55+, ATs+, A8o+, A7o:0.9, K3o:0.9, KQs:0.6, KQo:0.6, J8o:0.3, JTo:0.2, 33:0.1"
+      "range": "55+, ATs+, A8o+, K3o, A7o:0.9, KQs:0.6, KQo:0.6, 33:0.2, JTo:0.2, J8o:0.2"
      }
     ]
    },
@@ -13157,26 +13373,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2.2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.4%p 움직여요.",
     "line": "BTN 2.2",
     "reachPct": 100,
-    "occ": 5.813,
-    "regret": 0.0001,
+    "occ": 5.848,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "......................................................3..............3......................33...........3.3...........35.5.......3335......3...33.....5.....37.......55.",
+    "move": 18.4,
+    "close": "......................................................33.............3......................33.3.........3.3.3.........35.5.......3335......3...33.....5.....37.......55.",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A7s-A2s, KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o, K9o-K6o, K4o-K2o, QTo-Q7o, Q5o-Q2o, J5o+, T8o+, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, T7o:0.9, A3o:0.8, KJo:0.8, T6o:0.8, KTo:0.7, K5o:0.7, A8s:0.6, A5o:0.6, 55:0.5, QJo:0.5, 74o:0.5, KJs:0.4, A2o:0.3, Q6o:0.1"
+      "range": "44-22, A7s-A2s, KTs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o, K9o-K6o, K4o-K2o, QTo-Q7o, Q5o-Q2o, J5o+, T7o+, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, A3o:0.8, KJo:0.8, T6o:0.8, KTo:0.7, K5o:0.7, A8s:0.6, A5o:0.6, 55:0.5, QJo:0.5, KJs:0.4, A2o:0.3, Q6o:0.2, 74o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8.8bb",
       "color": "raise",
-      "range": "66+, A9s+, KQs, A6o+, KQo, Q6o:0.9, A2o:0.7, KJs:0.6, 55:0.5, QJo:0.5, A8s:0.4, A5o:0.4, KTo:0.3, K5o:0.3, A3o:0.2, KJo:0.2, T6o:0.2, T7o:0.1"
+      "range": "66+, A9s+, KQs, A6o+, KQo, Q6o:0.8, A2o:0.7, KJs:0.6, 55:0.5, QJo:0.5, A8s:0.4, A5o:0.4, KTo:0.3, K5o:0.3, A3o:0.2, KJo:0.2, T6o:0.2"
      }
     ]
    },
@@ -13190,26 +13406,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.4%p 움직여요.",
     "line": "SB 3",
     "reachPct": 100,
-    "occ": 3.188,
+    "occ": 3.171,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........3..............................................................................................................3.....3.....3..5.......33.5....5....33.55....5...",
+    "move": 17.4,
+    "close": ".........3..............................................................................................................3.....3.....3..5.......3335....5....33.55....5...",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K6o, K3o-K2o, QTo-Q6o, Q4o-Q2o, J3o+, T4o+, 95o+, 85o+, 74o+, 63o+, 52o+, 42o+, 32o, T3o:0.9, 77:0.7, K5o:0.7, QJo:0.7, 84o:0.7, 66:0.5, KJo:0.5, K4o:0.5, Q5o:0.3, KQo:0.1"
+      "range": "55-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K6o, K3o-K2o, QTo-Q6o, Q4o-Q2o, J3o+, T4o+, 95o+, 85o+, 74o+, 63o+, 52o+, 42o+, 32o, K5o:0.9, T3o:0.9, 77:0.8, QJo:0.8, 84o:0.7, 66:0.5, KJo:0.5, K4o:0.3, Q5o:0.3, KQo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 9bb",
       "color": "raise",
-      "range": "88+, A8s+, KQs, A2o+, KQo:0.9, Q5o:0.7, 66:0.5, KJo:0.5, K4o:0.5, 77:0.3, K5o:0.3, QJo:0.3"
+      "range": "88+, A8s+, KQs, A2o+, KQo:0.8, K4o:0.7, Q5o:0.7, 66:0.5, KJo:0.5, 77:0.2, QJo:0.2, K5o:0.1"
      }
     ]
    },
@@ -13223,16 +13439,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+1 3벳",
     "title": "UTG 오픈 후 vs UTG+1 3벳",
-    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → UTG+1 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 17.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · UTG+1 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.522,
-    "regret": 0.0031,
+    "reachPct": 15.7,
+    "occ": 0.518,
+    "regret": 0.0036,
     "confidence": "low",
-    "move": 0,
+    "move": 17.2,
     "flags": [
      {
       "code": "PF-SANITY-12",
@@ -13244,7 +13460,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KK-77, AQs, KJs, AQo+, AKs:0.9, 66:0.7, ATs:0.7, JTs:0.6, AJs:0.5"
+      "range": "KK-77, AQs+, KJs, AQo+, 66:0.7, AJs-ATs:0.6, JTs:0.6"
      },
      {
       "key": "4bet",
@@ -13256,7 +13472,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s:0.6, AJs:0.5, 66:0.3, ATs:0.3, AKs:0.1"
+      "range": "AA, A5s:0.6, AJs-ATs:0.4, 66:0.3"
      }
     ]
    },
@@ -13270,22 +13486,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+2 3벳",
     "title": "UTG 오픈 후 vs UTG+2 3벳",
-    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 18.9%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · UTG+2 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.521,
+    "reachPct": 15.7,
+    "occ": 0.519,
     "regret": 0.0133,
     "confidence": "low",
-    "move": 0,
+    "move": 18.9,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, AQo+, AKs:0.9, AJs:0.9, KJs:0.9, 66:0.7, ATs:0.7, KK:0.6, KQs:0.5, JTs:0.5, KTs:0.1"
+      "range": "QQ-77, AQs, AQo+, AKs:0.9, AJs:0.9, KJs:0.9, 66:0.7, ATs:0.7, KK:0.6, KQs:0.6, JTs:0.5, KTs:0.1"
      },
      {
       "key": "4bet",
@@ -13311,23 +13527,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs LJ 3벳",
     "title": "UTG 오픈 후 vs LJ 3벳",
-    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.3%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.492,
-    "regret": 0.0027,
+    "reachPct": 15.7,
+    "occ": 0.488,
+    "regret": 0.0029,
     "confidence": "low",
-    "move": 0,
-    "close": ".....c...................................................................................................................................................................",
+    "move": 20.3,
+    "close": ".........................................................9...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs, AQo+, AKs:0.9, JTs:0.9, 66:0.6, ATs:0.6, KQs:0.6, KK:0.3, KTs:0.1"
+      "range": "QQ-77, AQs-AJs, KJs, AQo+, AKs:0.9, JTs:0.9, ATs:0.7, KQs:0.7, 66:0.6, KK:0.3, KTs:0.1"
      },
      {
       "key": "4bet",
@@ -13339,7 +13555,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, KK:0.5, 66:0.4, ATs:0.4, A7s:0.2, JTs:0.1"
+      "range": "AA, A5s, KK:0.5, 66:0.4, ATs:0.3, A7s:0.2, A9s:0.1"
      }
     ]
    },
@@ -13353,16 +13569,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.462,
-    "regret": 0.0028,
+    "reachPct": 15.7,
+    "occ": 0.459,
+    "regret": 0.003,
     "confidence": "low",
-    "move": 0,
+    "move": 21.2,
     "close": ".............3.........................a.................................................................................................................................",
     "actions": [
      {
@@ -13395,23 +13611,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.456,
-    "regret": 0.001,
+    "reachPct": 15.7,
+    "occ": 0.453,
+    "regret": 0.0011,
     "confidence": "low",
-    "move": 0,
-    "close": ".....9...................................................................................................................................................................",
+    "move": 20.8,
+    "close": "....5....................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-ATs, KJs+, JTs, AQo+, T9s:0.9, 66:0.6, AKs:0.4, AJo:0.1"
+      "range": "QQ-77, AQs-ATs, KJs+, JTs, AQo+, T9s:0.9, 66:0.6, AKs:0.3, AJo:0.1"
      },
      {
       "key": "4bet",
@@ -13423,7 +13639,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A7s, A5s, AKs:0.6, 66:0.4"
+      "range": "KK+, A7s, A5s, AKs:0.7, 66:0.4, A9s:0.1"
      }
     ]
    },
@@ -13437,23 +13653,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BTN 3벳",
     "title": "UTG 오픈 후 vs BTN 3벳",
-    "description": "UTG 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.7%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.467,
-    "regret": 0.0017,
+    "reachPct": 15.7,
+    "occ": 0.454,
+    "regret": 0.0018,
     "confidence": "low",
-    "move": 0,
-    "close": ".............5.............................9...........................9.................................................................................................",
+    "move": 22.7,
+    "close": "......c......5...............9.........................................9.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs+, JTs, AQo+, T9s:0.9, 66:0.6, ATs:0.6, 87s:0.5, AJo:0.3"
+      "range": "QQ-77, AQs-AJs, KJs+, JTs, AQo+, T9s:0.9, 66:0.6, ATs:0.6, 87s:0.5, AJo:0.2"
      },
      {
       "key": "4bet",
@@ -13465,7 +13681,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s, 66:0.4, ATs:0.4, A7s:0.4"
+      "range": "KK+, AKs, A5s, A7s:0.5, 66:0.4, ATs:0.4"
      }
     ]
    },
@@ -13479,22 +13695,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.1%p 움직여요.",
     "line": "UTG 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.33,
-    "regret": 0.0008,
+    "reachPct": 15.7,
+    "occ": 0.327,
+    "regret": 0.001,
     "confidence": "mid",
-    "move": 0,
+    "move": 14.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs, KQs, 66:0.8, AJs:0.8, AQo:0.8, AKo:0.7, KJs:0.4, ATs:0.3"
+      "range": "QQ-77, AQs, KQs, 66:0.8, AJs:0.8, AQo:0.8, AKo:0.7, KJs:0.4, ATs:0.2"
      },
      {
       "key": "shove",
@@ -13514,16 +13730,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.1%p 움직여요.",
     "line": "UTG 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utg:open"
     ],
-    "reachPct": 15.6,
-    "occ": 0.302,
-    "regret": 0.0043,
+    "reachPct": 15.7,
+    "occ": 0.3,
+    "regret": 0.0041,
     "confidence": "mid",
-    "move": 0,
+    "move": 12.1,
     "actions": [
      {
       "key": "call",
@@ -13549,35 +13765,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 18.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · UTG+2 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
-    "occ": 0.51,
-    "regret": 0.0032,
+    "occ": 0.513,
+    "regret": 0.0027,
     "confidence": "low",
-    "move": 0,
-    "close": ".........................................................9.............9.................................................................................................",
+    "move": 18.8,
+    "close": "......................................................................39.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs+, AQo, ATs:0.9, JTs:0.9, AKo:0.9, 66:0.8, AKs:0.8, 55:0.4, KTs:0.4, 87s:0.2, AJo:0.1"
+      "range": "QQ-77, AQs-AJs, KJs+, AQo, JTs:0.9, AKo:0.9, 66:0.8, AKs:0.8, ATs:0.8, KTs:0.4, 55:0.2, AJo:0.2, KK:0.1, T9s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.5, AKs:0.2, KTs:0.2, AA:0.1, AKo:0.1, AJo:0.1"
+      "range": "KK:0.5, AKs:0.2, KTs:0.2, AA:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA:0.9, A5s:0.9, 55:0.6, KK:0.5, 66:0.2, A9s:0.2, ATs:0.1, JTs:0.1"
+      "range": "AA:0.9, A5s:0.9, 55:0.8, KK:0.4, 66:0.2, ATs-A9s:0.2, JTs:0.1"
      }
     ]
    },
@@ -13591,23 +13807,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
     "occ": 0.539,
-    "regret": 0.0049,
+    "regret": 0.0051,
     "confidence": "low",
-    "move": 0,
-    "close": ".......................................................................9.................................................................................................",
+    "move": 19.2,
+    "close": "...........................................5...........................9.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-ATs, KJs+, AQo, JTs:0.9, AKo:0.9, 66:0.8, AKs:0.7, KTs:0.5, T9s:0.5, AJo:0.4, 55:0.1"
+      "range": "QQ-77, AQs-ATs, KJs+, JTs, AQo, AKo:0.9, 66:0.8, AKs:0.7, KTs:0.5, T9s:0.5, AJo:0.4, 55:0.1, A9s:0.1"
      },
      {
       "key": "4bet",
@@ -13619,7 +13835,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, 55:0.9, KK:0.5, A9s:0.4, 66:0.2, AKs:0.1, JTs:0.1"
+      "range": "A5s, AA:0.9, 55:0.9, KK:0.5, A9s:0.4, 66:0.2, AKs:0.1"
      }
     ]
    },
@@ -13633,35 +13849,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs HJ 3벳",
     "title": "UTG+1 오픈 후 vs HJ 3벳",
-    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
-    "occ": 0.532,
+    "occ": 0.533,
     "regret": 0.0024,
     "confidence": "low",
-    "move": 0,
-    "close": "...........................................5.........................................9...................................................................................",
+    "move": 19.2,
+    "close": "...........................................5.............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs+, JTs, AQo, ATs:0.9, T9s:0.9, AKo:0.9, 66:0.8, 55:0.6, AJo:0.6, AKs:0.3, A9s:0.3, 98s:0.1"
+      "range": "QQ-77, AQs-AJs, KJs+, JTs, AQo, ATs:0.9, T9s:0.9, AKo:0.9, 66:0.8, AJo:0.7, 55:0.6, A9s:0.4, AKs:0.3, 98s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.6, KTs:0.5, AKs:0.3, AA:0.1, AKo:0.1"
+      "range": "KK:0.6, KTs:0.5, AKs:0.2, AA:0.1, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "A5s, AA:0.9, KK:0.4, 55:0.4, AKs:0.4, 66:0.2, ATs-A9s:0.1, A7s:0.1, KTs:0.1"
+      "range": "A5s, AA:0.9, AKs:0.5, KK:0.4, 55:0.4, 66:0.2, ATs-A9s:0.1, A7s:0.1, KTs:0.1"
      }
     ]
    },
@@ -13675,35 +13891,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs CO 3벳",
     "title": "UTG+1 오픈 후 vs CO 3벳",
-    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 17.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
-    "occ": 0.513,
-    "regret": 0.0034,
+    "occ": 0.512,
+    "regret": 0.0013,
     "confidence": "low",
-    "move": 0,
-    "close": ".............5............................................9..............................................................................................................",
+    "move": 17.8,
+    "close": "6............3..........................................3.9..............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-77, AQs-AJs, KJs+, JTs, T9s, AQo+, 66:0.9, ATs:0.8, 98s:0.7, AJo:0.7, KTs:0.5, 87s:0.5, A9s:0.3, 55:0.2"
+      "range": "QQ-77, AQs-AJs, KJs+, JTs, T9s, AQo+, 66:0.9, ATs:0.9, 98s:0.9, AJo:0.7, KTs:0.6, A9s:0.4, 87s:0.4, 55:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": "KK:0.2, AKs:0.1, KTs:0.1"
+      "range": "KK:0.2, KTs:0.2, AKs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AA, A5s, AKs:0.9, KK:0.8, 55:0.8, A7s:0.4, ATs:0.2, 66:0.1"
+      "range": "AA, A5s, 55:0.9, AKs:0.9, KK:0.8, A7s:0.5, 66:0.1, ATs:0.1"
      }
     ]
    },
@@ -13717,23 +13933,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 19.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+1 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
-    "occ": 0.575,
-    "regret": 0.001,
+    "occ": 0.569,
+    "regret": 0.0014,
     "confidence": "low",
-    "move": 0,
-    "close": "...........................................9....................................................................5........................................................",
+    "move": 19.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs-ATs, KJs+, JTs, T9s, AQo-AJo, 98s:0.7, KTs:0.6, AKo:0.6, 87s:0.4, QJs:0.1, KQo:0.1"
+      "range": "QQ-77, AQs-ATs, KJs+, T9s, AQo-AJo, 66:0.9, JTs:0.9, 98s:0.9, KTs:0.6, AKo:0.6, 87s:0.4, QJs:0.2, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -13745,7 +13960,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, 55, AKs, A5s, AKo:0.4, A7s:0.3, KTs:0.1, QJs:0.1"
+      "range": "KK+, 55, AKs, A5s, AKo:0.4, A7s:0.2, 66:0.1, KTs:0.1, QJs:0.1"
      }
     ]
    },
@@ -13759,29 +13974,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요.",
     "line": "UTG+1 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
     "occ": 0.484,
-    "regret": 0.0006,
+    "regret": 0.0007,
     "confidence": "mid",
-    "move": 0,
+    "move": 19.2,
     "close": "....3..........3.........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-ATs, KQs, AQo, 66:0.9, QQ:0.7, AKo:0.6, KJs:0.5, AJo:0.1"
+      "range": "JJ-77, AQs-ATs, KQs, AQo, 66:0.9, QQ:0.7, AKo:0.6, KJs:0.5, AJo:0.2, 55:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, 55, AKs, A5s, AKo:0.4, QQ:0.3, KTs:0.2, 66:0.1"
+      "range": "KK+, AKs, A5s, 55:0.9, AKo:0.4, QQ:0.3, 66:0.1, KJs-KTs:0.1"
      }
     ]
    },
@@ -13795,23 +14010,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.1%p 움직여요.",
     "line": "UTG+1 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
     "reachPct": 17.6,
-    "occ": 0.366,
-    "regret": 0.0023,
+    "occ": 0.368,
+    "regret": 0.0024,
     "confidence": "mid",
-    "move": 0,
+    "move": 11.1,
     "close": "........................................5................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs+, AQo, QQ:0.8, KTs:0.8, A9s:0.6, QJs:0.2, AKo:0.1, KQo:0.1"
+      "range": "JJ-55, AQs-ATs, KJs+, AQo, QQ:0.8, KTs:0.8, A9s:0.7, QJs:0.3, AKo:0.1, KQo:0.1"
      },
      {
       "key": "shove",
@@ -13831,35 +14046,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs LJ 3벳",
     "title": "UTG+2 오픈 후 vs LJ 3벳",
-    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 18%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · LJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.636,
-    "regret": 0.0013,
+    "reachPct": 20.3,
+    "occ": 0.63,
+    "regret": 0.0019,
     "confidence": "low",
-    "move": 0,
-    "close": ".........c.......5.......................................................................................................................................................",
+    "move": 18,
+    "close": ".........c...............................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QQ-66, AQs-AJs, KTs+, JTs, T9s, AQo+, AJo:0.9, 55:0.7, AKs:0.7, ATs:0.6, 98s:0.5, QTs:0.4, A9s:0.3, T8s:0.2, 87s:0.1"
+      "range": "QQ-66, AQs-AJs, KJs+, JTs, T9s, AQo+, KTs:0.9, AJo:0.9, 55:0.7, AKs:0.6, 98s:0.5, ATs:0.4, A9s:0.3, QTs:0.2, T8s:0.1, 87s:0.1"
      },
      {
       "key": "4bet",
       "label": "4벳 16.5bb",
       "color": "raise",
-      "range": ""
+      "range": "KK:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, A5s, A4s:0.9, ATs:0.4, 55:0.3, AKs:0.3, A9s:0.2"
+      "range": "AA, A5s, KK:0.9, A4s:0.8, ATs:0.6, AKs:0.4, 55:0.3, A9s:0.2"
      }
     ]
    },
@@ -13873,16 +14088,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs HJ 3벳",
     "title": "UTG+2 오픈 후 vs HJ 3벳",
-    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 19.8%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.655,
+    "reachPct": 20.3,
+    "occ": 0.644,
     "regret": 0.0013,
     "confidence": "low",
-    "move": 0,
+    "move": 19.8,
+    "close": ".5.......................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -13914,23 +14130,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs CO 3벳",
     "title": "UTG+2 오픈 후 vs CO 3벳",
-    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20%p 움직여요. 4벳 올인이 작은 4벳보다 많아요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+2 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.695,
+    "reachPct": 20.3,
+    "occ": 0.687,
     "regret": 0.0009,
     "confidence": "low",
-    "move": 0,
-    "close": "..........................................................9..............................................................................................................",
+    "move": 20,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KJs+, JTs, T9s, 98s, 87s, AQo-AJo, QQ:0.9, 55:0.9, QJs:0.9, AKo:0.8, KTs:0.6, QTs:0.6, KQo:0.2, A9s:0.1"
+      "range": "JJ-66, AQs-ATs, KJs+, JTs, T9s, 98s, 87s, AQo-AJo, QQ:0.9, 55:0.9, QJs:0.9, AKo:0.8, QTs:0.7, KTs:0.6, KQo:0.2, A9s:0.1"
      },
      {
       "key": "4bet",
@@ -13942,7 +14157,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, KTs:0.4, A9s:0.3, AKo:0.2, QQ:0.1, 55:0.1, QTs:0.1"
+      "range": "KK+, AKs, A5s-A4s, KTs:0.4, A9s:0.2, AKo:0.2, QQ:0.1, 55:0.1, QTs+:0.1"
      }
     ]
    },
@@ -13956,23 +14171,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BTN 3벳",
     "title": "UTG+2 오픈 후 vs BTN 3벳",
-    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.5%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "UTG+2 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.651,
-    "regret": 0.0007,
+    "reachPct": 20.3,
+    "occ": 0.646,
+    "regret": 0.0006,
     "confidence": "low",
-    "move": 0,
+    "move": 25.5,
     "close": "............................................9.................................................................................5..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-55, AQs-ATs, KJs+, JTs, T9s, 98s, 87s, AQo-AJo, QQ:0.7, KTs:0.7, AKo:0.7, A9s:0.6, QJs:0.5, KQo:0.3"
+      "range": "JJ-55, AQs-ATs, KJs+, JTs, T9s, 98s, 87s, AQo-AJo, QQ:0.7, KTs:0.7, AKo:0.7, A9s:0.6, QJs:0.6, KQo:0.2"
      },
      {
       "key": "4bet",
@@ -13984,7 +14199,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, QJs:0.5, A9s:0.4, QQ:0.3, KTs:0.3, QTs:0.3, AKo:0.3"
+      "range": "KK+, AKs, A5s-A4s, A9s:0.4, QJs:0.4, QQ:0.3, KTs:0.3, QTs:0.3, AKo:0.3"
      }
     ]
    },
@@ -13998,28 +14213,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.1%p 움직여요.",
     "line": "UTG+2 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.495,
-    "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 20.3,
+    "occ": 0.493,
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 21.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-ATs, KJs+, AQo, 55:0.6, AKo:0.6, AJo:0.5, QQ:0.3, KTs:0.1"
+      "range": "JJ-66, AQs-ATs, KJs+, AQo, 55:0.6, AKo:0.5, AJo:0.5, QQ:0.3, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, QJs, QQ:0.7, A4s:0.5, 55:0.4, A5s:0.4, AKo:0.4, KTs:0.2, A9s:0.1"
+      "range": "KK+, AKs, QJs, QQ:0.7, AKo:0.5, 55:0.4, A5s-A4s:0.4, KTs:0.2, A9s:0.1"
      }
     ]
    },
@@ -14033,29 +14248,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12%p 움직여요.",
     "line": "UTG+2 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 20.2,
-    "occ": 0.37,
+    "reachPct": 20.3,
+    "occ": 0.369,
     "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
+    "move": 12,
     "close": ".................5.......................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-66, AQs-A9s, KTs+, AQo, QJs:0.9, 55:0.8, JTs:0.8, AJo:0.5, QQ:0.3, A8s:0.2, KQo:0.1"
+      "range": "JJ-66, AQs-A9s, KTs+, AQo, QJs:0.9, JTs:0.9, 55:0.7, AJo:0.5, QQ:0.3, A8s:0.2, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, AKo, A5s:0.8, QQ:0.7, 55:0.2, A4s:0.1"
+      "range": "KK+, AKs, AKo, QQ:0.7, A5s:0.6, 55:0.3, A4s:0.1"
      }
     ]
    },
@@ -14069,23 +14284,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs HJ 3벳",
     "title": "LJ 오픈 후 vs HJ 3벳",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.3%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 2.2 · HJ 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.4,
-    "occ": 0.815,
-    "regret": 0.001,
+    "reachPct": 23.3,
+    "occ": 0.809,
+    "regret": 0.0012,
     "confidence": "low",
-    "move": 0,
-    "close": ".......c..................................................9..............................................................................................................",
+    "move": 22.3,
+    "close": ".......c.................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A9s, KJs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo-AJo, QJs:0.8, QQ:0.6, AKo:0.6, 97s:0.5, QTs:0.4, KTs:0.3, K9s:0.2, KQo:0.1"
+      "range": "JJ-55, AQs-A9s, KJs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo-AJo, QJs:0.7, QQ:0.6, AKo:0.6, 97s:0.5, QTs:0.4, KTs-K9s:0.3, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -14097,7 +14312,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, KTs:0.7, QTs:0.6, QQ:0.4, AKo:0.4, A3s:0.2, QJs:0.2"
+      "range": "KK+, AKs, A5s-A4s, KTs:0.7, QTs:0.6, QQ:0.4, AKo:0.4, QJs:0.3, A3s:0.2"
      }
     ]
    },
@@ -14111,23 +14326,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs CO 3벳",
     "title": "LJ 오픈 후 vs CO 3벳",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.4,
-    "occ": 0.772,
-    "regret": 0.0007,
+    "reachPct": 23.3,
+    "occ": 0.768,
+    "regret": 0.0008,
     "confidence": "low",
-    "move": 0,
+    "move": 23.4,
     "close": "..............................5.....................9....................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A9s, KJs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo-AJo, 97s:0.9, KTs:0.7, K9s:0.6, QJs:0.6, AKo:0.4, QQ:0.2, J9s:0.1, KQo:0.1"
+      "range": "JJ-55, AQs-A9s, KJs+, JTs, T9s, 98s, 87s, 76s, 65s, AQo-AJo, 97s:0.9, KTs:0.7, K9s:0.6, QJs:0.6, AKo:0.4, QQ:0.3, J9s:0.1, KQo:0.1"
      },
      {
       "key": "4bet",
@@ -14139,7 +14354,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK+, AKs, A5s-A4s, QTs, QQ:0.8, AKo:0.6, QJs:0.4, A3s:0.3, KTs:0.3, Q9s:0.3, K9s:0.1"
+      "range": "KK+, AKs, A5s-A4s, QTs, QQ:0.7, AKo:0.6, QJs:0.4, A3s:0.3, KTs:0.3, Q9s:0.3, K9s:0.1"
      }
     ]
    },
@@ -14153,22 +14368,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BTN 3벳",
     "title": "LJ 오픈 후 vs BTN 3벳",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.4%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "LJ 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.4,
-    "occ": 0.684,
+    "reachPct": 23.3,
+    "occ": 0.679,
     "regret": 0.0015,
     "confidence": "low",
-    "move": 0,
+    "move": 23.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A9s, KJs+, JTs, T9s, 97s+, 87s, 76s, 65s, AQo-AJo, QJs:0.9, KTs:0.5, QTs:0.5, J9s:0.5, ATo:0.5, KQo:0.4, AKo:0.3"
+      "range": "JJ-55, AQs-A9s, KJs+, JTs, T9s, 97s+, 87s, 76s, 65s, AQo-AJo, QJs:0.9, KTs:0.5, QTs:0.5, J9s:0.5, ATo:0.5, KQo:0.5, AKo:0.3"
      },
      {
       "key": "4bet",
@@ -14180,7 +14395,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A5s-A4s, AKo:0.7, A3s:0.5, KTs-K9s:0.5, QTs:0.5, Q9s:0.2, QJs:0.1"
+      "range": "QQ+, AKs, A5s-A4s, AKo:0.7, A3s:0.6, KTs-K9s:0.5, QTs:0.5, Q9s:0.2, QJs:0.1"
      }
     ]
    },
@@ -14194,29 +14409,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21%p 움직여요.",
     "line": "LJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.4,
-    "occ": 0.564,
-    "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 23.3,
+    "occ": 0.56,
+    "regret": 0.0012,
+    "confidence": "low",
+    "move": 21,
     "close": "..................6......................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-ATs, AQo-AJo, KQs:0.9, KJs:0.8, KTs:0.6, A9s:0.3, 87s:0.3, 98s:0.2, AKo:0.2, KQo:0.1"
+      "range": "JJ-55, AQs-ATs, AQo-AJo, KJs+:0.9, KTs:0.7, A9s:0.4, 87s:0.3, 98s:0.2, AKo:0.2, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, A4s, QJs, AKo:0.8, A5s:0.6, KTs:0.4, A9s:0.2, KJs:0.2, KQs:0.1"
+      "range": "QQ+, AKs, A4s, QJs, AKo:0.8, A5s:0.6, KTs:0.3, A9s:0.1, KJs+:0.1"
      }
     ]
    },
@@ -14230,28 +14445,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.6%p 움직여요.",
     "line": "LJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-lj:open"
     ],
-    "reachPct": 23.4,
-    "occ": 0.403,
-    "regret": 0.0036,
+    "reachPct": 23.3,
+    "occ": 0.402,
+    "regret": 0.0034,
     "confidence": "mid",
-    "move": 0,
+    "move": 12.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-44, AQs-A9s, KTs, QTs, JTs, AQo-AJo, KJs:0.8, KQs:0.6, QJs:0.6, KQo:0.5, K9s:0.3, T9s:0.2"
+      "range": "JJ-55, AQs-A9s, KTs, QTs, JTs, AQo-AJo, KJs:0.9, QJs:0.7, KQs:0.6, KQo:0.5, K9s:0.3, T9s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, A5s:0.7, A4s:0.6, KQs:0.4, QJs:0.4, KJs:0.2"
+      "range": "QQ+, AKs, AKo, A5s:0.7, A4s:0.6, KQs:0.4, QJs:0.3, KJs:0.1"
      }
     ]
    },
@@ -14265,22 +14480,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs CO 3벳",
     "title": "HJ 오픈 후 vs CO 3벳",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.3%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 29.1,
-    "occ": 0.941,
-    "regret": 0.0006,
+    "reachPct": 29.3,
+    "occ": 0.939,
+    "regret": 0.0005,
     "confidence": "low",
-    "move": 0,
+    "move": 21.3,
+    "close": ".............5...5............5d......................................................9..................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A8s, J9s+, T9s, 97s+, 86s+, 76s, 65s, 54s, AQo-ATo, KQo, KTs:0.9, QTs:0.9, JJ:0.8, KQs:0.8, T8s:0.2, A7s:0.1, A5s:0.1, K9s:0.1, Q9s:0.1"
+      "range": "TT-44, AQs-A8s, KTs, QTs, J9s+, T9s, 97s+, 86s+, 76s, 65s, 54s, AQo-ATo, KQo, JJ:0.8, KQs:0.8, T8s:0.3, A7s:0.1, A5s:0.1, K9s:0.1"
      },
      {
       "key": "4bet",
@@ -14292,7 +14508,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KJs, QJs, AKo, A4s:0.9, Q9s:0.9, K9s:0.8, A5s:0.7, JJ:0.2, KQs:0.2, KTs:0.1, QTs:0.1"
+      "range": "QQ+, AKs, KJs, QJs, Q9s, AKo, A4s:0.9, K9s:0.9, A5s:0.7, JJ:0.2, KQs:0.2, A7s:0.1"
      }
     ]
    },
@@ -14306,23 +14522,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 29.1,
-    "occ": 0.957,
-    "regret": 0.0006,
+    "reachPct": 29.3,
+    "occ": 0.956,
+    "regret": 0.0005,
     "confidence": "low",
-    "move": 0,
+    "move": 20,
     "close": "........................................................................9................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A7s, KTs, JTs, T8s+, 97s+, 86s+, 76s, 65s, 54s, AQo-ATo, KQo, QTs:0.9, J9s:0.9, JJ:0.8, A5s:0.8, A3s:0.7, Q9s:0.7, K9s:0.2, A6s:0.1, A2s:0.1, KJs:0.1"
+      "range": "TT-44, AQs-A7s, KTs, JTs, T8s+, 97s+, 86s+, 76s, 65s, 54s, AQo-ATo, KQo, A5s:0.9, QTs:0.9, J9s:0.9, JJ:0.8, A3s:0.7, Q9s:0.7, K9s:0.3, A6s:0.1, A2s:0.1, KJs:0.1"
      },
      {
       "key": "4bet",
@@ -14334,7 +14550,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, A4s, KQs, QJs, AKo, AKs:0.9, KJs:0.9, K9s:0.8, K8s:0.5, A3s:0.3, Q9s:0.3, JJ:0.2, A5s:0.2, QTs:0.1"
+      "range": "QQ+, A4s, KQs, QJs, AKo, AKs:0.9, KJs:0.9, K9s:0.7, K8s:0.6, A3s:0.3, Q9s:0.3, JJ:0.2, A5s:0.1, QTs:0.1"
      }
     ]
    },
@@ -14348,29 +14564,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요.",
     "line": "HJ 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 29.1,
-    "occ": 0.711,
+    "reachPct": 29.3,
+    "occ": 0.71,
     "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......6.........3.....................................................5.................................................................................................",
+    "move": 19.2,
+    "close": ".................3..........................5............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-A9s, JTs, 98s, 87s, 76s, AQo-AJo, KQo, 44:0.8, 65s:0.7, JJ:0.6, ATo:0.6, QTs:0.2, J9s:0.2, T9s:0.2"
+      "range": "TT-55, AQs-A9s, JTs, 87s, 76s, AQo-AJo, KQo, 98s:0.9, 44:0.8, 65s:0.7, JJ:0.6, ATo:0.6, T9s:0.3, QTs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs+, QJs, AKo, QTs:0.8, JJ:0.4, 44:0.2, A8s:0.1, A4s:0.1"
+      "range": "QQ+, AKs, KTs+, QJs, AKo, QTs:0.8, JJ:0.4, 44:0.2, A8s-A7s:0.1, A4s:0.1"
      }
     ]
    },
@@ -14384,29 +14600,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.8%p 움직여요.",
     "line": "HJ 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-hj:open"
     ],
-    "reachPct": 29.1,
-    "occ": 0.517,
-    "regret": 0.0037,
+    "reachPct": 29.3,
+    "occ": 0.514,
+    "regret": 0.0014,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........................3...5.........................................................................................................................................",
+    "move": 15.8,
+    "close": "...........6...............3.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-A9s, KTs-K9s, Q9s, JTs, T9s, AQo-AJo, KQo, 44:0.9, J9s:0.9, A8s:0.7, KJs:0.7, QTs:0.5, ATo:0.5, K8s:0.4, JJ:0.2, KJo:0.2, A5s:0.1, QJs:0.1"
+      "range": "TT-55, AQs-A9s, KTs-K9s, JTs, T9s, AQo-AJo, KQo, 44:0.9, Q9s:0.9, J9s:0.9, A8s:0.8, K8s:0.7, QTs:0.6, ATo:0.6, KJs:0.5, JJ:0.3, KJo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KQs, AKo, QJs:0.9, JJ:0.8, A4s:0.8, QTs:0.5, A5s:0.4, KJs:0.3, 44:0.1, A3s:0.1"
+      "range": "QQ+, AKs, A4s, KQs, QJs, AKo, JJ:0.7, KJs:0.5, QTs:0.4, A5s:0.3, 44:0.1"
      }
     ]
    },
@@ -14420,23 +14636,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BTN 3벳",
     "title": "CO 오픈 후 vs BTN 3벳",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. 4벳 올인이 작은 4벳보다 많아요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21%p 움직여요. 4벳 올인이 작은 4벳보다 많아요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
+    "reachPct": 36.5,
     "occ": 1.113,
-    "regret": 0.0012,
+    "regret": 0.0011,
     "confidence": "low",
-    "move": 0,
-    "close": ".......................c.................................................................................................................................................",
+    "move": 21,
+    "close": "...............5.......c.................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-55, AQs-A5s, A3s, QTs-Q9s, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-A9o, KQo, 44:0.9, A4s:0.9, A2s:0.8, T7s:0.8, QJo:0.7, K9s:0.6, Q8s:0.6, J8s:0.6, 33:0.5, KTs:0.2, KJo:0.2, K7s:0.1, QJs:0.1"
+      "range": "TT-55, AQs-A5s, A3s, QTs-Q9s, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, AQo-A9o, KQo, 44:0.9, A4s:0.9, T7s:0.9, A2s:0.8, QJo:0.7, K9s:0.6, Q8s:0.6, J8s:0.6, 33:0.5, KTs:0.2, KJo:0.2, K7s:0.1, QJs:0.1"
      },
      {
       "key": "4bet",
@@ -14462,29 +14678,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.3%p 움직여요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
-    "occ": 0.974,
-    "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 36.5,
+    "occ": 0.976,
+    "regret": 0.0008,
+    "confidence": "low",
+    "move": 21.3,
     "close": ".................3.............5......................................................5..................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-44, AQs-A7s, A5s, QTs-Q9s, J9s+, T9s, 87s, 76s, 65s, 54s, AQo-ATo, KQo, 98s:0.9, 75s:0.8, A9o:0.8, K9s:0.7, 33:0.6, T8s:0.6, A4s:0.5, KQs:0.3, 97s:0.1"
+      "range": "TT-44, AQs-A7s, A5s, QTs-Q9s, J9s+, T9s, 87s, 76s, 65s, 54s, AQo-ATo, KQo, 98s:0.9, K9s:0.8, 75s:0.8, T8s:0.7, A9o:0.7, A4s:0.6, 33:0.5, KQs:0.3, 97s:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, KQs:0.7, 33:0.4, K9s:0.3, KJo:0.3"
+      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, KQs:0.7, 33:0.5, KJo:0.3, K9s:0.2"
      }
     ]
    },
@@ -14498,29 +14714,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.2%p 움직여요.",
     "line": "CO 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 36.4,
-    "occ": 0.717,
+    "reachPct": 36.5,
+    "occ": 0.718,
     "regret": 0.0016,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........5.................3............3................................................................................................................................",
+    "confidence": "low",
+    "move": 21.2,
+    "close": ".........5.........5....................3................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs-A8s, A5s, K9s, Q9s, J9s+, T8s+, 98s, 87s, AQo-ATo, KJo+, K8s:0.9, 44:0.8, A9o:0.8, QJo:0.8, A7s:0.7, QTs:0.6, TT:0.4, 33:0.4, J8s:0.4, 76s:0.4, A4s:0.1, KTs:0.1"
+      "range": "99-55, AQs-A8s, A5s, K9s-K8s, Q9s, J9s+, T8s+, 98s, 87s, AQo-ATo, KJo+, A9o:0.9, 44:0.8, QJo:0.8, A7s:0.7, QTs:0.6, TT:0.5, 33:0.4, J8s:0.4, 76s:0.4, A4s:0.1, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KJs+, QJs, AKo, KTs:0.9, TT:0.6, 33:0.6, QTs:0.4, 44:0.2, A4s:0.2"
+      "range": "JJ+, AKs, KJs+, QJs, AKo, KTs:0.9, 33:0.6, TT:0.5, QTs:0.4, 44:0.2, A4s:0.2"
      }
     ]
    },
@@ -14535,20 +14751,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "BTN — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.082,
+    "occ": 1.08,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "............................................................................................................................................3............................",
+    "move": 0.7,
+    "close": "..................................................................................................3.........................................3............................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, 55, AQs+, AKo, 77-66:0.1"
+      "range": "JJ+, 55, AQs+, AKo, 66:0.2"
      }
     ]
    },
@@ -14562,29 +14778,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 27.8%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 51.9,
-    "occ": 1.498,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 52.1,
+    "occ": 1.496,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 27.8,
     "close": ".........................................................................5...............................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AJs-A2s, Q8s, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo-A8o, Q9s:0.9, JTo:0.9, KQo:0.8, QJo:0.8, KJo:0.7, 99:0.6, 53s:0.6, A7o:0.2, JTs:0.1"
+      "range": "88-22, AJs-A2s, Q8s, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo-A8o, QJo:0.9, JTo:0.9, Q9s:0.8, KQo:0.8, 99:0.7, KJo:0.7, 53s:0.5, JTs:0.3, A7o:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, AQs+, K9s+, QTs+, AQo+, JTs:0.9, 99:0.4, KJo:0.3, KQo:0.2, Q9s:0.1"
+      "range": "TT+, AQs+, K9s+, QTs+, AQo+, JTs:0.7, 99:0.3, KJo:0.3, Q9s:0.2, KQo:0.2"
      }
     ]
    },
@@ -14598,29 +14814,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.7%p 움직여요.",
     "line": "BTN 2.2 · BB 3벳 8.8",
     "reachFrom": [
      "rfi-btn:open"
     ],
-    "reachPct": 51.9,
-    "occ": 1.054,
-    "regret": 0.0004,
+    "reachPct": 52.1,
+    "occ": 1.059,
+    "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
+    "move": 18.7,
     "close": "......................................................................................5.............5.......................................3.............3..............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-33, AJs-A2s, K8s-K6s, QJs, Q9s-Q8s, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 65s, 54s, AJo-A8o, KJo, QJo, JTo, 22:0.8, QTo:0.8, KQo:0.7, KTo:0.5, A7o:0.2, J7s:0.1"
+      "range": "88-33, AJs-A2s, K8s-K6s, QJs, Q9s-Q8s, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 65s, 54s, AJo-A8o, KJo, QJo, JTo, 22:0.8, QTo:0.8, KQo:0.6, KTo:0.5, J7s:0.3, A7o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, AQs+, K9s+, QTs, JTs, AQo+, KTo:0.5, KQo:0.3, 22:0.2"
+      "range": "99+, AQs+, K9s+, QTs, JTs, AQo+, KTo:0.5, KQo:0.4, 22:0.2"
      }
     ]
    },
@@ -14635,20 +14851,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO3벳",
     "title": "SB — HJ 오픈 → CO 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.4%p 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.04,
+    "occ": 1.038,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.4,
     "close": "................................................................................................................3...........................3............................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "JJ+, AQs+, AKo, 55:0.9, TT:0.8, KQs:0.6, 99:0.1, 77:0.1"
+      "range": "JJ+, AQs+, AKo, TT:0.9, 55:0.9, KQs:0.6, 99:0.1, 77:0.1"
      }
     ]
    },
@@ -14663,20 +14879,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "SB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.062,
+    "occ": 1.061,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 0.7,
     "close": "..................................................................................................3.........................................3............................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KQs, AKo, 66:0.3"
+      "range": "TT+, 55, AQs+, KQs, AKo, 66:0.2"
      }
     ]
    },
@@ -14691,19 +14907,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "SB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 2.3%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.273,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 2.3,
+    "close": "..................................................................................................3...........................3..........................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "TT+, AQs+, KJs+, AKo, 55:0.9, 66:0.4, 99:0.2, 44:0.2, AJs:0.2, QJs:0.2, 77:0.1"
+      "range": "TT+, 55, AQs+, KJs+, AKo, 66:0.5, QJs:0.3, 99:0.2, AJs:0.2, 44:0.1"
      }
     ]
    },
@@ -14717,29 +14934,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 3bb → BB 3벳 9bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 3bb → BB 3벳 9bb. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 37%p 움직여요.",
     "line": "SB 3 · BB 3벳 9",
     "reachFrom": [
      "rfi-sb:raise"
     ],
     "reachPct": 34.7,
-    "occ": 0.619,
+    "occ": 0.612,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 37,
     "close": ".....................................................5...................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-33, A9s-A3s, K9s-K7s, QTs-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 76s, 65s, 54s, ATo, A8o-A7o, KJo-KTo, QJo, JTo, QTo:0.9, QJs:0.7, KTs:0.5, KQo:0.3, KJs:0.1, JTs:0.1"
+      "range": "77-33, A9s-A3s, K9s-K7s, QTs-Q8s, J9s-J8s, T8s+, 97s+, 86s+, 76s, 65s, 54s, ATo, A8o-A7o, KJo-KTo, QJo, JTo, QTo:0.9, QJs:0.7, KTs:0.6, KQo:0.3, JTs:0.2, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KK-88, 22, AQs+, KQs, AQo+, KJs:0.9, JTs:0.9, KQo:0.7, KTs:0.5, QJs:0.3"
+      "range": "KK-88, 22, AQs+, KQs, AQo+, KJs:0.9, JTs:0.8, KQo:0.7, KTs:0.4, QJs:0.3"
      }
     ]
    },
@@ -14754,13 +14971,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN3벳",
     "title": "BB — HJ 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1%p 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
-    "occ": 1.013,
+    "occ": 1.012,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 1,
     "close": "..................................................................................................3.........................................3............................",
     "actions": [
      {
@@ -14782,13 +14999,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN3벳",
     "title": "BB — CO 오픈 → BTN 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6",
     "reachPct": 100,
     "occ": 1.205,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.3,
     "close": "....................................................................................3....................................................................................",
     "actions": [
      {
@@ -14810,19 +15027,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB3벳",
     "title": "BB — CO 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.1%p 움직여요.",
     "line": "CO 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.053,
+    "occ": 1.054,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.1,
+    "close": "................................................................................................................3........................................................",
     "actions": [
      {
       "key": "shove",
       "label": "콜드 올인",
       "color": "allin",
-      "range": "88+, AQs+, KJs+, AQo+, 66:0.9, QJs:0.8, 77:0.7, 55:0.4, KTs:0.2"
+      "range": "88+, 66, AQs+, KJs+, AQo+, QJs:0.9, 77:0.7, 55:0.4, KTs:0.2"
      }
     ]
    },
@@ -14837,13 +15055,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳",
     "title": "BB — BTN 오픈 → SB 3벳 (콜드: 폴드·올인)",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb. 3벳 뒤 콜드 자리는 폴드나 올인만 해요 (트리 제약: 콜·작은 4벳 없음). 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 1.5%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8",
     "reachPct": 100,
-    "occ": 1.661,
+    "occ": 1.658,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 1.5,
     "close": "..............................3..........................................................................................................................................",
     "actions": [
      {
@@ -14864,22 +15082,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳 올인",
     "title": "HJ 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 6%p 움직여요.",
     "line": "LJ 2.2 · HJ 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
     "reachPct": 7.4,
-    "occ": 0.103,
-    "regret": 0.0007,
+    "occ": 0.101,
+    "regret": 0.0006,
     "confidence": "mid",
-    "move": 0,
+    "move": 6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, 99, AKs, ATs, AKo, 77:0.5, 88:0.2, 66:0.2"
+      "range": "JJ+, 99, AKs, ATs, AKo, 77:0.5, 66:0.3, 88:0.2"
      }
     ]
    },
@@ -14893,16 +15111,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳 올인",
     "title": "CO 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 4.3%p 움직여요.",
     "line": "LJ 2.2 · CO 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "co-vs-lj-open:3bet"
     ],
-    "reachPct": 7.9,
-    "occ": 0.112,
-    "regret": 0.0001,
+    "reachPct": 8.1,
+    "occ": 0.11,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 4.3,
     "actions": [
      {
       "key": "call",
@@ -14922,22 +15140,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳 올인",
     "title": "CO 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 4.8%p 움직여요.",
     "line": "HJ 2.2 · CO 3벳 6.6 · HJ 올인",
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
     "reachPct": 8.8,
-    "occ": 0.141,
-    "regret": 0.0007,
+    "occ": 0.14,
+    "regret": 0.001,
     "confidence": "mid",
-    "move": 0,
+    "move": 4.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, 66, AKs, ATs, AKo, 77:0.2"
+      "range": "TT+, 88, 66, AKs, ATs, AKo, 77:0.3"
      }
     ]
    },
@@ -14951,22 +15169,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳 올인",
     "title": "BTN 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 3벳 6.6bb → LJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "LJ 2.2 · BTN 3벳 6.6 · LJ 올인",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
     "reachPct": 8.4,
-    "occ": 0.105,
+    "occ": 0.103,
     "regret": 0.0007,
     "confidence": "mid",
-    "move": 0,
+    "move": 3.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AQs+, AKo, 88:0.3"
+      "range": "99+, AQs+, AKo, 88:0.2"
      }
     ]
    },
@@ -14980,22 +15198,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳 올인",
     "title": "BTN 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 3벳 6.6bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
     "line": "HJ 2.2 · BTN 3벳 6.6 · HJ 올인",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
-    "reachPct": 10.8,
-    "occ": 0.146,
+    "reachPct": 10.7,
+    "occ": 0.145,
     "regret": 0.0006,
     "confidence": "mid",
-    "move": 0,
+    "move": 3.7,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88, ATs+, AKo, 66:0.3, A9s:0.3, AQo:0.2, 77:0.1"
+      "range": "TT+, 88, AJs+, AKo, A9s:0.4, 66:0.2, AQo:0.2, 77:0.1"
      }
     ]
    },
@@ -15009,16 +15227,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳 올인",
     "title": "BTN 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 3벳 6.6bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 7%p 움직여요.",
     "line": "CO 2.2 · BTN 3벳 6.6 · CO 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
     "reachPct": 11.5,
     "occ": 0.159,
-    "regret": 0.001,
+    "regret": 0.0009,
     "confidence": "mid",
-    "move": 0,
+    "move": 7,
     "actions": [
      {
       "key": "call",
@@ -15038,16 +15256,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ 4벳 올인",
     "title": "SB 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 3벳 8.8bb → HJ 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 6.4%p 움직여요.",
     "line": "HJ 2.2 · SB 3벳 8.8 · HJ 올인",
     "reachFrom": [
      "sb-vs-hj-open:3bet"
     ],
     "reachPct": 10.1,
-    "occ": 0.106,
-    "regret": 0.0005,
+    "occ": 0.105,
+    "regret": 0.0007,
     "confidence": "mid",
-    "move": 0,
+    "move": 6.4,
     "actions": [
      {
       "key": "call",
@@ -15067,22 +15285,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO 4벳 올인",
     "title": "SB 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 3벳 8.8bb → CO 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 5.2%p 움직여요.",
     "line": "CO 2.2 · SB 3벳 8.8 · CO 올인",
     "reachFrom": [
      "sb-vs-co-open:3bet"
     ],
-    "reachPct": 13.2,
+    "reachPct": 13.3,
     "occ": 0.126,
-    "regret": 0.0006,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 5.2,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, ATs+, KQs, AKo, AQo:0.9, 88:0.8"
+      "range": "99+, ATs+, KQs, AKo, 88:0.9, AQo:0.9"
      }
     ]
    },
@@ -15096,22 +15314,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.1%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.7,
-    "occ": 0.214,
-    "regret": 0.0003,
+    "reachPct": 16.6,
+    "occ": 0.212,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, A5s, KQs, AJo+, A9s:0.6, A4s:0.2"
+      "range": "88+, ATs+, A5s, KQs, AJo+, A9s:0.5, A4s:0.2"
      }
     ]
    },
@@ -15126,16 +15344,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB3벳·BB올인",
     "title": "SB — BTN 오픈 → SB 3벳 → BB 올인",
-    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 3벳 8.8bb → BB 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 5.2%p 움직여요.",
     "line": "BTN 2.2 · SB 3벳 8.8 · BB 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 16.7,
+    "reachPct": 16.6,
     "occ": 0.162,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 5.2,
     "actions": [
      {
       "key": "call",
@@ -15155,22 +15373,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳 올인",
     "title": "BB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → BB 3벳 8.8bb → BTN 올인. 3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 6.6%p 움직여요.",
     "line": "BTN 2.2 · BB 3벳 8.8 · BTN 올인",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
-    "reachPct": 18,
-    "occ": 0.157,
-    "regret": 0.0006,
+    "reachPct": 17.8,
+    "occ": 0.158,
+    "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
+    "move": 6.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, KJs+, AJo+, 77:0.8, A9s:0.2"
+      "range": "88+, ATs+, KJs+, AJo+, 77:0.8, A9s:0.3"
      }
     ]
    },
@@ -15185,13 +15403,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "LJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 1.08,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 1.083,
+    "regret": 0,
+    "confidence": "low",
+    "move": 1.3,
     "actions": [
      {
       "key": "overcall",
@@ -15203,7 +15421,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AQs+, KQs, AKo, KQo:0.8, AQo:0.5, KJs:0.3"
+      "range": "TT+, AQs+, KQs, AKo, KQo:0.9, AQo:0.5"
      }
     ]
    },
@@ -15218,13 +15436,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·UTG+2콜",
     "title": "HJ vs UTG+1 오픈 + UTG+2 콜",
-    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → UTG+2 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.4%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+1 2.2 · UTG+2 콜",
     "reachPct": 100,
-    "occ": 1.022,
+    "occ": 1.025,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 1.4,
     "close": "................6........................................................................................................................................................",
     "actions": [
      {
@@ -15252,14 +15470,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "HJ vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+2 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 1.083,
+    "occ": 1.125,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................6.............................................................................................................................................",
+    "confidence": "low",
+    "move": 4,
     "actions": [
      {
       "key": "overcall",
@@ -15271,7 +15488,41 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "TT+, AJs+, KQs, AQo+, KQo, KJs:0.7, 99:0.1"
+      "range": "TT+, AQs+, KQs, AQo+, KQo, KJs:0.9, AJs:0.3"
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-hj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "HJ"
+    ],
+    "chip": "UTG+1오픈·HJ콜",
+    "title": "CO vs UTG+1 오픈 + HJ 콜",
+    "description": "UTG+1 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
+    "line": "UTG+1 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 1.002,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 3.6,
+    "close": "...3...........................5....................................................3..........................................5.........................................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "88, AJs, QTs+, JTs, 99:0.9, T9s:0.9, KQs:0.8, JJ-TT:0.3, 65s:0.3, 98s:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "QQ+, AQs+, KJs-KTs, AQo+, KQo, JJ-TT:0.7, ATs:0.4, KQs:0.2, 99:0.1"
      }
     ]
    },
@@ -15286,26 +15537,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·LJ콜",
     "title": "CO vs UTG+2 오픈 + LJ 콜",
-    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → LJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.3%p 움직여요.",
     "line": "UTG+2 2.2 · LJ 콜",
     "reachPct": 100,
-    "occ": 1.014,
+    "occ": 1.054,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3..........................3..............5.............5.........................................5.............5.........................................",
+    "confidence": "high",
+    "move": 4.3,
+    "close": "...3...................................6..............................3..........................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-88, KQs, QJs, JTs, 65s, AJs:0.9, QTs:0.9, TT:0.4, KJs:0.3, KQo:0.1"
+      "range": "99-88, AJs, KQs, QJs, JTs, 65s, QTs:0.9, TT:0.4, KJs:0.4, JJ:0.1, T9s:0.1, 98s:0.1, 54s:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AQs+, KTs, AQo+, KQo:0.9, KJs:0.7, TT:0.6, ATs:0.5, AJs:0.1, QTs:0.1"
+      "range": "QQ+, AQs+, KTs, AQo+, JJ:0.9, ATs:0.9, KQo:0.9, TT:0.6, KJs:0.6, QTs:0.1"
      }
     ]
    },
@@ -15320,26 +15571,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·HJ콜",
     "title": "CO vs UTG+2 오픈 + HJ 콜",
-    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
     "line": "UTG+2 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.052,
-    "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............................5.........6..........................................3..........................................5.........................................",
+    "occ": 1.069,
+    "regret": 0.0009,
+    "confidence": "high",
+    "move": 3.6,
+    "close": "...............................5....................................................3.............5............................5.........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, KJs+, QJs, JTs, TT:0.7, T9s:0.7, QTs:0.5, 98s:0.5, 65s:0.5, KQo:0.5, 99:0.4, JJ:0.2"
+      "range": "88, AJs, KJs+, QJs, JTs, TT:0.6, T9s:0.6, QTs:0.5, KQo:0.5, 99:0.4, 98s:0.4, 65s:0.4, JJ:0.2, K9s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "QQ+, AQs+, KTs, AQo+, ATs:0.9, JJ:0.8, 99:0.6, QTs:0.5, AJo:0.5, KQo:0.5, TT:0.3, KJo:0.2, K9s:0.1"
+      "range": "QQ+, AQs+, KTs, AQo+, ATs:0.9, JJ:0.8, 99:0.6, QTs:0.5, AJo:0.5, KQo:0.5, TT:0.4, K9s:0.1, KJo:0.1, QJo:0.1"
      }
     ]
    },
@@ -15354,26 +15605,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·HJ콜",
     "title": "CO vs LJ 오픈 + HJ 콜",
-    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.1%p 움직여요.",
     "line": "LJ 2.2 · HJ 콜",
     "reachPct": 100,
-    "occ": 1.124,
+    "occ": 1.135,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3.....................................................5............35............3....................................................................................",
+    "confidence": "high",
+    "move": 5.1,
+    "close": "..3............................5.........5............................35............3....................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, KJs+, QTs+, JTs, T9s, 98s, KQo, TT:0.3, 77:0.2, J9s:0.2"
+      "range": "88, AJs, KJs+, QTs+, JTs, T9s, 98s, KQo, TT:0.4, 77:0.3, J9s:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, 99, AQs+, ATs, KTs, AJo+, KJo:0.9, TT:0.7"
+      "range": "JJ+, 99, AQs+, ATs, KTs, AJo+, KJo:0.9, TT:0.6"
      }
     ]
    },
@@ -15388,26 +15639,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.9%p 움직여요.",
     "line": "UTG+1 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.051,
+    "occ": 1.048,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....6.............5.......................3....................................................................................5.........................................",
+    "confidence": "high",
+    "move": 4.9,
+    "close": "................3.7.......................3.5.........................3..................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88, AJs, KQs, QTs+, JTs, T9s, 98s, KJs:0.9, Q9s:0.9, 65s:0.9, J9s:0.6, TT:0.4, 99:0.1, 77:0.1, KQo:0.1"
+      "range": "88, AJs, KJs+, QTs+, J9s+, T9s, 98s, Q9s:0.9, 65s:0.9, TT:0.4, 77:0.1, KQo:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "JJ+, AQs+, ATs, KTs, AQo+, 99:0.9, KQo:0.9, TT:0.6, AJo:0.5, KJs:0.1, KJo:0.1"
+      "range": "JJ+, 99, AQs+, ATs, KTs, AQo+, KQo:0.9, TT:0.6, AJo:0.5, KJo:0.1"
      }
     ]
    },
@@ -15422,14 +15673,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.1%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+2 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.046,
+    "occ": 1.05,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3............................................................................................................5.......................................................",
+    "confidence": "low",
+    "move": 4.1,
+    "close": "....3.................................................................3..........................................5.......................................................",
     "actions": [
      {
       "key": "overcall",
@@ -15446,6 +15697,40 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ]
    },
    {
+    "id": "btn-at-lj-open-hj-call",
+    "kind": "squeeze",
+    "hero": "BTN",
+    "villain": "LJ",
+    "villainSeats": [
+     "LJ",
+     "HJ"
+    ],
+    "chip": "LJ오픈·HJ콜",
+    "title": "BTN vs LJ 오픈 + HJ 콜",
+    "description": "LJ 오픈 2.2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
+    "line": "LJ 2.2 · HJ 콜",
+    "reachPct": 100,
+    "occ": 1.005,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 3.7,
+    "close": "...............................5........................3.............3...........................5............................5.........................................",
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "77, KJs+, Q9s+, J9s+, T9s, 98s, KQo, K9s:0.9, 65s:0.9, QJo:0.9, AJs:0.8, 88:0.7"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8.8bb",
+      "color": "raise",
+      "range": "99+, AQs+, ATs, KTs, AJo+, KJo, 88:0.3, A9s:0.3, AJs:0.2"
+     }
+    ]
+   },
+   {
     "id": "btn-at-lj-open-co-call",
     "kind": "squeeze",
     "hero": "BTN",
@@ -15456,26 +15741,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.6%p 움직여요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.192,
+    "occ": 1.194,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3...........3........................................................................................................................................................",
+    "confidence": "high",
+    "move": 3.6,
+    "close": "....3...........3..........3............................3.............3..................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, KJs+, Q9s+, J9s+, T9s, 98s, QJo, K9s:0.9, KQo:0.9, KTs:0.4, 65s:0.4, 88:0.1, AJs:0.1"
+      "range": "77, KJs+, Q9s+, J9s+, T9s, 98s, KQo, QJo, K9s:0.9, KTs:0.5, 65s:0.4, AJs:0.2, 88:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs, AJo+, KJo, 88:0.9, AJs:0.9, KTs:0.6, A9s:0.4, JTo:0.2, KQo:0.1"
+      "range": "99+, AQs+, ATs, AJo+, KJo, 88:0.9, AJs:0.8, A9s:0.6, KTs:0.5, JTo:0.2"
      }
     ]
    },
@@ -15490,26 +15775,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "BTN vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.1%p 움직여요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.372,
-    "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......6...............................................................3.............3...........................5........................................................",
+    "occ": 1.394,
+    "regret": 0.0008,
+    "confidence": "high",
+    "move": 4.1,
+    "close": "......6...............................................................3.............3....................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs-K9s, Q9s+, J9s+, T9s, QJo, KQs:0.9, 98s:0.9, 77:0.8, Q8s:0.8, KQo:0.6, KJo:0.4, 65s:0.2, ATs:0.1"
+      "range": "KJs-KTs, Q9s+, QJo, KQs:0.9, K9s:0.9, J9s+:0.9, T9s:0.9, 77:0.8, Q8s:0.8, 98s:0.8, KQo:0.6, KJo:0.4, 65s:0.3, ATs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8.8bb",
       "color": "raise",
-      "range": "88+, AJs+, A9s, AJo+, ATs:0.9, ATo:0.8, KJo:0.6, JTo:0.5, KQo:0.4, 77:0.2, KQs:0.1"
+      "range": "88+, AJs+, A9s, AJo+, ATs:0.9, ATo:0.9, KJo:0.5, KQo:0.4, JTo:0.4, 77:0.2, KQs:0.1, JTs:0.1"
      }
     ]
    },
@@ -15524,20 +15809,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.6%p 움직여요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.198,
+    "occ": 1.228,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 13.6,
     "close": "....3.........................................5........5..............................5.............5...........................5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-77, AJs, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, QJo, 99:0.8, 64s:0.8, KQo:0.5, KTs:0.1"
+      "range": "88-77, AJs, KJs+, K9s, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, QJo, 64s:0.9, 99:0.8, KQo:0.5, KTs:0.1"
      },
      {
       "key": "squeeze",
@@ -15558,26 +15843,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.3%p 움직여요.",
     "line": "UTG+1 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.096,
-    "regret": 0.0001,
+    "occ": 1.12,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........................3.....5............5..........................5........................................5.............5........................................",
+    "move": 10.3,
+    "close": "...........................3.............................................5......................................................5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, AJs, K9s+, Q8s+, J7s+, T7s+, 97s+, 86s+, 76s, 64s+, 54s, KQo, QJo, K8s:0.9, JTo:0.9, 88:0.8, 75s:0.8, ATs:0.6, K7s:0.1"
+      "range": "88-77, AJs, K9s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KQo, QJo, K8s:0.9, J7s:0.9, 64s:0.9, JTo:0.9, 75s:0.8, ATs:0.5, K7s:0.3, Q7s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KJo, AJo:0.9, ATs:0.4, 88:0.2"
+      "range": "99+, AQs+, AQo+, KJo, AJo:0.9, ATs:0.5"
      }
     ]
    },
@@ -15592,20 +15877,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11%p 움직여요.",
     "line": "UTG+2 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.199,
+    "occ": 1.191,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".................3..5......3......5...........5........7.................5..........................5...........5.5......................................................",
+    "move": 11,
+    "close": ".....6...........3..5......3..................5........7.................5........................3.5...........5.5.............5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, K7s+, Q8s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, JTo, Q7s:0.8, AJs:0.6, 88:0.2, 53s:0.1, QTo:0.1"
+      "range": "77, K7s+, Q8s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, JTo, AJs:0.6, 88:0.2, Q7s:0.2, QTo:0.1"
      },
      {
       "key": "squeeze",
@@ -15626,26 +15911,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9%p 움직여요.",
     "line": "LJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.026,
+    "occ": 1.027,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...................55...................3.....5.....6......5..........................5.........................5........................................................",
+    "move": 9,
+    "close": "...3..6............55...................3.....5.....6......5..........................5.........................5........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K8s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KJo+, QJo, AJs:0.9, 64s:0.8, 77:0.7, 75s:0.7, 88:0.5, 53s:0.1"
+      "range": "AJs, K8s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KJo+, QJo, 64s:0.8, 75s:0.7, 77:0.6, 88:0.5, 53s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, ATs-A9s, ATo+, 88:0.5, JTo:0.5, 77:0.3, AJs:0.1"
+      "range": "99+, AQs+, ATs-A9s, ATo+, 88:0.5, JTo:0.5, 77:0.4"
      }
     ]
    },
@@ -15660,26 +15945,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.7%p 움직여요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.393,
+    "occ": 1.398,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................5.....3.............................................5..........................5...........7...............5........................................",
+    "move": 8.7,
+    "close": "......5................5...3.............................................5........................3.5...........7...............5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, K6s+, Q7s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KQo, QTo+, ATs:0.8, Q6s:0.6, JTo:0.6, KJo:0.3, 64s:0.2, A7s:0.1, A5s:0.1"
+      "range": "77-66, K6s+, Q7s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KQo, QTo+, ATs:0.9, Q6s:0.8, JTo:0.6, A7s:0.5, A5s:0.4, KJo:0.3, 64s:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, AJs+, A9s, AJo+, KJo:0.7, ATo:0.6, JTo:0.4, ATs:0.2, KTo:0.1"
+      "range": "88+, AJs+, A9s, AJo+, KJo:0.7, ATo:0.6, JTo:0.4, KTo:0.2, ATs:0.1"
      }
     ]
    },
@@ -15694,26 +15979,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·CO콜",
     "title": "SB vs HJ 오픈 + CO 콜",
-    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.7%p 움직여요.",
     "line": "HJ 2.2 · CO 콜",
     "reachPct": 100,
-    "occ": 1.163,
+    "occ": 1.182,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........6.........................5...........5......63....5..........................5..................................................................................",
+    "confidence": "high",
+    "move": 6.7,
+    "close": "...........................3......5...........5......63...............................5..................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, K7s+, Q8s+, J8s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KJo, QTo+, KQo:0.9, 66:0.7, 53s:0.7, A5s:0.6, K6s:0.6, 64s:0.6, JTo:0.6, 88:0.5, 75s:0.4, Q7s:0.3"
+      "range": "77, K7s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 76s, 65s, 54s, KJo+, QTo+, T7s:0.9, 66:0.7, K6s:0.7, 53s:0.7, A5s:0.6, 64s:0.6, JTo:0.6, 88:0.5, Q7s:0.4, 75s:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, A8s+, ATo+, A7s:0.9, 88:0.5, JTo:0.4, A5s:0.3, A9o:0.3, KQo:0.1"
+      "range": "99+, A8s+, ATo+, A7s:0.9, 88:0.5, JTo:0.4, A5s:0.3, A9o:0.3, A6s:0.1"
      }
     ]
    },
@@ -15728,26 +16013,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.7%p 움직여요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.491,
+    "occ": 1.498,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............3...........3.......5.................3...................5.............5............5...........................5........................................",
+    "move": 8.7,
+    "close": "...............3...........3.......5.................3...................5..........................5...........................5........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, KJs-K5s, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, KTo+, QTo+, JTo, K4s:0.9, A5s:0.3, 64s:0.1"
+      "range": "77-66, KJs-K5s, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, KTo+, QTo+, JTo, K4s:0.9, A5s:0.2, 64s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, A6s+, KQs, A9o+, A5s:0.7, A8o:0.5"
+      "range": "88+, A6s+, KQs, A9o+, A5s:0.8, A8o:0.5"
      }
     ]
    },
@@ -15762,26 +16047,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "SB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 51%p 움직여요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.717,
+    "occ": 1.729,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........3......................................5....3.............5................................5.............5...........5.5........................................",
+    "confidence": "low",
+    "move": 51,
+    "close": "................................................5....3.............5..........6.......5...........................5...........555........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, KJs-K4s, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 65s, 54s, KJo-KTo, QTo+, JTo, J6s:0.5, KQo:0.5, 77:0.1"
+      "range": "66, KJs-K4s, Q5s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, 54s, KJo-KTo, QTo+, JTo, J6s:0.8, 75s:0.8, KQo:0.6, 77:0.1, A5s:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, A5s+, KQs, A9o+, 77:0.9, A4s:0.9, A8o:0.9, KQo:0.5"
+      "range": "88+, A6s+, KQs, A8o+, 77:0.9, A5s:0.9, A4s:0.8, KQo:0.4"
      }
     ]
    },
@@ -15796,26 +16081,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.6%p 움직여요.",
     "line": "UTG 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.011,
+    "occ": 1.036,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3........5.........................5............5......3.....5.....5......5.......5.....5.......5.............5...........................................",
+    "confidence": "low",
+    "move": 25.6,
+    "close": "...............3........5..............3..........5............5......3.....5.....5......5.......5.....5.......5.............5..............5............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-55, AJs-A2s, K4s+, Q4s+, J3s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, QTo+, JTo, T9o, 98o, 76o, J2s:0.9, AJo:0.9, KQo:0.8, J9o:0.8, Q2s:0.5, KJo:0.5, Q3s:0.4"
+      "range": "99-55, AJs-A2s, K4s+, Q4s+, J3s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, QTo+, JTo, T9o, 98o, 76o, J2s:0.9, KQo:0.8, J9o:0.7, KJo:0.6, Q3s-Q2s:0.4"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "TT+, AQs+, AQo+, KTo:0.9, KJo:0.5, KQo:0.2, AJo-ATo:0.1"
+      "range": "TT+, AQs+, AQo+, KTo:0.9, KJo:0.4, ATo:0.2, KQo:0.2"
      }
     ]
    },
@@ -15830,26 +16115,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 36.4%p 움직여요.",
     "line": "UTG+2 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.31,
+    "occ": 1.292,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".................................................................6..............55............................5.............5............................................",
+    "confidence": "low",
+    "move": 36.4,
+    "close": ".................................................................66.............55............................5..........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KQo, Q9o+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 54o, 97o:0.9, 53o:0.9, ATo:0.7, KJo-KTo:0.5, 43o:0.4, 88:0.2, AJs:0.1"
+      "range": "77-22, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KQo, Q9o+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 54o, 97o:0.9, 53o:0.9, ATo:0.8, KTo:0.6, KJo:0.4, 88:0.3, 43o:0.3, AJs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AQs+, AJo+, K9o, AJs:0.9, 88:0.8, KJo-KTo:0.5, ATo:0.3"
+      "range": "99+, AQs+, AJo+, K9o, AJs:0.8, 88:0.7, KJo:0.6, KTo:0.4, ATo:0.2"
      }
     ]
    },
@@ -15864,26 +16149,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.3%p 움직여요.",
     "line": "LJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.092,
+    "occ": 1.09,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3...................................................5..........6............6...............................................5.............................",
+    "confidence": "low",
+    "move": 21.3,
+    "close": "....3..............................................................5..........6............6...............................................5.............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-33, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q9o+, J9o+, T9o, 98o, 87o, 76o, 65o, 54o, ATs:0.9, T8o:0.9, 88:0.7"
+      "range": "77-33, ATs-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q9o+, J9o+, T9o, 98o, 87o, 76o, 65o, 54o, T8o:0.8, 88:0.7"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AJs+, A8o+, A5o:0.5, 88:0.3, A6o:0.2, K9o:0.2, ATs:0.1"
+      "range": "99+, AJs+, A8o+, A5o:0.5, 88:0.3, A6o:0.3, K9o:0.2"
      }
     ]
    },
@@ -15898,26 +16183,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 38.8%p 움직여요.",
     "line": "LJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.28,
+    "occ": 1.269,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....................................................3.............3........................6...5........................................................................5",
+    "confidence": "low",
+    "move": 38.8,
+    "close": "....................................................3.............3............................5........................................................................5",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-22, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q8o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, ATs:0.7, 88:0.4, AJo:0.1, 53o:0.1"
+      "range": "77-22, A9s-A2s, K2s+, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q8o+, J8o+, T8o+, 97o+, 86o+, 76o, 65o, 54o, ATs:0.8, 88:0.4, AJo:0.3, 53o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "99+, AJs+, AQo+, ATo-A8o, K9o, AJo:0.9, 88:0.6, ATs:0.3, A5o:0.2, A6o:0.1"
+      "range": "99+, AJs+, AQo+, ATo-A8o, K9o, AJo:0.7, 88:0.6, ATs:0.2, A7o:0.2, A5o:0.2, A6o:0.1"
      }
     ]
    },
@@ -15932,26 +16217,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.8%p 움직여요.",
     "line": "HJ 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.096,
+    "occ": 1.102,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................................................................................55.........................................................5.............................",
+    "confidence": "low",
+    "move": 23.8,
+    "close": ".....3..........................................................................55.........................................................5..............5..............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66-44, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q8o+, J8o+, T8o+, 98o, 87o, 76o, 65o, 54o, A9s:0.9, 33:0.6, 77:0.2, A8s:0.1, K9o:0.1"
+      "range": "66-33, A9s, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo+, Q8o+, J8o+, T8o+, 98o, 87o, 76o, 65o, 54o, A8s:0.5, 77:0.2, K9o:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "88+, ATs+, KQs, A7o+, A8s:0.9, K9o:0.9, 77:0.8, A9s:0.1, A6o-A5o:0.1"
+      "range": "88+, ATs+, KQs, A7o+, 77:0.8, K9o:0.8, A8s:0.5, A6o:0.3, A5o:0.1"
      }
     ]
    },
@@ -15966,14 +16251,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28%p 움직여요.",
     "line": "HJ 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.704,
+    "occ": 1.705,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................................................................................3............5..........5...........5.....5...........................55...............",
+    "confidence": "low",
+    "move": 28,
+    "close": "..................................................................................3............5..........5.................5...........................55...............",
     "actions": [
      {
       "key": "overcall",
@@ -16000,14 +16285,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·BTN콜",
     "title": "BB vs CO 오픈 + BTN 콜",
-    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 35.2%p 움직여요.",
     "line": "CO 2.2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.248,
+    "occ": 1.256,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............................................................................5............5.................5.3.................6.....................5...............5",
+    "confidence": "low",
+    "move": 35.2,
+    "close": "............................................................................................5.................5.3.................6.....................5...............5",
     "actions": [
      {
       "key": "overcall",
@@ -16034,20 +16319,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2.2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22%p 움직여요.",
     "line": "CO 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.814,
+    "occ": 1.82,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................................................................................................3......5......55.....5..............5...............",
+    "confidence": "low",
+    "move": 22,
+    "close": ".....................................................................................................................3......5......5......5..............5...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K5o, Q6o+, J7o+, T7o+, 97o+, 86o+, 75o+, 65o, 53o+, 43o, KQo:0.5, Q5o:0.5, A4o:0.1"
+      "range": "44-22, A7s-A2s, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K5o, Q6o+, J7o+, T7o+, 97o+, 86o+, 75o+, 65o, 53o+, 43o, KQo:0.5, Q5o:0.4, A4o:0.1"
      },
      {
       "key": "squeeze",
@@ -16068,26 +16353,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2.2bb → SB 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16%p 움직여요.",
     "line": "BTN 2.2 · SB 콜",
     "reachPct": 100,
-    "occ": 2.466,
+    "occ": 2.436,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........33................................................................................................5.............5..............5..................7...........",
+    "move": 16,
+    "close": "...........33................................................................................................5.............5..............5......5...........7...........",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K4o, Q3o+, J7o+, T7o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, 22:0.8, KTs:0.8, J6o:0.8, T6o:0.7, J5o:0.5, 33:0.4, K3o:0.1"
+      "range": "K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo-K4o, Q3o+, J7o+, T7o+, 96o+, 86o+, 75o+, 64o+, 53o+, 43o, 22:0.8, KTs:0.8, J6o:0.6, 33:0.5, J5o:0.4, T6o:0.4, K3o:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 11.6bb",
       "color": "raise",
-      "range": "44+, A2s+, KJs+, A2o+, KQo, K3o:0.9, 33:0.6, 22:0.2, KTs:0.2"
+      "range": "44+, A2s+, KJs+, A2o+, KQo, K3o:0.9, 33:0.5, 22:0.2, KTs:0.2"
      }
     ]
    },
@@ -16101,29 +16386,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.7%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5",
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 50.5,
-    "occ": 2.272,
+    "reachPct": 50.3,
+    "occ": 2.234,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........................................................................................5..............................................................................",
+    "move": 10.7,
+    "close": "..........................................................................................5..................................................5...........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "22, A2s, K6s-K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-73s, 64s-63s, 53s, 43s, A3o, J9o, T7o+, 97o+, 52s:0.7, A4o:0.7, A5o:0.1"
+      "range": "22, A2s, K6s-K2s, Q7s-Q2s, J8s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-73s, 64s-63s, 53s, 43s, A3o, J9o, T7o+, 97o+, A4o:0.8, 52s:0.1, A5o:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 10.5bb",
       "color": "raise",
-      "range": "KK+, TT-88, ATs+, A6o+, KTo, A5o:0.9, A4o:0.3, A2o:0.1"
+      "range": "KK+, TT-88, ATs+, A6o+, KTo, A5o:0.9, A4o:0.2, A2o:0.1"
      }
     ]
    },
@@ -16137,27 +16422,27 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈가 아니면 체크해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 32.5%p 움직여요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 4.658,
+    "occ": 4.596,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........3333......3.............................33.........3.333.3.......3333.3333....3333.33...3...333...33.......3....33333...33..33.33.3..33..3.3....3.....33333.333.",
+    "confidence": "low",
+    "move": 32.5,
+    "close": ".........3333......3.3...........................33.........3.333.3.......3333.3333....3333.33...3...333...33.......3....33333...33..33.33.3..33..3.3..........33333.333.",
     "actions": [
      {
       "key": "raise",
       "label": "레이즈 3.5bb",
       "color": "raise",
-      "range": "22+, A3s+, K8s+, Q8s+, J7s+, T7s+, 96s+, 85s+, 74s+, 64s+, 52s+, 42s+, A7o+, KJo+, QTo+, J8o+, T8o+, 98o, 93o, 65o, 54o, 52o, 42o+, 32o, 63s:0.9, K7s:0.8, A6o:0.8, T3o:0.8, 76o:0.8, 63o:0.8, 64o:0.7, 73o:0.6, 53o:0.6, 32s:0.5, Q9o:0.5, 94o:0.5, 86o:0.4, 62o:0.4, Q7s:0.3, J7o:0.3, 96o:0.3, 83o:0.3, T7o:0.2, 97o:0.2, K6s:0.1, KTo:0.1"
+      "range": "22+, A3s+, K8s+, Q8s+, J7s+, T7s+, 96s+, 85s+, 74s+, 64s+, 52s+, 42s+, A7o+, KJo+, QTo+, J8o+, T8o+, 98o, 93o, 65o, 54o, 52o, 42o, 32o, 63s:0.9, 63o:0.9, 43o:0.9, T3o:0.8, 76o:0.8, 73o:0.7, K7s:0.6, A6o:0.6, 94o:0.6, 64o:0.6, 32s:0.5, Q9o:0.5, 62o:0.5, 53o:0.5, J7o:0.3, 96o:0.3, 86o:0.3, 83o:0.3, T7o:0.2, Q7s:0.1, KTo:0.1, 97o:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "A2s, K5s-K2s, Q6s-Q2s, J6s-J2s, T6s-T2s, 95s-92s, 84s-82s, 73s-72s, 62s, A5o-A2o, K9o-K2o, Q8o-Q2o, J6o-J2o, T6o-T4o, T2o, 95o, 92o, 87o, 85o-84o, 82o, 75o-74o, 72o, K6s:0.9, KTo:0.9, T7o:0.8, 97o:0.8, Q7s:0.7, J7o:0.7, 96o:0.7, 83o:0.7, 86o:0.6, 62o:0.6, 32s:0.5, Q9o:0.5, 94o:0.5, 73o:0.4, 53o:0.4, 64o:0.3, K7s:0.2, A6o:0.2, T3o:0.2, 76o:0.2, 63o:0.2, 63s:0.1"
+      "range": "A2s, K6s-K2s, Q6s-Q2s, J6s-J2s, T6s-T2s, 95s-92s, 84s-82s, 73s-72s, 62s, A5o-A2o, K9o-K2o, Q8o-Q2o, J6o-J2o, T6o-T4o, T2o, 95o, 92o, 87o, 85o-84o, 82o, 75o-74o, 72o, Q7s:0.9, KTo:0.9, 97o:0.9, T7o:0.8, J7o:0.7, 96o:0.7, 86o:0.7, 83o:0.7, 32s:0.5, Q9o:0.5, 62o:0.5, 53o:0.5, K7s:0.4, A6o:0.4, 94o:0.4, 64o:0.4, 73o:0.3, T3o:0.2, 76o:0.2, 63s:0.1, 63o:0.1, 43o:0.1"
      }
     ]
    },
@@ -16171,29 +16456,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 리레이즈",
     "title": "BB 레이즈 후 vs SB 리레이즈",
-    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3.5bb → SB 리레이즈 10.5bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3.5 · SB 리레이즈 10.5",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 48.9,
-    "occ": 0.412,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3.............................................................................................................................................",
+    "reachPct": 48.4,
+    "occ": 0.406,
+    "regret": 0.0009,
+    "confidence": "low",
+    "move": 25,
+    "close": "...........................3...............................................................5.............................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, ATs-A3s, KJs-KTs, QTs+, Q8s-Q7s, J7s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, AJo-A8o, KJo-KTo, QTo+, JTo, T9o, 98o, 32s:0.9, J9o:0.9, Q9s:0.7, 66:0.6, 88:0.5, K8s:0.4, AJs:0.3, K7s:0.3, K6s:0.1, A7o:0.1"
+      "range": "77, ATs-A3s, KJs-KTs, QTs+, Q8s-Q7s, J7s+, T7s+, 96s+, 85s+, 74s+, 63s+, 52s+, 42s+, AJo-A8o, KJo-KTo, QTo+, JTo, T9o, 98o, 32s:0.9, J9o:0.9, Q9s:0.7, 88:0.6, 66:0.5, AJs:0.5, K8s:0.4, K7s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55-22, AQs+, KQs, K9s, AQo+, KQo, K6s:0.9, AJs:0.7, K7s:0.7, K8s:0.6, 88:0.5, 66:0.4, Q9s:0.3"
+      "range": "99+, 55-22, AQs+, KQs, K9s, AQo+, KQo, K7s:0.7, K8s:0.6, 66:0.5, AJs:0.5, 88:0.4, Q9s:0.3"
      }
     ]
    }
@@ -16202,7 +16487,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
  {
   "id": "35bb-2",
   "label": "35bb · 오픈 2bb",
-  "description": "모두 35bb. 오픈 2bb, SB는 림프·오픈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 3벳 뒤 콜드 올인 없음. 초안이에요: 민감도 풀이·두 출발점 검사 전이라 신뢰도는 임시예요.",
+  "description": "모두 35bb. 오픈 2bb, SB는 림프·오픈 2.5bb, 3벳 IP 3배·블라인드 4배, 4벳 2.3~2.5배. 퍼스트 인 올인과 3벳 올인도 있어요. 서로 최선인 균형 근사(착취 아님). 3벳 뒤 콜드 올인 없음.",
   "stack": 35,
   "open": 2,
   "sizes": {
@@ -16235,47 +16520,47 @@ export const PREFLOP_STAGES: PreflopStage[] = [
   },
   "occThresholdCold": 0.1,
   "brGainMbb": [
-   0.07,
-   0.079,
-   0.079,
-   0.063,
-   0.1,
-   0.073,
-   0.108,
-   0.151,
-   0.195
+   0.068,
+   0.081,
+   0.083,
+   0.064,
+   0.093,
+   0.085,
+   0.111,
+   0.153,
+   0.19
   ],
-  "nashConvMbb": 0.919,
-  "snappedGainMbb": 0.829,
+  "nashConvMbb": 0.928,
+  "snappedGainMbb": 0.801,
   "ev": [
-   0.1864,
+   0.1865,
    0.2033,
-   0.227,
-   0.2446,
-   0.2624,
-   0.2866,
-   0.3069,
-   -0.157,
-   -1.4309
+   0.2272,
+   0.2448,
+   0.2627,
+   0.2867,
+   0.3071,
+   -0.1571,
+   -1.4315
   ],
   "diag": {
-   "evSum": 0.1292,
-   "frozenOccPct": 1.102,
-   "negativeShares": 623
+   "evSum": 0.1296,
+   "frozenOccPct": 1.104,
+   "negativeShares": 586
   },
   "model": {
    "id": "modelB-rank9",
-   "fitHash": "4acfad77aa3500701d753c64e54abaaa38d2e0ce1a6b596e4d397a4210b83e74",
+   "fitHash": "2862daa7a90faa1cded8a882a0d6b65a25da69be37cd4e848879b33f50d73c23",
    "sprAlpha": 1.5,
    "sprSurplus": 6,
    "packs": {
     "srp-btn-bb-100": {
      "version": 1,
-     "flops": 1476
+     "flops": 1755
     },
     "pub-srp-btn-bb-55": {
      "version": 2,
-     "flops": 1457
+     "flops": 1755
     }
    }
   },
@@ -16288,20 +16573,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG",
     "chip": "UTG",
     "title": "UTG 오픈 레인지",
-    "description": "가장 먼저 액션해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "가장 먼저 액션해요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.7%p 움직여요.",
     "line": "",
     "reachPct": 100,
     "occ": 100,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......5..5.........55..........55.......5...55.......555.55............5........................................5........................................................",
+    "confidence": "high",
+    "move": 1.7,
+    "close": "......5..5.........55..........55...........55.......555.55............5........................................5........................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "66+, A8s+, K9s+, Q9s+, J9s+, T9s, AJo+, KJo+, QJo, ATo:0.5, A7s:0.3"
+      "range": "66+, A8s+, K9s+, Q9s+, J9s+, T9s, AJo+, KJo+, QJo, ATo:0.5, A7s:0.4"
      },
      {
       "key": "shove",
@@ -16317,20 +16602,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+1",
     "chip": "UTG+1",
     "title": "UTG+1 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 85.078,
+    "occ": 85.067,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........5........55........................5.......55...5..............................................................................................................",
+    "confidence": "high",
+    "move": 2.5,
+    "close": "..........5........55........................5.......55...5............5.................................................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "66+, A7s+, K8s+, Q9s+, J9s+, T9s, ATo+, KJo+, QJo, 55:0.6, Q8s:0.5, A6s-A5s:0.4, JTo:0.4, 98s:0.1"
+      "range": "66+, A7s+, K8s+, Q9s+, J9s+, T9s, ATo+, KJo+, QJo, 55:0.5, A5s:0.5, Q8s:0.5, A6s:0.4, JTo:0.4"
      },
      {
       "key": "shove",
@@ -16346,20 +16631,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "UTG+2",
     "chip": "UTG+2",
     "title": "UTG+2 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 70.723,
+    "occ": 70.699,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........555.........5...........5............5............5............5....................................................................5............................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": "........555.........5...........5............5............5............5.................................................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "55+, A5s+, K9s+, Q9s+, J9s+, T9s, 98s, ATo+, KJo+, QJo, QTo:0.8, JTo:0.7, K8s:0.6, KTo:0.5"
+      "range": "55+, A5s+, K9s+, Q9s+, J9s+, T9s, 98s, ATo+, KJo+, QJo, QTo:0.8, K8s:0.7, JTo:0.7, KTo:0.6"
      },
      {
       "key": "shove",
@@ -16375,13 +16660,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "LJ",
     "chip": "LJ",
     "title": "LJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.7%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 57.343,
+    "occ": 57.294,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.7,
     "close": "..........55........55..........55...........5.........5..55.........5..5............5......................................................5............................",
     "actions": [
      {
@@ -16404,20 +16689,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "HJ",
     "chip": "HJ",
     "title": "HJ 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.6%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 44.493,
+    "occ": 44.435,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............5..........5.........5.5..........5.....................5...5..........................5.....................................................................",
+    "confidence": "high",
+    "move": 4.6,
+    "close": "............5..........5.........5.5................................5...5..........................5.....................................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "44+, A2s+, K6s+, Q7s+, J8s+, T8s+, 97s+, 87s, A9o+, KTo+, QTo+, JTo, T7s:0.9, K5s:0.7, A8o:0.7, K9o:0.5, Q9o:0.4, T9o:0.4, Q6s:0.3, 33:0.2"
+      "range": "44+, A2s+, K6s+, Q7s+, J8s+, T8s+, 97s+, 87s, A9o+, KTo+, QTo+, JTo, T7s:0.9, K5s:0.8, A8o:0.8, K9o:0.5, Q6s:0.4, Q9o:0.3, T9o:0.3, 33:0.2, J7s:0.1"
      },
      {
       "key": "shove",
@@ -16433,20 +16718,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "CO",
     "chip": "CO",
     "title": "CO 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 32.434,
+    "occ": 32.372,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........................55........55...........5............5......555...5............5....55.......5...5........5...5...................................................",
+    "confidence": "high",
+    "move": 2.8,
+    "close": "........................5.........55..........55............5......555...5............5....55...........5........5...5...................................................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "33+, A2s+, K4s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, A7o+, K9o+, Q9o+, J9o+, T9o, K8o:0.4, 22:0.3"
+      "range": "33+, A2s+, K4s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 76s, 65s, A7o+, K9o+, Q9o+, J9o+, T9o, K8o:0.5, 22:0.3"
      },
      {
       "key": "shove",
@@ -16462,20 +16747,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "BTN",
     "chip": "BTN",
     "title": "BTN 오픈 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.2%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 21.521,
+    "occ": 21.434,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....................................55......................5............5......5.5...5.....5......5....5............5........5.........................................",
+    "confidence": "high",
+    "move": 4.2,
+    "close": ".....................................55......................5............5......5.5...5.....5......5.................5........5...............5.........................",
     "actions": [
      {
       "key": "open",
       "label": "오픈 2bb",
       "color": "raise",
-      "range": "22+, A2s+, K2s+, Q2s+, J5s+, T6s+, 96s+, 86s+, 75s+, 65s, A4o+, K6o+, Q8o+, J8o+, T9o, 98o, T8o:0.5, J4s:0.3, A3o:0.1"
+      "range": "22+, A2s+, K2s+, Q2s+, J5s+, T6s+, 96s+, 86s+, 75s+, 65s, A4o+, K6o+, Q8o+, J8o+, T9o, 98o, T8o:0.5, J4s:0.4"
      },
      {
       "key": "shove",
@@ -16491,26 +16776,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "hero": "SB",
     "chip": "SB",
     "title": "SB 퍼스트 인 레인지",
-    "description": "앞에서 모두 폴드했어요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "앞에서 모두 폴드했어요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.1%p 움직여요.",
     "line": "",
     "reachPct": 100,
-    "occ": 11.759,
+    "occ": 11.705,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".3....333..3.....3333.33.......3333.....3.3..333....577733.3......33..33......5.3.3...3..33.333.....3.33.33333....533.7.3......7335.3..9999...353...99..9.53.3...........",
+    "confidence": "low",
+    "move": 29.1,
+    "close": ".3....333..3.....3333.33.......3333.....3.3..333....577733.3......33.333......5.3.3...3..33.333.....3.33.33333....533.7.3......7335.3..99.....353...99..9.53.3...........",
     "actions": [
      {
       "key": "limp",
       "label": "림프",
       "color": "call",
-      "range": "99, 44, A3s-A2s, K5s-K2s, Q7s-Q2s, J7s-J2s, T9s, T7s-T2s, 96s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, AQo, A4o-A2o, K9o, K3o-K2o, Q4o-Q2o, J6o-J2o, T8o, T6o-T2o, 96o-93o, 85o-84o, 74o, 64o, AJo:0.9, K8o:0.9, T9o:0.9, 97o:0.9, 75o:0.9, AJs:0.8, K6s:0.8, 97s:0.8, AKo:0.8, 98o:0.8, 88:0.7, A4s:0.7, T8s:0.7, T7o:0.7, 77:0.6, QTs:0.6, 86o:0.6, 54o:0.6, 55:0.5, A5s:0.5, KJs:0.5, 76s:0.5, 66:0.4, QJs:0.4, KQo:0.4, K4o:0.4, J9o:0.4, 22:0.3, JTs:0.3, A5o:0.3, AQs:0.2, ATs-A9s:0.2, KQs:0.2, J9s:0.2, 65s:0.2, A6o:0.2, QJo:0.2, Q5o:0.2, J8o:0.2, 76o:0.2, 87s:0.1, A7o:0.1, 92o:0.1, 87o:0.1"
+      "range": "99, 44, A3s-A2s, K5s-K2s, Q7s-Q2s, J7s-J2s, T9s, T7s-T2s, 96s-92s, 86s-82s, 75s-72s, 64s-62s, 53s-52s, 42s+, 32s, AQo, A4o-A2o, K9o, K3o-K2o, Q4o-Q2o, J6o-J2o, T8o+, T6o-T2o, 96o-93o, 85o-84o, K6s:0.9, AJo:0.9, K8o:0.9, 97o:0.9, 75o-74o:0.9, 64o:0.9, 88:0.8, A4s:0.8, AKo:0.8, 98o:0.8, AJs:0.7, 97s:0.7, 77:0.6, QTs:0.6, T8s:0.6, T7o:0.6, 86o:0.6, 54o:0.6, 55:0.5, A5s:0.5, KJs:0.5, 76s:0.5, K4o:0.5, 66:0.4, QJs:0.4, JTs:0.4, KQo:0.4, J9o:0.4, 22:0.3, A5o:0.3, A9s:0.2, J9s:0.2, A6o:0.2, QJo:0.2, Q5o:0.2, J8o:0.2, 87o:0.2, 76o:0.2, AQs:0.1, ATs:0.1, KQs:0.1, 87s:0.1, 65s:0.1, A7o:0.1, 92o:0.1"
      },
      {
       "key": "raise",
       "label": "오픈 2.5bb",
       "color": "raise",
-      "range": "TT+, AKs, A8s-A6s, KTs-K7s, Q9s-Q8s, J8s, 98s, KJo-KTo, K7o-K5o, QTo-Q6o, JTo, J7o, 87s:0.9, 87o:0.9, AQs:0.8, ATs-A9s:0.8, KQs:0.8, J9s:0.8, QJo:0.8, Q5o:0.8, J8o:0.8, 76o:0.8, JTs:0.7, 66:0.6, QJs:0.6, 65s:0.6, KQo:0.6, K4o:0.6, J9o:0.6, 55:0.5, A5s:0.5, KJs:0.5, 76s:0.5, 77:0.4, QTs:0.4, 86o:0.4, 88:0.3, A4s:0.3, T8s:0.3, T7o:0.3, AJs:0.2, K6s:0.2, 97s:0.2, AKo:0.2, 98o:0.2, 65o:0.2, K8o:0.1, T9o:0.1, 97o:0.1, 75o:0.1"
+      "range": "TT+, AKs, A8s-A6s, KTs-K7s, Q9s-Q8s, J8s, 98s, KJo-KTo, K7o-K5o, QTo-Q6o, JTo, J7o, AQs:0.9, ATs:0.9, KQs:0.9, 87s:0.9, A9s:0.8, J9s:0.8, QJo:0.8, Q5o:0.8, J8o:0.8, 87o:0.8, 76o:0.8, 65s:0.7, 66:0.6, QJs:0.6, JTs:0.6, KQo:0.6, J9o:0.6, 55:0.5, A5s:0.5, KJs:0.5, 76s:0.5, K4o:0.5, 77:0.4, QTs:0.4, T8s:0.4, T7o:0.4, 86o:0.4, AJs:0.3, 97s:0.3, 88:0.2, A4s:0.2, AKo:0.2, 98o:0.2, 65o:0.2, K6s:0.1, K8o:0.1, 97o:0.1, 75o:0.1"
      },
      {
       "key": "shove",
@@ -16530,13 +16815,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG",
     "title": "UTG+1 vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 14.922,
+    "occ": 14.933,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 1.3,
     "close": "....a.............a...........a..........................................................................................................................................",
     "actions": [
      {
@@ -16569,13 +16854,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG",
     "title": "UTG+2 vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.2%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 13.661,
+    "occ": 13.671,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 1.2,
     "close": "....a.............a...........a..........................................................................................................................................",
     "actions": [
      {
@@ -16608,13 +16893,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1",
     "title": "UTG+2 vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.4%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 14.355,
+    "occ": 14.368,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 1.4,
     "close": "....a.............a......................................a......................................................a........................................................",
     "actions": [
      {
@@ -16627,7 +16912,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "77+, ATs+, KQs, KTs, AJo+, KJs:0.7, KQo:0.5, QTs:0.4, JTs:0.3"
+      "range": "77+, ATs+, KQs, KTs, AJo+, KJs:0.6, KQo:0.5, QTs:0.4, JTs:0.3"
      },
      {
       "key": "shove",
@@ -16647,13 +16932,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG",
     "title": "LJ vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 12.508,
+    "occ": 12.517,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.9,
     "close": "....a.............a...........a..........................................................................................................................................",
     "actions": [
      {
@@ -16666,7 +16951,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "77+, AJs+, KTs+, AQo+, AJo:0.9, JTs:0.8, KQo:0.2"
+      "range": "77+, AJs+, KTs+, AQo+, AJo:0.9, JTs:0.7, KQo:0.1"
      },
      {
       "key": "shove",
@@ -16686,25 +16971,25 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1",
     "title": "LJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.2%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 13.064,
+    "occ": 13.076,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.2,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "QJs:0.8, ATs:0.7, KQs:0.6, KJs:0.3, TT-99:0.1, 66:0.1"
+      "range": "QJs:0.9, ATs:0.8, KQs:0.6, KJs:0.3, TT-99:0.1, 66:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AJs+, KTs, AJo+, TT-99:0.9, KJs:0.7, JTs:0.6, KQo:0.6, KQs:0.4, ATs:0.3, QTs:0.2"
+      "range": "JJ+, 88-77, AJs+, KTs, AJo+, TT-99:0.9, KJs:0.7, JTs:0.7, KQo:0.6, KQs:0.4, ATs:0.2, QTs:0.1"
      },
      {
       "key": "shove",
@@ -16724,13 +17009,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2",
     "title": "LJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.5%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 13.38,
+    "occ": 13.405,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 1.5,
     "close": "...........................a.............................................................................................................................................",
     "actions": [
      {
@@ -16743,7 +17028,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "66+, ATs+, KQs, AJo+, KQo, ATo:0.9, KTs:0.8, A9s:0.7, KJs:0.6, JTs:0.1"
+      "range": "66+, ATs+, KQs, AJo+, KQo, ATo:0.9, A9s:0.8, KTs:0.8, KJs:0.6, JTs:0.2"
      },
      {
       "key": "shove",
@@ -16763,26 +17048,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG",
     "title": "HJ vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.1%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 11.454,
+    "occ": 11.462,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".....9..........3.a...........3......................a.................9........................................9........................................................",
+    "confidence": "high",
+    "move": 5.1,
+    "close": ".....9..........3.a...........3...........3..........a....a............9........................................9........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs, KJs+, QTs+, T9s:0.9, ATs:0.8, 77:0.7, AQs:0.7, KQo:0.6, TT:0.5, 99:0.3, JTs:0.3, AJo:0.2"
+      "range": "AJs, KJs+, QTs+, T9s:0.9, AQs:0.8, ATs:0.8, 77:0.7, KQo:0.6, TT:0.5, JTs:0.4, 99:0.3, AJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 88, AKs, KTs-K9s, AQo+, AJo:0.8, 99:0.7, JTs:0.7, TT:0.5, KQo:0.4, 77:0.3, AQs:0.3, ATs:0.2, KJo:0.2, T9s:0.1"
+      "range": "JJ+, 88, AKs, KTs-K9s, AQo+, AJo:0.8, 99:0.7, JTs:0.6, TT:0.5, KQo:0.4, 77:0.3, AQs:0.2, ATs:0.2, KJo:0.2, T9s:0.1"
      },
      {
       "key": "shove",
@@ -16802,26 +17087,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1",
     "title": "HJ vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 11.823,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 11.831,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 2.8,
     "close": ".....9..........3........................................b...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "ATs, KJs, QJs, KQs:0.8, JTs:0.8, 66:0.7, AJs:0.5, KQo:0.5, TT:0.4, QTs:0.4, 99:0.1"
+      "range": "ATs, KJs, QJs, KQs:0.8, 66:0.7, JTs:0.7, AJs:0.5, KQo:0.5, TT:0.4, QTs:0.4, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AQs+, KTs, AJo+, 99:0.9, K9s:0.8, TT:0.6, QTs:0.6, AJs:0.5, KQo:0.5, 66:0.3, KQs:0.2, JTs:0.2"
+      "range": "JJ+, 88-77, AQs+, KTs, AJo+, 99:0.9, K9s:0.7, TT:0.6, QTs:0.6, AJs:0.5, KQo:0.5, 66:0.3, JTs:0.3, KQs:0.2"
      },
      {
       "key": "shove",
@@ -16841,26 +17126,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2",
     "title": "HJ vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 11.943,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..............................a.....................a.........................................................................a..........................................",
+    "occ": 11.963,
+    "regret": 0,
+    "confidence": "high",
+    "move": 2.8,
+    "close": "....................................................a.........................................................................a..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs, QJs, 99:0.2, 66:0.1, ATs:0.1"
+      "range": "KJs, QJs, 99:0.2, 66:0.1, KQo:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "TT+, 88-77, AJs+, KQs, KTs, ATo+, KQo, 66:0.9, ATs:0.9, 99:0.8, A9s:0.8, JTs:0.4, K9s:0.2"
+      "range": "TT+, 88-77, ATs+, KQs, KTs, ATo+, 66:0.9, A9s:0.9, KQo:0.9, 99:0.8, K9s:0.3, JTs:0.3, QTs:0.1"
      },
      {
       "key": "shove",
@@ -16880,13 +17165,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ",
     "title": "HJ vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.3%p 움직여요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 12.849,
+    "occ": 12.86,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 1.3,
     "close": ".......a......................aa...........a.....................a.......................................................................................................",
     "actions": [
      {
@@ -16919,26 +17204,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG",
     "title": "CO vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 10.192,
+    "occ": 10.199,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.9,
     "close": "....33...9....................3............39.......aa...3.............9.................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AQs-A9s, KJs+, QTs+, J9s+, T9s, 98s, 77:0.9, KQo:0.9, Q9s:0.7, K9s:0.4, JJ:0.3, 99:0.3, AJo:0.3, TT:0.1"
+      "range": "66, AQs-A9s, KJs+, QTs+, J9s+, T9s, 98s, KQo:0.9, 77:0.8, Q9s:0.8, K9s:0.6, 99:0.4, JJ:0.3, AJo:0.3, TT:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, 88, AKs, KTs, AQo+, TT:0.9, JJ:0.7, 99:0.7, AJo:0.7, K9s:0.6, T8s:0.6, A8s:0.5, KJo:0.4, 77:0.1, KQo:0.1"
+      "range": "QQ+, 88, AKs, KTs, AQo+, TT:0.9, JJ:0.7, AJo:0.7, 99:0.6, A8s:0.6, T8s:0.6, K9s:0.4, KJo:0.4, 77:0.2, KQo:0.1"
      },
      {
       "key": "shove",
@@ -16958,26 +17243,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1",
     "title": "CO vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 10.528,
+    "occ": 10.538,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3.3b..9.....3...a...........9.......3....9........a...3a...........39......................................................9..........................................",
+    "confidence": "high",
+    "move": 3.3,
+    "close": ".....3b..9.....3..3............9.......3....9........a...3a...........39......................................................9..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66, AJs-A9s, KJs+, Q9s+, J9s, T9s, 98s, K9s:0.9, KQo:0.9, TT:0.8, JTs:0.6"
+      "range": "66, AJs-A9s, KJs+, K9s, Q9s+, J9s, T9s, 98s, KQo:0.9, TT:0.8, JTs:0.6"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 99-77, AQs+, KTs, AJo+, JTs:0.4, KJo:0.4, TT:0.2, ATo:0.2, K9s:0.1, KQo:0.1"
+      "range": "JJ+, 99-77, AQs+, KTs, AJo+, KJo:0.5, JTs:0.4, TT:0.2, ATo:0.2, KQo:0.1"
      },
      {
       "key": "shove",
@@ -16997,26 +17282,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2",
     "title": "CO vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.9%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 10.578,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..9...........a......3....b........99..9........a...9...............................................................................................................",
+    "occ": 10.588,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 3.9,
+    "close": ".......9.9.........a......3.............99.39........a...9...............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "ATs, KJs, QJs, T9s, QTs:0.9, JTs:0.9, KQs:0.8, 66:0.6, KQo:0.6, 99:0.4, 98s:0.2, AJs:0.1, A8s:0.1"
+      "range": "KJs, QJs, JTs, T9s, QTs:0.8, KQo:0.8, ATs:0.7, KQs:0.7, 98s:0.6, 99:0.5, 66:0.3, AJs:0.1, Q9s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "TT+, 88-77, AQs+, A9s, KTs-K9s, ATo+, AJs:0.9, A8s:0.9, 55:0.8, 99:0.6, 66:0.4, KQo:0.4, KQs:0.2, QTs:0.1, JTs:0.1"
+      "range": "TT+, 88-77, AQs+, A9s, KTs-K9s, ATo+, AJs:0.9, A8s:0.8, 66:0.7, 55:0.6, 99:0.5, ATs:0.3, KQs:0.3, QTs:0.2, KQo:0.2"
      },
      {
       "key": "shove",
@@ -17036,26 +17321,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ",
     "title": "CO vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.3%p 움직여요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 11.273,
+    "occ": 11.282,
     "regret": 0,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......b...................3...a.........................b.......a.....9....................................................................a............................",
+    "confidence": "high",
+    "move": 4.3,
+    "close": ".......b.9.................3...a.........................b.............9....................................................................a............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KJs, QJs, QTs:0.8, JTs:0.8, KTs:0.6, 88:0.2"
+      "range": "KJs, QJs, JTs:0.8, KTs:0.7, QTs:0.7, 88:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "99+, 77-55, A8s+, KQs, K9s, ATo+, KQo, 88:0.8, KTs:0.4, QTs:0.2, JTs:0.2, J9s:0.1"
+      "range": "99+, 77-55, A8s+, KQs, K9s, ATo+, KQo, 88:0.8, KTs:0.3, QTs:0.3, JTs:0.2, J9s:0.1, A9o:0.1"
      },
      {
       "key": "shove",
@@ -17075,26 +17360,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ",
     "title": "CO vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.1%p 움직여요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 12.059,
+    "occ": 12.063,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................a............a.........................................................................................................................................",
+    "confidence": "high",
+    "move": 3.1,
+    "close": "...............................a.........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "KTs:0.7, JTs:0.3, KJs:0.2, QJs:0.2, 77:0.1"
+      "range": "KTs:0.7, JTs:0.4, KJs:0.2, QJs:0.2, 77:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "88+, 66-55, A7s+, KQs, QTs, A9o+, KQo, 77:0.9, KJs:0.8, QJs:0.8, KTs:0.3, JTs:0.3, A8o:0.3, 44:0.2, A6s-A5s:0.2, KJo:0.1"
+      "range": "88+, 66-55, A7s+, KQs, QTs, A9o+, KQo, 77:0.9, KJs:0.8, QJs:0.8, KTs:0.3, JTs:0.3, A8o:0.3, 44:0.2, A6s-A5s:0.2, K9s:0.1, KJo:0.1"
      },
      {
       "key": "shove",
@@ -17114,26 +17399,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG",
     "title": "BTN vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "UTG 오픈 2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.7%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG 2",
     "reachPct": 100,
     "occ": 8.856,
     "regret": 0.0002,
     "confidence": "low",
-    "move": 0,
-    "close": "...........9.....3..9....................9...9..........3.39............9..........................9.............9............99.........................................",
+    "move": 6.7,
+    "close": "..3........9.....3..9....................9...9..........3.39............9..........................9.............9............99.........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs-A9s, A5s, K9s+, Q9s+, J9s+, T8s+, 97s+, 87s, 65s, KQo, QJo, AQs:0.9, A4s:0.9, JJ:0.8, A7s:0.8, AJo:0.5, A8s:0.4, KJo:0.4, 99:0.1, Q8s:0.1"
+      "range": "77-55, AQs-A9s, A5s, K9s+, Q9s+, J9s+, T8s+, 97s+, 87s, 65s, KQo, QJo, A4s:0.9, JJ:0.8, A7s:0.8, AJo:0.5, KJo:0.4, A8s:0.3, Q8s:0.3, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "QQ+, TT, 88, AKs, AQo+, 99:0.9, A8s:0.6, KJo:0.6, AJo:0.5, K8s:0.4, JJ:0.2, KTo:0.2, AQs:0.1, ATo:0.1"
+      "range": "QQ+, TT, 88, AKs, AQo+, 99:0.9, A8s:0.7, KJo:0.6, AJo:0.5, K8s:0.4, JJ:0.2, KTo:0.2, ATo:0.1"
      },
      {
       "key": "shove",
@@ -17153,26 +17438,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1",
     "title": "BTN vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 낮음(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.8%p 움직여요. EP 오픈에 콜드콜이 전체 핸드의 11%라 확인이 필요해요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 9.15,
+    "occ": 9.152,
     "regret": 0.0001,
     "confidence": "low",
-    "move": 0,
-    "close": ".......9..99.....3.........3.................9........a.3.39..........3...............9.........................39............b..........................................",
+    "move": 4.8,
+    "close": ".......9..99.....3.........3.................9..........3.39..........3...............9.........................3.............b..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT, 66-55, AJs-A7s, A5s-A4s, K9s+, Q8s+, J9s+, T8s+, 97s+, 87s, 65s, KQo, QJo, KJo:0.9, K8s:0.8, K7s:0.5, 76s:0.3"
+      "range": "TT, 66-55, AJs-A7s, A5s-A4s, K9s+, Q8s+, J9s+, T8s+, 97s+, 87s, KQo, QJo, KJo:0.9, K8s:0.8, 65s:0.7, K7s:0.5, 76s:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 99-77, AQs+, AJo+, KTo:0.8, ATo:0.3, K8s:0.2, KJo:0.1"
+      "range": "JJ+, 99-77, AQs+, AJo+, KTo:0.8, ATo:0.4, K8s:0.2, KJo:0.1"
      },
      {
       "key": "shove",
@@ -17192,26 +17477,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2",
     "title": "BTN vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.9%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 9.177,
+    "occ": 9.187,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....33..9.9..........9..........9..........................9............9..........................9.............9.......................................................",
+    "confidence": "high",
+    "move": 4.9,
+    "close": "....3.....9.......3..9.........39.......................................9............9.............9.............9.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "ATs, A7s, A5s-A4s, KJs-KTs, Q8s+, J9s+, T8s+, 97s+, 87s, KJo, QJo, A8s:0.9, K9s-K8s:0.9, K7s:0.8, KQo:0.8, TT:0.6, KQs:0.6, 99:0.5, 66:0.5, J8s:0.5, 55:0.3, A3s:0.1"
+      "range": "ATs, A7s, A5s-A4s, KJs-K9s, Q8s+, J9s+, T8s+, 97s+, 87s, KJo, QJo, A8s:0.9, K8s-K7s:0.9, J8s:0.8, KQo:0.7, KQs:0.6, TT:0.5, 66:0.5, 99:0.4, 55:0.2, A3s:0.2, A6s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AJs+, A9s, ATo+, 55:0.7, KTo:0.6, 99:0.5, 66:0.5, TT:0.4, KQs:0.4, KQo:0.2, A8s:0.1, K9s-K8s:0.1"
+      "range": "JJ+, 88-77, AJs+, A9s, ATo+, 55:0.8, 99:0.6, KTo:0.6, TT:0.5, 66:0.5, KQs:0.4, KQo:0.3, A8s:0.1, K8s:0.1"
      },
      {
       "key": "shove",
@@ -17231,26 +17516,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ",
     "title": "BTN vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.3%p 움직여요.",
     "line": "LJ 2",
     "reachPct": 100,
-    "occ": 9.805,
+    "occ": 9.806,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3...99........9...........9.........................9........................................9.............9.......................................................",
+    "confidence": "high",
+    "move": 5.3,
+    "close": "......3...99........9...........9......................a..9........................................9.............9.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A7s, A5s-A4s, KJs-KTs, QTs+, Q8s, J9s+, T8s+, 98s, KJo, QJo, K8s:0.9, Q9s:0.8, 87s:0.8, 88:0.6, A6s:0.6, KQo:0.6, 99:0.2, J8s:0.1, 97s:0.1"
+      "range": "A7s, A5s-A4s, KJs-KTs, QTs+, Q8s, J9s+, T8s+, 98s, KJo, QJo, K8s:0.8, Q9s:0.8, A6s:0.7, 87s:0.7, 88:0.6, KQo:0.5, 99:0.1, J8s:0.1, 97s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 6bb",
       "color": "raise",
-      "range": "TT+, 77-55, A8s+, KQs, K9s, ATo+, 99:0.8, KTo:0.5, 88:0.4, A9o:0.4, KQo:0.4, 44:0.3, Q9s:0.2, K8s:0.1"
+      "range": "TT+, 77-55, A8s+, KQs, K9s, ATo+, 99:0.9, A9o:0.5, KQo:0.5, KTo:0.5, 88:0.4, 44:0.3, K8s:0.2, Q9s:0.2"
      },
      {
       "key": "shove",
@@ -17270,20 +17555,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ",
     "title": "BTN vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5%p 움직여요.",
     "line": "HJ 2",
     "reachPct": 100,
     "occ": 10.334,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........b3..........9......3................39.......b.a..9..............................................................................................................",
+    "confidence": "high",
+    "move": 5,
+    "close": "........b3.9........9......3................39.......b.a..9..............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A5s, KTs, QTs+, J9s+, T9s, 98s, KJo, K9s:0.9, A4s:0.8, KJs:0.8, QJo:0.8, Q8s:0.6, 88-77:0.4, Q9s:0.2, K8s:0.1"
+      "range": "A5s, KTs, QTs+, J9s+, T9s, 98s, KJo, A4s:0.9, K9s:0.9, KJs:0.8, QJo:0.8, Q8s:0.6, 88-77:0.4, Q9s:0.2, K8s:0.1"
      },
      {
       "key": "3bet",
@@ -17309,13 +17594,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO",
     "title": "BTN vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.5%p 움직여요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 10.913,
+    "occ": 10.938,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 5.5,
     "close": ".....................................................a.....................................a..............................................................a..............",
     "actions": [
      {
@@ -17348,26 +17633,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG",
     "title": "SB vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.9%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 7.308,
+    "occ": 7.303,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "......3.9...9..........9.........999......3...9.......9.....9.........3...9..........................9..........................9...........9.............9..............",
+    "move": 15.9,
+    "close": "......3.9...9..........9.........999......3...9.............9.........3...9............9........................................9...........9.............9..............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs-A2s, K6s+, K4s, Q7s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, AJo, KQo, QJo, 88:0.8, K5s:0.8, 43s:0.8, JTo:0.4, KJo:0.2"
+      "range": "77-44, AJs-A2s, K6s+, K4s, Q7s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, AJo, KQo, QJo, 88:0.8, K5s:0.8, 43s:0.6, JTo:0.4, KJo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "99+, AQs+, AQo+, KJo:0.8, KTo:0.4, 88:0.2, ATo:0.2"
+      "range": "99+, AQs+, AQo+, KJo:0.8, KTo:0.5, 88:0.2, ATo:0.2"
      },
      {
       "key": "shove",
@@ -17387,26 +17672,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1",
     "title": "SB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.9%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 7.412,
+    "occ": 7.419,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "..3.........9...........9...........9..........9............9........93...9.........3................9.............9............9.........................9..............",
+    "move": 18.9,
+    "close": "............9...........9.........9.9..........9.....................93...9.........3................9.............9............9.........................9..............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, AJs-A2s, K4s+, Q6s+, J7s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, KQo, QTo+, JTo, Q5s:0.9, 43s:0.9, TT:0.8, AJo-ATo:0.5, KJo:0.5"
+      "range": "77-44, AJs-A2s, K4s+, Q6s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 53s+, KQo, QTo+, JTo, Q5s:0.9, T6s:0.9, TT:0.8, 43s:0.7, AJo:0.6, ATo:0.5, KJo:0.5, AQs:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, 99-88, AQs+, AQo+, KTo:0.8, AJo-ATo:0.5, KJo:0.5, TT:0.2"
+      "range": "JJ+, 99-88, AKs, AQo+, AQs:0.8, KTo:0.8, ATo:0.5, KJo:0.5, AJo:0.4, TT:0.2"
      },
      {
       "key": "shove",
@@ -17426,26 +17711,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2",
     "title": "SB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.3%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 7.399,
+    "occ": 7.385,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........................99..........99..3......99...........9.....a.............................................3..9............9............9............9..............",
+    "move": 17.3,
+    "close": "........................99..........99..3......9............9.....a.............................................3..9............9........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, ATs-A2s, K3s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, 43s, KJo+, QTo+, ATo:0.8, 95s:0.7, JTo:0.7, T9o:0.4, AJs:0.3, TT:0.2, 99:0.1, 74s:0.1"
+      "range": "66-44, ATs-A2s, K3s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 53s+, KJo+, QTo+, 43s:0.9, ATo:0.8, JTo:0.7, AJs:0.6, 95s:0.4, T9o:0.4, TT:0.3, 99:0.1, 33:0.1, J5s:0.1, 74s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AQs+, AJo+, KTo, 99:0.9, TT:0.8, AJs:0.7, JTo:0.3, ATo:0.2"
+      "range": "JJ+, 88-77, AQs+, AJo+, KTo, 99:0.9, TT:0.7, AJs:0.4, JTo:0.3, ATo:0.2, T9o:0.1"
      },
      {
       "key": "shove",
@@ -17465,26 +17750,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ",
     "title": "SB vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.6%p 움직여요.",
     "line": "LJ 2",
     "reachPct": 100,
     "occ": 7.919,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........................99..........999..........9..3............a.a......9........a.................9.............9............9...........39............9..............",
+    "move": 13.6,
+    "close": "........................99..........999..........9..3............a.a......9........a.................9.............9............9............9............9..............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, A9s-A2s, KJs-K3s, Q4s+, J5s+, T6s+, 95s+, 85s+, 75s+, 64s+, 53s+, KJo+, QTo+, JTo, T9o, 99:0.5, ATs:0.5, 88:0.4, KTo:0.4, J9o:0.2"
+      "range": "A9s-A2s, KJs-K3s, Q4s+, J5s+, T6s+, 95s+, 85s+, 75s+, 64s+, 53s+, KJo+, QTo+, JTo, T9o, 44:0.9, 99:0.5, ATs:0.5, KTo:0.4, 88:0.3, J9o:0.3"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "TT+, 77-55, AJs+, KQs, A9o+, 88:0.6, KTo:0.6, 99:0.5, ATs:0.5, K9o:0.2"
+      "range": "TT+, 77-55, AJs+, KQs, A9o+, 88:0.7, KTo:0.6, 99:0.5, ATs:0.5, K9o:0.2, 44:0.1"
      },
      {
       "key": "shove",
@@ -17504,26 +17789,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ",
     "title": "SB vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.7%p 움직여요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 8.387,
-    "regret": 0.0001,
+    "occ": 8.384,
+    "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "........3...3..............3.........9.............9......................9...a...................3.............3..9.a..........9............9...........................",
+    "move": 12.7,
+    "close": "........3...3..............3.........9...........9.9......................9...a...................3.............3..9.a..........9............9..........................a",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77, A8s-A2s, KJs-K3s, Q3s+, J4s+, T6s+, 95s+, 85s+, 75s+, 64s+, 53s+, KTo+, QTo+, J9o+, T9o, A9s:0.9, K2s:0.9, T5s:0.8, Q9o:0.8, Q2s:0.5, 88:0.2, J3s:0.2, 74s:0.2, 98o:0.2"
+      "range": "77, A8s-A2s, KJs-K3s, Q3s+, J4s+, T6s+, 95s+, 85s+, 75s+, 64s+, 53s+, KTo+, QTo+, J9o+, T9o, A9s:0.9, K2s:0.9, Q9o:0.8, T5s:0.7, Q2s:0.4, 88:0.2, 98o:0.2, J3s:0.1, 74s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "99+, 66-44, ATs+, KQs, A8o+, 33:0.9, 88:0.8, K9o:0.6, A7o:0.2, A9s:0.1, Q9o:0.1"
+      "range": "99+, 66-44, ATs+, KQs, A8o+, 33:0.9, 88:0.8, K9o:0.6, A7o:0.2, Q9o:0.2, A9s:0.1"
      },
      {
       "key": "shove",
@@ -17543,26 +17828,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO",
     "title": "SB vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.9%p 움직여요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 8.888,
-    "regret": 0.0002,
+    "occ": 8.907,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........3...............3..........9.3.............3......9....b3......9.....a...................9................a.........9.........................................",
+    "move": 13.9,
+    "close": "...........3...............3..........9.3.............3......9....b.......9.....a...................9................a.........9.........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A3s, KTs-K3s, Q4s+, J5s+, T6s+, 96s+, 85s+, 75s+, 65s, 54s, KJo, K9o, QTo-Q9o, J9o+, T9o, A2s:0.9, K2s:0.9, QJo:0.9, KJs:0.8, KTo:0.6, 64s:0.5, 66:0.4, A4s:0.4, Q3s:0.3, 77:0.1, J4s:0.1"
+      "range": "A3s, KTs-K3s, Q4s+, J5s+, T6s+, 96s+, 85s+, 75s+, 65s, 54s, KJo, K9o, QTo-Q9o, J9o+, T9o, A2s:0.9, K2s:0.9, QJo:0.9, KJs:0.8, KTo:0.6, 66:0.5, A4s:0.5, 64s:0.4, Q3s:0.3, 77:0.1, J4s:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "88+, 55-33, A5s+, KQs, A7o+, KQo, 77:0.9, 66:0.6, A4s:0.6, KTo:0.4, 22:0.3, A6o:0.3, KJs:0.2, A2s:0.1, QJo:0.1"
+      "range": "88+, 55-33, A5s+, KQs, A7o+, KQo, 77:0.9, 66:0.5, A4s:0.5, 22:0.4, A6o:0.4, KTo:0.4, KJs:0.2, A2s:0.1, QJo:0.1"
      },
      {
       "key": "shove",
@@ -17582,32 +17867,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN",
     "title": "SB vs BTN 오픈",
-    "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.1%p 움직여요.",
     "line": "BTN 2",
     "reachPct": 100,
-    "occ": 9.762,
+    "occ": 9.728,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........................9...3.......99.........99..........9............9............9............9.............9................a............a.........................",
+    "move": 12.1,
+    "close": "......................................9.........99..........9............9.....9......9............9.............9................a............a.........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "K9s-K2s, Q3s+, J5s+, T6s+, 96s+, 86s+, 76s, 65s, K9o, QTo-Q9o, J9o+, T9o, KTo:0.9, K8o:0.9, Q8o:0.6, QJo:0.4"
+      "range": "K9s-K2s, QTs-Q4s, J5s+, T6s+, 96s+, 86s+, 76s, 65s, K9o-K8o, QTo-Q9o, J9o+, T9o, QJs:0.9, Q3s:0.9, KTo:0.9, Q8o:0.6, QJo:0.5"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "66+, 44-22, A2s+, KTs+, A4o+, KJo+, 55:0.9, QJo:0.6, KTo:0.1"
+      "range": "66+, 44-22, A2s+, KTs+, A4o+, KJo+, 55:0.9, QJo:0.5, KTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "55:0.1"
+      "range": "55:0.1, QJs:0.1"
      }
     ]
    },
@@ -17621,32 +17906,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG",
     "title": "BB vs UTG 오픈",
-    "description": "UTG 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.5%p 움직여요.",
     "line": "UTG 2",
     "reachPct": 100,
-    "occ": 5.472,
+    "occ": 5.474,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................................9.........99............99.9...........99b....9.............9.............9.............9.................9.........................",
+    "move": 15.5,
+    "close": ".........55..........................9.........99............99.9...........99b....9.............9.............9.............9....9........9...9.........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AQs-A2s, K2s+, Q3s+, J5s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QJo, 98o, 87o, 76o, 65o, 54o, 99:0.9, QTo:0.9, JTo:0.9, Q2s:0.8, A5o:0.7, T9o:0.6, T3s:0.4, KTo:0.4, J4s:0.2, AQo:0.2, A4o:0.1"
+      "range": "88-22, AQs-A2s, K2s+, Q3s+, J5s+, T4s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, KJo+, QJo, 98o, 87o, 76o, 65o, 54o, 99:0.9, Q2s:0.9, QTo:0.9, JTo:0.9, A5o:0.6, T9o:0.5, T3s:0.4, KTo:0.4, J4s:0.2, AQo:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, AQo:0.8, AKo:0.7, KTo:0.6, T9o:0.4, QQ:0.2, K9o:0.2, 99:0.1, QTo:0.1, JTo:0.1"
+      "range": "KK+, JJ-TT, AKs, AQo:0.8, AKo:0.7, KTo:0.6, T9o:0.5, K9o:0.2, QQ:0.1, 99:0.1, QTo:0.1, JTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ:0.8, AKo:0.3, A5o:0.3"
+      "range": "QQ:0.9, A5o:0.4, AKo:0.3"
      }
     ]
    },
@@ -17660,26 +17945,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+1",
     "title": "BB vs UTG+1 오픈",
-    "description": "UTG+1 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.4%p 움직여요.",
     "line": "UTG+1 2",
     "reachPct": 100,
-    "occ": 5.298,
+    "occ": 5.31,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "........................................3.........9....3.......9.....3..................................9......................................9.........9..9............",
+    "move": 12.4,
+    "close": "........................................3.........9....3.......9.....3..................................9......................................9.........9...............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-22, AQs-A2s, K2s+, Q2s+, J3s+, T3s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, A5o, A3o-A2o, KJo+, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, T2s:0.9, A4o:0.8, KTo:0.7, A7o:0.6, K9o:0.6, J2s:0.5, 99:0.1"
+      "range": "88-22, AQs-A2s, K2s+, Q2s+, J3s+, T3s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, A5o, A3o, KJo+, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, T2s:0.9, A2o:0.9, A4o:0.8, KTo-K9o:0.7, A7o:0.6, J2s:0.4, 99:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "KK+, JJ-TT, AKs, AQo, 99:0.9, AKo:0.9, QQ:0.6, J9o:0.5, A7o:0.4, K9o:0.4, KTo:0.3, Q9o:0.1"
+      "range": "KK+, JJ-TT, AKs, AQo, 99:0.9, AKo:0.9, QQ:0.6, J9o:0.5, A7o:0.4, KTo-K9o:0.3, Q9o:0.1"
      },
      {
       "key": "shove",
@@ -17699,32 +17984,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs UTG+2",
     "title": "BB vs UTG+2 오픈",
-    "description": "UTG+2 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.1%p 움직여요.",
     "line": "UTG+2 2",
     "reachPct": 100,
-    "occ": 5.155,
-    "regret": 0.0002,
+    "occ": 5.147,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........................................3.......................9.3b..............9.........a...........3...................9.............9.............99...............",
+    "move": 13.1,
+    "close": "................................................................9.3..3............b.........a...........3.....9.............9.............9.............99...............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-22, AJs-A2s, K2s+, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, A6o-A5o, A3o-A2o, K9o+, Q9o+, T9o, 98o, 87o, 76o, 65o, 54o, JTs:0.9, 88:0.8, AQs:0.7, A7o:0.7, A4o:0.7, J9o:0.7, JTo:0.6, 97o:0.5, 86o:0.4"
+      "range": "77-22, AJs-A2s, K2s+, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A8o, A6o-A5o, A3o-A2o, K9o+, QTo+, T9o, 98o, 87o, 76o, 65o, 54o, JTs:0.9, Q9o:0.9, 88:0.8, A4o:0.8, A7o:0.7, J9o:0.7, AQs:0.6, JTo:0.6, 97o:0.2"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, TT-99, AKs, AQo, AKo:0.7, K8o:0.7, JTo:0.4, JJ:0.3, AQs:0.3, A7o:0.3, J9o:0.3, 88:0.2"
+      "range": "QQ+, TT-99, AKs, AQo, AKo:0.7, K8o:0.7, AQs:0.4, JTo:0.4, JJ:0.3, A7o:0.3, J9o:0.3, 88:0.2, Q9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ:0.7, AKo:0.3, A4o:0.3, JTs:0.1"
+      "range": "JJ:0.7, AKo:0.3, A4o:0.2, JTs:0.1"
      }
     ]
    },
@@ -17738,26 +18023,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs LJ",
     "title": "BB vs LJ 오픈",
-    "description": "LJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 14.1%p 움직여요.",
     "line": "LJ 2",
     "reachPct": 100,
     "occ": 5.373,
     "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........555.....55...5..5.............................3.........3.333.............33.............3......9...........5............5.......9.............99..5...........5",
+    "move": 14.1,
+    "close": ".........555.....55...5..5.............................3...........333.............33.............3......9...........5............5.......9.............99..5...........5",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-44, 22, AJs-A2s, K4s+, K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A8o, A5o-A4o, A2o, K8o+, Q9o+, J9o+, T9o, 98o, 86o+, 75o+, 64o+, 53o+, 43o, A7o-A6o:0.9, 97o:0.9, AJo:0.8, 33:0.7, A3o:0.7, K3s:0.6, T8o:0.6, JTs:0.3, K7o:0.3, J8o:0.1"
+      "range": "77-44, 22, AJs-A2s, K4s+, K2s, Q2s+, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A8o, A5o-A4o, A2o, K8o+, Q9o+, J9o+, T9o, 98o, 86o+, 75o+, 64o+, 53o+, 43o, A9o:0.9, A7o-A6o:0.9, AJo:0.8, 97o:0.8, 33:0.7, A3o:0.7, T8o:0.7, K3s:0.6, JTs:0.3, K7o:0.3, Q8o:0.1, J8o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 99-88, AQs+, AQo, K7o:0.7, AKo:0.4, T8o:0.4, JJ:0.3, AJo:0.2, TT:0.1, A7o-A6o:0.1, Q8o:0.1, 97o:0.1"
+      "range": "QQ+, 99-88, AQs+, AQo, K7o:0.7, AKo:0.4, JJ:0.3, T8o:0.3, AJo:0.2, 97o:0.2, TT:0.1, A9o:0.1, A7o-A6o:0.1, Q8o:0.1"
      },
      {
       "key": "shove",
@@ -17777,32 +18062,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs HJ",
     "title": "BB vs HJ 오픈",
-    "description": "HJ 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.2%p 움직여요.",
     "line": "HJ 2",
     "reachPct": 100,
-    "occ": 5.27,
+    "occ": 5.277,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........5.5.....55..55.556.................5.......3............33373.........5...........3..99..........a.....3....5.....9......5f............d...........5............",
+    "move": 19.2,
+    "close": ".........5.5.....55..55.556.................5.......3............33.73.........5...........3..99................3....5.....9......5f............d...........5............",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55-44, ATs-A5s, A3s-A2s, KQs, KTs-K2s, QTs-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A9o, A7o, A5o-A4o, A2o, K7o+, Q9o+, J9o+, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, KJs:0.9, QJs:0.9, Q8o:0.9, 22:0.8, A8o:0.8, J8o:0.8, A3o:0.7, K6o:0.7, 33:0.6, A4s:0.6, K5o:0.5, A6o:0.1, 96o:0.1"
+      "range": "55-44, ATs-A5s, A3s-A2s, KQs, KTs-K2s, QTs-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A9o, A7o, A5o-A4o, A2o, K7o+, QTo+, J9o+, T7o+, 97o+, 86o+, 75o+, 64o+, 53o+, 43o, KJs:0.9, QJs:0.9, Q9o-Q8o:0.9, 22:0.8, A4s:0.8, A8o:0.8, J8o:0.8, A3o:0.7, K6o:0.7, 33:0.6, K5o:0.5, A6o:0.1, 96o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, 88-66, AJs+, AQo-AJo, A6o:0.9, JJ:0.7, K5o:0.4, K6o:0.3, AKo:0.2, A8o:0.2, J8o:0.2, TT:0.1, Q8o:0.1"
+      "range": "QQ+, 88-66, AJs+, AQo-AJo, A6o:0.9, JJ:0.7, K5o:0.4, K6o:0.3, AKo:0.2, A8o:0.2, J8o:0.2, TT:0.1, Q9o-Q8o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99, JTs, TT:0.9, AKo:0.8, 33:0.4, A4s:0.4, JJ:0.3, A3o:0.3, 22:0.2, KJs:0.1, QJs:0.1, K5o:0.1"
+      "range": "99, JTs, TT:0.9, AKo:0.8, 33:0.4, JJ:0.3, A3o:0.3, 22:0.2, A4s:0.2, KJs:0.1, QJs:0.1, K5o:0.1"
      }
     ]
    },
@@ -17816,32 +18101,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs CO",
     "title": "BB vs CO 오픈",
-    "description": "CO 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.6%p 움직여요.",
     "line": "CO 2",
     "reachPct": 100,
-    "occ": 5.614,
+    "occ": 5.622,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......5.5555...5...555.......5............6............5..5......3.............33..........77333.........33.9...6...................9..........53...........53.......9.95",
+    "confidence": "low",
+    "move": 22.6,
+    "close": "......5.5555...5...555.......5............6............5..5......3.............37..........77333.........33.9...6..........9........9.......3..53......9....53.......9995",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44, A9s-A8s, A6s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A4o-A2o, K6o+, K3o-K2o, Q6o+, J7o+, T7o+, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, QTs:0.9, A5o:0.9, KTs:0.8, A8o:0.8, K4o:0.8, T9s:0.7, 74o:0.7, A7s:0.6, KJs:0.6, K5o:0.6, 33:0.5, Q5o:0.5, 63o:0.1, 42o:0.1"
+      "range": "44, A9s-A8s, A6s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A4o-A2o, K6o+, K3o-K2o, Q6o+, J7o+, T7o+, 96o+, 85o+, 75o+, 64o+, 53o+, 43o, A7s:0.9, KTs:0.9, A8o:0.8, A5o:0.8, K4o:0.8, KJs:0.7, QTs:0.7, 33:0.6, T9s:0.6, K5o:0.6, Q5o:0.5, 74o:0.4"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "JJ+, 66-55, ATs+, AJo-ATo, A7o, A6o:0.8, TT:0.5, AQo:0.5, Q5o:0.5, K5o:0.4, 99:0.2, AKo:0.2, A8o:0.2, K4o:0.2"
+      "range": "JJ+, 66-55, ATs+, AJo-ATo, A7o, A6o:0.8, Q5o:0.5, TT:0.4, AQo:0.4, K5o:0.4, 99:0.2, A8o:0.2, K4o:0.2, AKo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88-77, 22, KQs, JTs, 99:0.8, AKo:0.8, TT:0.5, 33:0.5, AQo:0.5, A7s:0.4, KJs:0.4, T9s:0.3, KTs:0.2, A6o:0.2, QTs:0.1, A5o:0.1"
+      "range": "88-77, 22, KQs, JTs, AKo:0.9, 99:0.8, TT:0.6, AQo:0.6, 33:0.4, T9s:0.4, KJs:0.3, QTs:0.3, A6o-A5o:0.2, A7s:0.1, KTs:0.1"
      }
     ]
    },
@@ -17855,32 +18140,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN",
     "title": "BB vs BTN 오픈",
-    "description": "BTN 오픈 2bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.6%p 움직여요.",
     "line": "BTN 2",
     "reachPct": 100,
-    "occ": 5.844,
+    "occ": 5.827,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..66.....77...................5............5............65.............5......3......5............6..................733.99...6...33.b..9......3.........................",
+    "confidence": "low",
+    "move": 23.6,
+    "close": "..66.....77...................5............5............655............5.............5............6..................733.99...6...73.b......6..3.........................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "A4s-A2s, KTs-K2s, QTs-Q2s, J9s-J2s, T7s-T2s, 96s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o-A3o, KJo-K4o, Q5o+, J6o+, T6o+, 95o+, 85o+, 74o+, 63o+, 52o+, 42o+, 32o, 97s:0.9, K2o:0.9, A6s:0.8, K3o:0.8, Q4o-Q2o:0.8, J5o:0.7, QJs:0.5, A2o:0.5, A7o:0.4, A6o:0.3, KQo:0.3, KJs:0.1, T8s:0.1"
+      "range": "A4s-A2s, KTs-K2s, QTs-Q2s, J9s-J2s, T7s-T2s, 96s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A4o-A3o, KJo-K4o, Q5o+, J6o+, T6o+, 95o+, 85o+, 74o+, 63o+, 52o+, 42o+, 32o, 97s:0.9, K2o:0.9, K3o:0.8, Q4o-Q2o:0.8, A6s:0.7, J5o:0.7, QJs:0.5, A7o:0.4, A2o:0.4, A6o:0.3, KQo:0.3, KJs:0.1, A8o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 8bb",
       "color": "raise",
-      "range": "QQ+, A7s+, A5s, A9o-A8o, JJ:0.9, A6o:0.7, AKo:0.6, ATo:0.6, A7o:0.6, A2o:0.5, 88:0.4, 66:0.3, J5o:0.3, A6s:0.2, K3o:0.2, Q4o-Q2o:0.2, 99:0.1, 44:0.1, KQs:0.1, K2o:0.1"
+      "range": "QQ+, A7s+, A5s, A9o, JJ:0.9, A8o:0.9, A6o:0.7, AKo:0.6, ATo:0.6, A7o:0.6, A2o:0.6, 88:0.4, 66:0.3, A6s:0.3, J5o:0.3, K3o:0.2, Q4o-Q2o:0.2, 99:0.1, KQs:0.1, K2o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT, 77, 55, 33-22, JTs, T9s, 98s, AQo-AJo, A5o, 99:0.9, 44:0.9, KJs+:0.9, T8s:0.9, 66:0.7, KQo:0.7, 88:0.6, QJs:0.5, AKo:0.4, ATo:0.4, JJ:0.1, 97s:0.1"
+      "range": "TT, 77, 55-22, JTs, T8s+, 98s, AQo-AJo, A5o, 99:0.9, KJs+:0.9, 66:0.7, KQo:0.7, 88:0.6, QJs:0.5, AKo:0.4, ATo:0.4, JJ:0.1, 97s:0.1"
      }
     ]
    },
@@ -17894,32 +18179,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 오픈",
-    "description": "SB 오픈 2.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15.4%p 움직여요.",
     "line": "SB 2.5",
     "reachPct": 100,
-    "occ": 3.204,
+    "occ": 3.171,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 15.4,
     "close": "........33................6............6............................................5.............5........5...........3...........33fb.....................6...b9......7",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-77, 55-44, 22, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K4o, Q4o+, J6o+, J4o, T6o+, T4o, 95o+, 84o+, 74o+, 63o+, 52o+, 42o+, 32o, 66:0.9, KJo:0.9, T5o:0.9, 33:0.8, KQo:0.8, Q2o:0.8, K3o:0.7, A7s:0.6, Q3o:0.6, J5o:0.6, K2o:0.5, T3o:0.5, J3o-J2o:0.4, 94o-93o:0.2, A2s:0.1, A7o:0.1"
+      "range": "99-77, 55-44, 22, KJs-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KTo-K4o, Q4o+, J6o+, J4o, T6o+, T4o, 95o+, 84o+, 74o+, 63o+, 52o+, 42o+, 32o, 66:0.9, 33:0.9, KJo:0.9, T5o:0.9, Q2o:0.8, KQo:0.7, K3o:0.7, A7s:0.6, Q3o:0.6, J5o:0.6, K2o:0.5, T3o:0.5, J2o:0.4, J3o:0.3, A2s:0.2, 94o-93o:0.2, A7o:0.1"
      },
      {
       "key": "3bet",
       "label": "3벳 7.5bb",
       "color": "raise",
-      "range": "TT+, ATs+, A8s, A6s-A5s, KQs, AQo+, A6o, A2o, A4o:0.9, A3o:0.8, A9s:0.6, K2o:0.5, A7s:0.4, A4s:0.4, A7o:0.4, Q3o:0.4, A5o:0.3, K3o:0.3, J3o:0.3, A3s:0.2, A8o:0.2, KQo:0.2, Q2o:0.2, J2o:0.2, KJo:0.1, T5o:0.1, T3o:0.1"
+      "range": "TT+, ATs+, A8s, A6s-A5s, KQs, AQo+, A6o, A2o, A4o-A3o:0.8, A9s:0.7, K2o:0.5, A7s:0.4, A7o:0.4, A5o:0.4, Q3o:0.4, A4s:0.3, KQo:0.3, K3o:0.3, J3o:0.3, A3s:0.2, A8o:0.2, Q2o:0.2, J2o:0.2, KJo:0.1, T5o:0.1, T3o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "AJo-A9o, A2s:0.9, A3s:0.8, A8o:0.8, A5o:0.7, A4s:0.6, A7o:0.5, A9s:0.4, J5o:0.4, J3o:0.3, 33:0.2, A3o:0.2, 66:0.1, A4o:0.1"
+      "range": "AJo-A9o, A3s-A2s:0.8, A8o:0.8, A4s:0.7, A5o:0.6, A7o:0.5, J5o:0.4, J3o:0.4, A9s:0.3, A4o-A3o:0.2, 66:0.1, 33:0.1"
      }
     ]
    },
@@ -17933,17 +18218,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+1 3벳",
     "title": "UTG 오픈 후 vs UTG+1 3벳",
-    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.3%p 움직여요.",
     "line": "UTG 2 · UTG+1 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 1.261,
+    "occ": 1.262,
     "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3........................5.6...........................................................................................................................................",
+    "confidence": "low",
+    "move": 29.3,
+    "close": "...........................5.6...........................................................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -17969,16 +18254,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs UTG+2 3벳",
     "title": "UTG 오픈 후 vs UTG+2 3벳",
-    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.3%p 움직여요.",
     "line": "UTG 2 · UTG+2 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 1.153,
+    "occ": 1.154,
     "regret": 0.0011,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 29.3,
     "close": "..3.............3..........5.6...........................................................................................................................................",
     "actions": [
      {
@@ -18005,23 +18290,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs LJ 3벳",
     "title": "UTG 오픈 후 vs LJ 3벳",
-    "description": "UTG 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → LJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.2%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 1.053,
+    "occ": 1.055,
     "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 30.2,
     "close": "..3.............3..........5.6...........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-ATs, AQo, 66:0.6, KQs:0.5, QTs:0.5, AJo:0.5, JTs:0.4"
+      "range": "TT-77, AQs-ATs, AQo, 66:0.6, KQs:0.5, QTs:0.5, AJo:0.5, JTs:0.3"
      },
      {
       "key": "shove",
@@ -18041,16 +18326,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs HJ 3벳",
     "title": "UTG 오픈 후 vs HJ 3벳",
-    "description": "UTG 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 34.2%p 움직여요.",
     "line": "UTG 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 0.829,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.828,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 34.2,
     "close": ".......6.......3.........................................................................................................................................................",
     "actions": [
      {
@@ -18077,29 +18362,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs CO 3벳",
     "title": "UTG 오픈 후 vs CO 3벳",
-    "description": "UTG 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 32.3%p 움직여요.",
     "line": "UTG 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
     "occ": 0.704,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......6.......33..........5.............................................................................................................................................",
+    "regret": 0.0009,
+    "confidence": "low",
+    "move": 32.3,
+    "close": "...............33..........5.............................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-AJs, KJs+, AQo, 66:0.9, JJ:0.7, ATs:0.4, AJo:0.3, A9s:0.1, JTs:0.1"
+      "range": "TT-77, AQs-AJs, KJs+, AQo, 66:0.9, JJ:0.7, ATs:0.5, AJo:0.3, A9s:0.1, JTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, QJs, AKo, ATs:0.6, QTs:0.4, JJ:0.3, 66:0.1"
+      "range": "QQ+, AKs, KTs, QJs, AKo, ATs:0.5, QTs:0.4, JJ:0.3, 66:0.1"
      }
     ]
    },
@@ -18113,29 +18398,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BTN 3벳",
     "title": "UTG 오픈 후 vs BTN 3벳",
-    "description": "UTG 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.6%p 움직여요.",
     "line": "UTG 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 0.576,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".................6...........6...........................................................................................................................................",
+    "occ": 0.575,
+    "regret": 0.0005,
+    "confidence": "low",
+    "move": 26.6,
+    "close": ".............................6...........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs-AJs, KJs+, AQo, JJ:0.9, 66:0.9, ATs:0.9, AJo:0.4"
+      "range": "TT-77, AQs-AJs, KJs+, AQo, ATs:0.9, JJ:0.8, 66:0.8, AJo:0.4"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, KTs, QJs, AKo, QTs:0.5, JJ:0.1, 66:0.1, ATs:0.1"
+      "range": "QQ+, AKs, KTs, QJs, AKo, QTs:0.5, JJ:0.2, 66:0.2, ATs:0.1"
      }
     ]
    },
@@ -18149,23 +18434,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs SB 3벳",
     "title": "UTG 오픈 후 vs SB 3벳",
-    "description": "UTG 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 3벳 8bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.5%p 움직여요.",
     "line": "UTG 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 0.476,
+    "occ": 0.475,
     "regret": 0.0012,
     "confidence": "mid",
-    "move": 0,
+    "move": 17.5,
     "close": "...3......................................3.......................................................5......................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ-77, AQs-AJs, KQs, AQo, ATs:0.6, KJs:0.5, 66:0.4, AKo:0.3"
+      "range": "JJ-77, AQs-AJs, KQs, AQo, ATs:0.6, KJs:0.5, 66:0.3, AKo:0.3"
      },
      {
       "key": "shove",
@@ -18185,23 +18470,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG vs BB 3벳",
     "title": "UTG 오픈 후 vs BB 3벳",
-    "description": "UTG 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BB 3벳 8bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 17.8%p 움직여요.",
     "line": "UTG 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 0.265,
-    "regret": 0.0029,
+    "occ": 0.263,
+    "regret": 0.0024,
     "confidence": "mid",
-    "move": 0,
+    "move": 17.8,
     "close": "........................................5................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-77, AQs, ATs, KJs+, AQo, JJ:0.9, AJs:0.9, 66:0.6, AKo:0.3, QQ:0.2, KTs:0.1, QJs:0.1"
+      "range": "TT-77, AQs, ATs, KJs+, AQo, JJ:0.9, AJs:0.9, 66:0.5, AKo:0.3, QQ:0.2, KTs:0.1, QJs:0.1"
      },
      {
       "key": "shove",
@@ -18221,29 +18506,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG+2 3벳",
     "title": "UTG+1 오픈 후 vs UTG+2 3벳",
-    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 37.4%p 움직여요.",
     "line": "UTG+1 2 · UTG+2 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
-    "occ": 1.291,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 16.8,
+    "occ": 1.292,
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 37.4,
     "close": "..3......................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-77, AJs-ATs, AQo-AJo, 66:0.9, KQs:0.4, JTs:0.3, KQo:0.3"
+      "range": "99-77, AJs-ATs, AQo-AJo, 66:0.9, KQs:0.4, KQo:0.4, JTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KJs-KTs, AKo, QJs:0.9, A5s:0.6, KQs:0.6, 66:0.1"
+      "range": "TT+, 55, AQs+, KJs-KTs, AKo, QJs:0.9, KQs:0.6, A5s:0.5, 66:0.1"
      }
     ]
    },
@@ -18257,16 +18542,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs LJ 3벳",
     "title": "UTG+1 오픈 후 vs LJ 3벳",
-    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.1%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+1 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
+    "reachPct": 16.8,
     "occ": 1.133,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 33.1,
     "close": "....3.........................5............5....................................................................3........................................................",
     "actions": [
      {
@@ -18293,17 +18578,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs HJ 3벳",
     "title": "UTG+1 오픈 후 vs HJ 3벳",
-    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 34.6%p 움직여요.",
     "line": "UTG+1 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
+    "reachPct": 16.8,
     "occ": 0.981,
-    "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3...................................5.................................................................................................................................",
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 34.6,
+    "close": "...3...........3.......................5.................................................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -18329,29 +18614,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs CO 3벳",
     "title": "UTG+1 오픈 후 vs CO 3벳",
-    "description": "UTG+1 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.8%p 움직여요.",
     "line": "UTG+1 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
-    "occ": 0.816,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 16.8,
+    "occ": 0.813,
+    "regret": 0.0005,
+    "confidence": "low",
+    "move": 33.8,
     "close": ".....6...6.....3.........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-AJs, KQs, AQo, JTs:0.9, ATs:0.7, AJo:0.5, KQo:0.5, 55:0.4, KJs:0.3"
+      "range": "TT-66, AQs-AJs, KQs, AQo, JTs:0.9, ATs:0.7, AJo:0.6, KQo:0.5, KJs:0.4, 55:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs, QTs+, AKo, KJs:0.7, 55:0.6, ATs:0.3"
+      "range": "JJ+, AKs, KTs, QTs+, AKo, 55:0.7, KJs:0.6, ATs:0.3"
      }
     ]
    },
@@ -18365,29 +18650,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BTN 3벳",
     "title": "UTG+1 오픈 후 vs BTN 3벳",
-    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.2%p 움직여요.",
     "line": "UTG+1 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
+    "reachPct": 16.8,
     "occ": 0.7,
     "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........6.....3...........5..6........5.................................................................................................................................",
+    "confidence": "low",
+    "move": 30.2,
+    "close": ".........6....................6..........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KJs+, AQo-AJo, JTs:0.6, 55:0.5, JJ:0.4, KTs:0.2"
+      "range": "TT-66, AQs-ATs, KJs, AQo-AJo, KQs:0.9, JTs:0.5, JJ:0.4, 55:0.4, KTs:0.2, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, QTs+, AKo, KTs:0.8, JJ:0.6, 55:0.5, A9s:0.3"
+      "range": "QQ+, AKs, QTs+, AKo, KTs:0.8, JJ:0.6, 55:0.6, A9s:0.3, KQs:0.1, JTs:0.1"
      }
     ]
    },
@@ -18401,28 +18686,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs SB 3벳",
     "title": "UTG+1 오픈 후 vs SB 3벳",
-    "description": "UTG+1 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 3벳 8bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.8%p 움직여요.",
     "line": "UTG+1 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
-    "occ": 0.538,
-    "regret": 0.0008,
+    "reachPct": 16.8,
+    "occ": 0.532,
+    "regret": 0.0009,
     "confidence": "mid",
-    "move": 0,
+    "move": 12.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-ATs, KQs, AQo, 55:0.6, KJs:0.6, AJo:0.1"
+      "range": "TT-66, AQs-ATs, KQs, AQo, 55:0.6, KJs:0.6, AJo:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, QJs, AKo, A5s:0.8, 55:0.4, KJs:0.4"
+      "range": "JJ+, AKs, QJs, AKo, A5s:0.7, 55:0.4, KJs:0.4"
      }
     ]
    },
@@ -18436,17 +18721,17 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs BB 3벳",
     "title": "UTG+1 오픈 후 vs BB 3벳",
-    "description": "UTG+1 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 21.4%p 움직여요.",
     "line": "UTG+1 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
+    "reachPct": 16.8,
     "occ": 0.321,
-    "regret": 0.0023,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................3.....................................................................5........................................................",
+    "regret": 0.0024,
+    "confidence": "low",
+    "move": 21.4,
+    "close": "..........................................3..............................................................................................................................",
     "actions": [
      {
       "key": "call",
@@ -18458,7 +18743,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo:0.9, QJs:0.8, A5s:0.5"
+      "range": "QQ+, AKs, AKo:0.9, QJs:0.7, A5s:0.5"
      }
     ]
    },
@@ -18472,29 +18757,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs LJ 3벳",
     "title": "UTG+2 오픈 후 vs LJ 3벳",
-    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30%p 움직여요.",
     "line": "UTG+2 2 · LJ 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 1.437,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......5..5............................................................3..................................................................................................",
+    "reachPct": 19,
+    "occ": 1.442,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 30,
+    "close": "..3...5...............................................................3..................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AJs-A9s, T9s, 98s, AQo-AJo, KQo, KQs:0.8, JTs:0.6, ATo:0.6, J9s:0.5, 55:0.3, QTs:0.2"
+      "range": "99-66, AJs-A9s, T9s, 98s, AQo-AJo, KQo, KQs:0.7, JTs:0.6, ATo:0.6, J9s:0.5, 55:0.3, QTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, AQs+, KJs-KTs, QJs, AKo, 55:0.7, JTs:0.4, KQs:0.2, QTs:0.1"
+      "range": "TT+, AQs+, KJs-KTs, QJs, AKo, 55:0.7, JTs:0.4, KQs:0.3"
      }
     ]
    },
@@ -18508,23 +18793,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs HJ 3벳",
     "title": "UTG+2 오픈 후 vs HJ 3벳",
-    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.5%p 움직여요.",
     "line": "UTG+2 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 1.27,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......5...............................................................3..................................................................................................",
+    "reachPct": 19,
+    "occ": 1.278,
+    "regret": 0.0006,
+    "confidence": "low",
+    "move": 29.5,
+    "close": "......................................................................3..................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AJs-A9s, JTs, T9s, 98s, AQo-AJo, KQo, AQs:0.5, QTs:0.5, ATo:0.5, KQs:0.3, J9s:0.3, 55:0.2"
+      "range": "99-66, AJs-A9s, JTs, T9s, 98s, AQo-AJo, KQo, QTs:0.7, AQs:0.5, ATo:0.5, KQs:0.3, J9s:0.3, 55:0.2"
      },
      {
       "key": "shove",
@@ -18544,29 +18829,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs CO 3벳",
     "title": "UTG+2 오픈 후 vs CO 3벳",
-    "description": "UTG+2 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.9%p 움직여요.",
     "line": "UTG+2 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 1.069,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................5....................................................5.................................................................................................",
+    "reachPct": 19,
+    "occ": 1.067,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 31.9,
+    "close": ".................35..........3...........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AJs-A9s, JTs, T9s, 98s, AQo-AJo, KQo, QTs:0.9, J9s:0.6, AQs:0.5, 55:0.3, TT:0.2, KQs:0.2"
+      "range": "99-66, AJs-A9s, QTs, JTs, T9s, 98s, AQo-AJo, KQo, J9s:0.7, AQs:0.5, 55:0.3, KQs:0.3, TT:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, TT:0.8, KQs:0.8, 55:0.7, AQs:0.5, QTs:0.1"
+      "range": "JJ+, AKs, KJs-KTs, QJs, AKo, TT:0.9, 55:0.7, KQs:0.7, AQs:0.5"
      }
     ]
    },
@@ -18580,29 +18865,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BTN 3벳",
     "title": "UTG+2 오픈 후 vs BTN 3벳",
-    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.7%p 움직여요.",
     "line": "UTG+2 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 0.871,
-    "regret": 0.001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..3..........................3...........................................................................................................................................",
+    "reachPct": 19,
+    "occ": 0.881,
+    "regret": 0.0007,
+    "confidence": "low",
+    "move": 29.7,
+    "close": "...............3...............5.........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-66, AQs-ATs, JTs, T9s, 98s, AQo-AJo, KQo, TT:0.8, KJs:0.8, J9s:0.8, 55:0.5, A9s:0.4, QTs:0.2, KQs:0.1, Q9s:0.1"
+      "range": "99-66, AJs-ATs, JTs, T9s, 98s, AQo-AJo, KQo, AQs:0.9, J9s:0.9, TT:0.8, KJs:0.7, 55:0.5, A9s:0.4, QTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AKs, KTs, QJs, AKo, KQs:0.9, QTs:0.8, 55:0.5, TT:0.2, KJs:0.2, K9s:0.1"
+      "range": "JJ+, AKs, KQs, KTs, QJs, AKo, QTs:0.7, 55:0.5, KJs:0.3, TT:0.2, AQs:0.1, K9s:0.1"
      }
     ]
    },
@@ -18616,16 +18901,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs SB 3벳",
     "title": "UTG+2 오픈 후 vs SB 3벳",
-    "description": "UTG+2 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.2%p 움직여요.",
     "line": "UTG+2 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 0.622,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 19,
+    "occ": 0.613,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 26.2,
     "actions": [
      {
       "key": "call",
@@ -18651,29 +18936,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs BB 3벳",
     "title": "UTG+2 오픈 후 vs BB 3벳",
-    "description": "UTG+2 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 20.9%p 움직여요.",
     "line": "UTG+2 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
-    "occ": 0.312,
-    "regret": 0.0038,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3....................................5.........................................................5.............5........................................................",
+    "reachPct": 19,
+    "occ": 0.309,
+    "regret": 0.004,
+    "confidence": "low",
+    "move": 20.9,
+    "close": "...3.....................................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-66, AQs-AJs, KJs-KTs, AQo, ATs-A9s:0.9, KQs:0.9, JTs:0.8, 55:0.6, QJs:0.6, JJ:0.5, AJo:0.4, A8s:0.1, K9s:0.1, AKo:0.1"
+      "range": "TT-66, AQs-AJs, KJs-KTs, AQo, ATs-A9s:0.9, KQs:0.9, JTs:0.7, 55:0.6, QJs:0.6, JJ:0.5, AJo:0.4, A8s:0.1, K9s:0.1, AKo:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo:0.9, A5s:0.8, JJ:0.5, QJs:0.4, ATs:0.1, KQs:0.1, QTs:0.1, JTs:0.1"
+      "range": "QQ+, AKs, AKo:0.9, A5s:0.8, JJ:0.5, QJs:0.3, ATs:0.1, KQs:0.1, QTs:0.1, JTs:0.1"
      }
     ]
    },
@@ -18687,29 +18972,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs HJ 3벳",
     "title": "LJ 오픈 후 vs HJ 3벳",
-    "description": "LJ 오픈 2bb → HJ 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → HJ 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 39.3%p 움직여요.",
     "line": "LJ 2 · HJ 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 1.52,
+    "occ": 1.521,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........5...................3..........................................................................................................................................",
+    "confidence": "low",
+    "move": 39.3,
+    "close": "..........5..............................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AJs-A8s, A5s, QTs, J9s, T9s, 98s, AJo-ATo, KQo, KQs:0.8, T8s:0.8, A7s:0.7, AQo:0.6, K9s:0.5, JTs:0.3"
+      "range": "88-55, AJs-A8s, A5s, J9s, T9s, 98s, AJo-ATo, KQo, QTs:0.9, KQs:0.8, T8s:0.8, A7s:0.7, AQo:0.6, K9s:0.5, JTs:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 44, AQs+, KJs-KTs, QJs, AKo, JTs:0.7, AQo:0.4, KQs:0.2"
+      "range": "99+, 44, AQs+, KJs-KTs, QJs, AKo, JTs:0.7, AQo:0.4, KQs:0.2, QTs:0.1"
      }
     ]
    },
@@ -18723,29 +19008,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs CO 3벳",
     "title": "LJ 오픈 후 vs CO 3벳",
-    "description": "LJ 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 39.8%p 움직여요.",
     "line": "LJ 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 1.31,
+    "occ": 1.318,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......5..........5............5..........................5..............................................................................................................",
+    "confidence": "low",
+    "move": 39.8,
+    "close": ".......5..........5.......................................5..............................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AJs-A8s, K9s, QTs, J9s, T8s+, 98s, AJo-ATo, KQo, KQs:0.9, AQo:0.6, A5s:0.4, 99:0.1, JTs:0.1"
+      "range": "88-55, AJs-A8s, K9s, QTs, J9s, T8s+, 98s, AJo-ATo, KQo, KQs:0.8, AQo:0.6, A5s:0.4, JTs:0.2, 99:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 44, AQs+, KJs-KTs, QJs, AKo, 99:0.9, JTs:0.9, AQo:0.4, KQs:0.1"
+      "range": "TT+, 44, AQs+, KJs-KTs, QJs, AKo, 99:0.9, JTs:0.8, AQo:0.4, KQs:0.2"
      }
     ]
    },
@@ -18759,23 +19044,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BTN 3벳",
     "title": "LJ 오픈 후 vs BTN 3벳",
-    "description": "LJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.6%p 움직여요.",
     "line": "LJ 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 1.146,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 1.149,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 30.6,
     "close": "...............3.........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-55, AJs-A8s, J9s, T8s+, 98s, AJo-ATo, KQo, AQo:0.9, 99:0.8, QTs:0.8, J8s:0.8, JTs:0.7, K9s:0.6, Q9s:0.5, 44:0.2, A5s:0.2, KTs:0.2, A7s:0.1, KJo:0.1"
+      "range": "88-55, AJs-A8s, J9s, T8s+, 98s, AJo-ATo, KQo, J8s:0.9, AQo:0.9, 99:0.8, QTs:0.8, JTs:0.7, K9s:0.5, Q9s:0.5, 44:0.2, A5s:0.2, KTs:0.2, A7s:0.1, KJo:0.1"
      },
      {
       "key": "shove",
@@ -18795,16 +19080,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs SB 3벳",
     "title": "LJ 오픈 후 vs SB 3벳",
-    "description": "LJ 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28.1%p 움직여요.",
     "line": "LJ 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 0.849,
+    "occ": 0.848,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 28.1,
     "close": "..3..............3.........................3........5....................................................................................................................",
     "actions": [
      {
@@ -18831,28 +19116,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 3벳",
     "title": "LJ 오픈 후 vs BB 3벳",
-    "description": "LJ 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.1%p 움직여요.",
     "line": "LJ 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 0.327,
+    "occ": 0.326,
     "regret": 0.0052,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 24.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-55, AQs, ATs, K9s+, AQo-AJo, AJs:0.9, A9s:0.9, A8s:0.7, JTs:0.7, TT:0.6, JJ:0.5, QTs:0.3, QJs:0.2, KJo:0.2, 44:0.1, T9s:0.1, KQo:0.1, KTo:0.1"
+      "range": "99-55, AQs, ATs, K9s+, AQo-AJo, AJs:0.9, A9s:0.9, A8s:0.8, JTs:0.7, JJ-TT:0.6, QTs:0.3, QJs:0.2, KJo:0.2, 44:0.1, T9s:0.1, KQo:0.1, KTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, QJs:0.8, QTs:0.7, JJ:0.5, TT:0.4, JTs:0.3, A5s:0.2, AJs:0.1, A9s:0.1, A4s:0.1"
+      "range": "QQ+, AKs, AKo, QJs:0.8, QTs:0.7, JJ-TT:0.4, JTs:0.3, A5s:0.2, AJs:0.1, A9s:0.1, A4s:0.1"
      }
     ]
    },
@@ -18866,16 +19151,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs BB 올인",
     "title": "LJ 오픈 후 vs BB 3벳 올인",
-    "description": "LJ 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요.",
     "line": "LJ 2 · BB 올인",
     "reachFrom": [
      "rfi-lj:open"
     ],
     "reachPct": 22.4,
-    "occ": 0.108,
-    "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.109,
+    "regret": 0.0005,
+    "confidence": "high",
+    "move": 7.1,
     "actions": [
      {
       "key": "call",
@@ -18895,29 +19180,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs CO 3벳",
     "title": "HJ 오픈 후 vs CO 3벳",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33%p 움직여요.",
     "line": "HJ 2 · CO 3벳 6",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 27.1,
-    "occ": 1.668,
+    "occ": 1.667,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................3...........3..............5..........................5................................................................................................",
+    "confidence": "low",
+    "move": 33,
+    "close": "........5.........3.....................7....5..........................5................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs-A7s, A5s-A3s, K9s, QJs, Q9s, J9s-J8s, T8s+, 97s+, 87s, AJo-ATo, A6s:0.9, KJo:0.9, 44:0.6, KQo:0.5, A9o:0.3, 33:0.2, QJo:0.2, A2s:0.1"
+      "range": "77-55, AJs-A3s, K9s, QJs, Q9s, J9s-J8s, T8s+, 97s+, 87s, AJo-ATo, KJo, 44:0.6, KQo:0.5, A9o:0.3, QJo:0.2, 33:0.1, A2s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, AQs+, KTs+, QTs, JTs, AQo+, 33:0.8, KQo:0.5, 44:0.4"
+      "range": "88+, AQs+, KTs+, QTs, JTs, AQo+, 33:0.9, KQo:0.5, 44:0.4"
      }
     ]
    },
@@ -18931,7 +19216,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BTN 3벳",
     "title": "HJ 오픈 후 vs BTN 3벳",
-    "description": "HJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 36.1%p 움직여요.",
     "line": "HJ 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-hj:open"
@@ -18939,21 +19224,21 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 27.1,
     "occ": 1.389,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 36.1,
     "close": "..........55.............................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-55, AJs-A7s, A5s-A4s, Q9s, J9s-J8s, T8s+, 97s+, 87s, AJo-ATo, 44:0.9, K9s:0.9, KQo:0.9, A6s:0.8, T7s:0.7, A9o:0.6, 88:0.5, QJs:0.4, QJo:0.3, K8s:0.1"
+      "range": "77-55, AJs-A7s, A5s-A4s, Q9s, J9s-J8s, T8s+, 97s+, 87s, AJo-ATo, 44:0.9, K9s:0.9, KQo:0.9, A6s:0.8, T7s:0.7, A9o:0.6, 88:0.5, QJs:0.5, QJo:0.4, K8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 33, AQs+, KTs+, QTs, JTs, AQo+, QJs:0.6, 88:0.5, KJo:0.3, 44:0.1, K9s:0.1, KQo:0.1"
+      "range": "99+, 33, AQs+, KTs+, QTs, JTs, AQo+, 88:0.5, QJs:0.5, KJo:0.3, 44:0.1, K9s:0.1, KQo:0.1"
      }
     ]
    },
@@ -18967,29 +19252,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs SB 3벳",
     "title": "HJ 오픈 후 vs SB 3벳",
-    "description": "HJ 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.2%p 움직여요.",
     "line": "HJ 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 27.1,
-    "occ": 1.06,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3.5.........................5............................................................................................................................",
+    "occ": 1.061,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 26.2,
+    "close": "................3........................................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-33, AJs-A9s, K9s, J9s, T9s, AJo-ATo, KQo:0.9, JTs:0.8, 77:0.7, 88:0.6, KTs:0.5, QTs:0.4, 87s:0.4, QJs:0.1, AQo:0.1"
+      "range": "66-33, AJs-A9s, K9s, J9s, T9s, AJo-ATo, KQo:0.9, 77:0.7, JTs:0.7, 88:0.6, KTs:0.5, QTs:0.5, 87s:0.5, QJs:0.1, AQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, AQs+, KJs+, AKo, QJs:0.9, AQo:0.9, QTs:0.6, KTs:0.5, 88:0.4, 77:0.3, JTs:0.2, KQo:0.1"
+      "range": "99+, AQs+, KJs+, AKo, QJs:0.9, AQo:0.9, KTs:0.5, QTs:0.5, 88:0.4, 77:0.3, JTs:0.3, KQo:0.1"
      }
     ]
    },
@@ -19003,29 +19288,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 3벳",
     "title": "HJ 오픈 후 vs BB 3벳",
-    "description": "HJ 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BB 3벳 8bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 19.3%p 움직여요.",
     "line": "HJ 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 27.1,
     "occ": 0.415,
-    "regret": 0.0034,
+    "regret": 0.0032,
     "confidence": "mid",
-    "move": 0,
-    "close": "...........................5................................................................................................................3............................",
+    "move": 19.3,
+    "close": "............................................................................................................................................3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88-44, AJs-A8s, JTs, T9s, AQo-AJo, KQo, A7s:0.9, KQs:0.8, 33:0.7, KJs:0.7, K9s:0.7, ATo:0.7, TT-99:0.6, K8s:0.6, QJs:0.6, 98s:0.6, JJ:0.5, QTs:0.4, AQs:0.3, KTs:0.3, Q9s:0.3"
+      "range": "88-44, AJs-A8s, JTs, T9s, AQo-AJo, KQo, A7s:0.9, KQs:0.9, KJs:0.7, K9s:0.7, ATo:0.7, TT-99:0.6, 33:0.6, K8s:0.6, QJs:0.6, 98s:0.6, JJ:0.5, QTs:0.4, KTs:0.3, Q9s:0.3, AQs:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "QQ+, AKs, AKo, AQs:0.7, KTs:0.7, QTs:0.6, JJ:0.5, TT-99:0.4, QJs:0.4, KJs:0.3, K9s:0.3, KQs:0.2, K8s:0.1, Q9s:0.1"
+      "range": "QQ+, AKs, AKo, AQs:0.8, KTs:0.7, QTs:0.6, JJ:0.5, TT-99:0.4, QJs:0.4, KJs:0.3, K9s:0.3, K8s:0.2, KQs:0.1"
      }
     ]
    },
@@ -19039,22 +19324,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs BB 올인",
     "title": "HJ 오픈 후 vs BB 3벳 올인",
-    "description": "HJ 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.8%p 움직여요.",
     "line": "HJ 2 · BB 올인",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 27.1,
-    "occ": 0.149,
+    "occ": 0.15,
     "regret": 0.0018,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, QJs, AKo, KQs:0.6, AQo:0.6, 77-66:0.5"
+      "range": "88+, ATs+, QJs, AKo, AQo:0.7, KQs:0.6, 77-66:0.5, KJs:0.1"
      }
     ]
    },
@@ -19068,23 +19353,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BTN 3벳",
     "title": "CO 오픈 후 vs BTN 3벳",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.2%p 움직여요.",
     "line": "CO 2 · BTN 3벳 6",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 33.7,
-    "occ": 1.928,
+    "reachPct": 33.8,
+    "occ": 1.932,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..................3.............5.............5.........................................................................................................................3",
+    "confidence": "low",
+    "move": 25.2,
+    "close": "..................3.............5.............5........5................................................................................................................3",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-44, ATs-A2s, K9s-K6s, Q8s, J9s-J8s, T7s+, 97s+, 86s+, 76s, 65s, AJo-A8o, KJo, QJo, JTo:0.9, QJs:0.8, A7o:0.6, 33:0.5, KJs:0.5, KQo:0.5, KTo:0.4"
+      "range": "66-44, ATs-A2s, K9s-K6s, Q8s, J9s-J8s, T7s+, 97s+, 86s+, 76s, 65s, AJo-A8o, KJo, QJo, JTo, QJs:0.8, A7o:0.7, 33:0.5, KJs:0.5, KQo:0.5, KTo:0.5"
      },
      {
       "key": "shove",
@@ -19104,29 +19389,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs SB 3벳",
     "title": "CO 오픈 후 vs SB 3벳",
-    "description": "CO 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 25.6%p 움직여요.",
     "line": "CO 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 33.7,
-    "occ": 1.488,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........5.5.....3......................3.5.......................................................................5.......................................................",
+    "reachPct": 33.8,
+    "occ": 1.489,
+    "regret": 0.0004,
+    "confidence": "low",
+    "move": 25.6,
+    "close": "........5.5.....3......................355.......................................................................5.......................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, ATs-A4s, K9s, Q9s, J8s+, T8s+, 98s, 87s, 76s, AJo-A9o, 97s:0.7, KTs:0.6, QTs:0.6, JTo:0.5, KQo:0.4, QJs:0.1, A8o:0.1"
+      "range": "66-22, ATs-A4s, K9s, Q9s, J8s+, T8s+, 98s, 87s, 76s, AJo-A9o, 97s:0.7, QTs:0.6, KTs:0.5, JTo:0.5, KQo:0.4, QJs:0.2, A8o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "77+, AJs+, KJs+, AQo+, QJs:0.9, KQo:0.6, KTs:0.4, QTs:0.4"
+      "range": "77+, AJs+, KJs+, AQo+, QJs:0.8, KQo:0.6, KTs:0.5, QTs:0.4"
      }
     ]
    },
@@ -19140,29 +19425,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 3벳",
     "title": "CO 오픈 후 vs BB 3벳",
-    "description": "CO 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BB 3벳 8bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 18.4%p 움직여요.",
     "line": "CO 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 33.7,
-    "occ": 0.53,
-    "regret": 0.0019,
+    "reachPct": 33.8,
+    "occ": 0.521,
+    "regret": 0.0018,
     "confidence": "mid",
-    "move": 0,
+    "move": 18.4,
     "close": ".............................3...................................5.......................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66-22, AJs-A7s, K9s-K8s, QJs, Q9s, J9s, T9s, 98s, AJo-A9o, 99:0.9, 87s:0.8, KQo:0.8, TT:0.7, QTs:0.7, JTs:0.7, AQo:0.7, A5s:0.6, KJs:0.6, 77:0.5, KJo:0.5, Q8s:0.4, 88:0.3, K7s:0.3, KTs:0.1, T8s:0.1"
+      "range": "66-22, AJs-A7s, K9s-K8s, QJs, Q9s, J9s, T9s, 98s, AJo-A9o, 99:0.9, TT:0.8, KJs:0.8, QTs:0.8, JTs:0.8, 87s:0.8, A5s:0.7, AQo:0.7, KQo:0.7, 77:0.6, Q8s:0.5, KJo:0.5, K7s:0.4, 88:0.2, KTs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "JJ+, AQs+, KQs, AKo, KTs:0.9, 88:0.7, K7s:0.6, 77:0.5, KJs:0.4, TT:0.3, QTs:0.3, JTs:0.3, AQo:0.3, K6s:0.2, KQo:0.2, 99:0.1"
+      "range": "JJ+, AQs+, KQs, AKo, KTs:0.9, 88:0.8, K7s:0.5, 77:0.4, AQo:0.3, KQo:0.3, TT:0.2, KJs:0.2, QTs:0.2, JTs:0.2, 99:0.1, K6s:0.1"
      }
     ]
    },
@@ -19176,23 +19461,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs BB 올인",
     "title": "CO 오픈 후 vs BB 3벳 올인",
-    "description": "CO 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "CO 2 · BB 올인",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 33.7,
-    "occ": 0.265,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............................3...........................................................................................................................................",
+    "reachPct": 33.8,
+    "occ": 0.276,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 3.4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66+, ATs+, KQs, QJs, AQo+, JTs:0.8, KJs:0.7, 55:0.5, AJo:0.5, A9s:0.1"
+      "range": "66+, ATs+, KQs, QJs, AQo+, JTs:0.8, KJs:0.6, 55:0.5, AJo:0.5, A9s:0.2"
      }
     ]
    },
@@ -19206,29 +19490,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs SB 3벳",
     "title": "BTN 오픈 후 vs SB 3벳",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 28.2%p 움직여요.",
     "line": "BTN 2 · SB 3벳 8",
     "reachFrom": [
      "rfi-btn:open"
     ],
     "reachPct": 45.4,
-    "occ": 2.13,
+    "occ": 2.119,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 28.2,
     "close": "................3.............3.........................................................................5................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44-22, A9s-A2s, K9s-K8s, Q9s-Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, ATo-A6o, KJo, QJo, JTo, A5o:0.9, QJs:0.6, T9o:0.5, QTo:0.3, JTs:0.2, J7s:0.2, K7s:0.1"
+      "range": "44-22, A9s-A2s, K9s-K8s, Q9s-Q8s, J9s-J8s, T7s+, 96s+, 86s+, 75s+, 65s, ATo-A6o, KJo, QJo, JTo, A5o:0.9, QJs:0.6, T9o:0.6, JTs:0.3, J7s:0.3, QTo:0.3, K7s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "55+, ATs+, KTs+, QTs, AJo+, KQo, JTs:0.8, QJs:0.4"
+      "range": "55+, ATs+, KTs+, QTs, AJo+, KQo, JTs:0.7, QJs:0.4"
      }
     ]
    },
@@ -19242,29 +19526,29 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 3벳",
     "title": "BTN 오픈 후 vs BB 3벳",
-    "description": "BTN 오픈 2bb → BB 3벳 8bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → BB 3벳 8bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.1%p 움직여요.",
     "line": "BTN 2 · BB 3벳 8",
     "reachFrom": [
      "rfi-btn:open"
     ],
     "reachPct": 45.4,
-    "occ": 0.61,
+    "occ": 0.606,
     "regret": 0.0006,
-    "confidence": "mid",
-    "move": 0,
-    "close": "........................................3..33.............5.........................3..............5..........................3.............3............................",
+    "confidence": "low",
+    "move": 23.1,
+    "close": "..................3.....................3...3.............5.........................3..............5..........................3.............3............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88, 44, ATs-A2s, KTs-K8s, QTs-Q8s, J9s+, T8s+, 98s, 87s, 76s, ATo-A8o, KJo, QJo, 99:0.9, K7s:0.9, 66:0.8, 33:0.8, J8s:0.7, AJo:0.6, 22:0.4, QJs:0.4, 77:0.3, QTo:0.2, K5s:0.1, 65s:0.1, KTo:0.1"
+      "range": "88, 44, ATs-A2s, KTs-K8s, QTs-Q8s, J9s+, T8s+, 98s, 87s, 76s, ATo-A8o, KJo, QJo, 99:0.9, K7s:0.9, 33:0.8, 66:0.7, J8s:0.7, AJo:0.6, 77:0.4, 22:0.4, QJs:0.3, QTo:0.2, K5s:0.1, 65s:0.1, KTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AJs+, KJs+, AQo+, KQo, 77:0.7, K6s:0.7, 22:0.6, QJs:0.6, AJo:0.4, 66:0.2, 33:0.2, 99:0.1"
+      "range": "TT+, 55, AJs+, KJs+, AQo+, KQo, K6s:0.7, QJs:0.7, 77:0.6, 22:0.6, AJo:0.4, 66:0.3, 33:0.2, 99:0.1"
      }
     ]
    },
@@ -19278,22 +19562,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs BB 올인",
     "title": "BTN 오픈 후 vs BB 3벳 올인",
-    "description": "BTN 오픈 2bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.6%p 움직여요.",
     "line": "BTN 2 · BB 올인",
     "reachFrom": [
      "rfi-btn:open"
     ],
     "reachPct": 45.4,
-    "occ": 0.564,
+    "occ": 0.567,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.6,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "55+, A8s+, KTs+, JTs, ATo+, 44:0.8, QJs:0.8, A7s:0.4, QTs:0.2"
+      "range": "55+, A8s+, KTs+, JTs, ATo+, 44:0.8, QJs:0.8, A7s:0.4, QTs:0.3"
      }
     ]
    },
@@ -19307,29 +19591,28 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 3벳",
     "title": "SB 오픈 후 vs BB 3벳",
-    "description": "SB 오픈 2.5bb → BB 3벳 7.5bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb → BB 3벳 7.5bb. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.3%p 움직여요.",
     "line": "SB 2.5 · BB 3벳 7.5",
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 27.4,
-    "occ": 0.427,
+    "reachPct": 27.3,
+    "occ": 0.423,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........................................................3..............................................................................................................",
+    "confidence": "low",
+    "move": 33.3,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "AJs-A4s, K9s-K7s, Q9s-Q8s, J9s-J8s, T8s, 97s+, 87s, KJo-KTo, QTo+, JTo, KTs:0.9, QTs:0.9, 77:0.8, K6s:0.8, 76s:0.7, 88:0.6, 66:0.5, KJs:0.4, QJs:0.2, 65s:0.1, KQo:0.1, T9o:0.1"
+      "range": "AJs-A4s, K9s-K7s, Q9s-Q8s, J9s-J8s, 97s+, 87s, KJo-KTo, QTo+, JTo, KTs:0.9, QTs:0.9, T8s:0.9, 77:0.8, K6s:0.8, 76s:0.7, 88:0.6, 66:0.6, KJs:0.5, QJs:0.3, 65s:0.1, KQo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KQs, JTs, AKo, 65s:0.9, KQo:0.9, QJs:0.8, KJs:0.6, 66:0.5, 88:0.4, 76s:0.3, 77:0.2, K6s:0.2, KTs:0.1, QTs:0.1"
+      "range": "TT+, 55, AQs+, KQs, JTs, AKo, 65s:0.9, KQo:0.9, QJs:0.7, KJs:0.5, 88:0.4, 66:0.4, 76s:0.3, 77:0.2, K6s:0.2, KTs:0.1, QTs:0.1, T8s:0.1"
      }
     ]
    },
@@ -19343,22 +19626,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BB 올인",
     "title": "SB 오픈 후 vs BB 3벳 올인",
-    "description": "SB 오픈 2.5bb → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 오픈 2.5bb → BB 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.5%p 움직여요.",
     "line": "SB 2.5 · BB 올인",
     "reachFrom": [
      "rfi-sb:raise"
     ],
-    "reachPct": 27.4,
-    "occ": 0.208,
+    "reachPct": 27.3,
+    "occ": 0.204,
     "regret": 0.0005,
     "confidence": "mid",
-    "move": 0,
+    "move": 10.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, 88-55, A7s+, KJs+, QTs+, JTs, AKo, KTs:0.7"
+      "range": "TT+, 88-55, A7s+, KJs+, QTs+, JTs, AKo, KTs:0.6"
      }
     ]
    },
@@ -19372,7 +19655,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1 vs UTG 4벳 올인",
     "title": "UTG+1 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+1 3벳 6bb → UTG 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.4%p 움직여요.",
     "line": "UTG 2 · UTG+1 3벳 6 · UTG 올인",
     "reachFrom": [
      "utgp1-vs-utg-open:3bet"
@@ -19381,7 +19664,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "occ": 0.361,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.4,
     "actions": [
      {
       "key": "call",
@@ -19401,16 +19684,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG 4벳 올인",
     "title": "UTG+2 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → UTG+2 3벳 6bb → UTG 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요.",
     "line": "UTG 2 · UTG+2 3벳 6 · UTG 올인",
     "reachFrom": [
      "utgp2-vs-utg-open:3bet"
     ],
     "reachPct": 8.4,
     "occ": 0.33,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 7.8,
     "actions": [
      {
       "key": "call",
@@ -19430,16 +19713,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2 vs UTG+1 4벳 올인",
     "title": "UTG+2 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → UTG+2 3벳 6bb → UTG+1 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.9%p 움직여요.",
     "line": "UTG+1 2 · UTG+2 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "utgp2-vs-utgp1-open:3bet"
     ],
     "reachPct": 9,
-    "occ": 0.396,
-    "regret": 0.0005,
+    "occ": 0.395,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.9,
     "actions": [
      {
       "key": "call",
@@ -19459,22 +19742,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG 4벳 올인",
     "title": "LJ 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → LJ 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → LJ 3벳 6bb → UTG 올인. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 8.2%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 2 · LJ 3벳 6 · UTG 올인",
     "reachFrom": [
      "lj-vs-utg-open:3bet"
     ],
-    "reachPct": 8.5,
-    "occ": 0.3,
+    "reachPct": 8.4,
+    "occ": 0.301,
     "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 8.2,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AQs+, AKo, AJs:0.9, 99:0.8"
+      "range": "TT+, AJs+, AKo, 99:0.8"
      }
     ]
    },
@@ -19488,16 +19771,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+1 4벳 올인",
     "title": "LJ 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → LJ 3벳 6bb → UTG+1 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.2%p 움직여요.",
     "line": "UTG+1 2 · LJ 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "lj-vs-utgp1-open:3bet"
     ],
-    "reachPct": 8.7,
-    "occ": 0.322,
+    "reachPct": 8.6,
+    "occ": 0.321,
     "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.2,
     "actions": [
      {
       "key": "call",
@@ -19517,17 +19800,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ vs UTG+2 4벳 올인",
     "title": "LJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → LJ 3벳 6bb → UTG+2 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7%p 움직여요.",
     "line": "UTG+2 2 · LJ 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "lj-vs-utgp2-open:3bet"
     ],
     "reachPct": 10.7,
-    "occ": 0.397,
-    "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......................................................................3..................................................................................................",
+    "occ": 0.399,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 7,
     "actions": [
      {
       "key": "call",
@@ -19547,16 +19829,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG 4벳 올인",
     "title": "HJ 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → HJ 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 3벳 6bb → UTG 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.6%p 움직여요.",
     "line": "UTG 2 · HJ 3벳 6 · UTG 올인",
     "reachFrom": [
      "hj-vs-utg-open:3bet"
     ],
     "reachPct": 7.3,
     "occ": 0.22,
-    "regret": 0.0005,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 10.6,
     "actions": [
      {
       "key": "call",
@@ -19576,7 +19858,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+1 4벳 올인",
     "title": "HJ 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 3벳 6bb → UTG+1 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.1%p 움직여요.",
     "line": "UTG+1 2 · HJ 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "hj-vs-utgp1-open:3bet"
@@ -19585,7 +19867,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "occ": 0.26,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 9.1,
     "actions": [
      {
       "key": "call",
@@ -19605,16 +19887,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs UTG+2 4벳 올인",
     "title": "HJ 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → HJ 3벳 6bb → UTG+2 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.2%p 움직여요.",
     "line": "UTG+2 2 · HJ 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "hj-vs-utgp2-open:3bet"
     ],
     "reachPct": 10.7,
-    "occ": 0.344,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.345,
+    "regret": 0.0009,
+    "confidence": "high",
+    "move": 7.2,
     "actions": [
      {
       "key": "call",
@@ -19634,16 +19916,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ vs LJ 4벳 올인",
     "title": "HJ 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → HJ 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → HJ 3벳 6bb → LJ 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7%p 움직여요.",
     "line": "LJ 2 · HJ 3벳 6 · LJ 올인",
     "reachFrom": [
      "hj-vs-lj-open:3bet"
     ],
     "reachPct": 11.8,
     "occ": 0.424,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0005,
+    "confidence": "high",
+    "move": 7,
     "close": "..................................................................................................3......................................................................",
     "actions": [
      {
@@ -19664,16 +19946,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG 4벳 올인",
     "title": "CO 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → CO 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 3벳 6bb → UTG 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.4%p 움직여요.",
     "line": "UTG 2 · CO 3벳 6 · UTG 올인",
     "reachFrom": [
      "co-vs-utg-open:3bet"
     ],
     "reachPct": 6.9,
     "occ": 0.174,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0005,
+    "confidence": "high",
+    "move": 3.4,
     "actions": [
      {
       "key": "call",
@@ -19693,22 +19975,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+1 4벳 올인",
     "title": "CO 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → CO 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 3벳 6bb → UTG+1 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4%p 움직여요.",
     "line": "UTG+1 2 · CO 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "co-vs-utgp1-open:3bet"
     ],
     "reachPct": 7.7,
-    "occ": 0.213,
+    "occ": 0.211,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AQs+, AKo, 88:0.1"
+      "range": "99+, AQs+, AKo, 88:0.2"
      }
     ]
    },
@@ -19722,22 +20004,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs UTG+2 4벳 올인",
     "title": "CO 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → CO 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 3벳 6bb → UTG+2 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.5%p 움직여요.",
     "line": "UTG+2 2 · CO 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "co-vs-utgp2-open:3bet"
     ],
-    "reachPct": 10.1,
-    "occ": 0.282,
-    "regret": 0.0003,
+    "reachPct": 10,
+    "occ": 0.284,
+    "regret": 0.0009,
     "confidence": "mid",
-    "move": 0,
+    "move": 9.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AJs+, KQs, AKo, AQo:0.8, 88:0.6"
+      "range": "99+, AJs+, KQs, AKo, AQo:0.8, 88:0.7"
      }
     ]
    },
@@ -19751,23 +20033,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs LJ 4벳 올인",
     "title": "CO 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → CO 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 3벳 6bb → LJ 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.6%p 움직여요.",
     "line": "LJ 2 · CO 3벳 6 · LJ 올인",
     "reachFrom": [
      "co-vs-lj-open:3bet"
     ],
-    "reachPct": 11.6,
-    "occ": 0.361,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 11.7,
+    "occ": 0.364,
+    "regret": 0.0004,
+    "confidence": "high",
+    "move": 6.6,
     "close": "..................................................................................................3...........................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, AJs+, KQs, AQo+, ATs:0.6, 66:0.2"
+      "range": "88+, AJs+, KQs, AQo+, ATs:0.7, 66:0.2"
      }
     ]
    },
@@ -19781,23 +20063,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO vs HJ 4벳 올인",
     "title": "CO 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → CO 3벳 6bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → CO 3벳 6bb → HJ 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.6%p 움직여요.",
     "line": "HJ 2 · CO 3벳 6 · HJ 올인",
     "reachFrom": [
      "co-vs-hj-open:3bet"
     ],
     "reachPct": 13.9,
-    "occ": 0.481,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.48,
+    "regret": 0.0005,
+    "confidence": "high",
+    "move": 7.6,
     "close": "................3.............................................................................................................3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, ATs+, KJs+, AQo+, 66:0.6, AJo:0.5, 77:0.4, A9s:0.4"
+      "range": "88+, ATs+, KJs+, AQo+, 66:0.5, AJo:0.5, 77:0.4, A9s:0.3"
      }
     ]
    },
@@ -19811,7 +20093,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG 4벳 올인",
     "title": "BTN 3벳 후 vs UTG 4벳 올인",
-    "description": "UTG 오픈 2bb → BTN 3벳 6bb → UTG 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 3벳 6bb → UTG 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.7%p 움직여요.",
     "line": "UTG 2 · BTN 3벳 6 · UTG 올인",
     "reachFrom": [
      "btn-vs-utg-open:3bet"
@@ -19819,8 +20101,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 6.5,
     "occ": 0.134,
     "regret": 0.0005,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.7,
     "actions": [
      {
       "key": "call",
@@ -19840,16 +20122,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+1 4벳 올인",
     "title": "BTN 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 3벳 6bb → UTG+1 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "UTG+1 2 · BTN 3벳 6 · UTG+1 올인",
     "reachFrom": [
      "btn-vs-utgp1-open:3bet"
     ],
-    "reachPct": 7.6,
+    "reachPct": 7.7,
     "occ": 0.164,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.3,
     "actions": [
      {
       "key": "call",
@@ -19869,22 +20151,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs UTG+2 4벳 올인",
     "title": "BTN 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 3벳 6bb → UTG+2 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.3%p 움직여요.",
     "line": "UTG+2 2 · BTN 3벳 6 · UTG+2 올인",
     "reachFrom": [
      "btn-vs-utgp2-open:3bet"
     ],
-    "reachPct": 9.4,
-    "occ": 0.21,
-    "regret": 0.0007,
+    "reachPct": 9.6,
+    "occ": 0.213,
+    "regret": 0.0016,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.3,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99+, AJs+, KQs, AKo, 88:0.8, AQo:0.5"
+      "range": "99+, AJs+, KQs, AKo, 88:0.7, AQo:0.6"
      }
     ]
    },
@@ -19898,16 +20180,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs LJ 4벳 올인",
     "title": "BTN 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → BTN 3벳 6bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 3벳 6bb → LJ 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.2%p 움직여요.",
     "line": "LJ 2 · BTN 3벳 6 · LJ 올인",
     "reachFrom": [
      "btn-vs-lj-open:3bet"
     ],
-    "reachPct": 11.6,
-    "occ": 0.286,
+    "reachPct": 11.9,
+    "occ": 0.287,
     "regret": 0.001,
     "confidence": "mid",
-    "move": 0,
+    "move": 9.2,
     "actions": [
      {
       "key": "call",
@@ -19927,16 +20209,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs HJ 4벳 올인",
     "title": "BTN 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → BTN 3벳 6bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 3벳 6bb → HJ 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.4%p 움직여요.",
     "line": "HJ 2 · BTN 3벳 6 · HJ 올인",
     "reachFrom": [
      "btn-vs-hj-open:3bet"
     ],
     "reachPct": 13.4,
-    "occ": 0.384,
-    "regret": 0.0004,
+    "occ": 0.383,
+    "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
+    "move": 8.4,
     "actions": [
      {
       "key": "call",
@@ -19956,23 +20238,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN vs CO 4벳 올인",
     "title": "BTN 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2bb → BTN 3벳 6bb → CO 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → BTN 3벳 6bb → CO 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요.",
     "line": "CO 2 · BTN 3벳 6 · CO 올인",
     "reachFrom": [
      "btn-vs-co-open:3bet"
     ],
     "reachPct": 17.7,
-    "occ": 0.51,
+    "occ": 0.509,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 7.8,
     "close": "................................................................................................................3........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "66+, A9s+, KJs+, AJo+, A8s:0.8, KQo:0.4, 55:0.3, KTs:0.3, ATo:0.3"
+      "range": "66+, A9s+, KJs+, AJo+, A8s:0.9, KQo:0.4, 55:0.3, KTs:0.3, ATo:0.3"
      }
     ]
    },
@@ -19986,22 +20268,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+1 4벳 올인",
     "title": "SB 3벳 후 vs UTG+1 4벳 올인",
-    "description": "UTG+1 오픈 2bb → SB 3벳 8bb → UTG+1 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 3벳 8bb → UTG+1 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 5.8%p 움직여요.",
     "line": "UTG+1 2 · SB 3벳 8 · UTG+1 올인",
     "reachFrom": [
      "sb-vs-utgp1-open:3bet"
     ],
-    "reachPct": 7.3,
-    "occ": 0.117,
-    "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
+    "reachPct": 7.1,
+    "occ": 0.115,
+    "regret": 0.0011,
+    "confidence": "high",
+    "move": 5.8,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT+, AQs+, AKo, 99:0.7, 88:0.4"
+      "range": "TT+, AQs+, AKo, 99:0.6, 88:0.4"
      }
     ]
    },
@@ -20015,16 +20297,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs UTG+2 4벳 올인",
     "title": "SB 3벳 후 vs UTG+2 4벳 올인",
-    "description": "UTG+2 오픈 2bb → SB 3벳 8bb → UTG+2 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 3벳 8bb → UTG+2 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10.2%p 움직여요.",
     "line": "UTG+2 2 · SB 3벳 8 · UTG+2 올인",
     "reachFrom": [
      "sb-vs-utgp2-open:3bet"
     ],
-    "reachPct": 8.4,
-    "occ": 0.132,
-    "regret": 0.0005,
+    "reachPct": 8.3,
+    "occ": 0.13,
+    "regret": 0.0007,
     "confidence": "mid",
-    "move": 0,
+    "move": 10.2,
     "actions": [
      {
       "key": "call",
@@ -20044,16 +20326,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs LJ 4벳 올인",
     "title": "SB 3벳 후 vs LJ 4벳 올인",
-    "description": "LJ 오픈 2bb → SB 3벳 8bb → LJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 3벳 8bb → LJ 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 4.7%p 움직여요.",
     "line": "LJ 2 · SB 3벳 8 · LJ 올인",
     "reachFrom": [
      "sb-vs-lj-open:3bet"
     ],
-    "reachPct": 10.7,
-    "occ": 0.195,
+    "reachPct": 10.8,
+    "occ": 0.194,
     "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 4.7,
     "close": "..............................................................................................................................3..........................................",
     "actions": [
      {
@@ -20074,23 +20356,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs HJ 4벳 올인",
     "title": "SB 3벳 후 vs HJ 4벳 올인",
-    "description": "HJ 오픈 2bb → SB 3벳 8bb → HJ 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 3벳 8bb → HJ 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.8%p 움직여요.",
     "line": "HJ 2 · SB 3벳 8 · HJ 올인",
     "reachFrom": [
      "sb-vs-hj-open:3bet"
     ],
-    "reachPct": 12.6,
-    "occ": 0.261,
-    "regret": 0.0001,
+    "reachPct": 12.7,
+    "occ": 0.262,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
+    "move": 9.8,
     "close": "................................................................................................................3........................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, 66, ATs+, KQs, AQo+, 55:0.9, AJo:0.5, A9s:0.3"
+      "range": "88+, 66, ATs+, KQs, AQo+, 55:0.9, AJo:0.5, A9s:0.2"
      }
     ]
    },
@@ -20104,23 +20386,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs CO 4벳 올인",
     "title": "SB 3벳 후 vs CO 4벳 올인",
-    "description": "CO 오픈 2bb → SB 3벳 8bb → CO 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 3벳 8bb → CO 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 15%p 움직여요.",
     "line": "CO 2 · SB 3벳 8 · CO 올인",
     "reachFrom": [
      "sb-vs-co-open:3bet"
     ],
-    "reachPct": 16.6,
-    "occ": 0.353,
+    "reachPct": 16.7,
+    "occ": 0.352,
     "regret": 0.0008,
     "confidence": "mid",
-    "move": 0,
-    "close": "..............................................................................................................................3..........................................",
+    "move": 15,
+    "close": "................................................................................................................3.............3..........................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77+, 55, A8s+, A5s-A4s, KJs+, AJo+, 66:0.9, ATo:0.6, KQo:0.4"
+      "range": "55+, A8s+, A5s-A4s, KJs+, AJo+, ATo:0.7, KQo:0.4"
      }
     ]
    },
@@ -20134,16 +20416,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB vs BTN 4벳 올인",
     "title": "SB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2bb → SB 3벳 8bb → BTN 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 3벳 8bb → BTN 올인. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11%p 움직여요.",
     "line": "BTN 2 · SB 3벳 8 · BTN 올인",
     "reachFrom": [
      "sb-vs-btn-open:3bet"
     ],
-    "reachPct": 21.9,
-    "occ": 0.511,
+    "reachPct": 21.8,
+    "occ": 0.508,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
+    "move": 11,
     "actions": [
      {
       "key": "call",
@@ -20163,22 +20445,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs BTN 4벳 올인",
     "title": "BB 3벳 후 vs BTN 4벳 올인",
-    "description": "BTN 오픈 2bb → BB 3벳 8bb → BTN 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → BB 3벳 8bb → BTN 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 1.7%p 움직여요.",
     "line": "BTN 2 · BB 3벳 8 · BTN 올인",
     "reachFrom": [
      "bb-vs-btn-open:3bet"
     ],
     "reachPct": 10.3,
-    "occ": 0.116,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.115,
+    "regret": 0.0001,
+    "confidence": "high",
+    "move": 1.7,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "JJ+, 99-88, 66, 44, A5s+, KQs, AKo, ATo"
+      "range": "JJ+, 99-88, 66, A5s+, KQs, AKo, ATo"
      }
     ]
    },
@@ -20193,16 +20475,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·SB콜·BB올인",
     "title": "UTG — UTG 오픈 → SB 콜 → BB 올인",
-    "description": "UTG 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.1%p 움직여요.",
     "line": "UTG 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-utg:open"
     ],
     "reachPct": 14.9,
-    "occ": 0.107,
+    "occ": 0.106,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.1,
     "actions": [
      {
       "key": "call",
@@ -20223,23 +20505,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·SB콜·BB올인",
     "title": "UTG+1 — UTG+1 오픈 → SB 콜 → BB 올인",
-    "description": "UTG+1 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.2%p 움직여요.",
     "line": "UTG+1 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-utgp1:open"
     ],
-    "reachPct": 16.9,
+    "reachPct": 16.8,
     "occ": 0.134,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.2,
     "close": "..................................................................................................3......................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "88+, AQs+, AKo, AQo:0.9, 66:0.3"
+      "range": "88+, AQs+, AKo, AQo:0.8, 66:0.3"
      }
     ]
    },
@@ -20254,23 +20536,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜·BB올인",
     "title": "UTG+2 — UTG+2 오픈 → SB 콜 → BB 올인",
-    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "UTG+2 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-utgp2:open"
     ],
-    "reachPct": 18.9,
+    "reachPct": 19,
     "occ": 0.158,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3............................................................................................................3........................................................",
+    "confidence": "high",
+    "move": 2.9,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77+, AJs+, AQo+"
+      "range": "77+, AQs+, AQo+, AJs:0.7, 66:0.1"
      }
     ]
    },
@@ -20285,7 +20566,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜·BB올인",
     "title": "LJ — LJ 오픈 → SB 콜 → BB 올인",
-    "description": "LJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.8%p 움직여요.",
     "line": "LJ 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-lj:open"
@@ -20293,8 +20574,8 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     "reachPct": 22.4,
     "occ": 0.214,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.8,
     "actions": [
      {
       "key": "call",
@@ -20315,13 +20596,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·LJ콜",
     "title": "HJ vs UTG+1 오픈 + LJ 콜",
-    "description": "UTG+1 오픈 2bb → LJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → LJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 9.9%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG+1 2 · LJ 콜",
     "reachPct": 100,
-    "occ": 0.109,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.112,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 9.9,
     "actions": [
      {
       "key": "overcall",
@@ -20354,16 +20635,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜·BB올인",
     "title": "HJ — HJ 오픈 → SB 콜 → BB 올인",
-    "description": "HJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "HJ 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-hj:open"
     ],
     "reachPct": 27.1,
-    "occ": 0.313,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.311,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 2.7,
     "actions": [
      {
       "key": "call",
@@ -20384,26 +20665,65 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "CO vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 13.3%p 움직여요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.433,
+    "occ": 0.436,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 13.3,
     "close": ".......................................a.................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QJs, AJs:0.1, KQo:0.1"
+      "range": "KQs, QJs, AJs:0.1"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
       "range": "88+, AQs+, ATs, AJo+, AJs:0.9, A9s:0.7, 77:0.1"
+     },
+     {
+      "key": "shove",
+      "label": "올인",
+      "color": "allin",
+      "range": ""
+     }
+    ]
+   },
+   {
+    "id": "co-at-utgp1-open-lj-call",
+    "kind": "squeeze",
+    "hero": "CO",
+    "villain": "UTG+1",
+    "villainSeats": [
+     "UTG+1",
+     "LJ"
+    ],
+    "chip": "UTG+1오픈·LJ콜",
+    "title": "CO vs UTG+1 오픈 + LJ 콜",
+    "description": "UTG+1 오픈 2bb → LJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 24.6%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
+    "line": "UTG+1 2 · LJ 콜",
+    "reachPct": 100,
+    "occ": 0.102,
+    "regret": 0.002,
+    "confidence": "low",
+    "move": 24.6,
+    "actions": [
+     {
+      "key": "overcall",
+      "label": "오버콜",
+      "color": "call",
+      "range": "KQs, KJs:0.7, KQo:0.7, QJs:0.4, 88:0.2, AJs:0.2"
+     },
+     {
+      "key": "squeeze",
+      "label": "스퀴즈 8bb",
+      "color": "raise",
+      "range": "99+, AQs+, ATs, AJo+, ATo:0.9, 88:0.8, AJs:0.8, A9s:0.8, A8s:0.2, A5s:0.2, KQo:0.2, A4s-A3s:0.1"
      },
      {
       "key": "shove",
@@ -20424,26 +20744,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "CO vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.5%p 움직여요.",
     "line": "UTG+1 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.314,
+    "occ": 0.312,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......a..................................................................................................................................................................",
+    "confidence": "high",
+    "move": 6.5,
+    "close": "......a................................................................9.................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QJs, KQo:0.7, AJs:0.1"
+      "range": "KQs, QJs, KQo:0.6, AJs:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "77+, AQs+, ATs, AJo+, AJs:0.9, A9s:0.6, ATo:0.5, KQo:0.3"
+      "range": "77+, AQs+, ATs, AJo+, AJs:0.8, A9s:0.6, ATo:0.5, KQo:0.4"
      },
      {
       "key": "shove",
@@ -20464,16 +20784,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜·BB올인",
     "title": "CO — CO 오픈 → SB 콜 → BB 올인",
-    "description": "CO 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.2%p 움직여요.",
     "line": "CO 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-co:open"
     ],
-    "reachPct": 33.7,
-    "occ": 0.374,
+    "reachPct": 33.8,
+    "occ": 0.378,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.2,
     "actions": [
      {
       "key": "call",
@@ -20494,26 +20814,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BTN vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 44.4%p 움직여요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.398,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.401,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 44.4,
     "close": "...........................9.............................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KQs, QJs, KQo, JTs:0.9, 98s:0.9, T9s:0.8, KJs:0.5"
+      "range": "KQs, QJs, KQo, JTs:0.9, 98s:0.8, KJs:0.7, T9s:0.7, AJs:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "88+, ATs+, AQo+, KTs:0.9, AJo:0.3, 77:0.1"
+      "range": "88+, AQs+, ATs, AQo+, KTs:0.8, AJs:0.7, AJo:0.4, 77:0.1"
      },
      {
       "key": "shove",
@@ -20534,13 +20854,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BTN vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.1%p 움직여요. 다른 시작점에서 풀면 액션 비율이 2%p 넘게 달라져요.",
     "line": "UTG 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.633,
+    "occ": 0.638,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 7.1,
     "close": "................a........................................................................................................................................................",
     "actions": [
      {
@@ -20553,7 +20873,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "88+, ATs+, KJs+, AQo+, 77:0.8, AJo:0.4, KTs:0.2"
+      "range": "88+, ATs+, KJs+, AQo+, 77:0.8, AJo:0.4, KTs:0.1"
      },
      {
       "key": "shove",
@@ -20574,32 +20894,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BTN vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7%p 움직여요.",
     "line": "UTG+1 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.284,
+    "occ": 0.282,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 7,
     "close": "................................................................................................................a........................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, 98s:0.9, KQs:0.7, KJs:0.6, KQo:0.6"
+      "range": "QJs, 98s:0.8, KJs+:0.7, KQo:0.6"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "KK+, TT-77, ATs+, AQo-AJo, QQ:0.9, JJ:0.8, AKo:0.8, KQo:0.4, KTs:0.2, ATo:0.2, A9s:0.1"
+      "range": "QQ+, TT-77, ATs+, AQo-AJo, AKo:0.8, JJ:0.7, KQo:0.4, KTs:0.3, ATo:0.3, A9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "KJs+:0.3, JJ:0.2, AKo:0.2, QQ:0.1"
+      "range": "JJ:0.3, KJs+:0.3, AKo:0.2"
      }
     ]
    },
@@ -20614,14 +20934,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BTN vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.8%p 움직여요.",
     "line": "UTG+1 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.562,
+    "occ": 0.573,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......a..................................................................................................................................................................",
+    "confidence": "high",
+    "move": 7.8,
     "actions": [
      {
       "key": "overcall",
@@ -20633,7 +20952,7 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "77+, ATs+, AJo+, ATo:0.9, KQo:0.5"
+      "range": "77+, ATs+, AJo+, ATo:0.9, KQo:0.5, A8s:0.1"
      },
      {
       "key": "shove",
@@ -20654,31 +20973,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BTN vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.7%p 움직여요.",
     "line": "UTG+2 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.332,
-    "regret": 0,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.334,
+    "regret": 0.0006,
+    "confidence": "high",
+    "move": 7.7,
+    "close": ".....a...................................................................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "KJs, QJs, QTs:0.1"
+      "range": "QJs, KJs:0.9, JTs:0.6, QTs:0.5, KQs:0.2, KQo:0.2"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "77+, A9s+, KQs, ATo+, KQo, A8s:0.1"
+      "range": "77+, A9s+, AJo+, KQs:0.8, ATo:0.8, KQo:0.8"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": ""
+      "range": "KJs-KTs:0.1"
      }
     ]
    },
@@ -20693,32 +21013,32 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BTN vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.4%p 움직여요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 0.158,
-    "regret": 0.0009,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0015,
+    "confidence": "high",
+    "move": 7.4,
     "close": ".........................................9...............................................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "QJs, KJs:0.9, KJo:0.8, KTs:0.4"
+      "range": "QJs, KJs:0.8, KJo:0.8, KTs:0.3"
      },
      {
       "key": "squeeze",
       "label": "스퀴즈 8bb",
       "color": "raise",
-      "range": "JJ+, 88-77, AJs+, A8s, KQs, AQo-ATo, KQo, 99:0.9, ATs:0.8, A9s:0.6, A7s-A6s:0.6, A5s:0.5, AKo:0.4, A3s-A2s:0.3, TT:0.2, A4s:0.2, KJo:0.1"
+      "range": "JJ+, 88-77, AJs+, A8s, KQs, AQo-ATo, KQo, ATs:0.9, 99:0.8, A7s-A6s:0.6, A9s:0.5, A5s:0.5, AKo:0.4, TT:0.3, A4s-A2s:0.3, KJs:0.1, KJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT:0.8, KTs:0.6, AKo:0.6, A9s:0.4, ATs:0.2, 99:0.1, 66:0.1, KJs:0.1, QTs:0.1, JTs:0.1"
+      "range": "TT:0.7, KTs:0.6, AKo:0.6, A9s:0.5, 99:0.2, 66:0.1, ATs:0.1, KJs:0.1, QTs:0.1, JTs:0.1"
      }
     ]
    },
@@ -20733,22 +21053,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜·BB올인",
     "title": "BTN — BTN 오픈 → SB 콜 → BB 올인",
-    "description": "BTN 오픈 2bb → SB 콜 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 콜 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.5%p 움직여요.",
     "line": "BTN 2 · SB 콜 · BB 올인",
     "reachFrom": [
      "rfi-btn:open"
     ],
     "reachPct": 45.4,
-    "occ": 0.487,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "occ": 0.485,
+    "regret": 0.0002,
+    "confidence": "high",
+    "move": 2.5,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "33+, A5s+, KJs+, QJs, A7o+, KQo:0.7, JTs:0.5, KTs:0.1, QTs:0.1"
+      "range": "33+, A5s+, KJs+, QJs, A7o+, KQo:0.7, JTs:0.5, KTs:0.2, QTs:0.1"
      }
     ]
    },
@@ -20763,26 +21083,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "SB vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 70.3%p 움직여요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.362,
+    "occ": 0.364,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 70.3,
     "close": "..........................................................5.............5.............5............55...........................5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 53s+, 43s, KQo, KQs:0.8, Q9s:0.7, 64s:0.7"
+      "range": "99-77, QTs+, J9s+, T8s+, 97s+, 86s+, 75s+, 65s, 53s+, 43s, KQo, KQs:0.8, Q9s:0.8, 64s:0.7"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, ATs+, A5s, KJs-KTs, AQo+, 55:0.9, KQs:0.2, 66:0.1, A4s:0.1"
+      "range": "TT+, 55, ATs+, A5s, KJs-KTs, AQo+, KQs:0.2, 66:0.1"
      }
     ]
    },
@@ -20797,20 +21117,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "SB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.6%p 움직여요.",
     "line": "UTG 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.585,
+    "occ": 0.59,
     "regret": 0,
     "confidence": "mid",
-    "move": 0,
+    "move": 11.6,
     "close": "...............3................5......5.....5.............5............5...........................5...........................5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 75s+, 65s, 54s, KQo, QJo, 86s:0.1, 64s:0.1"
+      "range": "99-77, K9s, Q8s+, J8s+, T7s+, 97s+, 87s, 75s+, 65s, 54s, KQo, QJo, 64s:0.2, 86s:0.1"
      },
      {
       "key": "shove",
@@ -20831,26 +21151,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "SB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 11.1%p 움직여요.",
     "line": "UTG 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.972,
+    "occ": 0.978,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....6..............55.................5......5..........................5.............5............5.............5.............5........................................",
+    "move": 11.1,
+    "close": "...................5....................5.....5.............5............5.............5..........................5..........................5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, K9s, K7s, Q8s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, K8s:0.7, KQs:0.3, 66:0.2, Q7s:0.1, JTo:0.1"
+      "range": "99-77, K9s-K7s, Q8s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, KQo, QJo, 66:0.9, AJo:0.6, K6s:0.5, KQs:0.4, 53s:0.4, JTo:0.4, Q7s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, ATs+, A5s, KJs-KTs, AQo+, A4s:0.9, 55:0.7, KQs:0.7"
+      "range": "TT+, ATs+, A5s-A4s, KJs-KTs, AQo+, 55:0.7, KQs:0.6, A9s:0.1"
      }
     ]
    },
@@ -20865,26 +21185,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "SB vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.9%p 움직여요.",
     "line": "UTG+1 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.255,
+    "occ": 0.254,
     "regret": 0.0002,
     "confidence": "mid",
-    "move": 0,
-    "close": "..........5.....................5........5...5.........................................5........................5.............6..........................................",
+    "move": 8.9,
+    "close": "..........5.....................5........5...5.........................................5.............5..........5.............6..........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, Q9s, J9s, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KQo, 99:0.9, 43s:0.9, 53s:0.7, KQs:0.6, A5s:0.4, AJs:0.3, T7s:0.2, K9s:0.1, QJs:0.1"
+      "range": "88-66, Q9s, J9s, T8s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KQo, 99:0.9, 43s:0.9, 53s:0.7, A5s:0.5, KQs:0.5, AJs:0.3, K9s:0.2, T7s:0.2, QJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, ATs, KJs-KTs, QTs, JTs, AQo+, QJs:0.9, AJs:0.7, A5s:0.4, KQs:0.4, 99:0.1"
+      "range": "TT+, 55, AQs+, ATs, KJs-KTs, QTs, JTs, AQo+, QJs:0.9, AJs:0.7, KQs:0.5, A5s:0.3, 99:0.1"
      }
     ]
    },
@@ -20899,20 +21219,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "SB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12%p 움직여요.",
     "line": "UTG+1 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.502,
+    "occ": 0.511,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....5...76....3.................5......6..3..5.........................5.............5.............5...........5.5.............5............5...........................",
+    "move": 12,
+    "close": ".....5...76....3........................6..3..5........5................5...........................5...........5.5.............5............5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-77, K9s, Q8s+, J9s-J8s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KQo, QJo, K7s:0.9, JTo:0.1"
+      "range": "99-77, K9s, Q8s+, J9s-J8s, T7s+, 97s+, 87s, 75s+, 64s+, 54s, AJo, KQo, QJo, K7s:0.9, 86s:0.9"
      },
      {
       "key": "shove",
@@ -20933,20 +21253,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "SB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 7.9%p 움직여요.",
     "line": "UTG+1 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 1.037,
+    "occ": 1.032,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3.....5.5...................3...........................................5.....................................................5...........................",
+    "confidence": "high",
+    "move": 7.9,
+    "close": "...3.3.........3.....5.5..............................5................................5.....................................................5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, KQs, K9s-K6s, Q8s+, J9s-J7s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KJo+, QJo, Q7s:0.9, 53s:0.9, JTo:0.9, 96s:0.8, A7s:0.6, A5s:0.5, Q6s:0.5, T6s:0.5, QTo:0.2, A8s:0.1"
+      "range": "88-66, KQs, K9s-K6s, Q8s+, J9s-J7s, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, AJo, KJo+, QJo, Q7s:0.9, 53s:0.9, JTo:0.9, A7s:0.8, 96s:0.6, A5s:0.5, Q6s:0.4, T6s:0.4, A8s:0.3"
      },
      {
       "key": "shove",
@@ -20967,26 +21287,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "SB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.8%p 움직여요.",
     "line": "UTG+2 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.296,
-    "regret": 0.0003,
+    "occ": 0.299,
+    "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": ".......5..7.........5........................55...............................................................................65.........................................",
+    "move": 9.8,
+    "close": "......5.....5.......5...........5.............5...........55.........................55.........................5.5..........................5...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77, A7s, A5s-A4s, K7s, QJs, Q9s, J9s-J8s, 97s+, 87s, 76s, 65s, 54s, KQo, QJo, T9s:0.9, 64s:0.9, Q8s:0.8, T8s:0.8, 75s:0.8, 88:0.7, 66:0.5, 86s:0.5, A3s:0.3, KQs:0.1, KJo:0.1"
+      "range": "77, A7s, A5s-A2s, K7s, QJs, Q9s-Q8s, J9s-J8s, T8s+, 97s+, 87s, 76s, 64s+, 54s, KQo, QJo, A6s:0.9, 75s:0.9, 88:0.8, KQs:0.8, 53s:0.6, K6s:0.5, K8s:0.3, K4s:0.3, KJo:0.3, QTo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, A9s+, KJs-K9s, QTs, JTs, AJo+, KQs:0.9, 88:0.3, KJo:0.2, T9s:0.1"
+      "range": "99+, A9s+, KJs-K9s, QTs, JTs, AJo+, 55:0.9, KJo:0.3, 88:0.2, KQs:0.2"
      }
     ]
    },
@@ -21001,26 +21321,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "SB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.3%p 움직여요.",
     "line": "UTG+2 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.907,
-    "regret": 0.0002,
+    "occ": 0.921,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": "........5..5...3.......5...............3.............6..........................................................3...............5............5...........................",
+    "move": 9.3,
+    "close": "......3.5..5...3.......5.....3........................................................5.........................3...............5...........65...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, A8s-A5s, A3s, K9s-K6s, K4s, QJs, Q9s-Q8s, J9s-J8s, T7s+, 97s+, 87s, 76s, 64s+, 53s+, KJo+, QJo, 86s:0.9, 75s:0.8, QTo:0.7, A4s:0.6, J7s:0.5, Q6s:0.4, JTo:0.4, A2s:0.3, Q7s:0.3, 88:0.1, K5s:0.1"
+      "range": "77-66, A8s-A5s, A3s, K9s-K6s, K4s, QJs, Q9s-Q8s, J9s-J8s, T7s+, 97s+, 86s+, 76s, 64s+, 53s+, KJo+, QJo, A4s:0.9, 75s:0.9, QTo:0.9, A2s:0.8, Q6s:0.8, J7s:0.8, JTo:0.8, Q7s:0.7, K5s:0.4, AJo:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, A9s+, KTs+, QTs, JTs, AJo+, 88:0.9, 44:0.8, A4s:0.4"
+      "range": "88+, 55-44, A9s+, KTs+, QTs, JTs, AQo+, AJo:0.9, A4s:0.1, KTo:0.1"
      }
     ]
    },
@@ -21034,23 +21354,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜·BB올인·UTG+2폴드",
     "title": "SB — UTG+2 오픈 → SB 콜 → BB 올인 → UTG+2 폴드",
-    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인 → UTG+2 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 콜 → BB 올인 → UTG+2 폴드. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.1%p 움직여요.",
     "line": "UTG+2 2 · SB 콜 · BB 올인 · UTG+2 폴드",
     "reachFrom": [
      "sb-vs-utgp2-open:call"
     ],
-    "reachPct": 21.9,
-    "occ": 0.105,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...3.....................................................................................................................................................................",
+    "reachPct": 22,
+    "occ": 0.106,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 2.1,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "TT-99, AJs, 66:0.1"
+      "range": "TT-99, AJs:0.9, 66:0.1"
      }
     ]
    },
@@ -21065,26 +21384,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "SB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.9%p 움직여요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 0.138,
-    "regret": 0.0007,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......................................................................3..............5...........................5......................................................",
+    "regret": 0.0006,
+    "confidence": "high",
+    "move": 6.9,
+    "close": ".........................5.............................................3..............5...........................5......................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs+, K8s-K4s, 97s+, 86s+, 76s, 64s+, 54s, KJo+, QJo, QJs:0.9, 53s:0.9, ATo:0.9, 66:0.8, Q8s:0.7, 75s:0.7, 77:0.6, KTo:0.6, K3s:0.5, 43s:0.3, K2s:0.1"
+      "range": "A7s-A2s, KJs+, K8s-K4s, 97s+, 86s+, 76s, 64s+, 54s, KJo+, QJo, QJs:0.9, 53s:0.9, Q8s:0.8, ATo:0.8, 77:0.7, 75s:0.7, 66:0.6, KTo:0.6, K3s:0.3, 43s:0.3"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 55, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, T8s:0.9, 77:0.4, 66:0.2, 44:0.2, QJs:0.1, ATo:0.1"
+      "range": "88+, 55, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, T8s:0.9, 66:0.4, 77:0.3, ATo:0.2, 44:0.1, QJs:0.1"
      }
     ]
    },
@@ -21099,20 +21418,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "SB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 9.3%p 움직여요.",
     "line": "LJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.74,
-    "regret": 0.0002,
+    "occ": 0.737,
+    "regret": 0.0003,
     "confidence": "mid",
-    "move": 0,
-    "close": "...............................3................................................................................................5...........65...........................",
+    "move": 9.3,
+    "close": "...............................3.............5..................................................................3...............5...........65...........................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, A7s-A2s, K8s-K4s, QJs, Q9s-Q8s, J8s, T8s, 97s+, 87s, 76s, 65s, 53s+, KJo+, QTo+, T7s:0.8, 64s:0.6, 75s:0.4, Q7s-Q6s:0.3, J9s:0.3, K3s:0.2, 86s:0.2, JTo:0.2, KJs:0.1, Q5s:0.1"
+      "range": "66, A7s-A2s, K8s-K4s, QJs, Q9s-Q8s, J8s, T8s, 97s+, 87s, 76s, 65s, 53s+, KJo+, QTo+, T7s:0.7, 64s:0.7, 75s:0.6, Q6s:0.4, K3s:0.3, Q7s:0.3, J9s:0.3, 86s:0.3, JTo:0.3, KJs:0.1, Q5s:0.1"
      },
      {
       "key": "shove",
@@ -21132,16 +21451,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜·BB올인·LJ폴드",
     "title": "SB — LJ 오픈 → SB 콜 → BB 올인 → LJ 폴드",
-    "description": "LJ 오픈 2bb → SB 콜 → BB 올인 → LJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 콜 → BB 올인 → LJ 폴드. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 10%p 움직여요.",
     "line": "LJ 2 · SB 콜 · BB 올인 · LJ 폴드",
     "reachFrom": [
      "sb-vs-lj-open:call"
     ],
     "reachPct": 21.5,
     "occ": 0.143,
-    "regret": 0.0002,
+    "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
+    "move": 10,
     "close": "....3....................................................................................................................................................................",
     "actions": [
      {
@@ -21163,14 +21482,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "SB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 8.3%p 움직여요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.558,
+    "occ": 0.561,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........3......3.3.....5....3...555...................5...5............5..........................55.............5............55........................................",
+    "move": 8.3,
+    "close": "................3.3.....5........555...................5...5............5..........................55.............5............55........................................",
     "actions": [
      {
       "key": "overcall",
@@ -21196,16 +21515,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜·BB올인·HJ폴드",
     "title": "SB — HJ 오픈 → SB 콜 → BB 올인 → HJ 폴드",
-    "description": "HJ 오픈 2bb → SB 콜 → BB 올인 → HJ 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 콜 → BB 올인 → HJ 폴드. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.8%p 움직여요.",
     "line": "HJ 2 · SB 콜 · BB 올인 · HJ 폴드",
     "reachFrom": [
      "sb-vs-hj-open:call"
     ],
-    "reachPct": 24.5,
-    "occ": 0.207,
+    "reachPct": 24.4,
+    "occ": 0.206,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.8,
     "actions": [
      {
       "key": "call",
@@ -21225,23 +21544,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜·BB올인·CO폴드",
     "title": "SB — CO 오픈 → SB 콜 → BB 올인 → CO 폴드",
-    "description": "CO 오픈 2bb → SB 콜 → BB 올인 → CO 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 콜 → BB 올인 → CO 폴드. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 6.3%p 움직여요.",
     "line": "CO 2 · SB 콜 · BB 올인 · CO 폴드",
     "reachFrom": [
      "sb-vs-co-open:call"
     ],
     "reachPct": 20.3,
-    "occ": 0.243,
+    "occ": 0.246,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 6.3,
     "close": "...........................................3.............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "77-66, KJs:0.3, QJs:0.1"
+      "range": "77-66, KJs:0.4, QJs:0.1"
      }
     ]
    },
@@ -21255,16 +21574,16 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜·BB올인·BTN폴드",
     "title": "SB — BTN 오픈 → SB 콜 → BB 올인 → BTN 폴드",
-    "description": "BTN 오픈 2bb → SB 콜 → BB 올인 → BTN 폴드. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 콜 → BB 올인 → BTN 폴드. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.2%p 움직여요.",
     "line": "BTN 2 · SB 콜 · BB 올인 · BTN 폴드",
     "reachFrom": [
      "sb-vs-btn-open:call"
     ],
-    "reachPct": 18.2,
-    "occ": 0.313,
+    "reachPct": 18.3,
+    "occ": 0.311,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.2,
     "actions": [
      {
       "key": "call",
@@ -21285,20 +21604,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·HJ콜",
     "title": "BB vs UTG 오픈 + HJ 콜",
-    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → HJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 82.6%p 움직여요.",
     "line": "UTG 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.31,
+    "occ": 0.311,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".............................3....5........3...5..5..................5......5......5.............5.......................................................................",
+    "confidence": "low",
+    "move": 82.6,
+    "close": ".........................5...3...5.........3...5..5..................5......5......5.............5.......................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "99-66, 44-22, AJs, A9s-A6s, A4s-A2s, KQs, K9s-K6s, K4s, QJs, Q9s-Q8s, J9s-J5s, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QJo, T9o, 98o, 87o, 76o, 65o, 54o, K5s:0.9, Q7s:0.9, ATo:0.9, 43o:0.9, T5s:0.5, 53o:0.3, A5s:0.2, J4s:0.2, 55:0.1, K3s:0.1, Q5s:0.1, JTo:0.1"
+      "range": "99-66, 44-22, AJs, A9s-A6s, A4s-A2s, KQs, K9s-K6s, K4s, QJs, Q9s-Q7s, J9s-J5s, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KQo, QJo, T9o, 98o, 87o, 76o, 65o, 54o, K5s:0.9, ATo:0.9, 43o:0.9, T5s:0.6, Q5s:0.3, 53o:0.3, A5s:0.2, K3s:0.2, J4s:0.2, 55:0.1, Q6s:0.1, JTo:0.1"
      },
      {
       "key": "shove",
@@ -21319,26 +21638,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·CO콜",
     "title": "BB vs UTG 오픈 + CO 콜",
-    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29%p 움직여요.",
     "line": "UTG 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.493,
+    "occ": 0.498,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...............3.........5...........55...........5.5.........555..........555....5.........................................................3............5...............",
+    "confidence": "low",
+    "move": 29,
+    "close": "..........3....3.........5...........55..........55...........555..........555....5......................................................................5...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, 44-22, AJs, A8s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J3s+, T2s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, A9s:0.6, 99:0.5, KJo:0.5, A4s:0.1, J2s:0.1"
+      "range": "88-66, 44-22, AJs, A8s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J3s+, T2s+, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, A9s:0.7, 99:0.5, KJo:0.5, J2s:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, ATs, A5s, KJs-KTs, AQo+, A4s:0.9, 99:0.5, KJo:0.5, A9s:0.4"
+      "range": "TT+, 55, AQs+, ATs, A5s-A4s, KJs-KTs, AQo+, 99:0.5, KJo:0.5, A9s:0.3"
      }
     ]
    },
@@ -21353,20 +21672,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜",
     "title": "BB vs UTG 오픈 + BTN 콜",
-    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.5%p 움직여요.",
     "line": "UTG 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.803,
+    "occ": 0.793,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3.................................3...........................5.........................................5.........................................55...............",
+    "confidence": "low",
+    "move": 29.5,
+    "close": "......3.................................3...........................5...................................................................................55...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, 33-22, AJs, A8s-A6s, A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QTo+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 54o, A3s:0.9, KTo:0.8, KQs:0.7, 44:0.4, 55:0.3, A9s:0.2"
+      "range": "88-66, 33-22, AJs, A8s-A6s, A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, A3s:0.9, 86o:0.9, KTo:0.8, KQs:0.7, 44:0.4, 55:0.3, A9s:0.2"
      },
      {
       "key": "shove",
@@ -21388,26 +21707,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·BTN콜·SB콜",
     "title": "BB vs UTG 오픈 + BTN·SB 콜",
-    "description": "UTG 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.9%p 움직여요.",
     "line": "UTG 2 · BTN 콜 · SB 콜",
     "reachPct": 100,
-    "occ": 0.101,
+    "occ": 0.116,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............................................................................................5..5...............5.........................................................",
+    "confidence": "low",
+    "move": 26.9,
+    "close": "...............................................................................5.5.............5.......5.....................5...........................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, A7s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 73s+, 62s+, 52s+, 42s+, 32s, K8o+, Q9o+, J9o+, T8o+, 98o, 87o, 76o, J8o:0.8, 65o:0.7, Q8o:0.4, 72s:0.2, 88:0.1, 86o:0.1"
+      "range": "77-66, A7s-A2s, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, K8o+, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, KQs:0.9, Q8o:0.9, 86o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, A8s+, KJs-KTs, AJo+, 88:0.9, 55:0.9, 44:0.1"
+      "range": "88+, 55, A8s+, KJs-KTs, AJo+, 44:0.3, KQs:0.1"
      }
     ]
    },
@@ -21422,26 +21741,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG오픈·SB콜",
     "title": "BB vs UTG 오픈 + SB 콜",
-    "description": "UTG 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 38.4%p 움직여요.",
     "line": "UTG 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.361,
+    "occ": 1.354,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3...333...................................................................5............................5.............5..3..........................5...............",
+    "confidence": "low",
+    "move": 38.4,
+    "close": "......3..3333...................................................................5..........................................55.3..........................5...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-55, AJs, A8s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KTo+, Q8o+, J8o+, T7o+, 96o+, 85o+, 75o+, 65o, 53o+, 43o, 22:0.9, ATo:0.7, 64o:0.7, 44:0.6, 33:0.1, KJs:0.1"
+      "range": "88-55, AJs, A8s-A6s, A3s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo, KTo+, Q8o+, J8o+, T7o+, 97o+, 85o+, 75o+, 65o, 53o+, 43o, 22:0.9, 96o:0.8, ATo:0.7, 44:0.5, 64o:0.3, 33:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, AQs+, ATs-A9s, A5s-A4s, KTs, AQo+, 33:0.9, KJs:0.9, 44:0.4, ATo:0.3, 22:0.1"
+      "range": "99+, AQs+, ATs-A9s, A5s-A4s, KTs, AQo+, 33:0.9, KJs:0.9, 44:0.5, ATo:0.3, 22:0.1"
      }
     ]
    },
@@ -21456,26 +21775,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·HJ콜",
     "title": "BB vs UTG+1 오픈 + HJ 콜",
-    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → HJ 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.3%p 움직여요.",
     "line": "UTG+1 2 · HJ 콜",
     "reachPct": 100,
-    "occ": 0.215,
+    "occ": 0.214,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......................5..5...3....5.5..................5.....5..............5............................................................................................",
+    "confidence": "low",
+    "move": 31.3,
+    "close": ".........................5...3....5.5..................5.....5...........................................................................................................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K4s, QJs, Q9s-Q6s, J9s-J7s, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QJo, 98o, 87o, 76o, 65o, 54o, Q5s:0.9, J5s:0.9, 43o:0.7, J6s:0.5, 44:0.3, T9o:0.3, 53o:0.2, 99:0.1, ATs:0.1, K3s:0.1"
+      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K6s, K4s, QJs, Q9s-Q6s, J9s-J7s, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QJo, 98o, 87o, 76o, 65o, 54o, K5s:0.9, Q5s:0.9, J5s:0.9, 43o:0.6, J6s:0.5, 44:0.3, T9o:0.3, ATs:0.2, 53o:0.2, K3s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "TT+, 55, AQs+, KJs-KTs, QTs, JTs, AQo+, 99:0.9, ATs:0.9, KTo:0.9, 44:0.7"
+      "range": "99+, 55, AQs+, KJs-KTs, QTs, JTs, AQo+, KTo:0.9, ATs:0.8, 44:0.7"
      }
     ]
    },
@@ -21490,26 +21809,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·CO콜",
     "title": "BB vs UTG+1 오픈 + CO 콜",
-    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.2%p 움직여요.",
     "line": "UTG+1 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.414,
+    "occ": 0.423,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................3....................5....5.....5..................................................3.........................5................",
+    "confidence": "low",
+    "move": 31.2,
+    "close": "...........................................3..................5.5....5.....5.5................................................3.........................5................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T5s+, T2s, 94s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 87o, 76o, 65o, 54o, T4s:0.9, KJo:0.9, T3s:0.8, QTs:0.7, 98o:0.5, 44:0.2, 92s:0.2, 43o:0.2"
+      "range": "88-66, 33-22, AJs, A9s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T4s+, T2s, 94s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KQo, QTo+, JTo, T9o, 87o, 76o, 65o, 54o, T3s:0.9, KJo:0.9, QTs:0.7, 98o:0.5, 44:0.3, 43o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, 55, AQs+, ATs, KJs-KTs, JTs, AQo+, KTo, 44:0.8, QTs:0.3, KJo:0.1"
+      "range": "99+, 55, AQs+, ATs, KJs-KTs, JTs, AQo+, KTo, 44:0.7, QTs:0.3, KJo:0.1"
      }
     ]
    },
@@ -21524,26 +21843,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜",
     "title": "BB vs UTG+1 오픈 + BTN 콜",
-    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.5%p 움직여요.",
     "line": "UTG+1 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.803,
+    "occ": 0.8,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "....3..............................................................5..........................................5...........................5.............5...............3",
+    "confidence": "low",
+    "move": 31.5,
+    "close": "...................................................................5......................................................................5.............5...............3",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, 22, AJs, A9s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QTo+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 53o+, QTs:0.5, JTs:0.5, 43o:0.3, 55:0.2, 33:0.1"
+      "range": "77-66, 22, AJs, A9s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, QTo+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 86o:0.9, QTs:0.4, ATs:0.3, JTs:0.3, 55:0.2, 33:0.2, 88:0.1, 43o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 44, AQs+, ATs, KJs-KTs, AQo+, KTo, 33:0.9, 55:0.8, QTs:0.5, JTs:0.5"
+      "range": "99+, 44, AQs+, KJs-KTs, AQo+, KTo, 88:0.9, 55:0.8, 33:0.8, ATs:0.7, JTs:0.7, QTs:0.6"
      }
     ]
    },
@@ -21559,26 +21878,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·BTN콜·SB콜",
     "title": "BB vs UTG+1 오픈 + BTN·SB 콜",
-    "description": "UTG+1 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.6%p 움직여요.",
     "line": "UTG+1 2 · BTN 콜 · SB 콜",
     "reachPct": 100,
-    "occ": 0.152,
+    "occ": 0.149,
     "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
-    "close": "................3..............................................................................5..............5...........................5..............................",
+    "confidence": "low",
+    "move": 31.6,
+    "close": "......3........................................................................5..........................................................5...............5..............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, A7s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K8o, Q9o+, J9o+, T8o+, 98o, 86o+, 76o, 65o, QTs:0.9, Q8o:0.9, 54o:0.5, KTo:0.4, KQs:0.3"
+      "range": "66, A7s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K8o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, QTs:0.9, 86o:0.8, 54o:0.5, KQs:0.3, Q8o:0.3, KTo:0.2, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "77+, 55, A8s+, KJs-KTs, JTs, AJo+, KQs:0.7, KTo:0.6, ATo:0.3, 44:0.1, QTs:0.1"
+      "range": "77+, 55, A8s+, KTs, JTs, AJo+, KJs:0.9, KTo:0.8, KQs:0.7, 44:0.1, QTs:0.1, ATo:0.1"
      }
     ]
    },
@@ -21593,26 +21912,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+1오픈·SB콜",
     "title": "BB vs UTG+1 오픈 + SB 콜",
-    "description": "UTG+1 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+1 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 39.9%p 움직여요.",
     "line": "UTG+1 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.576,
+    "occ": 1.578,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........3..........................................3............5.........................5..............................5.............55..............................",
+    "confidence": "low",
+    "move": 39.9,
+    "close": "..........3..........................................3............5.........................5..............................5.............55.3............................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-55, AJs, A8s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o, Q8o+, J8o+, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, 96o:0.7, 88:0.6, 22:0.5, 44-33:0.1"
+      "range": "77-55, AJs, A8s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o, Q8o+, J8o+, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, 88:0.6, 22:0.5, 96o:0.2, 33:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99+, AQs+, ATs-A9s, KJs-KTs, AQo+, KTo, 44-33:0.9, 22:0.5, 88:0.4"
+      "range": "99+, 44, AQs+, ATs-A9s, KJs-KTs, AQo+, KTo, 33:0.9, 22:0.5, 88:0.4"
      }
     ]
    },
@@ -21627,26 +21946,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·CO콜",
     "title": "BB vs UTG+2 오픈 + CO 콜",
-    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 31.6%p 움직여요.",
     "line": "UTG+2 2 · CO 콜",
     "reachPct": 100,
-    "occ": 0.243,
-    "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3...........3...........3......553............................5.......5.................................................3..........................................",
+    "occ": 0.24,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 31.6,
+    "close": ".............................................................55.5............5.....5.....5....................................3.........................55...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, 33-22, A8s-A2s, K8s-K2s, QJs, Q9s-Q2s, J9s-J2s, T6s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, KJo+, QTo+, JTo, T9o, 98o, 87o, 76o, 65o, 54o, KQs:0.9, 44:0.5, T5s:0.4, KTo:0.2, 53o:0.1, 43o:0.1"
+      "range": "77-66, 33-22, A8s-A2s, KQs, K8s-K2s, QJs, Q9s-Q2s, J9s-J2s, T8s-T5s, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, KJo+, QTo+, JTo, T9o, 98o, 76o, 65o, 53o+, 43o, T9s:0.8, 44:0.5, 87o:0.3, K9s:0.2, QTs:0.1, 93s:0.1, KTo:0.1, J9o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 55, A9s+, KJs-K9s, QTs, JTs, AJo+, KTo:0.8, 44:0.5, A9o:0.4, KQs:0.1"
+      "range": "88+, 55, A9s+, KJs-KTs, JTs, AJo+, QTs:0.9, KTo:0.9, K9s:0.8, 44:0.5, A9o:0.4, T9s:0.2"
      }
     ]
    },
@@ -21661,26 +21980,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜",
     "title": "BB vs UTG+2 오픈 + BTN 콜",
-    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.8%p 움직여요.",
     "line": "UTG+2 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.693,
+    "occ": 0.691,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3..3......3...................................33........................5...................................................5.......5..............5..............3",
+    "confidence": "low",
+    "move": 30.8,
+    "close": "......3..3.....3....................................33............5..................................................5............5.......5..............5...............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "77-66, 22, A8s-A5s, A3s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A9o, KJo+, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, 53o+, 43o, A4s:0.9, Q9o:0.9, 55:0.6, T8o:0.6, 33:0.1"
+      "range": "66, A8s-A5s, A3s-A2s, KQs, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-A9o, KJo+, QTo+, J9o+, T9o, 98o, 87o, 76o, 65o, 53o+, 43o, 77:0.9, 22:0.9, A4s:0.9, Q9o:0.9, T8o:0.9, A8o:0.8, 55:0.6, 33:0.1, KJs:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 44, A9s+, KJs-KTs, QTs, JTs, AQo+, KTo, 33:0.9, 55:0.4, A4s:0.1"
+      "range": "88+, 44, A9s+, KTs, QTs, JTs, AQo+, KTo, 33:0.9, KJs:0.9, 55:0.4, 77:0.1, 22:0.1, A4s:0.1"
      }
     ]
    },
@@ -21696,26 +22015,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·BTN콜·SB콜",
     "title": "BB vs UTG+2 오픈 + BTN·SB 콜",
-    "description": "UTG+2 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → BTN 콜 → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.9%p 움직여요.",
     "line": "UTG+2 2 · BTN 콜 · SB 콜",
     "reachPct": 100,
-    "occ": 0.124,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................................................................................................................................5..............5..............",
+    "occ": 0.138,
+    "regret": 0.0003,
+    "confidence": "low",
+    "move": 30.9,
+    "close": "..............................................................................................................5...........................55............................5",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33, A7s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K8o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, 55:0.6, K7o:0.6, KJs:0.5, KTo:0.5, 86o:0.2, 44:0.1, A8s:0.1, Q8o:0.1, 64o:0.1"
+      "range": "33, A7s-A2s, K9s-K2s, QJs, Q9s-Q2s, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, KJo+, K9o-K8o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 54o, KJs:0.8, K7o:0.8, KTo:0.6, Q8o:0.6, 55:0.5, T9s:0.4, 44:0.1, A8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "66+, A9s+, KQs, KTs, QTs, JTs, ATo+, 44:0.9, A8s:0.9, KJs:0.5, KTo:0.5, 55:0.4"
+      "range": "66+, A9s+, KQs, KTs, QTs, JTs, ATo+, 44:0.9, A8s:0.9, T9s:0.6, 55:0.5, KTo:0.4, KJs:0.2"
      }
     ]
    },
@@ -21730,26 +22049,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "UTG+2오픈·SB콜",
     "title": "BB vs UTG+2 오픈 + SB 콜",
-    "description": "UTG+2 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "UTG+2 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 33.7%p 움직여요.",
     "line": "UTG+2 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.622,
+    "occ": 1.625,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "..........3....3...........................3.........3........................5..........................55..5.......5.....5......5......5.............5.................",
+    "confidence": "low",
+    "move": 33.7,
+    "close": "..........3....3...........................3..................................5..........................5...5.......5.....5......5......5.............5.................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "66, A7s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, K7o+, Q8o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, 55:0.8, A9o:0.5, Q7o:0.4, 77:0.1"
+      "range": "66, A7s-A2s, KQs, K9s-K2s, Q2s+, J2s+, T2s+, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, AJo-ATo, KJo+, K9o-K7o, Q8o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, 55:0.8, KTo:0.8, A9o:0.6, 77:0.2, Q7o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "88+, 44-22, A8s+, KJs-KTs, AQo+, 77:0.9, A9o:0.5, 55:0.2"
+      "range": "88+, 44-22, A8s+, KJs-KTs, AQo+, 77:0.8, A9o:0.4, 55:0.2, KTo:0.2"
      }
     ]
    },
@@ -21764,13 +22083,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·CO콜",
     "title": "BB vs LJ 오픈 + CO 콜",
-    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → CO 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 30.3%p 움직여요.",
     "line": "LJ 2 · CO 콜",
     "reachPct": 100,
     "occ": 0.106,
-    "regret": 0.0003,
-    "confidence": "mid",
-    "move": 0,
+    "regret": 0.0005,
+    "confidence": "low",
+    "move": 30.3,
     "close": ".......................................................6.........6.....3...........5.............5............................3.........................553.............3",
     "flags": [
      {
@@ -21784,13 +22103,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "33-22, A7s-A2s, KJs+, K8s-K2s, QJs, Q8s-Q2s, T7s, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A4o, KTo+, QTo+, 98o, 87o, 76o, 65o, 53o+, 43o, 93s:0.9, A5o:0.9, A3o:0.7, T6s:0.5, KTs:0.4, 44:0.2, J7s:0.1"
+      "range": "33-22, A7s-A2s, KJs+, K8s-K2s, QJs, Q8s-Q2s, T7s, 94s+, 92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A4o, KTo+, QTo+, 98o, 87o, 76o, 65o, 53o+, 43o, 93s:0.9, A5o:0.9, A3o:0.7, T6s:0.6, KTs:0.3, 44:0.2, J7s:0.2, J5s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "55+, A8s+, K9s, QTs-Q9s, J8s+, T8s+, AJo+, A9o, 44:0.8, KTs:0.6"
+      "range": "55+, A8s+, K9s, QTs-Q9s, J8s+, T8s+, AJo+, A9o, 44:0.8, KTs:0.7"
      }
     ]
    },
@@ -21805,14 +22124,14 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·BTN콜",
     "title": "BB vs LJ 오픈 + BTN 콜",
-    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 27.1%p 움직여요.",
     "line": "LJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.564,
-    "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": "......3......................................3.........3.........3.....3..........5...........................5.............5..................5..........3............53",
+    "occ": 0.56,
+    "regret": 0.0002,
+    "confidence": "low",
+    "move": 27.1,
+    "close": "......3........3.............................3.........3.........3.....3..........5...........................5.............5..................5..........3............53",
     "flags": [
      {
       "code": "PF-SANITY-14",
@@ -21825,13 +22144,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, KJs, K8s-K2s, QJs, Q8s-Q2s, J8s-J2s, T7s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A8o, A5o-A3o, KJo+, K9o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, 44:0.9, KQs:0.9, KTo:0.9, K8o:0.9, 64o:0.9, 55:0.7, A7o:0.2, T8s:0.1"
+      "range": "A7s-A2s, KJs+, K8s-K2s, QJs, Q8s-Q2s, J8s-J2s, T7s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo-A8o, A5o-A3o, KJo+, K9o, Q9o+, J9o+, T8o+, 98o, 87o, 76o, 65o, 53o+, 43o, 44:0.9, KTo:0.9, K8o:0.9, 64o:0.8, 55:0.6, A7o:0.3, T8s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "66+, 33-22, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, T8s:0.9, 55:0.3, 44:0.1, KQs:0.1, KTo:0.1"
+      "range": "66+, 33-22, A8s+, KTs-K9s, QTs-Q9s, J9s+, T9s, AJo+, T8s:0.9, 55:0.4, 44:0.1, KTo:0.1"
      }
     ]
    },
@@ -21846,13 +22165,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "LJ오픈·SB콜",
     "title": "BB vs LJ 오픈 + SB 콜",
-    "description": "LJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "LJ 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 26.1%p 움직여요.",
     "line": "LJ 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.697,
+    "occ": 1.699,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "low",
+    "move": 26.1,
     "close": "...............3..............3............3........3............3.........................5.................5.........5...5.......5.....5.............5...............5.",
     "flags": [
      {
@@ -21866,13 +22185,13 @@ export const PREFLOP_STAGES: PreflopStage[] = [
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, K8s-K2s, Q2s+, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A8o-A7o, A5o-A4o, K5o+, Q6o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, K9s:0.9, A3o:0.8, KJs:0.3, 55:0.2, T9s:0.2"
+      "range": "A7s-A2s, K8s-K2s, Q2s+, J9s-J2s, T8s-T2s, 92s+, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, ATo, A8o-A7o, A5o-A4o, K5o+, Q6o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, K9s:0.9, A3o:0.8, KJs:0.3, 55:0.2, T9s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "66+, 44-22, A8s+, KQs, KTs, JTs, AJo+, A9o, 55:0.8, T9s:0.8, KJs:0.7, K9s:0.1"
+      "range": "66+, 44-22, A8s+, KQs, KTs, JTs, AJo+, A9o, T9s:0.9, 55:0.8, KJs:0.7, K9s:0.1"
      }
     ]
    },
@@ -21887,26 +22206,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·BTN콜",
     "title": "BB vs HJ 오픈 + BTN 콜",
-    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → BTN 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.7%p 움직여요.",
     "line": "HJ 2 · BTN 콜",
     "reachPct": 100,
-    "occ": 0.419,
+    "occ": 0.422,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......................................................3......................3.5.......................5.....5.............5...............3...............5............",
+    "confidence": "low",
+    "move": 23.7,
+    "close": "..............................................................................3.5.......................5.....5.............5...............................5............",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A6s-A2s, KJs, K9s-K2s, QJs, Q8s-Q2s, J7s-J2s, T7s-T2s, 97s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A7o, A5o-A3o, K9o+, Q8o+, J9o+, T8o+, 98o, 86o+, 76o, 65o, 53o+, 43o, A7s:0.9, K8o:0.8, 64o:0.8, K7o:0.7, 33:0.4, KTs:0.3, 22:0.1"
+      "range": "A6s-A2s, KJs, K9s-K2s, QJs, Q8s-Q2s, J7s-J2s, T7s-T2s, 97s-92s, 82s+, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A7o, A5o-A3o, K9o+, Q8o+, J9o, T8o+, 98o, 86o+, 76o, 65o, 53o+, 43o, A7s:0.9, K8o:0.9, JTo:0.9, K7o:0.7, 64o:0.7, 33:0.4, KTs:0.3, 44:0.1, 22:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "44+, A8s+, KQs, QTs-Q9s, J8s+, T8s+, 98s, ATo+, A8o, 22:0.9, KTs:0.7, 33:0.6, A7s:0.1"
+      "range": "55+, A8s+, KQs, QTs-Q9s, J8s+, T8s+, 98s, ATo+, A8o, 44:0.9, 22:0.9, KTs:0.7, 33:0.6, A7s:0.1, JTo:0.1"
      }
     ]
    },
@@ -21921,26 +22240,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "HJ오픈·SB콜",
     "title": "BB vs HJ 오픈 + SB 콜",
-    "description": "HJ 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "HJ 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 29.4%p 움직여요.",
     "line": "HJ 2 · SB 콜",
     "reachPct": 100,
-    "occ": 2.057,
+    "occ": 2.045,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".......3..........33.........................3..........................................................5..555...........................5......5........................",
+    "confidence": "low",
+    "move": 29.4,
+    "close": ".......3........3.3..........................3..........................................................5..555..........5................5......55.......................",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "A7s-A2s, K9s-K2s, Q2s+, J8s-J2s, T7s-T2s, 97s-92s, 86s-82s, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A6o-A3o, K4o+, Q3o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, KJs:0.9, 63o:0.9, 32o:0.7, J9s:0.4, A7o:0.3, A2o:0.3, J5o:0.1"
+      "range": "A7s-A2s, KJs, K9s-K2s, Q2s+, J8s-J2s, T7s-T2s, 97s-92s, 86s-82s, 72s+, 62s+, 52s+, 42s+, 32s, A9o, A6o-A3o, K4o+, Q3o+, J7o+, T7o+, 96o+, 85o+, 74o+, 64o+, 53o+, 43o, 63o:0.8, 32o:0.6, J9s:0.3, A7o:0.3, A2o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "22+, A8s+, KQs, KTs, JTs, T8s+, 98s, 87s, ATo+, A8o, A7o:0.7, J9s:0.6, KJs:0.1"
+      "range": "22+, A8s+, KQs, KTs, JTs, T8s+, 98s, 87s, ATo+, A8o, J9s:0.7, A7o:0.7"
      }
     ]
    },
@@ -21955,26 +22274,26 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "CO오픈·SB콜",
     "title": "BB vs CO 오픈 + SB 콜",
-    "description": "CO 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "CO 오픈 2bb → SB 콜. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 23.9%p 움직여요.",
     "line": "CO 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.786,
+    "occ": 1.795,
     "regret": 0.0002,
-    "confidence": "mid",
-    "move": 0,
-    "close": "............3...3.............3........................3..........................3........................555.........................................5...............5.",
+    "confidence": "low",
+    "move": 23.9,
+    "close": "............3...3.............3........................3..........................3........................555.........................................5......5..........",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K9s-K2s, Q2s+, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A4o-A2o, K2o+, Q3o+, J7o+, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, 32o, 74o:0.9, J9s:0.8, 86s:0.6, A3s:0.4, KTs:0.4, J5o:0.4, Q2o:0.3"
+      "range": "K9s-K2s, Q2s+, J7s-J2s, T7s-T2s, 96s-92s, 85s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, A4o-A2o, K2o+, Q3o+, J7o+, T7o+, 97o+, 85o+, 75o+, 64o+, 53o+, 43o, 74o:0.9, 32o:0.9, J9s:0.7, 86s:0.6, KTs:0.4, J5o:0.3, A3s:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "22+, A4s+, A2s, KJs+, JTs, J8s, T8s+, 97s+, 87s, 76s, A5o+, A3s:0.6, KTs:0.6, 86s:0.4, J9s:0.2"
+      "range": "22+, A4s+, A2s, KJs+, JTs, J8s, T8s+, 97s+, 87s, 76s, A5o+, A3s:0.9, KTs:0.6, 86s:0.4, J9s:0.3"
      }
     ]
    },
@@ -21989,20 +22308,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BTN오픈·SB콜",
     "title": "BB vs BTN 오픈 + SB 콜",
-    "description": "BTN 오픈 2bb → SB 콜. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "BTN 오픈 2bb → SB 콜. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 16.9%p 움직여요.",
     "line": "BTN 2 · SB 콜",
     "reachPct": 100,
-    "occ": 1.781,
+    "occ": 1.772,
     "regret": 0.0001,
     "confidence": "mid",
-    "move": 0,
-    "close": ".....................3......................33.......................3..............................3......55..............5.........5.................5..............55.",
+    "move": 16.9,
+    "close": ".....................3......................33.......................3..............................3......55..............5.........5...5.............5..............55.",
     "actions": [
      {
       "key": "overcall",
       "label": "오버콜",
       "color": "call",
-      "range": "K9s-K6s, K4s-K2s, Q9s-Q2s, J8s-J2s, T7s-T2s, 95s-92s, 85s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, KTo-K2o, Q2o+, J9o-J5o, T7o+, 97o, 86o+, 75o+, 64o+, 53o+, 43o, 32o, K5s:0.8, 98o:0.8, JTo:0.5, 96s:0.1, 74o:0.1"
+      "range": "K9s-K6s, K4s-K2s, Q9s-Q2s, J8s-J2s, T7s-T2s, 95s-92s, 85s-82s, 75s-72s, 62s+, 52s+, 42s+, 32s, KTo-K2o, Q2o+, J9o-J5o, T7o+, 97o, 86o+, 75o+, 64o+, 53o+, 43o, 32o, K5s:0.8, 98o:0.8, JTo:0.5, 96s:0.1"
      },
      {
       "key": "shove",
@@ -22022,35 +22341,35 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 레이즈",
     "title": "SB 림프 vs BB 레이즈",
-    "description": "SB 림프 → BB 레이즈 3bb. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3bb. 신뢰도 보통: 실현율 가정을 바꿔 풀면 이 차트가 약 12.2%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3",
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 54.6,
-    "occ": 2.845,
+    "reachPct": 54.5,
+    "occ": 2.819,
     "regret": 0.0004,
     "confidence": "mid",
-    "move": 0,
-    "close": ".........55..........5555........55...5.......5............5......................55..5..........5.5........9....5..........9.....559......9.............................",
+    "move": 12.2,
+    "close": ".........55..........5555........55.5.5.......5............5......................55..5..........5.5........9...............9.....55.......9.............................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "K5s-K3s, Q7s-Q2s, J9s, J7s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-73s, 62s+, 53s-52s, 42s+, 32s, A4o, K9o-K8o, K4o-K3o, Q5o, J9o-J8o, T7o+, 97o+, 86o+, 76o, A3o:0.9, 96o:0.9, K2s:0.8, A6o:0.8, A2o:0.8, K2o:0.8, A2s:0.5, 72s:0.5, T9s:0.4, 97s:0.3, A5o:0.3, A7o:0.2, A3s:0.1, T8s:0.1"
+      "range": "K5s-K3s, Q7s-Q2s, J9s, J7s-J2s, T7s-T2s, 96s-92s, 86s-82s, 75s-73s, 64s-62s, 53s-52s, 42s+, 32s, A4o, K9o-K8o, K4o-K3o, Q5o, J9o-J8o, T7o+, 97o+, 86o+, 76o, 65s:0.9, A3o:0.9, 96o:0.9, K2s:0.8, A6o:0.8, A2o:0.8, K2o:0.8, A2s:0.7, 72s:0.4, A3s:0.3, T9s:0.3, 97s:0.3, A5o:0.3, A7o:0.2, T8s:0.1, Q4o:0.1"
      },
      {
       "key": "raise",
       "label": "리레이즈 9bb",
       "color": "raise",
-      "range": "A9s, A7o:0.8, KQs:0.4, AQs:0.3, AJs-ATs:0.2, A6o:0.2"
+      "range": "A9s, A7o:0.8, KQs:0.5, AQs:0.3, ATs:0.3, AJs:0.2, A6o:0.2"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "99-44, 22, A5s-A4s, KJs, K6s, QTs+, JTs, 87s, 76s, AJo+, KQo, QJo, A3s:0.9, T8s:0.9, AJs-ATs:0.8, AQs:0.7, 97s:0.7, A5o:0.7, KQs:0.6, T9s:0.6, A2s:0.5, K2s:0.2, A2o:0.2, A3o:0.1"
+      "range": "99-44, 22, A5s-A4s, KJs, K6s, QTs+, JTs, 87s, 76s, AJo+, KQo, QJo, T8s:0.9, AJs:0.8, AQs:0.7, ATs:0.7, A3s:0.7, T9s:0.7, 97s:0.7, A5o:0.7, KQs:0.5, A2s:0.3, K2s:0.2, A2o:0.2, 65s:0.1, A3o:0.1"
      }
     ]
    },
@@ -22064,22 +22383,22 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "SB 림프 vs BB 올인",
     "title": "SB 림프 vs BB 올인",
-    "description": "SB 림프 → BB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 3.3%p 움직여요.",
     "line": "SB 림프 · BB 올인",
     "reachFrom": [
      "rfi-sb:limp"
     ],
-    "reachPct": 54.6,
-    "occ": 0.273,
+    "reachPct": 54.5,
+    "occ": 0.274,
     "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 3.3,
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "99-44, AQs-A9s, A5s, KJs+, QTs+, J9s+, T8s+, AJo+, A7o, KQo:0.9, QJo:0.7, A4s:0.5, 97s:0.1, A6o:0.1"
+      "range": "99-44, AQs-A9s, A5s, KJs+, QTs+, J9s+, T8s+, AJo+, A7o, KQo:0.9, QJo:0.8, A4s:0.3, 97s:0.1, A6o:0.1"
      }
     ]
    },
@@ -22093,33 +22412,33 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 림프",
     "title": "BB vs SB 림프",
-    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프. BB는 폴드하지 않아요: 레이즈·올인이 아니면 체크해요. 신뢰도 낮음: 실현율 가정을 바꿔 풀면 이 차트가 약 22.4%p 움직여요.",
     "line": "SB 림프",
     "reachPct": 100,
     "noFold": true,
-    "occ": 6.447,
+    "occ": 6.41,
     "regret": 0.0008,
-    "confidence": "mid",
-    "move": 0,
-    "close": ".........7555......55....5.......55........5..555.55.3.5..555..55...55..775.553...5...77555.5.......75553555.....7555.5.555.....555..5555..5.55.555........5.55.......55.",
+    "confidence": "low",
+    "move": 22.4,
+    "close": ".........7555......55............55........5..555.55.3.5..555..55...55..775.553.......77555.5.......75553555.....7555.5.555.....555..555...5.55.555......5.5.555......55.",
     "actions": [
      {
       "key": "raise",
       "label": "레이즈 3bb",
       "color": "raise",
-      "range": "55+, A2s+, K7s+, JTs, ATo+, A6o, A4o-A2o, KJo-K6o, J9o+, T8o+, 54o, A7o:0.9, Q9o-Q8o:0.9, J8o:0.9, 98o:0.9, 65o:0.9, A9o:0.8, KQo:0.8, QJo:0.8, J9s:0.7, T9s:0.7, QJs:0.6, QTo:0.6, 75o:0.6, 64o:0.6, 53o:0.6, QTs:0.5, Q7o:0.5, 52o:0.5, Q9s:0.4, T3o:0.4, 96o:0.4, 93o:0.4, 87o:0.4, 76o:0.4, 63o:0.4, J7o:0.3, T7o:0.3, T2o:0.3, 92o:0.3, 85o:0.3, 83o:0.3, 73o:0.3, 62o:0.3, A5o:0.2, 97o:0.2, 82o:0.2, 74o:0.2, 44:0.1, K6s:0.1, Q8s:0.1, J8s:0.1, 54s:0.1, J2o:0.1, T6o:0.1, 86o:0.1, 72o:0.1, 43o:0.1"
+      "range": "55+, A2s+, K7s+, JTs, ATo+, A6o, A4o-A2o, KJo-K6o, J9o+, T9o, 54o, A7o:0.9, Q8o:0.9, J8o:0.9, T8o:0.9, 98o:0.9, 65o:0.9, A9o:0.8, KQo:0.8, Q9o:0.8, J9s:0.7, T9s:0.7, QJo:0.7, QJs:0.6, QTo:0.6, 75o:0.6, 64o:0.6, Q7o:0.5, 93o:0.5, 53o-52o:0.5, QTs-Q9s:0.4, T3o:0.4, 96o:0.4, 87o:0.4, 63o:0.4, J7o:0.3, T7o:0.3, T2o:0.3, 92o:0.3, 85o:0.3, 83o:0.3, 76o:0.3, 73o:0.3, 62o:0.3, Q8s:0.2, J8s:0.2, A5o:0.2, 82o:0.2, 74o:0.2, 44:0.1, K6s:0.1, 54s:0.1, T6o:0.1, 97o:0.1, 86o:0.1, 84o:0.1, 72o:0.1"
      },
      {
       "key": "shove",
       "label": "올인",
       "color": "allin",
-      "range": "33-22, A8o, 44:0.9, A5o:0.8, 76s:0.7, 87s:0.5, A9o:0.2, KQo:0.2, 86o:0.2, T9s:0.1, 98s:0.1, A7o:0.1, QTo:0.1"
+      "range": "33-22, A8o, 44:0.9, A5o:0.8, 87s:0.6, 76s:0.6, A9o:0.2, KQo:0.2, 86o:0.2, T9s:0.1, 98s:0.1, A7o:0.1, QTo:0.1"
      },
      {
       "key": "check",
       "label": "체크",
       "color": "call",
-      "range": "K5s-K2s, Q7s-Q2s, J7s-J2s, T8s-T2s, 97s-92s, 86s-82s, 75s-72s, 62s+, 53s-52s, 42s+, 32s, K5o-K2o, Q6o-Q2o, J6o-J3o, T5o-T4o, 95o-94o, 84o, 42o, 32o, K6s:0.9, Q8s:0.9, J8s:0.9, 98s:0.9, 54s:0.9, J2o:0.9, T6o:0.9, 72o:0.9, 43o:0.9, 97o:0.8, 82o:0.8, 74o:0.8, J7o:0.7, T7o:0.7, T2o:0.7, 92o:0.7, 86o-85o:0.7, 83o:0.7, 73o:0.7, 62o:0.7, Q9s:0.6, T3o:0.6, 96o:0.6, 93o:0.6, 87o:0.6, 76o:0.6, 63o:0.6, QTs:0.5, 87s:0.5, Q7o:0.5, 52o:0.5, QJs:0.4, 75o:0.4, 64o:0.4, 53o:0.4, J9s:0.3, 76s:0.3, QTo:0.3, T9s:0.2, QJo:0.2, Q9o-Q8o:0.1, J8o:0.1, 98o:0.1, 65o:0.1"
+      "range": "K5s-K2s, Q7s-Q2s, J7s-J2s, T8s-T2s, 97s-92s, 86s-82s, 75s-72s, 62s+, 53s-52s, 42s+, 32s, K5o-K2o, Q6o-Q2o, J6o-J2o, T5o-T4o, 95o-94o, 42o+, 32o, K6s:0.9, 98s:0.9, 54s:0.9, T6o:0.9, 97o:0.9, 84o:0.9, 72o:0.9, Q8s:0.8, J8s:0.8, 82o:0.8, 74o:0.8, J7o:0.7, T7o:0.7, T2o:0.7, 92o:0.7, 86o-85o:0.7, 83o:0.7, 76o:0.7, 73o:0.7, 62o:0.7, QTs-Q9s:0.6, T3o:0.6, 96o:0.6, 87o:0.6, 63o:0.6, Q7o:0.5, 93o:0.5, 53o-52o:0.5, QJs:0.4, 87s:0.4, 76s:0.4, 75o:0.4, 64o:0.4, J9s:0.3, QTo+:0.3, T9s:0.2, Q9o:0.2, Q8o:0.1, J8o:0.1, T8o:0.1, 98o:0.1, 65o:0.1"
      }
     ]
    },
@@ -22133,23 +22452,23 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB 올인",
     "title": "BB 레이즈 후 vs SB 올인",
-    "description": "SB 림프 → BB 레이즈 3bb → SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 림프 → BB 레이즈 3bb → SB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.9%p 움직여요.",
     "line": "SB 림프 · BB 레이즈 3 · SB 올인",
     "reachFrom": [
      "bb-vs-sb-limp:raise"
     ],
-    "reachPct": 44.1,
-    "occ": 0.428,
-    "regret": 0.0004,
-    "confidence": "mid",
-    "move": 0,
-    "close": "...........................3.............................................................................................................................................",
+    "reachPct": 43.6,
+    "occ": 0.422,
+    "regret": 0.0003,
+    "confidence": "high",
+    "move": 2.9,
+    "close": "..................3..........3...........................................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "44+, A7s+, KTs+, QJs, JTs, A9o+, A6s:0.9, QTs:0.9, K9s:0.1"
+      "range": "44+, A7s+, KTs+, QJs, JTs, A9o+, QTs:0.9, A6s:0.8, KQo:0.1"
      }
     ]
    },
@@ -22163,19 +22482,20 @@ export const PREFLOP_STAGES: PreflopStage[] = [
     ],
     "chip": "BB vs SB",
     "title": "BB vs SB 올인",
-    "description": "SB 올인. 신뢰도 보통(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.",
+    "description": "SB 올인. 신뢰도 높음: 실현율 가정을 바꿔 풀면 이 차트가 약 2.7%p 움직여요.",
     "line": "SB 올인",
     "reachPct": 100,
     "occ": 0.838,
     "regret": 0.0001,
-    "confidence": "mid",
-    "move": 0,
+    "confidence": "high",
+    "move": 2.7,
+    "close": ".........................................3...............................................................................................................................",
     "actions": [
      {
       "key": "call",
       "label": "콜",
       "color": "call",
-      "range": "22+, A7s+, KTs+, QTs+, J9s+, T9s, A8o+, T8s:0.8, A7o:0.7, 98s:0.6, A6s:0.2, A5s:0.1, QJo:0.1"
+      "range": "22+, A7s+, KTs+, QTs+, J9s+, T9s, A8o+, T8s:0.8, 98s:0.7, A7o:0.6, A6s:0.3, A5s:0.1"
      }
     ]
    }

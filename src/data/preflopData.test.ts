@@ -169,6 +169,10 @@ describe("solver chart set: registration and texts", () => {
     }
   });
 
+  it("ships the release: no stage is a draft (sensitivity solves and PF-TWOSTART ran on every stage)", () => {
+    expect(PREFLOP_DRAFT_STAGES).toEqual([]);
+  });
+
   it("was made with the committed fit and the equity table the fit was made with", () => {
     for (const st of PREFLOP_STAGES) {
       expect(st.model.fitHash, st.id).toBe(EQR_FIT.sha256);
@@ -956,17 +960,20 @@ describe("solver data: close calls and artifact flags (§6.9, §6.10)", () => {
       notched += marked;
     }
     expect(notched).toBeGreaterThan(0);
-    // rfi-sb: many marks, so the heavy-spot note; TT's hand card names both actions.
+    // rfi-sb: many marks, so the heavy-spot note; a marked hand's card names its near actions. The hand is taken
+    // from the data (its first marked cell in grid order), so a refit that turns one cell into a mix keeps the test.
     const sb = byId(st).get("rfi-sb")!;
     const marked = Object.keys(sb.close ?? {}).length;
     expect(marked).toBeGreaterThanOrEqual(HEAVY_CLOSE_SHARE * 169);
     expect(isHeavyClose(sb)).toBe(true);
-    const tt = closeActions(sb, "TT")!;
-    expect(tt.length).toBeGreaterThanOrEqual(2);
-    const note = renderToString(createElement(CloseNote, { scenario: sb, hand: "TT", eps: st.closeEps })).replace(/<!-- -->/g, "");
+    const h0 = ALL_HANDS.find((h) => sb.close?.[h])!;
+    const near = closeActions(sb, h0)!;
+    expect(near.length).toBeGreaterThanOrEqual(2);
+    const note = renderToString(createElement(CloseNote, { scenario: sb, hand: h0, eps: st.closeEps })).replace(/<!-- -->/g, "");
     const label = (k: string) => legendActions(sb).find((a) => a.key === k)!.label;
-    const chart = tt.find((k) => sb.strategy.TT[k] >= 0.999)!;
-    expect(note).toBe(`<p class="close-note">차트는 ${label(chart)}만 보여 주지만 ${tt.filter((k) => k !== chart).map(label).join("·")}도 EV 차이가 0.05bb 이내라 거의 같아요.</p>`);
+    const chart = near.find((k) => sb.strategy[h0][k] >= 0.999)!;
+    expect(chart, h0).toBeDefined();
+    expect(note).toBe(`<p class="close-note">차트는 ${label(chart)}만 보여 주지만 ${near.filter((k) => k !== chart).map(label).join("·")}도 EV 차이가 0.05bb 이내라 거의 같아요.</p>`);
     expect(renderToString(createElement(CloseNote, { scenario: sb, hand: ALL_HANDS.find((h) => !sb.close?.[h])!, eps: st.closeEps }))).toBe("");
     for (const stage of solver.stages)
       for (const s of stage.scenarios) {

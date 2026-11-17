@@ -4,7 +4,10 @@
 // Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--packs <id,id,...>] [--limit <n>]
 //   --check        compute everything and compare with the committed eqrFit.ts; write nothing, exit 1 if it differs
 //   --workers <n>  flop files decoded and enumerated in parallel (default: one per CPU); the result does not depend on it
-//   --packs <ids>  fit on these packs of the manifest only, comma-separated ids (default: every pack in the manifest).
+//   --packs <ids>  fit on these packs of the manifest only, comma-separated ids, or "all" for every pack in the manifest.
+//                  Default: the packs the committed eqrFit.ts was fitted on (every pack in the manifest if it names none
+//                  or names one the manifest lacks), so a new pack in the manifest, such as pub-srp-utg-bb-55, kept out
+//                  of the fit on purpose (docs/preflop-solver.md §3.7), does not silently enter a bare run or --check.
 //                  The rest of the run is unchanged: the pack records, metrics and fit hash name only the packs used,
 //                  and --check compares that fit with the committed file. An unknown id is an error.
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
@@ -224,8 +227,24 @@ if (isMainThread) {
   const F = Array.from({ length: N }, (_, h) => handFeatures(h));
   const K = FEATURE_NAMES.length;
   const manifest = JSON.parse(readFileSync(root + "public/packs/manifest.json", "utf8"));
-  if (opt.packs !== undefined) {
-    // --packs: the named packs only, in manifest order (so the sums and the output keep the manifest's order).
+  if (opt.packs === undefined) {
+    // Default: the committed fit's packs (see --packs above).
+    let committed = [];
+    try {
+      committed = Object.keys((await load(OUT)).EQR_FIT?.packs ?? {});
+    } catch {
+      committed = [];
+    }
+    const ids = manifest.packs.map((p) => p.id);
+    if (committed.length && committed.every((id) => ids.includes(id))) {
+      opt.packs = committed.join(",");
+      const left = ids.filter((id) => !committed.includes(id));
+      console.log(`packs: ${committed.join(", ")} (the committed fit's)${left.length ? `; not in the fit: ${left.join(", ")} (--packs all to include)` : ""}`);
+    } else opt.packs = "all";
+  }
+  if (opt.packs === "all") opt.packs = manifest.packs.map((p) => p.id).join(",");
+  {
+    // The packs to fit (--packs, or the default above): the named packs only, in manifest order (so the sums and the output keep the manifest's order).
     const want = opt.packs.split(",").map((s) => s.trim()).filter(Boolean);
     const known = new Set(manifest.packs.map((p) => p.id));
     const unknown = want.filter((id) => !known.has(id));
