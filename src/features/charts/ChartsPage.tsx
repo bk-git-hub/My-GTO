@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
@@ -61,6 +61,18 @@ export function ChartsPage() {
   const cautions = useMemo(() => cautionLines(scenario), [scenario]);
   const closeCount = scenario.close ? Object.keys(scenario.close).length : 0;
   const heavyClose = useMemo(() => isHeavyClose(scenario), [scenario]);
+  // The chip row is remounted for each list (key below), so it starts scrolled to its start. Coming back to a group or
+  // seat brings its earlier pick back, which can sit past the right edge: scroll that chip into view once per list.
+  const chipsKey = `${set.id}/${stage.id}/${group}/${seat ?? ""}`;
+  const chipsRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const row = chipsRef.current;
+    const on = row?.querySelector<HTMLElement>(".chip.on");
+    if (!row || !on) return;
+    const r = row.getBoundingClientRect();
+    const c = on.getBoundingClientRect();
+    if (c.left < r.left || c.right > r.right) row.scrollLeft += c.left - r.left - 12;
+  }, [chipsKey]);
 
   function pickStage(id: string) {
     setStageId(id);
@@ -152,7 +164,9 @@ export function ChartsPage() {
         </div>
       )}
 
-      <div className="chips scroll">
+      {/* A new list starts scrolled to its start (the effect above then brings an earlier pick into view); otherwise a
+          seat or group switch keeps the old row's sideways scroll and the selected chip can sit off-screen. */}
+      <div className="chips scroll" key={chipsKey} ref={chipsRef}>
         {shown.map((s, i) => (
           <button
             key={s.id}
