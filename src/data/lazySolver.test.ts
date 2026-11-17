@@ -3,8 +3,8 @@ import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * The solver set (625 spots) is built on first use, not at app start (docs §6.3): it cost about 150 ms and 18 MB on
- * every start. Each test starts from fresh modules, as an app start does, and checks what builds it and what does not.
+ * The solver set (633 spots) is built on first use, not at app start (docs §6.3): built at load it cost every start
+ * about 0.26 s and 20 MB of JS heap in Chromium. Each test starts from fresh modules, as an app start does, and checks what builds it and what does not.
  */
 
 beforeEach(() => {
@@ -24,7 +24,7 @@ describe("lazy solver set", () => {
   it("is not built by the menu, the other sets, the pub quiz pool or the pub charts and quiz pages", async () => {
     const { charts, built } = await fresh();
     expect(built()).toEqual([false, []]);
-    expect(charts.chartSetMenu().map((s) => s.id)).toEqual(["pub", "cash6", "nash", "shortnash", "solver"]);
+    expect(charts.chartSetMenu().map((s) => s.id)).toEqual(["solver", "pub", "cash6", "nash", "shortnash"]);
     expect(charts.chartSetId("solver")).toBe("solver");
     expect(charts.chartSetId("x")).toBe("pub");
     expect(charts.getSet("pub").id).toBe("pub");

@@ -5,9 +5,9 @@ them: the app downloads one small JSON file per flop and shows the strategy, the
 first flop decisions without solving anything on the device. The numbers come from our own solver
 (`src/solver/`, spec in `docs/solver.md`); no third-party solver code or output is involved.
 
-A GitHub Action re-runs the presolve pipeline every 6 hours, split over parallel jobs. It solves the next flops
-(in priority order) that have no file yet in each pack's current version directory under `public/packs/`, and
-rewrites `public/packs/manifest.json` (see Pipeline below).
+A GitHub Action runs the presolve pipeline back to back while flops are left (and every 6 hours as a backstop),
+split over parallel jobs. It solves the next flops (in priority order) that have no file yet in each pack's current
+version directory under `public/packs/`, and rewrites `public/packs/manifest.json` (see Pipeline below).
 The format lives in `src/presolve/format.ts` (types plus pure encode/decode helpers that run in Node and in the
 browser). The manifest shape matches §9 "솔버 콘텐츠 팩" of `docs/server-design.md` (branch
 `claude/lucid-brown-8ikhmc`) and adds fields to it.
@@ -27,7 +27,9 @@ prefix is left out for 6-max cash.
 
 The UTG pack pairs a tight opener (12% of hands) with a wide BB call (46%): the BTN packs only show realization
 against wide ranges, and the preflop solver's realization model (`docs/preflop-solver.md` §3.7) also needs
-dominated hands such as Q7s or A4o against a strong range.
+dominated hands such as Q7s or A4o against a strong range. It is measured, not fitted: the shipped fit leaves it out
+on purpose and uses it as held-out data, which shows that the BB realizes more against a strong range than the
+range-blind model says (§3.7 bias 2 there). It is the data for a model that depends on the opponent's range.
 
 The pot counts all dead money (SB, ante): pot = 2 × open + 0.5 + ante, and the effective stack is the BB's,
 start − open − ante (the BB paid the ante too). `src/presolve/scenarios.ts` derives both from the play-mode rules
@@ -317,8 +319,13 @@ always conflicts), the push keeps the branch's files, runs `--rebuild-manifest` 
 counts N again. The result is the manifest one unsharded run over the same flops would write: a local 2-shard
 simulation gave byte-identical flop files and an identical manifest apart from `generatedAt`. At ~11
 core-minutes per flop one run solves roughly 1,700 flops, about a whole pack (1,755). A run with work takes
-~5 h 15 min, so while flops are left the runs follow each other almost back to back (a run still going makes
-the next one wait); with nothing left a run ends within minutes.
+~5 h 15 min. While flops are left, a run whose merge pushed new flops starts the next run itself at the end
+(`gh workflow run` with the run's own inputs; a `workflow_dispatch` is one of the two events `GITHUB_TOKEN` may
+trigger), so the runs follow each other back to back (the concurrency group makes the new run wait for the merge
+to finish). A run that pushed nothing does not, so it never loops without progress (for example when only flops
+over `--max-mb` are left), and the 6-hourly schedule stays as the backstop: GitHub sometimes never starts a
+scheduled run (neither the 11:23 nor the 17:23 UTC run of 2026-11-16 started). With nothing left a run ends
+within minutes.
 
 ## Versioning and the presolve job
 
@@ -339,13 +346,23 @@ the next one wait); with nothing left a run ends within minutes.
 ## Calibration of the preflop solver
 
 The 9-handed preflop solver (`docs/preflop-solver.md`) does not solve flops: it values them with a realization model
-fitted to these packs. `scripts/fit-realization.mjs` reads every flop file the manifest lists, takes each combo's EV
+fitted to these packs. `scripts/fit-realization.mjs` reads every flop file of the packs it fits, takes each combo's EV
 at OOP's root and at IP's node after OOP checks, and fits the model to the per-class pot shares. The result,
 `src/poker/preflop/eqrFit.ts`, records each pack's version, flop count and a hash of its file list. For the packs
 this means:
-- New flops change the fit's inputs, but the charts move only when the fit is rerun. The committed fit names the
-  pack state it used (`srp-btn-bb-100` v1 with 1,476 flops, `pub-srp-btn-bb-55` v2 with 1,457); the next refit is
-  planned for when both packs cover all 1,755 flop classes.
+- New flops change the fit's inputs, but the charts move only when the fit is rerun. The committed fit (`2862daa7a90f`,
+  2026-11-17) names the pack state it used: `srp-btn-bb-100` v1 and `pub-srp-btn-bb-55` v2 with all 1,755 flops
+  each, at their exact class weights. Both packs are complete, so the presolve job cannot change its inputs any more;
+  the planned refit on every flop class is done.
+- Which packs are fitted is a decision, not a side effect of the manifest. `fit-realization.mjs --packs <ids>` names
+  them; without `--packs` it fits the packs the committed `eqrFit.ts` names, and `--packs all` takes every manifest
+  pack. Every fit and `--check` names its packs (`--packs srp-btn-bb-100,pub-srp-btn-bb-55`).
+- `pub-srp-utg-bb-55` is in the manifest but kept out of the fit. Predicted as held-out data (1,728 of its 1,755
+  flops), the fit misses it by a weighted RMS of 0.056 of the pot OOP and 0.083 IP, against 0.014 / 0.019 on the pub
+  BTN pack (the same game, pot and tree; only the ranges differ): against UTG the BB realizes about 0.046 of the pot
+  more than the model says, and UTG's big pairs 0.14–0.17 less. A joint fit with all three packs broke a sign guard
+  of the model and moved the charts back toward known artifacts, so it was rejected (`docs/preflop-solver.md` §3.7
+  bias 2). The pack's last flops cannot change the shipped fit.
 - The fit reads IP's root EV at IP's node after OOP's check, which is IP's root only because OOP never bets the flop
   in these trees (`sizes.flop[0].bet` is `[]`); the opponent's EV at a node is not stored. It stops if OOP checks
   less than 99.9% of its range at the root, so a pack that gives OOP a donk bet first needs IP's root EV in the flop

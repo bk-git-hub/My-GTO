@@ -70,7 +70,7 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 | 6맥스 캐시 100bb | `src/data/sets/cash6.ts` | 첫 버전의 학습용 근사 차트 |
 | 푸시/폴드 내쉬 | `src/data/sets/nash.ts`, `nashData.ts` | 9인, BB 앤티 1bb, 4~20bb. 앱이 직접 계산한 칩EV 내쉬 균형 (아래) |
 | 숏스택 내쉬 | `src/data/sets/shortNash.ts`, `shortNashData.ts` | 9인, BB 앤티 1bb, 10~25bb. 폴드/2bb 오픈/올인 + 리쉬브 + BB 콜까지 계산한 칩EV 균형 (아래) |
-| 솔버 프리플랍 | `src/data/sets/preflop.ts`, `preflopData.ts` | 9인, BB 앤티 1bb, 100bb(오픈 2.2bb·3bb)·55bb·35bb. 우리 프리플랍 솔버(DCFR, `scripts/make-preflop.mjs`)가 푼 칩EV 균형 근사. EV 차이가 0.05bb 미만인 칸은 모서리에 표시하고(퀴즈에서도 정답), 모델·트리 한계로 알려진 칸은 "알려진 한계"로 알려 주고 퀴즈에서 뺀다. 처음 고를 때 만들어서 앱 시작을 늦추지 않는다. 설계와 검증은 `docs/preflop-solver.md` |
+| 솔버 프리플랍 | `src/data/sets/preflop.ts`, `preflopData.ts` | 9인, BB 앤티 1bb, 100bb(오픈 2.2bb·3bb)·55bb·35bb. 우리 프리플랍 솔버(DCFR, `scripts/make-preflop.mjs`)가 푼 칩EV 균형 근사. EV 차이가 0.05bb 이내인 칸은 모서리에 표시하고(퀴즈에서도 정답), 모델·트리 한계로 알려진 칸은 "알려진 한계"로 알려 주고 퀴즈에서 뺀다. 처음 고를 때 만들어서 앱 시작을 늦추지 않는다. 설계와 검증은 `docs/preflop-solver.md` |
 
 **펍 토너먼트와 캐시 차트는 솔버 정확값이 아니다.** 레인지 문자열만 바꾸면 직접 구한 솔버 결과로 교체할 수 있다.
 
@@ -104,7 +104,7 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 - 시나리오(레인지·팟·벳 사이즈)는 `src/presolve/scenarios.ts`, 플랍 1755종의 우선순위(앞에서부터 잘라도 고르게 퍼진 대표 플랍)는 `src/presolve/flops.ts`.
 - `node scripts/presolve.mjs --scenario all --count 100 --budget-minutes 50`: 없는 플랍만 우선순위대로 풀어서 파일과 `manifest.json`을 쓴다. 한 플랍에 코어 1개, 1.3~1.8GB, 약 10분. `--dry-run`은 계획과 메모리 추정만 보여 준다.
 - `--shard i/n`: 우선순위 k번째 플랍을 k % n번 샤드에 배정해 그 샤드 몫만 푼다(병렬 작업끼리 겹치지 않음). `--rebuild-manifest`: 아무것도 풀지 않고 디스크에 있는 파일로 `manifest.json`을 다시 쓴다(샤드 결과를 합친 뒤).
-- GitHub Action(`.github/workflows/presolve.yml`)이 6시간마다(02:23·08:23·14:23·20:23 KST) 4코어 러너 16개(샤드)로 최대 5시간씩 이어서 풀고, 합치는 작업이 회차마다 `public/packs/`만 한 번 커밋한다(퍼블릭 레포라 무료). 한 회차가 팩 하나(1,755개)를 거의 다 풀고, 풀 게 없으면 몇 분 만에 끝난다. 수동 실행(workflow_dispatch)에서 시나리오·샤드 수·예산·개수를 바꿀 수 있다.
+- GitHub Action(`.github/workflows/presolve.yml`)이 6시간마다(02:23·08:23·14:23·20:23 KST) 4코어 러너 16개(샤드)로 최대 5시간씩 이어서 풀고, 합치는 작업이 회차마다 `public/packs/`만 한 번 커밋한다(퍼블릭 레포라 무료). 한 회차가 팩 하나(1,755개)를 거의 다 풀고, 남은 플랍이 있으면 끝나면서 다음 회차를 바로 띄워 쉬지 않고 이어 간다(GitHub가 예약 실행을 가끔 건너뛰어서, 6시간 예약은 안전망). 풀 게 없으면 몇 분 만에 끝난다. 수동 실행(workflow_dispatch)에서 시나리오·샤드 수·예산·개수를 바꿀 수 있다.
 
 ## 구조
 

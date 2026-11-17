@@ -200,9 +200,9 @@ At 100bb that is 5,190 × 169 ≈ 877,000 information sets and 11,213 × 169 ≈
 | Folded players' cards are ignored (no bunching, §4.3). | Late seats' ranges are slightly off after many folds. |
 | The first call of a jam closes the action (R1). | No 3-way all-ins: a seat with voluntary chips is folded out when a seat of higher priority calls first. |
 
-The last cap is measured by **PF-FROZEN**: the share of dealt hands that end in such a fold-out. In the latest
-generator run (§5.5) it is 0.69% of hands at 100bb-2.2 (0.45% with a raiser folded out), 0.64% at 100bb-3, 1.63% at
-55bb, 1.08% at 35bb (cold4 "none"; 3.11% with cold jams and the previous fit) and 2.90% at 25bb, above the 0.5%
+The last cap is measured by **PF-FROZEN**: the share of dealt hands that end in such a fold-out. In the release
+run (§5.5) it is 0.69% of hands at 100bb-2.2 (0.45% with a raiser folded out), 0.63% at 100bb-3, 1.60% at 55bb,
+1.10% at 35bb (cold4 "none"; 3.11% with cold jams, measured with an earlier fit) and 2.82% at 25bb, above the 0.5%
 warning level everywhere. It grows as stacks get shorter,
 because more lines end in jams. 3-way all-ins are a v2 item (§9).
 
@@ -244,11 +244,12 @@ cross-checks both.
 leaves too few spots for PF-DATA-1's counts at every ladder step (`chooseLadder`, §6.5), the generator re-solves it
 once with `cold4: "none"`. If that passes, it ships with "3벳 뒤 콜드 올인 없음." in its description and
 `tree.cold4: "none"` in the data. The second trigger was added with the 9-feature fit: its 35bb cold-jam solve passes
-every gate at 1,500 iterations (max gain 0.328, NashConv 1.95, snapped 1.08 mbb) in the same degenerate equilibrium
+every gate at 1,500 iterations (fit 4acfad77aa35: max gain 0.328, NashConv 1.95, snapped 1.08 mbb; the release fit
+2862daa7a90f: 0.246, 1.19, 2.30) in the same degenerate equilibrium
 the snapped gate used to flag (UTG opens only by jamming, §8), which leaves 28 vs-open spots against PF-DATA-1's
 minimum of 30; without it the optional 35bb would be dropped. It changes no gate or count threshold and is inert on a
-stage that passes normally (55bb-2.2 solves identically with and without it). In the latest run 35bb-2 shipped on
-the fallback (§5.5), so the fallback is the only usable 35bb for now, and its charts carry the fold-only cap's
+stage that passes normally (55bb-2.2 solves identically with and without it). In the release run 35bb-2 shipped on
+the fallback again (§5.5), so the fallback is the only usable 35bb for now, and its charts carry the fold-only cap's
 signature of the middle column above: cold flats all but vanish, 3-bets inflate and the late RFI shrinks (§8).
 
 ## 3. Terminal valuation
@@ -311,13 +312,17 @@ distance hi − lo; and five bounded terms: the indicators pair, suited, aceTop 
 | suitConn | suited × (1 − gap) | 0 | 0.082956 |
 
 Each column is the raw value minus its mean over the 1,326 combos (`FEATURE_MEANS`: Σ comboCount·raw in `ALL_HANDS`
-order, divided once by 1326). Why this form (numbers measured on the 1,476 + 1,457-flop rows, α held, OOP / IP):
+order, divided once by 1326). Why this form (α held, OOP / IP). The θ values and the model's own steps below are the
+shipped fit's (`2862daa7a90f`, 1,755 + 1,755 flops). The free top-card dummies, the alternative forms and the
+residuals quoted for earlier forms come from the model selection on the 1,476 + 1,457-flop rows of fit
+`4acfad77aa35`; the refit moved every coefficient by at most 0.81 jackknife SE and every model step quoted here by at
+most 0.001:
 - **Top card and kicker are additive.** Ax and Kx with the same kicker 6–8 differ by the same top-card step,
   θ_hi2f5·(1 − (11/12)²) + θ_aceTop (−0.037 OOP / −0.056 IP); with a kicker 2–5 θ_wheel is added (K5s → A5s
-  −0.016 / −0.046), and at kicker 9 one gap step and the suitConn step. The packs measure a realization deficit that
+  −0.016 / −0.047), and at kicker 9 one gap step and the suitConn step. The packs measure a realization deficit that
   grows steadily with the top card: free top-card dummies in place of hi2f5 and aceTop (the other seven features
   kept) give IP T −0.016, J −0.032, Q −0.059, K −0.096, A −0.148 relative to 9-high (jackknife SE 0.002–0.004); the
-  model gives −0.021, −0.045, −0.072, −0.102, −0.158. Relative to the ace, the model is within 0.010 of the dummies
+  model gives −0.021, −0.046, −0.073, −0.103, −0.159. Relative to the ace, the model is within 0.010 of the dummies
   for every top card from 5 to K (K→A −0.056 against −0.052); the exception is 4-high (+0.018), which is 43s alone.
   The model is still steeper than the dummies from 9 to J and shallower from Q to K (−0.030 against −0.037), so it
   over-states the IP K − Q share step (§3.7, bias 5).
@@ -332,35 +337,36 @@ order, divided once by 1326). Why this form (numbers measured on the 1,476 + 1,4
   (jackknife over 20 flop groups).
 - **wheel: A5–A2 realize better than A6.** The packs' own A6 − A5 share gap is negative in all 8 pack / side /
   suitedness cells (−0.015 to −0.019 OOP, −0.002 to −0.009 IP; the model −0.013 to −0.017 OOP, −0.002 to +0.001 IP,
-  equity gaps +0.001 to +0.006). θ_wheel +0.022 ± 0.004 / +0.010 ± 0.003. The previous fit under-predicted the OOP
-  suited wheel aces by +0.010 to +0.022 of the pot (residual data − model, A5s–A2s, both packs); this one is within
-  −0.004 to +0.008. This is the one place where u falls with the kicker (A6 below A5), as PF-SANITY-7 already allows.
-- **suitConn: the suited bonus shrinks with connectivity.** suited × (1 − gap): θ −0.025 ± 0.002 / −0.032 ± 0.002, so
-  a suited connector keeps 0.049 / 0.038 of the 0.074 / 0.070 suited bonus a suited four-gapper gets. The previous fit
-  over-predicted OOP 65s and 76s by 0.021–0.029 of the pot; this one by 0.007–0.016.
+  equity gaps +0.001 to +0.006; fit 4acfad rows). θ_wheel +0.021 ± 0.004 / +0.010 ± 0.003. The 6-feature fit
+  under-predicted the OOP suited wheel aces by +0.010 to +0.022 of the pot (residual data − model, A5s–A2s, both
+  packs); the rank-9 form is within −0.004 to +0.008 (fit 4acfad). This is the one place where u falls with the kicker
+  (A6 below A5), as PF-SANITY-7 already allows.
+- **suitConn: the suited bonus shrinks with connectivity.** suited × (1 − gap): θ −0.026 ± 0.001 / −0.032 ± 0.001, so
+  a suited connector keeps 0.048 / 0.039 of the 0.074 / 0.070 suited bonus a suited four-gapper gets. The 6-feature
+  fit over-predicted OOP 65s and 76s by 0.021–0.029 of the pot; the rank-9 form by 0.007–0.016 (fit 4acfad).
 - **Monotone by sign.** u rises with the kicker in every row when θ_lo2 ≥ 0, θ_gap ≤ 0 and θ_gap − θ_suitConn ≤ 0 (in
   a suited row gap and suitConn move together), except A6 against A5 (wheel), and with the pair rank when
   θ_pairRank2 ≥ 0. The shipped fit has all four signs on both sides, as do both 2-fold CV fits and the cash-only fit
-  (a pub-only fit flips θ_O.pairRank2 to −0.183, §3.7 bias 7). `features.test.ts` fails if a refit breaks one, and
-  walks PF-SANITY-7's kicker ladder on u itself.
+  (a pub-only fit flips θ_O.pairRank2 to −0.180, §3.7 bias 7). `features.test.ts` fails if a refit breaks one, and
+  walks PF-SANITY-7's kicker ladder on u itself. A joint fit that adds the UTG pack breaks θ_I.lo2 ≥ 0 (§3.7 bias 2).
 - **Centering.** A constant added to u_O (or u_I) is exactly collinear with c, so the fit identifies only
   c + mean(u_O) − mean(u_I). Centering puts the whole level in c (−0.078; the 5-feature fit's sum was −0.069). In the
   fitted context it is an exact reparametrization (same θ, same metrics), but the derived contexts read c and u
   separately (the ⅔ / ⅓ split of c, u by role), so it decides what they get: uncentered, the features carry
-  (θ_O − θ_I)·`FEATURE_MEANS` = +0.058 of the pot (+0.062 with the previous 6 features) as a level in
+  (θ_O − θ_I)·`FEATURE_MEANS` = +0.059 of the pot (+0.062 with the 6 features of fit `03dd3d0015e3`) as a level in
   u_call − u_aggr, which the role rule would hand to every IP caller (OOP-aggressor pots) and to the multiway
   u_role − ū term for no reason in the data. Limped pots are not affected: both seats use u_call there, so the level
   cancels. Centering on the mean over all combos is one convention among several: centering u_call on the pack's BB
   range and u_aggr on its BTN range instead (also exact in the fitted context) would move the IP-caller level by
-  −0.017 (cash pack ranges) or −0.012 (pub), which is the size of the choice.
+  −0.017 (cash pack ranges) or −0.012 (pub; both measured with fit 4acfad), which is the size of the choice.
 
 Only one context is fitted: a single raised pot with an in-position aggressor (§3.7). Every other context follows
 from it by one rule:
 - **u by role, not by position.** The fitted OOP vector is the caller's (u_call = θ_O·F), the fitted IP vector the
   aggressor's (u_aggr = θ_I·F). In any heads-up flop the last raiser uses u_aggr and the other player u_call; in a
   limped pot both use u_call.
-- **c splits into ⅔ position and ⅓ initiative** (`contextC`). With c_fit = −0.0781: IP aggressor c = c_fit (−0.0781);
-  OOP aggressor ⅓·c_fit (−0.0260); limped pot ⅔·c_fit (−0.0520). A negative c moves pot share from O to I.
+- **c splits into ⅔ position and ⅓ initiative** (`contextC`). With c_fit = −0.0784: IP aggressor c = c_fit (−0.0784);
+  OOP aggressor ⅓·c_fit (−0.0261); limped pot ⅔·c_fit (−0.0523). A negative c moves pot share from O to I.
 - **3-bet and 4-bet pots** use the same rule; their lower SPR shrinks c and u through s. At 100bb-2.2 an IP 3-bet
   pot has s ≈ 1, a blind 3-bet about 0.8 and a 4-bet pot 0.3–0.4.
 - **α is shared** by every context and shrinks only below SPR 1.5. Since no flop has an SPR below 1, s_α is between
@@ -388,12 +394,12 @@ for the weaker hand, but nothing suggests it falls below the α measured at SPR 
 the share returns to e, which s_α keeps. The rule decides the 4-bet / jam split. On this engine at 100bb-2.2
 (shares of the opener's reaching range, %):
 
-| Opener vs 3-bettor | Small 4-bet / jam, SPR_ALPHA = 1.5 (shipped: rank-9 fit, 2,000 iterations) | The same, previous rank-6 fit (2,000 iterations) | The same, 5-feature fit (1,750 iterations) | SPR_ALPHA = 6, 5-feature fit (1,000 iterations from a cold start, as sensitivity solve (e); measured at implementation time) |
+| Opener vs 3-bettor | Small 4-bet / jam, SPR_ALPHA = 1.5 (shipped: rank-9 fit `2862daa7a90f`, 2,000 iterations, release data; fit `4acfad77aa35` in parentheses) | The same, previous rank-6 fit (2,000 iterations) | The same, 5-feature fit (1,750 iterations) | SPR_ALPHA = 6, 5-feature fit (1,000 iterations from a cold start, as sensitivity solve (e); measured at implementation time) |
 |---|---|---|---|---|
-| UTG vs BTN | 11.7 / 8.3 | 9.4 / 9.4 | 12.0 / 7.5 | 6.0 / 11.8 |
-| CO vs BTN | 16.7 / 4.6 | 15.9 / 5.1 | 13.4 / 6.3 | 4.4 / 12.4 |
-| BTN vs BB | 9.8 / 2.1 | 8.9 / 3.2 | 7.8 / 3.9 | 0.7 / 8.6 |
-| SB vs BB | 6.4 / 9.6 | 5.1 / 10.5 | 2.4 / 12.1 | 0.1 / 14.3 |
+| UTG vs BTN | 10.8 / 8.5 (11.7 / 8.3) | 9.4 / 9.4 | 12.0 / 7.5 | 6.0 / 11.8 |
+| CO vs BTN | 16.4 / 4.7 (16.7 / 4.6) | 15.9 / 5.1 | 13.4 / 6.3 | 4.4 / 12.4 |
+| BTN vs BB | 10.0 / 1.9 (9.8 / 2.1) | 8.9 / 3.2 | 7.8 / 3.9 | 0.7 / 8.6 |
+| SB vs BB | 6.3 / 9.2 (6.4 / 9.6) | 5.1 / 10.5 | 2.4 / 12.1 | 0.1 / 14.3 |
 
 No pack calibrates this yet (`cal-4bp-co-btn-100` in v2, §9), so it is a named prior, sensitivity solve (e) measures
 it, PF-SANITY-6 warns where jams outnumber small 4-bets, and every vs3bet and vs4bet scenario at 55bb and more is
@@ -445,8 +451,9 @@ pairwise equities (raw equity, no realization edge) plus the priors above.
 
 `scripts/fit-realization.mjs` fits the heads-up model to our own flop packs and writes `eqrFit.ts`.
 
-**Extraction.** For every flop file of every pack in `public/packs/manifest.json` (or of the packs named by
-`--packs <id,id,...>`; default all), its sha256 checked against the manifest, decoded with the app's decoder:
+**Extraction.** For every flop file of every pack fitted (by default the packs the committed `eqrFit.ts` names, today
+`srp-btn-bb-100` and `pub-srp-btn-bb-55`; `--packs <id,id,...>` names others, `--packs all` takes every pack in
+`public/packs/manifest.json`), its sha256 checked against the manifest, decoded with the app's decoder:
 1. OOP's root node `[]` and IP's node after OOP checks give each combo's EV, Σ_a strategy · ev. The packs give OOP
    no flop bet; the script asserts OOP checks at least 99.9% of its reach-weighted range (measured: 100%), since
    IP's root EV is not stored otherwise.
@@ -469,105 +476,115 @@ equity-scaled surplus form share_O = R_O(h)·e − E_x[(R_I(x) − 1)(1 − eq[h
 features (20 parameters, sensitivity solve (d)); and model B with α fitted too (20 parameters, `alphaFree`, a
 diagnostic no solve uses).
 
-**Why α is held.** Once the features can follow the ranks, the class rows pin α down only weakly. Freed, every
-subset now puts it below 0: −0.177 jointly (`alphaFree`), −0.169 on the cash pack, −0.313 on the pub pack, −0.080 and
-−0.185 on the two CV training folds (the previous 6-feature fit on 468 + 448 flops gave +0.078; 0.955 with a graded
-top-card feature set). A negative α does not make a hand's share fall as its equity edge grows: the share still
-rises, with slope 1 + α (0.82 at −0.177, 1.55 at 0.553). It makes the realization share / e fall with equity before c
-and u (at α −0.177 from 1.08 at e 0.35 to 0.96 at e 0.65, against 0.76 to 1.13 at 0.553), so the features carry the
-whole rise of realization with hand strength: freed, θ_pairRank2 grows from 0.209 / 0.305 to 0.548 / 0.543. That
-also flattens the small-pair curve the packs measure (bias 9). The CV RMS (OOP / IP) is 0.0168 / 0.0137 free, 0.0164 / 0.0152 held at 0.2, 0.0167 / 0.0174 at 0.45,
-0.0170 / 0.0185 at 0.553 and 0.0185 / 0.0231 at 0.95: holding 0.553 costs the IP side about 0.005 of CV RMS and the
-OOP side 0.0002. α matters to the engine: it decides the low-SPR 4-bet /
-jam split (§3.4), and a 7-feature variant with a free α of 0.23 tripled PF-SANITY-6 at 100bb (7 → 27 spots). So α
-stays at 0.553, the 5-feature fit's value, held deliberately for the low-SPR split as a named prior (§3.8) until a
-3-bet-pot or ghost-combo calibration pack (§9) can measure it. It also moves the deep charts, and no sensitivity
-solve varies it there (§3.8): two model-selection solves of that 7-feature variant at 100bb-2.2, α 0.231 against
-0.553, gave BB defense vs the BTN 87.2 against 84.5%, CO RFI 35.3 against 36.2% and PF-SANITY-6 27 against 13 spots.
+**Why α is held.** Once the features can follow the ranks, the class rows pin α down only weakly. Freed, every subset
+puts it below 0 (1,755 + 1,755 flops): −0.187 jointly (`alphaFree`), −0.176 on the cash pack, −0.321 on the pub pack,
+−0.090 and −0.201 on the two CV training folds (fit 4acfad on 1,476 + 1,457 flops: −0.177, −0.169, −0.313, −0.080 and
+−0.185; the 6-feature fit on 468 + 448 flops gave +0.078; 0.955 with a graded top-card feature set). A negative α does
+not make a hand's share fall as its equity edge grows: the share still rises, with slope 1 + α (0.81 at −0.187, 1.55 at
+0.553). It makes the realization share / e fall with equity before c and u (at α −0.187 from 1.08 at e 0.35 to 0.96 at e
+0.65, against 0.76 to 1.13 at 0.553), so the features carry the whole rise of realization with hand strength: freed,
+θ_pairRank2 grows from 0.210 / 0.305 to 0.552 / 0.546. That also flattens the small-pair curve the packs measure (bias
+9). The CV RMS (OOP / IP) is 0.0163 / 0.0136 free, 0.0160 / 0.0151 held at 0.2, 0.0163 / 0.0173 at 0.45, 0.0166 / 0.0183
+at 0.553 and 0.0181 / 0.0230 at 0.95: holding 0.553 costs the IP side about 0.005 of CV RMS and the OOP side 0.0003 (the
+held-α values recomputed from the fit's per-flop rows; the free and 0.553 values are the ones `eqrFit.ts` stores). α
+matters to the engine: it decides the low-SPR 4-bet / jam split (§3.4), and a 7-feature variant with a free α of 0.23
+tripled PF-SANITY-6 at 100bb (7 → 27 spots). So α stays at 0.553, the 5-feature fit's value, held deliberately for the
+low-SPR split as a named prior (§3.8) until a 3-bet-pot or ghost-combo calibration pack (§9) can measure it. It also
+moves the deep charts, and no sensitivity solve varies it there (§3.8): two model-selection solves of that 7-feature
+variant at 100bb-2.2, α 0.231 against 0.553, gave BB defense vs the BTN 87.2 against 84.5%, CO RFI 35.3 against 36.2%
+and PF-SANITY-6 27 against 13 spots.
 
-**Shipped parameters** (fit sha256 `4acfad77aa35…`), with the jackknife SE over 20 flop groups:
+**Shipped parameters** (fit sha256 `2862daa7a90f…`), with the jackknife SE over 20 flop groups (prio % 20,
+computed from the fit's own per-flop rows, which reproduce the stored β within 5e-7):
 
 | Parameter | Value |
 |---|---|
 | α | 0.553 (held; `alphaPrior`) |
-| c_fit | −0.0781 ± 0.0005 |
-| θ_O, the caller (pair, suited, hi2f5, lo2, gap, pairRank2, aceTop, wheel, suitConn) | −0.074, 0.074, −0.117, 0.048, −0.039, 0.209, −0.019, 0.022, −0.025 |
-| θ_I, the aggressor (same order) | −0.182, 0.070, −0.204, 0.033, −0.047, 0.305, −0.023, 0.010, −0.032 |
-| SE of θ_O | 0.004, 0.001, 0.007, 0.010, 0.005, 0.016, 0.005, 0.004, 0.002 |
-| SE of θ_I | 0.002, 0.001, 0.006, 0.009, 0.004, 0.006, 0.003, 0.003, 0.002 |
+| c_fit | −0.0784 ± 0.0004 |
+| θ_O, the caller (pair, suited, hi2f5, lo2, gap, pairRank2, aceTop, wheel, suitConn) | −0.073, 0.074, −0.115, 0.050, −0.039, 0.210, −0.019, 0.021, −0.026 |
+| θ_I, the aggressor (same order) | −0.182, 0.070, −0.205, 0.036, −0.045, 0.305, −0.023, 0.010, −0.032 |
+| SE of θ_O | 0.003, 0.001, 0.006, 0.009, 0.004, 0.014, 0.005, 0.004, 0.001 |
+| SE of θ_I | 0.002, 0.001, 0.006, 0.008, 0.004, 0.005, 0.003, 0.003, 0.001 |
+
+Against the previous fit (`4acfad77aa35`, 1,476 + 1,457 flops) every coefficient moved by 0.81 SE or less (c −0.0781
+→ −0.0784; the largest moves in SE are c and θ_O.suitConn −0.025 → −0.026), so every sign guard holds with room: the
+guarded step terms sit 3.2 to 25 SE from zero (θ_I.wheel +0.0096 ± 0.0030 is the closest).
 
 Read as u: a better top card lowers realization (hi2f5 < 0 and aceTop < 0, more for the aggressor), a better kicker
 raises it (lo2 > 0), gaps lower it (gap < 0), suitedness adds 0.07 (0.04–0.05 for a suited connector, suitConn < 0),
 the wheel aces get a little back (wheel > 0), and pairs rise steeply with rank (pairRank2 > 0; 22 has the lowest IP
 realization of all pairs, see bias 9). The u step from K7s to A7s (the same for kickers 6–8; with a kicker 2–5 the
-wheel term takes back +0.022 / +0.010) is −0.037 OOP / −0.056 IP, against an equity edge of 0.055–0.066 vs the pack
+wheel term takes back +0.021 / +0.010) is −0.037 OOP / −0.056 IP, against an equity edge of 0.055–0.066 vs the pack
 ranges. Fitted on the cash pack alone (α held), c is
-−0.076 and θ_O −0.076, 0.080, −0.113, 0.069, −0.043, 0.254, −0.021, 0.026, −0.031, θ_I −0.169, 0.068, −0.203, 0.057,
-−0.043, 0.344, −0.022, 0.013, −0.032. Every θ keeps its sign on both CV-fold fits and on the cash-only and pub-only
-fits, except the pub-only θ_O.pairRank2 (−0.183, bias 7); the fold fits agree with the joint fit within 0.015.
+−0.077 and θ_O −0.075, 0.081, −0.113, 0.072, −0.042, 0.254, −0.021, 0.026, −0.032, θ_I −0.169, 0.069, −0.205, 0.060,
+−0.041, 0.344, −0.022, 0.013, −0.032. Every θ keeps its sign on both CV-fold fits and on the cash-only and pub-only
+fits, except the pub-only θ_O.pairRank2 (−0.180, bias 7); the fold fits agree with the joint fit within 0.014.
 
-**Form test.** Weighted RMS of the per-class pot share, OOP / IP, on the 1,476 + 1,457-flop rows. "Transfer" fits
+**Form test.** Weighted RMS of the per-class pot share, OOP / IP. "Transfer" fits
 on the cash pack alone and predicts the pub pack (different game, ranges and SPR); the pub pack's own refit next to it
 is the noise floor. CV is a 2-fold cross-validation with flops split by even and odd index in `FLOPS_BY_PRIORITY`.
 "CV20" is a leave-one-group-out CV over 20 flop groups (prio % 20), as the paired MSE difference against the shipped
-form (×1e-5, mean ± SE over the groups; positive = worse than shipped).
+form (×1e-5, mean ± SE over the groups; positive = worse than shipped). The first four rows are the shipped fit's
+(`eqrFit.ts`, on the 1,755 + 1,755-flop rows); the last four were measured during model selection on the 1,476 +
+1,457-flop rows of fit `4acfad77aa35`, whose shipped row read 0.972 / 0.986, 0.920 / 0.964, 0.0158 / 0.0179, 0.0164
+/ 0.0244 (0.0128 / 0.0171) and CV 0.0170 / 0.0185, and their CV20 is against that row.
 
 | Form | R² | R² of share − e | RMS | Transfer (pub refit) | CV | CV20 vs shipped |
 |---|---|---|---|---|---|---|
-| **Model B, 9 features, α held (shipped, 19 parameters)** | 0.972 / 0.986 | 0.920 / 0.964 | 0.0158 / 0.0179 | 0.0164 / 0.0244 (0.0128 / 0.0171) | 0.0170 / 0.0185 | 0 |
-| Model B, first 3 features, α held (sensitivity (c)) | 0.928 / 0.912 | 0.796 / 0.772 | 0.0253 / 0.0453 | 0.0214 / 0.0448 (0.0205 / 0.0426) | 0.0259 / 0.0455 | |
-| Equity-scaled surplus, 9 features (sensitivity (d)) | 0.978 / 0.994 | 0.937 / 0.984 | 0.0140 / 0.0119 | 0.0159 / 0.0204 (0.0107 / 0.0071) | 0.0157 / 0.0130 | |
-| Model B, 9 features, α free −0.177 (`alphaFree`) | 0.974 / 0.993 | 0.925 / 0.982 | 0.0153 / 0.0126 | 0.0158 / 0.0212 (0.0118 / 0.0082) | 0.0168 / 0.0137 | |
-| Previous fit refitted: model B, 6 rank features (pair, suited, hi2, lo2, gap, pairRank2), α held | 0.965 / 0.982 | 0.901 / 0.953 | 0.0176 / 0.0206 | 0.0174 / 0.0266 (0.0145 / 0.0205) | 0.0186 / 0.0211 | +5.61 ± 1.46 / +10.38 ± 1.38 |
-| Runner-up: (pair, suited, hi3f5, lo2, gap, pairRank2, aceTop), hi3f5 = (max(hi, 3) / 12)³ | 0.969 / 0.985 | 0.911 / 0.962 | 0.0167 / 0.0186 | 0.0167 / 0.0245 (0.0126 / 0.0177) | 0.0178 / 0.0191 | +2.94 ± 0.69 / +2.68 ± 0.53 |
-| Piecewise-linear top card, per role (10 columns, held zeros, searched knots) | 0.971 / 0.985 | 0.919 / 0.962 | 0.0160 / 0.0185 | 0.0156 / 0.0245 (0.0116 / 0.0176) | 0.0170 / 0.0190 | +0.14 ± 0.91 / +2.24 ± 0.53 |
-| The shipped columns with the 5-high floor on the aggressor only (per-role held zeros) | 0.972 / 0.986 | 0.920 / 0.964 | 0.0158 / 0.0179 | 0.0164 / 0.0244 (0.0129 / 0.0171) | 0.0169 / 0.0184 | −0.09 ± 0.03 / −0.01 ± 0.00 |
+| **Model B, 9 features, α held (shipped, 19 parameters)** | 0.973 / 0.986 | 0.922 / 0.965 | 0.0156 / 0.0178 | 0.0162 / 0.0243 (0.0128 / 0.0171) | 0.0166 / 0.0183 | 0 |
+| Model B, first 3 features, α held (sensitivity (c)) | 0.928 / 0.912 | 0.794 / 0.771 | 0.0253 / 0.0453 | 0.0216 / 0.0449 (0.0208 / 0.0426) | 0.0259 / 0.0455 | |
+| Equity-scaled surplus, 9 features (sensitivity (d)) | 0.980 / 0.994 | 0.941 / 0.985 | 0.0135 / 0.0117 | 0.0154 / 0.0203 (0.0104 / 0.0070) | 0.0150 / 0.0127 | |
+| Model B, 9 features, α free −0.187 (`alphaFree`) | 0.975 / 0.993 | 0.928 / 0.983 | 0.0149 / 0.0124 | 0.0154 / 0.0211 (0.0116 / 0.0081) | 0.0163 / 0.0136 | |
+| Fit-4acfad rows: previous fit refitted, model B, 6 rank features (pair, suited, hi2, lo2, gap, pairRank2), α held | 0.965 / 0.982 | 0.901 / 0.953 | 0.0176 / 0.0206 | 0.0174 / 0.0266 (0.0145 / 0.0205) | 0.0186 / 0.0211 | +5.61 ± 1.46 / +10.38 ± 1.38 |
+| Fit-4acfad rows: runner-up (pair, suited, hi3f5, lo2, gap, pairRank2, aceTop), hi3f5 = (max(hi, 3) / 12)³ | 0.969 / 0.985 | 0.911 / 0.962 | 0.0167 / 0.0186 | 0.0167 / 0.0245 (0.0126 / 0.0177) | 0.0178 / 0.0191 | +2.94 ± 0.69 / +2.68 ± 0.53 |
+| Fit-4acfad rows: piecewise-linear top card, per role (10 columns, held zeros, searched knots) | 0.971 / 0.985 | 0.919 / 0.962 | 0.0160 / 0.0185 | 0.0156 / 0.0245 (0.0116 / 0.0176) | 0.0170 / 0.0190 | +0.14 ± 0.91 / +2.24 ± 0.53 |
+| Fit-4acfad rows: the shipped columns with the 5-high floor on the aggressor only (per-role held zeros) | 0.972 / 0.986 | 0.920 / 0.964 | 0.0158 / 0.0179 | 0.0164 / 0.0244 (0.0129 / 0.0171) | 0.0169 / 0.0184 | −0.09 ± 0.03 / −0.01 ± 0.00 |
 
-The last four rows were measured on the same rows during model selection (v3, 2026-11-16); the script fits only the
-first four. The shipped form beats every candidate on CV20 except the per-role floor, which ties it and needs held
-zeros; sharing the floor between the roles costs 0.09e-5 of OOP MSE (about 0.1%). The runner-up is simpler but fits
-worse on both sides and has a fragile kicker term (θ_I.lo2 +0.009 ± 0.006, −0.003 pub-only, where the shipped form
-has +0.033 ± 0.009, +0.015 pub-only). The shipped form transfers to the pub pack within 0.004 (OOP) and 0.007 (IP) of
-that pack's own refit. Fitted on the pub pack and scored on the cash pack it is worse on the OOP side (0.0285 / 0.0217
-against the cash refit's 0.0165 / 0.0146; the previous form 0.0298 / 0.0233), because the pub BB range holds only
-22–77; see bias 7. Earlier forms, measured on the 468 + 448-flop rows: the 5-indicator fit (pair, suited, bway,
-conn, weakAce; CV 0.029 / 0.051) and a graded top-card set (CV 0.026 / 0.036, α 0.955 free), which also cleared the
-kicker chains but moved the inversions to Kx < Qx and, being uncentered, turned the SB at 100bb from about 50% limp /
-33% raise into 73% / 13%. A per-class model with monotone constraints (169 residuals per side shrunk to the feature
-model) fitted the packs worse than the 5-feature fit on the OOP side once the full top-card order was imposed. At
-design time, on 26 + 6 flops, plain equity transferred at 0.193 / 0.204 and a normalized form
-R_O·e / (R_O·e + R_I(1 − e)) at 0.244 / 0.240, worse than plain equity: it cannot give a share above the whole pot,
-while the packs measured IP's AA at 1.41 times the pot.
+The script fits only the first four rows (model selection v3, 2026-11-16, chose the form; the 2026-11-17 refit kept it).
+On the fit-4acfad rows the shipped form beat every candidate on CV20 except the per-role floor, which ties it and needs
+held zeros; sharing the floor between the roles costs 0.09e-5 of OOP MSE (about 0.1%). The runner-up is simpler but fits
+worse on both sides and has a fragile kicker term (θ_I.lo2 +0.009 ± 0.006, −0.003 pub-only, where the shipped form had
++0.033 ± 0.009, +0.015 pub-only on those rows; +0.036 ± 0.008, +0.018 pub-only on the full rows). The shipped form
+transfers to the pub pack within 0.003 (OOP) and 0.007 (IP) of that pack's own refit. Fitted on the pub pack and scored
+on the cash pack it is worse on the OOP side (fit-4acfad rows: 0.0285 / 0.0217 against the cash refit's 0.0165 / 0.0146;
+the previous form 0.0298 / 0.0233), because the pub BB range holds only 22–77; see bias 7. Earlier forms, measured on
+the 468 + 448-flop rows: the 5-indicator fit (pair, suited, bway, conn, weakAce; CV 0.029 / 0.051) and a graded top-card
+set (CV 0.026 / 0.036, α 0.955 free), which also cleared the kicker chains but moved the inversions to Kx < Qx and,
+being uncentered, turned the SB at 100bb from about 50% limp / 33% raise into 73% / 13%. A per-class model with monotone
+constraints (169 residuals per side shrunk to the feature model) fitted the packs worse than the 5-feature fit on the
+OOP side once the full top-card order was imposed. At design time, on 26 + 6 flops, plain equity transferred at 0.193 /
+0.204 and a normalized form R_O·e / (R_O·e + R_I(1 − e)) at 0.244 / 0.240, worse than plain equity: it cannot give a
+share above the whole pot, while the packs measured IP's AA at 1.41 times the pot.
 
 **Extrapolation.** Hands outside a pack's ranges get extrapolated realization, and those are exactly the hands at the
 BB's fold boundary. EQR (share / equity) of OOP hands against the cash pack's BTN range, printed by the fit script
-(the previous 6-feature form refitted on the same rows in the last column):
+(the previous 6-feature form refitted on the fit-4acfad rows in the last column):
 
-| Hand | Equity | Model B rank 9 (shipped) | Model B 3f | Surplus 9f | α free | Previous 6f, refitted |
+| Hand | Equity | Model B rank 9 (shipped) | Model B 3f | Surplus 9f | α free | Previous 6f, refitted (fit-4acfad rows) |
 |---|---|---|---|---|---|---|
-| 72o | 0.303 | 0.46 | 0.60 | 0.61 | 0.50 | 0.48 |
-| 32o | 0.306 | 0.63 | 0.65 | 0.72 | 0.69 | 0.65 |
-| T2o | 0.339 | 0.48 | 0.58 | 0.60 | 0.53 | 0.49 |
-| K2o | 0.413 | 0.55 | 0.60 | 0.58 | 0.57 | 0.55 |
+| 72o | 0.303 | 0.45 | 0.59 | 0.60 | 0.50 | 0.48 |
+| 32o | 0.306 | 0.63 | 0.65 | 0.71 | 0.68 | 0.65 |
+| T2o | 0.339 | 0.48 | 0.58 | 0.59 | 0.53 | 0.49 |
+| K2o | 0.413 | 0.55 | 0.60 | 0.57 | 0.57 | 0.55 |
 | KTo | 0.519 | 0.84 | 0.80 | 0.80 | 0.81 | 0.83 |
-| K9o | 0.491 | 0.77 | 0.76 | 0.73 | 0.75 | 0.77 |
+| K9o | 0.491 | 0.77 | 0.76 | 0.74 | 0.75 | 0.77 |
 | A7s | 0.548 | 0.88 | 0.88 | 0.89 | 0.88 | 0.89 |
 | K7s | 0.482 | 0.87 | 0.85 | 0.84 | 0.85 | 0.85 |
 | AKo | 0.640 | 0.97 | 0.89 | 1.04 | 0.98 | 0.98 |
-| AA | 0.843 | 1.37 | 1.15 | 1.65 | 1.48 | 1.37 |
+| AA | 0.843 | 1.37 | 1.15 | 1.64 | 1.48 | 1.37 |
 
-And IP hands (u_aggr) against the cash pack's BB range, next to the measured row where the pack has one:
+And IP hands (u_aggr) against the cash pack's BB range, next to the measured row (1,755 flops) where the pack has one:
 
 | Hand | 32s | 42s | 52s | 43s | 54s | 65s | 32o | 72o | A5s | A2o | K2o |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Shipped | 1.41 | 1.41 | 1.40 | 1.42 | 1.43 | 1.41 | 1.28 | 1.06 | 1.08 | 0.89 | 0.91 |
-| Previous 6f, refitted | 1.50 | 1.47 | 1.43 | 1.49 | 1.48 | 1.46 | 1.32 | 1.11 | 1.06 | 0.89 | 0.90 |
-| Measured (cash IP row) | – | – | – | 1.39 | 1.41 | 1.40 | – | – | 1.06 | 0.88 | – |
+| Shipped | 1.41 | 1.41 | 1.40 | 1.42 | 1.43 | 1.41 | 1.27 | 1.06 | 1.08 | 0.89 | 0.91 |
+| Previous 6f, refitted (fit-4acfad rows) | 1.50 | 1.47 | 1.43 | 1.49 | 1.48 | 1.46 | 1.32 | 1.11 | 1.06 | 0.89 | 0.90 |
+| Measured (cash IP row) | – | – | – | 1.38 | 1.40 | 1.40 | – | – | 1.06 | 0.88 | – |
 
-Low cards still realize better than K- and Q-high trash as the OOP caller (72o 0.46 against K2o 0.55), as the packs'
+Low cards still realize better than K- and Q-high trash as the OOP caller (72o 0.45 against K2o 0.55), as the packs'
 own rows down to 5-high say; below 5-high nothing is measured on the IP side except 43s (weight 0.3%), and the 5-high
 floor now holds 3- and 4-high hands at the 5-high top-card term instead of continuing the curve. The forms agree
-within 0.15 on the weakest OOP hands; AA as an OOP caller, which no pack's BB range holds, is extrapolated by the
+within 0.15 on the weakest OOP hands; AA as an OOP caller, which no BTN pack's BB range holds, is extrapolated by the
 pair-rank slope (1.37; bias 7). Sensitivity solves (c) and (d) measure what that does to the charts (§6.6); the
 ghost-combo calibration pack of v1.5 (§9) removes the extrapolation.
 
@@ -582,22 +599,64 @@ standard error of 1.5% on average (1.9% at most); κ_4 averages 4.06 (1.04–6.3
 | Item | Value |
 |---|---|
 | Model | `modelB-rank9`, features pair, suited, hi2f5, lo2, gap, pairRank2, aceTop, wheel, suitConn (centered), α held at 0.553 |
-| Fit sha256 | `4acfad77aa3500701d753c64e54abaaa38d2e0ce1a6b596e4d397a4210b83e74` (over every other field of `EQR_FIT`) |
-| `srp-btn-bb-100` | v1, 1,476 flops (CV folds 693 / 783), pot 5.5, stack 97.5 (SPR 17.7), files sha256 `fbb1f69f418c…` |
-| `pub-srp-btn-bb-55` | v2, 1,457 flops (683 / 774), pot 6.5, stack 51.5 (SPR 7.9), files sha256 `01c78fd0e730…` |
+| Fit sha256 | `2862daa7a90faa1cded8a882a0d6b65a25da69be37cd4e848879b33f50d73c23` (over every other field of `EQR_FIT`); `eqrFit.ts` sha256 `4f03f49716a9…` |
+| `srp-btn-bb-100` | v1, 1,755 flops, every flop class (CV folds 878 / 877), pot 5.5, stack 97.5 (SPR 17.7), files sha256 `174b51cba4d4…` |
+| `pub-srp-btn-bb-55` | v2, 1,755 flops, every flop class (878 / 877), pot 6.5, stack 51.5 (SPR 7.9), files sha256 `bd48c603441c…` |
 | Equity table | sha256 `e35fcf75d81d8c7e3d48f5307b7255c0b72c8b26163433f8ae9b1ad036dfe132` (12,000 samples, 4 shards) |
-| Run | `node scripts/fit-realization.mjs --workers 4`: 2,933 flop files, extraction 207 s, κ 5 s, 214 s in all; `--check` reproduces the file, and it is byte-identical to the one the same script wrote in a scratch copy (2 workers, 438 s) |
+| Run | `node scripts/fit-realization.mjs --packs srp-btn-bb-100,pub-srp-btn-bb-55 --workers 4` (2026-11-17): 3,510 flop files, 392 s in a scratch copy (extraction 386 s, with another fit on the same cores); `--check` with the same packs reproduces the committed file byte for byte (extraction 404 s, κ 5 s, 410 s in all) |
 
 `files sha256` is over the pack's file list (path and sha256 of each file), so it names the exact set of flops. κ and
-the equity table hash are byte-identical to the previous fit's (fit `03dd3d0015e3`, 6 features on 468 + 448 flops);
-the model fields and the pack records changed. `--packs <id,id,...>` fits on a subset of the manifest's packs (the
-default is all), so a refit can include or leave out a new pack such as `pub-srp-utg-bb-55`.
+the equity table hash are byte-identical to the previous fits' (`4acfad77aa35` on 1,476 + 1,457 flops, and before it
+`03dd3d0015e3`, 6 features on 468 + 448 flops); the model fields and the pack records changed. Both BTN packs are now
+complete, so the presolve job can no longer change this fit's inputs (it only adds files, and these packs have none
+left to add).
+
+**Weights.** Fit `4acfad` read the manifest of commit 347a407, which gave each solved flop a representative weight: it
+stood in for its unsolved neighbours (the weights summed to 22,100 per pack, about 250 files per pack carried 2–3
+times their own class weight). With every class solved, each flop now carries its exact class weight. The committed
+flop set refitted with exact weights moves coefficients by up to 0.015 (θ_I.hi2f5 −0.218 against −0.204, about 2.4
+SE); the full set lands back within 0.003 of fit `4acfad`, so the representative weights were a good proxy for the
+missing flops. Fit `4acfad` cannot be reproduced from today's manifest under any `--packs`.
+
+**Which packs.** `--packs <id,id,...>` fits on the named manifest packs, `--packs all` on every one. Without
+`--packs` the script fits the packs the committed `eqrFit.ts` names (every manifest pack if it names none, or one the
+manifest lacks), so a pack added to the manifest, such as `pub-srp-utg-bb-55`, never enters a bare run or a bare
+`--check` by accident. The UTG pack is in the manifest but kept out of this fit on purpose (bias 2).
 
 **Known biases of the calibration:**
 1. **The pack trees favour IP.** OOP has no flop bet and only a 60% check-raise; IP bets 33% or 75% and cannot
    re-raise; turn and river have one 66% bet each (`docs/solver-packs.md`). A poorer tree for the BB understates its
    realization, so BB defense likely comes out somewhat narrow.
-2. **One context.** Both packs are BTN 2.5bb open vs BB call. The fit sees an IP aggressor against an OOP caller only.
+2. **One context, and u does not depend on the opponent's range.** Both fitted packs are BTN 2.5bb open vs BB call.
+   The fit sees an IP aggressor against an OOP caller, both with wide ranges, only. The UTG pack
+   (`pub-srp-utg-bb-55`: UTG 2.5bb open, 12% of hands, vs a BB call of 46%; the same 55bb game, pot and tree as the
+   pub BTN pack; 1,728 of 1,755 flops at the time) measures what that costs. Predicted as held-out data, the shipped
+   fit misses it by RMS 0.056 OOP / 0.083 IP, against 0.014 / 0.019 on the pub BTN rows (same game and stacks, only
+   the ranges differ) and 0.010 / 0.026 for the UTG pack's own refit. The mean residual (data − model) is +0.046 of
+   the pot OOP and −0.047 IP:
+   - the BB realizes more against a strong range than the model says, most at its fold boundary: 22–55 +0.14 (EQR
+     0.97 measured against 0.61), K9o–K5o +0.09, K9s–K2s +0.07, Q9s–Q2s +0.06, A9o–A2o +0.06, low suited hands +0.05;
+     about 0.3–0.6 bb per hand, far above the close-call ε of 0.05 bb;
+   - UTG's big pairs realize less: TT–AA −0.14 to −0.17 (AA EQR 1.42 against 1.59), 99 −0.13, 88 −0.09, while 55 is
+     under-predicted (+0.03);
+   - the miss follows equity, not domination: residual ≈ 0.007 − 0.28·(e − ½) OOP and 0.057 − 0.76·(e − ½) IP, so
+     against this range the effective α is about 0.27 OOP and −0.21 IP instead of the held 0.553. Its correlation
+     with the equity drop (equity against UTG's range minus equity against the BTN's) is 0.03 on the OOP side but
+     −0.47 on the IP side (26 rows), so a domination term for the aggressor is not ruled out.
+
+   No form fitted to the BTN packs transfers (α free 0.056 / 0.078; the surplus form 0.058 / 0.081). Refitting c
+   alone with the BTN θ gives RMS 0.032 / 0.068, α and c 0.034 / 0.034 (α −0.05), where the same refits on the pub
+   BTN rows keep c at −0.078 and α at 0.46: against a strong range the equity-edge slope collapses.
+
+   **The joint fit was tried and rejected** (2026-11-17, `--packs srp-btn-bb-100,pub-srp-btn-bb-55,pub-srp-utg-bb-55`,
+   fit `dcdaaca69573`): it breaks the monotone guard θ_I.lo2 ≥ 0 (−0.0001) and with it the PF-SANITY-7 kicker ladder
+   in `features.test.ts`, drops θ_O.pairRank2 from 0.210 to 0.024 ± 0.018 (1.3 SE from a flip) and θ_I.pairRank2 to
+   0.178, roughly doubles the BTN packs' IP error (cash 0.017 → 0.038, pub 0.019 → 0.029) and still misses the UTG
+   pack (0.027 / 0.040). In a 20-group CV, a separate θ per context beats one shared θ on every pack and side, by
+   5–28 SE, and neither a free α nor a UTG-only c closes the gap, so the mismatch is in the shape of u. Its charts
+   bring PF-SANITY-7 back (2 / 0 / 2 / 1 spots), undo the bias-8 fix (the BTN opens 32s, 42s and 52s; BTN RFI 54.1 →
+   60.2%) and raise PF-SANITY-5 (4 / 1 / 7 / 2 → 9 / 8 / 12 / 8). So the UTG pack stays out of this range-blind fit
+   and is the data for a u that depends on the opponent's range (§9); its remaining flops cannot change this fit.
 3. **The cash pack is 6-max with no ante** (its ranges are `cash6` charts); the pub pack has the right game. Both
    packs' ranges are our hand-made charts, not the solver's own, so the fold-boundary hands above are extrapolated.
 4. **Pack accuracy.** Each pack flop is solved to its exploitability target (0.5% of the pot, written only up to
@@ -607,11 +666,13 @@ default is all), so a refit can include or leave out a new pack such as `pub-srp
    than the kings with the same kicker and the draft charts opened K7s and folded A7s at 100bb UTG (PF-SANITY-7 on
    7 / 8 / 6 / 5 spots). The packs' own shares put Ax at or above Kx with the same kicker, so the inversion was the
    model's. With additive top-card and kicker terms u is monotone in the kicker (A6 / A5 aside, as the packs say), and
-   PF-SANITY-7 is 0 on every stage of the latest run (§5.5), so the rule "do not make `solver` the default chart set
+   PF-SANITY-7 is 0 on every stage of the release run (§5.5), so the rule "do not make `solver` the default chart set
    while PF-SANITY-7 fires" is met. That rule covers RFI and BB defense only: in squeeze, cold vs-open and SB vs-open
-   spots Ax-below-Kx cells persist (PF-SANITY-10: 60 / 43 / 23 / 22 pairs in squeeze spots, 74 / 36 / 18 / 31 with
-   the previous 6-feature fit), as do Kx-below-Qx cells in squeezes (20 / 19 / 11 / 25) and same-gap inversions
-   (§5.5, §8).
+   spots Ax-below-Kx cells persist (PF-SANITY-10: 63 / 48 / 27 / 25 pairs in squeeze spots; 60 / 43 / 23 / 22 with
+   fit 4acfad, 74 / 36 / 18 / 31 with the 6-feature fit), as do Kx-below-Qx cells in squeezes (23 / 15 / 11 / 23) and
+   same-gap inversions (§5.5, §8).
+   The measurements in the rest of this item are from the model selection on the fit-4acfad rows; the refit moved the
+   model's top-card u by at most 0.001.
    **The IP A − K step now follows the data.** Measured on the packs' rows, same kicker 2–J and suitedness, the share
    gap Ax − Kx, model / data (jackknife SE): IP cash +0.023 / +0.021 ± 0.011 (1.10×, 16 pairs), pub +0.028 / +0.023 ±
    0.010 (1.22×, 13 pairs), against 1.89× / 1.91× with the previous hi2 curve; OOP 0.98× / 0.81× (data +0.067 /
@@ -634,42 +695,57 @@ default is all), so a refit can include or leave out a new pack such as `pub-srp
    tight range adjacent top cards differ by only 0.005–0.02 in equity, so a Kx < Qx cell can cross (the packs' own K
    and Q shares are tied within 0.03). PF-SANITY-8 prints them (§5.2, §5.5); Qx < Jx is not checked, since the packs
    put J9 / J8 at or above Q9 / Q8.
-6. **α is a held prior, not a measurement** (above). PF-SANITY-6 fires on 12 / 27 / 21 / 0 spots (11 / 26 / 21 / 0
-   with the previous fit), at 100bb-2.2 all against blind 3-bets; those spots are badged 낮음.
-7. **The OOP pair-rank slope rests on the cash pack.** The pub pack's BB range holds only 22–77; a pub-only fit flips
-   θ_O.pairRank2 to −0.183. QQ–AA as callers are extrapolated (AA OOP EQR 1.37). AA raises wherever it can except
-   the SB first in, which limps AA 100% at 100bb-2.2, 100bb-3 and 55bb-2.2 (and KK 0.9 / 0.9 / 0.4; 0.8 / 0.6 / 0.3
-   before); KK flat-calls 3-bets in 9 / 21 / 9 / 0 vs-open and vs-3-bet cells (§8), and vs-3-bet compositions move.
+6. **α is a held prior, not a measurement** (above). PF-SANITY-6 fires on 12 / 27 / 21 / 0 spots (the same with fit
+   4acfad; 11 / 26 / 21 / 0 with the 6-feature fit), at 100bb-2.2 all against blind 3-bets; those spots are badged
+   낮음. The UTG pack says a single α is not even right for flop SRPs: against a strong range the effective α is about
+   0.27 OOP and −0.21 IP (bias 2).
+7. **The OOP pair-rank slope rests on the cash pack, and it is too steep against a strong range.** The pub pack's BB
+   range holds only 22–77; a pub-only fit flips θ_O.pairRank2 to −0.180. QQ–AA as callers are extrapolated (AA OOP EQR
+   1.37). AA raises wherever it can except the SB first in, which limps AA 100% at 100bb-2.2, 100bb-3 and 55bb-2.2
+   (and KK 0.9 / 0.9 / 0.4; 0.8 / 0.6 / 0.3 with the 6-feature fit); KK flat-calls 3-bets in 9 / 22 / 10 / 0
+   vs-open and vs-3-bet cells (9 / 21 / 9 / 0 with fit 4acfad; §8), and vs-3-bet compositions move. The held-out UTG
+   pack (bias 2) over-predicts UTG's TT–AA as the aggressor by 0.14–0.17 of the pot and under-predicts its 55; fitted
+   alone it puts θ_I.pairRank2 at 0.125 against the shipped 0.305. That argues against the KK flats and the UTG
+   small-pair folds (§8), though the pack holds no IP 22–44 to measure them directly.
 8. **Low-card over-prediction for the aggressor: resolved where the data reach.** The previous hi2 kept rising below
    the lowest top card in the IP data and over-predicted the IP low suited connectors the packs do hold. With the
-   5-high floor and the wheel and suitConn terms, against the cash BB range: 54s 1.43 against 1.41 measured (1.48
-   before), 43s 1.42 against 1.39 (1.49), 32s 1.41 (1.50, no row). The cash IP residual by top card (data − model) is
-   −0.013 / −0.010 / −0.005 at 4- / 5- / 6-high (−0.039 / −0.027 / −0.020 before). u_aggr(43s) − u_aggr(A5s) is
-   +0.218 (+0.254 before), where the cash rows imply +0.213 for 43s and +0.218 (cash) / +0.228 (pub) for 54s. Chart
-   effects at 100bb-2.2: the BTN folds 32s, 42s and 52s (all opened before) and opens A4o 0.4; PF-SANITY-9 is 16 / 9 /
-   0 / 0 (23 / 16 / 0 / 0); the 3-bet frequency over 43s, 54s, 65s, 53s and 64s where the hero first faces an open is
-   32.2 hand classes against 20.4 over A5s–A2s (47.5 against 19.2); `co-vs-utg-open` 3-bets 43s 0 (1.0) and A4s 0.5.
+   5-high floor and the wheel and suitConn terms, against the cash BB range: 54s 1.43 against 1.40 measured (1.48
+   with the 6-feature fit), 43s 1.42 against 1.38 (1.49), 32s 1.41 (1.50, no row). The cash IP residual by top card
+   (data − model, 1,755 flops) is −0.015 / −0.012 / −0.006 at 4- / 5- / 6-high (−0.039 / −0.027 / −0.020 with the
+   6-feature fit). u_aggr(43s) − u_aggr(A5s) is +0.218 (+0.254 with the 6-feature fit), where the cash rows of fit
+   4acfad imply +0.213 for 43s and +0.218 (cash) / +0.228 (pub) for 54s. Chart effects at 100bb-2.2: the BTN folds
+   32s, 42s and 52s (all opened with the 6-feature fit) and opens A4o 0.5; PF-SANITY-9 is 21 / 11 / 0 / 0 (16 / 9 /
+   0 / 0 with fit 4acfad, 23 / 16 / 0 / 0 with the 6-feature fit); the 3-bet frequency over 43s, 54s, 65s, 53s and
+   64s where the hero first faces an open is 34.9 hand classes against 21.0 over A5s–A2s (32.2 against 20.4; 47.5
+   against 19.2); `co-vs-utg-open` 3-bets 43s 0 (1.0 with the 6-feature fit) and A4s 0.6. The refit's 5 extra
+   PF-SANITY-9 spots at 100bb-2.2 and 2 at 100bb-3 are marginal ones (connectors 0.6–1.0 against wheel aces
+   0.0–0.3 hand classes).
    What remains is not where the rows are wrong: `co-vs-utg-open` still 3-bets 54s and 65s 100% while flatting A5s.
    The role rule hands u_aggr to every 3-bettor and u_call to every cold caller (an IP caller is never fitted), and u
    ignores the opener's range (the BB vs UTG Q-x artifact of §8). A strong player will still notice it.
 9. **The small-pair curve is convex where the packs' is flat.** Measured IP EQR for 22–55 is 1.13–1.15 (cash) and
    1.15–1.17 (pub), flat within its SE of 0.01–0.02; the model gives 1.02 / 1.05 / 1.08 / 1.13 (cash). OOP the packs
-   give 0.86–0.89 and the model 0.78–0.92. Three times the data left θ_pairRank2 where it was (0.209 ± 0.016 / 0.305 ±
-   0.006, 0.204 / 0.308 on 468 + 448 flops). The cause is α held at 0.553, not the pair term's shape: with α held,
+   give 0.86–0.89 and the model 0.78–0.92 (all on the 1,755 + 1,755 flops). Four times the data left θ_pairRank2 where
+   it was (0.210 ± 0.014 / 0.305 ± 0.005 on 1,755 + 1,755 flops, 0.209 / 0.305 on 1,476 + 1,457, 0.204 / 0.308 on 468 +
+   448). The cause is α held at 0.553, not the pair term's shape: with α held,
    equity alone gives a low-equity hand a low realization (above), and one rank-squared pair term cannot lift 22–44
-   back without lifting AA too. The same 9 features with α free (−0.177) reproduce the flat curve: IP cash 22 / 33 /
-   44 / 55 1.12 / 1.11 / 1.12 / 1.14 against 1.14 / 1.14 / 1.13 / 1.15 measured. With α held no monotone pair curve
+   back without lifting AA too. The same 9 features with α free (−0.187) reproduce the flat curve: IP cash 22 / 33 /
+   44 / 55 1.12 / 1.11 / 1.12 / 1.14 against 1.14 / 1.13 / 1.13 / 1.15 measured. The UTG pack points the same way
+   from the other side: against a strong range the BB's 22–55 realize 0.97 of their equity where the model says 0.61
+   (bias 2). With α held no monotone pair curve
    tried closes the gap: pairRank2 floored (flat) at and below 55 / 66 / 77 / 88 lifts IP cash 22 only to 1.04 /
    1.06 / 1.07 / 1.08 while the extrapolated OOP AA EQR rises from 1.37 to 1.42 / 1.48 / 1.57 / 1.69 (CV 0.0165 /
    0.0172 down to 0.0153 / 0.0136); a linear pair column next to pairRank2 fits better (CV 0.0153 / 0.0128) but is
    not monotone (IP cash 22 1.18 above 33 1.13). So UTG still folds 22–55, HJ 22–44 and CO 22–33 at 100bb-2.2 (§8);
-   opening 22–55 at UTG loses 0.18–0.48 bb by best response (§8). Since α also sets the low-SPR 4-bet / jam split,
-   a fix is a model decision: an α fitted for flop SRPs, kept apart from the named low-SPR prior, needs the full
-   solves (§9). (These are fit-level numbers on the 1,476 + 1,457-flop rows; none of the forms was solved.)
+   opening 22–55 at UTG lost 0.18–0.48 bb by best response in the fit-4acfad re-solve (§8). Since α also sets the
+   low-SPR 4-bet / jam split, a fix is a model decision: an α fitted for flop SRPs, kept apart from the named low-SPR
+   prior, needs the full solves (§9). (The floored and linear pair curves are fit-level numbers on the 1,476 +
+   1,457-flop rows of fit 4acfad; none of the forms was solved.)
 10. **The cash OOP low suited connectors are now under-predicted.** Residual data − model by top card, cash OOP:
-    +0.022 / +0.017 / +0.015 at 3- / 4- / 5-high (pub +0.000 / +0.006 / +0.009), so the BB defends these a little
-    less than the packs would say: BB defense vs BTN / SB is 82.3 / 90.8% at 100bb-2.2 (84.0 / 92.9 before) and 80.5 /
-    90.6% at 55bb (84.5 / 92.8).
+    +0.018 / +0.014 / +0.015 at 3- / 4- / 5-high (pub −0.004 / +0.002 / +0.007; 1,755 flops each), so the BB defends
+    these a little less than the packs would say: BB defense vs BTN / SB is 81.8 / 90.7% at 100bb-2.2 and 80.3 /
+    90.6% at 55bb (snapped data; 82.3 / 90.8 and 80.5 / 90.6 with fit 4acfad, 84.0 / 92.9 and 84.5 / 92.8 with the
+    6-feature fit).
 
 ### 3.8 What no pack calibrates
 
@@ -679,10 +755,11 @@ default is all), so a refit can include or leave out a new pack such as `pub-srp
 | u by role | u_call = θ_O·F, u_aggr = θ_I·F | IP callers (u_call in position is never fitted) | (a), (b) |
 | Surplus shrink below SPR 6 | s = SPR / 6 | 3-bet and 4-bet pots, 55bb and shorter | (a), (b), (d) |
 | Low-SPR α rule | SPR_ALPHA = 1.5 | the 4-bet / jam split | (e), PF-SANITY-6, the 보통 cap |
-| α | 0.553 held (every subset's free α is −0.31 to −0.08 on the 9 features) | every flop, the 4-bet / jam split | (e) only below SPR 6; `alphaFree` (−0.18) printed by the fit. No solve varies α on a heads-up flop at SPR ≥ 6 (every SRP and limped flop at 100bb): (a) / (b) scale only α_mw, (c) holds α, (d) swaps the form |
+| α | 0.553 held (every subset's free α is −0.32 to −0.09 on the 9 features; against the held-out UTG pack's strong range the effective α is about 0.27 OOP / −0.21 IP, §3.7 bias 2) | every flop, the 4-bet / jam split | (e) only below SPR 6; `alphaFree` (−0.19) printed by the fit. No solve varies α on a heads-up flop at SPR ≥ 6 (every SRP and limped flop at 100bb): (a) / (b) scale only α_mw, (c) holds α, (d) swaps the form |
 | α_mw | = α | multiway calls and overcalls | (a), (b) |
 | Multiway c_pos, u term | ±0.02, u_role − ū | multiway pots | (a), (b) |
-| Fold-boundary realization | extrapolated by the feature model (flat below 5-high) | BB and SB defense | (c) pair, suited, hi2f5 only, (d) the surplus form |
+| Fold-boundary realization | extrapolated by the feature model (flat below 5-high); against a strong opener measured too low by the held-out UTG pack (+0.06–0.14 of the pot, §3.7 bias 2) | BB and SB defense | (c) pair, suited, hi2f5 only, (d) the surplus form |
+| u against the opener's range | none: u is the same against every range | defense against early opens, 3-bet bluffs, pair choices | not varied by any solve; the UTG pack measures it held out (§3.7 bias 2) |
 
 ## 4. Algorithm
 
@@ -724,8 +801,8 @@ tree, which is why the reductions of §5.1 are exact.
 
 **With 3 or more seats it is not one well-defined game.** Each seat weights a line by the other seats' masses
 conditioned on its own hand, so each seat sees a slightly different joint distribution of hands. Every terminal
-conserves chips for every hand tuple, but the seats' root EVs do not sum to 0: Σ EV is +0.12 to +0.13 bb/hand in
-every stage of the latest run (§5.5). At design time the same approximation gave +0.13 bb/hand on the 10bb push/fold
+conserves chips for every hand tuple, but the seats' root EVs do not sum to 0: Σ EV is +0.127 to +0.136 bb/hand in
+every stage of the release run (§5.5). At design time the same approximation gave +0.13 bb/hand on the 10bb push/fold
 and 20bb open/jam games, the games of `pushfold.ts` and `openjam.ts`, which share it; without card removal the sum
 was 0 within 1e-14. What stays valid: each seat's best response and gain, computed in that seat's own
 world, and NashConv as their sum. What is not exact: the per-seat EV (`PreflopStage.ev` is each seat's own-world
@@ -783,7 +860,8 @@ nothing written.
 | Measured | Value |
 |---|---|
 | 100bb-2.2 alone on one core | about 106 ms per iteration; 1,750 iterations and two checks in 185 s |
-| Five main solves at once on 4 workers (latest run) | 100bb 121–126 ms, 55bb 144 ms, 35bb 73 ms, 25bb 63 ms per iteration; 246 s for all five |
+| Five main solves at once on 4 workers (a fit-4acfad draft on an idle machine) | 100bb 121–126 ms, 55bb 144 ms, 35bb 73 ms, 25bb 63 ms per iteration; 246 s for all five |
+| The release run (4 workers, other jobs on the same machine) | main solves 100bb 215–247 ms, 55bb 273 ms, 35bb 163 ms, 25bb 117 ms per iteration, all five done at 440 s, the 35bb re-solve at 498 s; two-start and sensitivity solves 106–119 ms (100bb), 54–60 ms (35bb) per iteration; 20 min in all |
 | One gate check at 100bb (σ̄ and the snapped profile) | about 1 s |
 | Memory at 100bb | regrets and strategy sums 2 × 11,213 × 169 × 8 B = 30 MB, σ̄ another 15 MB during checks |
 
@@ -847,7 +925,7 @@ table, not the shipped one.
 | DCFR update | §4.2 against its definition | First and later iterations on a tree with multiway flops and seats acting twice; checking never changes the run; convergence on a full tree |
 | Schedule, polish, two-start | §4.6, §5.4 | `runSchedule` stops at the first passing check; polish changes nothing outside its subtrees; two-start discards earlier work |
 | Export (`export.test.ts`) | §6.4–6.6, §6.9, §6.10 | Unique ids for every node of every shipped tree; range strings read back exactly; the ladder; the written data reproduces the snapped strategy; confidence rules; the five sensitivity valuations; PF-SANITY-5 to -14 on synthetic stages (which flag a badge, which only print); `closeString` (mixed cells, a near set without the chart's action, an action under 1%, the inclusive ε, a no-fold legend, a 3-action set, out of reach, more than 4 legend actions); `stageFlags` per code (the clear-cell restriction, `vs` against the remaining hands, no -9 flag against a CO opener, -13 only at 100bb, -14 offsuit only and never A5o, numeric order); `annotateStage` keeps every field and places the new keys; `dropClose` drops the rarest spots first, recomputes the flags of a stage that lost a string (a dropped mark makes its cell clear) and leaves a stage that lost none as it was; `flagProblems`; deterministic |
-| Features and fit (`features.test.ts`) | The features and `EQR_FIT` | The 9 names and means; definitions on sample hands (the 5-high floor: 54s, 43s, 32s and 42o share 5-high's hi2f5); every non-pair feature raw 0 on pairs; every column centered (combo-weighted sum within 1e-12 of 0); hi2f5 and aceTop equal across kickers, lo2 rising, gap not rising, suitConn not falling with the kicker, wheel stepping only between A6 and A5, hi2f5 rising above 5-high and flat at and below it, pairRank2 rising; `EQR_FIT`'s sha256 matches its contents; model `modelB-rank9`, fitted on these features with α = `alphaPrior` = 0.553; θ_lo2 ≥ 0, θ_gap ≤ 0, θ_gap − θ_suitConn ≤ 0, θ_pairRank2 ≥ 0 on both sides; the measured signs θ_aceTop < 0, θ_wheel > 0, θ_suitConn < 0 on both sides (a regression guard, 3.3–21 jackknife SE from zero; a flip or swap among these three scores RMS ≤ 0.029 and passes the metric bounds); u from `EQR_FIT` never falls along PF-SANITY-7's same-row kicker ladder (wheel aces excepted, as there); the stored metrics, which the script scores on the parameters as written, within bounds (RMS and CV RMS ≤ 0.03 and R² of the gap ≥ 0.8 per side; the alternatives' RMS ≤ 0.06) and c_fit < 0, so a swapped write or a flipped c fails (θ_O / θ_I swapped scores RMS 0.045, c flipped 0.157); every κ positive |
+| Features and fit (`features.test.ts`) | The features and `EQR_FIT` | The 9 names and means; definitions on sample hands (the 5-high floor: 54s, 43s, 32s and 42o share 5-high's hi2f5); every non-pair feature raw 0 on pairs; every column centered (combo-weighted sum within 1e-12 of 0); hi2f5 and aceTop equal across kickers, lo2 rising, gap not rising, suitConn not falling with the kicker, wheel stepping only between A6 and A5, hi2f5 rising above 5-high and flat at and below it, pairRank2 rising; `EQR_FIT`'s sha256 matches its contents; model `modelB-rank9`, fitted on these features with α = `alphaPrior` = 0.553; θ_lo2 ≥ 0, θ_gap ≤ 0, θ_gap − θ_suitConn ≤ 0, θ_pairRank2 ≥ 0 on both sides (the joint fit with the UTG pack breaks θ_I.lo2 ≥ 0, §3.7 bias 2); the measured signs θ_aceTop < 0, θ_wheel > 0, θ_suitConn < 0 on both sides (a regression guard, 3.2–25 jackknife SE from zero; a flip or swap among these three scores RMS ≤ 0.029 and passes the metric bounds); u from `EQR_FIT` never falls along PF-SANITY-7's same-row kicker ladder (wheel aces excepted, as there); the stored metrics, which the script scores on the parameters as written, within bounds (RMS and CV RMS ≤ 0.03 and R² of the gap ≥ 0.8 per side; the alternatives' RMS ≤ 0.06) and c_fit < 0, so a swapped write or a flipped c fails (θ_O / θ_I swapped scores RMS 0.045, c flipped 0.158); every κ positive |
 | Equity pin (`equityPin.test.ts`) | §4.10 | The 4-shard scheme gives the pinned table hash, in process and through the script |
 
 ### 5.2 Data checks
@@ -877,7 +955,7 @@ write, PF-CLOSE-1 to -3 and the flags below).
 | PF-SANITY-14 | Where the hero acts first (no `reachFrom`): an A9o–A6o is played (1 − fold) at least 0.3 less often than an A4o–A2o (A5o is never compared; suited aces are not checked) | the same |
 | PF-CLOSE-1 | Every stage has `closeEps` 0.05; each `close` string is 169 characters of `.` and lowercase hex, never all dots, every mark with 2+ bits and none at or beyond the legend's length, "." on every hand out of reach; with `closeMinOcc` set, no string on a spot below it | fail (data test) |
 | PF-CLOSE-2 | Marks only on cells the chart shows pure (one legend action ≥ 0.999); the chart's action is always in the set; no bit for a non-fold action whose share of the reaching range is below 1% | fail (data test) |
-| PF-CLOSE-3 | Per stage 1–12% of the in-reach cells are marked (measured 5.1 / 3.8 / 5.5 / 5.6) | fail (data test) |
+| PF-CLOSE-3 | Per stage 1–12% of the in-reach cells are marked (release data 5.1 / 3.9 / 5.7 / 5.5) | fail (data test) |
 | Flags | The five rules written out again in the data test (with the clear-cell restriction read from the stored `close`) give exactly the stored flags; every flagged hand is in reach, pure and unmarked; the cautions quote the chart's numbers and every example is true; `quizSkip` is every flag's `hands` plus the `vs` of PF-SANITY-9 and -14; every spot the quiz can pick keeps a hand to deal | fail (data test) |
 | PF-SIZE-1 | gzip of `preflopData.ts` (Node's default level) ≤ 80,000 bytes; after the annotations, close strings are dropped from the rarest spots first (§6.9) rather than failing | fail |
 
@@ -924,158 +1002,200 @@ multiple equilibria in a 9-player game.
 α_mw = 0, SPR_ALPHA = 6, `maxFlop: 2`, no SB limp) and record the deltas. Not yet run on this engine; the prototype
 numbers of §2.8 stand until it is.
 
-### 5.5 Latest generator output
+### 5.5 Release generator output
 
-`make-preflop.mjs --stages 100bb-2.2,100bb-3,55bb-2.2,35bb-2,25bb-2 --no-sensitivity --no-twostart --workers 4`,
-2026-11-16, fit `4acfad77aa35` (`modelB-rank9`), equity table `e35fcf75d81d`, data sha256 `4dc1fba3de56`, 4 min 52 s
-on four workers. With `closeEps` and every scenario's `close` and `flags` stripped and the file re-serialized, its
-sha256 is `ebda99544290`, the previous draft's: the annotations (§6.9, §6.10) changed no range, text or number, and
-every gate number below is the same. The main solves are deterministic: the 100bb-2.2, 100bb-3 and 55bb-2.2 stages are identical,
-scenario for scenario (170, 155 and 129), to the drafts solved for the fit's selection apart from the `model`
-record, and a release run reproduces every number in this section; only the confidence badges, `move` and the
-PF-TWOSTART flags come from the solves this run skipped. Previous draft (fit `03dd3d0015e3`, data `d64b543872ee`)
-in parentheses where compared. Shares are of each node's own reaching range under σ̄, in %.
+`make-preflop.mjs --workers 4 --summary-dir DIR` (the release defaults: all five stages, two-start and sensitivity
+solves on), 2026-11-17, fit `2862daa7a90f` (`modelB-rank9`, 1,755 + 1,755 flops), equity table `e35fcf75d81d`, data
+sha256 `6ed0c57b4adc`, 19 min 59 s on four workers with other jobs on the same machine. `PREFLOP_DRAFT_STAGES` is
+empty: every stage ran its sensitivity and two-start solves and passed its gates on the §4.6 schedule.
+`make-preflop.mjs --check` then solved everything again and found the file up to date (PF-DET: the two 35bb-2 solves
+at 300 iterations gave the same σ̄, sha256 `5519a88d0c11`). The main solves are deterministic: every scenario,
+frequency, close string and flag equals the draft solved with the same fit for the refit decision (`--no-sensitivity
+--no-twostart`, data `8d3f9a8c461e`); only the confidence badges, `move` and the descriptions differ. The fit-4acfad
+draft that this section described before (data `4dc1fba3de56`, 4 min 52 s on an idle machine) is the comparison in
+parentheses where one is given. Shares are of each node's own reaching range under σ̄, in %.
 
 **Gates**
 
 | Stage | Result | Iterations | Max gain | NashConv | Snapped gain | Worst exported regret |
 |---|---|---|---|---|---|---|
-| 100bb-2.2 | pass (at 1,500: gain 1.525, NashConv 7.76; at 1,750: gain 1.162, NashConv 5.84) | 2,000 | 0.899 | 4.51 | 1.79 | 0.021 bb |
-| 100bb-3 | pass (at 1,500: gain 1.315, NashConv 8.32; at 1,750: NashConv 6.20) | 2,000 | 0.742 | 4.80 | 1.88 | 0.012 bb |
-| 55bb-2.2 | pass | 1,500 | 0.712 | 3.61 | 1.19 | 0.013 bb |
-| 35bb-2 | **main solve passed its gates** (gain 0.328, NashConv 1.95, snapped 1.08 at 1,500) **but cannot meet PF-DATA-1** (vsOpen 28, outside 30–36); re-solved with cold4 "none": pass, ships without cold jams | 1,500 | 0.195 | 0.92 | 0.83 | 0.005 bb |
-| 25bb-2 | pass (validation only) | 1,500 | 0.480 | 2.43 | 0.86 | 0.014 bb |
+| 100bb-2.2 | pass (at 1,500: gain 1.620, NashConv 8.26; at 1,750: gain 1.222, NashConv 6.14, snapped 3.44, a fail) | 2,000 | 0.948 | 4.69 | 2.12 (warning, above 2) | 0.018 bb |
+| 100bb-3 | pass (at 1,500: gain 1.437, NashConv 8.03; at 1,750: gain 1.049, NashConv 5.99) | 2,000 | 0.800 | 4.64 | 1.70 | 0.011 bb |
+| 55bb-2.2 | pass | 1,500 | 0.712 | 3.71 | 1.14 | 0.013 bb |
+| 35bb-2 | **main solve passed its gates** (gain 0.246, NashConv 1.19, snapped 2.30 at 1,500) **but cannot meet PF-DATA-1** (vsOpen 28, outside 30–36); re-solved with cold4 "none": pass, ships without cold jams | 1,500 | 0.190 | 0.93 | 0.80 | 0.005 bb |
+| 25bb-2 | pass (validation only) | 1,500 | 0.517 | 2.71 | 0.80 | 0.016 bb |
 
-The margins are thin at 100bb: max gain 0.899 of 1.0 at 100bb-2.2, NashConv 4.51 and 4.80 of 5. Each is one solve
-per stage; a later refit can tip a stage into 250 more iterations.
+The fit-4acfad draft: 0.899 / 4.51 / 1.79 at 100bb-2.2, 0.742 / 4.80 / 1.88 at 100bb-3, 0.712 / 3.61 / 1.19 at 55bb,
+0.195 / 0.92 / 0.83 at 35bb, the same iteration counts.
 
-The 35bb-2 cold-jam solve is the degenerate profile of §8 again, now passing every gate. Re-run alone with the gates
-ignored (1,500 iterations; the stage is then dropped for PF-DATA-1): RFI UTG 4.6 / UTG+1 18.8 / UTG+2 21.5 / LJ 24.3
-/ HJ 29.5 / CO 35.3 / BTN 46.9, and UTG never min-raises (`utg-open-vs-btn-3bet` has reach 0 and jams 92.9% off
-path); off the path the 3-bets against a UTG open are inflated (UTG+2 21.1, HJ 26.9, BTN 42.0%), and against them not
-opening is UTG's best response. With the previous fit the same profile failed the snapped gate (3.63–3.76 mbb at
-every check through 4,000) and was re-solved on that; with this fit its snapped gain is 1.08, so the generator now
-also re-solves a cold-jam stage whose reach cannot meet PF-DATA-1's counts (§2.8). No gate or count changed, and the
-check is inert on the other stages. A later cold-jam 35bb still needs the exploration fix of §8 (an ε floor on the
-opponent masses, or a final tremble pass) and a check on the main solve's RFI (every seat opens without jamming), so
-that a degenerate profile is named as one. Gains in mbb/hand. Σ EV 0.131 / 0.136 / 0.129 / 0.129 / 0.127 bb/hand;
-negative shares 12,423 / 17,887 / 3,345 / 623 / 23 triples, at most 0.027% of hands weighted by occ (100bb-3).
+The margins are thin at 100bb: max gain 0.948 of 1.0 at 100bb-2.2 (0.899 before the refit), NashConv 4.69 and 4.64
+of 5, and the snapped gain at 100bb-2.2 is 2.12, above the 2.0 warning line though below the gate's 3; at 1,750
+iterations the same solve failed with a snapped gain of 3.44. The release run reproduced the draft's pass exactly, as
+it must (the main solves do not depend on the worker count), but a later refit can tip 100bb-2.2 into 250 more
+iterations.
+
+The 35bb-2 cold-jam solve is the degenerate profile of §8 again, passing every gate. Re-run alone with the gates
+ignored on fit 4acfad (1,500 iterations; the stage is then dropped for PF-DATA-1): RFI UTG 4.6 / UTG+1 18.8 / UTG+2
+21.5 / LJ 24.3 / HJ 29.5 / CO 35.3 / BTN 46.9, and UTG never min-raises (`utg-open-vs-btn-3bet` has reach 0 and jams
+92.9% off path); off the path the 3-bets against a UTG open are inflated (UTG+2 21.1, HJ 26.9, BTN 42.0%), and against
+them not opening is UTG's best response. That re-run was not repeated on the release fit; its main solve again left
+28 vs-open spots. With fit `03dd3d0015e3` the same profile failed the snapped gate (3.63–3.76 mbb at every check
+through 4,000) and was re-solved on that; since fit 4acfad it passes, so the generator also re-solves a cold-jam stage
+whose reach cannot meet PF-DATA-1's counts (§2.8). No gate or count changed, and the check is inert on the other
+stages. A later cold-jam 35bb still needs the exploration fix of §8 (an ε floor on the opponent masses, or a final
+tremble pass) and a check on the main solve's RFI (every seat opens without jamming), so that a degenerate profile is
+named as one. Gains in mbb/hand. Σ EV 0.131 / 0.136 / 0.129 / 0.130 / 0.127 bb/hand; negative shares 12,974 / 17,262
+/ 3,123 / 586 / 21 triples, at most 0.027% of hands weighted by occ (100bb-3).
 
 **Aggregates** (raw σ̄)
 
 | | 100bb-2.2 | 100bb-3 | 55bb-2.2 | 35bb-2 (cold4 none) | 25bb-2 |
 |---|---|---|---|---|---|
-| RFI UTG / UTG+1 / UTG+2 / LJ | 14.3 / 16.1 / 18.5 / 21.8 | 13.4 / 15.4 / 18.1 / 21.6 | 15.6 / 17.6 / 20.2 / 23.3 | 14.9 / 16.9 / 18.9 / 22.4 | 16.6 / 18.4 / 20.6 / 23.6 |
-| RFI HJ / CO / BTN | 26.0 / 34.8 / 54.1 | 26.2 / 34.4 / 52.6 | 29.2 / 36.4 / 51.9 | 27.1 / 33.6 / 45.4 | 26.6 / 32.4 / 41.6 |
-| SB first in: fold / limp / raise / jam | 16.3 / 53.5 / 30.2 / – | 17.7 / 51.3 / 31.1 / – | 14.8 / 50.6 / 34.6 / – | 10.8 / 54.8 / 27.2 / 7.1 | 13.7 / 49.4 / 19.2 / 17.8 |
-| BB vs SB limp: check / iso / jam | 47.3 / 52.7 / – | 45.2 / 54.8 / – | 51.2 / 48.8 / – | 51.6 / 44.1 / 4.2 | 51.6 / 32.1 / 16.3 |
-| BB defense vs UTG / LJ / CO / BTN / SB | 33.0 / 53.3 / 69.9 / 82.3 / 90.8 | 17.7 / 27.8 / 46.9 / 61.7 / 80.9 | 35.7 / 55.1 / 70.5 / 80.5 / 90.6 | 45.5 / 62.2 / 75.5 / 85.6 / 91.5 | 57.7 / 70.1 / 81.8 / 87.3 / 85.3 |
-| BB vs BTN: call / 3-bet / jam | 64.0 / 18.2 / – | 43.3 / 18.4 / – | 62.4 / 18.1 / – | 65.5 / 10.4 / 9.7 | 65.2 / – / 22.1 |
-| 3-bet (incl. jam) vs UTG, UTG+1 … BB | 5.8 / 5.7 / 5.7 / 5.7 / 5.8 / 6.3 / 5.4 / 4.8 | 3.9 / 4.0 / 4.1 / 4.2 / 4.8 / 5.1 / 5.3 / 5.1 | 4.0 / 4.3 / 4.5 / 4.6 / 5.1 / 6.0 / 5.1 / 5.6 | 8.5 / 8.4 / 8.4 / 7.2 / 6.9 / 6.5 / 6.5 / 5.8 | 6.1 / 6.3 / 4.9 / 5.4 / 5.4 / 6.2 / 7.3 / 6.7 |
-| CO open vs BTN 3-bet: fold / call / 4-bet / jam | 33.4 / 45.3 / 16.8 / 4.5 | 40.3 / 43.0 / 11.9 / 4.8 | 39.0 / 46.7 / 0.0 / 14.3 | 22.9 / 50.7 / – / 26.5 | 57.2 / 19.2 / – / 23.5 |
-| BB vs CO open + BTN call: fold / call / squeeze or jam | 49.7 / 35.6 / 14.7 | 67.5 / 19.9 / 12.6 | 44.8 / 41.6 / 13.6 | 43.3 / 35.2 / 21.5 (jam) | 29.8 / 52.9 / 17.3 (jam) |
+| RFI UTG / UTG+1 / UTG+2 / LJ | 14.3 / 16.1 / 18.5 / 21.7 | 13.4 / 15.4 / 18.1 / 21.6 | 15.7 / 17.6 / 20.2 / 23.3 | 14.9 / 16.9 / 19.0 / 22.4 | 16.6 / 18.4 / 20.6 / 23.6 |
+| RFI HJ / CO / BTN | 26.0 / 34.9 / 54.3 | 26.2 / 34.4 / 52.6 | 29.2 / 36.5 / 52.1 | 27.1 / 33.8 / 45.4 | 26.7 / 32.3 / 41.7 |
+| SB first in: fold / limp / raise / jam | 16.3 / 53.5 / 30.2 / – | 17.7 / 51.4 / 30.9 / – | 15.0 / 50.3 / 34.7 / – | 11.0 / 54.8 / 27.1 / 7.2 | 13.7 / 49.4 / 19.0 / 17.9 |
+| BB vs SB limp: check / iso / jam | 47.3 / 52.7 / – | 45.3 / 54.7 / – | 51.4 / 48.6 / – | 51.7 / 44.0 / 4.3 | 51.6 / 32.1 / 16.3 |
+| BB defense vs UTG / LJ / CO / BTN / SB | 33.0 / 53.3 / 69.5 / 81.9 / 90.7 | 17.6 / 27.8 / 46.8 / 61.7 / 81.0 | 35.7 / 55.0 / 69.8 / 80.3 / 90.5 | 45.4 / 62.2 / 75.0 / 85.5 / 91.5 | 56.8 / 70.1 / 81.7 / 87.2 / 85.2 |
+| BB vs BTN: call / 3-bet / jam | 63.7 / 18.2 / – | 43.4 / 18.3 / – | 62.2 / 18.1 / – | 65.4 / 10.4 / 9.7 | 65.1 / – / 22.0 |
+| 3-bet (incl. jam) vs UTG, UTG+1 … BB | 5.8 / 5.7 / 5.6 / 5.7 / 5.8 / 6.3 / 5.3 / 4.6 | 3.9 / 4.0 / 4.1 / 4.2 / 4.6 / 5.0 / 5.3 / 5.1 | 4.0 / 4.3 / 4.4 / 4.6 / 5.0 / 5.8 / 5.1 / 5.7 | 8.4 / 8.4 / 8.4 / 7.2 / 6.9 / 6.5 / 6.5 / 5.8 | 6.1 / 6.3 / 4.9 / 5.3 / 5.4 / 6.2 / 7.3 / 6.8 |
+| CO open vs BTN 3-bet: fold / call / 4-bet / jam | 33.3 / 45.4 / 16.6 / 4.6 | 40.4 / 43.0 / 11.9 / 4.7 | 39.0 / 46.7 / 0.0 / 14.3 | 22.4 / 51.2 / – / 26.3 | 57.1 / 19.4 / – / 23.4 |
+| BB vs CO open + BTN call: fold / call / squeeze or jam | 50.0 / 35.4 / 14.7 | 67.5 / 19.9 / 12.6 | 44.8 / 41.6 / 13.6 | 43.2 / 35.3 / 21.5 (jam) | 29.9 / 52.8 / 17.3 (jam) |
 
-Against the previous draft (snapped data, 100bb-2.2): the opens barely move (CO 35.4 → 34.8, BTN 54.2 → 54.1), the
-SB limps a little less (55.3 → 53.6) and raises more (28.0 → 30.2), and the BB defends narrower against late openers
-(vs CO 70.8 → 69.9, vs BTN 84.0 → 82.3, vs SB 92.9 → 90.8; at 55bb vs BTN 84.5 → 80.5, vs SB 92.8 → 90.6) and wider
-against UTG+2 (42.2 → 44.8; 55bb 46.7 → 50.8): the low-card trash of the BB lost a little realization and the low
-suited connectors of the aggressor more (§3.7 biases 8 and 10). The 35bb-2 fallback charts are almost unchanged.
+Against the fit-4acfad draft the refit moves the charts little: per stage the median reach-weighted change per
+scenario is 0.20–0.33pp, the 90th percentile 0.75–1.12pp and the largest 3.1pp (35bb `bb-at-utgp2-open-co-call`,
+occ 0.24%); no spot moves more than 5pp. RFI per seat moves by 0.2pp or less and BB defense vs the BTN / SB by 0.5pp
+or less (snapped, 100bb-2.2: 82.3 / 90.8 → 81.8 / 90.7; 55bb 80.5 / 90.6 → 80.3 / 90.6). The largest moves weighted
+by occurrence are 10% swaps inside RFI near-ties: 100bb-2.2 `rfi-utgp2` KTo 60 → 70 and JTo 50 → 40, `rfi-btn` T3s
+50 → 90 and A4o 40 → 50. BB defense vs UTG barely moves (33.1 → 33.0% at 100bb-2.2), though the held-out UTG pack
+says it is too narrow (§3.7 bias 2, §8).
 
 **PF-BANDS** (warnings only, never targets; values from the snapped data):
 
 | Spot (band) | 100bb-2.2 | 100bb-3 | 55bb-2.2 | 35bb-2 |
 |---|---|---|---|---|
-| RFI UTG (14–17) | 14.3 | 13.5 outside | 15.6 | 14.9 |
-| RFI HJ (25–27) | 26.0 | 26.2 | 29.1 outside | 27.1 outside |
-| RFI CO (32–35) | 34.8 | 34.4 | 36.4 outside | 33.7 |
-| RFI BTN (45–50) | 54.1 outside | 52.6 outside | 51.9 outside | 45.4 |
-| SB VPIP, first in (≥ 60) | 83.7 | 82.3 | 85.2 | 89.2 |
-| BB defense vs BTN (≥ 75) | 82.3 | 61.6 outside | 80.5 | 85.5 |
-| 3-bet UTG+1 vs UTG (5–7) | 5.7 | 3.9 outside | 4.0 outside | 8.4 outside |
-| 3-bet HJ vs UTG (5–7) | 5.6 | 4.3 outside | 4.6 outside | 7.3 outside |
+| RFI UTG (14–17) | 14.3 | 13.4 outside | 15.7 | 14.9 |
+| RFI HJ (25–27) | 26.0 | 26.2 | 29.3 outside | 27.1 outside |
+| RFI CO (32–35) | 34.9 | 34.4 | 36.5 outside | 33.8 |
+| RFI BTN (45–50) | 54.3 outside | 52.7 outside | 52.1 outside | 45.4 |
+| SB VPIP, first in (≥ 60) | 83.7 | 82.4 | 85.1 | 89.0 |
+| BB defense vs BTN (≥ 75) | 81.8 | 61.7 outside | 80.3 | 85.5 |
+| 3-bet UTG+1 vs UTG (5–7) | 5.8 | 4.0 outside | 4.0 outside | 8.4 outside |
+| 3-bet HJ vs UTG (5–7) | 5.6 | 4.1 outside | 4.5 outside | 7.3 outside |
 
 **Data checks.** Every stage passes PF-DATA-1, the reproduction check and PF-SANITY-1 to -3 with no warning from -1
 or -4. **PF-SANITY-7 is 0 on every stage**; its scope is RFI and BB defense, and PF-SANITY-10 below shows what remains
-outside it. PF-SANITY-8 (print only) finds 0 / 0 / 1 / 1 spots (0 / 1 / 3 / 3 before), one pair each: 55bb-2.2
-`rfi-utgp2` KTo 0.1 < QTo 0.3 and 35bb-2 `rfi-utgp2` KTo 0.5 < QTo 0.8.
+outside it. PF-SANITY-8 (print only) finds 0 / 0 / 0 / 1 spots (0 / 0 / 1 / 1 with fit 4acfad): 35bb-2 `rfi-utgp2` KTo
+0.6 < QTo 0.8. The 55bb-2.2 `rfi-utgp2` pair is now KTo 0.2 / QTo 0.3, inside the tolerance.
 
-PF-SANITY-5 warns on 4 scenarios at 100bb-2.2 (the BTN cold-calling UTG–LJ opens, 10.0–12.6% of all hands), 1 at
-100bb-3 (BTN vs LJ, 11.0%), 7 at 55bb (CO vs UTG+1–LJ 10.1–11.0%, BTN vs UTG–LJ 13.1–15.9%) and 2 at 35bb (BTN vs UTG
-and UTG+1, 11.1% and 11.4%). PF-SANITY-6 warns on 12 scenarios at 100bb-2.2 (every UTG–HJ open and the CO and SB
-against a blind 3-bet; 11 before), 27 at 100bb-3 (26) and 21 at 55bb (21: every non-blind 3-bet). Each PF-SANITY-5
-and -6 hit is badged 낮음.
+PF-SANITY-5 warns on 4 scenarios at 100bb-2.2 (the BTN cold-calling UTG–LJ opens, 10.3–12.8% of all hands), 1 at
+100bb-3 (BTN vs LJ, 11.4%), 7 at 55bb (CO vs UTG+1–LJ 10.2–11.0%, BTN vs UTG–LJ 13.5–15.9%) and 2 at 35bb (BTN vs UTG
+and UTG+1, 11.1% and 11.3%), as with fit 4acfad. PF-SANITY-6 warns on 12 scenarios at 100bb-2.2 (every UTG–HJ open
+and the CO and SB against a blind 3-bet), 27 at 100bb-3 and 21 at 55bb (every non-blind 3-bet), also unchanged. Each
+PF-SANITY-5 and -6 hit is badged 낮음.
 
-**PF-SANITY-11 to -14** (print only, every hit, ties included) fire on 19 / 21 / 19 / 1 spots (-11), 7 / 12 / 2 / 0
-(-12), 8 / 4 / 0 / 0 (-13) and 2 / 0 / 1 / 5 (-14). The flags written from them (§6.10) keep only the clear model
-preferences: see the close calls and flags below.
+**PF-SANITY-11 to -14** (print only, every hit, ties included) fire on 18 / 21 / 20 / 1 spots (-11), 7 / 13 / 2 / 0
+(-12), 8 / 4 / 0 / 0 (-13) and 2 / 0 / 1 / 5 (-14); with fit 4acfad 19 / 21 / 19 / 1, 7 / 12 / 2 / 0, 8 / 4 / 0 / 0
+and 2 / 0 / 1 / 5. The flags written from them (§6.10) keep only the clear model preferences: see the close calls and
+flags below.
 
-**PF-SANITY-9** (3-bet bluffs on low suited connectors over the suited wheel aces, print only) fires on 16 / 9 / 0 / 0
-spots (23 / 16 / 0 / 0 before). At 100bb-2.2 they are the LJ to the BB against UTG–LJ opens and the BB against later
-ones, the largest `btn-vs-utg-open` (43s–64s 3.0 hand classes against A5s–A2s 0.4) and `co-vs-utg-open` (2.0 against
-0.5: 54s and 65s 3-bet 100%, A4s 50%, A5s flats). Summed over the vs-open and first-in squeeze spots, the 3-bet
-frequency of 43s, 54s, 65s, 53s and 64s is 32.2 hand classes against 20.4 for A5s–A2s (47.5 against 19.2 before).
-**PF-SANITY-10**, pairs inverted per chain and spot group (previous draft in parentheses):
+**PF-SANITY-9** (3-bet bluffs on low suited connectors over the suited wheel aces, print only) fires on 21 / 11 / 0 / 0
+spots (16 / 9 / 0 / 0 with fit 4acfad, 23 / 16 / 0 / 0 with the 6-feature fit). At 100bb-2.2 they are the UTG+2 to the
+BB against UTG–LJ opens and the BB against later ones; the 5 new spots (`utgp2-vs-utg`, `lj-` and `hj-vs-utgp1`,
+`btn-vs-utgp1`, `bb-vs-utgp2-open`; at 100bb-3 `bb-vs-utgp2-` and `bb-vs-lj-open`) are marginal, connectors 0.6–1.0
+hand classes against wheel aces 0.0–0.3. The largest stay `btn-vs-utg-open` (43s–64s 3.0 hand classes against A5s–A2s
+0.5) and `co-vs-utg-open` (2.0 against 0.6: 54s and 65s 3-bet 100%, A4s 60%, A5s flats). Summed over the vs-open and
+first-in squeeze spots, the 3-bet frequency of 43s, 54s, 65s, 53s and 64s is 34.9 hand classes against 21.0 for
+A5s–A2s at 100bb-2.2 (32.2 against 20.4 with fit 4acfad; 47.5 against 19.2 with the 6-feature fit) and 13.5 against
+7.8 at 100bb-3 (12.4 against 7.9).
+**PF-SANITY-10**, pairs inverted per chain and spot group (fit-4acfad draft in parentheses):
 
 | Chain, spot group | 100bb-2.2 | 100bb-3 | 55bb-2.2 | 35bb-2 |
 |---|---|---|---|---|
-| Ax ≥ Kx (kickers 2–Q), squeeze | 60 (74) | 43 (36) | 23 (18) | 22 (31) |
-| Ax ≥ Kx, cold / SB vs-open | 5 / 2 (1 / 1) | 1 / 0 (0 / 0) | 1 / 2 (0 / 2) | 6 / 1 (6 / 0) |
-| Ax ≥ Kx, cold vs3bet | 0 (0) | 0 (0) | 6 (5) | 0 (0) |
-| Kx ≥ Qx, squeeze | 20 (35) | 19 (25) | 11 (17) | 25 (31) |
-| Kx ≥ Qx, cold / SB vs-open | 1 / 1 (0 / 1) | 0 / 1 (0 / 1) | 1 / 1 (2 / 5) | 1 / 2 (2 / 3) |
-| Kicker ladder, every group | 5 (11) | 8 (4) | 1 (1) | 16 (12) |
-| Same-gap ladder, RFI / BB defense | 0 / 5 (0 / 2) | 0 / 0 (2 / 1) | 0 / 3 (0 / 2) | 0 / 3 (0 / 2) |
-| Same-gap ladder, every other group | 76 (107) | 96 (64) | 17 (20) | 56 (65) |
+| Ax ≥ Kx (kickers 2–Q), squeeze | 63 (60) | 48 (43) | 27 (23) | 25 (22) |
+| Ax ≥ Kx, cold / SB vs-open | 5 / 2 (5 / 2) | 1 / 0 (1 / 0) | 1 / 2 (1 / 2) | 6 / 1 (6 / 1) |
+| Ax ≥ Kx, cold vs3bet | 0 (0) | 0 (0) | 6 (6) | 0 (0) |
+| Kx ≥ Qx, squeeze | 23 (20) | 15 (19) | 11 (11) | 23 (25) |
+| Kx ≥ Qx, cold / SB vs-open | 1 / 1 (1 / 1) | 0 / 1 (0 / 1) | 1 / 1 (1 / 1) | 1 / 2 (1 / 2) |
+| Kicker ladder, every group | 8 (5) | 8 (8) | 2 (1) | 15 (16) |
+| Same-gap ladder, RFI / BB defense | 0 / 4 (0 / 5) | 0 / 0 (0 / 0) | 0 / 3 (0 / 3) | 0 / 3 (0 / 3) |
+| Same-gap ladder, every other group | 91 (76) | 92 (96) | 18 (17) | 57 (56) |
 
-In all, 175 / 168 / 66 / 132 pairs (232 / 133 / 72 / 152). The refit cut the 100bb-2.2 inversions by a quarter and
-the same-gap ones there by 30%, while 100bb-3's squeezes got more (same-gap 64 → 96). Worst cells at 100bb-2.2:
-`hj-at-utg-open-lj-call` folds ATs and squeezes KTs, `sb-vs-btn-open` folds A7o and calls K7o, `lj-vs-utg-open`
-3-bets 54s and folds 65s, `btn-at-utg-open-hj-call` squeezes 65s and folds 76s; at 100bb-3 `btn-at-utg-open-hj-call`
-folds AJs and squeezes KJs. The 100bb-3 `rfi-utg` same-gap pair of the previous draft (54s opened, 65s and 76s folded)
-is gone: UTG folds all three.
+In all, 198 / 165 / 72 / 133 pairs (175 / 168 / 66 / 132). Most of the 100bb-2.2 rise is in the squeeze spots, partly
+because 5 more of them are exported (same-gap 75 there against 62). Worst cells at 100bb-2.2: `hj-at-utg-open-lj-call`
+folds ATs and squeezes KTs, `sb-vs-btn-open` folds A7o and calls K7o, `co-vs-utgp1-open` 3-bets 54s and folds 65s,
+`btn-at-utg-open-hj-call` overcalls 65s and folds 76s; at 100bb-3 `btn-at-utg-open-co-call` folds AJs and squeezes
+KJs. The 100bb-3 `rfi-utg` same-gap pair of the 6-feature fit's draft (54s opened, 65s and 76s folded) stays gone: UTG
+folds all three.
 
 **Close calls and flags** (§6.9, §6.10; ε 0.05 bb per arrival, best responses against raw σ̄):
 
 | Stage | Marked / in-reach cells | 3+ near actions | Spots with a string | Per spot p50 / p90 / max | Flagged spots (2+ flags) | Flags per code (-9 / -11 / -12 / -13 / -14) |
 |---|---|---|---|---|---|---|
-| 100bb-2.2 | 1,149 / 22,355 (5.1%) | 40 | 127 / 170 | 3 / 19 / 58 | 20 (3) | 7 / 9 / 2 / 4 / 1 |
-| 100bb-3 | 804 / 20,924 (3.8%) | 19 | 118 / 155 | 2 / 14 / 55 | 27 (4) | 5 / 15 / 7 / 4 / 0 |
-| 55bb-2.2 | 873 / 15,950 (5.5%) | 43 | 106 / 129 | 4 / 16 / 58 | 10 (0) | 0 / 9 / 1 / 0 / 0 |
-| 35bb-2 | 1,039 / 18,494 (5.6%) | 38 | 132 / 171 | 3 / 14 / 71 | 3 (0) | 0 / 0 / 0 / 0 / 3 |
+| 100bb-2.2 | 1,176 / 23,030 (5.1%) | 41 | 130 / 174 | 3 / 19 / 59 | 24 (3) | 8 / 11 / 3 / 4 / 1 |
+| 100bb-3 | 832 / 21,082 (3.9%) | 28 | 119 / 156 | 2 / 15 / 57 | 29 (4) | 5 / 17 / 7 / 4 / 0 |
+| 55bb-2.2 | 934 / 16,282 (5.7%) | 44 | 109 / 131 | 4 / 17 / 58 | 10 (0) | 0 / 9 / 1 / 0 / 0 |
+| 35bb-2 | 1,029 / 18,657 (5.5%) | 39 | 128 / 172 | 3 / 14 / 70 | 3 (0) | 0 / 0 / 0 / 0 / 3 |
 
+The fit-4acfad draft had 5.1 / 3.8 / 5.5 / 5.6% of the in-reach cells marked and 20 / 27 / 10 / 3 flagged spots.
 Eight spots have 25% or more of their in-reach cells marked, all `rfi-sb` and `bb-vs-sb-limp` (blind vs blind,
-25–42%); the occ-weighted share of marked cells is 7.3%. The quiz skips 54 / 61 / 17 / 11 flagged cells, 1.14 /
-1.18 / 0.49 / 0.04% of its draws. Stability, measured on scratch solves of the same stages (§6.9): 95.4 / 91.4 /
-87.2% of the 100bb-2.2 marks keep the same set at 1,750 iterations, at 1,500 and in the two-start solve; 94.8 / 90.8%
-at 100bb-3 (1,750 / 1,500), 95.2% at 55bb and 95.0% at 35bb (1,250).
+30–41%); the occ-weighted share of marked cells is 7.3%. The quiz skips 61 / 61 / 17 / 11 flagged cells, 1.21 /
+1.17 / 0.47 / 0.04% of its draws within each stage. Stability, measured on scratch solves of the fit-4acfad stages
+(§6.9; not repeated on the release fit): 95.4 / 91.4 / 87.2% of the 100bb-2.2 marks keep the same set at 1,750
+iterations, at 1,500 and in the two-start solve; 94.8 / 90.8% at 100bb-3 (1,750 / 1,500), 95.2% at 55bb and 95.0% at
+35bb (1,250).
 
-**Export.** 4 stages, 625 scenarios, 718,737 bytes, gzip 72,215 bytes (limit 80,000; 63,950 without the close
-strings, flags and `closeEps`, so the close fallback was not needed), no gzip step needed. The annotations add
-96,784 bytes, gzip +8,265 (close strings +7,695, flags +664). The one release run of 100bb-2.2 on this model adds
-+1,424 gzip to the file; extrapolated over the four stages a release run lands near 77,500 bytes, a margin of about
-2,500.
+**Export.** 4 stages, 633 scenarios (625 with fit 4acfad), 725,029 bytes, gzip 78,255 bytes (limit 80,000, a margin
+of 1,745; 69,813 without the close strings, flags and `closeEps`, so the close fallback was not needed and no stage
+has `closeMinOcc`). The annotations add 97,967 bytes, gzip +8,442 (removing only the close strings and `closeEps`
+saves 7,792, only the flags 615). Against the draft of the same fit (72,857 gzip) the release's confidence lines and
+moves add 5,398. A refit that grows the file further meets the close fallback of §6.9 first; frequencies are never
+touched.
 
 | Stage | Exported | rfi / vsOpen / vs3bet (cold) / vs4bet / squeeze / vsLimp / vsShove | Ladder thresholds (% of hands): squeeze / vs4bet / vsShove / cold (`occThresholdCold`) | gzip on its own (without annotations) |
 |---|---|---|---|---|
-| 100bb-2.2 | 170 | 8 / 36 / 56 (20) / 15 / 52 / 3 / 0 | 0.5 / 0.1 / 0.1 / 1 | 20,588 (18,216) |
-| 100bb-3 | 155 | 8 / 36 / 44 (8) / 7 / 57 / 3 / 0 | 0.5 / 0.1 / 0.1 / 1 | 17,791 (15,795) |
-| 55bb-2.2 | 129 | 8 / 36 / 44 (8) / 11 / 27 / 3 / 0 | 1 / 0.1 / 0.1 / 1 | 15,991 (14,187) |
-| 35bb-2 | 171 | 8 / 36 / 41 (0) / 28 / 53 / 4 / 1 | 0.1 / 0.1 / 0.1 / 0.1 (no cold nodes) | 18,951 (16,738) |
+| 100bb-2.2 | 174 | 8 / 36 / 55 (19) / 15 / 57 / 3 / 0 | 0.5 / 0.1 / 0.1 / 1 | 22,493 (20,043) |
+| 100bb-3 | 156 | 8 / 36 / 44 (8) / 7 / 58 / 3 / 0 | 0.5 / 0.1 / 0.1 / 1 | 19,078 (17,091) |
+| 55bb-2.2 | 131 | 8 / 36 / 44 (8) / 11 / 29 / 3 / 0 | 1 / 0.1 / 0.1 / 1 | 17,252 (15,365) |
+| 35bb-2 | 172 | 8 / 36 / 41 (0) / 28 / 54 / 4 / 1 | 0.1 / 0.1 / 0.1 / 0.1 (no cold nodes) | 20,512 (18,233) |
 
-Confidence in this run comes only from the sanity flags (no move measured, so nothing is above 보통): mid 154 / low 16
-at 100bb-2.2, 127 / 28 at 100bb-3, 101 / 28 at 55bb, 169 / 2 at 35bb. The release run replaces these. One full
-100bb-2.2 run of the same model with sensitivity and two-start solves (in a scratch copy, 2 workers) passed: two-start
-converged at 1,500 with 6 nodes above 2pp (worst `bb-at-lj-open-co-call` 4.7pp), the five sensitivity solves had max
-gain 1.93–3.02 mbb at 1,000 iterations, and the badges were high 48 / mid 70 / low 52.
+Against fit 4acfad (170 / 155 / 129 / 171): 100bb-2.2 exports five more squeeze spots (`co-at-utgp1-open-utgp2-call`,
+`btn-at-utg-open-lj-call`, `sb-at-hj-open-co-call`, `bb-at-utgp1-open-hj-call`, `bb-at-utgp2-open-co-call`) and loses
+the cold spot `btn-at-utgp2-open-lj-3bet`; 100bb-3 adds `btn-at-utg-open-lj-call`, 55bb `co-at-utgp1-open-hj-call` and
+`btn-at-lj-open-hj-call`, 35bb `co-at-utgp1-open-lj-call`, each a spot whose occ crossed its threshold.
+
+**Confidence** (§6.6), high / mid / low: 51 / 69 / 54 at 100bb-2.2, 78 / 38 / 40 at 100bb-3, 28 / 53 / 50 at 55bb,
+65 / 44 / 63 at 35bb. The sensitivity solves (1,000 iterations each from a cold start; max gain in mbb/hand and median
+move in pp, per stage):
+
+| Solve | 100bb-2.2 | 100bb-3 | 55bb-2.2 | 35bb-2 |
+|---|---|---|---|---|
+| (a) priors × 0.5 | 2.10 / 6.5 | 1.79 / 3.5 | 2.36 / 5.3 | 0.38 / 4.1 |
+| (b) priors × 1.5 | 3.25 / 5.2 | 3.14 / 2.8 | 1.99 / 4.1 | 0.43 / 3.9 |
+| (c) model B, 3 features | 2.75 / 8.1 | 2.40 / 5.2 | 1.43 / 6.9 | 0.37 / 4.7 |
+| (d) surplus form | 1.78 / 5.7 | 2.56 / 4.2 | 1.98 / 4.6 | 0.54 / 7.1 |
+| (e) SPR_ALPHA = 6 | 2.21 / 2.8 | 2.95 / 2.9 | 2.04 / 4.6 | 0.28 / 8.3 |
+
+The largest moves are in multiway and blind-vs-blind spots: 100bb-2.2 `bb-at-utgp1-open-sb-call` 40.8pp, 100bb-3
+`sb-open-vs-bb-3bet` 32.0, 55bb `sb-at-co-open-btn-call` 51.0, 35bb `bb-at-utg-open-hj-call` 82.6 (each over 20pp,
+so badged 낮음).
+**PF-TWOSTART** converged on every stage: at 1,750 iterations at 100bb-2.2 (7 nodes above 2pp, worst
+`bb-at-lj-open-co-call` and `bb-at-utg-open-co-call` 4.4pp), at 2,000 at 100bb-3 (2 nodes, worst
+`bb-at-utg-open-co-call` 2.4pp), at 1,750 at 55bb-2.2 (27 nodes, worst `bb-at-utgp2-open-co-call` 75.9pp,
+`sb-at-utgp2-open-co-call` 71.3pp, `btn-at-utgp2-open-co-call` 59.2pp, `lj-at-lj-open-sb-call-bb-squeeze` 20.0pp,
+`utgp2-open-vs-co-3bet` 19.0pp) and at 1,500 at 35bb-2 (6 nodes, worst `co-at-utgp1-open-lj-call` 23.6pp). The 55bb
+spots behind a UTG+2 open and a CO call have at least two equilibria in this model, a different one in each solve.
+The check looks at every candidate node with reach ≥ 1%; the BB's and SB's spots there fall below 55bb's 1% squeeze
+threshold and are not exported, and every exported node over 2pp (the BTN's overcall spot, `utgp2-open-vs-co-3bet`
+and the others) is badged 낮음.
 
 **PF-OVERLAP** (25bb vs shortNash 25bb, ours / shortNash):
 
 | Seat | UTG | UTG+1 | UTG+2 | LJ | HJ | CO | BTN | SB |
 |---|---|---|---|---|---|---|---|---|
-| Open + jam | 16.6 / 13.9 | 18.4 / 15.7 | 20.6 / 18.6 | 23.6 / 21.4 | 26.6 / 25.9 | 32.4 / 33.2 | 41.6 / 46.9 (warning) | 86.3 / 96.8 (warning) |
-| BB defense vs this opener | 57.7 / 58.0 | 62.1 / 58.3 | 66.9 / 59.2 | 70.1 / 59.5 | 77.9 / 60.9 | 81.8 / 62.8 | 87.3 / 67.6 | 85.3 / 84.6 |
+| Open + jam | 16.6 / 13.9 | 18.4 / 15.7 | 20.6 / 18.6 | 23.6 / 21.4 | 26.7 / 25.9 | 32.3 / 33.2 | 41.7 / 46.9 (warning) | 86.3 / 96.8 (warning) |
+| BB defense vs this opener | 56.8 / 58.0 | 62.0 / 58.3 | 66.7 / 59.2 | 70.1 / 59.5 | 77.3 / 60.9 | 81.7 / 62.8 | 87.2 / 67.6 | 85.2 / 84.6 |
 
-Every open total is within 5pp except the BTN (41.6 against 46.9) and the SB (86.3 with limps against 96.8): the two
+Every open total is within 5pp except the BTN (41.7 against 46.9) and the SB (86.3 with limps against 96.8): the two
 trees give the SB different options (ours limps half its hands and faces a BB that can raise a limp), so its totals
 are not like for like. The BB defends up to 20pp wider than shortNash against later openers; shortNash values a BB
 flat with the one-sided `realizationAt` model, ours with model B fitted to the packs, whose low-card trash realizes
@@ -1131,17 +1251,18 @@ there are mostly ties, and AA's small 4-bet is the line §8 recommends. A spot w
 to its reaching hands.
 
 The set is built on first use. `CHART_SETS` holds the four hand-made sets (built at load; `CHART_SETS[0]` is `pub`,
-the default chart set and `getSet`'s fallback). The solver set sits in `LAZY_SETS` and is built once, synchronously,
-by the first `getSet("solver")`, `allSets()`, `allScenarios()` without a set, or `getNamedRanges()` (the calculator's
-villain ranges, memoized; a set pushed into `CHART_SETS` later is not added). The set picker reads `chartSetMenu()`
-(the solver set last) and `chartSetId(id)`, so listing it builds nothing. Before, every app start built it and its
-calculator ranges: in Chromium (iPhone 13 viewport, the built app, median of 5) the pub home screen's first render
-took 478 ms at 1× CPU and 1,601 ms at 4×, with 38.0 MB of JS heap; now 219 ms, 843 ms and 17.6 MB. The first solver
-screen costs 295 ms (1×) / 1,187 ms (4×) and 25.7 MB; switching to the solver set the first time 161 / 605 ms, the
-second time 15 / 64 ms. In Node the first `getSet("solver")` takes about 120 ms and holds 15 MB, the first
-`getNamedRanges()` about 110 ms and 7 MB more. There is no separate chunk: the data stays in the main bundle (about 1.30 MB minified, under workbox's 2 MiB precache
-limit). `src/data/lazySolver.test.ts` checks that the menu, the other sets, the pub quiz pool and the pub charts and
-quiz pages do not build it. Hand-play bots and grading do not use it in v1 (§9).
+`getSet`'s fallback for an unknown id; the default chart set is `solver`, §9). The solver set sits in `LAZY_SETS` and is built once, synchronously, by the
+first `getSet("solver")`, `allSets()`, `allScenarios()` without a set, or `getNamedRanges()` (the calculator's villain
+ranges, memoized; a set pushed into `CHART_SETS` later is not added). The set picker reads `chartSetMenu()` (the solver
+set first) and `chartSetId(id)`, so listing it builds nothing. Before, every app start built it and its calculator ranges
+(measured on the fit-4acfad data, 718,737 bytes; the release file is 725,029): in Chromium (iPhone 13 viewport, the
+built app, median of 5) the pub home screen's first render took 478 ms at 1× CPU and 1,601 ms at 4×, with 38.0 MB of JS
+heap; now 219 ms, 843 ms and 17.6 MB. The first solver screen costs 295 ms (1×) / 1,187 ms (4×) and 25.7 MB; switching
+to the solver set the first time 161 / 605 ms, the second time 15 / 64 ms. In Node the first `getSet("solver")` takes
+about 120 ms and holds 15 MB, the first `getNamedRanges()` about 110 ms and 7 MB more. There is no separate chunk: the
+data stays in the main bundle (about 1.30 MB minified, under workbox's 2 MiB precache limit).
+`src/data/lazySolver.test.ts` checks that the menu, the other sets, the pub quiz pool and the pub charts and quiz pages
+do not build it. Hand-play bots and grading do not use it in v1 (§9).
 
 ### 6.4 Scenario mapping
 
@@ -1195,13 +1316,13 @@ description's line show the fold of a seat that had already put voluntary chips 
 
 **Snapping.** Per class, the raw σ̄ over all actions, fold included, is floored to tenths and the remaining tenths go
 out by largest remainder; ties go to the earlier action in the tree's order, fold last (`snapTenths` through
-`snapStrategy`, which passes the tree's order; the solve.ts comment still says "display order"). The two orders
-differ only at `bb-vs-sb-limp` (tree: check, raise; display: raise, check), and the draft data has no exact tie
-there, so no cell depends on it. The same order is used for the gates' snapped gain and for the export. Every value is a
-multiple of 0.1 and they sum to exactly 1, so buildScenario's "earlier action takes first" fill reproduces them. This
-is the existing sets' 0.1 grid. `rangeText` writes compact range strings ("TT+, 99:0.5, A2s+, KTs-K6s:0.3") that
-`parseRange` reads back to exactly the same numbers. Snapping costs exploitability: the snapped gain is 2.2 mbb/hand
-at 100bb against 0.9 for σ̄ (§5.5).
+`snapStrategy`, which passes the tree's order; the solve.ts comment still says "display order"). The two orders differ
+only at `bb-vs-sb-limp` (tree: check, raise; display: raise, check), and the fit-4acfad draft had no exact tie there, so
+no cell depended on it (not rechecked on the release's raw σ̄). The same order is used for the gates' snapped gain and
+for the export. Every value is a multiple of 0.1 and they sum to exactly 1, so buildScenario's "earlier action takes
+first" fill reproduces them. This is the existing sets' 0.1 grid. `rangeText` writes compact range strings ("TT+,
+99:0.5, A2s+, KTs-K6s:0.3") that `parseRange` reads back to exactly the same numbers. Snapping costs exploitability: the
+snapped gain is 2.1 mbb/hand at 100bb-2.2 against 0.95 for σ̄ (§5.5).
 
 **Size ladder.** Every rfi node is exported, and every other node whose occ reaches its threshold. rfi, vsOpen, vsLimp
 and non-cold vs3bet use 0.1% of dealt hands. The ladder groups (squeeze, vs4bet, vsShove and the cold vs3bet nodes)
@@ -1225,7 +1346,7 @@ Each shipped stage is solved five more times, 1,000 iterations each from a cold 
 |---|---|---|
 | (a) | Every uncalibrated parameter × 0.5: c outside (SRP, IP aggressor), multiway c_pos, the multiway u term, α_mw | the priors of §3.8 |
 | (b) | The same × 1.5 | |
-| (c) | Model B on the first 3 features (pair, suited, hi2f5), α held at 0.553, its own c −0.089 and θ (`alternatives.modelB3`) | the feature set; the fold-boundary extrapolation |
+| (c) | Model B on the first 3 features (pair, suited, hi2f5), α held at 0.553, its own c −0.090 and θ (`alternatives.modelB3`) | the feature set; the fold-boundary extrapolation |
 | (d) | The equity-scaled surplus form, 9 features, on every heads-up flop (`alternatives.product`, R per class) | the model form; the fold-boundary extrapolation |
 | (e) | The old low-SPR rule: SPR_ALPHA = 6, so α shrinks with c and u | the 4-bet / jam split |
 
@@ -1239,9 +1360,9 @@ Multiway flops stay model B in (d).
 
 Solves (c) and (d) read `EQR_FIT.alternatives`: (c) its own c and the 3-long θ, applied to the first three columns
 of the 9-feature matrix (`prepareModelB` uses the first θ.length columns); (d) the per-class R_O and R_I the fit
-computed from all 9 features. Measured on one full 100bb-2.2 run of the shipped model (scratch copy, 1,000
-iterations each): max gain (a) 2.10, (b) 3.02, (c) 2.66, (d) 1.93, (e) 2.29 mbb/hand; median move 6.4 / 4.9 / 8.2 /
-5.4 / 3.0pp.
+computed from all 9 features. In the release run (1,000 iterations each) the 100bb-2.2 solves had max gain (a) 2.10,
+(b) 3.25, (c) 2.75, (d) 1.78, (e) 2.21 mbb/hand and median move 6.5 / 5.2 / 8.1 / 5.7 / 2.8pp; every stage is in
+§5.5.
 
 Per exported scenario, `move` is the largest over the five solves of the ρ-weighted mean total-variation distance
 between the main solve's and the variant's action distributions, in pp (ρ = the main solve's raw own reach).
@@ -1292,12 +1413,12 @@ The solver set's close calls and cautions (§6.9, §6.10), again only where the 
   class list, so every other cell's markup is byte for byte what it was. Its title adds " · EV 거의 같음: {A·B}" (the
   chart's action first). The legend gets an "EV 거의 같음" item (a fold swatch with the notch) when any hand is
   marked, and a spot with at least 25% of its in-reach cells marked (`isHeavyClose`) gets the muted note "표시된 칸이
-  많아요: 이 스팟은 액션끼리 EV 차이가 작은 핸드가 많아요." (eight blind-vs-blind spots, 27–42% of their cells).
+  많아요: 이 스팟은 액션끼리 EV 차이가 작은 핸드가 많아요." (eight blind-vs-blind spots, 30–41% of their cells).
 - The hand card of a marked hand says "차트는 {A}만 보여 주지만 {B}도 EV 차이가 0.05bb 이내라 거의 같아요." (`CloseNote`; A
   the chart's action, B the other near actions; "이내" because ε is inclusive), and the coach facts add "EV가 거의 같은
   액션: {A·B} (차이 0.05bb 이내, 솔버 균형에 대한 최선응답 기준)".
 - AA or KK with a passive action (call) in its near set (10 cells: KK {call, 3-bet} against 6 + 3 opens at 100bb-2.2 and
-  100bb-3, and 100bb-2.2 `utgp1-open-vs-bb-3bet` KK {call, jam}) rests on the pair-rank slope behind "More KK flats" (§8),
+  100bb-3, and 100bb-3 `utgp2-open-vs-bb-3bet` KK {call, jam}) rests on the pair-rank slope behind "More KK flats" (§8),
   the cause PF-SANITY-12 flags. Its hand card adds (`bigPairCloseNote`, `.flag-note`) "모델이 큰 페어의 콜 실현율을
   높게 잡는 알려진 한계가 있어서, 실전에서는 {3벳|올인} 쪽이 더 나을 수 있어요.", the coach facts "모델 한계: …", and the
   quiz does not accept the passive action as close where the chart raises (`quizCloseActions`): a KK flat next to a
@@ -1313,9 +1434,9 @@ The solver set's close calls and cautions (§6.9, §6.10), again only where the 
   chosen action) and the coach question "EV가 거의 같다고 나왔는데, 두 선택이 실전에서 어떻게 다른지 쉽게 설명해줘."; a
   correct answer in a marked cell shows the hand-card note. In the solver set every action the chart plays grades at
   least "부분 정답 (혼합 빈도)" (`SOLVER_MIXED_MIN` 0.05, half the data's 0.1 grid, against the hand-made sets' 0.2): an
-  equilibrium mixes only near-indifferent actions (84–92% of the 10% actions are within ε by best response), and a 10%
-  action graded 오답 next to a 0% tie graded 정답 would contradict the chart. The hand-made sets grade as before, and the
-  quiz never deals `quizSkip` hands (§6.3).
+  equilibrium mixes only near-indifferent actions (84–92% of the 10% actions were within ε by best response in the
+  fit-4acfad draft), and a 10% action graded 오답 next to a 0% tie graded 정답 would contradict the chart. The hand-made
+  sets grade as before, and the quiz never deals `quizSkip` hands (§6.3).
 
 ### 6.9 Close calls
 
@@ -1329,50 +1450,53 @@ The hero best-responds below the node and every other seat plays σ̄; bb net fr
 (given that the hero holds h at the node), so the hero's own reach does not enter the comparison.
 `solver.evaluate(σ̄, { brActionValues: true })` returns it per edge (§4). B rather than V^a (the hero following σ̄
 below) because a line the hero would play differently below must be valued at its best; σ̄ rather than the snapped
-profile because the snapped profile's off-grid rounding moves the opponents' replies. Checked by hand: at 100bb-2.2
-AA's call is worth 68.3823 bb against the engine's 68.38233, fold −11.5.
+profile because the snapped profile's off-grid rounding moves the opponents' replies. Checked by hand on the fit-4acfad
+draft: at 100bb-2.2 AA's call is worth 68.3823 bb against the engine's 68.38233, fold −11.5.
 
 **Eligible actions.** Fold always; a non-fold action only when it takes at least 1% of the reaching range
-(`reachShares`, the legend total the page shows). Below 1% its subtree is off σ̄'s path and the opponents' replies
-there have not converged (§8, "A 0% action can be a non-credible-threat artifact"): near sets that relied on such an
-action (37 / 27 / 39 / 97 cells) kept their set against the two-start solve only 55% of the time, against 91.5%
-overall. Example: 35bb `utgp1-vs-utg-open` KQs would be {call, 3-bet} with the call used 0.000%.
+(`reachShares`, the legend total the page shows). Below 1% its subtree is off σ̄'s path and the opponents' replies there
+have not converged (§8, "A 0% action can be a non-credible-threat artifact"): in the fit-4acfad scratch solves, near
+sets that relied on such an action (37 / 27 / 39 / 97 cells) kept their set against the two-start solve only 55% of the
+time, against 91.5% overall. Example: 35bb `utgp1-vs-utg-open` KQs would be {call, 3-bet} with the call used 0.000%.
 
 **The near set and the mark.** near(h) = the eligible actions with B ≥ best − ε, best the maximum over the eligible
 actions, ε = 0.05 bb, inclusive. A cell is marked when the chart shows it pure (one legend action at ≥ 0.999), near(h)
 has at least two actions, and the chart's action is one of them. Mixed cells are never marked: the chart already shows
 their mix, and marks on every cell do not fit PF-SIZE-1 in a release run. A near set without the chart's action
-(e.g. 100bb-3 `bb-at-utgp2-open-btn-call` AJo, near {squeeze, fold} while the chart overcalls 50%) would contradict the
-chart, so it is never written; pure cells whose action is ε or more below the best eligible one are not marked either
-(2 / 0 / 0 / 0: 100bb-2.2 `hj-at-utgp1-open-lj-call` folds 54s and 65s, 0.125 and 0.127 bb below the squeeze; counting
-any cell's top chart action, mixed cells included, gives 25 / 23 / 11 / 4).
+(e.g. in the fit-4acfad draft 100bb-3 `bb-at-utgp2-open-btn-call` AJo, near {squeeze, fold} while the chart overcalled
+50%) would contradict the chart, so it is never written; pure cells whose action is ε or more below the best eligible
+one are not marked either (fit-4acfad draft: 2 / 0 / 0 / 0, 100bb-2.2 `hj-at-utgp1-open-lj-call` folds 54s and 65s,
+0.125 and 0.127 bb below the squeeze, as the release chart still does; counting any cell's top chart action, mixed
+cells included, gives 25 / 23 / 11 / 4).
 
-**Why ε = 0.05.** Its stability: the marks keep the same set in 95.4 / 91.4 / 87.2% of the 100bb-2.2 cells against
-scratch solves at 1,750 and 1,500 iterations and the two-start solve, 94.8 / 90.8% at 100bb-3, 95.2% at 55bb and
-95.0% at 35bb against 1,250 iterations; flips sit at the ε boundary. And its size: 0.05 bb per arrival is below any
+**Why ε = 0.05.** Its stability (measured on the fit-4acfad stages, not repeated on the release fit): the marks keep
+the same set in 95.4 / 91.4 / 87.2% of the 100bb-2.2 cells against scratch solves at 1,750 and 1,500 iterations and
+the two-start solve, 94.8 / 90.8% at 100bb-3, 95.2% at 55bb and 95.0% at 35bb against 1,250 iterations; flips sit at
+the ε boundary. And its size: 0.05 bb per arrival is below any
 difference a pub player acts on. It equals `DEFAULT_GATES.localRegret` numerically, but that gate is a reach-weighted
 node average of max_a V − Σσ·V, not a per-hand best-response gap, so the equality is no argument for it.
 
 **Encoding and size.** One 169-character string per scenario in `ALL_HANDS` order: "." or a lowercase hex digit, the
 bitmask over the legend (at most 4 actions; the generator throws above). Omitted when nothing is marked; `closeEps` per
-stage. Measured alternatives: in-reach characters only (−1.1K gzip), a delta against the chart's own mixes (+8.5K,
-which would also mark mixed cells), sparse range strings; the 169-character form is self-describing and fits.
-Annotations add 8,265 bytes gzip to the draft (72,215 of 80,000); a release run is projected near 77,500. If a refit
-pushes the annotated file over PF-SIZE-1, the generator drops close strings from the rarest spots first, stepping the
-threshold through 0.2, 0.5, 1 and 2% of dealt hands (`CLOSE_LADDER`; no 0.1 step, since every shipped spot has occ ≥
-0.1, and a step that drops nothing is skipped) and printing "PF-SIZE-1: annotated gzip X > 80,000; close strings kept
-only on spots with occ ≥ T% (N spots lost theirs)". `dropClose` records the step as `closeMinOcc` on each stage that
-lost a string and recomputes that stage's flags on the strings it keeps: a cell whose mark is gone is a clear cell
-again, so a rule hit there joins its flag (on the committed draft, 0.5% turns `utgp1-open-vs-bb-3bet` KK into a
-PF-SANITY-12 flag; 2% changes 4 spots). The generator's self-check `flagProblems` re-derives every stage's flags from
-its stored close strings, as the data test does. Only if 2% still does not fit does the run fail ("PF-SIZE-1 FAILED
-after annotations", nothing written). Spots never change, and PF-SIZE-1's limit is unchanged.
+stage. Measured alternatives: in-reach characters only (−1.1K gzip), a delta against the chart's own mixes (+8.5K, which
+would also mark mixed cells), sparse range strings; the 169-character form is self-describing and fits. Annotations add
+8,442 bytes gzip to the release data (78,255 of 80,000; 69,813 without them, §5.5). If a refit pushes the annotated file
+over PF-SIZE-1, the generator drops close strings from the rarest spots first, stepping the threshold through 0.2, 0.5,
+1 and 2% of dealt hands (`CLOSE_LADDER`; no 0.1 step, since every shipped spot has occ ≥ 0.1, and a step that drops
+nothing is skipped) and printing "PF-SIZE-1: annotated gzip X > 80,000; close strings kept only on spots with occ ≥ T%
+(N spots lost theirs)". `dropClose` records the step as `closeMinOcc` on each stage that lost a string and recomputes
+that stage's flags on the strings it keeps: a cell whose mark is gone is a clear cell again, so a rule hit there joins
+its flag (on the fit-4acfad draft, 0.5% turned 100bb-2.2 `utgp1-open-vs-bb-3bet` KK into a PF-SANITY-12 flag, which that
+cell already is in the release data, and 2% changed 4 spots). The generator's self-check `flagProblems` re-derives every
+stage's flags from its stored close strings, as the data test does. Only if 2% still does not fit does the run fail
+("PF-SIZE-1 FAILED after annotations", nothing written). Spots never change, and PF-SIZE-1's limit is unchanged.
 
-**What a mark means, and what it does not.** A mark is true of the model against σ̄: 87–95% of marks survive the other
-checkpoints and the two-start solve. Its absence is not a clear preference everywhere: in 100bb all-in spots the
-equity table's ±0.45pp (§4.10) is about ±0.9 bb in a 200bb pot, far above ε, so an unmarked cell there can be a tie in
-the real game (100bb-3 `bb-3bet-vs-btn-4bet-jam` 88: call − fold −0.39 against the snapped jam range). Mixed cells
-carry no mark; the quiz grades their played actions by the solver set's mixed floor instead (§6.8).
+**What a mark means, and what it does not.** A mark is true of the model against σ̄: 87–95% of marks survived the other
+checkpoints and the two-start solve (fit-4acfad stages). Its absence is not a clear preference everywhere: in 100bb
+all-in spots the equity table's ±0.45pp (§4.10) is about ±0.9 bb in a 200bb pot, far above ε, so an unmarked cell there
+can be a tie in the real game (fit-4acfad draft, 100bb-3 `bb-3bet-vs-btn-4bet-jam` 88: call − fold −0.39 against the
+snapped jam range). Mixed cells carry no mark; the quiz grades their played actions by the solver set's mixed floor
+instead (§6.8).
 
 ### 6.10 Artifact flags
 
@@ -1381,9 +1505,9 @@ Some cells show a known model or tree artifact (§8) as a clear model preference
 "Raise" is open, raise, 3-bet, squeeze, 4-bet or jam, "plays" is 1 − fold, every comparison has 1e-9 slack, and a cell
 is a tie when the chart shows it mixed or it carries a close mark. `hands` lists only rule hits on clear cells (pure,
 unmarked), so every listed hand is a clear preference in the artifact's direction against the eligible actions (an
-action under 1% of the reaching range can still be within ε: in 3 of the 10 -12 KK flags the unused small 4-bet is
-0.013–0.045 bb behind); a flag is written only when `hands` is not empty. `vs` lists the comparison hands, measured against the remaining `hands`, on any cell (the caution
-quotes them).
+action under 1% of the reaching range can still be within ε: in the fit-4acfad draft, in 3 of the 10 -12 KK flags the
+unused small 4-bet was 0.013–0.045 bb behind); a flag is written only when `hands` is not empty. `vs` lists the
+comparison hands, measured against the remaining `hands`, on any cell (the caution quotes them).
 
 | Code | Spots | `hands` | `vs` | Caution (예: the chart's own numbers) |
 |---|---|---|---|---|
@@ -1397,14 +1521,16 @@ The example of each caution is true by its rule, with ties going to the first ha
 connector with the most 3-betting and the wheel ace with the most (A5s → A2s); -11 the `hands` pair with the least
 raising and the `vs` pair with the most; -12 every `hands` pair; -13 the pair (lower from `hands`, higher from
 `vs` ∪ `hands`) with the largest jam gap; -14 the pair with the largest gap in plays. The data test re-derives every
-number. Many raw hits are ties, which is why the flags keep clear cells only: at 100bb-2.2 all 7 PF-SANITY-12 KK hits
-are within 0.045 bb and close-marked, and 36 of the 43 TT–77 `vs` cells of PF-SANITY-11 are, with a median gap of
-0.007 bb. That cut the flagged spots from 42 / 39 / 22 / 6 to 20 / 27 / 10 / 3.
+number. Many raw hits are ties, which is why the flags keep clear cells only: of the 7 PF-SANITY-12 KK hits at
+100bb-2.2, 4 are mixed cells and 3 are pure calls without a mark, which are its 3 flags; of the 43 TT–77 `vs` cells of
+PF-SANITY-11 there, 12 carry a close mark, and in the fit-4acfad re-solve 36 of the 43 were within ε by best response
+(median gap 0.007 bb). That cuts the spots with a raw hit, 41 / 42 / 23 / 6, to 24 / 29 / 10 / 3 flagged spots (42 /
+39 / 22 / 6 to 20 / 27 / 10 / 3 with fit 4acfad).
 
 The quiz never deals `hands`, nor the `vs` of -9 and -14 (both sides distorted, §8); it keeps the `vs` of -11 (TT–77
-against opens, where folding is a real error) and -13 (AA's small 4-bet, the line §8 recommends). That skips 54 / 61 /
-17 / 11 cells, 1.14 / 1.18 / 0.49 / 0.04% of the quiz's draws. The `vs` skip of -9 and -14 is deliberate even where the
-cell is a tie (at 100bb-2.2, 19 of the 28 -9 `vs` cells, A5s–A2s, are close-marked or mixed within ε): the artifact
+against opens, where folding is a real error) and -13 (AA's small 4-bet, the line §8 recommends). That skips 61 / 61 /
+17 / 11 cells, 1.21 / 1.17 / 0.47 / 0.04% of the quiz's draws. The `vs` skip of -9 and -14 is deliberate even where the
+cell is a tie (at 100bb-2.2, 23 of the 32 -9 `vs` cells, A5s–A2s, are close-marked or mixed): the artifact
 biases the wheel aces' own values (u_aggr ignores the opener's range, θ_O.wheel lifts A4o–A2o), so a tie's near set can
 leave out the line a corrected model would choose (a {call, fold} A2s tie would grade the 3-bet 오답). Dealing them back
 when the cell is a tie would restore a core 3-bet-bluff drill at the cost of grading it against a distorted value; a
@@ -1414,12 +1540,17 @@ description; PF-SANITY-11 to -14 also print every unrestricted hit (§5.2).
 ## 7. How to regenerate
 
 ```
-node scripts/fit-realization.mjs              # refit model B, its alternatives and κ → src/poker/preflop/eqrFit.ts
-node scripts/fit-realization.mjs --check      # recompute and compare with the committed fit; exit 1 if it differs
-node scripts/fit-realization.mjs --packs a,b  # fit on these manifest packs only (default: all of them)
-node scripts/make-preflop.mjs                 # every stage with two-start and sensitivity solves → preflopData.ts
-node scripts/make-preflop.mjs --check         # the same plus PF-DET; compares with the committed file, writes nothing
+PACKS=srp-btn-bb-100,pub-srp-btn-bb-55
+node scripts/fit-realization.mjs --packs $PACKS          # refit model B, its alternatives and κ → src/poker/preflop/eqrFit.ts
+node scripts/fit-realization.mjs --packs $PACKS --check  # recompute and compare with the committed fit; exit 1 if it differs
+node scripts/fit-realization.mjs --packs all             # every manifest pack, pub-srp-utg-bb-55 included: a diagnostic (§3.7 bias 2)
+node scripts/make-preflop.mjs                            # every stage with two-start and sensitivity solves → preflopData.ts
+node scripts/make-preflop.mjs --check                    # the same plus PF-DET; compares with the committed file, writes nothing
 ```
+
+Without `--packs` the fit script takes the packs the committed `eqrFit.ts` names, today the same two BTN packs, and
+prints which manifest packs it left out; naming them is still the safe habit, since the manifest now also lists the
+UTG pack.
 
 The fit comes first because the charts depend on it. `make-preflop.mjs --check` is how a reviewer confirms that the
 committed data is exactly what the committed code, fit and table give. Useful flags: `--stages a,b` (a subset),
@@ -1428,18 +1559,21 @@ N is 4,000),
 `--no-sensitivity` and `--no-twostart` (a draft: listed in `PREFLOP_DRAFT_STAGES`, badges provisional, said so in the
 descriptions), `--ignore-gates` (development only), `--dump DIR` (per stage the config, σ̄ as float32 and every
 node's line, kind, occ, reach, regret and shares, for review), `--summary-dir DIR`, `--workers N`, `--out FILE`. The
-main solves alone took 246 s on 4 workers (§4.7; the latest draft, 5 stages with the 35bb re-solve, 309 s); the
-release run adds one two-start and five 1,000-iteration solves per shipped stage.
+main solves alone took 246 s on 4 workers on an idle machine (§4.7; a fit-4acfad draft, 5 stages with the 35bb
+re-solve, 309 s); the release run adds one two-start and five 1,000-iteration solves per shipped stage and took
+20 min on 4 workers with other jobs on the machine (`--check` 17 min).
 
 Things to know before regenerating:
-- **The fit follows the packs.** `fit-realization.mjs` reads every flop file listed in `public/packs/manifest.json`
-  (or of the `--packs` subset), and the presolve workflow adds flops every 6 hours on 16 shards
-  (`docs/solver-packs.md`). A new pack, such as a UTG-vs-BB one, joins the default fit as soon as the manifest lists
-  it; `--packs` leaves it out (or picks it) deliberately. Once the packs have grown,
-  a refit gives a different fit hash and different charts, and `fit-realization.mjs --check` exits 1: that means the
-  packs moved, not that the fit is broken. `eqrFit.ts` records each pack's version, flop count and file-list hash, so
-  the pack state behind a chart is always known. Refit deliberately (v1.5, when both packs cover all 1,755 flop
-  classes), not after every presolve commit.
+- **The fit follows the packs.** `fit-realization.mjs` reads every flop file of the packs it fits, and the presolve
+  workflow adds flops on 16 shards, one run after another while flops are left (the 6-hourly schedule is a backstop;
+  `docs/solver-packs.md`). A new pack in the manifest, such as
+  `pub-srp-utg-bb-55`, does not join a bare run: the default is the packs the committed `eqrFit.ts` names, and a pack
+  joins only when `--packs` names it (or `--packs all`). Once a fitted pack has grown, a refit gives a different fit
+  hash and different charts, and `fit-realization.mjs --check` exits 1: that means the packs moved, not that the fit
+  is broken. `eqrFit.ts` records each pack's version, flop count and file-list hash, so the pack state behind a chart
+  is always known. Both BTN packs now cover all 1,755 flop classes and the shipped fit uses every one of them
+  (2026-11-17), so later presolve commits cannot move it; the UTG pack, still being solved, is kept out by decision
+  (§3.7 bias 2).
 - **Pack changes that break the fit.** A pack whose OOP may bet the flop stops the fit (IP's root EV is not stored,
   §3.7); a pack version bump changes the fit like new flops do.
 - **The equity table** is read from `node_modules/.cache/pubaj-equity-12000.json`; when it is missing,
@@ -1454,13 +1588,14 @@ development run through), and the data test pins both hashes to `eqrFit.ts`.
   to a flop, one size per raise level, no open limps. No 3-way all-ins: PF-FROZEN puts the lines where the first
   call of a jam folds out a seat with voluntary chips at 0.7% of hands at 100bb, 1.6% at 55bb and 1.1% at 35bb.
 - **The mass method** (§4.3): pairwise card removal, no bunching, and with 3+ seats not one well-defined game.
-  Σ EV ≈ +0.12–0.13 bb/hand; per-seat EVs are each seat's own-world EV. Gains and NashConv stay valid in each seat's
+  Σ EV ≈ +0.13 bb/hand; per-seat EVs are each seat's own-world EV. Gains and NashConv stay valid in each seat's
   own world.
-- **Postflop is modelled, not solved.** One context (SRP, BTN open vs BB call) is fitted. Everything else in §3.8 is
-  a documented prior: OOP aggressors, limped pots, IP callers, the SPR shrinks of 3-bet and 4-bet pots, the low-SPR α
-  rule that decides the 4-bet / jam split, and all of multiway (κ product, α_mw = α, c_pos ±0.02), which our heads-up
-  packs can never calibrate. Model B is linear in equity, so a weak hand against a strong range can get a negative
-  pot share (counted, at most 0.027% of hands, at 100bb-3).
+- **Postflop is modelled, not solved.** One context (SRP, BTN open vs BB call) is fitted, and u ignores the opponent's
+  range: the held-out UTG pack shows the BB realizing about 0.05 of the pot more against a strong opener than the model
+  says (§3.7 bias 2). Everything else in §3.8 is a documented prior: OOP aggressors, limped pots, IP callers, the SPR
+  shrinks of 3-bet and 4-bet pots, the low-SPR α rule that decides the 4-bet / jam split, and all of multiway (κ
+  product, α_mw = α, c_pos ±0.02), which our heads-up packs can never calibrate. Model B is linear in equity, so a weak
+  hand against a strong range can get a negative pot share (counted, at most 0.027% of hands, at 100bb-3).
 - **The packs' own biases** (§3.7): no OOP donk bet and a coarse IP tree, a 6-max no-ante cash pack, hand-made pack
   ranges, so the fold-boundary realization that decides BB and SB defense is extrapolated.
 - **Chip EV, not ICM.** Nothing here knows about pay jumps or the bubble; `docs/game-profile.md` shows how much ICM
@@ -1468,38 +1603,47 @@ development run through), and the data test pins both hashes to `eqrFit.ts`.
 - **Equal stacks**, 9 seats, a 1bb BB ante, no rake, no straddle. 169 hand classes with average card removal.
 - **Convergence.** 9-player DCFR has no convergence or uniqueness guarantee. The gates bound each seat's gain at the
   end of the run, PF-TWOSTART probes for a second equilibrium, and rare lines below the export thresholds may be
-  poorly converged. Snapping to the 0.1 grid costs up to about 1.9 mbb/hand (100bb-3).
+  poorly converged. In the release run the 55bb two-start solve found a second equilibrium behind a UTG+2 open and a
+  CO call (27 nodes over 2pp, up to 75.9pp; §5.5), and the 100bb-2.2 gates passed with little room (max gain 0.948
+  of 1.0, snapped 2.12 above the 2.0 warning line). Snapping to the 0.1 grid costs up to about 2.1 mbb/hand
+  (100bb-2.2).
 
-Known artifacts a strong player will see in the charts (found in review; none is an export bug). The best-response
-values quoted below are bb per hand class at 100bb-2.2, the actor best-responding from the node down and every other
-seat at σ̄; they come from a re-solve (2,000 iterations, the same gates as the draft, 0.899 / 4.513) whose
-evaluation also exported each action's best-response value. That export is now in the engine,
+Known artifacts a strong player will see in the charts (found in review; none is an export bug). The chart cells and
+counts quoted below are the release data's. The best-response values are bb per hand class at 100bb-2.2, the actor
+best-responding from the node down and every other seat at σ̄; they come from a re-solve on the previous fit
+`4acfad77aa35` (2,000 iterations, max gain 0.899, NashConv 4.513) whose evaluation also exported each action's
+best-response value, and were not recomputed for the release fit (the refit moved the median scenario by 0.2–0.33pp
+and no spot by more than 3.1pp, §5.5), so read them as sizes, not exact margins. That export is now in the engine,
 `evaluate(σ̄, { brActionValues: true })` (§4, tested in `solve.test.ts`), and the generator writes the close marks
 (§6.9) from it. The artifacts below that a rule can find are flagged in the data (§6.10): the charts page shows their
 caution, and the quiz skips the flagged cells.
-- **Top-card inversions (PF-SANITY-8, print only).** In RFI and BB defense the kicker inversions of the 5-feature
-  fit (weak Ax below the Kx with the same kicker, KTo / JTo below K9o / J9o) stay gone: PF-SANITY-7 is 0 on every
-  stage (§3.7 bias 5). Model B's u is additive and blind to the opponent's range, so against tight ranges a Kx < Qx
-  cell can remain: 55bb UTG+2 KTo 0.1 < QTo 0.3 and 35bb UTG+2 KTo 0.5 < QTo 0.8 (0 / 1 / 3 / 3 such spots before,
-  0 / 0 / 1 / 1 now; §5.5). The model now over-states the IP K − Q step (§3.7 bias 5), which favours Kx, so a Qx cell
-  well below its Kx is the direction to suspect; nothing checks it. A few Q-x below J-x cells exist too, unchecked, in
-  the direction the packs' own shares point.
+- **Top-card inversions (PF-SANITY-8, print only).** In RFI and BB defense the kicker inversions of the 5-feature fit
+  (weak Ax below the Kx with the same kicker, KTo / JTo below K9o / J9o) stay gone: PF-SANITY-7 is 0 on every stage
+  (§3.7 bias 5). Model B's u is additive and blind to the opponent's range, so against tight ranges a Kx < Qx cell can
+  remain: 35bb UTG+2 KTo 0.6 < QTo 0.8 (0 / 0 / 0 / 1 such spots; 0 / 0 / 1 / 1 with fit 4acfad, whose 55bb UTG+2 KTo
+  0.1 < QTo 0.3 is now 0.2 / 0.3, inside the tolerance; 0 / 1 / 3 / 3 with the 6-feature fit; §5.5). The model now
+  over-states the IP K − Q step (§3.7 bias 5), which favours Kx, so a Qx cell well below its Kx is the direction to
+  suspect; nothing checks it. A few Q-x below J-x cells exist too, unchecked, in the direction the packs' own shares
+  point.
 - **Kicker, top-card and same-gap inversions outside RFI and BB defense (PF-SANITY-10, print only).** The kicker fix
-  does not reach the squeezes: Ax-below-Kx pairs there are 60 / 43 / 23 / 22 per stage (74 / 36 / 18 / 31 with the
-  previous fit), e.g. at 100bb-2.2 `hj-at-utg-open-lj-call` folds ATs and squeezes KTs 100%, and `sb-vs-btn-open` (occ
-  12.0%) folds A7o and calls K7o. Kx-below-Qx pairs in squeezes fell (20 / 19 / 11 / 25, 35 / 25 / 17 / 31 before), and
-  same-gap inversions outside RFI and BB defense fell at 100bb-2.2 and 35bb (76 and 56, 107 and 65 before) but grew at
-  100bb-3 (96, 64 before; `btn-at-lj-open-co-call` squeezes 65s and folds 76s). RFI has none any more (UTG at 100bb-3
+  does not reach the squeezes: Ax-below-Kx pairs there are 63 / 48 / 27 / 25 per stage (60 / 43 / 23 / 22 with fit
+  4acfad, 74 / 36 / 18 / 31 with the 6-feature fit), e.g. at 100bb-2.2 `hj-at-utg-open-lj-call` folds ATs and squeezes
+  KTs 100%, and `sb-vs-btn-open` (occ 12.0%) folds A7o and calls K7o. Kx-below-Qx pairs in squeezes are 23 / 15 / 11 /
+  23 (20 / 19 / 11 / 25 with fit 4acfad, 35 / 25 / 17 / 31 with the 6-feature fit), and same-gap inversions outside RFI
+  and BB defense 91 / 92 / 18 / 57 (76 / 96 / 17 / 56; 107 / 64 / 20 / 65), partly because 100bb-2.2 exports five more
+  squeeze spots (100bb-3 `btn-at-lj-open-co-call` overcalls 65s and folds 76s). RFI has none any more (UTG at 100bb-3
   folds 54s, 65s and 76s alike). Counts per kind in §5.5. By best response the squeeze hits are real model
   preferences, not ties: `btn-at-utg-open-co-call` (occ 0.85%) loses 0.44 bb squeezing A9s and gains 0.02 squeezing
   K9s, ATs −0.09 against KTs +0.43; the cause is not traced (blockers and the squeeze-pot valuation are untested).
-  The cold vs-open hits are mostly ties: `lj-vs-utg-open` 3-bets K9s 58% at −0.008 bb and A9s 15% at +0.001.
+  The cold vs-open hits are mostly ties: in the re-solve `lj-vs-utg-open` 3-bet K9s 58% (raw σ̄) at −0.008 bb and A9s
+  15% at +0.001; the release chart 3-bets K9s 70% and A9s 20%.
 - **3-bet bluffs on low suited connectors, not wheel aces (PF-SANITY-9, print only): fewer, not gone.** At 100bb-2.2
-  `co-vs-utg-open` (occ 9.2%) 3-bets 54s and 65s 100% and 43s 0% (100% before), 3-bets A4s 50%, flats A5s and folds
-  A3s, A2s and 55; `hj-vs-utg-open` 3-bets 54s 100% and 65s and A5s 50%; `bb-vs-utg-open` 3-bets 54s 80% and 43s 20%
-  and flats A5s–A2s. Across the 100bb-2.2 vs-open and first-in squeeze spots the 3-bet frequency summed over 43s,
-  54s, 65s, 53s and 64s is 32.2 hand classes (47.5 before) against 20.4 over A5s–A2s (19.2). PF-SANITY-9 fires on 16
-  spots at 100bb-2.2 and 9 at 100bb-3 (23 and 16 before), none at 55bb or 35bb. The aggressor's low-card
+  `co-vs-utg-open` (occ 9.2%) 3-bets 54s and 65s 100% and 43s 0% (100% with the 6-feature fit), 3-bets A4s 60%, flats
+  A5s, calls A3s 30% and folds A2s and 55; `hj-vs-utg-open` 3-bets 54s 100%, 65s 60% and A5s 50%; `bb-vs-utg-open`
+  3-bets 54s 70% and 43s 40% and flats A5s–A2s. Across the 100bb-2.2 vs-open and first-in squeeze spots the 3-bet
+  frequency summed over 43s, 54s, 65s, 53s and 64s is 34.9 hand classes (32.2 with fit 4acfad, 47.5 with the
+  6-feature fit) against 21.0 over A5s–A2s (20.4, 19.2). PF-SANITY-9 fires on 21 spots at 100bb-2.2 and 11 at 100bb-3
+  (16 and 9 with fit 4acfad, 23 and 16 with the 6-feature fit), none at 55bb or 35bb. The aggressor's low-card
   over-prediction behind it is fixed where the packs have rows (§3.7 bias 8; u_aggr(43s) − u_aggr(A5s) = +0.218, the
   cash rows +0.213), so what remains comes from applying u_aggr to every 3-bettor and u_call to every cold caller (the
   role rule, §3.8), and from u ignoring the opener's range. By best response at 100bb-2.2, `co-vs-utg-open` gains
@@ -1507,165 +1651,193 @@ caution, and the quiz skips the flagged cells.
   Against UTG's range that continues against a CO 3-bet, A5s has more equity than 54s (0.366 against 0.308) and
   leaves fewer combos (90.5 against 102.5), yet u_aggr(54s) − u_aggr(A5s) is +0.218 of the pot whatever the range:
   that gap was fitted against the BB's wide range, where the equity gap is larger (0.569 against 0.394 vs the cash BB
-  range). In `bb-vs-utg-open` the 54s 3-bet (80%) is an exact tie (0.000 bb), and A5s flats by 0.195 bb because the
-  OOP 3-bettor gets u_aggr (A5s −0.070, against u_call −0.013). No feature-level fix exists: the lead is a u that
-  depends on the opponent's range (the product form of sensitivity solve (d) is one), and the UTG pack is the first
-  data on it. A strong player still reads "CO vs UTG: 3-bet 54s, flat A5s" as wrong. Against UTG–LJ openers the clear
-  cells are flagged (7 / 5 / 0 / 0 spots, §6.10): the page shows the caution and the quiz skips the connectors and the
-  wheel aces there.
-- **Wide BB defense with low-card trash.** BB defense vs BTN / SB is 82.3 / 90.8% at 100bb-2.2 (84.0 / 92.9 before)
-  and 80.5 / 90.6% at 55bb (84.5 / 92.8), because the rank features still give 7-high and 3-high hands more
-  realization than K- and Q-high trash (OOP EQR 72o 0.46, K2o 0.55; §3.7), as the packs' own rows down to 5-high do.
-  At 100bb-2.2 the BB defends K2o and Q2o vs the BTN but folds 72o, 32o and T2o. These hands are outside both packs'
-  BB ranges, so this is extrapolation (flat below 5-high now, §3.4). The BTN no longer opens 32s, 42s or 52s (43s
-  still opens) and opens A4o 40% (a tie, 0.000 bb), but still folds A2o and A3o (−0.18 and −0.09 bb by best
-  response) and K2o–K4o while opening K5o, Q6o and J7o (+0.06, +0.01, +0.01). The offsuit aces follow measured rows
-  (cash IP EQR 0.88–0.93 for A2o–A5o, the model within 0.01); K5o, Q6o and J7o have no IP rows and are extrapolated
-  from K6o, Q8o and J8o.
-- **BB vs UTG Q-x.** At 100bb-2.2 the BB calls Q7s 70%, Q6s 60% and QTo 80% against a UTG open (all folded before)
-  but still folds Q5s–Q2s and Q9o while defending 73s, 63s, 62s, 52s, 42s and 32s 100%: u does not depend on the
-  opener's range, so the domination of Q-x by a tight range is not modelled (the packs' OOP 73s realizes at least as
-  well as Q7s against the wide BTN range). The UTG pack (`pub-srp-utg-bb-55`, solving now) will measure it. By best
-  response the margins over folding are small: 62s +0.028, 32s +0.036 and 84s +0.032 bb defended, Q5s −0.036, Q2s
-  −0.132 and J5s −0.127 folded. The OOP top-card curve adds to it: hi2f5 under-rates J-x and Q-x against 7- to 9-high
-  hands (§3.7 bias 5), so `bb-vs-utgp2-open` folds J3s (−0.019) and defends 93s, 83s and 73s (+0.034, +0.021,
-  +0.079).
-- **Small pairs and weak suited aces at early seats (100bb-2.2).** UTG folds 22–55 and opens 66 20%, HJ folds 22–44,
-  the CO folds 22–33 (55bb: CO folds 22); UTG opens A9s 100%, A8s 20% and A5s 50% and folds A7s, A6s, A4s–A2s. These
-  are clear preferences, not ties: by best response opening 22 / 33 / 44 / 55 at UTG loses 0.48 / 0.41 / 0.33 / 0.18
-  bb (66 is a tie, +0.004), at the HJ 22 / 33 / 44 lose 0.39 / 0.25 / 0.06 and at the CO 22 / 33 lose 0.24 / 0.04. The
-  model's pair curve is convex where the packs' is flat from 22 to 55 (§3.7 bias 9): IP 22 realizes 1.02 in the model
-  against 1.14 measured, the worst of all pairs. The cause is α held at the prior, not the pair term's shape: the
-  same features with α free give IP 22 1.12, and no monotone pair curve with α held gets 22 above 1.08.
-- **More KK flats.** The pair-rank slope that makes QQ–AA realize well as callers (§3.7 bias 7) lets KK flat 3-bets:
-  at 100bb-2.2 the UTG opener calls a blind 3-bet with KK 100% and UTG+1 / UTG+2 80–100% / 30–70% (9 KK cells below a
-  full raise across vs-open and vs-3-bet spots, 10 before), at 100bb-3 the UTG opener calls 3-bets with KK 80–100% of
-  the time from every seat (21 cells, 21 before), at 55bb-2.2 9 cells (10) and at 35bb none. Against opens the same
-slope leaves KK's flat within ε of its 3-bet in 9 pure 3-bet cells (6 at 100bb-2.2, 3 at 100bb-3, e.g. `co-vs-utg-open`
-call 7.224 against 3-bet 7.256): they carry close marks, but the quiz does not accept the flat and the hand card adds
-the big-pair caveat (§6.8). AA raises wherever it
-  can except the SB first in, which limps AA 100% at 100bb-2.2, 100bb-3 and 55bb-2.2 (occ 9–11%) and KK 90 / 90 / 40%.
-- **Jams over small 4-bets and cold calls.** PF-SANITY-6 fires on 12 spots at 100bb-2.2 (11 before), all against
-  blind 3-bets, on 27 at 100bb-3 and 21 at 55bb; PF-SANITY-5 on 4 / 1 / 7 / 2 spots (BTN and CO cold calls of 10–16%
-  against early opens). Both follow from α held at the prior and the role rule (§3.8); all are badged 낮음.
-- **35bb ships without cold jams.** The cold4 "jam" solve now passes every gate (gain 0.328, NashConv 1.95, snapped
-  1.08 at 1,500) but is still the degenerate profile: UTG never min-raises and opens 4.6% by jamming, against
-  off-path 3-bets of 21–42% vs a UTG open, which leaves 28 vs-open spots, below PF-DATA-1's 30 (§5.5). The generator
-  re-solves such a stage with cold4 "none" (§2.8), so 35bb-2 is that re-solve, the only usable 35bb for now: the cold
-  seat behind a 3-bet folds. Players in front of that seat see the fold-only cap's signature (the middle column of
-  §2.8, where UTG+1 vs UTG called 0.6 and 3-bet 8.7%): cold flats all but vanish and 3-bets inflate (shares of all
-  hands, against the 5-feature fit's cold-jam 35bb: UTG+1 vs UTG call 0.0 / 3-bet 8.4 against 7.1 / 4.1; HJ vs LJ
-  0.5 / 11.8 against 8.3 / 7.2; CO vs HJ 0.5 / 13.9 against 10.3 / 8.5; BTN vs CO 0.9 / 17.7 against 11.8 / 12.1; SB
-  vs BTN 3-bet 21.9 against 11.5 plus 7.3 jams). Cold calls jump between seats (the BTN calls T9s and 98s 100% vs a
-  UTG open and folds them vs a CO open), Ax < Kx cells remain in the cold vs-open spots (`utgp1-`, `utgp2-` and
-  `lj-vs-utg-open`, occ 12.5–14.9%, fold ATs and 3-bet KTs), and the BTN's RFI falls to 45.4% (51.9% at 55bb). Until a
-  cold-jam 35bb can be solved, these spots are the weakest charts in the set; whether the quiz should skip or badge
-  the 35bb non-blind vs-open spots is open.
+  range). In `bb-vs-utg-open` the 54s 3-bet (80% then, 70% now) was an exact tie (0.000 bb), and A5s flats by 0.195 bb
+  because the OOP 3-bettor gets u_aggr (A5s −0.071, against u_call −0.013). No feature-level fix exists: the lead is a
+  u that depends on the opponent's range (the product form of sensitivity solve (d) is one). The held-out UTG pack
+  (§3.7 bias 2) cannot measure these spots: there UTG is the aggressor against the BB's call, while these spots need
+  an aggressor against a strong opener, and 54s and 65s are not in UTG's range; its A5s, as UTG's aggressor hand, is
+  under-predicted by +0.069 of the pot, weak support for wheel-ace 3-bets over low connectors. A strong player still
+  reads "CO vs UTG: 3-bet 54s, flat A5s" as wrong. Against UTG–LJ openers the clear cells are flagged (8 / 5 / 0 / 0
+  spots, §6.10): the page shows the caution and the quiz skips the connectors and the wheel aces there.
+- **Wide BB defense with low-card trash.** BB defense vs BTN / SB is 81.8 / 90.7% at 100bb-2.2 and 80.3 / 90.6% at 55bb
+  (snapped; 82.3 / 90.8 and 80.5 / 90.6 with fit 4acfad, 84.0 / 92.9 and 84.5 / 92.8 with the 6-feature fit), because
+  the rank features still give 7-high and 3-high hands more realization than K- and Q-high trash (OOP EQR 72o 0.45, K2o
+  0.55; §3.7), as the packs' own rows down to 5-high do. At 100bb-2.2 the BB defends K2o and Q2o vs the BTN but folds
+  72o, 32o and T2o. These hands are outside both packs' BB ranges, so this is extrapolation (flat below 5-high now,
+  §3.4). The BTN no longer opens 32s, 42s or 52s (43s still opens) and opens A4o 50% (a tie, 0.000 bb), but still folds
+  A2o and A3o (−0.18 and −0.09 bb by best response) and K2o–K4o while opening K5o, Q6o and J7o (+0.06, +0.01, +0.01).
+  The offsuit aces follow measured rows (cash IP EQR 0.88–0.93 for A2o–A5o, the model within 0.01); K5o, Q6o and J7o
+  have no IP rows and are extrapolated from K6o, Q8o and J8o.
+- **BB vs UTG Q-x, and BB defense vs UTG.** At 100bb-2.2 the BB calls Q7s 60%, Q6s 50% and QTo 80% against a UTG open
+  (70 / 60 / 80% with fit 4acfad, all folded with the 6-feature fit) but still folds Q5s–Q2s and Q9o while defending
+  73s, 63s, 62s, 52s, 42s and 32s 100%. The UTG pack, held out (§3.7 bias 2), measured it: it shows no Q-x-specific
+  domination penalty. Its own pot shares rank 32s 0.248, 52s 0.250 and 63s 0.252 above Q5s 0.230 and Q2s 0.229, as the
+  chart does, and Q-x and the low suited hands are under-predicted by similar amounts (Q7s EQR 0.72 measured against
+  0.56 in the model). What is off is the level: against UTG the BB realizes about +0.046 of the pot more than the model
+  says, most at its fold boundary (22–55, weak offsuit Ax and Kx, weak suited Kx, Qx and Jx; 0.3–0.6 bb per hand), so BB
+  defense vs UTG (33.0% at 100bb-2.2, 35.7% at 55bb) is probably too narrow. Fixing it needs a u that depends on the
+  opener's range (§9). By best response the margins over folding are small: 62s +0.028, 32s +0.036 and 84s +0.032 bb
+  defended, Q5s −0.036, Q2s −0.132 and J5s −0.127 folded. The OOP top-card curve adds to it: hi2f5 under-rates J-x and
+  Q-x against 7- to 9-high hands (§3.7 bias 5), so `bb-vs-utgp2-open` folds J3s (−0.019) and defends 93s, 83s and 73s
+  (+0.034, +0.021, +0.079).
+- **Small pairs and weak suited aces at early seats (100bb-2.2).** UTG folds 22–55 and opens 66 10% (20% with fit
+  4acfad), HJ folds 22–44, the CO folds 22–33 (55bb: CO folds 22); UTG opens A9s 100%, A8s 20% and A5s 50% and folds
+  A7s, A6s, A4s–A2s. These are clear preferences, not ties: by best response opening 22 / 33 / 44 / 55 at UTG loses
+  0.48 / 0.41 / 0.33 / 0.18 bb (66 is a tie, +0.004), at the HJ 22 / 33 / 44 lose 0.39 / 0.25 / 0.06 and at the CO
+  22 / 33 lose 0.24 / 0.04. The model's pair curve is convex where the packs' is flat from 22 to 55 (§3.7 bias 9): IP
+  22 realizes 1.02 in the model against 1.14 measured, the worst of all pairs. The cause is α held at the prior, not
+  the pair term's shape: the same features with α free give IP 22 1.12, and no monotone pair curve with α held gets 22
+  above 1.08. The held-out UTG pack adds that the pair-rank slope is too steep against a strong range (UTG's TT–AA
+  over-predicted by 0.14–0.17 of the pot, its 55 under-predicted; §3.7 bias 7), which argues against the UTG 22–55
+  folds, though it holds no IP 22–44 to measure them directly.
+- **More KK flats.** The pair-rank slope that makes QQ–AA realize well as callers (§3.7 bias 7) lets KK flat 3-bets: at
+  100bb-2.2 the UTG opener calls a blind 3-bet with KK 100% and UTG+1 / UTG+2 80–100% / 40–70% (9 KK cells below a full
+  raise across vs-open and vs-3-bet spots, as with fit 4acfad; 10 with the 6-feature fit), at 100bb-3 the UTG opener
+  calls 3-bets with KK 80–100% of the time from every seat (22 cells; 21 with fit 4acfad), at 55bb-2.2 10 cells (9; 10)
+  and at 35bb none. The held-out UTG pack over-predicts big pairs as the aggressor against a strong range by 0.14–0.17
+  of the pot (§3.7 bias 7), so the flats rest on a slope the pack contradicts. Against opens the same slope leaves KK's
+  flat within ε of its 3-bet in 9 pure 3-bet cells (6 at 100bb-2.2, 3 at 100bb-3, e.g. `co-vs-utg-open` call 7.224
+  against 3-bet 7.256): they carry close marks, but the quiz does not accept the flat and the hand card adds the
+  big-pair caveat (§6.8). AA raises wherever it can except the SB first in, which limps AA 100% at 100bb-2.2, 100bb-3
+  and 55bb-2.2 (occ 9–11%) and KK 90 / 90 / 40%.
+- **Jams over small 4-bets and cold calls.** PF-SANITY-6 fires on 12 spots at 100bb-2.2 (as with fit 4acfad; 11 with the
+  6-feature fit), all against blind 3-bets, on 27 at 100bb-3 and 21 at 55bb; PF-SANITY-5 on 4 / 1 / 7 / 2 spots (BTN and
+  CO cold calls of 10–16% against early opens). Both follow from α held at the prior and the role rule (§3.8); all are
+  badged 낮음.
+- **35bb ships without cold jams.** The cold4 "jam" solve passes every gate (release fit: gain 0.246, NashConv 1.19,
+  snapped 2.30 at 1,500) but is still the degenerate profile (in the fit-4acfad re-run UTG never min-raised and opened
+  4.6% by jamming, against off-path 3-bets of 21–42% vs a UTG open), which leaves 28 vs-open spots, below PF-DATA-1's 30
+  (§5.5). The generator re-solves such a stage with cold4 "none" (§2.8), so 35bb-2 is that re-solve, the only usable
+  35bb for now: the cold seat behind a 3-bet folds. Players in front of that seat see the fold-only cap's signature (the
+  middle column of §2.8, where UTG+1 vs UTG called 0.6 and 3-bet 8.7%): cold flats all but vanish and 3-bets inflate
+  (shares of all hands, against the 5-feature fit's cold-jam 35bb: UTG+1 vs UTG call 0.0 / 3-bet 8.4 against 7.1 / 4.1;
+  HJ vs LJ 0.5 / 11.8 against 8.3 / 7.2; CO vs HJ 0.5 / 13.9 against 10.3 / 8.5; BTN vs CO 0.9 / 17.7 against 11.8 /
+  12.1; SB vs BTN 3-bet 21.8 against 11.5 plus 7.3 jams). Cold calls jump between seats (the BTN calls T9s and 98s 100%
+  vs a UTG open and folds them vs a CO open), Ax < Kx cells remain in the cold vs-open spots (`utgp1-`, `utgp2-` and
+  `lj-vs-utg-open`, occ 12.5–14.9%, fold ATs and 3-bet KTs), and the BTN's RFI falls to 45.4% (52.1% at 55bb). Until a
+  cold-jam 35bb can be solved, these spots are the weakest charts in the set; whether the quiz should skip or badge the
+  35bb non-blind vs-open spots is open.
 - **A 0% action can be a non-credible-threat artifact.** A line nobody takes has reach ≈ 0, so the regrets behind it
-  keep their early values: in the previous fit's 35bb-2 draft `lj-vs-utg-open` the LJ never flatted (fold 93.1 /
-  call 0 / 3-bet 6.9) while its neighbours flatted 6.7–8.2%, because after an LJ call the BTN squeezed 46% and the CO
-  overcalled 31% off-path (in the current cold4 "none" draft UTG+2 and LJ both flat 0% vs UTG, the HJ 3.7%). A tremble
-  experiment (+5 regret on the call, keep iterating) brings the call to 6.9% and those threats to 6.7% / 3.7%; the
-  two-start solve passes its gates with LJ calling 7.5%. The current fit's cold-jam 35bb solve shows the same at the
-  scale of a whole opening range: zero-reach vs-UTG nodes keep 3-betting 21–42%, and UTG's best response is to never
-  min-raise (§5.5). PF-TWOSTART badges such a spot 낮음 in a release run, but the
-  engine needs exploration (an ε floor on the opponent masses for regret updates, or a final tremble pass) to fix it.
-  Similar zero-use actions: 55bb `lj-` and `hj-at-utgp1-open-utgp2-call` (overcall 0), 35bb
-  `utgp2-at-utg-open-utgp1-call`.
+  keep their early values: in an earlier fit's 35bb-2 draft `lj-vs-utg-open` the LJ never flatted (fold 93.1 / call 0 /
+  3-bet 6.9) while its neighbours flatted 6.7–8.2%, because after an LJ call the BTN squeezed 46% and the CO overcalled
+  31% off-path (in the released cold4 "none" 35bb UTG+2 and LJ both flat 0% vs UTG, the HJ 3.8%). A tremble experiment
+  (+5 regret on the call, keep iterating) brings the call to 6.9% and those threats to 6.7% / 3.7%; the two-start solve
+  passes its gates with LJ calling 7.5%. The cold-jam 35bb solve (fit-4acfad re-run) shows the same at the scale of a
+  whole opening range: zero-reach vs-UTG nodes keep 3-betting 21–42%, and UTG's best response is to never min-raise
+  (§5.5). PF-TWOSTART badges such a spot 낮음 when the second solve differs (in the release run 6 nodes at 35bb, worst
+  `co-at-utgp1-open-lj-call` 23.6pp), but the engine needs exploration (an ε floor on the opponent masses for regret
+  updates, or a final tremble pass) to fix it. Similar zero-use actions: 55bb `lj-` and `hj-at-utgp1-open-utgp2-call`
+  (overcall 0), 35bb `utgp2-at-utg-open-utgp1-call`.
 - **Pair choices in all-in spots are noise** (§4.10): the equity table's ±0.5pp decides which neighbouring pairs jam
   or call in 100bb all-in spots; 77 is often the pair that is folded. That noise (about ±0.9 bb in a 200bb pot) is far
   above the close marks' ε, so an unmarked cell in an all-in spot is not a clear preference (§6.9).
 - **The 100bb cold-jam spots** (fold or jam only, §2.8) are an artifact of the tree, not playable advice: at
-  100bb-2.2, 6 of the 20 cold spots fold QQ while jamming A4s / A5s (5 of 18 with the previous 6-feature fit, 10 of 23
-  with the 5-feature fit, where QQ's jam EV was −0.94bb against A4s +0.04bb). In real play a
+  100bb-2.2, 5 of the 19 cold spots fold QQ (80–100%) while jamming A4s 100% (6 of 20 with fit 4acfad, 5 of 18 with the
+  6-feature fit, 10 of 23 with the 5-feature fit, where QQ's jam EV was −0.94bb against A4s +0.04bb). In real play a
   cold 4-bet is small. They stay on the charts page with the "트리 제약" note, and the quiz leaves them out at 55bb
   and more (§6.3).
-- **100bb 4-bet jams and flats.** At 100bb the model's 4-bet jam and small 4-bet are near EV ties for QQ / JJ
-  (5-feature fit, `co-open-vs-btn-3bet`: QQ 10.553 vs 10.551). In the current draft that spot jams QQ 100% and JJ 10%,
-  4-bets JJ 90% and TT–99 small and calls 88 60% and K8s, while `utg-open-vs-btn-3bet` calls QQ 80% and JJ–88 100% of
-  the time. By best response at 100bb-2.2 these are real preferences or near ties, not export noise: in
-  `co-open-vs-btn-3bet` QQ prefers the jam by 0.082 bb (+10.104 against +10.022), TT and 99 the small 4-bet by 0.42
-  and 0.39, and KTs jams 96% at a 0.028 margin; in `utg-open-vs-co-3bet` an A5s jam beats the small 4-bet by 0.31 bb;
-  in `utg-open-vs-bb-3bet` AA jams (+21.058 against +20.926 for the small 4-bet) and KK flats (+8.461 against
-  +8.416, a near tie). This
-  is the low-SPR α rule (§3.4, sensitivity solve (e)) plus the pair-rank slope (§3.7 bias 7); prefer the small 4-bet
-  when the chart splits them, and read the vs-3-bet composition at 100bb with care. PF-SANITY-12 (AA or KK flatting a
-  3-bet or 4-bet) and -13 (at 100bb, a lower pair jamming at least 0.5 more than a higher one) print every hit and
-  flag the clear ones (§6.10); the -13 caution recommends the small 4-bet. Many raw hits are ties: all 7 KK hits of
-  -12 at 100bb-2.2 are within 0.045 bb (e.g. `utgp1-open-vs-sb-3bet` KK, call 9.876 against jam 9.876) and carry close
-  marks instead of a flag.
-- **Cold vs-open spots flat QQ (and JJ) while 3-betting TT–88.** First-decision vs-open and squeeze spots where a
-  JJ+ pair raises at least 0.5 less often than a TT–77 pair: 19 / 21 / 19 / 1 per stage (18 / 20 / 21 / 0 with the
-  previous fit), summed occurrence 190 / 221 / 208 / 9%, i.e. most of the highest-traffic non-RFI charts. At
-  100bb-2.2 `utgp1-vs-utg-open` (occ 14.3%) calls QQ 100% and 3-bets TT 90% and 99 80%; `co-vs-utg-open` calls QQ
-  100% and 3-bets JJ and TT 80%. By best response calling QQ beats 3-betting by 0.368 bb (UTG+1 vs UTG), 0.149 (LJ),
-  0.183 (CO) and 0.015 (BTN), so the QQ flat is a real preference, largest with the most players left behind and
-  near a tie on the BTN; TT–88 are within 0.01 bb of indifference in the LJ and CO spots (TT prefers the 3-bet by 0.041 at UTG+1),
-  so their solid 3-bet cells are mostly mixes at a tie (EV ties, below). The realization features are not the cause:
-  u_aggr − u_call is +0.016 for QQ and −0.008 / −0.018 / −0.026 for TT / 99 / 88, which favours calling more for the
-  small pairs. The likely cause, untested, is the tree (§2.6): behind a 3-bet the cold seats may only fold or jam and
-  only one player may call it, while a flat invites squeezes. PF-SANITY-11 prints every such spot (19 / 21 / 19 / 1)
-  and flags the clear cells (9 / 15 / 9 / 0 spots, §6.10); 36 of the 43 TT–77 cells it compares against at 100bb-2.2
-  carry close marks (§6.9). A one-stage ablation that allows a cold call behind a 3-bet is open.
-- **Wheel aces above A6–A9 (new with the wheel term).** The wheel indicator gives A4–A2 the same bonus as A5,
-  offsuit included, so an A6–A9 can be played below a wheel ace. Pairs where an A6–A9 is played at least 0.3 less
-  often than an A5–A2 of the same suitedness: BB defense 4 / 4 / 5 / 6 per stage, cold vs-open 32 / 10 / 13 / 8, SB
-  vs open 7 / 1 / 6 / 0 (1 / 2 / 0 / 0, 5 / 1 / 3 / 0 and 1 / 0 / 1 / 0 with the previous fit). At 100bb-2.2
-  `bb-vs-utgp2-open` folds A6o (−0.075 bb by best response) and calls A5o, A4o and A3o (+0.088, +0.041, +0.017):
-  against UTG+2's opening range A6o and A3o have the same equity (0.419 and 0.418), so θ_O.wheel (+0.022) decides,
-  while the packs' cash OOP shares put A3o (0.317) and A2o (0.306) below A6o (0.326) and only A5o above it (0.341).
-  PF-SANITY-7 exempts A6 / A5 by design; PF-SANITY-14 checks the offsuit A9o–A6o against A4o–A2o where the hero acts
-  first (never A5o) and flags the clear cells (1 / 0 / 0 / 3 spots), and the quiz skips both sides. The suited ones are
-  not checked. A graded wheel term (for example 1 / 0.75 / 0.5 / 0.25 for A5 / A4 / A3 / A2) is a candidate for the
-  next refit, untested.
-- **EV ties show as pure cells.** Many 100% cells are ties of 0.01–0.03bb (5-feature fit: 35bb `rfi-sb` jams 65o
-  0.987 with limp −0.450 / raise −0.457 / jam −0.441). The SB's first-in KK limp is one (limp +7.563 against raise +7.537 bb at 100bb-2.2); its AA limp (100%
-  at 55–100bb) is not: limping AA beats raising by 0.196 bb (+9.481 against +9.285), plausibly because the BB raises
-  52.7% of its hands against a limp (σ̄). Other ties at 100bb-2.2: the TT–88 3-bet cells of the cold vs-open spots
-  (QQ flats, above), the 54s 3-bet in `bb-vs-utg-open` (0.000 bb), A4o in `rfi-btn` (0.000) and the cold vs-open
-  Ax-below-Kx cells above. The data now marks such cells (§6.9): a pure cell whose best-response values against σ̄ put
-  another eligible action within 0.05 bb of the best, the chart's action among them, carries a `close` mark, shown as
-  a corner notch, explained in the hand card and graded "정답 (EV 거의 같음)" in the quiz (5.1 / 3.8 / 5.5 / 5.6% of
-  in-reach cells). Mixed cells carry none; the SB's KK limp (90%) is one of them.
+- **100bb 4-bet jams and flats.** At 100bb the model's 4-bet jam and small 4-bet are near EV ties for QQ / JJ (5-feature
+  fit, `co-open-vs-btn-3bet`: QQ 10.553 vs 10.551). In the release data that spot jams QQ 100% and JJ 10%, 4-bets JJ 90%
+  and TT–99 small and calls 88 60% and K8s, while `utg-open-vs-btn-3bet` calls QQ 90% and JJ–88 100% of the time. By
+  best response at 100bb-2.2 these are real preferences or near ties, not export noise: in `co-open-vs-btn-3bet` QQ
+  prefers the jam by 0.082 bb (+10.104 against +10.022), TT and 99 the small 4-bet by 0.42 and 0.39, and KTs jams 96% at
+  a 0.028 margin; in `utg-open-vs-co-3bet` an A5s jam beats the small 4-bet by 0.31 bb; in `utg-open-vs-bb-3bet` AA jams
+  (+21.058 against +20.926 for the small 4-bet) and KK flats (+8.461 against +8.416, a near tie). This is the low-SPR α
+  rule (§3.4, sensitivity solve (e)) plus the pair-rank slope (§3.7 bias 7); prefer the small 4-bet when the chart
+  splits them, and read the vs-3-bet composition at 100bb with care. PF-SANITY-12 (AA or KK flatting a 3-bet or 4-bet)
+  and -13 (at 100bb, a lower pair jamming at least 0.5 more than a higher one) print every hit and flag the clear ones
+  (§6.10); the -13 caution recommends the small 4-bet. Many raw hits are ties: in the re-solve all 7 KK hits of -12 at
+  100bb-2.2 were within 0.045 bb (e.g. `utgp1-open-vs-sb-3bet` KK, call 9.876 against jam 9.876); in the release data 4
+  of them are mixed cells and 3 pure calls without a mark, which carry the 3 flags.
+- **Cold vs-open spots flat QQ (and JJ) while 3-betting TT–88.** First-decision vs-open and squeeze spots where a JJ+
+  pair raises at least 0.5 less often than a TT–77 pair: 18 / 21 / 20 / 1 per stage (19 / 21 / 19 / 1 with fit 4acfad,
+  18 / 20 / 21 / 0 with the 6-feature fit), summed occurrence 189 / 220 / 217 / 9%, i.e. most of the highest-traffic
+  non-RFI charts. At 100bb-2.2 `utgp1-vs-utg-open` (occ 14.3%) calls QQ 100% and 3-bets TT 90% and 99 80%;
+  `co-vs-utg-open` calls QQ 100% and 3-bets JJ 70% and TT 80%. By best response calling QQ beats 3-betting by 0.368 bb
+  (UTG+1 vs UTG), 0.149 (LJ), 0.183 (CO) and 0.015 (BTN), so the QQ flat is a real preference, largest with the most
+  players left behind and near a tie on the BTN; TT–88 are within 0.01 bb of indifference in the LJ and CO spots (TT
+  prefers the 3-bet by 0.041 at UTG+1), so their solid 3-bet cells are mostly mixes at a tie (EV ties, below). The
+  realization features are not the cause: u_aggr − u_call is +0.016 for QQ and −0.008 / −0.018 / −0.027 for TT / 99 /
+  88, which favours calling more for the small pairs. The likely cause, untested, is the tree (§2.6): behind a 3-bet the
+  cold seats may only fold or jam and only one player may call it, while a flat invites squeezes. PF-SANITY-11 prints
+  every such spot (18 / 21 / 20 / 1) and flags the clear cells (11 / 17 / 9 / 0 spots, §6.10); of the 43 TT–77 cells it
+  compares against at 100bb-2.2, 12 carry close marks (§6.9) and 36 were within ε by best response in the re-solve. A
+  one-stage ablation that allows a cold call behind a 3-bet is open.
+- **Wheel aces above A6–A9 (new with the wheel term).** The wheel indicator gives A4–A2 the same bonus as A5, offsuit
+  included, so an A6–A9 can be played below a wheel ace. Pairs where an A6–A9 is played at least 0.3 less often than an
+  A5–A2 of the same suitedness: BB defense 3 / 4 / 5 / 6 per stage, cold vs-open 34 / 10 / 16 / 8, SB vs open 3 / 1 / 6
+  / 0 (4 / 4 / 5 / 6, 32 / 10 / 13 / 8 and 7 / 1 / 6 / 0 with fit 4acfad; 1 / 2 / 0 / 0, 5 / 1 / 3 / 0 and 1 / 0 / 1 / 0
+  with the 6-feature fit). At 100bb-2.2 `bb-vs-utgp2-open` folds A6o (−0.075 bb by best response) and calls A5o, A4o and
+  A3o (+0.088, +0.041, +0.017): against UTG+2's opening range A6o and A3o have the same equity (0.419 and 0.418), so
+  θ_O.wheel (+0.021) decides, while the packs' cash OOP shares put A3o (0.317) and A2o (0.306) below A6o (0.326) and
+  only A5o above it (0.341; fit-4acfad rows). PF-SANITY-7 exempts A6 / A5 by design; PF-SANITY-14 checks the offsuit
+  A9o–A6o against A4o–A2o where the hero acts first (never A5o) and flags the clear cells (1 / 0 / 0 / 3 spots), and the
+  quiz skips both sides. The suited ones are not checked. A graded wheel term (for example 1 / 0.75 / 0.5 / 0.25 for A5
+  / A4 / A3 / A2) is a candidate for the next refit, untested.
+- **EV ties show as pure cells.** Many 100% cells are ties of 0.01–0.03bb (5-feature fit: 35bb `rfi-sb` jams 65o 0.987
+  with limp −0.450 / raise −0.457 / jam −0.441). The SB's first-in KK limp is one (limp +7.563 against raise +7.537 bb
+  at 100bb-2.2); its AA limp (100% at 55–100bb) is not: limping AA beats raising by 0.196 bb (+9.481 against +9.285),
+  plausibly because the BB raises 52.7% of its hands against a limp (σ̄). Other ties at 100bb-2.2: the TT–88 3-bet cells
+  of the cold vs-open spots (QQ flats, above), the 54s 3-bet in `bb-vs-utg-open` (0.000 bb), A4o in `rfi-btn` (0.000)
+  and the cold vs-open Ax-below-Kx cells above. The data now marks such cells (§6.9): a pure cell whose best-response
+  values against σ̄ put another eligible action within 0.05 bb of the best, the chart's action among them, carries a
+  `close` mark, shown as a corner notch, explained in the hand card and graded "정답 (EV 거의 같음)" in the quiz (5.1 / 3.9 /
+  5.7 / 5.5% of in-reach cells). Mixed cells carry none; the SB's KK limp (90%) is one of them.
 
 ## 9. Plan
 
 - **v1 (this):** the engine, the four stages (35bb shipped on the cold4 "none" fallback, which passes its gates; its
   cold-jam solve is degenerate, §5.5), the `solver` chart set next to the existing ones, honest labels, confidence
-  badges, the seat filter. The default chart set stays `pub`.
-  **Status (2026-11-16).** Realization model v3 is in: `modelB-rank9` (§3.4), fitted on all 1,476 + 1,457 flops of
-  the two packs on disk (fit `4acfad77aa35`). It fixes the IP A − K over-shoot and the low-card extrapolation where
-  the data reach (§3.7 biases 5 and 8) and keeps PF-SANITY-7 at 0; the K − Q over-shoot, the role rule's 3-bet
-  bluffs, BB vs UTG Q-x, the small-pair curve (from α held at the prior), the cold QQ flats and the A6-below-wheel-ace
-  cells remain (biases 5, 8, 9; §8). The data file is a DRAFT (no
-  sensitivity or two-start solves, §5.5). The three things to finish before the solver chart is shown to the user and
-  made the default are in: the close-call marker (§6.9: 5.1 / 3.8 / 5.5 / 5.6% of in-reach cells), the artifact flags
-  with their cautions and quiz skips (§6.10: 20 / 27 / 10 / 3 spots), and the lazy solver set (§6.3: the app start of a
-  non-solver screen went from 478 to 219 ms and 38.0 to 17.6 MB of JS heap in Chromium at 1× CPU, 1,601 to 843 ms at
-  4×; the first solver screen costs 295 / 1,187 ms and 25.7 MB, the first switch to it 161 / 605 ms, the second 15 /
-  64 ms). After review, the quiz grades every action the solver chart plays at least 부분 정답 and does not accept an
-  AA/KK passive tie (§6.8), and PF-SIZE-1's close fallback recomputes the flags it affects (§6.9). The model, the fit,
-  the tree, the gates and every frequency are unchanged (the stripped data is the previous draft byte for byte). Next: the release run (all stages with sensitivity and two-start solves;
-  only 100bb-2.2 has had them on this model, in a scratch copy; projected near 77,500 bytes gzip with the annotations,
-  and the close fallback of §6.9 if a refit grows it), then a refit with `--packs` once
-  `pub-srp-utg-bb-55` lands, rechecking the sign test of `features.test.ts`.
+  badges, the seat filter. `solver` is the default chart set since 2026-11-17 (below).
+  **Status (2026-11-17): the release.** Realization model v3 (`modelB-rank9`, §3.4) is refitted on every flop of the
+  two BTN packs, 1,755 + 1,755 (fit `2862daa7a90f`, §3.7): every coefficient moved by 0.81 SE or less from fit
+  `4acfad77aa35`, every sign guard holds, and the charts moved little (median 0.20–0.33pp per scenario, at most
+  3.1pp). The UTG pack (`pub-srp-utg-bb-55`, 1,728 of 1,755 flops when it was evaluated) stays out of this range-blind
+  fit by decision: held out, the fit misses it by RMS 0.056 / 0.083 against 0.014 / 0.019 on the pub BTN rows, and the
+  joint fit that adds it breaks the θ_I.lo2 guard, doubles the BTN packs' IP error and undoes the bias-8 fix (§3.7
+  bias 2). It is the data for a u that depends on the opponent's range (v1.5) and can finish solving without changing
+  this fit; `fit-realization.mjs` keeps it out of a bare run (§7). The data file is the release (§5.5): every stage
+  with sensitivity and two-start solves, `PREFLOP_DRAFT_STAGES` empty, `make-preflop.mjs --check` reproduces it byte
+  for byte, gzip 78,255 of 80,000, 35bb again on the cold4 "none" fallback. The close-call marker (§6.9: 5.1 / 3.9 /
+  5.7 / 5.5% of in-reach cells), the artifact flags with their cautions and quiz skips (§6.10: 24 / 29 / 10 / 3
+  spots) and the lazy solver set (§6.3: the app start of a non-solver screen went from 478 to 219 ms and 38.0 to
+  17.6 MB of JS heap in Chromium at 1× CPU, 1,601 to 843 ms at 4×; the first solver screen costs 295 / 1,187 ms and
+  25.7 MB, the first switch to it 161 / 605 ms, the second 15 / 64 ms; measured on the fit-4acfad data) are in, and
+  so are the review fixes: the quiz grades every action the solver chart plays at least 부분 정답 and does not accept
+  an AA/KK passive tie (§6.8), and PF-SIZE-1's close fallback recomputes the flags it affects (§6.9).
+  Documented, not fixed: 100bb-2.2 passes its gates with little room (max gain 0.948 of 1.0; snapped gain 2.12, above
+  the 2.0 warning line; at 1,750 iterations it failed); BB defense vs UTG is probably too narrow (§8); the K − Q
+  over-shoot, the role rule's 3-bet bluffs, the small-pair curve (from α held at the prior), the KK and cold QQ flats
+  and the A6-below-wheel-ace cells remain (biases 5, 7, 8, 9; §8); the 55bb two-start solve found a second equilibrium
+  in multiway spots behind a UTG+2 open (badged 낮음 where exported, §5.5).
+  **`solver` is the default chart set (2026-11-17), by the user's choice:** they want the computed tournament chart
+  first, not the hand-made pub chart, knowing the open items below. The charts page, the preflop quiz and the
+  calculator open on it (settings saved on the old default move once; a set picked by hand is kept); `pub` stays in
+  the picker, and 빠른 기록's verdict, hand play and the 아재 still read the pub chart, which covers the short stacks
+  the solver does not solve yet. Of the criteria below (v1.5) that were set for this switch, the gates pass
+  but with the snapped-gain warning at 100bb-2.2; PF-SANITY warnings remain (PF-SANITY-5 on 4 / 1 / 7 / 2 spots, -6 on
+  12 / 27 / 21 / 0, -8 on 0 / 0 / 0 / 1, -9 on 21 / 11 / 0 / 0, and -10 to -14, §5.5); and the BB-defense scenarios
+  are badged 높음 or 보통 except 100bb-3 vs the SB and 35bb vs the CO and the BTN (낮음, move over 20pp). Next: the short stacks (15–25bb and push/fold) in
+  the solver, so 빠른 기록, hand play and the 아재 can move to it too, and a u that depends on the opponent's range,
+  fitted with the UTG pack (v1.5).
 - **v1.1, UX:** a GTO hand-play mode (table "GTO 9인") whose bots and grading use the solver chart, with exact lookups
   by the §6.4 id of the node reached and the solved sizes; a "GTO 참고" line in pub mode; a "GTO vs 펍" compare view
   on the charts page; a tappable seat selector and a 단순화 toggle; a `55bb-2.5` stage if hand-play grading at mid
   stacks needs it; regenerating the nash and shortNash sets with the DCFR engine, in a separate PR because it changes
   existing charts (in PF-RED-4 the FP solutions of the two test games are 60 and 330 mbb/hand from equilibrium,
   DCFR's 0.02 and 0.4).
-- **v1.5, the refit:** when both packs cover all 1,755 flop classes, refit with model selection (2-fold CV plus
-  the cash → pub transfer and the 20-group CV; candidates model B on 3 or 9 features, an α for flop SRPs kept apart
-  from the low-SPR prior (§3.7 bias 9; a monotone pair curve with α held does not close the gap), a graded wheel term
-  and a top-card form flat from 9 to Q (§8, §3.7 bias 5), model B with per-class residuals shrunk to the feature model, the surplus form; the simplest within 0.005
-  RMS of the best), plus a ghost-combo calibration pack
+- **v1.5, the next model:** the refit on all 1,755 + 1,755 flops of the BTN packs is done (2026-11-17, the same form).
+  Next a model selection (2-fold CV plus the cash → pub transfer and the 20-group CV; candidates model B on 3 or 9
+  features, an α for flop SRPs kept apart from the low-SPR prior (§3.7 bias 9; a monotone pair curve with α held does
+  not close the gap), a graded wheel term and a top-card form flat from 9 to Q (§8, §3.7 bias 5), model B with per-class
+  residuals shrunk to the feature model, the surplus form, and a u or an α that depends on the opponent's range, scored
+  on the UTG pack as well (§3.7 bias 2); the simplest within 0.005 RMS of the best), plus a ghost-combo calibration pack
   `cal-srp-btn-bb-100`: BTN 2.2 vs BB call, 9-handed with the ante, 100bb, the v1 solver's own ranges with every class
-  floored at weight 0.02, so every hand at the fold boundary gets a measured best-response EV instead of an
-  extrapolated one. It lives outside `public/packs`, never listed by the app, and is round 1 of a closed loop. Then
-  regenerate and publish a before/after diff here. Then, once the user confirms, `solver` becomes the default chart
-  set and replaces the hand-made pub chart as the reference: recommended only if every gate passes, no PF-SANITY
-  warning remains and the BB-defense scenarios are badged 높음 or 보통.
+  floored at weight 0.02, so every hand at the fold boundary gets a measured best-response EV instead of an extrapolated
+  one. It lives outside `public/packs`, never listed by the app, and is round 1 of a closed loop. Then regenerate and
+  publish a before/after diff here. Then, once the user confirms, `solver` becomes the default chart set and replaces
+  the hand-made pub chart as the reference: recommended only if every gate passes, no PF-SANITY warning remains and the
+  BB-defense scenarios are badged 높음 or 보통.
 - **v2, more calibration and the tree:** calibration packs for an IP caller vs an OOP opener (`cal-srp-co-btn-100`
   first), a small 4-bet pot (`cal-4bp-co-btn-100`, for the low-SPR α rule), blind vs blind, a limped pot, OOP and IP
   3-bet pots, and 55bb twins, all with an OOP donk option and IP's root EV stored in the flop format; c and u per

@@ -118,9 +118,10 @@ afterEach(() => {
 });
 
 describe("solver chart set: registration and texts", () => {
-  it("is registered last; the default set and getSet's fallback stay pub", () => {
-    expect(chartSetMenu().at(-1)!.id).toBe("solver");
-    expect(chartSetMenu().at(-1)!.label).toBe(solver.label);
+  it("is the menu's first set and the default; getSet's fallback for an unknown id stays pub (nothing to build)", () => {
+    expect(chartSetMenu()[0].id).toBe("solver");
+    expect(chartSetMenu()[0].label).toBe(solver.label);
+    expect(settingsStore.get().chartSet === "solver" || settingsStore.get().chartSetPicked).toBeTruthy();
     expect(CHART_SETS[0].id).toBe("pub");
     expect(getSet("no-such-set").id).toBe("pub");
     expect(solver.label).toBe("솔버 프리플랍 (9인·BB 앤티)");
@@ -640,7 +641,7 @@ describe("solver data: size and app smoke tests", () => {
 // generator's closeString and stageFlags.
 
 const CLOSE_EPS = 0.05;
-/** PF-CLOSE-3: the share of in-reach cells marked per stage, in % (measured 5.1 / 3.8 / 5.5 / 5.6). */
+/** PF-CLOSE-3: the share of in-reach cells marked per stage, in % (release data 5.1 / 3.9 / 5.7 / 5.5). */
 const CLOSE_SHARE = [1, 12];
 const FLAG_CODES: PreflopFlagCode[] = ["PF-SANITY-9", "PF-SANITY-11", "PF-SANITY-12", "PF-SANITY-13", "PF-SANITY-14"];
 const RAISES = new Set(["open", "raise", "3bet", "squeeze", "4bet", "shove"]);

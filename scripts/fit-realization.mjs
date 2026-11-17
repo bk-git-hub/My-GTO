@@ -13,11 +13,11 @@
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
 //
 // What it does:
-// 1. For every flop file of every pack in public/packs/manifest.json (or of the --packs ones): decode it with the app's decoder, read each
-//    combo's EV at OOP's root (node []) and at IP's first decision after OOP checks (node [check]), and compute each
-//    combo's flop equity against the opponent's stored range by full turn and river enumeration. The packs give OOP
-//    no flop bet, so IP's node after the check is IP's root; the script asserts OOP checks at least MIN_CHECK of its
-//    reach-weighted range, since IP's root EV is not stored otherwise.
+// 1. For every flop file of every pack fitted (the --packs ones of public/packs/manifest.json, or the default above):
+//    decode it with the app's decoder, read each combo's EV at OOP's root (node []) and at IP's first decision after
+//    OOP checks (node [check]), and compute each combo's flop equity against the opponent's stored range by full turn
+//    and river enumeration. The packs give OOP no flop bet, so IP's node after the check is IP's root; the script
+//    asserts OOP checks at least MIN_CHECK of its reach-weighted range, since IP's root EV is not stored otherwise.
 // 2. Per pack, side and hand class, with w = node weight × file weight: share = Σ w·EV / Σ w / pot (a pack's EV is
 //    what the combo gets out of the flop pot) and e = Σ w·equity / Σ w. Every class with Σ w > 0 is a row.
 // 3. Fits four forms by weighted least squares with ridge RIDGE on every fitted parameter, rows of all packs jointly;
@@ -53,11 +53,12 @@ const OUT = "src/poker/preflop/eqrFit.ts";
 const N = 169;
 const RIDGE = 1e-4;
 // α of model B is held at this prior: the 5-feature fit's α (pair, suited, bway, conn, weakAce; fit 45018e13c176).
-// With the rank features the class rows pin α down only weakly. Freed on the 9 features and the 1,476 + 1,457 flops,
-// every subset puts it below 0 (joint −0.177, cash −0.169, pub −0.313, the two CV training folds −0.080 and −0.185),
-// and the CV RMS is 0.0168 / 0.0137 free against 0.0170 / 0.0185 held (OOP / IP: holding costs IP about 0.005). α
-// decides the low-SPR 4-bet / jam split (§3.4), so 0.553 is held deliberately, as a named prior, until a 3-bet-pot or
-// ghost-combo calibration pack measures it.
+// With the rank features the class rows pin α down only weakly. Freed on the 9 features and the 1,755 + 1,755 flops
+// of the BTN packs (fit 2862daa7a90f), every subset puts it below 0 (joint −0.187, cash −0.176, pub −0.321, the two CV
+// training folds −0.090 and −0.201), and the CV RMS is 0.0163 / 0.0136 free against 0.0166 / 0.0183 held (OOP / IP:
+// holding costs IP about 0.005). Against the strong range of the held-out UTG pack the effective α is about 0.27 OOP
+// and −0.21 IP, so no single α fits both contexts (docs §3.7, bias 2). α decides the low-SPR 4-bet / jam split (§3.4),
+// so 0.553 is held deliberately, as a named prior, until a 3-bet-pot or ghost-combo calibration pack measures it.
 const ALPHA_PRIOR = 0.553;
 const MIN_CHECK = 0.999;
 // Design §3.6 budgeted 200k deals per k, but that is about 1,183 deals per class and leaves each κ with a 5–7%

@@ -30,7 +30,7 @@ import type { PreflopFlag, PreflopFlagCode, PreflopScenario, PreflopStage } from
  *  - `quizCloseActions` and `bigPairCloseNote`: the close-call set the quiz accepts (no AA/KK passive tie) and the
  *    caveat under such a tie (§6.8, §8 "More KK flats").
  *
- * The set itself is built on first use (solverSetDef, through charts.ts's lazy sets): building its 625 spots costs
+ * The set itself is built on first use (solverSetDef, through charts.ts's lazy sets): building its 633 spots costs
  * about 120 ms and 15 MB, which an app start on a set without it should not pay (docs §6.3).
  */
 

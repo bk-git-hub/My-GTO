@@ -164,7 +164,7 @@ export function buildSet(def: ChartSetDef): ChartSet {
 export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH].map(buildSet);
 
 /**
- * Sets built on first use: the solver set (625 spots). Built at load with its calculator ranges it cost every app start
+ * Sets built on first use: the solver set (633 spots). Built at load with its calculator ranges it cost every app start
  * about 0.26 s and 20 MB of JS heap in Chromium (docs §6.3). The menu lists them without building them; getSet,
  * allSets, allScenarios() and getNamedRanges build them once, synchronously.
  */
@@ -184,9 +184,9 @@ export function lazySetsBuilt(): string[] {
   return [...lazyBuilt.keys()];
 }
 
-/** Every set the picker offers, in menu order (the solver set last): id and label only, nothing is built. */
+/** Every set the picker offers, in menu order (the solver set, the default, first): id and label only, nothing is built. */
 export function chartSetMenu(): { id: string; label: string }[] {
-  return [...CHART_SETS, ...LAZY_SETS].map(({ id, label }) => ({ id, label }));
+  return [...LAZY_SETS, ...CHART_SETS].map(({ id, label }) => ({ id, label }));
 }
 
 /** `id` if a set has it, else the fallback's id (what getSet(id).id gives), without building a set. */
