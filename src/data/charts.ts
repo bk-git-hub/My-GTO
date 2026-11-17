@@ -2,7 +2,7 @@ import { ALL_HANDS, comboCount, type HandClass } from "../poker/cards";
 import { parseRange, rangeCombos, type Range } from "../poker/range";
 import { CASH6 } from "./sets/cash6";
 import { NASH } from "./sets/nash";
-import { SOLVER_ID, SOLVER_LABEL, solverSetDef } from "./sets/preflop";
+import { loadSolverStageData, SOLVER_ID, SOLVER_LABEL, SOLVER_STAGE_IDS, solverSetDef, solverSetInfo, solverStageDef } from "./sets/preflop";
 import type { PreflopFlag } from "./sets/preflopTypes";
 import { SHORT_NASH } from "./sets/shortNash";
 import { PUB_TOURNEY } from "./sets/pub";
@@ -23,6 +23,8 @@ export interface ActionDef {
   key: string;
   label: string;
   color: ActionColor;
+  /** The hero's total bet after a raise or jam, bb (the solver set; the hand-made sets leave it out). */
+  to?: number;
   range: string;
 }
 
@@ -65,6 +67,11 @@ export interface ScenarioDef {
    * marks these cells, and the quiz grades the other actions in the set "정답 (EV 거의 같음)".
    */
   close?: Partial<Record<HandClass, string[]>>;
+  /**
+   * Model-sensitive cells (the solver set, docs §6.6): per hand the chart shows pure but whose action falls below half
+   * in a sensitivity solve, the legend keys (legend order) on top in the main or a sensitivity solve. Not shown yet.
+   */
+  sens?: Partial<Record<HandClass, string[]>>;
   /** Known model or tree artifacts of this spot (the solver set, docs §6.10): the charts page shows their cautions. */
   flags?: PreflopFlag[];
   /** Hands the quiz never deals here (the solver set's flagged cells, docs §6.10). */
@@ -80,6 +87,13 @@ export interface StageDef {
   scenarios: ScenarioDef[];
   /** bb per arrival: the threshold of the scenarios' close calls (the solver set). */
   closeEps?: number;
+  /**
+   * Everyone's stack in bb (the solver set). When every stage of a set has one, the charts page shows a row of
+   * depths and, at a depth with more than one stage, a row of their `sizeLabel`s (docs §6.8).
+   */
+  depth?: number;
+  /** The stage at its depth, e.g. "오픈 2.2bb", "펍 사이즈 오픈 3bb", "푸시/폴드" (the label without its depth). */
+  sizeLabel?: string;
 }
 
 export interface ChartSetDef {
@@ -164,24 +178,84 @@ export function buildSet(def: ChartSetDef): ChartSet {
 export const CHART_SETS: ChartSet[] = [PUB_TOURNEY, CASH6, NASH, SHORT_NASH].map(buildSet);
 
 /**
- * Sets built on first use: the solver set (633 spots). Built at load with its calculator ranges it cost every app start
- * about 0.26 s and 20 MB of JS heap in Chromium (docs §6.3). The menu lists them without building them; getSet,
- * allSets, allScenarios() and getNamedRanges build them once, synchronously.
+ * Sets loaded on first use: the solver set. Its stages are separate chunks (docs §6.3): the menu lists the set without
+ * loading anything, loadSolverStage(id) fetches and builds one stage, loadSolver() every stage, and solverStage(id)
+ * reads a loaded stage synchronously. getSet("solver"), allSets() and allScenarios() throw until every stage is loaded,
+ * so a screen that shows the solver set waits on useSolver (src/data/useSolver.ts) and renders a skeleton meanwhile;
+ * from the precache that is about one frame.
  */
-const LAZY_SETS: { id: string; label: string; def: () => ChartSetDef }[] = [{ id: SOLVER_ID, label: SOLVER_LABEL, def: solverSetDef }];
-const lazyBuilt = new Map<string, ChartSet>();
+const LAZY_SETS: { id: string; label: string }[] = [{ id: SOLVER_ID, label: SOLVER_LABEL }];
+const solverStages = new Map<string, Stage>();
+let solverSet: ChartSet | null = null;
+const solverListeners = new Set<() => void>();
 
-function lazySet(id: string): ChartSet | undefined {
-  const l = LAZY_SETS.find((x) => x.id === id);
-  if (!l) return undefined;
-  let s = lazyBuilt.get(id);
-  if (!s) lazyBuilt.set(id, (s = buildSet(l.def())));
-  return s;
+/** One solver stage built as the app reads it (the same objects the whole set holds). */
+function buildSolverStage(id: string): Stage {
+  let st = solverStages.get(id);
+  if (!st) {
+    const def = solverStageDef(id);
+    if (!def) throw new Error(`solver stage ${id} is not loaded`);
+    st = buildSet({ ...solverSetInfo(), stages: [def] }).stages[0];
+    solverStages.set(id, st);
+  }
+  return st;
 }
 
-/** The ids of the lazy sets built so far (tests). */
+/** The whole solver set, assembled from its built stages once all are loaded; null before that. */
+function assembledSolver(): ChartSet | null {
+  if (solverSet) return solverSet;
+  if (!SOLVER_STAGE_IDS.every((id) => solverStageDef(id))) return null;
+  const def = solverSetDef();
+  solverSet = { ...def, stages: SOLVER_STAGE_IDS.map(buildSolverStage) };
+  return solverSet;
+}
+
+/** Tells the subscribers that a stage came in (they read solverLoaded() again; a repeat is harmless). */
+const notifySolver = () => {
+  for (const f of [...solverListeners]) f();
+};
+
+/** Fetches (once) and builds one solver stage. */
+export async function loadSolverStage(id: string): Promise<Stage> {
+  const known = solverStageDef(id) !== undefined;
+  await loadSolverStageData(id);
+  const st = buildSolverStage(id);
+  if (!known) notifySolver();
+  return st;
+}
+
+/** A loaded solver stage, synchronously; undefined while its chunk is not in. */
+export function solverStage(id: string): Stage | undefined {
+  return solverStageDef(id) ? buildSolverStage(id) : undefined;
+}
+
+/** Fetches (once) and builds every solver stage; resolves to the whole set. Subscribers hear when it is ready. */
+export async function loadSolver(): Promise<ChartSet> {
+  await Promise.all(SOLVER_STAGE_IDS.map(loadSolverStage));
+  return assembledSolver()!;
+}
+
+/** Whether every solver stage is loaded (getSet("solver") works). */
+export function solverLoaded(): boolean {
+  return assembledSolver() !== null;
+}
+
+/** Called whenever a solver stage comes in; returns the unsubscribe (useSyncExternalStore's shape). */
+export function subscribeSolver(f: () => void): () => void {
+  solverListeners.add(f);
+  return () => solverListeners.delete(f);
+}
+
+function lazySet(id: string): ChartSet | undefined {
+  if (id !== SOLVER_ID) return undefined;
+  const set = assembledSolver();
+  if (!set) throw new Error("the solver set is not loaded yet: await loadSolver() (or useSolver) first");
+  return set;
+}
+
+/** The ids of the lazy sets assembled so far (tests). */
 export function lazySetsBuilt(): string[] {
-  return [...lazyBuilt.keys()];
+  return solverSet ? [SOLVER_ID] : [];
 }
 
 /** Every set the picker offers, in menu order (the solver set, the default, first): id and label only, nothing is built. */
@@ -194,11 +268,12 @@ export function chartSetId(id: string): string {
   return chartSetMenu().some((s) => s.id === id) ? id : CHART_SETS[0].id;
 }
 
+/** A set by id (the fallback, CHART_SETS[0], for an unknown id). Throws for the solver set until it is loaded. */
 export function getSet(id: string): ChartSet {
   return CHART_SETS.find((s) => s.id === id) ?? lazySet(id) ?? CHART_SETS[0];
 }
 
-/** Every set, the hand-made ones first and the lazy ones (built here if they are not yet) last. */
+/** Every set, the hand-made ones first and the lazy ones last. Throws until the solver set is loaded. */
 export function allSets(): ChartSet[] {
   return [...CHART_SETS, ...LAZY_SETS.map((l) => lazySet(l.id)!)];
 }
@@ -368,8 +443,8 @@ export function namedRanges(sets: ChartSet[]): NamedRange[] {
 
 let named: NamedRange[] | null = null;
 
-/** The calculator's villain ranges over every set (allSets order), built on the first call; that call builds the lazy
- *  sets. A set pushed into CHART_SETS later is not added. */
+/** The calculator's villain ranges over every set (allSets order), built on the first call, which needs the solver set
+ *  loaded (CalcPage waits on useSolver). A set pushed into CHART_SETS later is not added. */
 export function getNamedRanges(): NamedRange[] {
   return (named ??= namedRanges(allSets()));
 }

@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { RangeGrid } from "../../components/RangeGrid";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
+import { SolverSkeleton } from "../../components/SolverSkeleton";
 import {
   actionTotals,
   displayChips,
@@ -16,7 +17,8 @@ import {
   reachTotals,
   type Scenario,
 } from "../../data/charts";
-import { bigPairCloseNote, cautionFacts, cautionLines, flagLines } from "../../data/sets/preflop";
+import { bigPairCloseNote, cautionFacts, cautionLines, flagLines, SOLVER_ID } from "../../data/sets/preflop";
+import { useSolver } from "../../data/useSolver";
 import { comboCount, type HandClass } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { useCoach } from "../coach/CoachContext";
@@ -28,11 +30,32 @@ const reachPct = (x: number) => (x > 0 && x < 0.0005 ? "0.1% 미만" : pct1(x));
 /** How often one hand reaches the spot. */
 const handReachPct = (x: number) => (x > 0 && x < 0.005 ? "1% 미만" : `${Math.round(x * 100)}%`);
 
+/** The solver set's stages are chunks loaded on first use (docs §6.3): a skeleton under the set picker until then. */
 export function ChartsPage() {
+  const { chartSet } = useSettings();
+  const solver = useSolver(chartSet === SOLVER_ID);
+  if (solver.status !== "ready")
+    return (
+      <div className="page">
+        <SetPicker />
+        <SolverSkeleton {...solver} />
+      </div>
+    );
+  return <ChartsView />;
+}
+
+function ChartsView() {
   const { chartSet } = useSettings();
   const set = getSet(chartSet);
   const [stageId, setStageId] = useState(set.stages[0].id);
   const stage = set.stages.find((s) => s.id === stageId) ?? set.stages[0];
+  // The depth row (docs §6.8): only for a set whose every stage has a depth; null keeps the plain stage row.
+  const depths = useMemo(() => {
+    if (set.stages.length < 2 || set.stages.some((s) => s.depth === undefined)) return null;
+    return [...new Set(set.stages.map((s) => s.depth!))].sort((a, b) => b - a);
+  }, [set]);
+  const atDepth = depths ? set.stages.filter((s) => s.depth === stage.depth) : [];
+  const [stageByDepth, setStageByDepth] = useState<Record<number, string>>({});
   const groups = useMemo(() => {
     const out = new Map<string, Scenario[]>();
     for (const s of stage.scenarios) {
@@ -77,6 +100,15 @@ export function ChartsPage() {
   function pickStage(id: string) {
     setStageId(id);
     setHand(null);
+    const d = set.stages.find((s) => s.id === id)?.depth;
+    if (d !== undefined) setStageByDepth((m) => ({ ...m, [d]: id }));
+  }
+
+  /** A depth opens on the size last picked there, else its first stage. */
+  function pickDepth(d: number) {
+    const remembered = stageByDepth[d];
+    const st = set.stages.find((s) => s.id === remembered && s.depth === d) ?? set.stages.find((s) => s.depth === d);
+    if (st) pickStage(st.id);
   }
 
   function pickSeat(p: string) {
@@ -120,7 +152,28 @@ export function ChartsPage() {
     <div className="page">
       <SetPicker />
 
-      {set.stages.length > 5 ? (
+      {depths ? (
+        // A set whose stages all carry a depth (the solver set): one button per depth, deepest first, and at a depth
+        // with several stages a smaller row of their sizes (100bb: 오픈 2.2bb | 펍 사이즈 오픈 3bb). Docs §6.8.
+        <>
+          <div className={`seg depth-row${depths.length > 5 ? " many" : ""}`} aria-label="스택">
+            {depths.map((d) => (
+              <button key={d} className={d === stage.depth ? "on" : ""} onClick={() => pickDepth(d)}>
+                {d}bb
+              </button>
+            ))}
+          </div>
+          {atDepth.length > 1 && (
+            <div className="seg small size-row" aria-label="오픈 사이즈">
+              {atDepth.map((st) => (
+                <button key={st.id} className={st.id === stage.id ? "on" : ""} onClick={() => pickStage(st.id)}>
+                  {st.sizeLabel ?? st.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      ) : set.stages.length > 5 ? (
         <select className="select" value={stage.id} onChange={(e) => pickStage(e.target.value)}>
           {set.stages.map((st) => (
             <option key={st.id} value={st.id}>

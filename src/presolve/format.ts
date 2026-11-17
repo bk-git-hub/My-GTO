@@ -57,10 +57,18 @@ export interface ScenarioMeta {
   targetExploitability: number;
   /** Starting ranges [OOP, IP] in the src/poker/range.ts syntax ("22+, A2s+, KTo:0.5"). */
   ranges: [string, string];
-  /** Where the ranges came from, as chart refs "<set>/<stage>/<scenario>:<action>", e.g. "cash6/100bb/bb-vs-btn:call". */
+  /**
+   * Where the ranges came from, as chart refs "<set>/<stage>/<scenario>:<action>", e.g. "cash6/100bb/bb-vs-btn:call".
+   * A calibration pack may name a solver stage the app doesn't ship yet (its ranges are in src/presolve/calRanges.ts).
+   */
   rangeSources?: [string, string];
   /** Which flops the pack covers, e.g. "all-1755" or "subset-95". */
   flopSet?: string;
+  /**
+   * Calibration packs only: every hand class starts with at least this weight in both ranges (ghost combos, so hands
+   * outside the source ranges get a measured EV). A class at exactly this weight is outside its source range.
+   */
+  ghostWeight?: number;
 }
 
 /** A node shown in every file's summary. The game tree is the same on every flop of a pack. */

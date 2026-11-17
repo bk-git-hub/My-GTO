@@ -13,6 +13,10 @@ import { N, type EquityTable } from "./pushfold";
  *    `bbRealization` of its equity (per hand class, or one number for all); the opener gets the rest.
  * Everyone starts with the same stack. Card removal between the two players in a pot is counted
  * through combo counts; folded players' cards are not. Solved by fictitious play over hand classes.
+ *
+ * The charts (src/data/sets/shortNashData.ts) no longer come from this solver: scripts/make-shortnash.mjs
+ * solves the same game (openJamConfig in src/poker/preflop/tree.ts, the "oneSided" valuation) with the
+ * preflop solver's DCFR engine. This file is the reference solver the engine's reduction tests compare against.
  */
 
 export interface OpenJamSetup {

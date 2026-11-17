@@ -9,7 +9,6 @@ import {
   deleteHand,
   exportData,
   exportLegacyScout,
-  fastActed,
   fastActText,
   fastOnly,
   fastVerdictOf,
@@ -24,10 +23,8 @@ import {
   hasDetail,
   holeClass,
   holeGuessed,
-  levelInfo,
   holeLabel,
   holeText,
-  rememberedText,
   allPicked,
   isOther,
   knownNames,
@@ -56,8 +53,6 @@ import {
   type LoggedHand,
 } from "./handLog";
 import { FastView } from "./FastView";
-import { signedText } from "./fastChips";
-import { hasChips, resultText } from "./fastLog";
 import { reopenStep, type FlowStep } from "./flowSteps";
 import { VERDICT_MARK } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
@@ -724,19 +719,12 @@ export function ListView({ tab, hands, go, startPicking = false, startPicks = []
 function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; picked?: boolean }) {
   const other = isOther(h);
   const bb = stackBb(h);
-  // A 빠른 기록 hand: its decision and the chart's verdict, its chips and the board remembered, until it is carried on to the table.
+  // A 빠른 기록 hand: its decision and the chart's verdict, until it is carried on to the table.
   const fast = fastOnly(h);
   const fv = h.fast ? fastVerdictOf(h) : null;
   // A walk's line already says 워크.
   const verdict = fv && fv.text !== "워크" ? fv : null;
-  // The result pill of a 빠른 기록 hand won or lost with chips on file: the chips ("+12,000"), in its result's color; a fold stays 폴드.
-  const chipPill = fast && h.result !== "fold" && !!h.net;
-  const pill = h.result ? (chipPill ? signedText(h.net as number, "chips") : RESULT_LABEL[h.result]) : "";
-  // Its line says only what the pill doesn't: the chips in bb, the board remembered (a fold without a board: nothing).
-  const bbPart = chipPill && levelInfo(h.level) ? signedText(h.net as number, "bb", h.level) : "";
-  const chips = fast && hasChips(h) ? [h.result ? bbPart : resultText(h), h.board.length ? `보드 ${rememberedText(h)}` : ""].filter(Boolean).join(" · ") : "";
-  const decision = fast && fastActed(h) ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : "";
-  const line = fast ? [decision, chips].filter(Boolean).join(" · ") : actionLine(h);
+  const line = fast ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : actionLine(h);
   const open = unfinished(h);
   const guessed = holeGuessed(h);
   return (
@@ -763,7 +751,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
           {h.fast && <span className="log-tag fast">빠른</span>}
           {guessed && !h.fast && <span className="log-tag soft">수트 추정</span>}
           {open && <span className="log-tag">작성 중</span>}
-          {h.result && <span className={`log-result ${h.result}`}>{pill}</span>}
+          {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
         </span>
       </span>
       {line && <span className="log-pre small">{line}</span>}
@@ -774,7 +762,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
       )}
       <span className="muted small">
         {timeLabel(h.createdAt)} · {handLevelLabel(h)}
-        {hasDetail(h) && !fast ? " · 자세히" : ""}
+        {hasDetail(h) ? " · 자세히" : ""}
         {h.showdowns.length ? ` · 쇼다운 ${h.showdowns.length}` : ""}
         {other && h.mySeat ? ` · 내 자리 ${h.mySeat}` : ""}
       </span>
