@@ -35,7 +35,8 @@ function valueText(y: number, s: ChipSeries, signed: boolean): string {
   return c === 0 ? "0" : signedText(c, "chips");
 }
 
-export function ChipGraph({ series: s, hands }: { series: ChipSeries; hands: LoggedHand[] }) {
+/** `title` names the run for screen readers (the section's title: "오늘 칩 흐름", a tournament's "칩 흐름"). */
+export function ChipGraph({ series: s, hands, title = "오늘 칩 흐름" }: { series: ChipSeries; hands: LoggedHand[]; title?: string }) {
   const [tapped, setPick] = useState<number | null>(null);
   const n = hands.length;
   // A hand deleted since the tap: the crosshair stays on the graph.
@@ -81,7 +82,7 @@ export function ChipGraph({ series: s, hands }: { series: ChipSeries; hands: Log
         className="chip-graph"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`오늘 칩 흐름: ${rel ? "0" : valueText(s.start, s, false)}에서 지금 ${valueText(s.end, s, rel)}, 최고 ${high}, 최저 ${low}`}
+        aria-label={`${title}: ${rel ? "0" : valueText(s.start, s, false)}에서 지금 ${valueText(s.end, s, rel)}, 최고 ${high}, 최저 ${low}`}
         onPointerDown={at}
         onPointerMove={(e) => (e.pointerType === "mouse" || e.buttons ? at(e) : undefined)}
         onPointerLeave={(e) => e.pointerType === "mouse" && setPick(null)}

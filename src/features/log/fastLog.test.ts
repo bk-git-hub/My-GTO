@@ -315,6 +315,32 @@ describe("빠른 기록: on file and in the backup", () => {
     const fixed = migrateStore({ hands: [{ ...h, fastSpot: "nope" as never }], lastLevel: null }, null);
     expect(fixed?.hands[0]).not.toHaveProperty("fastSpot");
   });
+
+  it("keeps a hand's tournament and the tournaments through sanitize, the backup and the load-time cleanup", () => {
+    const th: LoggedHand = { ...h, tourney: "t-abc" };
+    expect(sanitize(JSON.parse(JSON.stringify(th)))).toEqual(th);
+    for (const bad of ["", 5, "x".repeat(70)]) expect(sanitize({ ...h, tourney: bad })).not.toHaveProperty("tourney");
+    expect(migrateStore({ hands: [th], lastLevel: null }, null)).toBeNull();
+    expect(migrateStore({ hands: [{ ...h, tourney: 5 as never }], lastLevel: null }, null)?.hands[0]).not.toHaveProperty("tourney");
+    const t = { id: "t-abc", createdAt: 1, updatedAt: 1, activeAt: 1, name: "수요일", memo: "", start: 1, startSet: true as const, startStack: 50000 };
+    expect(migrateStore({ hands: [th], lastLevel: null, tourneys: [t] }, null)).toBeNull();
+    const cleaned = migrateStore({ hands: [th], lastLevel: null, tourneys: [t, { id: "" }, { ...t, id: "t-2", startStack: -1 }] as never }, null);
+    // the same time made: by id
+    expect(cleaned?.tourneys?.map((x) => [x.id, x.startStack])).toEqual([
+      ["t-2", null],
+      ["t-abc", 50000],
+    ]);
+    expect(migrateStore({ hands: [], lastLevel: null, tourneys: "x" as never }, null)).not.toHaveProperty("tourneys");
+    // the backup: the file carries them (same marker and version); importing merges them, the later edited winning
+    const file = exportData([th], undefined, undefined, [t]);
+    expect(JSON.parse(file)).toMatchObject({ kind: "pubaj-hand-log", version: 2, tourneys: [t] });
+    expect(JSON.parse(exportData([h]))).not.toHaveProperty("tourneys");
+    const m = mergeImport(file, [], undefined, undefined, [{ ...t, name: "older", updatedAt: 0 }]);
+    expect(m.hands[0].tourney).toBe("t-abc");
+    expect(m.tourneys).toEqual([t]);
+    expect(mergeImport(file, [], undefined, undefined, [{ ...t, name: "mine, newer", updatedAt: 9 }]).tourneys[0].name).toBe("mine, newer");
+    expect(mergeImport(exportData([h]), [], undefined, undefined, [t]).tourneys).toEqual([t]);
+  });
 });
 
 describe("빠른 기록 v2: a hand saved without a decision, with its chips and board", () => {
@@ -612,6 +638,12 @@ describe("빠른 기록 v2: the editor state", () => {
     expect(cleanFastState({ draft: { seat: "CO", editing: "h1", level: null, levelGuess: true } }).draft).not.toHaveProperty("levelGuess");
   });
 
+  it("keeps the tournament a level was picked in, when it is an id", () => {
+    expect(cleanFastState({ levelPick: { level: 7, at: 5, t: "t-1" } }).levelPick).toEqual({ level: 7, at: 5, t: "t-1" });
+    expect(cleanFastState({ levelPick: { level: 7, at: 5, t: 3 } }).levelPick).toEqual({ level: 7, at: 5 });
+    expect(cleanFastState({ levelPick: { level: null, at: 5, t: "" } }).levelPick).toEqual({ level: null, at: 5 });
+  });
+
   it("takes the level picked for the session (moved on by the schedule), else the start time's estimate, never a stale last level", () => {
     const NOW = new Date(2026, 10, 7, 22, 5).getTime();
     const initial = handLogStore.get();
@@ -682,6 +714,28 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     const mixed = sessionText([...hands, at(NOW - 50 * 60_000, typed("BTN", "AJo"), "open")]).split("\n");
     expect(mixed[0]).toContain("(펍 토너먼트, 펍아재 차트 기준)");
     expect(mixed[3]).toBe("차트대로 1/1 (100%) · 섞는 핸드 0 · 오버플레이 0 · 언더플레이 0 · 차트 없음 0");
+  });
+
+  it("names the tournament and its start in the copy, the stack from its start stack, and its memo", () => {
+    const hands = [at(NOW - 10 * 60_000, { ...pickRes(typed("BTN", "AKs"), "+"), amount: "12000" }), at(NOW - 20 * 60_000, pickRes(typed("SB", "T4o"), "fold"))];
+    const info = { title: "수요일 펍", when: "11월 8일 (일) 19:00 시작", startStack: 50000, memo: "테이블 3\n옆자리 공격적" };
+    const lines = sessionText(hands, "mine", info).split("\n");
+    expect(lines[0]).toBe("PubAJ 빠른 기록 · 수요일 펍 · 11월 8일 (일) 19:00 시작 · 2핸드 (펍 토너먼트)");
+    expect(lines[1]).toBe("메모: 테이블 3 / 옆자리 공격적");
+    expect(lines[2]).toBe("결과 +11,700칩 (+19.5bb) · 땄음 1 · 잃음 0 · 폴드 1 · 결과 없음 0");
+    expect(lines[3]).toBe("시작 스택 50,000 → 지금 61,700");
+    // 지금 스택 lower than the count: the result is the stack's change from the start stack
+    const missed = [...hands, at(NOW - 5 * 60_000, { ...pickRes(typed("CO", "55"), "-"), amount: "1000", stackNow: "58000" })];
+    const ml = sessionText(missed, "mine", info).split("\n");
+    expect(ml[2]).toMatch(/^결과 \+8,000칩 \(\+13\.3bb\) \(기록한 핸드 \+10,700칩 · 빠진 핸드 −2,700칩\)/);
+    expect(ml[3]).toBe("시작 스택 50,000 → 지금 58,000");
+    // no start stack, no memo: the lines as before after the first
+    const plain = sessionText(missed, "mine", { ...info, startStack: null, memo: "" }).split("\n");
+    expect(plain[0]).toContain("· 수요일 펍 · 11월 8일 (일) 19:00 시작 ·");
+    expect(plain.slice(1)).toEqual(sessionText(missed).split("\n").slice(1));
+    // without a tournament: exactly as it always was
+    expect(sessionText(hands).split("\n")[0]).toBe("PubAJ 빠른 기록 · 11월 8일 (일) · 2핸드 (펍 토너먼트)");
+    expect(sessionText(hands, "other", info).split("\n")[0]).toBe("PubAJ 남의 핸드 · 수요일 펍 · 11월 8일 (일) 19:00 시작 · 2핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)");
   });
 
   it("tells the coach the board as remembered, without the guessed suits as facts", () => {

@@ -9,7 +9,6 @@ import {
   isThreeBet,
   seatsBefore,
   spotsFor,
-  VERDICT_MARK,
   type FastSpot,
   type VerdictKind,
 } from "./fastVerdict";
@@ -31,7 +30,6 @@ import {
   fastStats,
   fastStore,
   focusOf,
-  hasChips,
   keptAction,
   keyUnitOf,
   nextSeat,
@@ -39,7 +37,6 @@ import {
   pickRes,
   pickSuited,
   resultText,
-  sessionOf,
   sessionText,
   setFocus,
   shareTable,
@@ -79,12 +76,42 @@ import {
   saveHand,
   type LoggedHand,
 } from "./handLog";
-import { ChipGraph } from "./ChipGraph";
-import { chipSeries, levelChip, marksOf, missedOf, oldestFirst, postedBy, sessionMoney, signedText, type Unit } from "./fastChips";
-import { BoardPad, BoardRow, DigitPad, MarksText, MoneyHead, MoreToggle, ResultSec, SuitRow, UnitRow } from "./FastResult";
+import { chipSeries, chipsText, levelChip, postedBy, type Unit } from "./fastChips";
+import { ChipsBlock, clock, copyText, FastItem, FastStatsRow } from "./FastParts";
+import { BoardPad, BoardRow, DigitPad, MoreToggle, ResultSec, SuitRow, UnitRow } from "./FastResult";
+import {
+  cancelNewTourney,
+  clockOf,
+  currentTourney,
+  dateOf,
+  defaultTitle,
+  deleteTourney,
+  editTourney,
+  fastEstimate,
+  fastSession,
+  fieldsOf,
+  groupTitle,
+  infoOf,
+  newFields,
+  previousTourney,
+  resumeTourney,
+  setFastStartClock,
+  stampPick,
+  stampStoredPick,
+  startTourney,
+  tourneyEstimate,
+  tourneyForNew,
+  tourneyGroups,
+  tourneyTitle,
+  tourneyWhen,
+  type TourneyGroup,
+} from "./fastTourney";
 import { LevelRow } from "./inputs";
 import { levelStage, PRE_STAGES, STAGE_LABEL, type PreAction } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
+import { cleanTourneys, withTourney, type Tourney } from "./tourney";
+import { GroupRes } from "./TourneyScreens";
+import { TourneySheet } from "./TourneySheet";
 import { closeUndoOffer, deleteWithUndo } from "./undoDelete";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
@@ -109,40 +136,6 @@ function SeatText({ seat, tight }: { seat: string; tight: boolean }) {
   ) : (
     <>{seat}</>
   );
-}
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const clock = (t: number) => {
-  const d = new Date(t);
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-};
-
-/** A verdict for a list row: "⚠ 오버 (폴드)", "▽ 언더 (오픈 72%)", another player's "⚠ 루즈 (폴드)", "차트 없음". */
-const shortVerdict = (t: string) =>
-  t.replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
-
-/** Plain text to the clipboard: the async API, else a hidden textarea (older iOS). */
-async function copyText(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    /* fall back below */
-  }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    ta.remove();
-    return ok;
-  } catch {
-    return false;
-  }
 }
 
 /** "내 핸드 | 남의 핸드" at the top of both quick screens: a toggle, so it takes this screen's place in history. */
@@ -199,20 +192,14 @@ function savedOf(h: LoggedHand, other: boolean): Saved {
   return { id: h.id, kind: v?.kind ?? "none", text: acted ? (v?.text ?? "") : "", line, tone };
 }
 
-/** A list row's chips: "+12,000" / "−6bb" in the unit shown, 폴드 (with the blind it cost: "폴드 −200"), 본전, or – for none. */
-function netShown(h: LoggedHand, view: Unit): string {
-  if (h.result === "fold") return h.net ? `폴드 ${signedText(h.net, view, h.level)}` : "폴드";
-  if (h.net !== null && h.net !== 0) return signedText(h.net, view, h.level);
-  if (h.net === 0) return "본전";
-  return h.result === "win" ? "땄음" : h.result === "lose" ? "잃음" : "–";
-}
-
 /**
  * 빠른 기록: every hand dealt to me, a few taps each. The stage and the table size stay for the session;
  * my seat moves on by itself after each hand; the class goes in on a rank pad (no suits); then the
  * result: 폴드 (one tap, saved at once, the blind it cost from my seat and the level) or 땄음 / 잃음 and the
  * amount in chips or bb on the same keypad, and the board cards I remember (ranks, a suit if I know it);
- * 저장 saves and starts the next hand. Today's list adds the chips up and draws them as a graph.
+ * 저장 saves and starts the next hand. The current tournament's list adds the chips up and draws them as a
+ * graph from its start stack; every new hand goes to that tournament with no tap of its own (fastTourney.ts),
+ * and "＋ 새 토너먼트" at the list's head starts another (the sheet), well away from the pad.
  * "액션도 기록" (closed by default, remembered) adds what happened before me (폴드로 나에게 by default) and
  * my action: tapping it saves the hand with its result, grades it against the pub chart (shown under the
  * actions with 되돌리기 until the next hand is started, and in today's list) and starts the next hand.
@@ -224,8 +211,8 @@ function netShown(h: LoggedHand, view: Unit): string {
 export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go: Go; mode?: FastMode }) {
   const other = mode === "other";
   const store = storeFor(mode);
-  // A first visit's stage: the level's usual one (from today's start time), else the last one used.
-  const [fallback] = useState(() => levelStage(estimatedLevel(levelEstimateAt(Date.now()))) ?? lastStage() ?? "mid");
+  // A first visit's stage: the level's usual one (from the tournament's or today's start time), else the last one used.
+  const [fallback] = useState(() => levelStage(estimatedLevel(fastEstimate(Date.now()))) ?? lastStage() ?? "mid");
   // 남의 핸드's first visit starts at 빠른 기록's table (the same stage and table size).
   const [first] = useState(() => (other ? cleanFastState(fastStore.get(), fallback) : null));
   const clean = (x: unknown) => cleanFastState(x, first?.stage ?? fallback, first?.players);
@@ -252,7 +239,10 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const [full, setFull] = useState(false);
   const [sizes, setSizes] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [now] = useState(() => Date.now());
+  /** The tournament sheet open: a new tournament, or the current one's details. */
+  const [sheet, setSheet] = useState<null | "new" | "edit">(null);
+  /** A short note under the list after a tournament action ("… 시작", "…에 이어 적어요"). */
+  const [tnMsg, setTnMsg] = useState<{ text: string; bad?: boolean } | null>(null);
   /** 빠른 기록's 아재: only a class completed by a tap here reacts (not one restored or opened to correct). */
   const [ajae, setAjae] = useState<AjaeState>(AJAE_START);
   // What is left of his reaction with this hand on screen (adjusting state while rendering, React's
@@ -267,20 +257,26 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     const row = handRowRef.current?.getBoundingClientRect();
     return bar && row ? Math.round(row.top - bar.bottom) : undefined;
   };
-  const session = useMemo(() => sessionOf(hands, Math.max(now, ...hands.slice(0, 1).map((h) => h.createdAt)), mode), [hands, now, mode]);
-  // 빠른 기록 grades only the hands saved with a decision.
-  const stats = useMemo(() => fastStats(other ? session : session.filter(fastActed)), [session, other]);
   /** The clock the level estimate follows (빠른 기록: every 30 s, so the level chip and the blinds keep up). */
   const [tick, setTick] = useState(() => Date.now());
+  const log = handLogStore.use();
+  const tourneys = useMemo(() => cleanTourneys(log.tourneys), [log.tourneys]);
+  // Now, or the newest hand's time if the clock is behind it.
+  const at = Math.max(tick, ...hands.slice(0, 1).map((h) => h.createdAt));
+  /** The current tournament: new hands go to it. */
+  const tn = useMemo(() => currentTourney(tourneys, hands, at), [tourneys, hands, at]);
+  // The list's hands: the current tournament's of this screen's kind, else (none current) today's hands logged before tournaments.
+  const session = useMemo(() => fastSession(tn, hands, at, mode), [tn, hands, at, mode]);
+  // 빠른 기록 grades only the hands saved with a decision.
+  const stats = useMemo(() => fastStats(other ? session : session.filter(fastActed)), [session, other]);
+  /** The level the clock gives: the tournament's start, else today's (a tournament resumed on a later day: today's only). */
+  const est = useMemo(() => tourneyEstimate(tn, tick, levelEstimateAt(tick, log)), [tn, tick, log]);
   const [lvOpen, setLvOpen] = useState(false);
   /** A save waiting for the level (a blind's fold or a walk tapped with no level known): it goes through once a level is picked. */
   const pending = useRef<(() => void) | null>(null);
   /** 내 액션's section: brought into view when the class is in with 액션도 기록 open. */
   const actsRef = useRef<HTMLDivElement>(null);
   const view: Unit = s.view === "bb" ? "bb" : "chips";
-  const money = useMemo(() => sessionMoney(session), [session]);
-  const series = useMemo(() => (other ? null : chipSeries(session, view)), [session, view, other]);
-  const missed = useMemo(() => (other ? null : missedOf(session)), [session, other]);
 
   /**
    * Scroll by the least that shows all of `el` under the sticky bar (its top wins when it is taller than
@@ -311,6 +307,11 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     const t = setTimeout(() => setCopied(null), 2500);
     return () => clearTimeout(t);
   }, [copied]);
+  useEffect(() => {
+    if (!tnMsg) return;
+    const t = setTimeout(() => setTnMsg(null), 2500);
+    return () => clearTimeout(t);
+  }, [tnMsg]);
   useEffect(() => {
     if (other) return;
     const now = () => setTick(Date.now());
@@ -374,20 +375,33 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
 
   /** The hand being corrected as on file now, or null for a new hand. */
   const editHandOf = (c: FastState) => (c.draft.editing ? (handLogStore.get().hands.find((h) => h.id === c.draft.editing) ?? null) : null);
-  /** The level and BB ante the draft saves at: a corrected hand's own; a new hand's from the session (fastLevel) at this moment. */
+  /**
+   * The level and BB ante the draft saves at: a corrected hand's own; a new hand's from the session
+   * (fastLevel) at this moment: a level picked in the current tournament, else its start time's estimate.
+   */
   function levelNow(c: FastState, editHand: LoggedHand | null, at: number): { lv: FastLevel & { picked?: boolean }; ante: boolean } {
     if (editHand) return { lv: editLevel(c.draft, editHand), ante: editAnte(c.draft, editHand) };
-    return { lv: fastLevel(c, sessionOf(handLogStore.get().hands, at, mode), at), ante: !c.noAnte };
+    const st = handLogStore.get();
+    const t = currentTourney(cleanTourneys(st.tourneys), st.hands, at);
+    return { lv: fastLevel(c, fastSession(t, st.hands, at, mode), at, tourneyEstimate(t, at, levelEstimateAt(at, st)), t?.id ?? null), ante: !c.noAnte };
   }
-  /** `h` on file, the editor on to the next hand, the save slot showing it. */
-  function commit(c: FastState, h: LoggedHand) {
-    const ok = saveHand(h);
+  /**
+   * `h` on file, the editor on to the next hand, the save slot showing it. `start`: the tournament the hand
+   * starts on its own (none was current), stored in the same write; a level picked before it now belongs to it.
+   */
+  function commit(c: FastState, h: LoggedHand, start: Tourney | null = null) {
+    const ok = saveHand(h, start ? (st) => withTourney(st, start) : undefined);
     setFull(!ok);
     // Not on file: the hand stays on screen to try again.
     if (!ok) return;
     // Only one 되돌리기 on screen: the one in the save slot, for the hand just saved.
     closeUndoOffer();
-    set(afterSave(c, h, handLogStore.get().hands, mode));
+    let next = afterSave(c, h, handLogStore.get().hands, mode);
+    if (start) {
+      if (other) stampStoredPick(start.id);
+      else next = stampPick(next, start.id);
+    }
+    set(next);
     setSaved(savedOf(h, other));
     setNudge(null);
     pending.current = null;
@@ -420,21 +434,23 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     const c = cur();
     const p = draftPlayers(c);
     const editHand = editHandOf(c);
-    const base = editHand ?? { ...freshHand(mode), players: p };
+    const at = Date.now();
+    // A new hand goes to the current tournament (or starts one); a corrected hand keeps its own.
+    const nt = editHand ? null : tourneyForNew(at);
+    const base = editHand ?? { ...freshHand(mode), players: p, ...(nt ? { tourney: nt.id } : {}) };
     if (other) {
       const h = fastHand(c.draft, a, base, draftStage(c), p, mode);
-      if (h) commit(c, h);
+      if (h) commit(c, h, nt?.start ?? null);
       return;
     }
     // 액션도 기록: the action saves the result and board typed so far; a fold or a walk with none typed is one.
     const d = c.draft.res || c.draft.amount ? c.draft : a === "fold" ? pickRes(c.draft, "fold") : a === undefined ? pickRes(c.draft, "walk") : c.draft;
-    const at = Date.now();
     setTick(at);
     const { lv, ante } = levelNow(c, editHand, at);
     if (!asked && needsLevel(d, lv, editHand)) return askLevel(() => act(a, true), "블라인드라서 레벨을 골라 주세요");
     const made = fastHand(d, a, base, draftStage(c), p, mode);
     const h = made && withFastResult(made, d, lv, ante);
-    if (h) commit(c, h);
+    if (h) commit(c, h, nt?.start ?? null);
     else if (made) whyNot(d, p, lv.level, ante, () => act(a, true));
   }
 
@@ -449,11 +465,13 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     setTick(at);
     const { lv, ante } = levelNow(c, editHand, at);
     if (!asked && needsLevel(d, lv, editHand)) return askLevel(() => save(kind, true), "블라인드라서 레벨을 골라 주세요");
-    const base = editHand ?? { ...freshHand(mode), players: p };
+    // A new hand goes to the current tournament (or starts one); a corrected hand keeps its own.
+    const nt = editHand ? null : tourneyForNew(at);
+    const base = editHand ?? { ...freshHand(mode), players: p, ...(nt ? { tourney: nt.id } : {}) };
     const kept = editHand ? keptAction(editHand, d) : null;
     const made = (kept !== null ? fastHand(d, kept, base, draftStage(c), p, mode) : null) ?? fastHand(d, null, base, draftStage(c), p, mode);
     const h = made && withFastResult(made, d, lv, ante);
-    if (h) commit(c, h);
+    if (h) commit(c, h, nt?.start ?? null);
     else if (made) whyNot(d, p, lv.level, ante, () => save(kind, true));
   }
   function pickResult(r: FastRes) {
@@ -497,7 +515,13 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     const then = pending.current;
     pending.current = null;
     if (c.draft.editing) draft((v) => ({ ...without(without(v, "level"), "levelGuess"), level, ...(guessed && level !== null ? { levelGuess: true as const } : {}) }));
-    else set(guessed ? without(c, "levelPick") : { ...c, levelPick: { level, at: Date.now() } });
+    else {
+      // A level picked holds in the tournament it was picked in (none current: until a hand starts one, which takes it).
+      const now = Date.now();
+      const st = handLogStore.get();
+      const t = currentTourney(cleanTourneys(st.tourneys), st.hands, now);
+      set(guessed ? without(c, "levelPick") : { ...c, levelPick: { level, at: now, ...(t ? { t: t.id } : {}) } });
+    }
     setLvOpen(false);
     then?.();
   }
@@ -543,7 +567,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const unit = unitOf(d);
   /** The unit of the field the keypad types into (the amount's, or 지금 스택's). */
   const keyUnit = keyUnitOf(d);
-  const lvNow: FastLevel & { picked?: boolean } = editing ? editLevel(d, editing) : fastLevel(s, session, tick);
+  const lvNow: FastLevel & { picked?: boolean } = editing ? editLevel(d, editing) : fastLevel(s, session, tick, est, tn?.id ?? null);
   const anteNow = editing ? editAnte(d, editing) : !s.noAnte;
   const block = other ? null : blockOf(d, players, lvNow.level, anteNow);
   const waits = block !== null && block !== "class";
@@ -566,6 +590,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       onLevel={pickLevel}
       onAnte={pickAnte}
       unknownSub="칩으로만"
+      // A new hand: the tournament's clock (a hand being corrected keeps the day's start for its own time).
+      {...(editing ? {} : { estimate: est, onStartClock: (c: string) => setFastStartClock(c, Date.now()), clockDefault: tn?.startSet ? clockOf(tn.start) : undefined })}
     />
   ) : null;
   /** "액션도 기록" / "액션 접기", at the bottom of what is typed (under the save slot, or under the actions); not while a decision on file is corrected. */
@@ -588,6 +614,39 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       </button>
     </>
   ) : null;
+
+  // The tournament section (내 핸드): its title and line, the way back to the one before, the list's card when none is current.
+  const tnTitle = tn ? tourneyTitle(tn, hands) : "";
+  const tnCount = tn ? hands.filter((h) => h.fast === true && h.tourney === tn.id).length : 0;
+  const prevTn = tn ? previousTourney(tourneys, tn.id) : null;
+  const tnEnd = tn && tn.startStack !== null && !other ? chipSeries(session, "chips", tn.startStack)?.end ?? null : null;
+  const tnMeta = tn
+    ? `${tourneyWhen(tn, hands)} · ${session.length}핸드${tn.startStack !== null ? ` · 시작 ${chipsText(tn.startStack)}${tnEnd !== null ? ` → ${chipsText(Math.round(tnEnd))}` : ""}` : ""}`
+    : "";
+  const groups = !other && !tn && !session.length ? tourneyGroups(tourneys, hands, at) : null;
+  const lastGroup = groups ? groups.tourneys.reduce<TourneyGroup | null>((b, g) => (g.t && (!b || (b.t && g.t.activeAt > b.t.activeAt)) ? g : b), null) : null;
+  const pickView = (u: Unit) => set(u === "bb" ? { ...cur(), view: "bb" } : without(cur(), "view"));
+  const newBtn = (
+    <button type="button" className="tn-new" onClick={() => setSheet("new")}>
+      ＋ 새 토너먼트
+    </button>
+  );
+  const pastLink = (
+    <button type="button" className="log-link" onClick={() => go("log/fast/past")}>
+      토너먼트 기록 ›
+    </button>
+  );
+  /** "새 토너먼트 취소": the empty tournament just started goes, the one before is current again. */
+  function cancelNew() {
+    if (!tn || !prevTn) return;
+    const title = tourneyTitle(prevTn, hands);
+    setTnMsg(cancelNewTourney(tn.id) ? { text: `'${title}'에 이어 적어요` } : { text: FULL_MSG, bad: true });
+  }
+  /** 이어 적기 on the last tournament's card. */
+  function resumeLast(g: TourneyGroup) {
+    if (!g.t) return;
+    setTnMsg(resumeTourney(g.t.id) ? { text: `'${groupTitle(g, hands)}'에 이어 적어요` } : { text: FULL_MSG, bad: true });
+  }
 
   return (
     <div className="fast">
@@ -852,92 +911,162 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       )}
 
       <section className="card-box fast-today">
-        <div className="fast-today-head">
-          <h2>{other ? "오늘 남의 핸드" : "오늘 빠른 기록"}</h2>
-          <span className="muted small">{session.length}핸드</span>
-        </div>
+        {other ? (
+          <>
+            <div className="fast-today-head">
+              <h2>오늘 남의 핸드</h2>
+              <span className="muted small">{session.length}핸드</span>
+            </div>
+            {tn && (
+              <p className="tn-meta">
+                {tnTitle} · {tourneyWhen(tn, hands)}
+              </p>
+            )}
+          </>
+        ) : tn ? (
+          <>
+            <div className="fast-today-head tn-head">
+              <h2>
+                <button type="button" className="tn-title" aria-label={`토너먼트 정보 고치기: ${tnTitle}`} onClick={() => setSheet("edit")}>
+                  <span>{tnTitle}</span>
+                  <i>✎</i>
+                </button>
+              </h2>
+              {newBtn}
+            </div>
+            <p className="tn-meta">{tnMeta}</p>
+            {tn.startStack === null && (
+              <button type="button" className="tn-invite" onClick={() => setSheet("edit")}>
+                {tn.name ? "＋ 시작 스택 넣기" : "＋ 시작 스택·이름 넣기"}
+                <small>그래프가 시작 스택부터</small>
+              </button>
+            )}
+            {tnCount === 0 && prevTn && (
+              <div className="tn-cancel">
+                <span>아직 핸드가 없어요</span>
+                <button type="button" onClick={cancelNew}>
+                  새 토너먼트 취소
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="fast-today-head tn-head">
+              <h2>오늘 빠른 기록</h2>
+              {session.length ? <span className="muted small">{session.length}핸드</span> : null}
+              {newBtn}
+            </div>
+            {session.length ? <p className="tn-meta">토너먼트 없이 적은 기록이에요 · 다음 핸드부터 토너먼트로 모여요</p> : null}
+          </>
+        )}
         {session.length ? (
           <>
-            {!other &&
-              (series ? (
-                <>
-                  <MoneyHead money={money} missed={missed} view={view} onView={(u) => set(u === "bb" ? { ...cur(), view: "bb" } : without(cur(), "view"))} />
-                  <ChipGraph series={series} hands={oldestFirst(session)} />
-                  {series.unit !== view && <p className="muted small fast-note">레벨이 없어서 칩으로 보여요</p>}
-                </>
-              ) : (
-                <p className="muted small fast-note">결과를 넣으면 오늘 칩 흐름이 그래프로 보여요</p>
-              ))}
-            {stats.total ? (
-            <div className="fast-stats">
-              <span className="v-ok">
-                차트대로 <b>{stats.okPct ?? 0}%</b> <small>({stats.by.ok}/{stats.graded})</small>
-              </span>
-              <span className="v-over">
-                ⚠ {other ? "루즈" : "오버"} {stats.by.over}
-              </span>
-              <span className="v-under">
-                ▽ {other ? "타이트" : "언더"} {stats.by.under}
-              </span>
-              <span className="v-mixed">△ 섞음 {stats.by.mixed}</span>
-              {stats.by.none ? <span className="v-none">차트 없음 {stats.by.none}</span> : null}
-            </div>
-            ) : null}
+            {!other && <ChipsBlock hands={session} view={view} onView={pickView} startStack={tn?.startStack ?? null} title={tn ? "칩 흐름" : "오늘 칩 흐름"} />}
+            <FastStatsRow stats={stats} other={other} />
             <div className="fast-list">
-              {recent.map((h) => {
-                const v = fastVerdictOf(h);
-                const k = v?.kind ?? "none";
-                // 빠른 기록's chips and board: the hand, its seat, the chips (in the unit shown), the board as remembered.
-                if (!other && hasChips(h)) {
-                  const net = h.net ?? 0;
-                  return (
-                    <button key={h.id} type="button" className={`fast-item res v-${k}${d.editing === h.id ? " editing" : ""}`} onClick={() => edit(h)}>
-                      <span className="fi-time">{clock(h.createdAt)}</span>
-                      <b className="fi-seat">{h.seat}</b>
-                      <b className="fi-class">{holeClass(h)}</b>
-                      <span className={`fi-net${h.result === "fold" ? " fold" : net > 0 ? " up" : net < 0 ? " down" : ""}`}>{netShown(h, view)}</span>
-                      <MarksText className="fi-board" marks={marksOf(h.board, h.guess?.board)} />
-                      {fastActed(h) && <span className="fi-verdict">{VERDICT_MARK[k]}</span>}
-                    </button>
-                  );
-                }
-                const said = fastActText(h);
-                return (
-                  <button key={h.id} type="button" className={`fast-item v-${k}${d.editing === h.id ? " editing" : ""}`} onClick={() => edit(h)}>
-                    <span className="fi-time">{clock(h.createdAt)}</span>
-                    <b className="fi-seat">{h.seat}</b>
-                    <b className="fi-class">{holeClass(h)}</b>
-                    <span className="fi-act">{said}</span>
-                    <span className="fi-verdict">{k === "ok" || k === "mixed" ? VERDICT_MARK[k] : v && v.text !== said ? shortVerdict(v.text) : VERDICT_MARK.none}</span>
-                  </button>
-                );
-              })}
+              {recent.map((h) => (
+                <FastItem key={h.id} h={h} view={view} other={other} editing={d.editing === h.id} onClick={() => edit(h)} />
+              ))}
             </div>
-            <p className="muted small">
-              핸드를 누르면 고치거나 지울 수 있어요{session.length > recent.length ? ` · 최근 ${recent.length}핸드만 보여요, 전부는 지난 기록에서` : ""}
-            </p>
+            {tn && !other ? (
+              <p className="muted small">
+                핸드를 누르면 고치거나 지울 수 있어요
+                {session.length > recent.length ? (
+                  <>
+                    {` · 최근 ${recent.length}핸드만 `}
+                    <button type="button" className="log-link tn-all" onClick={() => go(`log/fast/t/${tn.id}`)}>
+                      전부 보기 ›
+                    </button>
+                  </>
+                ) : null}
+              </p>
+            ) : (
+              <p className="muted small">
+                핸드를 누르면 고치거나 지울 수 있어요{session.length > recent.length ? ` · 최근 ${recent.length}핸드만 보여요, 전부는 지난 기록에서` : ""}
+              </p>
+            )}
             <div className="fast-today-foot">
               <button
                 type="button"
                 className="ghost small"
-                onClick={async () => setCopied((await copyText(sessionText(session, mode))) ? "복사했어요 · 카톡이나 Claude에 붙여 넣으세요" : "복사하지 못했어요")}
+                onClick={async () => setCopied((await copyText(sessionText(session, mode, tn ? infoOf(tn, hands) : undefined))) ? "복사했어요 · 카톡이나 Claude에 붙여 넣으세요" : "복사하지 못했어요")}
               >
-                오늘 요약 복사
+                {tn && !other ? "요약 복사" : "오늘 요약 복사"}
               </button>
-              <button type="button" className="log-link" onClick={() => go(other ? "log/list/other" : "log/list/mine")}>
-                지난 기록 ›
-              </button>
+              {other ? (
+                <button type="button" className="log-link" onClick={() => go("log/list/other")}>
+                  지난 기록 ›
+                </button>
+              ) : (
+                pastLink
+              )}
             </div>
             {copied && <p className="fast-hint ok">{copied}</p>}
           </>
+        ) : other ? (
+          <p className="muted small">아직 오늘 남의 핸드가 없어요. 보인 핸드마다 상대 자리 → 랭크 두 개 → 수딧/오프 → 상황 → 상대 액션만 누르면 저장돼요. 펍 사람들이 실제로 어떻게 치는지 모여요.</p>
+        ) : tn ? (
+          <>
+            <p className="muted small">아직 이 토너먼트에 핸드가 없어요. 핸드를 적으면 여기 모여요.</p>
+            <div className="fast-today-foot end">{pastLink}</div>
+          </>
         ) : (
-          <p className="muted small">
-            {other
-              ? "아직 오늘 남의 핸드가 없어요. 보인 핸드마다 상대 자리 → 랭크 두 개 → 수딧/오프 → 상황 → 상대 액션만 누르면 저장돼요. 펍 사람들이 실제로 어떻게 치는지 모여요."
-              : "아직 오늘 기록이 없어요. 핸드마다 랭크 두 개 → 수딧/오프 → 폴드, 아니면 땄음·잃음과 금액만 누르면 돼요. 보드는 기억나는 카드만."}
-          </p>
+          <>
+            {lastGroup && lastGroup.t && (
+              <div className="tn-card">
+                <div className="tn-card-main">
+                  <small className="muted">지난 토너먼트</small>
+                  <b>{groupTitle(lastGroup, hands)}</b>
+                  <span className="muted small">
+                    {dateOf(lastGroup.day)} · {lastGroup.hands.length}핸드 · <GroupRes g={lastGroup} />
+                  </span>
+                </div>
+                <button type="button" className="tn-resume" onClick={() => resumeLast(lastGroup)}>
+                  이어 적기
+                </button>
+              </div>
+            )}
+            <p className="muted small">아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요 (이름·시작 스택은 나중에). 핸드마다 랭크 두 개 → 수딧/오프 → 폴드, 아니면 땄음·잃음과 금액만 누르면 돼요. 보드는 기억나는 카드만.</p>
+            {groups && (groups.tourneys.length > 0 || groups.legacy.length > 0) && <div className="fast-today-foot end">{pastLink}</div>}
+          </>
         )}
+        {tnMsg && !other && <p className={`fast-hint ${tnMsg.bad ? "bad" : "ok"}`}>{tnMsg.text}</p>}
       </section>
+      {sheet === "new" && !other && (
+        <TourneySheet
+          mode="new"
+          initial={newFields(Date.now())}
+          defaultName={defaultTitle(Date.now())}
+          onSave={(f) => {
+            const id = startTourney(f);
+            if (!id) return FULL_MSG;
+            setSheet(null);
+            setTnMsg({ text: `'${f.name.trim() || defaultTitle(Date.now())}' 시작 · 다음 핸드부터 여기 모여요` });
+            return null;
+          }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === "edit" && !other && tn && (
+        <TourneySheet
+          mode="edit"
+          initial={fieldsOf(tn)}
+          defaultName={tourneyTitle({ ...tn, name: "" }, hands)}
+          canDelete={tnCount === 0}
+          current
+          onSave={(f) => {
+            if (!editTourney(tn.id, f)) return FULL_MSG;
+            setSheet(null);
+            return null;
+          }}
+          onDelete={() => {
+            if (!deleteTourney(tn.id)) setTnMsg({ text: FULL_MSG, bad: true });
+            setSheet(null);
+          }}
+          onClose={() => setSheet(null)}
+        />
+      )}
 
     </div>
   );

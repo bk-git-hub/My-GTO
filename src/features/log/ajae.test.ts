@@ -2,54 +2,31 @@ import { describe, expect, it } from "vitest";
 import { ALL_HANDS, RANKS } from "../../poker/cards";
 import { AJAE_CRAMPED, AJAE_MOVES, AJAE_ROOM, AJAE_SPECIALS, AJAE_START, BALL_ROOM, BODY_MOVES, POP_ROOM, SPECIAL_MOVES, ajaeKey, ajaeMove, ajaePair, ajaePairMove, ajaeQuiet, ajaeSeen, ajaeStep, ajaeTier, laterSeats, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
 import { afterSave, cancelEdit, fastHand, forgetHands, newDraft, pickSuited, startEdit, tapRank, undoTap, withSeat, withSpot, type FastDraft, type FastState } from "./fastLog";
+import { fastVerdict } from "./fastVerdict";
 import { emptyHand } from "./handLog";
-import { bbPlayShare, limpShare, raiseShare, TRASH_DEFENSE, trashDefenseShare } from "./judgeChart";
 import { PRE_STAGES, type PreStage } from "./quickPre";
-import { buttonSeat, positionsFor } from "./recorder";
+import { positionsFor } from "./recorder";
 
 const tier = (cls: string, seat: string, stage: PreStage = "mid", players = 9) => ajaeTier(cls, seat, stage, players);
 /** The class's tier at every seat of a table. */
 const atEvery = (cls: string, stage: PreStage = "mid", players = 9) => positionsFor(players).map((s) => tier(cls, s, stage, players));
 const R = (k: string) => RANKS.indexOf(k);
-const PLAYS = 0.5 - 1e-9;
-/** The hands the trash test's BB (the solver's 55bb BB facing the HJ's open) folds every time. */
-const hjFolds = ALL_HANDS.filter((h) => trashDefenseShare(TRASH_DEFENSE, h) <= 1e-9);
-/** How often my seat's own chart plays the hand: first in (an open, a shove, the SB's limp), the BB against the button. */
-const ownPlay = (cls: string, seat: string, stage: PreStage, players: number) =>
-  seat === "BB" ? bbPlayShare(stage, players, buttonSeat(players), cls) : raiseShare(stage, players, seat, cls) + limpShare(stage, players, seat, cls);
+/** The chart's first-in fold frequency for the hand at the seat, as 빠른 기록's verdict reads it. */
+const foldsFirstIn = (cls: string, seat: string, stage: PreStage, players: number) => fastVerdict({ stage, players, seat, cls, spot: "none", act: "fold" }).freq === 1;
+const bbFoldsToButton = (cls: string, stage: PreStage, players: number) =>
+  fastVerdict({ stage, players, seat: "BB", cls, spot: "open", opener: positionsFor(players).includes("BTN") ? "BTN" : "SB", act: "fold" }).freq === 1;
 
-describe("ajaeTier: how good my two cards are from my seat (the solver and our computed charts, first in)", () => {
-  it("grades the agreed examples at the middle stage (the solver's 55bb), 9-handed", () => {
+describe("ajaeTier: how good my two cards are from my seat (pub chart, first in)", () => {
+  it("grades the agreed examples at the middle stage, 9-handed", () => {
     expect(tier("K9o", "UTG")).toBe("fold");
+    expect(tier("A4o", "HJ")).toBe("fold");
     expect(tier("J4o", "CO")).toBe("trash");
     expect(tier("93o", "BTN")).toBe("trash");
+    expect(tier("T8o", "BB")).toBe("trash");
     expect(tier("72o", "BTN")).toBe("hammer");
     expect(tier("AA", "UTG")).toBe("monster");
     expect(tier("JTs", "UTG")).toBe("good");
     expect(tier("87s", "BTN")).toBe("good");
-    // where the solver and the old pub chart part: A4o at the HJ (the button opens it), T8o in the BB (it defends
-    // and the button opens it), QJo and 87s at UTG (it opens them) were a fold, trash, fold and fold
-    expect(tier("A4o", "HJ")).toBe("meh");
-    expect(tier("T8o", "BB")).toBe("good");
-    expect(tier("QJo", "UTG")).toBe("good");
-    expect(tier("87s", "UTG")).toBe("good");
-    // and K3o, K2o, which no seat opens at 55bb and the BB folds to the HJ, were only a fold at UTG
-    expect(tier("K2o", "UTG")).toBe("trash");
-  });
-
-  it("reads the deep stage off the solver's 100bb chart with the pub's 3bb open", () => {
-    // UTG opens 77+ there: 55 and 66 are a fold and a meh at UTG, though the 55bb UTG opens 66
-    expect(raiseShare("deep", 9, "UTG", "66")).toBeLessThan(PLAYS);
-    expect(tier("66", "UTG", "deep")).toBe("meh");
-    expect(tier("66", "UTG", "mid")).toBe("good");
-    expect(tier("55", "UTG", "deep")).toBe("fold");
-    // the 100bb SB limps AQs (a trap) and K2o: no open, so the seat's call, not good and not trash
-    expect(limpShare("deep", 9, "SB", "AQs")).toBe(1);
-    expect(tier("AQs", "SB", "deep")).toBe("meh");
-    expect(tier("K2o", "SB", "deep")).toBe("meh");
-    expect(tier("K2o", "CO", "deep")).toBe("trash");
-    expect(tier("JTs", "UTG", "deep")).toBe("good");
-    expect(tier("Q9o", "HJ", "deep")).toBe("meh");
   });
 
   it("calls AA KK QQ AK a monster and 72o the hammer from every seat, at every stage", () => {
@@ -59,109 +36,96 @@ describe("ajaeTier: how good my two cards are from my seat (the solver and our c
     }
   });
 
-  it("kicks only offsuit junk the solver's 55bb BB folds even to the HJ's open, and that no seat opens (72o is the hammer)", () => {
-    expect(hjFolds).toHaveLength(41);
-    expect(hjFolds.every((h) => h.endsWith("o"))).toBe(true);
-    for (const h of ["Q7o", "J6o", "J4o", "K2o", "93o", "32o", "72o"]) expect(hjFolds).toContain(h);
-    // the middle stage: 34 hands kicked from the CO, the 41 less those the button opens (J7o, T7o, Q6o, Q5o, K4o, 97o... )
-    const kicked = ALL_HANDS.filter((h) => tier(h, "CO") === "trash");
-    expect(kicked).toHaveLength(34);
-    for (const h of kicked) expect(hjFolds).toContain(h);
-    for (const h of ["J7o", "T7o", "Q5o", "K4o"]) {
-      expect(kicked).not.toContain(h);
-      expect(raiseShare("mid", 9, "BTN", h)).toBeGreaterThan(0);
-    }
-    // the same set from every seat whose own chart doesn't play the hand: the SB limps some, the BB defends some
+  it("kicks only the 41 offsuit hands the BB folds even to the button's open at the middle stage (72o is the hammer)", () => {
+    const bbFolds = ALL_HANDS.filter((h) => bbFoldsToButton(h, "mid", 9));
+    expect(bbFolds).toHaveLength(41);
+    expect(bbFolds.every((h) => h.endsWith("o"))).toBe(true);
+    for (const h of ["T8o", "J7o", "T7o", "97o", "J6o", "Q5o", "J4o", "93o", "32o", "72o"]) expect(bbFolds).toContain(h);
+    // the same set from every seat: bad from anywhere
     for (const seat of positionsFor(9)) {
-      const mine = ALL_HANDS.filter((h) => tier(h, seat) === "trash");
-      expect(mine).toEqual(kicked.filter((h) => ownPlay(h, seat, "mid", 9) < PLAYS));
+      const kicked = ALL_HANDS.filter((h) => ["trash", "hammer"].includes(tier(h, seat)));
+      expect(kicked).toEqual(bbFolds);
     }
-    expect(tier("J4o", "SB")).toBe("meh");
-    expect(tier("K2o", "BB")).toBe("meh");
+    expect(ALL_HANDS.filter((h) => tier(h, "CO") === "trash")).toHaveLength(40);
   });
 
-  it("never kicks a hand any seat opens first in, or my own seat plays, at any stage or table size (K9o, A4o: a ponder at most)", () => {
+  it("never kicks a hand any seat plays first in, at any stage or table size (K9o, A4o: a ponder at most)", () => {
     for (const stage of PRE_STAGES) {
-      for (const players of [2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+      for (const players of [3, 4, 5, 6, 7, 8, 9, 10]) {
         const seats = positionsFor(players);
         for (const h of ALL_HANDS) {
-          const at = atEvery(h, stage, players);
-          if (!at.includes("trash")) continue;
-          // the trash test's BB folds it: the kick is for the same junk at every stack depth
-          expect(hjFolds).toContain(h);
-          for (const s of seats.filter((x) => x !== "BB")) expect(raiseShare(stage, players, s, h)).toBe(0);
-          // trash at one seat is trash at every seat whose own chart doesn't play it
-          seats.forEach((s, i) => expect(at[i] === "trash", `${h} ${s} ${stage} ${players}`).toBe(ownPlay(h, s, stage, players) < PLAYS));
+          if (tier(h, seats[0], stage, players) !== "trash") continue;
+          // the middle stage's BB folds it: the kick is for the same junk at every stack depth
+          expect(bbFoldsToButton(h, "mid", players)).toBe(true);
+          for (const s of seats.filter((x) => x !== "BB")) expect(foldsFirstIn(h, s, stage, players)).toBe(true);
+          // trash at one seat is trash at all of them
+          expect(new Set(atEvery(h, stage, players))).toEqual(new Set(["trash"]));
         }
         for (const h of ["K9o", "A4o", "A2o"]) expect(atEvery(h, stage, players)).not.toContain("trash");
-        // Q9o, T9o, 76s, 87o: the short stage's BB folds some to an open, but they are no junk, so never a kick
+        // Q9o, T9o, 76s: the short stage's BB folds them to an open, but they are no junk, so never a kick
         for (const h of ["Q9o", "T9o", "76s", "87o"]) expect(atEvery(h, stage, players)).not.toContain("trash");
       }
     }
   });
 
-  it("counts a shove as playing the hand: the push stage's button shoves 87s, its SB shoves K2o, the 숏 SB shoves 93o", () => {
+  it("counts a shove as playing the hand: the push stage's button shoves 87s, its SB shoves K2o", () => {
     expect(tier("87s", "BTN", "push")).toBe("good");
     expect(tier("K2o", "SB", "push")).toBe("good");
-    // nobody shoves or calls 92o there
+    // nobody calls or shoves 92o there
     expect(tier("92o", "UTG", "push")).toBe("trash");
-    // the push stage's BB folds 87s to the button's shove, yet the button and the SB shove it: a fold, no trash
-    expect(bbPlayShare("push", 9, "BTN", "87s")).toBe(0);
-    expect(tier("87s", "BB", "push")).toBe("fold");
-    // the short stage (17bb open/jam): the SB opens or shoves 93o, so it is no trash anywhere, though the BB folds it
-    expect(raiseShare("short", 9, "SB", "93o")).toBeGreaterThanOrEqual(PLAYS);
-    expect(tier("93o", "SB", "short")).toBe("good");
-    expect(tier("93o", "UTG", "short")).toBe("fold");
-    expect(tier("93o", "BB", "short")).toBe("fold");
+    // the short stage: the SB shoves 87s though the BB folds it to the button's open, so it is no trash
+    expect(bbFoldsToButton("87s", "short", 9)).toBe(true);
+    expect(tier("87s", "SB", "short")).toBe("good");
+    expect(tier("87s", "UTG", "short")).not.toBe("trash");
   });
 
-  it("is good where my seat opens it, meh where one of the next two seats does or the SB limps it, else the seat's fault", () => {
-    expect(tier("KTo", "UTG")).toBe("fold"); // neither UTG+1 nor UTG+2 opens it, though the BB defends it
-    expect(tier("KTo", "UTG+1")).toBe("meh"); // the LJ opens KTo
-    expect(raiseShare("mid", 9, "LJ", "KTo")).toBeGreaterThanOrEqual(PLAYS);
-    expect(tier("Q9o", "HJ")).toBe("meh"); // the CO opens Q9o
-    expect(tier("Q9o", "CO")).toBe("good");
-    expect(tier("A4o", "BTN")).toBe("good");
-    expect(tier("A2o", "BTN")).toBe("meh"); // the BB defends it against the button
-    // the SB limps A2o and T8o: the seat's call (meh), not good; it opens K8o and J7o: good
-    expect(limpShare("mid", 9, "SB", "A2o")).toBeGreaterThanOrEqual(PLAYS);
-    expect(tier("A2o", "SB")).toBe("meh");
-    expect(tier("T8o", "SB")).toBe("meh");
-    expect(tier("K8o", "SB")).toBe("good");
-    expect(tier("J7o", "SB")).toBe("good");
-    // the button has no fold at 55bb: what it folds the BB defends, or nobody plays (trash)
+  it("is good where my seat opens it, meh where one of the next two seats does, else the seat's fault", () => {
+    expect(tier("KJo", "UTG")).toBe("meh"); // UTG+2 opens KJo+
+    expect(tier("KTo", "UTG")).toBe("fold"); // neither UTG+1 nor UTG+2 does, though the BB defends it
+    expect(tier("ATo", "UTG+1")).toBe("meh"); // UTG+2 opens ATo+
+    expect(tier("Q9o", "CO")).toBe("meh"); // the button opens Q9o+
+    expect(tier("A4o", "BTN")).toBe("meh"); // the BB defends it against the button
+    expect(tier("A2o", "SB")).toBe("fold"); // the button opens A5o+ only
+    expect(tier("A6o", "SB")).toBe("meh");
+    // the button has no fold: what it folds the BB defends, or nobody plays (trash)
     for (const h of ALL_HANDS) expect(tier(h, "BTN")).not.toBe("fold");
   });
 
-  it("grades the BB by its own defense against the button, at every stage: a fold, else good where the button opens it, else meh", () => {
+  it("grades the BB by the button's open: good where the button opens it, else meh", () => {
+    for (const h of ALL_HANDS) {
+      const t = tier(h, "BB");
+      if (["monster", "hammer", "trash"].includes(t)) continue;
+      expect(t).toBe(foldsFirstIn(h, "BTN", "mid", 9) ? "meh" : "good");
+    }
+    expect(tier("JTs", "BB")).toBe("good");
+    expect(tier("K8o", "BB")).toBe("meh");
+  });
+
+  it("gives the BB a fold where its own chart folds to the button (a short stack), never a good", () => {
     for (const stage of PRE_STAGES) {
       for (const h of ALL_HANDS) {
         const t = tier(h, "BB", stage);
         if (["monster", "hammer", "trash"].includes(t)) continue;
-        const want = bbPlayShare(stage, 9, "BTN", h) < PLAYS ? "fold" : raiseShare(stage, 9, "BTN", h) >= PLAYS ? "good" : "meh";
-        expect(t, `${h} ${stage}`).toBe(want);
+        expect(t === "fold").toBe(bbFoldsToButton(h, stage, 9));
       }
     }
-    expect(tier("JTs", "BB")).toBe("good");
-    expect(tier("T7o", "BB")).toBe("meh");
-    expect(tier("54o", "BB", "push")).toBe("fold");
+    expect(bbFoldsToButton("87s", "short", 9)).toBe(true);
+    expect(tier("87s", "BB", "short")).toBe("fold");
   });
 
-  it("kicks fewer hands where the button and the SB shove wide (숏, 푸시), never a hand outside the trash test's junk", () => {
-    const count = (stage: PreStage) => ALL_HANDS.filter((h) => tier(h, "CO", stage) === "trash").length;
-    expect(count("short")).toBeLessThan(count("mid"));
-    expect(count("push")).toBeLessThan(count("mid"));
-    for (const stage of PRE_STAGES) for (const h of ALL_HANDS.filter((x) => tier(x, "CO", stage) === "trash")) expect(hjFolds).toContain(h);
+  it("kicks at most the middle stage's junk at any stage (about a third of hands, not two thirds at 숏)", () => {
+    const mid = new Set(ALL_HANDS.filter((h) => tier(h, "CO") === "trash"));
+    for (const stage of PRE_STAGES) {
+      const kicked = ALL_HANDS.filter((h) => tier(h, "CO", stage) === "trash");
+      for (const h of kicked) expect(mid.has(h)).toBe(true);
+    }
   });
 
-  it("works at every table size the screen offers, a seat reading the 9-handed seat with as many players behind it", () => {
-    for (const players of [2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+  it("works at every table size the screen offers (10-handed MP plays UTG+2's chart, 6-handed UTG is the first seat)", () => {
+    for (const players of [3, 4, 5, 6, 7, 8, 9, 10]) {
       for (const seat of positionsFor(players)) for (const h of ["AA", "72o", "JTs", "K9o", "J4o", "87s"]) expect(["monster", "good", "meh", "fold", "trash", "hammer"]).toContain(tier(h, seat, "mid", players));
     }
     expect(tier("KJo", "MP", "mid", 10)).toBe(tier("KJo", "UTG+2", "mid", 9));
-    // 6-handed UTG is the LJ: K9o is meh there (the HJ opens it), a fold at the 9-handed UTG
-    expect(tier("K9o", "UTG", "mid", 6)).toBe("meh");
-    expect(tier("K9o", "UTG", "mid", 6)).toBe(tier("K9o", "LJ", "mid", 9));
     expect(tier("JTs", "UTG", "mid", 6)).toBe("good");
     expect(tier("J4o", "BTN", "mid", 3)).toBe("trash");
   });
@@ -405,7 +369,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     }
     const mehs: string[] = [];
     for (let i = 0; i < 3; i++) {
-      s = say("HJ", "Q", "9", false, s);
+      s = say("CO", "Q", "9", false, s);
       expect(s.cue!.tier).toBe("meh");
       mehs.push(s.cue!.move);
     }
@@ -443,7 +407,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     // the seat-dependent hands of the agreed examples ponder; a hand bad from every seat never does
     const k9 = typed("UTG", "K", "9");
     expect(ajaeStep(AJAE_START, k9, pickSuited(k9, false), "mid", 9).cue).toMatchObject({ tier: "fold", move: "ponder" });
-    const q9 = typed("HJ", "Q", "9");
+    const q9 = typed("CO", "Q", "9");
     expect(ajaeStep(AJAE_START, q9, pickSuited(q9, false), "mid", 9).cue).toMatchObject({ tier: "meh", move: "ponder" });
     const j4 = typed("CO", "J", "4");
     expect(ajaeStep(AJAE_START, j4, pickSuited(j4, false), "mid", 9).cue?.move).not.toBe("ponder");
@@ -594,15 +558,14 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     const aa = typed("UTG", "A", "A");
     const a = tap(AJAE_START, typed("UTG", "A"), aa);
     expect(ajaeSeen(a, withSeat(aa, "BB", 9), "mid", 9)).toBe(a);
-    // the stage: Q9o at CO is good in the middle (the solver's 55bb CO opens it), meh at 숏; back in the middle it stays over
+    // the stage: Q9o at CO is meh in the middle, a fold at 숏; back in the middle it stays over
     const q9 = typed("CO", "Q", "9");
     const q9o = pickSuited(q9, false);
     const q = tap(AJAE_START, q9, q9o);
-    expect(q.cue?.tier).toBe("good");
-    expect(ajaeTier("Q9o", "CO", "short", 9)).toBe("meh");
+    expect(q.cue?.tier).toBe("meh");
     expect(ajaeSeen(q, q9o, "mid", 9)).toBe(q);
     const atShort = ajaeSeen(q, q9o, "short", 9);
-    expect(atShort.cue).toMatchObject({ tier: "good", settled: true });
+    expect(atShort.cue).toMatchObject({ tier: "meh", settled: true });
     expect(ajaeSeen(atShort, q9o, "mid", 9)).toBe(atShort);
     // the table size: 9 → 3 players puts me on the button (FastView's pickPlayers), where K9o is no fold
     expect(ajaeTier("K9o", "BTN", "mid", 3)).not.toBe("fold");
