@@ -23,6 +23,7 @@ import {
   KIND_LABEL,
   legendActions,
   NAMED_RANGES,
+  namedRanges,
   reachOf,
   reachShare,
   reachTotals,
@@ -239,6 +240,19 @@ const LIMP: ScenarioDef = {
     { key: "check", label: "체크", color: "call", range: EVERY_HAND },
   ],
 };
+const VS_OPEN: ScenarioDef = {
+  id: "bb-vs-co-open",
+  kind: "vsOpen",
+  hero: "BB",
+  villain: "CO",
+  chip: "BB vs CO",
+  title: "BB vs CO 오픈",
+  description: "",
+  actions: [
+    { key: "3bet", label: "3벳 9bb", color: "raise", range: "QQ+" },
+    { key: "call", label: "콜", color: "call", range: "JJ-22, AQs-A2s" },
+  ],
+};
 const SQUEEZE: ScenarioDef = {
   id: "bb-at-co-open-btn-call",
   kind: "squeeze",
@@ -265,6 +279,16 @@ const VS_4BET: ScenarioDef = {
     { key: "shove", label: "올인", color: "allin", range: "KK+" },
     { key: "call", label: "콜", color: "call", range: "QQ, AKs" },
   ],
+};
+// Decision 1 of the main session: a cold player behind a 3-bet is a vs3bet scenario with only a jam.
+const COLD: ScenarioDef = {
+  id: "hj-at-utg-open-co-3bet",
+  kind: "vs3bet",
+  hero: "HJ",
+  chip: "UTG오픈·CO3벳",
+  title: "HJ — UTG 오픈 → CO 3벳 (콜드: 폴드·올인)",
+  description: "",
+  actions: [{ key: "shove", label: "콜드 올인", color: "allin", range: "KK+" }],
 };
 const COLD_JAM_ANSWER: ScenarioDef = {
   id: "utg-at-utg-open-co-3bet-hj-jam",
@@ -394,6 +418,21 @@ describe("solver-style scenario fields", () => {
     expect(strategyGradient(s, s.strategy["AKs"])).toBe("linear-gradient(to right, var(--call) 0% 50%, var(--fold) 50% 100%)");
   });
 
+  it("lists only rfi, vsOpen and vs3bet ranges of the solver set in the calculator, reach-weighted", () => {
+    const defs = [rfi("CO"), VS_OPEN, vs3bet("CO", "BTN"), COLD, SQUEEZE, VS_4BET, LIMP, COLD_JAM_ANSWER];
+    const spot = (id: string) => id.split("/")[2].split(":")[0];
+    const solver = namedRanges([solverLike("solver", defs)]);
+    expect([...new Set(solver.map((r) => spot(r.id)))]).toEqual(["rfi-co", "bb-vs-co-open", "co-open-vs-btn-3bet", "hj-at-utg-open-co-3bet"]);
+    // Any other set keeps every scenario.
+    const other = namedRanges([solverLike("other", defs)]);
+    expect(other.length).toBe(defs.reduce((n, d) => n + d.actions.length, 0));
+    // A villain who reached the spot half the time holds the hand half as often.
+    const call = solver.find((r) => r.id === "solver/100bb-2.2/co-open-vs-btn-3bet:call")!;
+    expect(call.label).toBe("CO 오픈 후 vs BTN 3벳 — 콜");
+    expect(call.group).toBe("테스트 세트 · 100bb · 오픈 2.2bb");
+    expect([call.range["KK"], call.range["QQ"], call.range["AKs"], call.range["AA"], call.range["72o"]]).toEqual([1, 0.5, 0.5, 0, 0]);
+  });
+
   it("offers the hero-seat filter only for big groups of sets that opt in, seats in table order", () => {
     const on = { heroFilter: true, positions: POS };
     expect(BIG.length).toBe(HERO_FILTER_ABOVE + 1);
@@ -517,6 +556,23 @@ describe("existing chart sets are unchanged", () => {
         expect(now, s.id).toBe(ALL_HANDS.map((h) => legacyDescribe(s, s.strategy[h])).join("\n"));
       }
     }
+  });
+
+  it("keep their calculator ranges", () => {
+    const legacyNamed = legacySets().flatMap((set) =>
+      set.stages.flatMap((stage) =>
+        stage.scenarios.flatMap((s) =>
+          s.actions.map((a) => ({
+            id: `${s.id}:${a.key}`,
+            group: `${set.label} · ${stage.label}`,
+            label: `${s.title} — ${a.label}`,
+            range: Object.fromEntries(ALL_HANDS.map((h) => [h, s.strategy[h][a.key] ?? 0])),
+          })),
+        ),
+      ),
+    );
+    expect(namedRanges(legacySets())).toEqual(legacyNamed);
+    expect(NAMED_RANGES.filter((r) => LEGACY_SETS.includes(r.id.split("/")[0]))).toEqual(legacyNamed);
   });
 
   it("render the same grids", () => {

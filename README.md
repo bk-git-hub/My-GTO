@@ -70,6 +70,7 @@ Vercel → 프로젝트 → Settings → Environment Variables:
 | 6맥스 캐시 100bb | `src/data/sets/cash6.ts` | 첫 버전의 학습용 근사 차트 |
 | 푸시/폴드 내쉬 | `src/data/sets/nash.ts`, `nashData.ts` | 9인, BB 앤티 1bb, 4~20bb. 앱이 직접 계산한 칩EV 내쉬 균형 (아래) |
 | 숏스택 내쉬 | `src/data/sets/shortNash.ts`, `shortNashData.ts` | 9인, BB 앤티 1bb, 10~25bb. 폴드/2bb 오픈/올인 + 리쉬브 + BB 콜까지 계산한 칩EV 균형 (아래) |
+| 솔버 프리플랍 | `src/data/sets/preflop.ts`, `preflopData.ts` | 9인, BB 앤티 1bb, 100bb(오픈 2.2bb·3bb)·55bb·35bb. 우리 프리플랍 솔버(DCFR, `scripts/make-preflop.mjs`)가 푼 칩EV 균형 근사. 설계와 검증은 `docs/preflop-solver.md` |
 
 **펍 토너먼트와 캐시 차트는 솔버 정확값이 아니다.** 레인지 문자열만 바꾸면 직접 구한 솔버 결과로 교체할 수 있다.
 
