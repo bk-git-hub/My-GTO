@@ -11,13 +11,15 @@ import { buttonSeat, positionsFor } from "./recorder";
  * to me), asked the same way 빠른 기록's verdict asks it (spotOf → preflopDecision), so every table size
  * and stage the screen offers works and the two never disagree. Each tier has its moves, taken in turn
  * (AJAE_MOVES), so hands of the same tier in a row get a different show; he never says a word. Everything
- * here is pure; the art and the moves are AjaeReaction.tsx and ajae.css.
+ * here is pure; the art (the bald, mustached 아재 of the launch splash and the app icon) and the moves are
+ * AjaeReaction.tsx and ajae.css.
  */
 
 /**
  * monster: AA KK QQ AK. good: my seat opens it. meh: a seat or two later opens it (the BB: the button
- * opens it). fold: a fold here, but not a bad hand (자리 탓). trash: even the BB facing the button's open
- * throws it away, and no seat plays it first in: bad from every seat, so he kicks it. hammer: 72o.
+ * opens it). fold: a fold here, but not a bad hand (자리 탓). meh and fold are the seat's call, so he ponders
+ * them. trash: even the BB facing the button's open throws it away, and no seat plays it first in: bad from
+ * every seat, so he kicks it. hammer: 72o, the worst hand there is: he loses it completely.
  */
 export type AjaeTier = "monster" | "good" | "meh" | "fold" | "trash" | "hammer";
 
@@ -27,30 +29,37 @@ const BLINDS = new Set(["SB", "BB"]);
 /**
  * What he does, by tier, in turn: each reaction of a tier takes the next one (a trash hand right after
  * another gets the next of kick → mallet → slam, whatever came between). The first move of each tier is
- * its main one. Face moves (hmm, yawn, glare, beer) are the chest-up face popping up big; body moves
+ * its main one. Face moves (ponder, hmm, glare) are the chest-up face popping up big; body moves
  * (BODY_MOVES) are the whole 아재 performing beside the class, after which the face stays in its slot.
  * - monster: the all-in shove (two chip stacks pushed into the hand);
  * - good: a shuffle under a mirror ball, every other time the robot;
- * - meh: "흠" (the shades down the nose, a ?); fold (자리 탓): a yawn and a doze, or a glare at the seat row;
+ * - meh and fold (the seat's call): first he ponders it (the hand on his chin, eyes up, a thought cloud);
+ *   every other time meh gets "흠" (the shades down the nose, a ?) and fold a glare at the seat row. meh
+ *   rests on the "흠" face, fold on the pondering one;
  * - trash: he kicks the hand, smashes it with a mallet or slams its cards to the floor, then stays, furious;
- * - hammer (72o): a cheers and a sip of beer.
+ * - hammer (72o): the rage. Bigger and longer than any trash move: he double-takes, boils over with steam
+ *   shooting out of his ears, rips both cards in half and stomps the pieces, then stays as furious as trash.
  */
 export const AJAE_MOVES = {
   monster: ["shove"],
   good: ["shuffle", "robot"],
-  meh: ["hmm"],
-  fold: ["yawn", "glare"],
+  meh: ["ponder", "hmm"],
+  fold: ["ponder", "glare"],
   trash: ["kick", "mallet", "slam"],
-  hammer: ["beer"],
+  hammer: ["rage"],
 } as const satisfies Record<AjaeTier, readonly string[]>;
 
-/** The face's stand-ins for the body moves when there is no room above the hand row for the whole 아재 (AJAE_ROOM). */
-export const AJAE_CRAMPED = { monster: "cheer", good: "nod", meh: "hmm", fold: "yawn", trash: "fume", hammer: "beer" } as const satisfies Record<AjaeTier, string>;
+/**
+ * The face's stand-ins for the body moves when there is no room above the hand row for the whole 아재 (AJAE_ROOM):
+ * the trash moves and 72o's rage both boil over in the face (fume). meh and fold have only face moves, which always
+ * fit, so theirs never play.
+ */
+export const AJAE_CRAMPED = { monster: "cheer", good: "nod", meh: "ponder", fold: "ponder", trash: "fume", hammer: "fume" } as const satisfies Record<AjaeTier, string>;
 
 export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier];
 
 /** The moves where the whole 아재 performs beside the class (the others are the face's). */
-export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam"]);
+export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam", "rage"]);
 
 /**
  * The room each body move needs above the hand row, in px from the row's top up to the sticky stage bar's
@@ -60,12 +69,12 @@ export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "sh
  * higher than the dancer: below BALL_ROOM the dance has none. A face move needs no room of its own (it pops
  * in its slot), only less of a pop below POP_ROOM.
  */
-export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = { shuffle: 58, robot: 50, shove: 49, kick: 53, mallet: 74, slam: 53 };
+export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = { shuffle: 58, robot: 50, shove: 49, kick: 53, mallet: 74, slam: 53, rage: 60 };
 export const BALL_ROOM = 90;
 /**
- * The face's full pop (2.15x, growing up from the slot) reaches about 63 px above the row (the yawn's z's);
- * with less room than this it pops smaller and from its middle (cue.low, ajae.css .aj-low), so the stage
- * bar doesn't cut off the top of his head, his vein or his steam.
+ * The face's full pop (2.15x, growing up from the slot) reaches about 63 px above the row (the ponder's thought
+ * cloud, floating up); with less room than this it pops smaller and from its middle (cue.low, ajae.css .aj-low),
+ * so the stage bar doesn't cut off the top of his head, his cloud, his vein or his steam.
  */
 export const POP_ROOM = 64;
 
