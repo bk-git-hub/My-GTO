@@ -9,7 +9,6 @@ import {
   deleteHand,
   exportData,
   exportLegacyScout,
-  fastActed,
   fastActText,
   fastOnly,
   fastVerdictOf,
@@ -24,10 +23,8 @@ import {
   hasDetail,
   holeClass,
   holeGuessed,
-  levelInfo,
   holeLabel,
   holeText,
-  rememberedText,
   allPicked,
   isOther,
   knownNames,
@@ -56,14 +53,11 @@ import {
   type LoggedHand,
 } from "./handLog";
 import { FastView } from "./FastView";
-import { signedText } from "./fastChips";
-import { hasChips, resultText } from "./fastLog";
 import { reopenStep, type FlowStep } from "./flowSteps";
 import { VERDICT_MARK } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
 import { STAGE_LABEL } from "./quickPre";
 import { TableFlow } from "./TableFlow";
-import { TourneyList, TourneyView } from "./TourneyScreens";
 import { deleteWithUndo, dismissUndo, undoLast, useUndoNote } from "./undoDelete";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
@@ -75,9 +69,8 @@ type Msg = { text: string; error?: boolean } | null;
  * Routes: "log" (a new hand of mine: the hand first, then the table), "log/fast" (빠른 기록: every hand
  * of mine, a few taps each, graded against the chart), "log/other" (남의 핸드: the same screen for hands
  * other players showed), "log/list" (past hands: all, "log/list/mine", "log/list/other", 편집 to delete
- * some, and the backup), "log/players" (showdowns by opponent), "log/fast/past" (빠른 기록's tournaments),
- * "log/fast/t/<id>" (one of them), "log/fast/s/<handId>" (빠른 기록 hands from before tournaments), "log/<id>"
- * (a saved hand in the table flow, mine or another player's). `returned`: reached by a step back or forward (the header's ‹), not opened
+ * some, and the backup), "log/players" (showdowns by opponent), "log/<id>" (a saved hand in the table
+ * flow, mine or another player's). `returned`: reached by a step back or forward (the header's ‹), not opened
  * anew: a hand screen shows the hand and the step it was left on.
  */
 export function LogPage({ sub, go, returned = false }: { sub: string; go: Go; returned?: boolean }) {
@@ -97,8 +90,6 @@ export function LogPage({ sub, go, returned = false }: { sub: string; go: Go; re
       {v.kind === "other" && <FastView key="other" mode="other" hands={hands} go={go} />}
       {v.kind === "list" && <ListScreen tab={v.filter} hands={hands} go={go} />}
       {v.kind === "players" && <ListScreen tab="players" hands={hands} go={go} />}
-      {v.kind === "tourneys" && <TourneyList hands={hands} go={go} />}
-      {(v.kind === "tourney" || v.kind === "legacy") && <TourneyView key={`${v.kind}:${v.id}`} kind={v.kind} id={v.id} hands={hands} go={go} />}
       {/* Per screen: a link back to the list steps back through history, which doesn't open the page afresh. */}
       <Toast key={`toast:${sub}`} />
       <UndoToast />
@@ -728,19 +719,12 @@ export function ListView({ tab, hands, go, startPicking = false, startPicks = []
 function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; picked?: boolean }) {
   const other = isOther(h);
   const bb = stackBb(h);
-  // A 빠른 기록 hand: its decision and the chart's verdict, its chips and the board remembered, until it is carried on to the table.
+  // A 빠른 기록 hand: its decision and the chart's verdict, until it is carried on to the table.
   const fast = fastOnly(h);
   const fv = h.fast ? fastVerdictOf(h) : null;
   // A walk's line already says 워크.
   const verdict = fv && fv.text !== "워크" ? fv : null;
-  // The result pill of a 빠른 기록 hand won or lost with chips on file: the chips ("+12,000"), in its result's color; a fold stays 폴드.
-  const chipPill = fast && h.result !== "fold" && !!h.net;
-  const pill = h.result ? (chipPill ? signedText(h.net as number, "chips") : RESULT_LABEL[h.result]) : "";
-  // Its line says only what the pill doesn't: the chips in bb, the board remembered (a fold without a board: nothing).
-  const bbPart = chipPill && levelInfo(h.level) ? signedText(h.net as number, "bb", h.level) : "";
-  const chips = fast && hasChips(h) ? [h.result ? bbPart : resultText(h), h.board.length ? `보드 ${rememberedText(h)}` : ""].filter(Boolean).join(" · ") : "";
-  const decision = fast && fastActed(h) ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : "";
-  const line = fast ? [decision, chips].filter(Boolean).join(" · ") : actionLine(h);
+  const line = fast ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : actionLine(h);
   const open = unfinished(h);
   const guessed = holeGuessed(h);
   return (
@@ -767,7 +751,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
           {h.fast && <span className="log-tag fast">빠른</span>}
           {guessed && !h.fast && <span className="log-tag soft">수트 추정</span>}
           {open && <span className="log-tag">작성 중</span>}
-          {h.result && <span className={`log-result ${h.result}`}>{pill}</span>}
+          {h.result && <span className={`log-result ${h.result}`}>{RESULT_LABEL[h.result]}</span>}
         </span>
       </span>
       {line && <span className="log-pre small">{line}</span>}
@@ -778,7 +762,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
       )}
       <span className="muted small">
         {timeLabel(h.createdAt)} · {handLevelLabel(h)}
-        {hasDetail(h) && !fast ? " · 자세히" : ""}
+        {hasDetail(h) ? " · 자세히" : ""}
         {h.showdowns.length ? ` · 쇼다운 ${h.showdowns.length}` : ""}
         {other && h.mySeat ? ` · 내 자리 ${h.mySeat}` : ""}
       </span>
@@ -878,9 +862,8 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
   async function importFile(f: File) {
     try {
       const prev = handLogStore.get();
-      const { hands: merged, added, updated, startClock, startClocks, tourneys } = mergeImport(await f.text(), prev.hands, prev.startClock, prev.startClocks, prev.tourneys);
-      if (handLogStore.set({ ...prev, hands: merged, ...(startClock ? { startClock } : {}), ...(startClocks.length ? { startClocks } : {}), ...(tourneys.length ? { tourneys } : {}) }))
-        setMsg({ text: `불러왔어요. 새 기록 ${added}개, 업데이트 ${updated}개.` });
+      const { hands: merged, added, updated, startClock, startClocks } = mergeImport(await f.text(), prev.hands, prev.startClock, prev.startClocks);
+      if (handLogStore.set({ ...prev, hands: merged, ...(startClock ? { startClock } : {}), ...(startClocks.length ? { startClocks } : {}) })) setMsg({ text: `불러왔어요. 새 기록 ${added}개, 업데이트 ${updated}개.` });
       else {
         handLogStore.set(prev);
         setMsg({ text: FULL_MSG, error: true });
@@ -901,10 +884,7 @@ function BackupBox({ hands }: { hands: LoggedHand[] }) {
         <button
           className="ghost"
           disabled={!hands.length}
-          onClick={() => {
-            const st = handLogStore.get();
-            void saveFile(exportData(hands, st.startClock, st.startClocks, st.tourneys), `pubaj-hands-${day()}`, "PubAJ 핸드 기록 백업");
-          }}
+          onClick={() => void saveFile(exportData(hands, handLogStore.get().startClock, handLogStore.get().startClocks), `pubaj-hands-${day()}`, "PubAJ 핸드 기록 백업")}
         >
           내보내기 ({hands.length}개)
         </button>

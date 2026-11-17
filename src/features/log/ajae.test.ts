@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ALL_HANDS, RANKS } from "../../poker/cards";
-import { AJAE_CRAMPED, AJAE_MOVES, AJAE_ROOM, AJAE_SPECIALS, AJAE_START, BALL_ROOM, BODY_MOVES, POP_ROOM, SPECIAL_MOVES, ajaeKey, ajaeMove, ajaePair, ajaePairMove, ajaeQuiet, ajaeSeen, ajaeStep, ajaeTier, laterSeats, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
+import { AJAE_CRAMPED, AJAE_MOVES, AJAE_ROOM, AJAE_START, BALL_ROOM, BODY_MOVES, POP_ROOM, ajaeKey, ajaeMove, ajaeQuiet, ajaeSeen, ajaeStep, ajaeTier, laterSeats, type AjaeState, type AjaeTier } from "./ajae";
 import { afterSave, cancelEdit, fastHand, forgetHands, newDraft, pickSuited, startEdit, tapRank, undoTap, withSeat, withSpot, type FastDraft, type FastState } from "./fastLog";
 import { fastVerdict } from "./fastVerdict";
 import { emptyHand } from "./handLog";
@@ -142,149 +142,6 @@ describe("ajaeTier: how good my two cards are from my seat (pub chart, first in)
   });
 });
 
-describe("the pairs' own shows: AA flies a plane, KK is a gorilla or gets crowned, QQ waltzes, JJ splits into two jacks", () => {
-  /** The 아재 after typing the pair at `seat` (its second rank completes it). */
-  const pair = (s: AjaeState, seat: string, r: string, stage: PreStage = "mid", players = 9, room?: number) => ajaeStep(s, tapRank(newDraft(seat), R(r)), tapRank(tapRank(newDraft(seat), R(r)), R(r)), stage, players, room);
-  const other = (s: AjaeState, seat: string, a: string, b: string, suited: boolean, room?: number) => {
-    const two = tapRank(tapRank(newDraft(seat), R(a)), R(b));
-    return ajaeStep(s, two, pickSuited(two, suited), "mid", 9, room);
-  };
-
-  it("has a show for AA, KK (two, in turn), QQ and JJ: body moves of their own, in no tier's list", () => {
-    expect(AJAE_SPECIALS).toEqual({ AA: ["plane"], KK: ["gorilla", "crown"], QQ: ["waltz"], JJ: ["split"] });
-    expect([...SPECIAL_MOVES].sort()).toEqual(["crown", "gorilla", "plane", "split", "waltz"]);
-    for (const m of SPECIAL_MOVES) {
-      expect(BODY_MOVES.has(m)).toBe(true);
-      for (const moves of Object.values(AJAE_MOVES)) expect(moves as readonly string[]).not.toContain(m);
-      expect(Object.values(AJAE_CRAMPED) as string[]).not.toContain(m);
-      // it knows the room it needs, and fits with the page at the top (96 px)
-      expect(AJAE_ROOM[m]).toBeGreaterThan(0);
-      expect(AJAE_ROOM[m]).toBeLessThanOrEqual(96);
-    }
-    // only those four classes have one
-    expect(ALL_HANDS.filter((h) => ajaePair(h))).toEqual(["AA", "KK", "QQ", "JJ"]);
-    expect(ajaePair("AKs")).toBeUndefined();
-    expect(ajaePair("TT")).toBeUndefined();
-  });
-
-  it("plays AA's plane, QQ's waltz and JJ's jacks every time, at every seat, stage and table size, resting on the hand's tier", () => {
-    for (const stage of PRE_STAGES) {
-      for (const players of [3, 6, 9, 10]) {
-        for (const seat of positionsFor(players)) {
-          for (const [r, move] of [["A", "plane"], ["Q", "waltz"], ["J", "split"]] as const) {
-            let s = AJAE_START;
-            for (let i = 0; i < 3; i++) {
-              s = pair(s, seat, r, stage, players);
-              expect(s.cue, `${r}${r} ${seat} ${stage} ${players}`).toMatchObject({ cls: `${r}${r}`, move, tier: ajaeTier(`${r}${r}`, seat, stage, players) });
-            }
-          }
-        }
-      }
-    }
-    expect(ajaeTier("AA", "UTG", "mid", 9)).toBe("monster");
-    expect(ajaeTier("QQ", "BB", "push", 9)).toBe("monster");
-  });
-
-  it("alternates KK's two shows, the gorilla first, whatever comes between", () => {
-    let s = AJAE_START;
-    const kk: string[] = [];
-    for (let i = 0; i < 5; i++) {
-      s = pair(s, i % 2 ? "BTN" : "UTG", "K");
-      kk.push(s.cue!.move);
-      // other hands between, pairs with shows of their own too, don't move KK's turn
-      s = pair(s, "CO", "A");
-      s = other(s, "CO", "A", "K", true);
-      s = other(s, "UTG", "J", "T", true);
-    }
-    expect(kk).toEqual(["gorilla", "crown", "gorilla", "crown", "gorilla"]);
-    expect(s.pairs).toEqual({ KK: 5, AA: 5 });
-    // the same taps, the same shows: nothing random
-    let t = AJAE_START;
-    const again: string[] = [];
-    for (let i = 0; i < 5; i++) {
-      t = pair(t, i % 2 ? "BTN" : "UTG", "K");
-      again.push(t.cue!.move);
-      t = pair(t, "CO", "A");
-      t = other(t, "CO", "A", "K", true);
-      t = other(t, "UTG", "J", "T", true);
-    }
-    expect(again).toEqual(kk);
-  });
-
-  it("leaves the tiers' turns alone: AK still shoves every time, good hands still go shuffle, robot, shuffle", () => {
-    let s = AJAE_START;
-    s = other(s, "UTG", "J", "T", true);
-    expect(s.cue!.move).toBe("shuffle");
-    s = pair(s, "UTG", "J");
-    expect(s.cue).toMatchObject({ tier: "good", move: "split" });
-    s = pair(s, "UTG", "A");
-    s = pair(s, "UTG", "K");
-    s = pair(s, "UTG", "Q");
-    s = other(s, "UTG", "J", "T", true);
-    expect(s.cue!.move).toBe("robot");
-    s = other(s, "UTG", "A", "K", false);
-    expect(s.cue!.move).toBe("shove");
-    // the pairs count on their own, not on their tier's turn
-    expect(s.seen).toEqual({ good: 2, monster: 1 });
-    expect(s.pairs).toEqual({ JJ: 1, AA: 1, KK: 1, QQ: 1 });
-    expect(s.n).toBe(7);
-    // the cue says nothing more than any other reaction's
-    expect(Object.keys(s.cue!).sort()).toEqual(["cls", "key", "move", "n", "tier"]);
-    expect(Object.keys(pair(s, "UTG", "A").cue!).sort()).toEqual(["cls", "key", "move", "n", "tier"]);
-  });
-
-  it("plays what fits when the page is scrolled: the pair's other show, else what any hand of its tier would (AK's shove, then the cheer)", () => {
-    const need = (m: AjaeMove) => AJAE_ROOM[m]!;
-    // AA: the plane from exactly its room; less, the shove; less still, the face cheers (popping smaller)
-    expect(pair(AJAE_START, "UTG", "A", "mid", 9, need("plane")).cue!.move).toBe("plane");
-    expect(pair(AJAE_START, "UTG", "A", "mid", 9, need("plane") - 1).cue!.move).toBe("shove");
-    expect(pair(AJAE_START, "UTG", "A", "mid", 9, need("shove") - 1).cue).toMatchObject({ move: "cheer", low: true });
-    expect(pair(AJAE_START, "UTG", "A", "mid", 9, -20).cue).toMatchObject({ move: "cheer", low: true });
-    // QQ the same way
-    expect(pair(AJAE_START, "UTG", "Q", "mid", 9, need("waltz")).cue!.move).toBe("waltz");
-    expect(pair(AJAE_START, "UTG", "Q", "mid", 9, need("waltz") - 1).cue!.move).toBe(need("waltz") - 1 >= need("shove") ? "shove" : "cheer");
-    expect(pair(AJAE_START, "UTG", "Q", "mid", 9, 20).cue!.move).toBe("cheer");
-    // KK: the crown's turn without room for the crown plays the gorilla if that fits
-    const k1 = pair(AJAE_START, "UTG", "K");
-    expect(k1.cue!.move).toBe("gorilla");
-    expect(pair(k1, "UTG", "K", "mid", 9, need("crown")).cue!.move).toBe("crown");
-    expect(need("gorilla")).toBeLessThan(need("crown"));
-    expect(pair(k1, "UTG", "K", "mid", 9, need("crown") - 1).cue!.move).toBe("gorilla");
-    expect(pair(k1, "UTG", "K", "mid", 9, need("gorilla") - 1).cue!.move).toBe("shove");
-    expect(pair(k1, "UTG", "K", "mid", 9, 10).cue!.move).toBe("cheer");
-    // the turn is taken all the same: after a cramped KK the next one is the other show
-    const cramped = pair(k1, "UTG", "K", "mid", 9, 10);
-    expect(pair(cramped, "UTG", "K").cue!.move).toBe("gorilla");
-    // JJ (good at UTG): the good hands' dance, without its ball when scrolled, and the tier's turn left alone; then the nod
-    const jj = pair(AJAE_START, "UTG", "J", "mid", 9, need("split") - 1);
-    expect(jj.cue).toMatchObject({ tier: "good", move: "shuffle", noBall: true });
-    expect(jj.seen).toEqual({});
-    expect(other(jj, "UTG", "J", "T", true).cue!.move).toBe("shuffle");
-    expect(pair(AJAE_START, "UTG", "J", "mid", 9, 30).cue).toMatchObject({ move: "nod", low: true });
-    // ajaePairMove itself
-    expect(ajaePairMove("KK", 1, "monster", 0)).toBe("crown");
-    expect(ajaePairMove("KK", 2, "monster", 0, need("gorilla"))).toBe("gorilla");
-    expect(ajaePairMove("AA", 0, "monster", 0, 0)).toBe("cheer");
-    expect(ajaePairMove("JJ", 0, "good", 1, 55)).toBe("robot");
-  });
-
-  it("settles like any reaction: gone with its hand, at rest once the tier on screen changes", () => {
-    const s = pair(AJAE_START, "UTG", "A");
-    const aa = tapRank(tapRank(newDraft("UTG"), R("A")), R("A"));
-    expect(ajaeSeen(s, withSeat(aa, "BB", 9), "mid", 9)).toBe(s);
-    expect(ajaeSeen(s, undoTap(aa), "mid", 9).cue).toBeNull();
-    // JJ where its tier changes with the seat, if any table has one: settled, it never plays again
-    for (const stage of PRE_STAGES) {
-      const tiers = positionsFor(9).map((seat) => ajaeTier("JJ", seat, stage, 9));
-      const i = tiers.findIndex((t) => t !== tiers[0]);
-      if (i < 0) continue;
-      const jj = pair(AJAE_START, positionsFor(9)[0], "J", stage);
-      const d = tapRank(tapRank(newDraft(positionsFor(9)[0]), R("J")), R("J"));
-      expect(ajaeSeen(jj, withSeat(d, positionsFor(9)[i], 9), stage, 9).cue).toMatchObject({ move: "split", settled: true });
-    }
-  });
-});
-
 describe("ajaeStep: he reacts to a class completed by a tap, and only then", () => {
   const typed = (seat: string, a: string, b?: string): FastDraft => {
     let d = tapRank(newDraft(seat), R(a));
@@ -299,7 +156,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     let s = tap(AJAE_START, newDraft("UTG"), one);
     expect(s.cue).toBeNull();
     s = tap(s, one, typed("UTG", "A", "A"));
-    expect(s.cue).toEqual({ n: 1, cls: "AA", tier: "monster", move: "plane", key: "AA|" });
+    expect(s.cue).toEqual({ n: 1, cls: "AA", tier: "monster", move: "shove", key: "AA|" });
     // two different ranks wait for the suitedness
     const jt = typed("UTG", "J", "T");
     s = tap(AJAE_START, typed("UTG", "J"), jt);
@@ -358,9 +215,9 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     expect(s.cue!.move).toBe("robot");
     s = say("UTG", "J", "T", true, s);
     expect(s.cue!.move).toBe("shuffle");
-    // AK, the monster with no show of its own, always shoves; 72o always rages; meh ponders, then "흠", in turn
-    for (const suited of [true, false, true]) {
-      s = say("UTG", "A", "K", suited, s);
+    // a monster always shoves, 72o always rages, meh ponders, then "흠", in turn
+    for (const [a, b] of [["A", "A"], ["K", "K"], ["Q", "Q"]]) {
+      s = say("UTG", a, b, null, s);
       expect(s.cue).toMatchObject({ tier: "monster", move: "shove" });
     }
     for (let i = 0; i < 2; i++) {
@@ -388,7 +245,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
       // each tier's move in turn, from the k-th reaction
       for (let k = 0; k < 6; k++) expect(ajaeMove(t, k)).toBe(AJAE_MOVES[t][k % AJAE_MOVES[t].length]);
     }
-    expect([...BODY_MOVES].sort()).toEqual(["crown", "gorilla", "kick", "mallet", "plane", "rage", "robot", "shove", "shuffle", "slam", "split", "waltz"]);
+    expect([...BODY_MOVES].sort()).toEqual(["kick", "mallet", "rage", "robot", "shove", "shuffle", "slam"]);
     // every body move knows the room it needs; the face's stand-ins are face moves
     for (const m of BODY_MOVES) expect(AJAE_ROOM[m]).toBeGreaterThan(0);
     for (const m of Object.values(AJAE_CRAMPED)) expect(BODY_MOVES.has(m)).toBe(false);
@@ -495,8 +352,8 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     const kick = ajaeStep(AJAE_START, j4, pickSuited(j4, false), "mid", 9, POP_ROOM - 1).cue!;
     expect(kick).toMatchObject({ move: "kick" });
     expect(kick.low).toBeUndefined();
-    // the full pop needs more room than any of the tiers' body moves but the mallet, and the ball more still
-    for (const m of BODY_MOVES) if (m !== "mallet" && !SPECIAL_MOVES.has(m)) expect(AJAE_ROOM[m]).toBeLessThan(POP_ROOM);
+    // the full pop needs more room than any body move but the mallet, and the ball more still
+    for (const m of BODY_MOVES) if (m !== "mallet") expect(AJAE_ROOM[m]).toBeLessThan(POP_ROOM);
     expect(POP_ROOM).toBeLessThan(BALL_ROOM);
   });
 

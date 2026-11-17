@@ -3,8 +3,10 @@ import { CardRow } from "../../components/Cards";
 import { Choices } from "../../components/Choice";
 import { closeFact, CloseNote, describeStrategy, FreqBar, actionColor } from "../../components/FreqBar";
 import { SeatRow, SetPicker } from "../../components/SetPicker";
+import { SolverSkeleton } from "../../components/SolverSkeleton";
 import { getSet, scenarioActions } from "../../data/charts";
-import { bigPairCloseNote, cautionFacts, quizCloseActions } from "../../data/sets/preflop";
+import { bigPairCloseNote, cautionFacts, quizCloseActions, SOLVER_ID } from "../../data/sets/preflop";
+import { useSolver } from "../../data/useSolver";
 import { cardLabel } from "../../poker/cards";
 import { useSettings } from "../../state/settings";
 import { accuracy, recordAnswer, useStats } from "../../state/stats";
@@ -74,7 +76,21 @@ const GRADE_TEXT: Record<Grade, string> = {
   wrong: "오답",
 };
 
+/** The solver set's stages load on first use (docs §6.3): a skeleton under the set picker until then. */
 function PreflopQuiz() {
+  const { chartSet } = useSettings();
+  const solver = useSolver(chartSet === SOLVER_ID);
+  if (solver.status !== "ready")
+    return (
+      <>
+        <SetPicker />
+        <SolverSkeleton {...solver} />
+      </>
+    );
+  return <PreflopQuizView />;
+}
+
+function PreflopQuizView() {
   const { chartSet } = useSettings();
   const set = getSet(chartSet);
   const [filter, setFilter] = useState<string>("all");
