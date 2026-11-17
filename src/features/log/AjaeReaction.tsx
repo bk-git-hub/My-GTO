@@ -307,53 +307,38 @@ const Jet = ({ x, y, className }: { x: number; y: number; className: string }) =
   </g>
 );
 
-/** The doll's colours: his own clothes, or the gorilla costume's fur (KK). */
-interface Garb {
-  shirt: string;
-  pants: string;
-  arm: string;
-  fist: string;
-  shoe: string;
-}
-const CLOTHES: Garb = { shirt: SHIRT, pants: PANTS, arm: SKIN, fist: SKIN, shoe: SHOE };
-/** The gorilla costume: a mid grey fur (it has to read on the dark screen), darker hands and feet. */
-const FUR = "#525866";
-const FUR_LIGHT = "#7b8494";
-const FUR_DARK = "#33373f";
-const COSTUME: Garb = { shirt: FUR, pants: FUR, arm: FUR, fist: FUR_DARK, shoe: FUR_DARK };
-
 /** A two-part leg (thigh, then shin and sneaker), turning at the hip and the knee. */
-function Leg({ side, x, foot, g }: { side: "l" | "r"; x: number; foot: number; g: Garb }) {
+function Leg({ side, x, foot }: { side: "l" | "r"; x: number; foot: number }) {
   return (
     <g className={`aj-r-leg-${side}`}>
       <path d={`M${x} 67 L ${x} 77.5`} stroke={INK} strokeWidth="10" strokeLinecap="round" />
-      <path d={`M${x} 67 L ${x} 77.5`} stroke={g.pants} strokeWidth="7" strokeLinecap="round" />
+      <path d={`M${x} 67 L ${x} 77.5`} stroke={PANTS} strokeWidth="7" strokeLinecap="round" />
       <g className={`aj-r-shin-${side}`}>
         <path d={`M${x} 78 L ${x} 87.5`} stroke={INK} strokeWidth="9.4" strokeLinecap="round" />
-        <path d={`M${x} 78 L ${x} 87.5`} stroke={g.pants} strokeWidth="6.4" strokeLinecap="round" />
-        <ellipse cx={foot} cy="90.2" rx="6.6" ry="3.6" fill={g.shoe} stroke={INK} strokeWidth="1.8" />
+        <path d={`M${x} 78 L ${x} 87.5`} stroke={PANTS} strokeWidth="6.4" strokeLinecap="round" />
+        <ellipse cx={foot} cy="90.2" rx="6.6" ry="3.6" fill={SHOE} stroke={INK} strokeWidth="1.8" />
       </g>
     </g>
   );
 }
 
 /** A two-part arm (red sleeve, then forearm and fist), turning at the shoulder and the elbow; the right one can hold something and point. */
-function Arm({ side, sx, ex, hx, hold, g }: { side: "l" | "r"; sx: number; ex: number; hx: number; hold?: ReactNode; g: Garb }) {
+function Arm({ side, sx, ex, hx, hold }: { side: "l" | "r"; sx: number; ex: number; hx: number; hold?: ReactNode }) {
   return (
     <g className={`aj-r-arm-${side}`}>
       <path d={`M${sx} 49 L ${ex} 58`} stroke={INK} strokeWidth="7.6" strokeLinecap="round" />
-      <path d={`M${sx} 49 L ${ex} 58`} stroke={g.shirt} strokeWidth="4.8" strokeLinecap="round" />
+      <path d={`M${sx} 49 L ${ex} 58`} stroke={SHIRT} strokeWidth="4.8" strokeLinecap="round" />
       <g className={`aj-r-fore-${side}`}>
         <path d={`M${ex} 58 L ${hx} 67`} stroke={INK} strokeWidth="6.4" strokeLinecap="round" />
-        <path d={`M${ex} 58 L ${hx} 67`} stroke={g.arm} strokeWidth="3.8" strokeLinecap="round" />
+        <path d={`M${ex} 58 L ${hx} 67`} stroke={SKIN} strokeWidth="3.8" strokeLinecap="round" />
         {hold}
         {side === "r" && (
           <g className="aj-r-finger">
             <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={INK} strokeWidth="3.6" strokeLinecap="round" />
-            <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={g.fist} strokeWidth="1.8" strokeLinecap="round" />
+            <path d={`M${hx} 68.4 L ${hx + 1.6} 74.6`} stroke={SKIN} strokeWidth="1.8" strokeLinecap="round" />
           </g>
         )}
-        <circle cx={hx} cy="68.4" r="3.7" fill={g.fist} stroke={INK} strokeWidth="1.6" />
+        <circle cx={hx} cy="68.4" r="3.7" fill={SKIN} stroke={INK} strokeWidth="1.6" />
       </g>
     </g>
   );
@@ -374,46 +359,27 @@ const MALLET = (
 /**
  * The whole 아재, a jointed doll for the body moves (the doll's own units: 0 0 64 96, feet at y 93; ajae.css
  * gives each joint its pivot). The viewBox is padded past those units so every pose he strikes paints inside
- * the SVG's own box (a limb or the mallet swinging outside it is a paint risk on Safari): `wide` for the mallet,
- * `view` for a move with props of its own around him (the plane, a crown coming down, a mask lifted off).
+ * the SVG's own box (a limb or the mallet swinging outside it is a paint risk on Safari): `wide` for the mallet.
  * `rage` (72o): the mad head with its shocked O, shock lines over his head and steam that shoots out of his ears.
- * The pairs' shows dress him up: `fur` puts him in the gorilla costume (KK; `mask`, its head, goes over his own),
- * `under` is drawn behind him (the plane's tail, a cape), `over` in front of his body but under his arms (the
- * plane's fuselage, a bow tie, the cape's collar), `top` on his head, turning with it (a crown).
  */
-function Doll({ mad, rage, wide, view, hold, fur, under, over, top }: { mad: boolean; rage?: boolean; wide?: boolean; view?: string; hold?: ReactNode; fur?: boolean; under?: ReactNode; over?: ReactNode; top?: ReactNode }) {
-  const g = fur ? COSTUME : CLOTHES;
+function Doll({ mad, rage, wide, hold }: { mad: boolean; rage?: boolean; wide?: boolean; hold?: ReactNode }) {
   return (
-    <svg className="aj-rig" viewBox={view ?? (wide ? "-32 -32 168 136" : "-24 -16 112 120")} xmlns="http://www.w3.org/2000/svg">
+    <svg className="aj-rig" viewBox={wide ? "-32 -32 168 136" : "-24 -16 112 120"} xmlns="http://www.w3.org/2000/svg">
       <g className="aj-r-all">
-        {under}
-        <Leg side="l" x={26.5} foot={24.5} g={g} />
-        <Leg side="r" x={37.5} foot={39.5} g={g} />
-        <rect x="20" y="61" width="24" height="9" rx="2.5" fill={g.pants} stroke={INK} strokeWidth="2" />
-        <path d="M18 47 Q 32 40 46 47 L 44.5 64 L 19.5 64 Z" fill={g.shirt} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-        {fur ? (
-          <>
-            {/* the costume's chest, and tufts of fur at the shoulders */}
-            <path d="M23.5 48.5 Q 32 45 40.5 48.5 Q 41 57 32 59.5 Q 23 57 23.5 48.5 Z" fill={FUR_LIGHT} stroke={INK} strokeWidth="1.4" />
-            <path d="M26 52 Q 32 54.5 38 52" fill="none" stroke={FUR} strokeWidth="1.3" strokeLinecap="round" />
-            <path d="M17.5 47.5 l -2 -2.4 M19.5 45.6 l -1.2 -2.8 M46.5 47.5 l 2 -2.4 M44.5 45.6 l 1.2 -2.8" stroke={INK} strokeWidth="1.3" strokeLinecap="round" />
-          </>
-        ) : (
-          <>
-            <g fill="#fff" opacity="0.9">
-              <circle cx="24" cy="56" r="1.8" />
-              <circle cx="39" cy="58" r="1.8" />
-              <circle cx="31" cy="61" r="1.5" />
-            </g>
-            <path d="M26 45 Q 32 53 38 45" fill="none" stroke={GOLD} strokeWidth="2.4" />
-          </>
-        )}
+        <Leg side="l" x={26.5} foot={24.5} />
+        <Leg side="r" x={37.5} foot={39.5} />
+        <rect x="20" y="61" width="24" height="9" rx="2.5" fill={PANTS} stroke={INK} strokeWidth="2" />
+        <path d="M18 47 Q 32 40 46 47 L 44.5 64 L 19.5 64 Z" fill={SHIRT} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+        <g fill="#fff" opacity="0.9">
+          <circle cx="24" cy="56" r="1.8" />
+          <circle cx="39" cy="58" r="1.8" />
+          <circle cx="31" cy="61" r="1.5" />
+        </g>
+        <path d="M26 45 Q 32 53 38 45" fill="none" stroke={GOLD} strokeWidth="2.4" />
         <g className="aj-r-head">
           <g transform="translate(32 25) scale(0.4)">
             <DollHead mad={mad || !!rage} rage={rage} />
           </g>
-          {fur && <GorillaMask />}
-          {top}
           {rage && (
             <>
               <g fill="#eef2f7" stroke={INK} strokeWidth="1.2">
@@ -429,9 +395,8 @@ function Doll({ mad, rage, wide, view, hold, fur, under, over, top }: { mad: boo
             </>
           )}
         </g>
-        {over}
-        <Arm side="l" sx={21} ex={16} hx={13} g={g} />
-        <Arm side="r" sx={43} ex={48} hx={51} hold={hold} g={g} />
+        <Arm side="l" sx={21} ex={16} hx={13} />
+        <Arm side="r" sx={43} ex={48} hx={51} hold={hold} />
       </g>
     </svg>
   );
@@ -576,282 +541,6 @@ const Card72 = ({ rank, pip, color }: (typeof CARDS_72)[number]) => (
 const BitSvg = () => (
   <svg viewBox="0 0 8 6">
     <path d="M0.6 0.8 L 7.2 0.6 L 6.4 2.4 L 7.4 5.2 L 0.8 5.4 L 1.6 3 Z" fill="#fff" stroke={INK} strokeWidth="0.9" strokeLinejoin="round" />
-  </svg>
-);
-
-// ───────────── the pairs' shows (AJAE_SPECIALS): their costumes and props ─────────────
-
-/** The gorilla costume's face: dark and leathery, under a heavy brow. */
-const GFACE = "#2a2c33";
-const MUZZLE = "#4a4d57";
-/**
- * The gorilla costume's head (KK), over his own bald head, in the splash face's units: a dome with a crest, small
- * ears, a heavy brow, small eyes, a big flat nose. Its jaw drops for the roar (.aj-r-roar); in the end he lifts the
- * whole head off (.aj-r-mask) and it's him inside.
- */
-function GorillaMask() {
-  return (
-    <g className="aj-r-mask">
-      <g transform="translate(32 25) scale(0.4)">
-        {[-1, 1].map((k) => (
-          <g key={k}>
-            <circle cx={53 * k} cy="-4" r="11" fill={FUR} stroke={INK} strokeWidth="4" />
-            <circle cx={53 * k} cy="-4" r="5" fill={GFACE} />
-          </g>
-        ))}
-        <path d="M-54 12 C -60 -38, -34 -80, 0 -82 C 34 -80, 60 -38, 54 12 C 52 42, 30 54, 0 54 C -30 54, -52 42, -54 12 Z" fill={FUR} stroke={INK} strokeWidth="4" />
-        <path d="M-30 -58 Q -14 -72 4 -70 M10 -66 Q 26 -64 36 -52 M-44 -30 Q -46 -14 -42 2 M44 -30 Q 46 -14 42 2" fill="none" stroke={FUR_LIGHT} strokeWidth="3.4" strokeLinecap="round" />
-        <path d="M-38 -16 C -40 -36, -12 -40, 0 -32 C 12 -40, 40 -36, 38 -16 C 42 8, 34 38, 0 46 C -34 38, -42 8, -38 -16 Z" fill={GFACE} stroke={INK} strokeWidth="3" />
-        <path d="M-41 -20 Q -22 -40 0 -27 Q 22 -40 41 -20 Q 22 -26 0 -15 Q -22 -26 -41 -20 Z" fill={FUR} stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
-        {[-1, 1].map((k) => (
-          <g key={k}>
-            <circle cx={16 * k} cy="-8" r="6" fill="#fff" stroke={INK} strokeWidth="2" />
-            <circle cx={15 * k} cy="-7" r="3.4" fill={INK} />
-            <circle cx={14 * k + 1} cy="-8.4" r="1.1" fill="#fff" />
-          </g>
-        ))}
-        <path d="M-26 14 C -27 0, 27 0, 26 14 C 28 34, 14 42, 0 42 C -14 42, -28 34, -26 14 Z" fill={MUZZLE} stroke={INK} strokeWidth="2.6" />
-        <path d="M-16 8 C -16 -2, 16 -2, 16 8 C 16 14, 8 16, 0 14 C -8 16, -16 14, -16 8 Z" fill={GFACE} stroke={INK} strokeWidth="2" />
-        <ellipse cx="-7" cy="8.5" rx="4.4" ry="3.2" fill={INK} />
-        <ellipse cx="7" cy="8.5" rx="4.4" ry="3.2" fill={INK} />
-        <path className="aj-r-shut" d="M-13 29 Q 0 34 13 29" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" />
-        <g className="aj-r-roar">
-          <ellipse cx="0" cy="30" rx="15" ry="10" fill="#5a1d14" stroke={INK} strokeWidth="3" />
-          <path d="M-10 21.5 L -7 29 L -4 22 Z M10 21.5 L 7 29 L 4 22 Z" fill="#fff" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-        </g>
-      </g>
-    </g>
-  );
-}
-
-/** A gold crown (KK), on his bald head (the splash face's units: it sits on the top of the dome), its jewels and pearls. */
-const CROWN = (
-  <g className="aj-r-crown">
-    <g transform="translate(32 25) scale(0.4)">
-      <path d="M-31 -46 L -36 -84 L -17 -63 L 0 -94 L 17 -63 L 36 -84 L 31 -46 Q 0 -54 -31 -46 Z" fill={GOLD} stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
-      <path d="M-31 -46 Q 0 -54 31 -46 L 31 -35 Q 0 -43 -31 -35 Z" fill="#f59e0b" stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
-      <path d="M-28 -52 L -31 -74 L -22 -62 Z M-6 -66 L 0 -84 L 3 -70 Z" fill="#fff" opacity="0.7" />
-      {[[-36, -87], [0, -98], [36, -87]].map(([x, y]) => (
-        <circle key={x} cx={x} cy={y} r="5.5" fill="#fff" stroke={INK} strokeWidth="2.4" />
-      ))}
-      <circle cx="-17" cy="-41" r="4.6" fill="#e11d48" stroke={INK} strokeWidth="2" />
-      <circle cx="0" cy="-43.5" r="5.6" fill="#2563eb" stroke={INK} strokeWidth="2" />
-      <circle cx="17" cy="-41" r="4.6" fill="#16a34a" stroke={INK} strokeWidth="2" />
-    </g>
-  </g>
-);
-/** The royal cape behind him (KK, the crown): red velvet with a gold hem; it swirls on as the crown lands. */
-const CAPE = (
-  <g className="aj-r-cape">
-    <path d="M17 46 Q 32 41 47 46 L 60 90 Q 32 97 4 90 Z" fill="#b4123a" stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-    <path d="M6 88.5 Q 32 95 58 88.5" fill="none" stroke={GOLD} strokeWidth="2.6" />
-    <path d="M22 52 L 14 86 M42 52 L 50 86" fill="none" stroke="#7f0d29" strokeWidth="1.6" strokeLinecap="round" />
-  </g>
-);
-/** The cape's white ermine collar over his shoulders, with its black tails. */
-const COLLAR = (
-  <g className="aj-r-collar">
-    <path d="M14.5 47.5 Q 32 37.5 49.5 47.5 Q 51 52 46.5 52.5 Q 32 45 17.5 52.5 Q 13 52 14.5 47.5 Z" fill="#fff" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M19 48.4 v 2 M25 45.4 v 2 M39 45.4 v 2 M45 48.4 v 2" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
-  </g>
-);
-/** The scepter in his right fist (like the mallet: it hangs from the fist, so it points up when he raises his arm). */
-const SCEPTER = (
-  <g className="aj-r-scep">
-    <path d="M51 64 L 51 95" stroke={INK} strokeWidth="5" strokeLinecap="round" />
-    <path d="M51 64 L 51 95" stroke={GOLD} strokeWidth="2.8" strokeLinecap="round" />
-    <path d="M46.5 91 L 55.5 91" stroke={INK} strokeWidth="4" strokeLinecap="round" />
-    <path d="M46.5 91 L 55.5 91" stroke={GOLD} strokeWidth="2" strokeLinecap="round" />
-    <circle cx="51" cy="99" r="5" fill="#e11d48" stroke={INK} strokeWidth="1.6" />
-    <path d={spark(49.6, 97.6, 2.4)} fill="#fff" />
-  </g>
-);
-
-/** A bow tie (QQ: the ladies' man), over his chain. */
-const BOWTIE = (
-  <g className="aj-r-tie">
-    <path d="M32 46.5 L 24.5 42.6 Q 23.4 46.5 24.5 50.4 Z M32 46.5 L 39.5 42.6 Q 40.6 46.5 39.5 50.4 Z" fill={INK} stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-    <circle cx="32" cy="46.5" r="2.3" fill="#2b2f3a" stroke={INK} strokeWidth="1" />
-    <path d="M26 44.6 L 26 48.4 M38 44.6 L 38 48.4" stroke="#6b7280" strokeWidth="1" strokeLinecap="round" />
-  </g>
-);
-
-/** The plane's light blue, its darker wings and tail. */
-const SKY = "#5ec8ff";
-const WING = "#2f8fe0";
-/**
- * AA's plane, in the doll's units around him (he sits in its open cockpit): the far tail fin behind him
- * (PLANE_BACK), then in front of his body the fuselage with its stripe, gold cowling, spinning propeller
- * (.aj-r-prop), windshield, near wing, wheels, and his white scarf flying back (.aj-r-scarf). The nose is to the right.
- */
-const PLANE_BACK = (
-  <g>
-    <path d="M-34 58 L -43 35 Q -40 31.5 -36 34 L -19 56 Z" fill={WING} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-    <path d={spark(-35.5, 45, 4.6)} fill={GOLD} stroke={INK} strokeWidth="1" />
-  </g>
-);
-const PLANE_FRONT = (
-  <g>
-    <path d="M-40 57 Q -12 51 13 55 L 50 55 Q 84 54 94 59 Q 101.5 66 94 74 Q 70 81.5 30 80.5 Q -8 77 -40 64 Z" fill={SKY} stroke={INK} strokeWidth="2.4" strokeLinejoin="round" />
-    <path d="M-32 61 Q 28 71 92 66" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" />
-    <path d="M13 56 Q 31.5 60 50 56" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" />
-    <path d="M85 56 Q 101 59.5 101 66 Q 101 72.5 85 76.5 Z" fill={GOLD} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-    <g className="aj-r-prop">
-      <ellipse cx="104.5" cy="66" rx="2.6" ry="17" fill="#e2e8f0" stroke={INK} strokeWidth="1.3" opacity="0.85" />
-    </g>
-    <circle cx="103" cy="66" r="3.6" fill="#e11d48" stroke={INK} strokeWidth="1.5" />
-    <path d="M50 55 L 55 43.5 Q 59 44 60.5 55 Z" fill="#c9eeff" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" opacity="0.85" />
-    <path d="M-40 64 L -18 63.5 L -26 70.5 L -46 70.5 Z" fill={WING} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-    <path d="M28 80 L 25 88.5 M47 79.5 L 49 88.5" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
-    <circle cx="25" cy="90.5" r="4.4" fill={INK} />
-    <circle cx="49" cy="90.5" r="4.4" fill={INK} />
-    <circle cx="25" cy="90.5" r="1.6" fill="#94a3b8" />
-    <circle cx="49" cy="90.5" r="1.6" fill="#94a3b8" />
-    <path d="M20 72 L 66 72 Q 72 74 66 77.5 L 13 86.5 Q 5 87.5 7.5 82 Z" fill={WING} stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-    <path d="M16 79 L 60 74.5" stroke="#8fd6ff" strokeWidth="1.6" strokeLinecap="round" />
-    <g className="aj-r-scarf">
-      <path d="M31 43.5 Q 17 39.5 6 44 Q -5 48.5 -15 43 L -13 49.5 Q -3 54 7 49.5 Q 17 46 31 48 Z" fill="#fff" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-    </g>
-  </g>
-);
-
-/** A firework's burst (its colour): twelve rays, twelve sparks further out, a white heart. */
-const FW_RAYS = Array.from({ length: 12 }, (_, i) => {
-  const a = (i * 30 * Math.PI) / 180;
-  const f = (r: number) => `${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}`;
-  return `M${f(7)} L ${f(18)}`;
-}).join(" ");
-const FW_SPARKS = Array.from({ length: 12 }, (_, i) => {
-  const a = ((i * 30 + 15) * Math.PI) / 180;
-  return circ(Number((24 * Math.cos(a)).toFixed(1)), Number((24 * Math.sin(a)).toFixed(1)), 1.9);
-}).join(" ");
-const Firework = ({ c }: { c: string }) => (
-  <svg viewBox="-28 -28 56 56">
-    <path d={FW_RAYS} stroke={c} strokeWidth="2.8" strokeLinecap="round" />
-    <path d={FW_SPARKS} fill={c} />
-    <circle r="4.6" fill="#fff" />
-  </svg>
-);
-/** The pairs' fireworks: colour, and the rest is ajae.css (where, when, how big). */
-const FIREWORKS: Record<string, readonly string[]> = {
-  plane: ["#ff4d8d", GOLD, "#38bdf8", "#a3e635", "#fff1a8"],
-  gorilla: [GOLD, "#38bdf8"],
-  crown: [GOLD, "#ff4d8d"],
-  waltz: ["#ff7ab6"],
-  split: [GOLD],
-};
-/** Confetti colours (a piece is a small rectangle; ajae.css throws it). */
-const CONFETTI = ["#fbbf24", "#ff4d8d", "#38bdf8", "#a3e635", "#fff", "#f97316", "#b36bff", "#fbbf24", "#ff4d8d", "#38bdf8", "#fff", "#a3e635"];
-const ROYAL = ["#fbbf24", "#fde68a", "#fff", "#e11d48", "#fbbf24", "#f59e0b", "#fff", "#fbbf24", "#e11d48", "#fde68a", "#fbbf24", "#fff"];
-
-/** A fanfare trumpet (KK, the crown): gold, with a red banner hanging from it (a gold crown on it, no words). */
-const Trumpet = () => (
-  <svg viewBox="-4 -14 60 44">
-    <path d="M10 6 L 30 22 L 18 26 L 6 10 Z" fill="#c8102e" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M30 22 L 26 27 L 22 23 L 18 26" fill="#c8102e" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M13 14 L 15 10.5 L 17 13 L 19 9.5 L 20 14.5 Z" fill={GOLD} stroke={INK} strokeWidth="0.8" />
-    <path d="M0 4 L 40 4" stroke={INK} strokeWidth="5" strokeLinecap="round" />
-    <path d="M0 4 L 40 4" stroke={GOLD} strokeWidth="3" strokeLinecap="round" />
-    <path d="M38 4 L 52 -6 L 52 14 Z" fill={GOLD} stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
-    <ellipse cx="52" cy="4" rx="2.4" ry="10" fill="#f59e0b" stroke={INK} strokeWidth="1.6" />
-    <path d="M14 4 q 3 -6 6 0 M24 4 q 3 -6 6 0" fill="none" stroke={INK} strokeWidth="1.6" />
-  </svg>
-);
-
-/** The queen's index, drawn (no text): an oval with its tail. */
-const Q_INDEX = "M-8.6 -12.4 a 2.5 2.9 0 1 0 0.01 0 Z M-8 -9.6 L -6 -7.8";
-/**
- * A queen card that dances (QQ): a card with a little gold crown, her index drawn (no text), a face, her suit's pip,
- * white-gloved arms and legs in heels (each turns at its own pivot: .aj-qd-arm-l and the rest).
- */
-function Queen({ pip, color }: { pip: string; color: string }) {
-  return (
-    <svg viewBox="-24 -32 48 66">
-      <g className="aj-qd">
-        {(["l", "r"] as const).map((k, i) => (
-          <g key={k} className={`aj-qd-leg-${k}`}>
-            <path d={`M${i ? 5 : -5} 17 L ${i ? 6 : -6} 27`} stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
-            <path d={`M${i ? 6 : -6} 27.5 l ${i ? 4 : -4} 0.4`} stroke={color} strokeWidth="3" strokeLinecap="round" />
-          </g>
-        ))}
-        {(["l", "r"] as const).map((k, i) => (
-          <g key={k} className={`aj-qd-arm-${k}`}>
-            <path d={`M${i ? 12 : -12} -3 L ${i ? 21 : -21} -9`} stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
-            <circle cx={i ? 21.5 : -21.5} cy="-9.4" r="2.6" fill="#fff" stroke={INK} strokeWidth="1.2" />
-          </g>
-        ))}
-        <rect x="-13" y="-18" width="26" height="36" rx="3.5" fill="#fff" stroke={INK} strokeWidth="1.6" />
-        <rect x="-10.6" y="-15.6" width="21.2" height="31.2" rx="2" fill="none" stroke={color} strokeWidth="0.9" />
-        <path d={Q_INDEX} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M-7 -18 L -8.5 -25.5 L -4 -21.5 L 0 -27.5 L 4 -21.5 L 8.5 -25.5 L 7 -18 Z" fill={GOLD} stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
-        <circle cx="-4" cy="-6.5" r="1.5" fill={INK} />
-        <circle cx="4" cy="-6.5" r="1.5" fill={INK} />
-        <path d="M-6 -8.8 l -1.4 -1.2 M6 -8.8 l 1.4 -1.2" stroke={INK} strokeWidth="0.9" strokeLinecap="round" />
-        <circle cx="-6.6" cy="-3" r="1.9" fill="#ff8fb3" opacity="0.8" />
-        <circle cx="6.6" cy="-3" r="1.9" fill="#ff8fb3" opacity="0.8" />
-        <path d="M-2.6 -2.4 Q 0 0 2.6 -2.4" fill="none" stroke="#d6202f" strokeWidth="1.3" strokeLinecap="round" />
-        <path d={pip} fill={color} transform="translate(-5.6 0.4) scale(0.7)" />
-      </g>
-    </svg>
-  );
-}
-/** A heart rising (QQ). */
-const HeartSvg = ({ c }: { c: string }) => (
-  <svg viewBox="2 5 12 13">
-    <path d={HEART} fill={c} stroke={INK} strokeWidth="0.9" />
-  </svg>
-);
-
-/** The splash's J♥ index and heart (index.html), in the card's units (-150..150, -210..210). */
-const J_INDEX =
-  "M20.5 0.8L20.5 0.8Q11.9 0.8 7.3-2.9Q2.7-6.6 1.2-14.9L1.2-14.9L12.7-16.6Q13.4-12.3 15.3-10.3Q17.2-8.2 20.5-8.2L20.5-8.2Q24.0-8.2 25.8-10.5Q27.5-12.9 27.5-17.1L27.5-17.1L27.5-46.0L16.6-46.0L16.6-55.0L39.0-55.0L39.0-17.4Q39.0-8.8 34.1-4.0Q29.3 0.8 20.5 0.8Z";
-const J_HEART = "M0 44 C -30 16, -40 0, -40 -18 C -40 -38, -20 -48, 0 -30 C 20 -48, 40 -38, 40 -18 C 40 0, 30 16, 0 44 Z";
-/**
- * JJ's jack: the launch splash's J♥ with the 아재 as its court picture (bald, shades, mustache; his brows under the
- * shades), its gold frame, the J index and a heart. `pic`: the court picture is there (the second jack); without it
- * the frame starts empty and he appears in it once he has dived in (.aj-jc-pic). The frame's clip has a useId id.
- */
-function JackCard({ pic }: { pic?: boolean }) {
-  const clip = useId();
-  return (
-    <svg viewBox="-156 -216 312 432">
-      <clipPath id={clip}>
-        <rect x="-104" y="-150" width="208" height="300" rx="10" />
-      </clipPath>
-      <rect x="-150" y="-210" width="300" height="420" rx="26" fill="#fffdf7" stroke={INK} strokeWidth="8" />
-      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="#fff3d6" />
-      <g clipPath={`url(#${clip})`}>
-        <g className={pic ? undefined : "aj-jc-pic"} transform="translate(0 32) scale(1.6)">
-          <path d="M-78 74 Q -66 40 -26 34 L 26 34 Q 66 40 78 74 Z" fill={SHIRT} stroke={INK} strokeWidth="4" />
-          <g fill="#fff" opacity="0.9">
-            <circle cx="-50" cy="58" r="5" />
-            <circle cx="-30" cy="48" r="4" />
-            <circle cx="44" cy="56" r="5" />
-            <circle cx="28" cy="46" r="4" />
-          </g>
-          <path d="M-22 36 Q 0 62 22 36" fill="none" stroke={GOLD} strokeWidth="6" />
-          <circle cx="0" cy="58" r="6" fill={GOLD} stroke={INK} strokeWidth="2" />
-          <Ears />
-          <ellipse cx="0" cy="-12" rx="44" ry="48" fill={SKIN} stroke={INK} strokeWidth="4" />
-          <Shine />
-          <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M-12 25 Q 0 35 12 25" fill="none" stroke="#6b2d1e" strokeWidth="3.4" strokeLinecap="round" />
-          <path d={MUSTACHE} fill={STACHE} />
-          <Shades className="aj-jc-shades" />
-        </g>
-      </g>
-      <rect x="-104" y="-150" width="208" height="300" rx="10" fill="none" stroke={GOLD} strokeWidth="6" />
-      <path transform="translate(-124 -136)" fill="#d6202f" d={J_INDEX} />
-      <path transform="translate(-105 -96) scale(0.5)" fill="#d6202f" d={J_HEART} />
-      <path transform="translate(124 136) rotate(180)" fill="#d6202f" d={J_INDEX} />
-      <path transform="translate(105 96) rotate(180) scale(0.5)" fill="#d6202f" d={J_HEART} />
-    </svg>
-  );
-}
-/** A suit pip flying out of the jacks' split (JJ). */
-const PipSvg = ({ pip, color }: { pip: string; color: string }) => (
-  <svg viewBox="3 4 10 15">
-    <path d={pip} fill={color} stroke={INK} strokeWidth="0.8" />
   </svg>
 );
 

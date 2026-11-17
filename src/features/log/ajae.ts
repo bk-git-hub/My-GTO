@@ -10,10 +10,9 @@ import { buttonSeat, positionsFor } from "./recorder";
  * are from my seat. The grade comes from the pub chart at the screen's stage, first in (everyone folded
  * to me), asked the same way 빠른 기록's verdict asks it (spotOf → preflopDecision), so every table size
  * and stage the screen offers works and the two never disagree. Each tier has its moves, taken in turn
- * (AJAE_MOVES), so hands of the same tier in a row get a different show; the big pocket pairs have shows of their
- * own (AJAE_SPECIALS: AA flies a plane, KK is a gorilla or gets crowned, QQ waltzes, JJ splits into two jacks). He
- * never says a word. Everything here is pure; the art (the bald, mustached 아재 of the launch splash and the app
- * icon) and the moves are AjaeReaction.tsx and ajae.css.
+ * (AJAE_MOVES), so hands of the same tier in a row get a different show; he never says a word. Everything
+ * here is pure; the art (the bald, mustached 아재 of the launch splash and the app icon) and the moves are
+ * AjaeReaction.tsx and ajae.css.
  */
 
 /**
@@ -32,8 +31,7 @@ const BLINDS = new Set(["SB", "BB"]);
  * another gets the next of kick → mallet → slam, whatever came between). The first move of each tier is
  * its main one. Face moves (ponder, hmm, glare) are the chest-up face popping up big; body moves
  * (BODY_MOVES) are the whole 아재 performing beside the class, after which the face stays in its slot.
- * - monster: the all-in shove (two chip stacks pushed into the hand): AK's, as AA, KK and QQ have shows of their own
- *   (AJAE_SPECIALS, as JJ has);
+ * - monster: the all-in shove (two chip stacks pushed into the hand);
  * - good: a shuffle under a mirror ball, every other time the robot;
  * - meh and fold (the seat's call): first he ponders it (the hand on his chin, eyes up, a thought cloud);
  *   every other time meh gets "흠" (the shades down the nose, a ?) and fold a glare at the seat row. meh
@@ -53,70 +51,25 @@ export const AJAE_MOVES = {
 
 /**
  * The face's stand-ins for the body moves when there is no room above the hand row for the whole 아재 (AJAE_ROOM):
- * the trash moves and 72o's rage both boil over in the face (fume); AA, KK and QQ's shows cheer, as AK's shove does
- * (ajaePairMove). meh and fold have only face moves, which always fit, so theirs never play.
+ * the trash moves and 72o's rage both boil over in the face (fume). meh and fold have only face moves, which always
+ * fit, so theirs never play.
  */
 export const AJAE_CRAMPED = { monster: "cheer", good: "nod", meh: "ponder", fold: "ponder", trash: "fume", hammer: "fume" } as const satisfies Record<AjaeTier, string>;
 
-/**
- * The pocket pairs' own shows, played instead of the tier's move (a pair's list in turn, like a tier's: KK alternates).
- * Each is flashier than the good hands' mirror-ball shuffle, AA the most, then KK, QQ, JJ:
- * - AA, the plane: he flies in in a little propeller plane, loops the loop (its smoke ring stays in the sky), makes a
- *   low pass over the hand trailing a contrail across the screen, comes back and lands beside it, under fireworks and
- *   two crossing searchlights;
- * - KK, the gorilla: in a gorilla costume he leaps in and pounds his chest (shockwave rings, leaves shaken down), roars,
- *   then lifts the costume's head off: it's him inside (a flash, confetti);
- * - KK, every other time, the crown: under rays of light a crown floats down onto his bald head as he kneels; it lands
- *   with a gleam, he rises in a royal cape, fanfare trumpets blow, gold confetti falls and he raises a scepter;
- * - QQ, the ladies: in a bow tie he waltzes with two queen cards (drawn, dancing), twirls them, hearts float up, and he
- *   ends with a gentleman's bow;
- * - JJ, the jacks: as on the launch splash, he dives into a jack card (its court picture is him), a second, identical
- *   jack slides out of it and the two snap apart sideways (gold snap marks, a sheen, flying pips).
- * The resting face after one is the hand's tier's, as after any body move (JJ's tier depends on the seat).
- */
-export const AJAE_SPECIALS = {
-  AA: ["plane"],
-  KK: ["gorilla", "crown"],
-  QQ: ["waltz"],
-  JJ: ["split"],
-} as const satisfies Partial<Record<HandClass, readonly string[]>>;
+export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier];
 
-/** The pocket pairs with a show of their own. */
-export type AjaePair = keyof typeof AJAE_SPECIALS;
-export type AjaeSpecial = (typeof AJAE_SPECIALS)[AjaePair][number];
-
-export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier] | AjaeSpecial;
-
-/** The pairs' shows (AJAE_SPECIALS). */
-export const SPECIAL_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(Object.values(AJAE_SPECIALS).flat());
-
-/** The moves where the whole 아재 performs beside the class (the others are the face's): the tiers' and the pairs' shows. */
-export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam", "rage", ...SPECIAL_MOVES]);
+/** The moves where the whole 아재 performs beside the class (the others are the face's). */
+export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam", "rage"]);
 
 /**
  * The room each body move needs above the hand row, in px from the row's top up to the sticky stage bar's
  * bottom edge (96 with the page at the top): the highest anything of the move paints (a hop, the mallet
- * overhead, a note, a sparkle, a puff of steam; the plane at the top of its loop, the crown coming down) plus a
- * little. Scrolled further, the bar would cut his head off, so another move of the tier that fits plays instead,
- * or the face (AJAE_CRAMPED). The mirror ball hangs higher than the dancer: below BALL_ROOM the dance has none.
- * The pairs' shows count him and his props, not the sky around them (fireworks, confetti, rays of light and
- * searchlights may pass under the bar). A face move needs no room of its own (it pops in its slot), only less of
- * a pop below POP_ROOM.
+ * overhead, a note, a sparkle, a puff of steam) plus a little. Scrolled further, the bar would cut his head
+ * off, so another move of the tier that fits plays instead, or the face (AJAE_CRAMPED). The mirror ball hangs
+ * higher than the dancer: below BALL_ROOM the dance has none. A face move needs no room of its own (it pops
+ * in its slot), only less of a pop below POP_ROOM.
  */
-export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = {
-  shuffle: 58,
-  robot: 50,
-  shove: 49,
-  kick: 53,
-  mallet: 74,
-  slam: 53,
-  rage: 60,
-  plane: 90,
-  gorilla: 80,
-  crown: 86,
-  waltz: 76,
-  split: 84,
-};
+export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = { shuffle: 58, robot: 50, shove: 49, kick: 53, mallet: 74, slam: 53, rage: 60 };
 export const BALL_ROOM = 90;
 /**
  * The face's full pop (2.15x, growing up from the slot) reaches about 63 px above the row (the ponder's thought
@@ -131,30 +84,14 @@ export const POP_ROOM = 64;
  * fits, else the face's stand-in.
  */
 export function ajaeMove(tier: AjaeTier, k: number, room?: number): AjaeMove {
-  return fitting(AJAE_MOVES[tier], k, room) ?? AJAE_CRAMPED[tier];
-}
-
-/** The k-th of `moves` in turn if it fits in `room`, else the next one that does (undefined: none does). */
-function fitting(moves: readonly AjaeMove[], k: number, room?: number): AjaeMove | undefined {
+  const moves: readonly AjaeMove[] = AJAE_MOVES[tier];
   for (let i = 0; i < moves.length; i++) {
     const m = moves[(k + i) % moves.length];
     const need = AJAE_ROOM[m];
     // a face move always fits (it is the face in its slot), however far the row is scrolled
     if (room === undefined || need === undefined || room >= need) return m;
   }
-  return undefined;
-}
-
-/** The pair's show of its own, if `cls` has one (AJAE_SPECIALS). */
-export const ajaePair = (cls: HandClass): AjaePair | undefined => (Object.hasOwn(AJAE_SPECIALS, cls) ? (cls as AjaePair) : undefined);
-
-/**
- * The move for the k-th reaction to the pair (its k-th of `tier`'s reactions being kt), with `room` px above the
- * hand row: the pair's show in turn if it fits, else its next show that fits, else what any hand of the tier would
- * do there (ajaeMove: the tier's move that fits, or the face's stand-in: cheer for AA, KK and QQ).
- */
-export function ajaePairMove(pair: AjaePair, k: number, tier: AjaeTier, kt: number, room?: number): AjaeMove {
-  return fitting(AJAE_SPECIALS[pair], k, room) ?? ajaeMove(tier, kt, room);
+  return AJAE_CRAMPED[tier];
 }
 
 /**
@@ -245,13 +182,11 @@ export interface AjaeState {
   cue: AjaeCue | null;
   /** Reactions so far: the next cue's n. */
   n: number;
-  /** Reactions so far per tier, so each one takes the tier's next move (a pair with a show of its own doesn't count). */
+  /** Reactions so far per tier, so each one takes the tier's next move. */
   seen: Partial<Record<AjaeTier, number>>;
-  /** Reactions so far per pair with a show of its own (AJAE_SPECIALS), so KK alternates its two. */
-  pairs: Partial<Record<AjaePair, number>>;
 }
 
-export const AJAE_START: AjaeState = { cue: null, n: 0, seen: {}, pairs: {} };
+export const AJAE_START: AjaeState = { cue: null, n: 0, seen: {} };
 
 /** The complete class on screen with the hand it belongs to ("" while the class isn't complete). */
 export const ajaeKey = (d: Pick<FastDraft, "ranks" | "suited" | "editing">): string => (classDone(d) ? `${draftClass(d)}|${d.editing ?? ""}` : "");
@@ -261,9 +196,8 @@ export const ajaeKey = (d: Pick<FastDraft, "ranks" | "suited" | "editing">): str
  * at, with `room` px free above the hand row (AJAE_ROOM, BALL_ROOM, POP_ROOM; FastView measures it at the tap,
  * undefined: plenty; negative once the row is scrolled under the stage bar).
  * A class completed by this tap (the pair's second rank, 수딧 / 오프수트, or switching between them) reacts
- * with its tier's next move, or AA, KK, QQ and JJ with their own show's next (ajaePairMove: the tier's turn is
- * left for the other hands of the tier); a class no longer complete takes him away at once; anything else (my
- * seat, the spot) keeps the reaction on screen. Pure: it is a state updater.
+ * with its tier's next move; a class no longer complete takes him away at once; anything else (my seat, the
+ * spot) keeps the reaction on screen. Pure: it is a state updater.
  */
 export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stage: PreStage, players: number, room?: number): AjaeState {
   const key = ajaeKey(after);
@@ -272,14 +206,11 @@ export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stag
   const cls = draftClass(after);
   const tier = ajaeTier(cls, after.seat, stage, players);
   const k = s.seen[tier] ?? 0;
-  const pair = ajaePair(cls);
-  const kp = pair ? (s.pairs[pair] ?? 0) : 0;
-  const move = pair ? ajaePairMove(pair, kp, tier, k, room) : ajaeMove(tier, k, room);
+  const move = ajaeMove(tier, k, room);
   const noBall = (move === "shuffle" || move === "robot") && room !== undefined && room < BALL_ROOM;
   const low = !BODY_MOVES.has(move) && room !== undefined && room < POP_ROOM;
   const cue: AjaeCue = { n: s.n + 1, key, cls, tier, move, ...(noBall ? { noBall: true as const } : {}), ...(low ? { low: true as const } : {}) };
-  if (pair) return { ...s, cue, n: s.n + 1, pairs: { ...s.pairs, [pair]: kp + 1 } };
-  return { ...s, cue, n: s.n + 1, seen: { ...s.seen, [tier]: k + 1 } };
+  return { cue, n: s.n + 1, seen: { ...s.seen, [tier]: k + 1 } };
 }
 
 /** He goes, without a reaction (the reaction counts carry on). */

@@ -2,8 +2,8 @@ import { ALL_HANDS, RANKS } from "../cards";
 import { parseRange } from "../range";
 import type { PreflopAction, PreflopFlag, PreflopFlagCode, PreflopKind, PreflopScenario, PreflopStage } from "../../data/sets/preflopTypes";
 import type { EqrFit } from "./eqrFit";
-import { comboWeights, ownReach, snapStrategy, type Valuation } from "./solve";
-import { seatNames, type ActionInfo, type LineStep, type NodeInfo, type PreflopTree, type Verb } from "./tree";
+import { actionShares, comboWeights, ownReach, snapStrategy, type Valuation } from "./solve";
+import { seatNames, TERM, type ActionInfo, type LineStep, type NodeInfo, type PreflopTree, type StageConfig, type Verb } from "./tree";
 import { MW_C_POS, SPR_ALPHA, SPR_SURPLUS, equityScaledSurplusVectors, surplusShrink, type ModelBParams, type PairwiseVectors } from "./value";
 
 /**
@@ -75,6 +75,10 @@ export const STAGE_LABELS: Record<string, string> = {
   "100bb-3": "100bb · 펍 사이즈 오픈 3bb",
   "55bb-2.2": "55bb · 오픈 2.2bb",
   "35bb-2": "35bb · 오픈 2bb",
+  "25bb-2": "25bb · 오픈 2bb",
+  "20bb-2": "20bb · 오픈 2bb",
+  "15bb-2": "15bb · 오픈 2bb",
+  "10bb-pf": "10bb · 푸시/폴드",
 };
 
 /** Export order of the kinds within a stage. */
@@ -92,10 +96,69 @@ export interface DataLimits {
   vsLimp: [number, number];
   /** At most this many of each other kind (cold vs3bet nodes count as vs3bet). */
   otherMax: number;
+  /** vsShove's own range where it is not otherMax's (push/fold: every one of the 36 seat pairs). */
+  vsShove?: [number, number];
   total: number;
 }
 
+/** The full tree's counts (every stage with opens). */
 export const DATA_LIMITS: DataLimits = { rfi: 8, vsOpen: [30, 36], vsLimp: [1, 6], otherMax: 72, total: 180 };
+/** A push/fold stage (§1.2): exactly the 8 first-in pushes and the 36 calls of a first-in jam, nothing else. */
+export const PUSHFOLD_LIMITS: DataLimits = { rfi: 8, vsOpen: [0, 0], vsLimp: [0, 0], otherMax: 0, vsShove: [36, 36], total: 44 };
+
+/** PF-DATA-1's counts for a tree mode (a stage's `tree.mode`; omitted means the full tree). */
+export const dataLimits = (mode: string | undefined): DataLimits => (mode === "pushfold" ? PUSHFOLD_LIMITS : DATA_LIMITS);
+
+/** PF-DEGEN-1 (§5.3): in the main solve every seat UTG..BTN min-raises at least this share of its hands first in. */
+export const DEGEN_MIN_OPEN = 0.01;
+
+/**
+ * Which of the two degenerate-equilibrium gates apply to a stage (§2.8, §5.3). Both look for the jam-only RFI
+ * profile, which exists only where first-in jams do (S ≤ jamMax): PF-DEGEN-1 on the full tree, PF-TWOSTART-RFI on
+ * the full tree and on push/fold (every first-in decision is a jam there). At 55bb and deeper neither applies, so the
+ * gates of those stages are unchanged.
+ */
+export function degenGates(cfg: StageConfig): { degen: boolean; twoStartRfi: boolean } {
+  const jams = cfg.S <= cfg.jamMax;
+  return { degen: jams && cfg.mode === "full", twoStartRfi: jams && (cfg.mode === "full" || cfg.mode === "pushfold") };
+}
+
+/**
+ * PF-DEGEN-1 (§5.3): the seats UTG..BTN whose first-in node min-raises (the "open" action) less than DEGEN_MIN_OPEN of
+ * their hands under `strategy` (σ̄ of the main solve), with that share; [] when every seat opens.
+ */
+export function degenerateOpeners(tree: PreflopTree, strategy: Float64Array, cw: Float64Array = CW): { seat: string; open: number }[] {
+  const names = seatNames(tree.n);
+  const out: { seat: string; open: number }[] = [];
+  let p = 0;
+  // The root is UTG's first-in node; each seat's is reached through the folds before it.
+  for (let s = 0; s < tree.n - 2; s++) {
+    if (tree.seat[p] !== s) throw new Error(`node ${p} is not ${names[s]}'s first-in node`);
+    const a = tree.nodes[p].actions.findIndex((x) => x.verb === "open");
+    const sh = actionShares(tree, strategy, p, cw);
+    const open = a >= 0 ? sh[a] : 0;
+    if (open < DEGEN_MIN_OPEN) out.push({ seat: names[s], open });
+    const f = tree.foldIdx[p];
+    p = tree.child[tree.actStart[p] + f];
+  }
+  return out;
+}
+
+/**
+ * PF-TWOSTART-RFI (§5.3): every first-in node (rfi, the SB's included) whose action shares differ by more than
+ * TWOSTART_TOLERANCE between the main and the two-start solve, with the largest difference; [] when they agree.
+ */
+export function twoStartRfiProblems(tree: PreflopTree, classes: readonly NodeClass[], a: Float64Array, b: Float64Array, cw: Float64Array = CW): { id: string; d: number }[] {
+  const out: { id: string; d: number }[] = [];
+  for (let p = 0; p < tree.nodeCount; p++) {
+    if (classes[p].kind !== "rfi") continue;
+    const x = actionShares(tree, a, p, cw), y = actionShares(tree, b, p, cw);
+    let d = 0;
+    for (let k = 0; k < x.length; k++) d = Math.max(d, Math.abs(x[k] - y[k]));
+    if (d > TWOSTART_TOLERANCE) out.push({ id: classes[p].id, d });
+  }
+  return out;
+}
 
 /** §6.6 confidence: high below 8pp of movement, mid up to 20pp, low above. */
 export const MOVE_HIGH = 8;
@@ -139,6 +202,8 @@ export interface ActionSpec {
   key: string;
   label: string;
   color: PreflopAction["color"];
+  /** The hero's total bet after a raise or a jam, bb (the tree's size; the stack, less the BB's ante, on a jam). */
+  to?: number;
 }
 
 export interface NodeClass {
@@ -334,6 +399,7 @@ function publicStep(l: LineStep, nm: (s: number) => string): string {
 
 function actionSpec(a: ActionInfo, ctx: { cold: boolean; overcall: boolean; sbFirstIn: boolean }): ActionSpec | null {
   const size = fmtBb(a.to);
+  const to = a.to;
   switch (a.verb) {
     case "fold":
       return null;
@@ -346,19 +412,19 @@ function actionSpec(a: ActionInfo, ctx: { cold: boolean; overcall: boolean; sbFi
     case "open":
       // The SB's first-in raise keeps the key "raise" (it sits next to 림프) but reads "오픈", as in cash6 and in every
       // later spot of its line ("SB 오픈 후 vs BB 3벳", "BB vs SB 오픈").
-      return ctx.sbFirstIn ? { key: "raise", label: `오픈 ${size}bb`, color: "raise" } : { key: "open", label: `오픈 ${size}bb`, color: "raise" };
+      return ctx.sbFirstIn ? { key: "raise", label: `오픈 ${size}bb`, color: "raise", to } : { key: "open", label: `오픈 ${size}bb`, color: "raise", to };
     case "iso":
-      return { key: "raise", label: `레이즈 ${size}bb`, color: "raise" };
+      return { key: "raise", label: `레이즈 ${size}bb`, color: "raise", to };
     case "3bet":
-      return { key: "3bet", label: `3벳 ${size}bb`, color: "raise" };
+      return { key: "3bet", label: `3벳 ${size}bb`, color: "raise", to };
     case "squeeze":
-      return { key: "squeeze", label: `스퀴즈 ${size}bb`, color: "raise" };
+      return { key: "squeeze", label: `스퀴즈 ${size}bb`, color: "raise", to };
     case "reraise":
-      return { key: "raise", label: `리레이즈 ${size}bb`, color: "raise" };
+      return { key: "raise", label: `리레이즈 ${size}bb`, color: "raise", to };
     case "4bet":
-      return { key: "4bet", label: `4벳 ${size}bb`, color: "raise" };
+      return { key: "4bet", label: `4벳 ${size}bb`, color: "raise", to };
     case "jam":
-      return { key: "shove", label: ctx.cold ? "콜드 올인" : "올인", color: "allin" };
+      return { key: "shove", label: ctx.cold ? "콜드 올인" : "올인", color: "allin", to };
   }
 }
 
@@ -444,7 +510,11 @@ export function countProblems(c: KindCounts, limits: DataLimits = DATA_LIMITS): 
   if (c.rfi !== limits.rfi) out.push(`rfi ${c.rfi} ≠ ${limits.rfi}`);
   if (c.vsOpen < limits.vsOpen[0] || c.vsOpen > limits.vsOpen[1]) out.push(`vsOpen ${c.vsOpen} outside ${limits.vsOpen.join("–")}`);
   if (c.vsLimp < limits.vsLimp[0] || c.vsLimp > limits.vsLimp[1]) out.push(`vsLimp ${c.vsLimp} outside ${limits.vsLimp.join("–")}`);
-  for (const k of ["vs3bet", "vs4bet", "squeeze", "vsShove"] as const) if (c[k] > limits.otherMax) out.push(`${k} ${c[k]} > ${limits.otherMax}`);
+  for (const k of ["vs3bet", "vs4bet", "squeeze", "vsShove"] as const) {
+    if (k === "vsShove" && limits.vsShove) {
+      if (c.vsShove < limits.vsShove[0] || c.vsShove > limits.vsShove[1]) out.push(`vsShove ${c.vsShove} outside ${limits.vsShove.join("–")}`);
+    } else if (c[k] > limits.otherMax) out.push(`${k} ${c[k]} > ${limits.otherMax}`);
+  }
   if (c.total > limits.total) out.push(`total ${c.total} > ${limits.total}`);
   return out;
 }
@@ -472,7 +542,7 @@ export function chooseLadder(
   occ: ArrayLike<number>,
   options: { limits?: DataLimits; shared?: boolean; start?: LadderSteps } = {},
 ): LadderChoice {
-  const limits = options.limits ?? DATA_LIMITS;
+  const limits = options.limits ?? dataLimits(tree.cfg.mode);
   const top = LADDER_STEPS.length - 1;
   const steps: LadderSteps = { ...(options.start ?? LADDER_START) };
   if (options.shared) {
@@ -636,6 +706,16 @@ export function stageValuation(fit: FitForValuation, features: Float64Array, var
   }
 }
 
+/**
+ * The valuation a stage is solved with: showdown equity for a stage whose preset says so (push/fold, where no flop
+ * terminal exists and the choice changes nothing), otherwise stageValuation's model B (or its variant).
+ */
+export function valuationForStage(cfg: StageConfig, fit: FitForValuation, features: Float64Array, variant?: SensitivityVariant): Valuation {
+  if (cfg.valuation === "equity") return { kind: "equity", kappa3: fit.kappa3, kappa4: fit.kappa4 };
+  if (cfg.valuation !== "modelB") throw new Error(`valuation ${cfg.valuation} does not ship`);
+  return stageValuation(fit, features, variant);
+}
+
 // ───────────── decoding a stage's data (what the UI sees) ─────────────
 
 export interface DecodedScenario {
@@ -728,7 +808,7 @@ function shareOfAll(d: DecodedScenario, keys: string[]): number {
 // ───────────── PF-DATA-1, PF-SANITY, PF-BANDS on a stage's data ─────────────
 
 /** PF-DATA-1 (§5.2): what is wrong with a stage's data; empty when it passes. */
-export function dataChecks(stage: PreflopStage, limits: DataLimits = DATA_LIMITS): string[] {
+export function dataChecks(stage: PreflopStage, limits: DataLimits = dataLimits(stage.tree.mode)): string[] {
   const out: string[] = [];
   const counts: KindCounts = { rfi: 0, vsOpen: 0, vs3bet: 0, vs4bet: 0, squeeze: 0, vsLimp: 0, vsShove: 0, cold: 0, total: 0 };
   const ids = new Set<string>();
@@ -927,8 +1007,17 @@ export function stageSanity(stage: PreflopStage, decoded = decodeStage(stage)): 
   for (let j = 1; j < lp.length; j++)
     for (let i = 0; i < j; i++)
       if (lp[j].v < lp[i].v - 2) rep.fails.push(`PF-SANITY-3 BB defense vs ${lp[j].seat} ${f1(lp[j].v)} < vs ${lp[i].seat} ${f1(lp[i].v)}`);
+  // The vs-SB clause assumes the SB opens wide. Where the SB limps more than it raises first in (the short stages: at
+  // 25bb it limps 49% and raises 19.8%), its raise range is the strong part of a split range, and a narrower BB
+  // defense against it is the right answer, not a tree or model fault: the clause is then only a warning (§5.2).
   const vsSb = bbDef.find((x) => x.seat === "SB"), vsBtn = bbDef.find((x) => x.seat === "BTN");
-  if (vsSb && vsBtn && vsSb.v < vsBtn.v - 2) rep.fails.push(`PF-SANITY-3 BB defense vs SB ${f1(vsSb.v)} < vs BTN ${f1(vsBtn.v)} − 2`);
+  if (vsSb && vsBtn && vsSb.v < vsBtn.v - 2) {
+    const msg = `PF-SANITY-3 BB defense vs SB ${f1(vsSb.v)} < vs BTN ${f1(vsBtn.v)} − 2`;
+    const sbFirst = get("rfi-sb");
+    const sh = sbFirst ? reachShares(sbFirst) : null;
+    if (sh && (sh.raise ?? 0) < (sh.limp ?? 0)) rep.warns.push(`${msg} (the SB raises ${f1(sh.raise ?? 0)}% < limps ${f1(sh.limp ?? 0)}% first in: a warning only)`);
+    else rep.fails.push(msg);
+  }
   // PF-SANITY-4: 3-bet % (3-bet or jam) vs an opener rises EP → LP for BTN, SB and BB.
   for (const hero of ["BTN", "SB", "BB"]) {
     const xs = seats
@@ -1017,8 +1106,14 @@ export interface Band {
   ok: boolean;
 }
 
-/** PF-BANDS (§5.4): loose published aggregates, printed next to the result. Warnings only, never targets. */
+/** PF-BANDS are printed only for stages of at least this many bb. */
+export const BANDS_MIN_STACK = 35;
+
+/** PF-BANDS (§5.4): loose published aggregates, printed next to the result. Warnings only, never targets. Only for
+ *  stages of BANDS_MIN_STACK bb or more. */
 export function stageBands(stage: PreflopStage, decoded = decodeStage(stage)): Band[] {
+  // Deep-stack bands: below 35bb (first-in jams, push/fold) they say nothing.
+  if (stage.stack < BANDS_MIN_STACK) return [];
   const specs: [string, string, (d: DecodedScenario) => number, number, number][] = [
     ["RFI UTG", "rfi-utg", playsOfAll, 14, 17],
     ["RFI HJ", "rfi-hj", playsOfAll, 25, 27],
@@ -1100,6 +1195,50 @@ export function closeString(d: DecodedScenario, br: readonly ArrayLike<number>[]
         n++;
       }
     if (n < 2 || !(mask & (1 << top))) {
+      s += ".";
+      continue;
+    }
+    s += mask.toString(16);
+    any = true;
+  }
+  return any ? s : undefined;
+}
+
+/** §6.6's model-sensitive cells: a variant's share of the chart's action below this marks the cell. */
+export const SENS_FLIP = 0.5;
+/** The kinds a stage keeps `sens` on when the strings on every spot would add more than SENS_MAX_GZIP to its file. */
+export const SENS_FALLBACK_KINDS: readonly PreflopKind[] = ["rfi", "vsOpen", "vsShove"];
+export const SENS_MAX_GZIP = 3000;
+
+/** The first legend index with the largest value at class h (ties to the earlier action). */
+function topAt(rows: readonly ArrayLike<number>[], h: number): number {
+  let best = 0;
+  for (let j = 1; j < rows.length; j++) if (rows[j][h] > rows[best][h]) best = j;
+  return best;
+}
+
+/**
+ * The scenario's sens string (§6.6), or undefined when no hand is marked. `main[i][h]` is the main solve's σ̄ share of
+ * legend action i (legendOrder) for class h, `variants[v][i][h]` the same in sensitivity solve v. A hand is marked when
+ * it is in reach, the chart shows it pure (the decoded data, as for `close`), and in at least one variant the chart's
+ * action takes less than SENS_FLIP. The mask is the chart's action plus the action on top in the main solve and in
+ * every variant; a hand whose mask has a single bit is not marked.
+ */
+export function sensString(d: DecodedScenario, main: readonly ArrayLike<number>[], variants: readonly (readonly ArrayLike<number>[])[]): string | undefined {
+  const keys = legendKeys(d.scenario);
+  if (keys.length > 4) throw new Error(`${d.scenario.id}: ${keys.length} legend actions do not fit one hex digit`);
+  if (main.length !== keys.length || variants.some((v) => v.length !== keys.length)) throw new Error(`${d.scenario.id}: value rows do not match the ${keys.length} legend actions`);
+  let s = "";
+  let any = false;
+  for (let h = 0; h < ALL_HANDS.length; h++) {
+    const top = d.rho[h] > 0 ? pureAction(d, keys, h) : -1;
+    if (top < 0 || !variants.some((v) => v[top][h] < SENS_FLIP)) {
+      s += ".";
+      continue;
+    }
+    let mask = (1 << top) | (1 << topAt(main, h));
+    for (const v of variants) mask |= 1 << topAt(v, h);
+    if (!(mask & (mask - 1))) {
       s += ".";
       continue;
     }
@@ -1241,14 +1380,15 @@ function flagWarnings(stage: PreflopStage, d: DecodedScenario): string[] {
     .map((x) => `${x.code} ${d.scenario.id}: ${what[x.code]}: ${x.hands.map((h) => `${h} ${f2(x.value(h))}`).join(", ")}${x.vs.length ? ` vs ${x.vs.map((h) => `${h} ${f2(x.value(h))}`).join(", ")}` : ""}`);
 }
 
-/** Scenario sc with `close` and `flags` set to cs and fl (left out when undefined), placed just before `actions`;
- *  every other field kept, in its place. */
-function withAnnotations(sc: PreflopScenario, cs: string | undefined, fl: PreflopFlag[] | undefined): PreflopScenario {
+/** Scenario sc with `close`, `sens` and `flags` set to cs, ss and fl (left out when undefined), placed just before
+ *  `actions` in that order; every other field kept, in its place. */
+function withAnnotations(sc: PreflopScenario, cs: string | undefined, fl: PreflopFlag[] | undefined, ss: string | undefined = sc.sens): PreflopScenario {
   const o: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(sc)) {
-    if (k === "close" || k === "flags") continue;
+    if (k === "close" || k === "flags" || k === "sens") continue;
     if (k === "actions") {
       if (cs !== undefined) o.close = cs;
+      if (ss !== undefined) o.sens = ss;
       if (fl) o.flags = fl;
     }
     o[k] = v;
@@ -1279,6 +1419,9 @@ export interface AnnotateInput {
   /** Evaluation.brActionValues of σ̄ (the unsnapped average the chart rounds), edgeCount·169. */
   brActionValues: Float64Array;
   eps?: number;
+  /** The sensitivity solves for `sens` (§6.6): the main solve's σ̄ and each variant's σ̄ (edgeCount·169 each), and the
+   *  kinds that get a string (every kind if omitted). No `sens` without it. */
+  sensitivity?: { strategy: ArrayLike<number>; variants: readonly ArrayLike<number>[]; kinds?: readonly PreflopKind[] };
 }
 
 /**
@@ -1294,6 +1437,11 @@ export function annotateStage(stage: PreflopStage, input: AnnotateInput): Preflo
   if (brActionValues.length !== tree.edgeCount * N) throw new Error("brActionValues must be edgeCount·169");
   const decoded = decodeStage(stage);
   const close = new Map<string, string | undefined>();
+  const sens = new Map<string, string | undefined>();
+  const sv = input.sensitivity;
+  if (sv && (sv.strategy.length !== tree.edgeCount * N || sv.variants.some((v) => v.length !== tree.edgeCount * N))) throw new Error("sensitivity strategies must be edgeCount·169");
+  const rows = (x: ArrayLike<number>, p: number, order: number[]) =>
+    order.map((a) => Array.prototype.slice.call(x, (tree.actStart[p] + a) * N, (tree.actStart[p] + a + 1) * N) as number[]);
   stage.scenarios.forEach((sc, i) => {
     const p = nodes[i], c = classes[p];
     if (c.id !== sc.id) throw new Error(`scenario ${i} is ${sc.id}, node ${p} is ${c.id}`);
@@ -1302,9 +1450,11 @@ export function annotateStage(stage: PreflopStage, input: AnnotateInput): Preflo
     if (keys.join() !== legendKeys(sc).join()) throw new Error(`${sc.id}: legend ${legendKeys(sc).join()} ≠ node actions ${keys.join()}`);
     const br = order.map((a) => brActionValues.subarray((tree.actStart[p] + a) * N, (tree.actStart[p] + a + 1) * N));
     close.set(sc.id, closeString(decoded.get(sc.id)!, br, eps));
+    if (sv && sv.variants.length && (!sv.kinds || sv.kinds.includes(sc.kind)))
+      sens.set(sc.id, sensString(decoded.get(sc.id)!, rows(sv.strategy, p, order), sv.variants.map((v) => rows(v, p, order))));
   });
   const flags = stageFlags(stage, decoded, close);
-  const scenarios = stage.scenarios.map((sc) => withAnnotations(sc, close.get(sc.id), flags.get(sc.id)));
+  const scenarios = stage.scenarios.map((sc) => withAnnotations(sc, close.get(sc.id), flags.get(sc.id), sens.get(sc.id)));
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(stage)) {
     if (k === "closeEps" || k === "closeMinOcc") continue;
@@ -1380,6 +1530,15 @@ export interface StageExportInput {
   twoStartFailed?: boolean;
   fit: Pick<EqrFit, "sha256" | "packs">;
   equityTable: string;
+  /** One more sentence for the stage description, before the draft note (the generator's pointer from the push/fold
+   *  stage to the sets that cover shorter and 12–25bb stacks). */
+  note?: string;
+}
+
+/** Whether any terminal of the tree is a flop. A tree without one (push/fold) uses no realization model. */
+export function hasFlop(tree: PreflopTree): boolean {
+  for (let t = 0; t < tree.termCount; t++) if (tree.termKind[t] === TERM.FLOP) return true;
+  return false;
 }
 
 export interface StageExport {
@@ -1422,8 +1581,11 @@ export function exportStage(input: StageExportInput): StageExport {
   if (strategy.length !== tree.edgeCount * N) throw new Error("strategy must be edgeCount·169");
   const nodes = scenarioOrder(tree, classes, exported);
   const snapped = snapStrategy(tree, strategy, nodes, N);
+  // A push/fold stage has no flop: no realization assumption to vary, so no sensitivity solves to wait for (§6.6).
+  const flopFree = !hasFlop(tree);
+  if (cfg.mode !== "full" && cfg.mode !== "pushfold") throw new Error(`mode ${cfg.mode} does not ship`);
   const draft: string[] = [];
-  if (!input.moves) draft.push("sensitivity");
+  if (!input.moves && !flopFree) draft.push("sensitivity");
   if (!input.twoStartFlags) draft.push("twostart");
   if (input.gatesIgnored) draft.push("gates");
   if (input.iterationsCapped) draft.push("iterations");
@@ -1455,7 +1617,7 @@ export function exportStage(input: StageExportInput): StageExport {
       const spec = c.actions[a]!;
       const v = new Float64Array(N);
       for (let h = 0; h < N; h++) v[h] = rho[h] > 0 ? snapped[(e0 + a) * N + h] : 0;
-      return { key: spec.key, label: spec.label, color: spec.color, range: rangeText(v) };
+      return { key: spec.key, label: spec.label, color: spec.color, ...(spec.to !== undefined ? { to: spec.to } : {}), range: rangeText(v) };
     });
     const sc: PreflopScenario = {
       id: c.id,
@@ -1482,7 +1644,7 @@ export function exportStage(input: StageExportInput): StageExport {
   const stage: PreflopStage = {
     id: input.id,
     label: input.label,
-    description: stageDescription(tree, draft),
+    description: stageDescription(tree, draft, input.note),
     stack: cfg.S,
     open: cfg.open,
     sizes: {
@@ -1498,7 +1660,7 @@ export function exportStage(input: StageExportInput): StageExport {
       limpReraise: cfg.limpReraise,
       jamMax: cfg.jamMax,
     },
-    tree: { cold4: cfg.cold4, allinOrder: "priority" },
+    tree: { cold4: cfg.cold4, allinOrder: "priority", ...(cfg.mode === "pushfold" ? { mode: "pushfold" as const } : {}) },
     iterations: input.iterations,
     occThreshold: round(BASE_THRESHOLD * 100, 4),
     occThresholdByKind: thresholdsByKind(input.ladder),
@@ -1508,13 +1670,15 @@ export function exportStage(input: StageExportInput): StageExport {
     snappedGainMbb: round(metrics.snappedGainMbb, 3),
     ev: metrics.ev.map((e) => round(e, 4)),
     diag: { evSum: round(metrics.evSum, 4), frozenOccPct: round(metrics.frozenOcc * 100, 3), negativeShares: metrics.negativeShares },
-    model: {
-      id: "modelB-rank9",
-      fitHash: input.fit.sha256,
-      sprAlpha: SPR_ALPHA,
-      sprSurplus: SPR_SURPLUS,
-      packs: Object.fromEntries(Object.entries(input.fit.packs).map(([k, v]) => [k, { version: v.version, flops: v.flops }])),
-    },
+    model: flopFree
+      ? { id: "showdown-equity" }
+      : {
+          id: "modelB-rank9",
+          fitHash: input.fit.sha256,
+          sprAlpha: SPR_ALPHA,
+          sprSurplus: SPR_SURPLUS,
+          packs: Object.fromEntries(Object.entries(input.fit.packs).map(([k, v]) => [k, { version: v.version, flops: v.flops }])),
+        },
     equityTable: input.equityTable,
     scenarios,
   };
@@ -1523,7 +1687,8 @@ export function exportStage(input: StageExportInput): StageExport {
   const sanity = stageSanity(stage);
   const s5 = new Map(sanity.sanity5.map((x) => [x.id, x.callPct])), s6 = new Set(sanity.sanity6.map((x) => x.id));
   const s7 = new Map(sanity.sanity7.map((x) => [x.id, x]));
-  const measured = input.moves !== null;
+  // Push/fold: nothing to measure, so move 0 is exact rather than unmeasured.
+  const measured = input.moves !== null || flopFree;
   const twoStart: string[] = [];
   scenarios.forEach((sc, i) => {
     const p = nodes[i];
@@ -1553,6 +1718,7 @@ export function exportStage(input: StageExportInput): StageExport {
       conf,
       move,
       measured,
+      flopFree,
       fourBetRule,
       fourBetSplit: sc.actions.some((a) => a.key === "4bet") && sc.actions.some((a) => a.key === "shove"),
       reasons,
@@ -1563,14 +1729,22 @@ export function exportStage(input: StageExportInput): StageExport {
 
 const fmtPct = (x: number) => String(Math.round(x));
 
-function stageDescription(tree: PreflopTree, draft: string[]): string {
+/** The push/fold stage's rule, after "모두 Nbb.". */
+export const PUSHFOLD_RULE_TEXT = "푸시/폴드: 처음 들어가는 자리는 올인 아니면 폴드, 올인을 받으면 콜 아니면 폴드예요 (처음 콜한 사람과 둘이 붙어요).";
+
+function stageDescription(tree: PreflopTree, draft: string[], note?: string): string {
   const c = tree.cfg;
-  const parts = [
-    `모두 ${fmtBb(c.S)}bb. 오픈 ${fmtBb(c.open)}bb, SB는 림프·오픈 ${fmtBb(c.sbRaise)}bb, 3벳 IP ${fmtBb(c.ip3)}배·블라인드 ${fmtBb(c.blind3)}배, 4벳 ${fmtBb(c.fourIP)}~${fmtBb(c.fourOOP)}배.`,
-  ];
-  if (c.S <= c.jamMax) parts.push("퍼스트 인 올인과 3벳 올인도 있어요.");
+  const parts: string[] = [];
+  if (c.mode === "pushfold") parts.push(`모두 ${fmtBb(c.S)}bb. ${PUSHFOLD_RULE_TEXT}`);
+  else {
+    parts.push(
+      `모두 ${fmtBb(c.S)}bb. 오픈 ${fmtBb(c.open)}bb, SB는 림프·오픈 ${fmtBb(c.sbRaise)}bb, 3벳 IP ${fmtBb(c.ip3)}배·블라인드 ${fmtBb(c.blind3)}배, 4벳 ${fmtBb(c.fourIP)}~${fmtBb(c.fourOOP)}배.`,
+    );
+    if (c.S <= c.jamMax) parts.push("퍼스트 인 올인과 3벳 올인도 있어요.");
+  }
   parts.push("서로 최선인 균형 근사(착취 아님).");
-  if (c.cold4 === "none") parts.push("3벳 뒤 콜드 올인 없음.");
+  if (c.mode !== "pushfold" && c.cold4 === "none") parts.push("3벳 뒤 콜드 올인 없음.");
+  if (note) parts.push(note);
   if (draft.length) parts.push(`초안이에요: ${draftText(draft)} 전이라 신뢰도는 임시예요.`);
   return parts.join(" ");
 }
@@ -1595,11 +1769,13 @@ function subjectParticle(word: string): string {
 /** These sentences are matched by src/data/preflopData.test.ts; keep them in step. */
 export const FOUR_BET_SPLIT_TEXT = "작은 4벳과 4벳 올인의 배분은 낮은 SPR 가정에 민감해요.";
 export const LOW_SPR_CAP_TEXT = "3벳·4벳 팟은 낮은 SPR 가정에 민감해서 신뢰도를 보통까지만 줘요.";
+/** The confidence reason of every push/fold spot (§6.6): showdown equity only, nothing to vary. */
+export const PUSHFOLD_CONFIDENCE_TEXT = "푸시/폴드만 하는 구간이라 실현율 가정이 없어요.";
 
 function scenarioDescription(
   c: NodeClass,
   tree: PreflopTree,
-  o: { conf: PreflopScenario["confidence"]; move: number; measured: boolean; fourBetRule: boolean; fourBetSplit: boolean; reasons: string[] },
+  o: { conf: PreflopScenario["confidence"]; move: number; measured: boolean; flopFree: boolean; fourBetRule: boolean; fourBetSplit: boolean; reasons: string[] },
 ): string {
   const parts: string[] = [];
   if (c.sizedLine) parts.push(`${c.sizedLine}.`);
@@ -1615,7 +1791,8 @@ function scenarioDescription(
   // elsewhere (cold, call-or-jam and vs-4-bet spots) the plain reason for the cap.
   if (o.fourBetRule) parts.push(o.fourBetSplit ? FOUR_BET_SPLIT_TEXT : LOW_SPR_CAP_TEXT);
   const badge = `신뢰도 ${CONFIDENCE_KO[o.conf]}`;
-  if (!o.measured) parts.push(`${badge}(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.`);
+  if (o.flopFree) parts.push(`${badge}: ${PUSHFOLD_CONFIDENCE_TEXT}`);
+  else if (!o.measured) parts.push(`${badge}(초안): 민감도 풀이를 아직 안 해서 움직임은 재지 않았어요.`);
   else if (o.move < 1) parts.push(`${badge}: 실현율 가정을 바꿔 풀어도 이 차트는 거의 안 움직여요.`);
   else parts.push(`${badge}: 실현율 가정을 바꿔 풀면 이 차트가 약 ${fmtBb(o.move)}%p 움직여요.`);
   parts.push(...o.reasons);
