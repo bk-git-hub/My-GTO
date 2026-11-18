@@ -18,13 +18,19 @@
   --ok: #22c55e;
   --err: #ff5a64;
   --warn: #fbbf24;
+  /* A bb number next to chips (빠른 기록's auto-converted bb): light sky, bold, as big as the chips beside it. */
+  --bb: #7dd3fc;
   --radius: 14px;
   /* Keypad keys: 빠른 기록's rank pad and every card entry of the hand log share one size. */
   --pad-key: 46px;
   --pad-gap: 5px;
   --pad-font: 1.3rem;
+  /* 빠른 기록's calculator sheet: its keys (56px; 62px on tall phones; 48px only on short screens, not a target). */
+  --calc-key: 56px;
   color-scheme: dark;
 }
+@media (min-height: 740px) { :root { --calc-key: 62px; } }
+@media (max-height: 640px) { :root { --calc-key: 48px; } }
 
 /*
  * Suit colors, for every card in the app. --face-* color a suit on a white card face; --suit-* color
@@ -171,15 +177,6 @@ main { max-width: 760px; margin: 0 auto; padding-bottom: calc(24px + env(safe-ar
  * "스퀴즈·오버콜" one unbreakable word and squeezing breaks every label.
  */
 .seg.stage-row button { word-break: keep-all; }
-/*
- * Charts page depth row (the solver set, docs §6.8): one "100bb"-style button per depth, never wrapped; from 6 depths
- * on the text gets smaller so 7 still fit a 360px phone. A depth with several stages gets the size row under it,
- * pulled up to read as one control with the depth row.
- */
-.seg.depth-row button { white-space: nowrap; min-width: 0; padding-left: 2px; padding-right: 2px; }
-.seg.depth-row.many button { font-size: 0.85rem; }
-.seg.size-row { margin-top: -4px; }
-.seg.size-row button { word-break: keep-all; }
 .seg.kind-row.many { overflow-x: auto; scrollbar-width: none; }
 .seg.kind-row.many button { flex: 1 0 auto; white-space: nowrap; }
 
@@ -1123,7 +1120,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-sec { display: flex; flex-direction: column; gap: 4px; }
 /* "내 핸드 | 남의 핸드": small, at the right end of the first label line. */
 .fast-label .fast-toggle { margin-left: auto; flex: none; padding: 2px; gap: 2px; }
-.fast-label .fast-toggle button { flex: none; height: 30px; padding: 0 10px; font-size: 0.76rem; }
+.fast-label .fast-toggle button { flex: none; height: 32px; padding: 0 10px; font-size: 0.76rem; }
 .fast-label { display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
 .fast-label > b { color: var(--accent); font-size: 0.86rem; }
 .fast-row { display: flex; gap: 3px; }
@@ -1165,11 +1162,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-acts .a-allin { background: rgba(179, 107, 255, 0.17); border-color: rgba(179, 107, 255, 0.6); color: #cfa6ff; }
 .fast-acts button.on { box-shadow: 0 0 0 2px var(--accent); }
 .fast-acts button:disabled { opacity: 0.32; }
-.fast-editing { display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); font-size: 0.78rem; }
-.fast-editing > span { flex: 1; min-width: 0; }
-.fast-editing b { color: var(--accent); }
 .fast-mini { flex: none; height: 38px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 800; }
-.fast-mini.danger { color: var(--err); }
 /* today's hands */
 .fast-today { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
 .fast-today-head { display: flex; align-items: baseline; justify-content: space-between; }
@@ -1198,6 +1191,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-item.editing { box-shadow: 0 0 0 2px var(--accent); }
 .fast-today-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .fast-today-foot .ghost { min-height: 44px; }
+/* A bb number next to chips (빠른 기록's auto-converted bb, its own span so size and place can follow): the bb color, bold. */
+.bb { color: var(--bb); font-weight: 900; font-variant-numeric: tabular-nums; }
 /* The verdict of the hand just saved, with 되돌리기, under the actions where the eyes already are; else the
    hint. A fixed height so nothing moves, and in the flow so it never covers a key the next hand needs. */
 .fast-result { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 2px; border-radius: 12px; border: 1px solid transparent; }
@@ -1206,6 +1201,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fr-text { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; font-size: 0.84rem; line-height: 1.25; }
 .fr-text b { font-weight: 900; }
 .fr-text small { color: var(--muted); font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
+/* The hand just saved: its chips, then their bb in the bb color, a touch bigger than the line. */
+.fr-text .fr-net { color: var(--text); font-size: 0.82rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fr-text .bb { font-size: 0.82rem; }
 .fast-result button { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.86rem; font-weight: 800; }
 .fast-result.v-ok { border-color: rgba(34, 197, 94, 0.7); }
 .fast-result.v-ok b { color: var(--ok); }
@@ -1216,6 +1214,209 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-result.v-under { border-color: rgba(56, 189, 248, 0.7); background: rgba(56, 189, 248, 0.08); }
 .fast-result.v-under b { color: var(--info); }
 @keyframes fast-result-in { from { opacity: 0; } to { opacity: 1; } }
+/*
+ * 빠른 기록's chips and board (내 핸드). Everything above .fast-res keeps its size whatever is typed: the
+ * keypad turns to digits or board ranks in the same grid, the row under it to 칩 | bb or ♠♥♦♣ at the same
+ * height. 결과 (32 + 44), 보드 (44), the save slot (48) and 액션도 기록 (36) fit under the hand on a 390×664 screen.
+ */
+/* The hand line takes the keypad back to the hand: one clear button laid over the line, a little taller than it, without moving it. */
+.fast-label.hand-line { position: relative; }
+.hand-hit { position: absolute; inset: -4px 0 -1px; z-index: 1; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+.hand-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Remembered board cards: a card without its suit as its rank alone (muted), a suit in its color. */
+.calc-slot .nos, .fi-board .nos, .rr-board .nos { color: #c7d0dd; }
+.calc-slot .s-s, .fi-board .s-s, .rr-board .s-s { color: var(--suit-s); } .calc-slot .s-h, .fi-board .s-h, .rr-board .s-h { color: var(--suit-h); } .calc-slot .s-d, .fi-board .s-d, .rr-board .s-d { color: var(--suit-d); } .calc-slot .s-c, .fi-board .s-c, .rr-board .s-c { color: var(--suit-c); }
+
+/*
+ * 빠른 기록's calculator sheet (CalcSheet.tsx): fixed to the bottom of the screen, never in the page's flow, so
+ * opening, typing, saving and closing move nothing. Its height at 390×664: 6 + top 32 + 6 + display 62 + 6 + keys
+ * (4 × 56 + 3 × 5) + 6 + buttons 50 + 6 = 413, from just under the hand row (y 250) to the bottom; every tab and
+ * panel keeps it. The hand's sheet is z 2: under the 아재 (.ajae-host 3, his layers take no taps), under the stage
+ * bar (4) and the head (5). Modal ones dim the page over everything (60; over the tournament sheet, 62).
+ */
+.calc { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: #0e131b; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.6); animation: calc-up 0.16s ease-out; }
+.calc.modal { z-index: 60; }
+.calc.over { z-index: 62; }
+.calc-dim { position: fixed; inset: 0; z-index: 59; background: rgba(0, 0, 0, 0.6); }
+.calc-dim.over { z-index: 61; }
+@keyframes calc-up { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .calc { animation: none; } }
+/* It comes up under the finger that tapped the class: for 250 ms its keys and buttons take no tap (.armed after). */
+.calc:not(.armed) .calc-top, .calc:not(.armed) .calc-disp, .calc:not(.armed) .calc-slots, .calc:not(.armed) .calc-keys, .calc:not(.armed) .calc-suits, .calc:not(.armed) .calc-fields, .calc:not(.armed) .calc-acts, .calc:not(.armed) .calc-lv { pointer-events: none; }
+/* For a moment after the sheet goes with a save, a clear layer where its buttons were takes a bounced second tap. */
+.calc-shield { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; height: calc(84px + env(safe-area-inset-bottom)); }
+.calc-top { flex: none; display: flex; align-items: center; gap: 6px; height: 32px; min-width: 0; }
+.calc-tabs { flex: none; display: flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.calc-tabs button { height: 26px; min-width: 44px; padding: 0 8px; border-radius: 8px; background: transparent; border: 0; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+.calc-tabs button.on { background: var(--panel-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-title { flex: none; font-size: 0.95rem; font-weight: 900; }
+.calc-note { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.76rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-note b { color: var(--text); font-weight: 900; }
+.calc-note .bb { font-size: 0.8rem; }
+/* The action waiting for its result (액션도 기록): "오픈 · 결과는?". */
+.calc-act { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent); font-size: 0.78rem; font-weight: 800; }
+.calc-top .fast-lv { margin-left: auto; height: 32px; }
+.calc-x { flex: none; margin-left: auto; height: 32px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; }
+.calc-next { flex: none; height: 32px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+/* The display: the number big with its bb right next to it, the line under it (the result, or what to do). */
+.calc-disp { flex: none; display: flex; flex-direction: column; justify-content: center; height: 62px; padding: 0 4px; min-width: 0; }
+.calc-main { display: flex; align-items: baseline; gap: 10px; min-width: 0; height: 40px; white-space: nowrap; overflow: hidden; }
+.calc-num { flex: none; font-size: 2.2rem; line-height: 40px; font-weight: 900; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.calc-num::after { content: ""; display: inline-block; width: 2px; height: 0.9em; margin-left: 2px; vertical-align: -0.08em; background: var(--accent); }
+.calc-num.ph { color: var(--muted); font-size: 1.45rem; font-weight: 800; }
+.calc-num.ph::after { display: none; }
+.calc-num.long { font-size: 1.8rem; }
+.calc-num.longer { font-size: 1.5rem; }
+.calc-bb { flex: none; font-size: 1.5rem; line-height: 40px; }
+.calc-bb.long, .calc-bb.longer { font-size: 1.25rem; }
+/* A number typed in bb: the chips it comes to next to it. */
+.calc-conv { flex: none; color: #c7d0dd; font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.calc-main.big .calc-num, .calc-main.big .bb { color: var(--open); }
+.calc-main .calc-unit { margin-left: auto; align-self: center; }
+.calc-line { display: flex; align-items: baseline; gap: 6px; height: 22px; min-width: 0; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; }
+.calc-line b { flex: none; font-size: 1.05rem; font-weight: 900; }
+.calc-line b.up { color: #7ee2a2; }
+.calc-line b.down { color: #ff8a92; }
+.calc-line .bb { flex: none; font-size: 1.05rem; }
+.calc-line small { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.calc-line small.slip { flex: none; color: var(--open); font-weight: 800; }
+/* 50bb or more, or more than the stack before: amber (a 00 / 000 slip shows here first, the bb too). */
+.calc-line.big b, .calc-line.big .bb, .calc-line.big { color: var(--open); }
+.calc-line.hint { display: block; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 0.8rem; font-weight: 700; line-height: 22px; }
+.calc-line.hint .bb { font-size: 0.86rem; }
+.calc-line.bad { color: var(--err); font-size: 0.8rem; font-weight: 800; }
+.calc-tostack { height: 22px; margin-left: 6px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.74rem; font-weight: 800; line-height: 1; vertical-align: 1px; }
+.calc-unit { flex: none; display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: var(--panel); border: 1px solid var(--line); }
+.calc-unit button { height: 30px; min-width: 40px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 0.76rem; font-weight: 800; }
+.calc-unit button.on { background: var(--panel-2); color: var(--text); }
+/* The keys: three full-width columns. */
+.calc-keys { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.calc-keys button { height: var(--calc-key); padding: 0; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 1.65rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.calc-keys button:active { background: #243044; }
+.calc-keys .k-000 { font-size: 1.3rem; letter-spacing: -0.02em; }
+.calc-keys .k-back { color: var(--muted); font-size: 1.4rem; }
+/* The board's ranks, five to a row, a thin blue edge ("these go to the board"); with the suits under them, as tall as the digits. */
+.calc-keys.ranks { grid-template-columns: repeat(5, 1fr); }
+.calc-keys.ranks button { height: calc((4 * var(--calc-key) - 49px) / 3); font-size: 1.4rem; border-color: rgba(56, 189, 248, 0.45); }
+.calc-keys.ranks button:disabled { opacity: 0.25; }
+.calc-keys.ranks .k-back { border-color: var(--line); }
+.calc-keys .k-done { color: var(--accent); border-color: rgba(251, 191, 36, 0.55); font-size: 0.95rem; }
+.calc-suits { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.calc-suits button { height: 48px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); font-size: 1.35rem; }
+.calc-suits .s-s { color: var(--suit-s); } .calc-suits .s-h { color: var(--suit-h); } .calc-suits .s-d { color: var(--suit-d); } .calc-suits .s-c { color: var(--suit-c); }
+.calc-suits button.on { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-suits button:disabled { opacity: 0.3; }
+/* The board's five slots in the display's place (the turn and the river set apart). */
+.calc-slots { flex: none; display: flex; align-items: center; gap: 6px; height: 62px; min-width: 0; }
+.calc-slot { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border-radius: 9px; background: var(--panel); border: 1px dashed var(--line); color: var(--muted); font-size: 1.15rem; font-weight: 900; line-height: 1; }
+.calc-slot.set { border-style: solid; background: var(--panel-2); color: var(--text); }
+.calc-slot.target { border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.calc-slot.turn { margin-left: 6px; }
+.calc-slots em { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
+/* The buttons: 폴드 (and 워크), then 저장, or − 손실 / + 수익 (금액: they save). */
+.calc-acts { flex: none; display: grid; grid-template-columns: 1fr 1.6fr; gap: 6px; }
+.calc-acts.n1 { grid-template-columns: 1fr; }
+.calc-acts.n3 { grid-template-columns: 1fr 1fr 1.5fr; }
+.calc-acts.n4 { grid-template-columns: 1fr 1fr 1.2fr 1.2fr; }
+.calc-acts.signs.n2 { grid-template-columns: 1fr 1fr; }
+.calc-acts.signs.n3 { grid-template-columns: 1fr 1.25fr 1.25fr; }
+.calc-acts button { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 50px; padding: 0 4px; border-radius: 12px; background: #1c2532; border: 1px solid var(--line); color: var(--text); font-size: 1.1rem; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; }
+.calc-acts button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 0.72rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.calc-acts button small .bb { font-size: 0.72rem; }
+.calc-acts button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-acts button:disabled { opacity: 0.35; }
+.calc-acts .c-save { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.calc-acts .c-save small { color: rgba(27, 20, 0, 0.72); }
+.calc-acts .c-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-size: 0.98rem; }
+.calc-acts .c-save.plain small { color: var(--muted); }
+/* 저장 waiting: why, in its place (as the save slot does). */
+.calc-acts .c-save.wait { background: transparent; border: 1px dashed var(--line); color: var(--accent); font-size: 0.86rem; white-space: normal; text-align: center; }
+.calc-acts .c-save.wait:disabled { opacity: 1; }
+.calc-acts .c-lose { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
+.calc-acts .c-win { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
+.calc-acts .c-lose small, .calc-acts .c-win small { color: inherit; opacity: 0.85; }
+.calc-acts .c-lose.on, .calc-acts .c-win.on { box-shadow: inset 0 0 0 2px currentColor; }
+.calc-acts .c-none { font-size: 0.98rem; }
+/* The blinds editor: SB / BB / 앤티 in the display's place, the focused one ringed. */
+.calc-fields { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.calc-field { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; min-width: 0; height: 62px; padding: 0 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); color: var(--text); text-align: left; }
+.calc-field small { color: var(--muted); font-size: 0.72rem; font-weight: 800; }
+.calc-field small i { margin-left: 4px; font-style: normal; color: var(--bb); }
+.calc-field b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.45rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.calc-field.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: var(--accent-soft); }
+/* The 야자수 새틀 level picker in the keys' place, the sheet's height kept. */
+.calc-lv { flex: none; height: calc(62px + 6px + 4 * var(--calc-key) + 15px + 6px + 50px); overflow-y: auto; overscroll-behavior: contain; }
+.calc-lv .flow-row-box { margin: 0; }
+.calc-err { color: var(--err); }
+/* What the sheet covers keeps its layout, hidden: nothing peeks at its edges or takes a tap through a gap. */
+.fast.calc-open .fast-under, .fast.calc-open .fast-more, .fast.calc-open .fast-today { visibility: hidden; }
+/* Correcting a saved hand: its time, 삭제 and 취소 in the seat row's label line (the hand row stays where it is). */
+.fast-edit-mini { margin-left: auto; flex: none; display: flex; align-items: center; gap: 4px; color: var(--accent); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+.fast-edit-mini button { height: 32px; padding: 0 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.76rem; font-weight: 800; }
+.fast-edit-mini button.danger { color: var(--err); }
+/* The page's 결과 row while the sheet is closed: what the hand saves as, with its bb; a tap opens the sheet. */
+.fast-resrow { display: flex; align-items: center; gap: 6px; height: 44px; }
+.fast-resrow .rr-sum { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.86rem; font-weight: 800; line-height: 42px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; font-variant-numeric: tabular-nums; }
+.fast-resrow .rr-sum.hint { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.fast-resrow .rr-sum:disabled { opacity: 1; background: transparent; border-style: dashed; }
+.fast-resrow .rr-sum .bb { font-size: 0.86rem; }
+.fast-resrow .rr-sum b.up { color: #7ee2a2; }
+.fast-resrow .rr-sum b.down { color: #ff8a92; }
+.fast-resrow .rr-sum b { font-weight: 900; }
+.rr-board { display: inline-flex; gap: 4px; }
+.fast-resrow .fast-lv { height: 44px; }
+.fast-lv { flex: none; height: 32px; padding: 0 9px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
+.fast-lv i { font-style: normal; color: var(--muted); font-size: 0.66rem; }
+/* An estimate (from the start time, or a level picked a while ago moved on by the schedule): dashed. Needed: gold. */
+.fast-lv.est { border-style: dashed; }
+.fast-lv.ask { border: 1px dashed var(--accent); color: var(--accent); background: var(--accent-soft); }
+/* The save slot's button: gold with a result, plain without one, the reason when it waits. */
+.fast-result .fs-save { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 12px; background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); font-size: 0.95rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fast-result .fs-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-weight: 800; }
+.fast-result .fs-save:disabled { background: transparent; border: 1px dashed var(--line); color: var(--accent); font-size: 0.84rem; font-weight: 800; }
+.fast-result.r-win { border-color: rgba(34, 197, 94, 0.7); }
+.fast-result.r-win b { color: var(--ok); }
+.fast-result.r-lose { border-color: rgba(255, 90, 100, 0.7); }
+.fast-result.r-lose b { color: #ff8a92; }
+.fast-more { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border-radius: 10px; background: transparent; border: 1px dashed var(--line); color: #c7d0dd; font-size: 0.82rem; font-weight: 800; text-align: left; }
+.fast-more small { margin-left: auto; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
+.fast-more.open { border-style: solid; }
+/* today's chips: the total, the graph (inline SVG, no animation), the rows' chips and board */
+.fast-money { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.fm-split { flex-basis: 100%; color: var(--muted); font-size: 0.74rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fm-total { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.fm-total.up { color: var(--ok); }
+.fm-total.down { color: var(--err); }
+.fm-sub { color: var(--muted); font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fm-sub.bb { color: var(--bb); font-size: 1.05rem; font-weight: 900; }
+.fm-split .bb { font-weight: 800; }
+.fast-view { margin-left: auto; align-self: center; padding: 2px; gap: 2px; }
+.fast-view button { flex: none; min-width: 44px; min-height: 32px; padding: 0 10px; font-size: 0.78rem; }
+.chip-graph-box { display: flex; flex-direction: column; gap: 2px; }
+.chip-graph { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.cg-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cg-area { fill: rgba(251, 191, 36, 0.1); stroke: none; }
+.cg-base { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 3; }
+.cg-base-label { fill: var(--muted); font-size: 8px; font-weight: 700; }
+.cg-anchor { fill: var(--panel); stroke: var(--text); stroke-width: 1.5; }
+.cg-jump { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 2; }
+.cg-last { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.cg-cross { stroke: var(--muted); stroke-width: 1; }
+.cg-read { margin: 0; height: 1.35em; line-height: 1.35em; font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.cg-read .bb { font-weight: 800; }
+.fast-note { margin: 0; }
+.cg-note { margin: -2px 0 0; font-size: 0.7rem; }
+/* The row's chips with the other unit under them: one column as wide as the chips, so the board keeps its room. */
+.fi-money { flex: none; min-width: 62px; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.12; white-space: nowrap; }
+.fi-net { flex: none; min-width: 62px; color: #c7d0dd; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fi-net.up { color: var(--ok); }
+.fi-net.down { color: var(--err); }
+/* A fold, even one that cost a blind: muted, not a loss. */
+.fi-net.fold { color: var(--muted); font-weight: 700; }
+/* The row's chips in the other unit, small but legible under them: the bb in the bb color (the chips muted in the bb view). */
+.fi-bb { flex: none; color: var(--muted); font-size: 0.74rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fi-bb.bb { color: var(--bb); font-weight: 800; }
+.fi-board { flex: 1 1 auto; min-width: 0; display: flex; gap: 5px; overflow: hidden; white-space: nowrap; font-weight: 800; }
 /* 지난 기록: a 빠른 기록 hand's tag and verdict. */
 .log-tag.fast { border-color: rgba(34, 197, 94, 0.5); color: var(--ok); }
 .log-verdict { font-weight: 800; }
@@ -1227,6 +1428,100 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 
 /* ───────── 남의 핸드 on the 빠른 기록 screen ───────── */
 .fast-label small { font-size: 0.72rem; font-weight: 700; opacity: 0.8; }
+
+/* ───────── 빠른 기록's tournaments: the list's head, the sheet, the 토너먼트 기록 screens ───────── */
+.fast-today-head h2 { min-width: 0; }
+.tn-head { align-items: center; gap: 8px; }
+.tn-head h2 { flex: 1; min-width: 0; }
+.tn-title { display: flex; align-items: center; gap: 6px; max-width: 100%; min-height: 36px; padding: 0; background: none; border: 0; color: var(--text); text-align: left; }
+.tn-title span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tn-title i { flex: none; font-style: normal; color: var(--muted); font-size: 0.8rem; }
+.tn-new { flex: none; margin-left: auto; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+.tn-meta { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; word-break: keep-all; }
+.tn-meta .bb { font-weight: 800; }
+/* The stack the line ends with and its bb wrap together. */
+.tn-meta .tn-end { white-space: nowrap; }
+.card-box .tn-meta { margin-top: -4px; }
+.tn-memo { color: #c7d0dd; font-size: 0.82rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tn-invite { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px dashed var(--accent); color: var(--accent); font-size: 0.82rem; font-weight: 800; text-align: left; }
+.tn-invite small { margin-left: auto; color: var(--muted); font-size: 0.7rem; font-weight: 700; }
+/* The tournament's line with 칩 업데이트 at its right. */
+.tn-meta-row { display: flex; align-items: center; gap: 8px; margin-top: -4px; }
+.tn-meta-row .tn-meta { flex: 1; min-width: 0; margin: 0; }
+.tn-upd { flex: none; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+/* A 칩 업데이트 among the hands: a thin row, not a hand. */
+.fast-check { display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 2px 4px 2px 10px; border-radius: 10px; border: 1px dashed rgba(251, 191, 36, 0.45); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.fast-check .fc-name { color: var(--accent); font-weight: 800; }
+.fast-check .fc-stack { font-weight: 900; }
+.fast-check .fc-count { flex: none; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.12; }
+.fast-check .fc-bb { font-size: 0.76rem; }
+.fast-check .fc-diff { color: var(--muted); font-weight: 700; }
+.fast-check .fc-diff.up { color: var(--ok); }
+.fast-check .fc-diff.down { color: var(--err); }
+.fast-check .fast-mini { margin-left: auto; height: 34px; padding: 0 10px; color: var(--muted); }
+/* 칩 업데이트's sheet: what the app counts now. */
+.tn-count { display: flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tn-count b { margin-left: auto; color: var(--text); font-size: 1.05rem; font-weight: 900; }
+.tn-count b small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+/* 칩 업데이트's count and the stack typed, read back with its bb: big, the bb in its color. */
+.tn-read { min-height: 1.45em; color: var(--text); font-size: 1.15rem; font-weight: 900; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.tn-count > small { margin-left: auto; font-size: 0.78rem; }
+.tn-cancel { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.tn-cancel button { margin-left: auto; height: 40px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.82rem; font-weight: 800; }
+.tn-all { height: auto; min-height: 32px; padding: 0 2px; font-size: inherit; vertical-align: baseline; }
+.fast-today-foot.end { justify-content: flex-end; }
+.fast-hint.bad { color: var(--err); }
+.tn-card, .tn-row { display: flex; align-items: center; gap: 8px; border-radius: 10px; border: 1px solid var(--line); }
+.tn-card { padding: 8px 6px 8px 12px; background: var(--panel-2); }
+.tn-card-main, .tn-open { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.tn-card-main b, .tn-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; }
+.tn-list { display: flex; flex-direction: column; gap: 6px; }
+.tn-row { padding-right: 6px; background: var(--panel); }
+.tn-row.current { border-color: rgba(251, 191, 36, 0.55); }
+.tn-open { min-height: 56px; padding: 8px 12px; background: none; border: 0; color: var(--text); }
+.tn-row-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tn-res { margin-left: auto; flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tn-res.up { color: var(--ok); }
+.tn-res.down { color: var(--err); }
+.tn-res.none { color: var(--muted); font-weight: 600; }
+.tn-res .bb { font-size: 0.88em; }
+.tn-card .tn-res { margin-left: 0; }
+.tn-resume { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.84rem; font-weight: 800; white-space: nowrap; }
+.tn-backup { height: auto; min-height: 40px; padding: 6px 2px; white-space: normal; text-align: left; }
+.tn-view .tn-delete { align-self: flex-start; min-height: 40px; }
+/* The sheet sits at the top (the phone's keyboard comes up from the bottom), over the page dimmed. */
+.tn-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: calc(env(safe-area-inset-top) + 60px) 12px 24px; overflow-y: auto; background: rgba(0, 0, 0, 0.6); animation: fast-result-in 0.15s ease-out; }
+.tn-sheet { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+.tn-sheet > b, .tn-sheet-head b { font-size: 1.05rem; }
+.tn-sheet > p { margin: 0; color: var(--muted); font-size: 0.84rem; word-break: keep-all; }
+.tn-sheet-head { display: flex; align-items: center; gap: 8px; }
+.tn-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+.tn-field input { height: 44px; padding: 0 12px; color: var(--text); font-size: 16px; font-weight: 700; }
+.tn-field input[type="time"] { display: block; min-width: 0; -webkit-appearance: none; appearance: none; line-height: 44px; }
+.tn-field textarea { min-height: 64px; color: var(--text); font-size: 16px; }
+.tn-field small { color: var(--muted); font-size: 0.72rem; font-weight: 600; word-break: keep-all; }
+.tn-field small.tn-lv { color: var(--accent); font-weight: 800; }
+.tn-field small.tn-big { color: var(--open); font-weight: 800; }
+.tn-field small .tn-bb { font-size: 0.8rem; }
+.tn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* 구조: 야자수 새틀 | 직접 입력. */
+.tn-struct { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+.tn-struct button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; border-radius: 9px; border: 0; background: transparent; color: #c7d0dd; font-size: 0.92rem; font-weight: 800; line-height: 1.15; }
+.tn-struct button.on { background: var(--accent); color: var(--accent-ink); }
+.tn-struct button small { font-size: 0.66rem; font-weight: 700; opacity: 0.8; }
+/* A number typed on the in-app keypad (시작 스택, 블라인드): looks like a field, opens the calculator. */
+.tn-numfield { display: flex; align-items: baseline; gap: 8px; min-width: 0; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); color: var(--text); font-size: 16px; font-weight: 800; line-height: 42px; white-space: nowrap; overflow: hidden; text-align: left; font-variant-numeric: tabular-nums; }
+.tn-numfield .bb { font-size: 0.9rem; }
+.tn-numfield small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.tn-numfield.empty { color: var(--muted); font-weight: 700; }
+.tn-sheet > p.tn-note { color: var(--accent); font-size: 0.78rem; font-weight: 700; }
+.tn-join { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.84rem; font-weight: 700; word-break: keep-all; }
+.tn-join input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.tn-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; margin-top: 4px; }
+.tn-actions button { height: 50px; border-radius: 12px; font-size: 1rem; font-weight: 800; }
+.tn-actions .tn-go { background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); }
+.tn-del { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; }
+.tn-del button { margin-left: auto; min-height: 40px; }
 
 /* ───────── deleting: 되돌리기 toast, the confirm sheet, picking rows in 지난 기록 ───────── */
 /* "N개 삭제했어요 · 되돌리기": above everything at the bottom, the button a full 44px target. */
