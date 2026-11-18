@@ -1123,6 +1123,10 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-label .fast-toggle button { flex: none; height: 32px; padding: 0 10px; font-size: 0.76rem; }
 .fast-label { display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
 .fast-label > b { color: var(--accent); font-size: 0.86rem; }
+/* My stack and its bb by my seat (a tap: 칩 업데이트). */
+.fast-label .seat-stack { margin-left: auto; flex: none; height: 32px; padding: 0 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.86rem; font-weight: 900; white-space: nowrap; }
+.fast-label .seat-stack:disabled { opacity: 1; }
+.fast-label .seat-stack .bb { font-size: 0.86rem; }
 .fast-row { display: flex; gap: 3px; }
 .fast-row button { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 1px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; }
 .fast-row button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }

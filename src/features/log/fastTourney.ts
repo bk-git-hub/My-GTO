@@ -18,6 +18,7 @@ import {
 import {
   cleanStartClock,
   fastOnly,
+  deleteHands,
   handLogStore,
   handRoute,
   isOther,
@@ -686,6 +687,13 @@ export function deleteTourney(id: string): boolean {
   const prev = handLogStore.get();
   if (prev.hands.some((h) => h.tourney === id) || !cleanTourneys(prev.tourneys).some((t) => t.id === id)) return false;
   return write(withoutTourney(prev, id), prev);
+}
+
+/** Deletes tournament `id` with every hand in it (mine and other players'). False when there was nothing to delete. */
+export function deleteTourneyAll(id: string): boolean {
+  const ids = handLogStore.get().hands.filter((h) => h.tourney === id).map((h) => h.id);
+  if (!ids.length) return deleteTourney(id);
+  return deleteHands(ids, (s) => withoutTourney(s, id)) !== null;
 }
 
 /**

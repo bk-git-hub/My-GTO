@@ -246,7 +246,8 @@ describe("지난 기록 보기 (react-dom/server)", () => {
     expect(html).toMatch(/<div class="seg small log-tabs" role="tablist" aria-label="지난 기록"><button type="button" role="tab" aria-selected="true" class="on">전체<b>3<\/b><\/button><button type="button" role="tab" aria-selected="false" class="">내 핸드<b>2<\/b><\/button><button type="button" role="tab" aria-selected="false" class="">남의 핸드<b>1<\/b><\/button><button type="button" role="tab" aria-selected="false" class="" aria-label="상대별 쇼다운">쇼다운<\/button><\/div>/);
     expect(html.match(/class="log-row[ "]/g)).toHaveLength(3);
     expect(text(html)).toContain("＋ 새 기록");
-    expect(text(html)).toContain("＋ 남의 핸드");
+    // 남의 핸드 is no longer recorded from here (the hands on file stay in their tab)
+    expect(text(html)).not.toContain("＋ 남의 핸드");
     expect(text(html)).toContain("백업");
     // only mine, only others'
     const mineHtml = page("list/mine");
@@ -324,8 +325,8 @@ describe("빠른 기록 (react-dom/server)", () => {
     // the stage chips and the table size in the sticky bar
     expect(html).toMatch(/<div class="fast-bar"><div class="fast-stages" role="group" aria-label="스택 구간 \(차트\)"><button type="button" class="" aria-pressed="false">딥<\/button><button type="button" class="on" aria-pressed="true">미들<\/button>/);
     expect(html).toContain('aria-label="테이블 9인 · 인원 바꾸기"');
-    // 내 핸드 | 남의 핸드 on the seat line; the button by default
-    expect(html).toMatch(/<div class="fast-label">내 포지션 <b>BTN<\/b><div class="seg small fast-toggle" role="tablist" aria-label="빠른 기록"><button type="button" role="tab" aria-selected="true" class="on">내 핸드<\/button>/);
+    // the seat line: no 남의 핸드 toggle; no stack known yet, so nothing by the seat
+    expect(html).toContain('<div class="fast-label">내 포지션 <b>BTN</b></div>');
     expect(html).toMatch(/<div class="fast-row fast-seats n9">(<button type="button" class="">[^<]+<\/button>){6}<button type="button" class="on">BTN<\/button>/);
     // the pad: 13 ranks and ⌫; 수딧 / 오프수트 wait for two different ranks
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
@@ -1119,7 +1120,8 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
   });
 
   it("leaves everything above the list as it was, tournament or not", () => {
-    const head = (html: string) => html.slice(0, html.indexOf('class="card-box fast-today"'));
+    // My stack by my seat shows only when a count is known: the rest above the list stays.
+    const head = (html: string) => html.slice(0, html.indexOf('class="card-box fast-today"')).replace(/<button type="button" class="seat-stack".*?<\/button>/, "");
     put([]);
     const none = head(page("fast"));
     put([fold(NIGHT - MIN, "a"), won(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a", { startSet: undefined })] });
@@ -1203,7 +1205,8 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     expect(html.match(/class="fast-item /g)).toHaveLength(2);
     expect(html).toMatch(/aria-label="칩 흐름: 50,000에서 지금 61,700/);
     expect(t).toContain("요약 복사");
-    expect(html).not.toContain("이 토너먼트 삭제");
+    // deletable with its hands
+    expect(html).toContain("이 토너먼트 삭제");
     const past = page("fast/t/w");
     expect(past).toContain('<button type="button" class="tn-resume">이어 적기</button>');
     expect(text(past)).toContain("10월 31일 (토) 22:05부터 · 1핸드");

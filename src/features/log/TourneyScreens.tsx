@@ -6,7 +6,7 @@ import { fastStats, fastStore, sessionText } from "./fastLog";
 import { CheckRow, ChipsBlock, copyText, FastItem, FastStatsRow } from "./FastParts";
 import {
   defaultTitle,
-  deleteTourney,
+  deleteTourneyAll,
   editTourney,
   fieldsOf,
   groupChips,
@@ -25,7 +25,7 @@ import {
   tourneyTitle,
   type TourneyGroup,
 } from "./fastTourney";
-import { fastActed, handLogStore, type LoggedHand } from "./handLog";
+import { deleteHands, fastActed, handLogStore, type LoggedHand } from "./handLog";
 import { cleanTourneys, type StackCheck } from "./tourney";
 import { TourneySheet } from "./TourneySheet";
 
@@ -237,9 +237,13 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
     if (resumeTourney(t.id)) go("log/fast", "back");
     else setMsg(FULL_MSG);
   }
+  /** The tournament and every hand in it (a legacy group: its hands). */
   function remove() {
-    if (!t || !confirm("이 토너먼트를 지울까요?")) return;
-    if (deleteTourney(t.id)) back();
+    if (!g) return;
+    const ask = total ? `이 ${t ? "토너먼트" : "기록"}와 핸드 ${total}개를 지울까요? 되돌릴 수 없어요.` : "이 토너먼트를 지울까요?";
+    if (!confirm(ask)) return;
+    const ok = t ? deleteTourneyAll(t.id) : deleteHands(g.hands.map((h) => h.id)) !== null;
+    if (ok) back();
     else setMsg(FULL_MSG);
   }
 
@@ -326,9 +330,9 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
         ) : (
           <p className="muted small">{g.others ? "이 토너먼트에는 남의 핸드만 있어요 (지난 기록 › 남의 핸드)." : "아직 이 토너먼트에 핸드가 없어요."}</p>
         )}
-        {t && total === 0 && (
+        {(t || g.hands.length > 0) && (
           <button type="button" className="ghost small danger tn-delete" onClick={remove}>
-            이 토너먼트 삭제
+            {t ? "이 토너먼트 삭제" : "이 기록 삭제"}
           </button>
         )}
       </section>
@@ -339,7 +343,8 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
           defaultName={tourneyTitle({ ...t, name: "" }, hands)}
           levelText={(clock) => sheetLevelText(clock, t, hands, Date.now())}
           note={startNote(t, hands, g.current, Date.now())}
-          canDelete={total === 0}
+          canDelete
+          handCount={total}
           current={g.current}
           onSave={(f) => {
             if (!editTourney(t.id, f)) return FULL_MSG;
@@ -348,7 +353,7 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
           }}
           onDelete={() => {
             setSheet(false);
-            if (deleteTourney(t.id)) back();
+            if (deleteTourneyAll(t.id)) back();
             else setMsg(FULL_MSG);
           }}
           onClose={() => setSheet(false)}

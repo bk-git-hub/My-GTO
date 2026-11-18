@@ -90,7 +90,7 @@ import {
   currentTourney,
   dateOf,
   defaultTitle,
-  deleteTourney,
+  deleteTourneyAll,
   anteFor,
   editTourney,
   fastEstimate,
@@ -815,6 +815,9 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const tnCount = tn ? hands.filter((h) => h.fast === true && h.tourney === tn.id).length : 0;
   /** It is on today's clock (not one resumed on a later day). */
   const tnOnDay = !!tn && onTourneyDay(tn, hands, tick);
+  /** My stack now (before the hand being typed), for the line by my seat; null when no count is known. */
+  const seatStack = !other && !editing ? stackPre.chips : null;
+  const seatStackBb = seatStack !== null ? bbPart(seatStack, lvLive.level) : null;
   // An empty tournament never resumed: "새 토너먼트 취소" back to the one current when it was started (cancelTarget), else "새 토너먼트 지우기".
   const tnFresh = !!tn && tnCount === 0 && tn.activeAt === tn.createdAt;
   const backTn = tn && tnFresh ? cancelTarget(tn, tourneys, hands) : null;
@@ -923,9 +926,20 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
                 취소
               </button>
             </span>
-          ) : (
-            <QuickToggle mine={!other} go={go} />
-          )}
+          ) : other ? (
+            <QuickToggle mine={false} go={go} />
+          ) : seatStack !== null ? (
+            // My stack now and its bb, by my seat (a tap: 칩 업데이트).
+            <button type="button" className="seat-stack" aria-label={`내 스택 ${chipsText(seatStack)} · 칩 업데이트`} disabled={!tn} onClick={() => setSheet("chips")}>
+              {chipsText(seatStack)}
+              {seatStackBb && (
+                <>
+                  {" "}
+                  <Bb v={seatStackBb} />
+                </>
+              )}
+            </button>
+          ) : null}
         </div>
         <div className={`fast-row fast-seats n${seats.length}`}>
           {seats.map((x) => (
@@ -1312,7 +1326,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           defaultName={tourneyTitle({ ...tn, name: "" }, hands)}
           levelText={(clock) => sheetLevelText(clock, tn, hands, Date.now())}
           note={startNote(tn, hands, true, Date.now())}
-          canDelete={tnCount === 0}
+          canDelete
+          handCount={hands.filter((h) => h.tourney === tn.id).length}
           current
           onSave={(f) => {
             if (!editTourney(tn.id, f)) return FULL_MSG;
@@ -1320,7 +1335,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             return null;
           }}
           onDelete={() => {
-            if (!deleteTourney(tn.id)) setTnMsg({ text: FULL_MSG, bad: true });
+            if (!deleteTourneyAll(tn.id)) setTnMsg({ text: FULL_MSG, bad: true });
             setSheet(null);
           }}
           onClose={() => setSheet(null)}
