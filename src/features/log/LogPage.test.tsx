@@ -331,7 +331,7 @@ describe("빠른 기록 (react-dom/server)", () => {
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
     expect(html).toMatch(/<button type="button" class="" disabled="">수딧<\/button><button type="button" class="" disabled="">오프수트<\/button>/);
     // 결과: one row with the level chip (the calculator comes up once the class is in); no result chips, no board row
-    expect(html).toContain('<div class="fast-resrow fast-under"><button type="button" class="rr-sum hint" disabled="">결과 · 핸드를 넣으면 계산기가 떠요</button><button type="button" class="fast-lv" aria-expanded="false" aria-label="블라인드 레벨 ? · 바꾸기">레벨 ? <i>▾</i></button></div>');
+    expect(html).toContain('<div class="fast-resrow fast-under"><button type="button" class="rr-sum hint" disabled="">결과</button><button type="button" class="fast-lv" aria-expanded="false" aria-label="블라인드 레벨 ? · 바꾸기">레벨 ? <i>▾</i></button></div>');
     expect(html).not.toContain("fast-res-chips");
     expect(html).not.toContain("fb-slots");
     // no calculator before the class is in
@@ -524,7 +524,8 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(shut).toContain('<div class="fast"><div class="fast-bar">');
     expect(shut).not.toContain('class="calc');
     expect(shut).toContain('<button type="button" class="rr-sum hint">결과 · 누르면 계산기</button>');
-    expect(shut).toContain('<button type="button" class="fs-save plain">결과 없이 저장 · 다음 SB</button>');
+    // The hand in, nothing typed: 폴드 | 스택 입력 (the calculator only on a tap, so the hand stays editable).
+    expect(shut).toContain('<button type="button" class="fs-save fs-fold">폴드</button><button type="button" class="fs-save fs-stack">스택 입력</button>');
   });
 
   it("types the board in the sheet's 보드 tab: five slots, the ranks five to a row with ⌫ and 완료, the ringed card's suit", () => {

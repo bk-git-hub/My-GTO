@@ -1374,6 +1374,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-result .fs-save { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 12px; background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); font-size: 0.95rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fast-result .fs-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-weight: 800; }
 .fast-result .fs-save:disabled { background: transparent; border: 1px dashed var(--line); color: var(--accent); font-size: 0.84rem; font-weight: 800; }
+/* The hand in, nothing typed: 폴드 | 스택 입력 side by side. */
+.fast-result .fs-save.fs-fold { background: var(--panel-2); border-color: var(--line); color: var(--text); }
 .fast-result.r-win { border-color: rgba(34, 197, 94, 0.7); }
 .fast-result.r-win b { color: var(--ok); }
 .fast-result.r-lose { border-color: rgba(255, 90, 100, 0.7); }

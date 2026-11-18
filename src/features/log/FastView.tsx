@@ -28,7 +28,6 @@ import {
   fastHand,
   fastOtherStore,
   entryField,
-  openOnClass,
   pickEntry,
   fastStats,
   fastStore,
@@ -386,17 +385,13 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     };
   }, [other]);
 
-  /** The hand being corrected has its decision on file (its action row stays; no sheet comes up by itself). */
-  const forcedFor = (c: FastState): boolean => {
-    const h = editHandOf(c);
-    return !!h && fastActed(h);
-  };
   // Any change to the hand on screen starts the next hand: the last verdict gives way to the hints. The class
   // completed by a tap brings the calculator sheet up (openOnClass); `also` changes the rest of the state with it.
   const draft = (f: (x: FastState["draft"], p: number) => FastState["draft"], also?: (s: FastState) => FastState) => {
     const c = cur();
     const typed = f(c.draft, draftPlayers(c));
-    const next = other ? typed : openOnClass(c.draft, typed, c, forcedFor(c));
+    // The calculator comes up from 스택 입력 (or the result line), not by itself: the hand stays editable.
+    const next = typed;
     set({ ...(also ? also(c) : c), draft: next });
     // Back to the hand (the sheet closed): the panel goes with it.
     if (focusOf(next) === "hand") setPanel(null);
@@ -1005,6 +1000,16 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             <div className={`fast-result fast-under${saved ? ` shown ${saved.tone}` : ""}`} role="status" aria-live="polite">
               {saved ? (
                 savedSlot
+              ) : canSave && !editing && !d.res && !d.amount && !d.stackNow ? (
+                // The hand in, nothing typed yet: 폴드 (saved at once) or 스택 입력 (the calculator). The hand stays editable till then.
+                <>
+                  <button type="button" className="fs-save fs-fold" onClick={() => save("fold")}>
+                    폴드
+                  </button>
+                  <button type="button" className="fs-save fs-stack" onClick={() => pickTab("stack")}>
+                    스택 입력
+                  </button>
+                </>
               ) : canSave ? (
                 <button type="button" className={`fs-save${d.res || editing ? "" : " plain"}`} disabled={waits} onClick={() => save("save")}>
                   {saveLabel}
@@ -1259,7 +1264,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
                 </button>
               </div>
             )}
-            <p className="muted small">아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요 (이름·시작 스택은 나중에). 핸드마다 랭크 두 개 → 수딧/오프 → 폴드 한 번, 아니면 계산기에 지금 스택만 누르면 돼요 (빼기는 앱이). 보드는 기억나는 카드만.</p>
+            <p className="muted small">아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요 (이름·시작 스택은 나중에). 핸드마다 랭크 두 개 → 수딧/오프 → 폴드, 아니면 스택 입력에 지금 스택만 누르면 돼요 (빼기는 앱이). 보드는 기억나는 카드만.</p>
             {groups && (groups.tourneys.length > 0 || groups.legacy.length > 0) && <div className="fast-today-foot end">{pastLink}</div>}
           </>
         )}
