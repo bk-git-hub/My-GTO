@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useBackHandler } from "../../backNav";
-import { bbText1, chipsText, inBb, signedText, type StackAt } from "./fastChips";
+import { bbPart, chipsText, signedText, type StackAt } from "./fastChips";
+import { Bb } from "./FastResult";
 import { fieldsBlock, type TourneyFields } from "./fastTourney";
 import { STACK_MAX, type StackCheck } from "./tourney";
 
@@ -89,7 +90,16 @@ export function TourneySheet(p: {
               autoComplete="off"
               onChange={(e) => put("stack", e.target.value.replace(/[^0-9]/g, "").slice(0, 9))}
             />
-            <small>{stack !== null ? `= ${chipsText(stack)}칩` : "모르면 비워 두세요"}</small>
+            {/* Its bb at the first level's big blind (야자수 새틀 Lv1: 100/200). */}
+            <small>
+              {stack !== null ? (
+                <>
+                  = {chipsText(stack)}칩 <Bb v={bbPart(stack, 1)} className="tn-bb" /> (Lv1)
+                </>
+              ) : (
+                "모르면 비워 두세요"
+              )}
+            </small>
           </label>
         </div>
         <label className="tn-field">
@@ -136,21 +146,26 @@ export function TourneySheet(p: {
 }
 
 /**
- * The 칩 업데이트 sheet's line under the field for `text` typed: what it reads, and its tone (`big`: amber,
- * a 0 too many or too few, 3× the app's count or more or a third of it or less; `diff`: gold, it moves the
- * count). Measured against `open` (the 칩 업데이트 just typed, still put right in place) when there is one,
- * else the app's count; the 0 check is always against the app's count (the one just typed may be the slip).
+ * The 칩 업데이트 sheet's lines under the field for `text` typed: the stack read back (`read`: the chips with
+ * separators and their bb at `level`, big), then what it means and its tone (`big`: amber, a 0 too many or too
+ * few, 3× the app's count or more or a third of it or less; `diff`: gold, it moves the count). Measured against
+ * `open` (the 칩 업데이트 just typed, still put right in place) when there is one, else the app's count; the 0
+ * check is always against the app's count (the one just typed may be the slip).
  */
-export function chipUpdateNote(text: string, now: StackAt, open: StackCheck | null, level: number | null): { text: string; tone: "big" | "diff" | null } {
+export function chipUpdateNote(
+  text: string,
+  now: StackAt,
+  open: StackCheck | null,
+  level: number | null,
+): { read: { chips: string; bb: string | null } | null; text: string; tone: "big" | "diff" | null } {
   const stack = /^\d{1,9}$/.test(text) && Number(text) <= STACK_MAX ? Number(text) : null;
-  if (stack === null) return { text: "칩 개수 그대로 (0이면 탈락)", tone: null };
-  const b = inBb(stack, level);
+  if (stack === null) return { read: null, text: "칩 개수 그대로 (0이면 탈락)", tone: null };
   const count = now.chips;
   const ref = open ? open.stack : count;
   const diff = ref !== null ? stack - ref : null;
   const big = count !== null && stack > 0 && count > 0 && (stack >= 3 * count || stack * 3 <= count);
-  const vs = diff === null ? "" : diff === 0 ? (open ? " · 방금과 같아요" : " · 앱이 센 것과 같아요") : ` · ${open ? "방금보다" : "앱보다"} ${signedText(diff, "chips")}`;
-  return { text: `= ${chipsText(stack)}칩${b === null ? "" : ` · ${bbText1(b)}`}${vs}${big ? " · 자릿수 확인" : ""}`, tone: big ? "big" : diff ? "diff" : null };
+  const vs = diff === null ? "" : diff === 0 ? (open ? "방금과 같아요" : "앱이 센 것과 같아요") : `${open ? "방금보다" : "앱보다"} ${signedText(diff, "chips")}`;
+  return { read: { chips: chipsText(stack), bb: bbPart(stack, level) }, text: [vs, big ? "자릿수 확인" : ""].filter(Boolean).join(" · ") || "칩 개수 그대로 (0이면 탈락)", tone: big ? "big" : diff ? "diff" : null };
 }
 
 /**
@@ -177,10 +192,6 @@ export function ChipUpdateSheet(p: {
     return true;
   });
   const stack = /^\d{1,9}$/.test(text) && Number(text) <= STACK_MAX ? Number(text) : null;
-  const bbOf = (n: number) => {
-    const b = inBb(n, p.level);
-    return b === null ? "" : ` · ${bbText1(b)}`;
-  };
   // The box: the 칩 업데이트 just typed while it can be put right in place, else the app's count.
   const ref = p.open ? p.open.stack : p.now.chips;
   const note = chipUpdateNote(text, p.now, p.open, p.level);
@@ -194,8 +205,7 @@ export function ChipUpdateSheet(p: {
           <span>{p.open ? "방금 업데이트" : "앱이 센 스택"}</span>
           {ref !== null ? (
             <b>
-              {chipsText(ref)}
-              <small>{bbOf(ref)}</small>
+              {chipsText(ref)} <Bb v={bbPart(ref, p.level)} />
             </b>
           ) : (
             <small>{p.now.chips === null && p.now.why === "gap" ? "모름 · 결과 없는 핸드가 있어요" : "모름 · 시작 스택이 없어요"}</small>
@@ -219,6 +229,14 @@ export function ChipUpdateSheet(p: {
             }}
             onKeyDown={(e) => e.key === "Enter" && save()}
           />
+          {/* The stack typed, read back with its bb (the line keeps its height while empty: nothing moves as it is typed). */}
+          <span className="tn-read" aria-live="polite">
+            {note.read && (
+              <>
+                {note.read.chips}칩 <Bb v={note.read.bb} />
+              </>
+            )}
+          </span>
           <small className={note.tone === "big" ? "tn-big" : note.tone === "diff" ? "tn-lv" : undefined}>{note.text}</small>
         </label>
         {p.open && <p>방금 넣은 칩 업데이트 ({chipsText(p.open.stack)})를 이걸로 고쳐요 · 그 뒤로 핸드가 없어서요.</p>}

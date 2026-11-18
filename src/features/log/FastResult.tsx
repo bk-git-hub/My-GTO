@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { RANKS, SUITS, SUIT_SYMBOL } from "../../poker/cards";
 import {
   amountValue,
+  bbPart,
   bbText1,
   canAddRank,
   chipsShort,
@@ -9,7 +10,6 @@ import {
   levelChip,
   MINUS,
   missedPart,
-  netBoth,
   overBefore,
   postedBy,
   signedText,
@@ -130,35 +130,83 @@ const BIG_BB = 50;
 export const fullChips = (n: number): string => (n < 1_000_000 ? n.toLocaleString() : chipsShort(n));
 
 /**
- * The 결과 line: its text, a small second line under it (스택's sum), whether it is only a hint, whether the
+ * A piece of a line as shown: plain text, a bb number, which is drawn in its own color, bold, as big as the
+ * chips next to it (the chips are what is counted at the table, the bb what the chart reads), or a note after
+ * the numbers (`tail`: smaller, so the numbers keep the room).
+ */
+export type Part = string | { bb: string } | { tail: string };
+
+/** A bb number (`.bb`): "+25.6bb" in the bb color. Nothing without one. */
+export function Bb({ v, className }: { v: string | null | undefined; className?: string }) {
+  return v ? <span className={className ? `bb ${className}` : "bb"}>{v}</span> : null;
+}
+
+/** " " and the bb, for the end of a line's chips (nothing without a level). */
+const bbAfter = (v: string | null): Part[] => (v ? [" ", { bb: v }] : []);
+
+/** A line's parts on screen: the text pieces run together, each bb number its own `.bb` span. */
+export function Parts({ p }: { p: Part[] }) {
+  const merged = p.reduce<Part[]>((out, x) => {
+    const last = out[out.length - 1];
+    if (typeof x === "string" && typeof last === "string") out[out.length - 1] = last + x;
+    else out.push(x);
+    return out;
+  }, []);
+  return (
+    <>
+      {merged.map((x, i) =>
+        typeof x === "string" ? (
+          <Fragment key={i}>{x}</Fragment>
+        ) : "bb" in x ? (
+          <Bb key={i} v={x.bb} />
+        ) : (
+          <span key={i} className="fr-tail">
+            {x.tail}
+          </span>
+        ),
+      )}
+    </>
+  );
+}
+
+/**
+ * The 결과 line: its parts, a small second line under it (스택's sum), whether it is only a hint, whether the
  * amount is unusually big, and whether 스택 is likely what was meant (an amount bigger than the stack before).
  */
 interface Line {
-  text: string;
-  sub?: string;
+  parts: Part[];
+  sub?: Part[];
   hint: boolean;
   big?: boolean;
   toStack?: boolean;
 }
 
 /**
- * 스택 on the 결과 line: what to type (with the stack before it), then the result worked out as typed, over
- * the sum that gives it ("+3,600 (+6bb)" over "지금 61,800 − 전 58,200"; 자동 계산 is on the 스택 chip lit
- * under it); the stack before not known: 지금 스택 goes on file with no result, and the next hand is worked
- * out from it.
+ * 스택 on the 결과 line: what to type (with the stack before it and its bb), then the result worked out as
+ * typed with its bb, over the sum that gives it ("+3,600 +6bb" over "지금 61,800 − 전 58,200"; 자동 계산 is on
+ * the 스택 chip lit under it); the stack before not known: 지금 스택 goes on file with no result, and the next
+ * hand is worked out from it.
  */
 function stackResultLine(p: { stackNow?: string; stackUnit: Unit; level: number | null; before: StackAt }): Line {
   const b = p.before.chips;
   // Why the stack before isn't known: no stack on file yet, or a hand since without chips.
   const why = p.before.chips === null && p.before.why === "gap" ? "결과 없는 핸드 있음" : "전 스택 모름";
   const t = p.stackNow ?? "";
-  if (amountValue(t) === null) return { text: "지금 스택 얼마?", sub: b !== null ? `전 ${fullChips(b)} · 빼기는 앱이 해요` : `${why} · 스택만 저장돼요`, hint: true };
+  if (amountValue(t) === null) {
+    return { parts: ["지금 스택 얼마?"], sub: b !== null ? [`전 ${fullChips(b)}`, ...bbAfter(bbPart(b, p.level)), " · 빼기는 앱이 해요"] : [`${why} · 스택만 저장돼요`], hint: true };
+  }
   const now = toChips(t, p.stackUnit, p.level);
-  if (now === null) return { text: `스택 ${t}bb`, sub: "레벨을 골라 주세요", hint: false };
+  if (now === null) return { parts: ["스택 ", { bb: `${t}bb` }], sub: ["레벨을 골라 주세요"], hint: false };
   const net = stackNet(now, b);
-  if (net === null) return { text: `스택 ${fullChips(now)} · 결과 모름`, sub: `${why} · 다음 핸드부터 계산`, hint: false };
+  // No result to show: the stack and its bb alone (the line under it says why, and that the next hand is worked out).
+  if (net === null) return { parts: [`스택 ${fullChips(now)}`, ...bbAfter(bbPart(now, p.level))], sub: [`${why} · 다음 핸드부터 계산`], hint: false };
   const bbs = inBb(Math.abs(net), p.level);
-  return { text: net === 0 ? "본전" : netBoth(net, p.level), sub: `지금 ${fullChips(now)} − 전 ${fullChips(b as number)}`, hint: false, big: bbs !== null && bbs >= BIG_BB };
+  return {
+    parts: net === 0 ? ["본전"] : [signedText(net, "chips"), ...bbAfter(bbPart(net, p.level, true))],
+    sub: [`지금 ${fullChips(now)} − 전 ${fullChips(b as number)}`],
+    hint: false,
+    big: bbs !== null && bbs >= BIG_BB,
+  };
 }
 
 /** What the 결과 line reads for the draft (whether it is only a hint, whether the amount is unusually big). */
@@ -167,41 +215,64 @@ function resultLine(p: { res?: FastRes; amount?: string; unit: Unit; level: numb
   if (res === "stack") return stackResultLine(p);
   if (res === "fold") {
     const posted = postedBy(seat, level, bbAnte);
-    return { text: posted === null ? "폴드 · 블라인드 (레벨 모름)" : posted ? `폴드 ${signedText(-posted, "chips")}` : "폴드", hint: false };
+    return { parts: posted === null ? ["폴드 · 블라인드 (레벨 모름)"] : posted ? [`폴드 ${signedText(-posted, "chips")}`, ...bbAfter(bbPart(-posted, level, true))] : ["폴드"], hint: false };
   }
   if (res === "walk") {
     const w = walkWin(level);
-    return { text: w === null ? "워크" : `워크 ${signedText(w, "chips")}`, hint: false };
+    return { parts: w === null ? ["워크"] : [`워크 ${signedText(w, "chips")}`, ...bbAfter(bbPart(w, level, true))], hint: false };
   }
   const sign = res === "+" ? "+" : res === "-" ? MINUS : "";
   if (!amount) {
-    if (res === "+") return { text: "+ 수익 얼마?", hint: true };
-    if (res === "-") return { text: `${MINUS} 손실 얼마?`, hint: true };
+    if (res === "+") return { parts: ["+ 수익 얼마?"], hint: true };
+    if (res === "-") return { parts: [`${MINUS} 손실 얼마?`], hint: true };
     // 지금 스택 typed with no result: 스택 works it out.
-    if (p.stackNow) return { text: "스택을 누르면 자동 계산", hint: true };
-    return { text: "폴드 한 번, 아니면 금액·스택", hint: true };
+    if (p.stackNow) return { parts: ["스택을 누르면 자동 계산"], hint: true };
+    return { parts: ["폴드 한 번, 아니면 금액·스택"], hint: true };
   }
-  const main = `${sign}${shown(amount, unit)}`;
-  if (!res) return { text: `${main} · 수익? 손실?`, hint: false };
+  // The amount as typed: chips, or a bb number (drawn as one).
+  const main: Part = unit === "bb" ? { bb: `${sign}${shown(amount, unit)}` } : `${sign}${shown(amount, unit)}`;
+  if (!res) return { parts: [main, { tail: " · 수익? 손실?" }], hint: false };
   // "0." on its way to "0.5": nothing to work out yet.
-  if (amountValue(amount) === null) return { text: main, hint: false };
+  if (amountValue(amount) === null) return { parts: [main], hint: false };
   const chips = toChips(amount, unit, level);
-  if (chips === null) return { text: `${main} · 레벨을 골라 주세요`, hint: false };
-  if (chips === 0) return { text: `${main} = 본전`, hint: false };
+  if (chips === null) return { parts: [main, { tail: " · 레벨을 골라 주세요" }], hint: false };
+  if (chips === 0) return { parts: [main, " = 본전"], hint: false };
   const b = inBb(chips, level);
   const big = b !== null && b >= BIG_BB;
-  const text = unit === "bb" ? `${main} = ${sign}${chips.toLocaleString()}` : b === null ? main : `${main} = ${sign}${bbText1(b)}`;
+  // Typed in chips: the bb next to them; typed in bb: the chips it comes to.
+  const parts: Part[] = unit === "bb" ? [main, ` = ${sign}${chips.toLocaleString()}`] : b === null ? [main] : [main, " ", { bb: `${sign}${bbText1(b)}` }];
   // More than my whole stack before the hand: a loss can't be (the save waits), a win that big is rare; most likely 지금 스택.
   const pre = p.before.chips;
   if (pre !== null && overBefore(chips, pre, p.stackNow)) {
-    return { text, sub: `지금 스택이면 → 스택 · 전 ${fullChips(pre)}`, hint: false, big: true, toStack: true };
+    return { parts, sub: [`지금 스택이면 → 스택 · 전 ${fullChips(pre)}`], hint: false, big: true, toStack: true };
   }
-  return { text, hint: false, big };
+  return { parts, hint: false, big };
 }
 
-/** A blind's fold or a walk on its chip: the chips in the unit being typed, short ("−1,200", "−80만", "−2bb"). */
-function chipAmount(n: number, unit: Unit, level: number | null): string {
-  return unit === "bb" ? signedText(n, "bb", level) : n > 0 ? `+${chipsShort(n)}` : chipsShort(n);
+/**
+ * A blind's fold or a walk on its chip: the chips in the unit being typed, short ("−300", "−80만"), with
+ * their size in bb next to them where the row has room for both ("−300 0.5bb"; `both`: four chips or fewer);
+ * typed in bb, the bb.
+ */
+function ChipAmount({ n, unit, level, both }: { n: number; unit: Unit; level: number | null; both: boolean }) {
+  if (unit === "bb") {
+    const b = bbPart(n, level, true);
+    return b ? <small className="bb">{b}</small> : <small>{signedText(n, "chips")}</small>;
+  }
+  const chips = n > 0 ? `+${chipsShort(n)}` : chipsShort(n);
+  const b = both ? bbPart(Math.abs(n), level) : null;
+  // A real space between them, so a screen reader says "−300 0.5bb", not one number.
+  return (
+    <small>
+      {chips}
+      {b && (
+        <>
+          {" "}
+          <Bb v={b} />
+        </>
+      )}
+    </small>
+  );
 }
 
 /**
@@ -250,11 +321,15 @@ export function ResultSec(p: {
         <button type="button" className={`fr-amt${p.focused ? " on" : ""}${line.hint ? " hint" : ""}${line.big ? " big" : ""}${line.sub ? " two" : ""}`} disabled={!p.enabled} onClick={p.onAmount}>
           {line.sub ? (
             <>
-              <span>{line.text}</span>
-              <small>{line.sub}</small>
+              <span>
+                <Parts p={line.parts} />
+              </span>
+              <small>
+                <Parts p={line.sub} />
+              </small>
             </>
           ) : (
-            line.text
+            <Parts p={line.parts} />
           )}
         </button>
         <button type="button" className={`fast-lv${p.levelClass}`} aria-expanded={p.pickerOpen} aria-label={`블라인드 ${p.levelLabel} · 바꾸기`} onClick={p.onLevel}>
@@ -266,13 +341,13 @@ export function ResultSec(p: {
         {!p.actionsView && (
           <button type="button" className={`r-fold${p.res === "fold" ? " on" : ""}`} disabled={!p.enabled} onClick={() => p.onRes("fold")}>
             <span>폴드</span>
-            {posted === null ? <small>블라인드</small> : posted ? <small>{chipAmount(-posted, p.unit, p.level)}</small> : null}
+            {posted === null ? <small>블라인드</small> : posted ? <ChipAmount n={-posted} unit={p.unit} level={p.level} both={n <= 4} /> : null}
           </button>
         )}
         {walk && (
           <button type="button" className={`r-walk${p.res === "walk" ? " on" : ""}`} disabled={!p.enabled} onClick={() => p.onRes("walk")}>
             <span>워크</span>
-            {w !== null && <small>{chipAmount(w, p.unit, p.level)}</small>}
+            {w !== null && <ChipAmount n={w} unit={p.unit} level={p.level} both={n <= 4} />}
           </button>
         )}
         <button type="button" className={`r-lose${p.res === "-" ? " on" : ""}${p.askSign ? " ask" : ""}`} aria-pressed={p.res === "-"} disabled={!p.enabled} onClick={() => p.onRes("-")}>
@@ -290,12 +365,12 @@ export function ResultSec(p: {
   );
 }
 
-/** 지금 스택 as typed: "스택 64,200" over "107bb" (typed in bb: "스택 107bb" over the chips). */
-function stackLine(text: string, unit: Unit, level: number | null): [string, string] {
+/** 지금 스택 as typed: "스택 64,200" over its bb "107bb" (typed in bb: "스택 107bb" over the chips). */
+function stackLine(text: string, unit: Unit, level: number | null): { top: Part[]; bottom: { text: string; bb: boolean } | null } {
   const chips = toChips(text, unit, level);
-  if (unit === "bb") return [`스택 ${text}bb`, chips === null ? "레벨 ?" : fullChips(chips)];
-  const b = chips === null ? null : inBb(chips, level);
-  return [`스택 ${fullChips(Number(text))}`, b === null ? "" : bbText1(b)];
+  if (unit === "bb") return { top: ["스택 ", { bb: `${text}bb` }], bottom: { text: chips === null ? "레벨 ?" : fullChips(chips), bb: false } };
+  const b = chips === null ? null : bbPart(chips, level);
+  return { top: [`스택 ${fullChips(Number(text))}`], bottom: b ? { text: b, bb: true } : null };
 }
 
 /**
@@ -342,8 +417,10 @@ export function BoardRow(p: {
       <button type="button" className={`fast-stack${p.focus === "stack" ? " on" : ""}${st ? " set" : ""}`} disabled={!p.enabled} onClick={p.onStack}>
         {st ? (
           <>
-            <span>{st[0]}</span>
-            {st[1] && <small>{st[1]}</small>}
+            <span>
+              <Parts p={st.top} />
+            </span>
+            {st.bottom && <small className={st.bottom.bb ? "bb" : undefined}>{st.bottom.text}</small>}
           </>
         ) : (
           "지금 스택"
@@ -385,7 +462,8 @@ export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney
   const inBbView = view === "bb" && bb !== null;
   const [main, sub] = inBbView ? [bb, chips] : [chips, bb];
   const tone = total > 0 ? " up" : total < 0 ? " down" : "";
-  const part = (c: number, b: number | null) => (inBbView && b !== null ? totalText(b, "bb") : totalText(c, "chips"));
+  // A part of the total under it: in the unit shown, with its bb next to the chips.
+  const part = (c: number, b: number | null): Part[] => (inBbView && b !== null ? [{ bb: totalText(b, "bb") }] : [totalText(c, "chips"), ...bbAfter(b === null ? null : totalText(b, "bb"))]);
   const upd = missed?.upd ?? null;
   const gap = missed?.gap ?? null;
   // The hands missed: the jumps other than 칩 업데이트 and 결과 모름 (shown when there are any, or nothing else to show).
@@ -393,7 +471,7 @@ export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney
   return (
     <div className="fast-money">
       <b className={`fm-total${tone}`}>{main}</b>
-      {sub && <span className="fm-sub">{sub}</span>}
+      {sub && <span className={`fm-sub${inBbView ? "" : " bb"}`}>{sub}</span>}
       <div className="seg small fast-view" role="group" aria-label="보기 단위">
         <button type="button" className={view === "chips" ? "on" : "off"} aria-pressed={view === "chips"} onClick={() => onView("chips")}>
           칩
@@ -404,10 +482,15 @@ export function MoneyHead({ money, missed, view, onView }: { money: SessionMoney
       </div>
       {missed && lost && (
         <span className="fm-split">
-          기록한 핸드 {part(money.chips, money.bb)}
-          {(!upd && !gap) || lost.chips ? ` · 빠진 핸드 ${part(lost.chips, lost.bb)}` : ""}
-          {gap ? ` · 결과 모름 ${part(gap.chips, gap.bb)}` : ""}
-          {upd ? ` · 칩 업데이트 ${part(upd.chips, upd.bb)}` : ""}
+          <Parts
+            p={[
+              "기록한 핸드 ",
+              ...part(money.chips, money.bb),
+              ...((!upd && !gap) || lost.chips ? [" · 빠진 핸드 ", ...part(lost.chips, lost.bb)] : []),
+              ...(gap ? [" · 결과 모름 ", ...part(gap.chips, gap.bb)] : []),
+              ...(upd ? [" · 칩 업데이트 ", ...part(upd.chips, upd.bb)] : []),
+            ]}
+          />
         </span>
       )}
     </div>

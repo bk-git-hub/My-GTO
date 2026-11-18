@@ -37,7 +37,7 @@ import {
   pickBoardSlot,
   pickRes,
   pickSuited,
-  resultText,
+  resultParts,
   sessionText,
   setFocus,
   shareTable,
@@ -76,9 +76,9 @@ import {
   saveHand,
   type LoggedHand,
 } from "./handLog";
-import { checkSteps, chipSeries, chipsText, levelChip, postedBy, signedText, type StackAt, type Unit } from "./fastChips";
+import { bbPart, checkSteps, chipSeries, chipsText, levelChip, levelNear, postedBy, signedText, type StackAt, type Unit } from "./fastChips";
 import { CheckRow, ChipsBlock, clock, copyText, FastItem, FastStatsRow } from "./FastParts";
-import { BoardPad, BoardRow, DigitPad, MoreToggle, ResultSec, SuitRow, UnitRow } from "./FastResult";
+import { Bb, BoardPad, BoardRow, DigitPad, MoreToggle, ResultSec, SuitRow, UnitRow } from "./FastResult";
 import {
   cancelNewTourney,
   cancelTarget,
@@ -171,7 +171,10 @@ interface Saved {
   id: string;
   kind: VerdictKind;
   text: string;
+  /** The hand: its seat and class (and action); then its chips with their bb apart, and the board remembered (" · K♥ 7 2"). */
   line: string;
+  res: { text: string; bb: string | null } | null;
+  board: string;
   /** The slot's tint: the verdict's ("v-over"), or for a hand saved without a decision its result's ("r-win"). */
   tone: string;
 }
@@ -202,10 +205,11 @@ function savedOf(h: LoggedHand, other: boolean): Saved {
   const v = fastVerdictOf(h);
   const acted = fastActed(h);
   const base = `${h.seat} ${holeClass(h)}`;
-  if (other) return { id: h.id, kind: v?.kind ?? "none", text: v?.text ?? "", line: `${base} ${fastActText(h)}`, tone: `v-${v?.kind ?? "none"}` };
-  const line = [base, acted ? fastActText(h) : "", resultText(h)].filter(Boolean).join(" ") + (h.board.length ? ` · ${rememberedText(h)}` : "");
+  if (other) return { id: h.id, kind: v?.kind ?? "none", text: v?.text ?? "", line: `${base} ${fastActText(h)}`, res: null, board: "", tone: `v-${v?.kind ?? "none"}` };
+  const line = [base, acted ? fastActText(h) : ""].filter(Boolean).join(" ");
+  const res = resultParts(h);
   const tone = acted ? `v-${v?.kind ?? "none"}` : `r-${h.result === "win" || h.result === "chop" ? "win" : h.result === "lose" ? "lose" : h.result === "fold" ? "fold" : "none"}`;
-  return { id: h.id, kind: v?.kind ?? "none", text: acted ? (v?.text ?? "") : "", line, tone };
+  return { id: h.id, kind: v?.kind ?? "none", text: acted ? (v?.text ?? "") : "", line, res: res.text ? res : null, board: h.board.length ? ` · ${rememberedText(h)}` : "", tone };
 }
 
 /**
@@ -598,6 +602,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   /** The unit of the field the keypad types into (the amount's, or 지금 스택's). */
   const keyUnit = keyUnitOf(d);
   const lvNow: FastLevel & { picked?: boolean } = editing ? editLevel(d, editing) : fastLevel(s, session, tick, est, tn?.id ?? null);
+  /** The level now, even while an older hand is corrected (that hand's level is lvNow then): my stack now is in bb at it. */
+  const lvLive: FastLevel = editing ? fastLevel(s, session, tick, est, tn?.id ?? null) : lvNow;
   const anteNow = editing ? editAnte(d, editing) : !s.noAnte;
   /** My stack before this hand (for 스택): the current tournament's count, or a corrected hand's own. */
   const stackPre = useMemo(() => (other ? NO_STACK : stackBefore(log, editing, at)), [other, log, editing, at]);
@@ -647,7 +653,23 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const savedSlot = saved ? (
     <>
       <span className="fr-text">
-        <b>{saved.text || "저장했어요"}</b> <small>{saved.line}</small>
+        <b>{saved.text || "저장했어요"}</b>{" "}
+        <small>
+          {saved.line}
+          {saved.res && (
+            <>
+              {" "}
+              <span className="fr-net">{saved.res.text}</span>
+              {saved.res.bb && (
+                <>
+                  {" "}
+                  <Bb v={saved.res.bb} />
+                </>
+              )}
+            </>
+          )}
+          {saved.board}
+        </small>
       </span>
       <button type="button" onClick={undo}>
         되돌리기
@@ -668,9 +690,13 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const tnEnd = tnRun?.absolute ? Math.round(tnRun.end) : tnChecks.length ? tnChecks[tnChecks.length - 1].stack : null;
   // One started by a hand on its own follows the day's start time: the clock the estimate runs on.
   const tnWhen = tn ? (tn.auto && tnOnDay && est?.startClock ? `${est.startClock} 시작` : tourneyWhen(tn, hands)) : "";
+  // The line up to my stack now; the stack ends it with its bb at the level now, kept together with the word
+  // before it ("→ 61,700 123.4bb", "지금 61,700 123.4bb": tnEndLead).
   const tnMeta = tn
-    ? `${tnWhen} · ${session.length}핸드${tn.startStack !== null ? ` · 시작 ${chipsText(tn.startStack)}${tnEnd !== null ? ` → ${chipsText(tnEnd)}` : ""}` : tnEnd !== null ? ` · 지금 ${chipsText(tnEnd)}` : ""}`
+    ? `${tnWhen} · ${session.length}핸드${tn.startStack !== null ? ` · 시작 ${chipsText(tn.startStack)}${tnEnd !== null ? " " : ""}` : tnEnd !== null ? " · " : ""}`
     : "";
+  const tnEndLead = tn && tn.startStack !== null ? "→ " : "지금 ";
+  const tnEndBb = tn && tnEnd !== null ? bbPart(tnEnd, lvLive.level) : null;
   /** The tournament's 칩 업데이트 with what each changed, and the list: the hands shown, each 칩 업데이트 among them by its time. */
   const steps = useMemo(() => (tn && !other ? checkSteps(session, tn.startStack, tnChecks) : []), [tn, other, session, tnChecks]);
   const oldestShown = session.length > recent.length ? recent[recent.length - 1].createdAt : -Infinity;
@@ -682,7 +708,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     if (!tn || !confirm(`${clock(c.at)} 칩 업데이트 ${chipsText(c.stack)}을 지울까요?`)) return;
     if (!removeCheck(tn.id, c.at)) setTnMsg({ text: FULL_MSG, bad: true });
   }
-  const checkRows = (xs: typeof steps) => xs.map((c) => <CheckRow key={`c${c.at}`} c={c} onRemove={() => dropCheck(c)} />);
+  // A 칩 업데이트's bb: at the level of the hands around it (none yet: the level now).
+  const checkRows = (xs: typeof steps) => xs.map((c) => <CheckRow key={`c${c.at}`} c={c} level={levelNear(session, c.at) ?? lvLive.level} onRemove={() => dropCheck(c)} />);
   /** The time a 지우기 went through: a second tap of it landing on the card's 이어 적기 under it is not taken. */
   const goneAt = useRef(0);
   const groups = !other && !tn && !session.length ? tourneyGroups(tourneys, hands, at) : null;
@@ -1002,7 +1029,21 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
               {newBtn}
             </div>
             <div className="tn-meta-row">
-              <p className="tn-meta">{tnMeta}</p>
+              <p className="tn-meta">
+                {tnMeta}
+                {tnEnd !== null && (
+                  <span className="tn-end">
+                    {tnEndLead}
+                    {chipsText(tnEnd)}
+                    {tnEndBb && (
+                      <>
+                        {" "}
+                        <Bb v={tnEndBb} />
+                      </>
+                    )}
+                  </span>
+                )}
+              </p>
               <button type="button" className="tn-upd" onClick={() => setSheet("chips")}>
                 칩 업데이트
               </button>
@@ -1130,7 +1171,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       {sheet === "chips" && !other && tn && (
         <ChipUpdateSheet
           now={countFor(tn, hands)}
-          level={lvNow.level}
+          level={lvLive.level}
           open={openCheck(tn, hands)}
           onSave={(stack) => {
             const was = countFor(tn, handLogStore.get().hands).chips;

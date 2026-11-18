@@ -143,6 +143,26 @@ export function signedText(n: number, unit: Unit, level: number | null = null): 
   return b !== null ? `${sign}${bbText1(b)}` : `${sign}${Math.abs(n).toLocaleString()}`;
 }
 
+/**
+ * A chip number's bb on its own, for the screen to show next to the chips in its own color: "25.6bb", signed
+ * "+25.6bb" / "−2bb". Null without a level (never "?bb"), and for 0 when signed (본전 says it).
+ */
+export function bbPart(n: number, level: number | null, signed = false): string | null {
+  const b = inBb(Math.abs(n), level);
+  if (b === null || (signed && n === 0)) return null;
+  return `${signed ? (n > 0 ? "+" : MINUS) : n < 0 ? MINUS : ""}${bbText1(b)}`;
+}
+
+/**
+ * The level a moment between hands is counted at in bb (a 칩 업데이트's stack): the level of the last hand at or
+ * before `at` that has one, else of the first one after it (chipSeries' rule for its points); null when no hand has one.
+ */
+export function levelNear(hands: readonly LoggedHand[], at: number): number | null {
+  const old = [...hands].filter((h) => levelRow(h.level)).sort((a, b) => a.createdAt - b.createdAt);
+  const before = old.filter((h) => h.createdAt <= at);
+  return (before.length ? before[before.length - 1] : old[0])?.level ?? null;
+}
+
 /** "+12,000 (+20bb)", "+12,000" without a level, "본전". */
 export function netBoth(net: number, level: number | null): string {
   if (net === 0) return "본전";

@@ -3,6 +3,7 @@ import { createStore } from "../../state/store";
 import {
   AMOUNT_PATTERN,
   amountValue,
+  bbPart,
   boardCards,
   canAddRank,
   checkSteps,
@@ -16,6 +17,7 @@ import {
   postedBy,
   chipSeries,
   sessionMoney,
+  signedText,
   toChips,
   typeAmount,
   unitText,
@@ -797,9 +799,18 @@ const clock = (t: number) => {
  * win without an amount; "" with no result.
  */
 export function resultText(h: Pick<LoggedHand, "result" | "net" | "level">): string {
-  if (h.result === "fold") return h.net ? `폴드 ${netBoth(h.net, h.level)}` : "폴드";
-  if (h.net !== null) return netBoth(h.net, h.level);
-  return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : h.result === "chop" ? "본전" : "";
+  const p = resultParts(h);
+  return p.bb ? `${p.text} (${p.bb})` : p.text;
+}
+
+/**
+ * The same as the screen shows it, the bb apart so it can stand out next to the chips: "폴드 −300" and
+ * "−0.5bb", "+12,000" and "+20bb", "본전" / "수익" / "" with no bb (null: also without a level).
+ */
+export function resultParts(h: Pick<LoggedHand, "result" | "net" | "level">): { text: string; bb: string | null } {
+  if (h.result === "fold") return h.net ? { text: `폴드 ${signedText(h.net, "chips")}`, bb: bbPart(h.net, h.level, true) } : { text: "폴드", bb: null };
+  if (h.net !== null) return h.net === 0 ? { text: "본전", bb: null } : { text: signedText(h.net, "chips"), bb: bbPart(h.net, h.level, true) };
+  return { text: h.result === "win" ? "수익" : h.result === "lose" ? "손실" : h.result === "chop" ? "본전" : "", bb: null };
 }
 
 /** A hand has a chip result or a remembered board to show. */

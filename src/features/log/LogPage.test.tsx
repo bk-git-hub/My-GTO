@@ -436,7 +436,8 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(html).toContain('<div class="fast-pad digits"><button type="button" class="k-d">1</button><button type="button" class="k-d">2</button>');
     expect(html).toContain('<button type="button" class="k-d k-dd">00</button><button type="button" class="k-d k-dd">000</button><button type="button" class="k-d" disabled="">.</button><button type="button" class="fast-back k-d" aria-label="지우기">⌫</button></div>');
     expect(html).toContain('<div class="fast-suits unit" role="group" aria-label="단위"><button type="button" class="u-chips on" aria-pressed="true">칩</button><button type="button" class="u-bb" aria-pressed="false">bb</button></div>');
-    expect(html).toContain('<button type="button" class="fr-amt on">+12,000 = +20bb</button>');
+    // the bb next to the chips, in its own color
+    expect(html).toContain('<button type="button" class="fr-amt on">+12,000 <span class="bb">+20bb</span></button>');
     expect(html).toContain('aria-label="블라인드 Lv5 300/600 · 바꾸기">Lv5 300/600 <i>▾</i></button>');
     expect(html).toContain('<button type="button" class="r-win on" aria-pressed="true">+ 수익</button>');
     expect(html).toContain('<button type="button" class="fs-save">저장 · 다음 핸드 CO</button>');
@@ -447,19 +448,19 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: { ...pickRes(typed("BTN", "AKs"), "+"), amount: "20.5", unit: "bb" } });
     const bb = page("fast");
     expect(bb).toContain('<button type="button" class="k-d k-dd" disabled="">000</button>');
-    expect(bb).toContain('<button type="button" class="fr-amt on">+20.5bb = +12,300</button>');
+    expect(bb).toContain('<button type="button" class="fr-amt on"><span class="bb">+20.5bb</span> = +12,300</button>');
   });
 
   it("asks for the level for bb with none known, and for the sign for an amount without one", () => {
     put([]);
     fastStore.set({ stage: "mid", players: 9, draft: { ...pickRes(typed("BTN", "AKs"), "+"), amount: "20", unit: "bb" } });
     const html = page("fast");
-    expect(html).toContain("+20bb · 레벨을 골라 주세요");
+    expect(html).toContain('<span class="bb">+20bb</span><span class="fr-tail"> · 레벨을 골라 주세요</span>');
     expect(html).toContain('class="fast-lv ask"');
     expect(html).toContain('<button type="button" class="fs-save" disabled="">bb로 넣으려면 레벨을 골라 주세요</button>');
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: { ...typed("BTN", "AKs"), amount: "12000", focus: "result" } });
     const sign = page("fast");
-    expect(sign).toContain("12,000 · 수익? 손실?");
+    expect(sign).toContain('12,000<span class="fr-tail"> · 수익? 손실?</span>');
     expect(sign).toContain('<button type="button" class="r-lose ask" aria-pressed="false">− 손실</button>');
     expect(sign).toContain('<button type="button" class="fs-save plain" disabled="">수익? 손실?</button>');
   });
@@ -471,12 +472,13 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(bb).toContain('<div class="fast-res-chips n5"><button type="button" class="r-fold"><span>폴드</span><small>−1,200</small></button><button type="button" class="r-walk"><span>워크</span><small>+300</small></button>');
     expect(bb).toContain('<button type="button" class="fs-save plain">결과 없이 저장 · 다음 SB</button>');
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: typed("SB", "T4o") });
-    expect(page("fast")).toContain('<button type="button" class="r-fold"><span>폴드</span><small>−300</small></button>');
+    // four chips in the row: the bb next to the blind
+    expect(page("fast")).toContain('<button type="button" class="r-fold"><span>폴드</span><small>−300 <span class="bb">0.5bb</span></small></button>');
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: typed("BTN", "72o") });
     expect(page("fast")).toContain('<button type="button" class="r-fold"><span>폴드</span></button><button type="button" class="r-lose"');
     // in bb, and without a level
     fastStore.set({ stage: "mid", players: 9, unit: "bb", ...lv5(), draft: { ...typed("BB", "94o"), unit: "bb" } });
-    expect(page("fast")).toContain("<span>폴드</span><small>−2bb</small>");
+    expect(page("fast")).toContain('<span>폴드</span><small class="bb">−2bb</small>');
     fastStore.set({ stage: "mid", players: 9, draft: typed("BB", "94o") });
     expect(page("fast")).toContain("<span>폴드</span><small>블라인드</small>");
   });
@@ -501,7 +503,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(late).toContain('class="fb-slot set target" aria-label="1번째 카드 K♥ · 수트 고르기" aria-pressed="true"');
     expect(late).toContain('aria-label="K 수트 (기억나면)"');
     expect(late).toContain('<button type="button" class="s-h on" aria-pressed="true">♥</button>');
-    expect(three).toContain('<button type="button" class="fast-stack set"><span>스택 64,200</span><small>107bb</small></button>');
+    expect(three).toContain('<button type="button" class="fast-stack set"><span>스택 64,200</span><small class="bb">107bb</small></button>');
     // four of a rank counting the class: that key rests
     fastStore.set({ stage: "mid", players: 9, ...lv5(), draft: { ...typed("BTN", "KK"), board: [{ r: R("K") }, { r: R("K") }], focus: "board" } });
     expect(page("fast")).toContain('<button type="button" class="k-b" disabled="">K</button>');
@@ -518,11 +520,11 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     fastStore.set({ stage: "mid", players: 9, draft: newDraft("CO") });
     const html = page("fast");
     expect(text(html)).toContain("오늘 빠른 기록 4핸드");
-    expect(html).toMatch(/<button type="button" class="fast-item res v-none"><span class="fi-time">[^<]+<\/span><b class="fi-seat">BTN<\/b><b class="fi-class">AKs<\/b><span class="fi-net up">\+12,000<\/span><span class="fi-board"><span class="s-h">K♥<\/span><span class="nos">7<\/span><span class="nos">2<\/span><\/span><\/button>/);
+    expect(html).toMatch(/<button type="button" class="fast-item res v-none"><span class="fi-time">[^<]+<\/span><b class="fi-seat">BTN<\/b><b class="fi-class">AKs<\/b><span class="fi-money"><span class="fi-net up">\+12,000<\/span> <span class="fi-bb bb">\+20bb<\/span><\/span><span class="fi-board"><span class="s-h">K♥<\/span><span class="nos">7<\/span><span class="nos">2<\/span><\/span><\/button>/);
     // a fold is muted, the blind it cost with it
-    expect(html).toMatch(/<b class="fi-seat">SB<\/b><b class="fi-class">T4o<\/b><span class="fi-net fold">폴드 −300<\/span><span class="fi-board"><\/span>/);
-    expect(html).toMatch(/<b class="fi-seat">CO<\/b><b class="fi-class">72o<\/b><span class="fi-net fold">폴드<\/span>/);
-    expect(html).toContain('<b class="fm-total up">+6,900</b><span class="fm-sub">+11.5bb</span>');
+    expect(html).toMatch(/<b class="fi-seat">SB<\/b><b class="fi-class">T4o<\/b><span class="fi-money"><span class="fi-net fold">폴드 −300<\/span> <span class="fi-bb bb">−0\.5bb<\/span><\/span><span class="fi-board"><\/span>/);
+    expect(html).toMatch(/<b class="fi-seat">CO<\/b><b class="fi-class">72o<\/b><span class="fi-net fold">폴드<\/span><span class="fi-board">/);
+    expect(html).toContain('<b class="fm-total up">+6,900</b><span class="fm-sub bb">+11.5bb</span>');
     // oldest first: −4,800, a fold, −300, +12,000
     expect(html).toMatch(/<svg class="chip-graph" viewBox="0 0 320 96" role="img" aria-label="오늘 칩 흐름: 0에서 지금 \+6,900, 최고 \+6,900, 최저 −5,100"/);
     expect(text(html)).toContain("0에서 · 최고 +6,900 · 최저 −5,100");
@@ -530,7 +532,8 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     // in bb
     fastStore.set({ stage: "mid", players: 9, view: "bb", draft: newDraft("CO") });
     const bb = page("fast");
-    expect(bb).toContain('<span class="fi-net up">+20bb</span>');
+    // the chips small under the bb
+    expect(bb).toContain('<span class="fi-money"><span class="fi-net up">+20bb</span> <span class="fi-bb">12,000</span></span>');
     expect(bb).toContain('<b class="fm-total up">+11.5bb</b><span class="fm-sub">+6,900</span>');
     // with old hands only (no chips on file): no graph, today's rows and the chart line
     put([fastHand(typed("BTN", "AJo"), "open", { ...emptyHand(null), id: "old", createdAt: now - 60_000, updatedAt: now - 60_000 }, "mid", 9)!]);
@@ -561,7 +564,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     const html = page("fast");
     expect(text(html)).toMatch(/✎ 수정 중 \d\d:\d\d BTN AKs · 고친 뒤 저장을 누르세요 삭제 취소/);
     expect(html).toContain('<button type="button" class="fs-save">고쳐서 저장</button>');
-    expect(html).toContain("+12,000 = +20bb");
+    expect(html).toContain('+12,000 <span class="bb">+20bb</span>');
     expect(html).toContain('<button type="button" class="fb-slot set" aria-label="1번째 카드 K♥ · 수트 고르기" aria-pressed="false"><span class="s-h">K♥</span></button>');
     expect(html).toContain('<button type="button" class="fast-more" aria-expanded="false">');
   });
@@ -777,8 +780,9 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     const html = page("fast");
     const t = text(html);
     expect(html).toContain(
-      '<div class="fast-today-head tn-head"><h2><button type="button" class="tn-title" aria-label="토너먼트 정보 고치기: 11/7 토너먼트"><span>11/7 토너먼트</span><i>✎</i></button></h2><button type="button" class="tn-new">＋ 새 토너먼트</button></div><div class="tn-meta-row"><p class="tn-meta">19:00 시작 · 2핸드 · 시작 50,000 → 61,700</p><button type="button" class="tn-upd">칩 업데이트</button></div>',
+      '<div class="fast-today-head tn-head"><h2><button type="button" class="tn-title" aria-label="토너먼트 정보 고치기: 11/7 토너먼트"><span>11/7 토너먼트</span><i>✎</i></button></h2><button type="button" class="tn-new">＋ 새 토너먼트</button></div><div class="tn-meta-row"><p class="tn-meta">19:00 시작 · 2핸드 · 시작 50,000 <span class="tn-end">→ 61,700 <span class="bb">38.6bb</span></span></p><button type="button" class="tn-upd">칩 업데이트</button></div>',
     );
+    // the stack now in bb at the level now (Lv9 by the clock: 61,700 / 1,600)
     // only its own hands (the untagged fold is under 이전 기록)
     expect(html.match(/class="fast-item /g)).toHaveLength(2);
     expect(html).toMatch(/<svg class="chip-graph" viewBox="0 0 320 96" role="img" aria-label="칩 흐름: 50,000에서 지금 61,700/);
@@ -794,12 +798,27 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     expect(page("fast")).toContain('aria-label="블라인드 Lv9 800/1,600 (추정) · 바꾸기"');
   });
 
+  it("keeps my stack now in bb at the level now while an older hand is corrected (not at that hand's level)", () => {
+    const w = won(NIGHT - MIN, "a");
+    put([w, fold(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a")] });
+    fastStore.set(startEdit(DRAFT, w));
+    const html = page("fast");
+    // the hand corrected is at Lv5 (its chip says so); the line still reads Lv9's 1,600
+    expect(html).toContain('aria-label="블라인드 Lv5 300/600 · 바꾸기"');
+    expect(html).toContain('시작 50,000 <span class="tn-end">→ 61,700 <span class="bb">38.6bb</span></span>');
+    // a hand with no level on file: the line keeps its bb
+    const bare = { ...w, level: null };
+    put([bare, fold(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a")] });
+    fastStore.set(startEdit(DRAFT, bare));
+    expect(page("fast")).toContain('<span class="tn-end">→ 61,700 <span class="bb">38.6bb</span></span>');
+  });
+
   it("works a hand out from 스택: 지금 스택 less the stack before, on the 결과 line before saving", () => {
     // 50,000; +12,000; a 칩 업데이트 of 60,000 after it
     put([won(NIGHT - 5 * MIN, "a")], { tourneys: [rec("a", { checks: [{ at: NIGHT - 3 * MIN, stack: 60000 }] })] });
     fastStore.set({ ...DRAFT, draft: pickRes(typed("CO", "AKs"), "stack") });
     const waiting = page("fast");
-    expect(waiting).toContain('<button type="button" class="fr-amt on hint two"><span>지금 스택 얼마?</span><small>전 60,000 · 빼기는 앱이 해요</small></button>');
+    expect(waiting).toContain('<button type="button" class="fr-amt on hint two"><span>지금 스택 얼마?</span><small>전 60,000 <span class="bb">37.5bb</span> · 빼기는 앱이 해요</small></button>');
     expect(waiting).toContain('<button type="button" class="r-stack on" aria-pressed="true" aria-label="스택으로 입력 · 지금 스택에서 자동 계산"><span>스택</span><small>자동 계산</small></button>');
     expect(waiting).toContain('<button type="button" class="fs-save" disabled="">지금 스택을 넣어 주세요</button>');
     // the keypad types 지금 스택 (the 보드 row's too)
@@ -808,16 +827,16 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     fastStore.set({ ...DRAFT, draft: { ...pickRes(typed("CO", "AKs"), "stack"), stackNow: "61800" } });
     const html = page("fast");
     // Lv9 800/1,600 by the 19:00 start
-    expect(html).toContain('<button type="button" class="fr-amt on two"><span>+1,800 (+1.1bb)</span><small>지금 61,800 − 전 60,000</small></button>');
+    expect(html).toContain('<button type="button" class="fr-amt on two"><span>+1,800 <span class="bb">+1.1bb</span></span><small>지금 61,800 − 전 60,000</small></button>');
     expect(html).toContain('<button type="button" class="fs-save">저장 · 다음 핸드 HJ</button>');
     // 50 bb or more: tinted (a 0 too many)
     fastStore.set({ ...DRAFT, draft: { ...pickRes(typed("CO", "AKs"), "stack"), stackNow: "618000" } });
-    expect(page("fast")).toContain('<button type="button" class="fr-amt on big two"><span>+558,000 (+348.8bb)</span><small>지금 618,000 − 전 60,000</small>');
+    expect(page("fast")).toContain('<button type="button" class="fr-amt on big two"><span>+558,000 <span class="bb">+348.8bb</span></span><small>지금 618,000 − 전 60,000</small>');
     // the stack before unknown: 지금 스택 alone goes on file
     put([won(NIGHT - 5 * MIN, "a"), saved(NIGHT - 4 * MIN, pickRes(typed("BTN", "QQ"), "+"), "a")], { tourneys: [rec("a")] });
     fastStore.set({ ...DRAFT, draft: { ...pickRes(typed("CO", "AKs"), "stack"), stackNow: "61800" } });
     const gap = page("fast");
-    expect(gap).toContain('<span>스택 61,800 · 결과 모름</span><small>결과 없는 핸드 있음 · 다음 핸드부터 계산</small>');
+    expect(gap).toContain('<span>스택 61,800 <span class="bb">38.6bb</span></span><small>결과 없는 핸드 있음 · 다음 핸드부터 계산</small>');
     expect(gap).toContain('<button type="button" class="fs-save">스택만 저장 · 다음 핸드 HJ</button>');
     put([], { tourneys: [rec("a", { startStack: null })] });
     expect(page("fast")).toContain("<small>전 스택 모름 · 다음 핸드부터 계산</small>");
@@ -832,7 +851,7 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     put([unknown, saved(NIGHT - MIN, typed("HJ", "JTs"), "a")], { tourneys: [rec("a", { startStack: null })] });
     fastStore.set(DRAFT);
     const list = page("fast");
-    expect(list).toMatch(/<b class="fi-class">72o<\/b><span class="fi-net">스택 90,000<\/span>/);
+    expect(list).toMatch(/<b class="fi-class">72o<\/b><span class="fi-money"><span class="fi-net">스택 90,000<\/span> <span class="fi-bb bb">150bb<\/span><\/span>/);
     expect(list).toMatch(/<b class="fi-class">JTs<\/b><span class="fi-net">–<\/span>/);
     expect(list).not.toContain("fi-act");
   });
@@ -842,7 +861,7 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     put([won(NIGHT - 5 * MIN, "a")], { tourneys: [rec("a")] });
     fastStore.set({ ...DRAFT, draft: { ...pickRes(typed("CO", "AKs"), "-"), amount: "70000" } });
     const lose = page("fast");
-    expect(lose).toMatch(/<button type="button" class="fr-amt on big two"><span>−70,000 = −43\.8bb<\/span><small>지금 스택이면 → 스택 · 전 62,000<\/small><\/button>/);
+    expect(lose).toMatch(/<button type="button" class="fr-amt on big two"><span>−70,000 <span class="bb">−43\.8bb<\/span><\/span><small>지금 스택이면 → 스택 · 전 62,000<\/small><\/button>/);
     expect(lose).toContain('<button type="button" class="r-stack ask" aria-pressed="false"');
     expect(lose).toContain('<button type="button" class="fs-save" disabled="">전 스택보다 많이 잃을 순 없어요</button>');
     // all in and lost: the whole stack is fine
@@ -863,24 +882,24 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     const unknown = saved(NIGHT - 3 * MIN, { ...pickRes(typed("CO", "72o"), "stack"), stackNow: "90000" }, "a");
     put([won(NIGHT - 5 * MIN, "a"), saved(NIGHT - 4 * MIN, pickRes(typed("BTN", "QQ"), "+"), "a"), unknown], { tourneys: [rec("a")] });
     const t = text(page("fast"));
-    expect(t).toContain("기록한 핸드 +12,000 · 결과 모름 +28,000");
+    expect(t).toContain("기록한 핸드 +12,000 +20bb · 결과 모름 +28,000 +46.7bb");
     expect(t).not.toContain("빠진 핸드");
     // a stack on file that disagrees with hands all known: hands missed
     put([won(NIGHT - 5 * MIN, "a"), saved(NIGHT - 3 * MIN, { ...pickRes(typed("CO", "72o"), "-"), amount: "1000", stackNow: "70000" }, "a")], { tourneys: [rec("a")] });
-    expect(text(page("fast"))).toContain("기록한 핸드 +11,000 · 빠진 핸드 +9,000");
+    expect(text(page("fast"))).toContain("기록한 핸드 +11,000 +18.3bb · 빠진 핸드 +9,000 +15bb");
   });
 
   it("shows a 칩 업데이트 by the tournament's line, in the total and among the hands", () => {
     put([won(NIGHT - 5 * MIN, "a"), fold(NIGHT - MIN, "a")], { tourneys: [rec("a", { checks: [{ at: NIGHT - 3 * MIN, stack: 60000 }] })] });
     const html = page("fast");
     // 50,000 +12,000 = 62,000; counted 60,000; −300
-    expect(html).toContain('<div class="tn-meta-row"><p class="tn-meta">19:00 시작 · 2핸드 · 시작 50,000 → 59,700</p><button type="button" class="tn-upd">칩 업데이트</button></div>');
+    expect(html).toContain('<div class="tn-meta-row"><p class="tn-meta">19:00 시작 · 2핸드 · 시작 50,000 <span class="tn-end">→ 59,700 <span class="bb">37.3bb</span></span></p><button type="button" class="tn-upd">칩 업데이트</button></div>');
     expect(html).toContain('<b class="fm-total up">+9,700</b>');
-    expect(text(html)).toContain("기록한 핸드 +11,700 · 칩 업데이트 −2,000");
+    expect(text(html)).toContain("기록한 핸드 +11,700 +19.5bb · 칩 업데이트 −2,000 −3.3bb");
     // in the list by its time, between the two hands, with what it changed
     const rows = [...html.matchAll(/class="(fast-item res[^"]*|fast-check)"/g)].map((m) => m[1].split(" ")[0]);
     expect(rows).toEqual(["fast-item", "fast-check", "fast-item"]);
-    expect(html).toMatch(/<div class="fast-check"><span class="fi-time">22:02<\/span><b class="fc-name">칩 업데이트<\/b><b class="fc-stack">60,000<\/b><span class="fc-diff down">−2,000<\/span><button type="button" class="fast-mini" aria-label="22:02 칩 업데이트 60,000 지우기">지우기<\/button><\/div>/);
+    expect(html).toMatch(/<div class="fast-check"><span class="fi-time">22:02<\/span><b class="fc-name">칩 업데이트<\/b><span class="fc-count"><b class="fc-stack">60,000<\/b><span class="bb fc-bb">100bb<\/span><\/span><span class="fc-diff down">−2,000<\/span><button type="button" class="fast-mini" aria-label="22:02 칩 업데이트 60,000 지우기">지우기<\/button><\/div>/);
     // the graph jumps there
     expect(html).toContain('class="cg-jump"');
   });
@@ -966,7 +985,7 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     const html = page("fast");
     const t = text(html);
     expect(html).toContain('<div class="tn-card"><div class="tn-card-main"><small class="muted">지난 토너먼트</small><b>지난주 펍</b>');
-    expect(t).toMatch(/지난주 펍 10월 31일 \(토\) · 2핸드 · \+11,700 이어 적기/);
+    expect(t).toMatch(/지난주 펍 10월 31일 \(토\) · 2핸드 · \+11,700 \+19\.5bb 이어 적기/);
     expect(t).toContain("아직 오늘 기록이 없어요. 핸드를 적으면 토너먼트가 시작돼요");
     expect(t).toContain("토너먼트 기록 ›");
     // nothing at all yet: neither
@@ -996,11 +1015,11 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     const html = page("fast/past");
     const t = text(html);
     expect(html).toContain('<button type="button" class="log-link back">‹ 빠른 기록</button><button type="button" class="log-new-btn">＋ 새 토너먼트</button>');
-    expect(html).toContain('<div class="tn-row current"><button type="button" class="tn-open"><span class="tn-row-top"><b class="tn-name">토요 펍</b><span class="log-tag">적는 중</span><span class="tn-res up">+12,000</span></span><span class="muted small">11월 7일 (토) 19:00 시작 · 1핸드 · 남의 핸드 1</span></button></div>');
-    expect(html).toContain('<b class="tn-name">지난주</b><span class="tn-res down">−300</span>');
+    expect(html).toContain('<div class="tn-row current"><button type="button" class="tn-open"><span class="tn-row-top"><b class="tn-name">토요 펍</b><span class="log-tag">적는 중</span><span class="tn-res up">+12,000 <span class="bb">+20bb</span></span></span><span class="muted small">11월 7일 (토) 19:00 시작 · 1핸드 · 남의 핸드 1</span></button></div>');
+    expect(html).toContain('<b class="tn-name">지난주</b><span class="tn-res down">−300 <span class="bb">−0.5bb</span></span>');
     expect(html).toContain('<button type="button" class="tn-resume" aria-label="이어 적기: 지난주">이어 적기</button>');
     expect(html.match(/class="tn-resume"/g)).toHaveLength(1);
-    expect(t).toMatch(/이전 기록 · 토너먼트 없이 적은 빠른 기록 10월 28일 \(수\) 빠른 기록 \+11,700 22:05~22:35 · 2핸드/);
+    expect(t).toMatch(/이전 기록 · 토너먼트 없이 적은 빠른 기록 10월 28일 \(수\) 빠른 기록 \+11,700 \+19\.5bb 22:05~22:35 · 2핸드/);
     expect(t).toContain("토너먼트도 같이 저장돼요");
     put([]);
     expect(text(page("fast/past"))).toContain("아직 토너먼트 기록이 없어요. 빠른 기록에서 핸드를 적으면 토너먼트가 시작돼요.");
@@ -1015,7 +1034,8 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     const t = text(html);
     expect(html).toContain('<button type="button" class="log-link back">‹ 토너먼트 기록</button><span class="log-tag">적는 중</span>');
     expect(html).toContain('<h2><button type="button" class="tn-title" aria-label="토너먼트 정보 고치기: 토요 펍"><span>토요 펍</span><i>✎</i></button></h2>');
-    expect(html).toContain('<p class="tn-meta">11월 7일 (토) 19:00 시작 · 2핸드 · 시작 50,000 → 61,700</p>');
+    // the stack at the end in bb at its last hand's level (Lv5: 61,700 / 600)
+    expect(html).toContain('<p class="tn-meta">11월 7일 (토) 19:00 시작 · 2핸드 · 시작 50,000 <span class="tn-end">→ 61,700 <span class="bb">102.8bb</span></span></p>');
     expect(html).toContain('<p class="tn-memo">메모: 테이블 3\n옆자리 공격적</p>');
     expect(html.match(/class="fast-item /g)).toHaveLength(2);
     expect(html).toMatch(/aria-label="칩 흐름: 50,000에서 지금 61,700/);

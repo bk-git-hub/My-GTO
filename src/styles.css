@@ -18,6 +18,8 @@
   --ok: #22c55e;
   --err: #ff5a64;
   --warn: #fbbf24;
+  /* A bb number next to chips (빠른 기록's auto-converted bb): light sky, bold, as big as the chips beside it. */
+  --bb: #7dd3fc;
   --radius: 14px;
   /* Keypad keys: 빠른 기록's rank pad and every card entry of the hand log share one size. */
   --pad-key: 46px;
@@ -1189,6 +1191,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-item.editing { box-shadow: 0 0 0 2px var(--accent); }
 .fast-today-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .fast-today-foot .ghost { min-height: 44px; }
+/* A bb number next to chips (빠른 기록's auto-converted bb, its own span so size and place can follow): the bb color, bold. */
+.bb { color: var(--bb); font-weight: 900; font-variant-numeric: tabular-nums; }
 /* The verdict of the hand just saved, with 되돌리기, under the actions where the eyes already are; else the
    hint. A fixed height so nothing moves, and in the flow so it never covers a key the next hand needs. */
 .fast-result { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 2px; border-radius: 12px; border: 1px solid transparent; }
@@ -1197,6 +1201,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fr-text { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; font-size: 0.84rem; line-height: 1.25; }
 .fr-text b { font-weight: 900; }
 .fr-text small { color: var(--muted); font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
+/* The hand just saved: its chips, then their bb in the bb color, a touch bigger than the line. */
+.fr-text .fr-net { color: var(--text); font-size: 0.82rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fr-text .bb { font-size: 0.82rem; }
 .fast-result button { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.86rem; font-weight: 800; }
 .fast-result.v-ok { border-color: rgba(34, 197, 94, 0.7); }
 .fast-result.v-ok b { color: var(--ok); }
@@ -1225,17 +1232,20 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-label.hand-line { position: relative; }
 .hand-hit { position: absolute; inset: -4px 0 -1px; z-index: 1; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
 .hand-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.fast-res-head { display: flex; align-items: center; gap: 6px; height: 32px; }
+.fast-res-head { display: flex; align-items: center; gap: 6px; height: 36px; }
 .frh-label, .fb-label { flex: none; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
-.fr-amt { flex: 1; min-width: 0; height: 32px; padding: 0 8px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text); font-size: 0.95rem; font-weight: 800; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.fr-amt { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text); font-size: 1.08rem; font-weight: 900; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 .fr-amt.hint { color: var(--muted); font-size: 0.78rem; font-weight: 700; }
-/* 50bb or more: amber, a 00 / 000 slip would show here first. */
-.fr-amt.big { color: var(--open); }
-/* 스택's result over its sum, two lines in the same 32px: "+3,600 (+6bb)" over "지금 61,800 − 전 58,200". */
+/* 50bb or more: amber, a 00 / 000 slip would show here first (the bb too: it is the number that gives it away). */
+.fr-amt.big, .fr-amt.big .bb { color: var(--open); }
+/* 스택's result over its sum, two lines in the same 36px: "+3,600 +6bb" over "지금 61,800 − 전 58,200". */
 .fr-amt.two { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding-top: 0; padding-bottom: 0; line-height: 1.08; }
 .fr-amt.two > span, .fr-amt.two > small { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fr-amt.two > span { font-size: 0.88rem; }
-.fr-amt.two > small { color: var(--muted); font-size: 0.66rem; font-weight: 700; }
+.fr-amt.two > span { font-size: 1rem; }
+.fr-amt.two > small { color: var(--muted); font-size: 0.68rem; font-weight: 700; }
+.fr-amt small .bb { font-weight: 800; }
+/* What a number on the line still needs ("· 수익? 손실?", "· 레벨을 골라 주세요"): smaller, so the numbers keep the room. */
+.fr-amt .fr-tail { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .fr-amt.two.hint > span { font-size: 0.8rem; }
 .fr-amt:disabled { opacity: 0.6; }
 /* Where the keypad types: the gold ring. */
@@ -1253,6 +1263,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-res-chips.n5 { grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .fast-res-chips button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 2px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.95rem; font-weight: 800; line-height: 1.12; white-space: nowrap; overflow: hidden; }
 .fast-res-chips small { font-size: 0.7rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fast-res-chips small.bb { color: var(--bb); font-weight: 900; }
 .fast-res-chips .r-fold, .fast-res-chips .r-walk { background: #1c2532; }
 .fast-res-chips .r-lose.on { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
 .fast-res-chips .r-win.on { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
@@ -1274,6 +1285,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fb-slot .s-s, .fi-board .s-s { color: var(--suit-s); } .fb-slot .s-h, .fi-board .s-h { color: var(--suit-h); } .fb-slot .s-d, .fi-board .s-d { color: var(--suit-d); } .fb-slot .s-c, .fi-board .s-c { color: var(--suit-c); }
 .fast-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 6px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; }
 .fast-stack small { font-size: 0.68rem; font-weight: 700; color: var(--muted); }
+/* 지금 스택's bb under it, as big as the chips. */
+.fast-stack small.bb { font-size: 0.82rem; font-weight: 900; color: var(--bb); }
 .fast-stack.set { color: var(--text); }
 .fast-stack:disabled { opacity: 0.35; }
 /* The save slot's button: gold with a result, plain without one, the reason when it waits. */
@@ -1294,6 +1307,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fm-total.up { color: var(--ok); }
 .fm-total.down { color: var(--err); }
 .fm-sub { color: var(--muted); font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fm-sub.bb { color: var(--bb); font-size: 1.05rem; font-weight: 900; }
+.fm-split .bb { font-weight: 800; }
 .fast-view { margin-left: auto; align-self: center; padding: 2px; gap: 2px; }
 .fast-view button { flex: none; min-width: 44px; min-height: 32px; padding: 0 10px; font-size: 0.78rem; }
 .chip-graph-box { display: flex; flex-direction: column; gap: 2px; }
@@ -1307,13 +1322,19 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .cg-last { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
 .cg-cross { stroke: var(--muted); stroke-width: 1; }
 .cg-read { margin: 0; height: 1.35em; line-height: 1.35em; font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.cg-read .bb { font-weight: 800; }
 .fast-note { margin: 0; }
 .cg-note { margin: -2px 0 0; font-size: 0.7rem; }
+/* The row's chips with the other unit under them: one column as wide as the chips, so the board keeps its room. */
+.fi-money { flex: none; min-width: 62px; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.12; white-space: nowrap; }
 .fi-net { flex: none; min-width: 62px; color: #c7d0dd; font-weight: 800; font-variant-numeric: tabular-nums; }
 .fi-net.up { color: var(--ok); }
 .fi-net.down { color: var(--err); }
 /* A fold, even one that cost a blind: muted, not a loss. */
 .fi-net.fold { color: var(--muted); font-weight: 700; }
+/* The row's chips in the other unit, small but legible under them: the bb in the bb color (the chips muted in the bb view). */
+.fi-bb { flex: none; color: var(--muted); font-size: 0.74rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fi-bb.bb { color: var(--bb); font-weight: 800; }
 .fi-board { flex: 1 1 auto; min-width: 0; display: flex; gap: 5px; overflow: hidden; white-space: nowrap; font-weight: 800; }
 /* 지난 기록: a 빠른 기록 hand's tag and verdict. */
 .log-tag.fast { border-color: rgba(34, 197, 94, 0.5); color: var(--ok); }
@@ -1336,6 +1357,9 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-title i { flex: none; font-style: normal; color: var(--muted); font-size: 0.8rem; }
 .tn-new { flex: none; margin-left: auto; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
 .tn-meta { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; word-break: keep-all; }
+.tn-meta .bb { font-weight: 800; }
+/* The stack the line ends with and its bb wrap together. */
+.tn-meta .tn-end { white-space: nowrap; }
 .card-box .tn-meta { margin-top: -4px; }
 .tn-memo { color: #c7d0dd; font-size: 0.82rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .tn-invite { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px dashed var(--accent); color: var(--accent); font-size: 0.82rem; font-weight: 800; text-align: left; }
@@ -1348,6 +1372,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-check { display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 2px 4px 2px 10px; border-radius: 10px; border: 1px dashed rgba(251, 191, 36, 0.45); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
 .fast-check .fc-name { color: var(--accent); font-weight: 800; }
 .fast-check .fc-stack { font-weight: 900; }
+.fast-check .fc-count { flex: none; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.12; }
+.fast-check .fc-bb { font-size: 0.76rem; }
 .fast-check .fc-diff { color: var(--muted); font-weight: 700; }
 .fast-check .fc-diff.up { color: var(--ok); }
 .fast-check .fc-diff.down { color: var(--err); }
@@ -1356,6 +1382,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-count { display: flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .tn-count b { margin-left: auto; color: var(--text); font-size: 1.05rem; font-weight: 900; }
 .tn-count b small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+/* 칩 업데이트's count and the stack typed, read back with its bb: big, the bb in its color. */
+.tn-read { min-height: 1.45em; color: var(--text); font-size: 1.15rem; font-weight: 900; line-height: 1.3; font-variant-numeric: tabular-nums; }
 .tn-count > small { margin-left: auto; font-size: 0.78rem; }
 .tn-cancel { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .tn-cancel button { margin-left: auto; height: 40px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.82rem; font-weight: 800; }
@@ -1375,6 +1403,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-res.up { color: var(--ok); }
 .tn-res.down { color: var(--err); }
 .tn-res.none { color: var(--muted); font-weight: 600; }
+.tn-res .bb { font-size: 0.88em; }
 .tn-card .tn-res { margin-left: 0; }
 .tn-resume { flex: none; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.84rem; font-weight: 800; white-space: nowrap; }
 .tn-backup { height: auto; min-height: 40px; padding: 6px 2px; white-space: normal; text-align: left; }
@@ -1392,6 +1421,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-field small { color: var(--muted); font-size: 0.72rem; font-weight: 600; word-break: keep-all; }
 .tn-field small.tn-lv { color: var(--accent); font-weight: 800; }
 .tn-field small.tn-big { color: var(--open); font-weight: 800; }
+.tn-field small .tn-bb { font-size: 0.8rem; }
 .tn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tn-join { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.84rem; font-weight: 700; word-break: keep-all; }
 .tn-join input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }

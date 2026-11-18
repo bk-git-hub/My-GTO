@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { ChipGraph } from "./ChipGraph";
-import { chipSeries, marksOf, missedOf, oldestFirst, sessionMoney, signedText, type Unit } from "./fastChips";
+import { bbPart, chipSeries, marksOf, missedOf, oldestFirst, sessionMoney, signedText, type Unit } from "./fastChips";
 import { hasChips, type FastStats } from "./fastLog";
-import { MarksText, MoneyHead } from "./FastResult";
+import { Bb, MarksText, MoneyHead } from "./FastResult";
 import { VERDICT_MARK } from "./fastVerdict";
 import { fastActed, fastActText, fastVerdictOf, holeClass, type LoggedHand } from "./handLog";
 import type { StackCheck } from "./tourney";
@@ -35,6 +35,23 @@ function netShown(h: LoggedHand, view: Unit): string {
   if (h.net === 0) return "본전";
   if (h.result === null && h.stack !== null) return `스택 ${h.stack.toLocaleString()}`;
   return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : "–";
+}
+
+/**
+ * The row's chips in the other unit, small under them: the bb of chips shown ("+25.6bb", "−2bb"; the stack's
+ * "180bb"), the chips of bb shown ("12,800"). Nothing without a level, or with no chips (폴드 of no blind, 본전).
+ */
+function otherUnit(h: LoggedHand, view: Unit): { text: string; bb: boolean } | null {
+  if (h.net !== null && h.net !== 0) {
+    const b = bbPart(h.net, h.level, true);
+    if (b === null) return null;
+    return view === "bb" ? { text: Math.abs(h.net).toLocaleString(), bb: false } : { text: b, bb: true };
+  }
+  if (h.net === null && h.result === null && h.stack !== null) {
+    const b = bbPart(h.stack, h.level);
+    return b === null ? null : { text: b, bb: true };
+  }
+  return null;
 }
 
 /** Plain text to the clipboard: the async API, else a hidden textarea (older iOS). */
@@ -72,12 +89,23 @@ export function FastItem({ h, view, other, editing, onClick }: { h: LoggedHand; 
   // Mine without a decision on file: its chips row even with nothing typed (never a 워크 it wasn't).
   if (!other && (hasChips(h) || !fastActed(h))) {
     const net = h.net ?? 0;
+    const alt = otherUnit(h, view);
+    const chipsEl = <span className={`fi-net${h.result === "fold" ? " fold" : net > 0 ? " up" : net < 0 ? " down" : ""}`}>{netShown(h, view)}</span>;
     return (
       <button type="button" className={`fast-item res v-${k}${editing ? " editing" : ""}`} onClick={onClick}>
         <span className="fi-time">{clock(h.createdAt)}</span>
         <b className="fi-seat">{h.seat}</b>
         <b className="fi-class">{holeClass(h)}</b>
-        <span className={`fi-net${h.result === "fold" ? " fold" : net > 0 ? " up" : net < 0 ? " down" : ""}`}>{netShown(h, view)}</span>
+        {/* The other unit under the chips (as 칩 업데이트's bb is): the row keeps its width, the board its room. The
+            space between them is not drawn (a column), but a screen reader reads two numbers. */}
+        {alt ? (
+          <span className="fi-money">
+            {chipsEl}{" "}
+            <span className={`fi-bb${alt.bb ? " bb" : ""}`}>{alt.text}</span>
+          </span>
+        ) : (
+          chipsEl
+        )}
         <MarksText className="fi-board" marks={marksOf(h.board, h.guess?.board)} />
         {fastActed(h) && <span className="fi-verdict">{VERDICT_MARK[k]}</span>}
       </button>
@@ -116,15 +144,20 @@ export function FastStatsRow({ stats, other }: { stats: FastStats; other: boolea
 }
 
 /**
- * One 칩 업데이트 in the list, among the hands by its time: "21:40 칩 업데이트 65,000 +3,200" (what it changed
- * from the count; nothing when that wasn't known), with 지우기 when it can be taken off here.
+ * One 칩 업데이트 in the list, among the hands by its time: "21:40 칩 업데이트 65,000 +3,200", 130bb under the stack (its bb at
+ * `level`, the level the hands around it were played at: levelNear; what it changed from the count, nothing
+ * when that wasn't known), with 지우기 when it can be taken off here.
  */
-export function CheckRow({ c, onRemove }: { c: StackCheck & { diff: number | null }; onRemove?: () => void }) {
+export function CheckRow({ c, level = null, onRemove }: { c: StackCheck & { diff: number | null }; level?: number | null; onRemove?: () => void }) {
   return (
     <div className="fast-check">
       <span className="fi-time">{clock(c.at)}</span>
       <b className="fc-name">칩 업데이트</b>
-      <b className="fc-stack">{c.stack.toLocaleString()}</b>
+      {/* The bb under the stack: the row keeps its width (it fits a 360px phone with 지우기). */}
+      <span className="fc-count">
+        <b className="fc-stack">{c.stack.toLocaleString()}</b>
+        <Bb v={bbPart(c.stack, level)} className="fc-bb" />
+      </span>
       {c.diff ? <span className={`fc-diff${c.diff > 0 ? " up" : " down"}`}>{signedText(c.diff, "chips")}</span> : null}
       {onRemove && (
         <button type="button" className="fast-mini" aria-label={`${clock(c.at)} 칩 업데이트 ${c.stack.toLocaleString()} 지우기`} onClick={onRemove}>

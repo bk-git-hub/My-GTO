@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Go } from "../../backNav";
-import { checkSteps, chipSeries, chipsText, MINUS, type Unit } from "./fastChips";
+import { bbPart, bbText1, checkSteps, chipSeries, chipsText, levelNear, missedOf, MINUS, sessionMoney, type Unit } from "./fastChips";
+import { Bb } from "./FastResult";
 import { fastStats, fastStore, sessionText } from "./fastLog";
 import { CheckRow, ChipsBlock, copyText, FastItem, FastStatsRow } from "./FastParts";
 import {
@@ -44,11 +45,33 @@ function useNow(hands: LoggedHand[]): number {
   return Math.max(now, ...hands.slice(0, 1).map((h) => h.createdAt));
 }
 
-/** A group's chips, toned: "+14,200", "−8,500", "본전", or "결과 없음". */
+/**
+ * A group's chips in bb, as its total shows them (each hand at its own level, the stack's jumps at theirs); null
+ * when a part of it has no level.
+ */
+function groupBb(g: TourneyGroup): number | null {
+  const m = sessionMoney(g.hands);
+  const missed = missedOf(g.hands, g.t?.startStack ?? null, g.t?.checks ?? []);
+  if (m.bb === null || (missed && missed.bb === null)) return null;
+  return Math.round((m.bb + (missed?.bb ?? 0)) * 10) / 10;
+}
+
+/** A group's chips, toned, with their bb: "+14,200 +28.4bb", "−8,500", "본전", or "결과 없음". */
 export function GroupRes({ g }: { g: TourneyGroup }) {
   const n = groupChips(g.hands, g.t?.startStack ?? null, g.t?.checks ?? []);
   if (n === null) return <span className="tn-res none">결과 없음</span>;
-  return <span className={`tn-res${n > 0 ? " up" : n < 0 ? " down" : ""}`}>{n === 0 ? "본전" : `${n > 0 ? "+" : MINUS}${chipsText(Math.abs(n))}`}</span>;
+  const b = n === 0 ? null : groupBb(g);
+  return (
+    <span className={`tn-res${n > 0 ? " up" : n < 0 ? " down" : ""}`}>
+      {n === 0 ? "본전" : `${n > 0 ? "+" : MINUS}${chipsText(Math.abs(n))}`}
+      {b !== null && b !== 0 && (
+        <>
+          {" "}
+          <Bb v={`${b > 0 ? "+" : MINUS}${bbText1(Math.abs(b))}`} />
+        </>
+      )}
+    </span>
+  );
 }
 
 const routeOf = (g: TourneyGroup) => (g.kind === "tourney" ? `log/fast/t/${g.key}` : `log/fast/s/${g.key}`);
@@ -188,8 +211,10 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
   const end = run?.absolute ? Math.round(run.end) : checks.length ? checks[checks.length - 1].stack : null;
   const meta =
     `${groupWhen(g, hands)} · ${g.hands.length}핸드` +
-    (t && t.startStack !== null ? ` · 시작 ${chipsText(t.startStack)}${end !== null ? ` → ${chipsText(end)}` : ""}` : end !== null ? ` · 끝 ${chipsText(end)}` : "") +
-    (g.others ? ` · 남의 핸드 ${g.others}` : "");
+    (t && t.startStack !== null ? ` · 시작 ${chipsText(t.startStack)}${end !== null ? " " : ""}` : end !== null ? " · " : "");
+  // The stack at the end, with its bb at the level of the last hand, kept together with the word before it ("→ 61,700 102.8bb", "끝 …").
+  const endLead = t && t.startStack !== null ? "→ " : "끝 ";
+  const endBb = end !== null ? bbPart(end, levelNear(g.hands, Infinity)) : null;
   // Its 칩 업데이트 among the hands shown, by time.
   const shown = g.hands.slice(0, limit);
   const oldest = g.hands.length > limit ? shown[shown.length - 1].createdAt : -Infinity;
@@ -251,7 +276,22 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
             <h2>{title}</h2>
           )}
         </div>
-        <p className="tn-meta">{meta}</p>
+        <p className="tn-meta">
+          {meta}
+          {end !== null && (
+            <span className="tn-end">
+              {endLead}
+              {chipsText(end)}
+              {endBb && (
+                <>
+                  {" "}
+                  <Bb v={endBb} />
+                </>
+              )}
+            </span>
+          )}
+          {g.others ? ` · 남의 핸드 ${g.others}` : ""}
+        </p>
         {memo && <p className="tn-memo">메모: {memo}</p>}
         {g.hands.length ? (
           <>
@@ -260,7 +300,7 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
             <div className="fast-list">
               {rows.map((r) =>
                 r.k === 1 ? (
-                  <CheckRow key={`c${r.c.at}`} c={r.c} />
+                  <CheckRow key={`c${r.c.at}`} c={r.c} level={levelNear(g.hands, r.c.at)} />
                 ) : (
                   <FastItem key={r.h.id} h={r.h} view={view} other={false} editing={false} onClick={() => openHand(r.h, go)} />
                 ),

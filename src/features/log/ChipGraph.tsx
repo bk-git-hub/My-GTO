@@ -1,5 +1,6 @@
-import { useState, type PointerEvent } from "react";
-import { bbText1, MINUS, seriesAt, signedText, type ChipSeries } from "./fastChips";
+import { useState, type PointerEvent, type ReactNode } from "react";
+import { bbPart, bbText1, MINUS, seriesAt, signedText, type ChipSeries } from "./fastChips";
+import { Bb } from "./FastResult";
 import { holeClass, type LoggedHand } from "./handLog";
 
 /**
@@ -66,13 +67,26 @@ export function ChipGraph({ series: s, hands, title = "오늘 칩 흐름" }: { s
     setPick(Math.max(0, Math.min(n, Math.round(((vx - X0) / (X1 - X0)) * n))));
   }
 
-  let readout = summary;
+  let readout: ReactNode = summary;
   if (pick !== null) {
     const v = seriesAt(s, pick);
     const h = pick >= 1 ? hands[pick - 1] : null;
     if (v !== null && h) {
-      const net = h.net === null ? "결과 없음" : h.result === "fold" && !h.net ? "폴드" : signedText(h.net, s.unit, h.level);
-      readout = `${pick}번째 · ${clock(h.createdAt)} ${h.seat} ${holeClass(h)} ${net} → ${rel ? `누적 ${valueText(v, s, true)}` : valueText(v, s, false)}`;
+      // The hand's chips in both units, the bb in its color: "+12,800 +25.6bb".
+      const chips = h.net === null ? "결과 없음" : h.result === "fold" && !h.net ? "폴드" : signedText(h.net, "chips");
+      const bb = h.net ? bbPart(h.net, h.level, true) : null;
+      readout = (
+        <>
+          {`${pick}번째 · ${clock(h.createdAt)} ${h.seat} ${holeClass(h)} ${chips}`}
+          {bb && (
+            <>
+              {" "}
+              <Bb v={bb} />
+            </>
+          )}
+          {` → ${rel ? `누적 ${valueText(v, s, true)}` : valueText(v, s, false)}`}
+        </>
+      );
     } else if (v !== null) readout = rel ? "시작 · 0" : `시작 ${valueText(v, s, false)}`;
   }
 
