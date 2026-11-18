@@ -307,6 +307,7 @@ describe("칩 업데이트 on file", () => {
   afterEach(() => {
     handLogStore.set(initial);
     vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
   const rec = (extra: Partial<Tourney> = {}): Tourney => ({ id: "t1", createdAt: T0, updatedAt: T0, activeAt: T0, name: "", memo: "", start: T0, startSet: true, startStack: 50000, ...extra });
   const tn = () => cleanTourneys(handLogStore.get().tourneys)[0];
@@ -480,9 +481,11 @@ describe("결과 모름: a jump after hands with no chips", () => {
     ]);
     // on the total's line
     const html = renderToStaticMarkup(createElement(MoneyHead, { money: sessionMoney(later), missed: missedOf(later, 50000), view: "chips", onView: () => {} }));
-    expect(html.replace(/<[^>]+>/g, "")).toContain("기록한 핸드 +1,000 · 빠진 핸드 +4,000 · 결과 모름 +10,000");
+    expect(html.replace(/<[^>]+>/g, "")).toContain("기록한 핸드 +1,000 +1.7bb · 빠진 핸드 +4,000 +6.6bb · 결과 모름 +10,000 +16.7bb");
+    // each part's bb in the bb color
+    expect(html).toContain('기록한 핸드 +1,000 <span class="bb">+1.7bb</span> · 빠진 핸드 +4,000 <span class="bb">+6.6bb</span>');
     const gapOnly = renderToStaticMarkup(createElement(MoneyHead, { money: sessionMoney(hs), missed: m, view: "chips", onView: () => {} }));
-    expect(gapOnly.replace(/<[^>]+>/g, "")).toContain("기록한 핸드 +12,000 · 결과 모름 +28,000");
+    expect(gapOnly.replace(/<[^>]+>/g, "")).toContain("기록한 핸드 +12,000 +20bb · 결과 모름 +28,000 +46.7bb");
     expect(gapOnly).not.toContain("빠진 핸드");
   });
 });
@@ -490,6 +493,9 @@ describe("결과 모름: a jump after hands with no chips", () => {
 describe("hands by 스택 follow what is on file before them", () => {
   const initial = handLogStore.get();
   beforeEach(() => {
+    // The store stamps a save with the real clock; pin it to the fixture's evening so the test doesn't depend on today's date.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(T0);
     const mem = new Map<string, string>();
     vi.stubGlobal("localStorage", { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v), removeItem: (k: string) => void mem.delete(k) });
     handLogStore.set({ hands: [], lastLevel: null, tourneys: [rec()] });
@@ -580,25 +586,29 @@ describe("a tournament's result chip in 토너먼트 기록 with a 칩 업데이
     const hs = [hand(1, 3000, { tourney: "t1" }), hand(10, -1000, { tourney: "t1" })];
     const g: TourneyGroup = { kind: "tourney", key: "t1", t, hands: hs, others: 0, day: T0, current: false };
     // 50,000 +3,000 = 53,000; counted 70,000; −1,000: +19,000
-    expect(renderToStaticMarkup(createElement(GroupRes, { g }))).toBe('<span class="tn-res up">+19,000</span>');
-    expect(renderToStaticMarkup(createElement(GroupRes, { g: { ...g, t: { ...t, checks: undefined } } }))).toBe('<span class="tn-res up">+2,000</span>');
+    // with its bb as the total counts it (the hands' 3.3bb and the 칩 업데이트's 28.3bb, each at Lv5)
+    expect(renderToStaticMarkup(createElement(GroupRes, { g }))).toBe('<span class="tn-res up">+19,000 <span class="bb">+31.6bb</span></span>');
+    expect(renderToStaticMarkup(createElement(GroupRes, { g: { ...g, t: { ...t, checks: undefined } } }))).toBe('<span class="tn-res up">+2,000 <span class="bb">+3.3bb</span></span>');
+    // no level on file: the chips alone
+    const bare = hs.map((h) => ({ ...h, level: null }));
+    expect(renderToStaticMarkup(createElement(GroupRes, { g: { ...g, hands: bare } }))).toBe('<span class="tn-res up">+19,000</span>');
   });
 });
 
 describe("칩 업데이트's sheet", () => {
   it("says how far the stack typed is from the count, and tints a 0 too many or too few", () => {
-    expect(chipUpdateNote("", { chips: 41200 }, null, 5)).toEqual({ text: "칩 개수 그대로 (0이면 탈락)", tone: null });
-    expect(chipUpdateNote("61200", { chips: 41200 }, null, 5)).toEqual({ text: "= 61,200칩 · 102bb · 앱보다 +20,000", tone: "diff" });
-    expect(chipUpdateNote("41200", { chips: 41200 }, null, 5)).toEqual({ text: "= 41,200칩 · 68.7bb · 앱이 센 것과 같아요", tone: null });
-    expect(chipUpdateNote("612000", { chips: 41200 }, null, 5)).toMatchObject({ text: "= 612,000칩 · 1020bb · 앱보다 +570,800 · 자릿수 확인", tone: "big" });
+    expect(chipUpdateNote("", { chips: 41200 }, null, 5)).toEqual({ read: null, text: "칩 개수 그대로 (0이면 탈락)", tone: null });
+    // the stack read back with its bb (big on the sheet), then what it does to the count
+    expect(chipUpdateNote("61200", { chips: 41200 }, null, 5)).toEqual({ read: { chips: "61,200", bb: "102bb" }, text: "앱보다 +20,000", tone: "diff" });
+    expect(chipUpdateNote("41200", { chips: 41200 }, null, 5)).toEqual({ read: { chips: "41,200", bb: "68.7bb" }, text: "앱이 센 것과 같아요", tone: null });
+    expect(chipUpdateNote("612000", { chips: 41200 }, null, 5)).toMatchObject({ read: { chips: "612,000", bb: "1020bb" }, text: "앱보다 +570,800 · 자릿수 확인", tone: "big" });
     expect(chipUpdateNote("6120", { chips: 41200 }, null, 5)).toMatchObject({ tone: "big" });
     // busted is 0, not a slip
     expect(chipUpdateNote("0", { chips: 41200 }, null, 5).tone).toBe("diff");
     // reopened right after one: measured against the one just typed; the slip check stays on the app's count
-    expect(chipUpdateNote("62000", { chips: 41200 }, check(5, 61200), 5)).toEqual({ text: "= 62,000칩 · 103.3bb · 방금보다 +800", tone: "diff" });
+    expect(chipUpdateNote("62000", { chips: 41200 }, check(5, 61200), 5)).toEqual({ read: { chips: "62,000", bb: "103.3bb" }, text: "방금보다 +800", tone: "diff" });
     expect(chipUpdateNote("61200", { chips: 41200 }, check(5, 612000), 5).tone).toBe("diff");
     expect(chipUpdateNote("61200", { chips: 41200 }, check(5, 61200), 5).text).toContain("방금과 같아요");
-    // nothing to measure against
-    expect(chipUpdateNote("61200", { chips: null, why: "none" }, null, null)).toEqual({ text: "= 61,200칩", tone: null });
+    expect(chipUpdateNote("61200", { chips: null, why: "none" }, null, null)).toEqual({ read: { chips: "61,200", bb: null }, text: "칩 개수 그대로 (0이면 탈락)", tone: null });
   });
 });
