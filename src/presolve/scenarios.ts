@@ -9,35 +9,19 @@
  *     2.5bb (openSize("pub", "mid", ...)) and starts at STAGE_STACK.mid = 55bb.
  * Single raised pot, BB calls: pot = 2 × open + SB + ante, effective stack = start − open − ante (the BB paid the
  * ante as well, so it is the shorter stack).
- *
- * Two sets of packs share the pipeline: SCENARIOS, the app's packs (public/packs, listed by the solver page), and
- * CAL_SCENARIOS, calibration packs for the preflop solver's realization model (calibration/packs, a separate manifest
- * the app never reads; they start from ranges of check-only solver stages plus ghost combos, see CAL_SCENARIOS).
  */
 import { getSet } from "../data/charts";
 import { ALL_HANDS, type HandClass } from "../poker/cards";
-import { parseRange, rangeToString, type Range } from "../poker/range";
+import { rangeToString, type Range } from "../poker/range";
 import { COMBOS } from "../play/handInfo";
 import { CASH_TABLE, PUB_TABLE } from "../play/engine";
 import { openSize, STAGE_STACK } from "../play/policy";
 import type { SolverInput, SolverStreet, StreetSizes } from "../solver/types";
-import { CAL_RANGES } from "./calRanges";
 import { roundChips, type PackTier, type ScenarioMeta } from "./format";
 
-/**
- * Which manifest a pack belongs to. "app": public/packs/manifest.json, deployed and listed by the app's solver page.
- * "calibration": calibration/packs/manifest.json, outside public/ (never deployed, never listed), read by
- * scripts/fit-realization.mjs only.
- */
-export type PackSet = "app" | "calibration";
-
-/** Repo-relative directory of each set's manifest and flop files (scripts/presolve.mjs's default --out / --cal-out). */
-export const PACK_SET_DIRS: Record<PackSet, string> = { app: "public/packs", calibration: "calibration/packs" };
-
 export interface PresolveScenario {
-  /** Pack id, e.g. "srp-btn-bb-100". Unique across both sets. */
+  /** Pack id, e.g. "srp-btn-bb-100". */
   id: string;
-  set: PackSet;
   /** Korean pack title. */
   title: string;
   /** Pack version: bump it whenever anything that changes the numbers changes (sizes, ranges, targets, solver). */
@@ -181,11 +165,6 @@ interface ScenarioDef {
   setup: SrpSetup;
   /** Chart refs [OOP, IP]. */
   rangeSources: [string, string];
-  /** The ranges [OOP, IP] when they don't come from the app's charts (default: chartRange of each rangeSource). */
-  ranges?: [Range, Range];
-  /** Calibration packs: raise every hand class of both ranges to at least this weight (ghost combos, withGhosts). */
-  ghostWeight?: number;
-  set?: PackSet;
   tree: TreeSettings;
   iterations: number;
   targetExploitability: number;
@@ -194,10 +173,8 @@ interface ScenarioDef {
 
 function build(d: ScenarioDef): PresolveScenario {
   const { pot, stack } = srpPotStack(d.setup);
-  const src = d.ranges ?? [chartRange(d.rangeSources[0]), chartRange(d.rangeSources[1])];
-  const g = d.ghostWeight;
-  const [r0, r1] = g === undefined ? src : [withGhosts(src[0], g), withGhosts(src[1], g)];
-  const text = (p: 0 | 1) => (g === undefined ? rangeToString(src[p]) : ghostRangeString(src[p], g));
+  const r0 = chartRange(d.rangeSources[0]);
+  const r1 = chartRange(d.rangeSources[1]);
   const meta: ScenarioMeta = {
     format: d.format,
     positions: [d.positions[0], d.positions[1]],
@@ -211,14 +188,11 @@ function build(d: ScenarioDef): PresolveScenario {
     minBet: d.tree.minBet,
     iterations: d.iterations,
     targetExploitability: d.targetExploitability,
-    ranges: [text(0), text(1)],
+    ranges: [rangeToString(r0), rangeToString(r1)],
     rangeSources: [d.rangeSources[0], d.rangeSources[1]],
     flopSet: d.flopSet,
   };
-  // Only calibration packs carry the key, so the app packs' meta stays byte-identical to their manifest entries.
-  if (d.ghostWeight !== undefined) meta.ghostWeight = d.ghostWeight;
-  const set = d.set ?? "app";
-  return { id: d.id, set, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start };
+  return { id: d.id, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start };
 }
 
 const CASH_OPEN = openSize("cash", "100bb", "BTN"); // 2.5
@@ -282,96 +256,8 @@ export const SCENARIOS: PresolveScenario[] = [
   }),
 ];
 
-// ───────────────────────── calibration packs ─────────────────────────
-
-/**
- * The ghost-combo floor of the calibration packs: every hand class starts with at least this weight on both sides,
- * so the classes just outside a range (the BB's folds and jams next to its calls, the BTN's folds and jams next to its
- * opens) get a measured flop EV too. A refit can then place the fold boundary from measured EVs instead of
- * extrapolating the model. A class at exactly this weight is a ghost: the source ranges are snapped to tenths.
- *
- * Ghosts are real combos to the solver, so they also shift the real hands' numbers. Measured on cal-srp-btn-bb-15
- * Qs8h5h (the BTN's 12.6% open is the range ghosts dilute most), both solves at 0.13–0.14% of the pot, against no
- * ghosts: this floor moves OOP's real classes' pot share by 0.025 on average (+0.019 signed: OOP realizes more against
- * an IP range padded with hands it would not open) and IP's by 0.009; a 0.005 floor by 0.007 (+0.005) and 0.002. The
- * convergence noise at the packs' 0.5% target is 0.003 (OOP) and 0.005 (IP). At 20bb (6% ghosts on IP) the 0.02 floor
- * differs from 0.005 by 0.007 / 0.002. The cost does not depend on the floor (every combo is in both ranges either
- * way), and ghostRangeString writes any floor exactly.
- */
-export const GHOST_WEIGHT = 0.02;
-
-/** `range` with every hand class raised to at least `floor`. */
-export function withGhosts(range: Range, floor: number = GHOST_WEIGHT): Range {
-  const out = {} as Range;
-  for (const h of ALL_HANDS) out[h] = Math.max(range[h] ?? 0, floor);
-  return out;
-}
-
-/**
- * The range string of withGhosts(range, floor): the source range as rangeToString writes it, then every class outside
- * it at exactly `floor` (rangeToString rounds to 0.01 and drops weights below 0.005, so it can't write a small floor).
- * The source's classes keep their weight: a source weight below the floor would need the merged form, so it throws.
- */
-export function ghostRangeString(range: Range, floor: number = GHOST_WEIGHT): string {
-  const ghosts: string[] = [];
-  for (const h of ALL_HANDS) {
-    const w = range[h] ?? 0;
-    if (w > 0 && w < floor) throw new Error(`${h} has weight ${w}, below the ghost floor ${floor}`);
-    if (!(w > 0)) ghosts.push(`${h}:${floor}`);
-  }
-  return [rangeToString(range), ...ghosts].filter(Boolean).join(", ");
-}
-
-/** A calibration pack's source range (src/presolve/calRanges.ts, generated by scripts/cal-ranges.mjs). */
-export function calRange(ref: string): Range {
-  const text = CAL_RANGES[ref];
-  if (text === undefined) throw new Error(`no calibration range for ${ref}; rerun scripts/cal-ranges.mjs`);
-  return parseRange(text);
-}
-
-/**
- * The 9-handed BB-ante short stages' own single raised pot: BTN opens 2bb, the SB folds, the BB calls. Pot
- * 2 × 2 + 0.5 + 1 = 5.5; the stack is start − 3 (open and ante), so SPR 17 / 5.5 ≈ 3.1 at 20bb and 12 / 5.5 ≈ 2.2 at
- * 15bb, where nothing calibrated the realization model before (the app's packs are at SPR 7.9 and 17.7).
- * The tree is TREE_SRP, the app packs' tree, so the low-SPR rows differ from the deep ones in stack depth and ranges
- * only. At these stacks it ends in an all-in sooner (allInThreshold): the check-raise of a 75% bet is an all-in, and so
- * is the turn bet after a 75% flop bet is called.
- */
-function calPack(start: 20 | 15): ScenarioDef {
-  const stageId = `${start}bb-2`;
-  const sources: [string, string] = [`solver/${stageId}/bb-vs-btn-open:call`, `solver/${stageId}/rfi-btn:open`];
-  return {
-    id: `cal-srp-btn-bb-${start}`,
-    title: `보정용 BTN vs BB 싱글 레이즈드 팟 (솔버 ${start}bb)`,
-    version: 1,
-    tier: "free",
-    format: "pub",
-    positions: ["BB", "BTN"],
-    preflop: `9인 모두 ${start}bb, BTN 2bb 오픈, SB 폴드, BB 콜 (BB 앤티 1bb)`,
-    setup: { start, open: 2, bbAnte: 1 },
-    rangeSources: sources,
-    ranges: [calRange(sources[0]), calRange(sources[1])],
-    ghostWeight: GHOST_WEIGHT,
-    set: "calibration",
-    tree: TREE_SRP,
-    iterations: 300,
-    targetExploitability: 0.5,
-    flopSet: "priority",
-  };
-}
-
-/**
- * Calibration packs (calibration/packs, never listed by the app): the realization model of the preflop solver at
- * SPR 1–4, where it decides the short stages' BB defense (docs/preflop-solver.md). The ranges are the short stages'
- * own, from their draft solve with the shipped fit (calRanges.ts), with ghost combos on both sides.
- */
-export const CAL_SCENARIOS: PresolveScenario[] = [build(calPack(20)), build(calPack(15))];
-
-/** Every pack of both sets, the app's first. */
-export const ALL_SCENARIOS: PresolveScenario[] = [...SCENARIOS, ...CAL_SCENARIOS];
-
 export function getScenario(id: string): PresolveScenario {
-  const sc = ALL_SCENARIOS.find((s) => s.id === id);
-  if (!sc) throw new Error(`unknown presolve scenario: ${id} (known: ${ALL_SCENARIOS.map((s) => s.id).join(", ")})`);
+  const sc = SCENARIOS.find((s) => s.id === id);
+  if (!sc) throw new Error(`unknown presolve scenario: ${id} (known: ${SCENARIOS.map((s) => s.id).join(", ")})`);
   return sc;
 }

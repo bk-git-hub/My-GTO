@@ -1,9 +1,10 @@
 /*
  * 빠른 기록's 아재 (AjaeReaction.tsx): the launch splash's 아재 (bald, mustache, shades), reacting to the hand
  * just typed in. No words anywhere: faces, a jointed doll of him, props (a mirror ball, chips, a mallet, cards,
- * a thinking hand) and symbols (bursts, sparkles, ?, a thought cloud, notes, an anger mark, steam). Every class
- * and keyframe is prefixed aj- so nothing here touches the rest of the app. The body moves' keyframes were
- * generated from pose tables (the designs' build scripts) but are plain CSS: edit them here.
+ * a thinking hand; for the pairs' shows a plane, a gorilla costume, a crown, a cape, trumpets, dancing queens,
+ * jacks) and symbols (bursts, sparkles, ?, a thought cloud, notes, an anger mark, steam, hearts, fireworks,
+ * confetti). Every class and keyframe is prefixed aj- so nothing here touches the rest of the app. The body
+ * moves' keyframes were generated from pose tables (the designs' build scripts) but are plain CSS: edit them here.
  *
  * Layout: .ajae-host takes the class's place in the label row (margin-left: auto, as .fast-class had)
  * and is exactly the class's box, so the row keeps its height; everything he draws is absolute, with
@@ -17,15 +18,20 @@
  * Two kinds of reaction:
  * - a face move (meh's and fold's ponder, hmm and glare, and the cramped stand-ins): the face in the slot pops
  *   up big for 1.9 s and settles (.aj-pop, .aj-play.aj-mv-<move>; .aj-low, a smaller pop, when the page is scrolled);
- * - a body move (shuffle, robot, shove, kick, mallet, slam: 2.5 s; 72o's rage: 3.2 s): the whole 아재 performs
- *   (.aj-act, one per reaction), then shrinks away in a puff as the face pops into the slot (.aj-after) and stays there.
+ * - a body move (shuffle, robot, shove, kick, mallet, slam: 2.5 s; the rage, 72o's and trash's: 3.2 s, its face on that
+ *   clock: .aj-after.aj-for-rage): the whole 아재 performs (.aj-act, one per reaction), then shrinks away in a puff as
+ *   the face pops into the slot (.aj-after) and stays there;
+ * - a pair's show (AA's plane 3 s, KK's gorilla or crown 2.9 s, QQ's waltz 2.8 s, JJ's jacks 2.7 s): a body move that
+ *   takes the whole stage round the hand, from the sky under the stage bar down over the pad, in layers (fireworks,
+ *   confetti, lights, flashes); the face waits for its end on its clock (.aj-after.aj-for-<move>).
  * The class itself moves with a body move (.aj-jolt.aj-x-<move>): its keyframes come in pairs (-0, -1) and
  * alternate by cue (aj-j0 / aj-j1) so a reaction right after another restarts them.
  *
  * Motion: HTML boxes move with transform/opacity (WebKit composites those); the doll's joints and the face's
- * parts turn inside their SVGs. Each animation starts when its element mounts or gets its class and ends on
- * its element's own style (the act's parts end invisible, the face on its resting expression, the class at
- * rest), so they fill backwards only: once over, nothing keeps animating or holding a layer.
+ * parts turn inside their SVGs; no filters, no blur (glows are radial gradients, beams clipped linear ones). Each
+ * animation starts when its element mounts or gets its class and ends on its element's own style (the act's parts
+ * end invisible, the face on its resting expression, the class at rest), so they fill backwards only: once over,
+ * nothing keeps animating or holding a layer.
  */
 .ajae-host { margin-left: auto; position: relative; z-index: 3; display: flex; align-items: center; }
 .aj-jolt { display: flex; position: relative; z-index: 2; transform-origin: 50% 90%; }
@@ -49,7 +55,8 @@
 /* After a body move: hidden while he performs, then pops into the slot as the doll vanishes in a puff. */
 .aj-after .aj-face { z-index: 2; animation: aj-after 2.5s ease-out backwards, aj-open 2.5s step-end backwards; }
 @keyframes aj-after { 0%, 80% { opacity: 0; transform: translateY(6px) scale(0.4); } 87% { opacity: 1; transform: scale(1.22); } 93% { transform: scale(0.94); } 100% { opacity: 1; transform: none; } }
-/* the trash and 72o faces come in hotter: bigger, shaking, steaming (72o's on the rage's longer clock) */
+/* the trash and 72o faces come in hotter: bigger, shaking, steaming (after the rage, 72o's or a trash hand's, on its
+   longer clock: .aj-for-rage) */
 .aj-after .aj-face.aj-trash, .aj-after .aj-face.aj-hammer { animation-name: aj-after-mad, aj-open; }
 @keyframes aj-after-mad {
   0%, 79% { opacity: 0; transform: translateY(6px) scale(0.4); } 85% { opacity: 1; transform: scale(1.6); }
@@ -59,7 +66,7 @@
 /* what the face does as it comes in after a body move: the trash face's vein throbs and steam bursts off
    both sides (one small puff stays); the monster's sparkle */
 .aj-after .aj-face * { animation-duration: 2.5s; animation-fill-mode: backwards; animation-timing-function: ease-out; }
-.aj-after .aj-face.aj-hammer, .aj-after .aj-hammer * { animation-duration: 3.2s; }
+.aj-after .aj-face.aj-hammer, .aj-after .aj-hammer *, .aj-after.aj-for-rage .aj-face, .aj-after.aj-for-rage .aj-face * { animation-duration: 3.2s; }
 .aj-after .aj-trash .aj-vein, .aj-after .aj-hammer .aj-vein { animation-name: aj-in-vein; }
 .aj-after .aj-trash .aj-st-l, .aj-after .aj-hammer .aj-st-l { animation-name: aj-in-steam-l; }
 .aj-after .aj-trash .aj-st-r, .aj-after .aj-hammer .aj-st-r { animation-name: aj-in-steam-r; }
@@ -610,12 +617,13 @@
 @keyframes aj-x-slam-0 { 0%, 30%, 46%, 100% { transform: none; opacity: 1; } 33%, 40% { transform: none; opacity: 0.6; } 35% { transform: translate(0, 5px); } 37% { transform: translate(0, -2px); } }
 @keyframes aj-x-slam-1 { 0%, 30%, 46%, 100% { transform: none; opacity: 1; } 33%, 40% { transform: none; opacity: 0.6; } 35% { transform: translate(0, 5px); } 37% { transform: translate(0, -2px); } }
 
-/* ── 72o, the worst hand: the rage, 3.2 s (longer and bigger than any trash move). He looks at the hand, double-takes
-   (shades fly up, an O, shock lines), boils over (red, V brows, gritted teeth, shaking, steam shooting out of both
-   ears) under a red glow, snatches the two cards (the 7 of clubs and the 2 of diamonds), holds them up big, strains
-   and rips them in half (each card's halves split open along the tear, then a flash behind them, scraps flying),
-   stomps the pieces four times (dust, impact lines, the class shaking), boils over once more and vanishes in a puff
-   as the furious face takes over. Like the other body moves: pose tables made plain CSS. ── */
+/* ── 72o, the worst hand, every time, and a trash hand in its turn: the rage, 3.2 s (longer and bigger than the other
+   trash moves). He looks at the hand, double-takes (shades fly up, an O, shock lines), boils over (red, V brows, gritted
+   teeth, shaking, steam shooting out of both ears) under a red glow, snatches the hand's two cards (72o's 7 of clubs and
+   2 of diamonds, a trash hand's own: AjaeReaction.tsx RageCard), holds them up big, strains and rips them in half (each
+   card's halves split open along the tear, then a flash behind them, scraps flying), stomps the pieces four times (dust,
+   impact lines, the class shaking), boils over once more and vanishes in a puff as the furious face takes over. Like
+   the other body moves: pose tables made plain CSS. ── */
 .aj-act.aj-mv-rage * { animation-duration: 3.2s; }
 .aj-mv-rage .aj-body { right: calc(100% - 13px); bottom: -23px; width: 98px; height: 105px; transform-origin: 49px 98px; }
 .aj-mv-rage .aj-body { animation-name: aj-rg-body; }
@@ -701,6 +709,508 @@
 @keyframes aj-x-rage-0 { 0%, 28%, 80%, 100% { transform: none; opacity: 1; } 10%, 14%, 39.5%, 43%, 49.5%, 52%, 55.5%, 58%, 61.5%, 64%, 67.5%, 70% { transform: none; } 11.5% { transform: translate(0, 0) rotate(-6deg) scale(1.08); } 30%, 74% { transform: none; opacity: 0.3; } 41% { transform: translate(0, 0) rotate(0deg) scale(0.9); } 50.5%, 62.5% { transform: translate(0, 3px) rotate(3deg) scale(1); } 56.5% { transform: translate(0, 3px) rotate(-3deg) scale(1); } 68.5% { transform: translate(0, 4px) rotate(-3deg) scale(1); } }
 @keyframes aj-x-rage-1 { 0%, 28%, 80%, 100% { transform: none; opacity: 1; } 10%, 14%, 39.5%, 43%, 49.5%, 52%, 55.5%, 58%, 61.5%, 64%, 67.5%, 70% { transform: none; } 11.5% { transform: translate(0, 0) rotate(-6deg) scale(1.08); } 30%, 74% { transform: none; opacity: 0.3; } 41% { transform: translate(0, 0) rotate(0deg) scale(0.9); } 50.5%, 62.5% { transform: translate(0, 3px) rotate(3deg) scale(1); } 56.5% { transform: translate(0, 3px) rotate(-3deg) scale(1); } 68.5% { transform: translate(0, 4px) rotate(-3deg) scale(1); } }
 .aj-jolt.aj-x-rage { transform-origin: 50% 100%; }
+
+/* ── the pairs' shows (ajae.ts AJAE_SPECIALS): AA's plane, KK's gorilla and crown, QQ's waltz, JJ's jacks. Bigger than the tiers'
+   moves: up to 3 s and the whole stage round the hand (the sky under the stage bar, the seat row, the pad), in
+   layers (fireworks, confetti, searchlights, rays, glows, flashes, sparkles), every one flashier than the
+   mirror-ball shuffle and AA the flashiest. Pose tables and paths made plain CSS, as for the moves above. ── */
+/* fireworks: the rocket (its colour from the element) going up into the burst; the burst opens, hangs and sags as it fades */
+.aj-fw { z-index: 1; }
+.aj-act .aj-fw { animation-name: aj-fw-burst; animation-timing-function: ease-out; }
+@keyframes aj-fw-burst { 0% { transform: translate(0, 0) scale(0.1); opacity: 0; } 2% { transform: translate(0, 0) scale(0.15); opacity: 1; } 28% { transform: none; opacity: 1; } 62% { transform: translate(0, 3px) scale(1.08); opacity: 0.9; } 100% { transform: translate(0, 10px) scale(1.18); opacity: 0; } }
+.aj-rk { z-index: 1; border-radius: 2px; background: linear-gradient(#fff, currentColor 35%, rgba(255, 255, 255, 0)); }
+.aj-act .aj-rk { animation-name: aj-fw-rocket; animation-timing-function: ease-out; }
+@keyframes aj-fw-rocket { 0% { transform: translate(0, 64px); opacity: 0; } 8% { transform: translate(0, 58px); opacity: 1; } 88% { transform: translate(0, 4px); opacity: 1; } 100% { transform: none; opacity: 0; } }
+/* confetti: small rectangles thrown up or let fall, tumbling (they flip edge-on as they turn); the jacks' pips fly the same way */
+.aj-conf { z-index: 4; border-radius: 1px; }
+@keyframes aj-cf-t1 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(-5.6px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(-22.8px, -9.52px) rotate(-57deg) scale(1, 0.55); } 30% { transform: translate(-45.49px, -10.5px) rotate(-114deg) scale(1, 0.82); } 45% { transform: translate(-57.66px, -2.92px) rotate(-171deg) scale(1, 0.93); } 60% { transform: translate(-58.32px, 13.2px) rotate(-228deg) scale(1, 0.36); } 75% { transform: translate(-64.25px, 37.88px) rotate(-285deg) scale(1, 0.97); opacity: 1; } 90% { transform: translate(-72.64px, 71.1px) rotate(-342deg) scale(1, 0.73); opacity: 0.8; } 100% { transform: translate(-72.15px, 98px) rotate(-380deg) scale(1, 0.4); opacity: 0; } }
+@keyframes aj-cf-t2 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(-3.52px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(-15.44px, -9.52px) rotate(57deg) scale(1, 0.71); } 30% { transform: translate(-31.45px, -10.5px) rotate(114deg) scale(1, 0.98); } 45% { transform: translate(-33.83px, -2.92px) rotate(171deg) scale(1, 0.38); } 60% { transform: translate(-34.89px, 13.2px) rotate(228deg) scale(1, 0.92); } 75% { transform: translate(-43.6px, 37.88px) rotate(285deg) scale(1, 0.83); opacity: 1; } 90% { transform: translate(-45.97px, 71.1px) rotate(342deg) scale(1, 0.54); opacity: 0.8; } 100% { transform: translate(-42.32px, 98px) rotate(380deg) scale(1, 0.94); opacity: 0; } }
+@keyframes aj-cf-t3 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(-1.44px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(-9.31px, -9.52px) rotate(-57deg) scale(1, 1); } 30% { transform: translate(-13.77px, -10.5px) rotate(-114deg) scale(1, 0.52); } 45% { transform: translate(-10.44px, -2.92px) rotate(-171deg) scale(1, 0.84); } 60% { transform: translate(-14.92px, 13.2px) rotate(-228deg) scale(1, 0.91); } 75% { transform: translate(-20.95px, 37.88px) rotate(-285deg) scale(1, 0.4); opacity: 1; } 90% { transform: translate(-16.74px, 71.1px) rotate(-342deg) scale(1, 0.98); opacity: 0.8; } 100% { transform: translate(-14.04px, 98px) rotate(-380deg) scale(1, 0.89); opacity: 0; } }
+@keyframes aj-cf-t4 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(1.44px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(2.88px, -9.52px) rotate(57deg) scale(1, 0.64); } 30% { transform: translate(12.49px, -10.5px) rotate(114deg) scale(1, 0.74); } 45% { transform: translate(17.45px, -2.92px) rotate(171deg) scale(1, 0.97); } 60% { transform: translate(13.01px, 13.2px) rotate(228deg) scale(1, 0.34); } 75% { transform: translate(14.8px, 37.88px) rotate(285deg) scale(1, 0.94); opacity: 1; } 90% { transform: translate(21.44px, 71.1px) rotate(342deg) scale(1, 0.8); opacity: 0.8; } 100% { transform: translate(20.6px, 98px) rotate(380deg) scale(1, 0.3); opacity: 0; } }
+@keyframes aj-cf-t5 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(3.52px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(14.92px, -9.52px) rotate(-57deg) scale(1, 0.63); } 30% { transform: translate(31.35px, -10.5px) rotate(-114deg) scale(1, 1); } 45% { transform: translate(34.4px, -2.92px) rotate(-171deg) scale(1, 0.48); } 60% { transform: translate(34.73px, 13.2px) rotate(-228deg) scale(1, 0.87); } 75% { transform: translate(43.11px, 37.88px) rotate(-285deg) scale(1, 0.89); opacity: 1; } 90% { transform: translate(46.35px, 71.1px) rotate(-342deg) scale(1, 0.44); opacity: 0.8; } 100% { transform: translate(42.85px, 98px) rotate(-380deg) scale(1, 0.89); opacity: 0; } }
+@keyframes aj-cf-t6 { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 4% { transform: translate(5.6px, -14px) rotate(20deg) scale(1); opacity: 1; } 15% { transform: translate(28.67px, -9.52px) rotate(57deg) scale(1, 1); } 30% { transform: translate(46.65px, -10.5px) rotate(114deg) scale(1, 0.61); } 45% { transform: translate(51.26px, -2.92px) rotate(171deg) scale(1, 0.78); } 60% { transform: translate(60.06px, 13.2px) rotate(228deg) scale(1, 0.95); } 75% { transform: translate(69.87px, 37.88px) rotate(285deg) scale(1, 0.3); opacity: 1; } 90% { transform: translate(68.35px, 71.1px) rotate(342deg) scale(1, 0.95); opacity: 0.8; } 100% { transform: translate(66.15px, 98px) rotate(380deg) scale(1, 0.94); opacity: 0; } }
+@keyframes aj-cf-f1 { 0% { transform: translate(0, -6px) rotate(0deg) scale(0.5); opacity: 0; } 6% { transform: translate(0, 4px) rotate(30deg) scale(1); opacity: 1; } 25% { transform: translate(-14px, 37.5px) rotate(-75deg) scale(1, 0.42); } 50% { transform: translate(0, 75px) rotate(-150deg) scale(1, 0.96); opacity: 1; } 75% { transform: translate(14px, 112.5px) rotate(-225deg) scale(1, 0.66); opacity: 0.8; } 100% { transform: translate(0, 150px) rotate(-300deg) scale(1, 0.83); opacity: 0; } }
+@keyframes aj-cf-f2 { 0% { transform: translate(0, -6px) rotate(0deg) scale(0.5); opacity: 0; } 6% { transform: translate(0, 4px) rotate(30deg) scale(1); opacity: 1; } 25% { transform: translate(9.9px, 37.5px) rotate(90deg) scale(1, 0.95); } 50% { transform: translate(-14px, 75px) rotate(180deg) scale(1, 0.45); opacity: 1; } 75% { transform: translate(9.9px, 112.5px) rotate(270deg) scale(1, 1); opacity: 0.8; } 100% { transform: translate(0, 150px) rotate(360deg) scale(1, 0.4); opacity: 0; } }
+@keyframes aj-cf-f3 { 0% { transform: translate(0, -6px) rotate(0deg) scale(0.5); opacity: 0; } 6% { transform: translate(0, 4px) rotate(30deg) scale(1); opacity: 1; } 25% { transform: translate(0, 37.5px) rotate(-105deg) scale(1, 0.87); } 50% { transform: translate(0, 75px) rotate(-210deg) scale(1, 0.8); opacity: 1; } 75% { transform: translate(0, 112.5px) rotate(-315deg) scale(1, 0.7); opacity: 0.8; } 100% { transform: translate(0, 150px) rotate(-420deg) scale(1, 0.94); opacity: 0; } }
+/* the sparkles the shows share */
+.aj-spk { width: 14px; height: 14px; z-index: 4; }
+@keyframes aj-sp-twinkle { 0% { transform: rotate(0deg) scale(0); opacity: 0; } 30% { transform: rotate(45deg) scale(1.3); opacity: 1; } 60% { transform: rotate(90deg) scale(0.9); opacity: 1; } 100% { transform: rotate(140deg) scale(0); opacity: 0; } }
+
+/* ── AA: the plane, 3 s. He flies in in a little propeller plane (a white scarf flying), loops the loop (its smoke
+   ring stays in the sky; at its top, upside down, he throws both arms up), makes a low pass over the hand (it
+   ducks; a flash) trailing a contrail across the screen and is gone off the right edge; fireworks go up under two
+   crossing searchlights; he comes back from the right, lands beside the hand (dust, a bounce), waves both arms
+   in a V as confetti flies, and vanishes in a puff as the face takes over. ── */
+.aj-act.aj-mv-plane * { animation-duration: 3s; }
+.aj-after.aj-for-plane .aj-face, .aj-after.aj-for-plane .aj-face * { animation-duration: 3s; }
+.aj-mv-plane .aj-body { left: -155.75px; bottom: -4.25px; width: 141.75px; height: 89.25px; transform-origin: 71.75px 63px; z-index: 3; }
+.aj-mv-plane .aj-body { animation-name: aj-ap-body; animation-timing-function: linear; }
+@keyframes aj-ap-body { 0% { transform: translate(-318px, -39px) rotate(14.4deg) scale(0.55); opacity: 1; } 2% { transform: translate(-272.4px, -29.64px) rotate(9.22deg) scale(0.55); } 4% { transform: translate(-226.8px, -22.36px) rotate(5.18deg) scale(0.55); } 6% { transform: translate(-181.2px, -17.16px) rotate(2.3deg) scale(0.55); } 8% { transform: translate(-135.6px, -14.04px) rotate(0.58deg) scale(0.55); } 10% { transform: translate(-90px, -13px) rotate(0deg) scale(0.55); } 11.08% { transform: translate(-81.98px, -14.06px) rotate(-15deg) scale(0.55); } 12.17% { transform: translate(-74.5px, -17.15px) rotate(-30deg) scale(0.55); } 13.25% { transform: translate(-68.08px, -22.08px) rotate(-45deg) scale(0.55); } 14.33% { transform: translate(-63.15px, -28.5px) rotate(-60deg) scale(0.55); } 15.42% { transform: translate(-60.06px, -35.98px) rotate(-75deg) scale(0.55); } 16.5% { transform: translate(-59px, -44px) rotate(-90deg) scale(0.55); } 17.58% { transform: translate(-60.06px, -52.02px) rotate(-105deg) scale(0.55); } 18.67% { transform: translate(-63.15px, -59.5px) rotate(-120deg) scale(0.55); } 19.75% { transform: translate(-68.08px, -65.92px) rotate(-135deg) scale(0.55); } 20.83% { transform: translate(-74.5px, -70.85px) rotate(-150deg) scale(0.55); } 21.92% { transform: translate(-81.98px, -73.94px) rotate(-165deg) scale(0.55); } 23% { transform: translate(-90px, -75px) rotate(-180deg) scale(0.55); } 24.08% { transform: translate(-98.02px, -73.94px) rotate(-195deg) scale(0.55); } 25.17% { transform: translate(-105.5px, -70.85px) rotate(-210deg) scale(0.55); } 26.25% { transform: translate(-111.92px, -65.92px) rotate(-225deg) scale(0.55); } 27.33% { transform: translate(-116.85px, -59.5px) rotate(-240deg) scale(0.55); } 28.42% { transform: translate(-119.94px, -52.02px) rotate(-255deg) scale(0.55); } 29.5% { transform: translate(-121px, -44px) rotate(-270deg) scale(0.55); } 30.58% { transform: translate(-119.94px, -35.98px) rotate(-285deg) scale(0.55); } 31.67% { transform: translate(-116.85px, -28.5px) rotate(-300deg) scale(0.55); } 32.75% { transform: translate(-111.92px, -22.08px) rotate(-315deg) scale(0.55); } 33.83% { transform: translate(-105.5px, -17.15px) rotate(-330deg) scale(0.55); } 34.92% { transform: translate(-98.02px, -14.06px) rotate(-345deg) scale(0.55); } 36% { transform: translate(-90px, -13px) rotate(-360deg) scale(0.55); } 38.1% { transform: translate(-38.7px, -11.36px) rotate(-357deg) scale(0.56); } 40.9% { transform: translate(29.7px, -9.18px) rotate(-357deg) scale(0.58); } 43.7% { transform: translate(98.1px, -7px) rotate(-360deg) scale(0.6); } 46.5% { transform: translate(166.5px, -7px) rotate(-360deg) scale(0.62); } 50% { transform: translate(252px, -7px) rotate(-360deg) scale(0.64); } 57% { transform: translate(222px, -64px) rotate(-376deg) scale(-0.64, 0.64); } 59% { transform: translate(202px, -62px) rotate(-374deg) scale(-0.64, 0.64); } 61.5% { transform: translate(147px, -45px) rotate(-373deg) scale(-0.68, 0.68); } 64% { transform: translate(90px, -25px) rotate(-370deg) scale(-0.72, 0.72); } 66% { transform: translate(40px, -10px) rotate(-365deg) scale(-0.76, 0.76); } 67.5% { transform: translate(16px, -3px) rotate(-358deg) scale(-0.78, 0.78); animation-timing-function: ease-in; } 69% { transform: translate(6px, 2px) rotate(-362deg) scale(-0.78, 0.78); animation-timing-function: ease-out; } 71% { transform: translate(2px, -4px) rotate(-359deg) scale(-0.78, 0.78); animation-timing-function: ease-in; } 73% { transform: translate(0, 0) rotate(-360deg) scale(-0.78, 0.78); } 74.5% { transform: translate(0, 1px) rotate(-360deg) scale(-0.78, 0.78); } 78% { transform: translate(0, 0) rotate(-360deg) scale(-0.78, 0.78); opacity: 1; } 87%, 100% { transform: translate(0, 8px) rotate(-360deg) scale(-0.35, 0.35); opacity: 0; } }
+.aj-mv-plane .aj-r-arm-l { animation-name: aj-ap-al; }
+@keyframes aj-ap-al { 0%, 4%, 7%, 38%, 41%, 44%, 47% { transform: rotate(150deg); } 10% { transform: rotate(60deg); } 18%, 30%, 56% { transform: rotate(40deg); } 21%, 26% { transform: rotate(165deg); } 68% { transform: rotate(40deg); animation-timing-function: ease-out; } 71%, 73.5%, 76%, 78%, 100% { transform: rotate(140deg); } }
+.aj-mv-plane .aj-r-fore-l { animation-name: aj-ap-fl; }
+@keyframes aj-ap-fl { 0%, 38% { transform: rotate(20deg); } 4%, 47% { transform: rotate(-15deg); } 7%, 44% { transform: rotate(25deg); } 10% { transform: rotate(-40deg); } 18%, 30%, 56% { transform: rotate(-70deg); } 21% { transform: rotate(10deg); } 26% { transform: rotate(-10deg); } 41% { transform: rotate(-20deg); } 68% { transform: rotate(-70deg); animation-timing-function: ease-out; } 71%, 76% { transform: rotate(18deg); } 73.5% { transform: rotate(-18deg); } 78%, 100% { transform: none; } }
+.aj-mv-plane .aj-r-arm-r { animation-name: aj-ap-ar; }
+@keyframes aj-ap-ar { 0%, 10%, 30%, 56% { transform: rotate(-30deg); } 21%, 26% { transform: rotate(-165deg); } 68% { transform: rotate(-30deg); animation-timing-function: ease-out; } 71%, 73.5%, 76%, 78%, 100% { transform: rotate(-140deg); } }
+.aj-mv-plane .aj-r-fore-r { animation-name: aj-ap-fr; }
+@keyframes aj-ap-fr { 0%, 10%, 30%, 56% { transform: rotate(-60deg); } 21% { transform: rotate(-10deg); } 26% { transform: rotate(10deg); } 68% { transform: rotate(-60deg); animation-timing-function: ease-out; } 71%, 76% { transform: rotate(-18deg); } 73.5% { transform: rotate(18deg); } 78%, 100% { transform: none; } }
+.aj-mv-plane .aj-r-leg-l { animation-name: aj-ap-ll; }
+@keyframes aj-ap-ll { 0%, 69%, 73%, 100% { transform: rotate(-50deg); } 71% { transform: rotate(-58deg); } }
+.aj-mv-plane .aj-r-shin-l { animation-name: aj-ap-sl; }
+@keyframes aj-ap-sl { 0%, 69%, 73%, 100% { transform: rotate(80deg); } 71% { transform: rotate(90deg); } }
+.aj-mv-plane .aj-r-leg-r { animation-name: aj-ap-lr; }
+@keyframes aj-ap-lr { 0%, 69%, 73%, 100% { transform: rotate(50deg); } 71% { transform: rotate(58deg); } }
+.aj-mv-plane .aj-r-shin-r { animation-name: aj-ap-sr; }
+@keyframes aj-ap-sr { 0%, 69%, 73%, 100% { transform: rotate(-80deg); } 71% { transform: rotate(-90deg); } }
+.aj-mv-plane .aj-r-head { animation-name: aj-ap-hd; }
+@keyframes aj-ap-hd { 0%, 76% { transform: rotate(-6deg); } 10%, 30%, 56%, 78%, 100% { transform: none; } 18%, 71% { transform: rotate(-8deg); } 21% { transform: rotate(-12deg); } 26% { transform: rotate(8deg); } 41% { transform: rotate(10deg); } 44% { transform: rotate(14deg); } 68% { transform: none; animation-timing-function: ease-out; } 73.5% { transform: rotate(6deg); } }
+.aj-mv-plane .aj-r-all { animation-name: aj-ap-all; }
+@keyframes aj-ap-all { 0%, 69%, 74%, 100% { transform: none; } 70% { transform: translate(0, 1.5px) scale(1, 0.95); } 72% { transform: translate(0, -1px) scale(1); } }
+.aj-r-prop { transform-origin: 104.5px 66px; } .aj-mv-plane .aj-r-prop { animation: aj-ap-prop 0.1s linear 22; }
+@keyframes aj-ap-prop { 0%, 100% { transform: none; } 50% { transform: scale(1, 0.12); } }
+.aj-r-scarf { transform-origin: 31px 45px; } .aj-mv-plane .aj-r-scarf { animation: aj-ap-scarf 0.24s ease-in-out 11; }
+@keyframes aj-ap-scarf { 0%, 100% { transform: none; } 50% { transform: rotate(5deg) scale(1.04, 0.7); } }
+.aj-trail { height: 6px; margin-top: -3px; z-index: 1; border-radius: 3px; transform-origin: 0 50%; background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 35%, rgba(255, 255, 255, 0.9) 65%, rgba(255, 255, 255, 0)); }
+.aj-mv-plane .aj-t1 { left: -322px; bottom: 55px; width: 115.1px; animation-name: aj-ap-t1; animation-timing-function: linear; }
+@keyframes aj-ap-t1 { 0% { transform: rotate(10.01deg) scale(0, 1); opacity: 0; } 5.03% { transform: rotate(10.01deg) scale(0.01, 1); opacity: 0.9; } 10% { transform: rotate(10.01deg) scale(1); opacity: 0.9; } 70% { transform: rotate(10.01deg) scale(1, 1.3); opacity: 0.85; } 86%, 100% { transform: rotate(10.01deg) scale(1, 2.2); opacity: 0; } }
+.aj-ring { left: -174px; bottom: 66px; width: 0; height: 0; z-index: 1; }
+.aj-ring i { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; opacity: 0; background: radial-gradient(closest-side, #fff, rgba(255, 255, 255, 0.85) 55%, rgba(255, 255, 255, 0)); }
+.aj-mv-plane .aj-ring { animation-name: aj-ap-ring; }
+@keyframes aj-ap-ring { 0%, 10%, 88%, 100% { opacity: 0; } 10.5%, 72% { opacity: 1; } }
+.aj-mv-plane .aj-ring i:nth-child(1) { left: 0px; top: 31px; animation: aj-ap-puff 2.26s ease-out 0.44s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(2) { left: 11.86px; top: 28.64px; animation: aj-ap-puff 2.21s ease-out 0.49s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(3) { left: 21.92px; top: 21.92px; animation: aj-ap-puff 2.16s ease-out 0.54s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(4) { left: 28.64px; top: 11.86px; animation: aj-ap-puff 2.11s ease-out 0.59s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(5) { left: 31px; top: 0px; animation: aj-ap-puff 2.07s ease-out 0.63s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(6) { left: 28.64px; top: -11.86px; animation: aj-ap-puff 2.02s ease-out 0.68s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(7) { left: 21.92px; top: -21.92px; animation: aj-ap-puff 1.97s ease-out 0.73s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(8) { left: 11.86px; top: -28.64px; animation: aj-ap-puff 1.92s ease-out 0.78s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(9) { left: 0px; top: -31px; animation: aj-ap-puff 1.87s ease-out 0.83s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(10) { left: -11.86px; top: -28.64px; animation: aj-ap-puff 1.82s ease-out 0.88s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(11) { left: -21.92px; top: -21.92px; animation: aj-ap-puff 1.77s ease-out 0.93s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(12) { left: -28.64px; top: -11.86px; animation: aj-ap-puff 1.72s ease-out 0.98s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(13) { left: -31px; top: 0px; animation: aj-ap-puff 1.68s ease-out 1.02s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(14) { left: -28.64px; top: 11.86px; animation: aj-ap-puff 1.63s ease-out 1.07s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(15) { left: -21.92px; top: 21.92px; animation: aj-ap-puff 1.58s ease-out 1.12s backwards; }
+.aj-mv-plane .aj-ring i:nth-child(16) { left: -11.86px; top: 28.64px; animation: aj-ap-puff 1.58s ease-out 1.12s backwards; }
+@keyframes aj-ap-puff { 0% { transform: scale(0.3); opacity: 0; } 3% { transform: none; opacity: 0.95; } 100% { transform: scale(1.7); opacity: 0.75; } }
+.aj-mv-plane .aj-t2 { left: -208.65px; bottom: 31px; width: 316.65px; animation-name: aj-ap-t2; animation-timing-function: linear; }
+@keyframes aj-ap-t2 { 0%, 36% { transform: scale(0, 1); opacity: 0; } 36.3% { transform: scale(0.01, 1); opacity: 0.9; } 48.96% { transform: none; opacity: 0.9; } 72% { transform: scale(1, 1.4); opacity: 0.85; } 88%, 100% { transform: scale(1, 2.4); opacity: 0; } }
+.aj-mv-plane .aj-flash { animation-name: aj-ap-flash; }
+@keyframes aj-ap-flash { 0%, 43% { transform: scale(0.3); opacity: 0; } 45% { transform: none; opacity: 1; } 52%, 100% { transform: scale(1.3); opacity: 0; } }
+.aj-search { left: -298px; bottom: -6px; width: 362px; height: 0; z-index: 1; }
+.aj-search i { position: absolute; bottom: 0; width: 96px; height: 135px; margin-left: -48px; transform-origin: 50% 100%; clip-path: polygon(0 0, 100% 0, 54% 100%, 46% 100%); background: linear-gradient(rgba(255, 248, 214, 0), rgba(255, 248, 214, 0.5)); }
+.aj-search i:nth-child(1) { left: 0; } .aj-search i:nth-child(2) { left: 100%; }
+.aj-mv-plane .aj-search { animation-name: aj-ap-search; }
+@keyframes aj-ap-search { 0%, 4%, 90%, 100% { opacity: 0; } 10%, 80% { opacity: 1; } }
+.aj-mv-plane .aj-search i:nth-child(1) { animation-name: aj-ap-beam-l; } .aj-mv-plane .aj-search i:nth-child(2) { animation-name: aj-ap-beam-r; }
+@keyframes aj-ap-beam-l { 0% { transform: rotate(14deg); } 25% { transform: rotate(46deg); } 50% { transform: rotate(18deg); } 75% { transform: rotate(50deg); } 100% { transform: rotate(30deg); } }
+@keyframes aj-ap-beam-r { 0% { transform: rotate(-46deg); } 25% { transform: rotate(-16deg); } 50% { transform: rotate(-50deg); } 75% { transform: rotate(-20deg); } 100% { transform: rotate(-36deg); } }
+.aj-mv-plane .aj-fw1 { left: -279px; bottom: 65px; width: 62px; height: 62px; animation-delay: 1.20s; animation-duration: 0.9s; }
+.aj-mv-plane .aj-rk1 { left: -249.5px; bottom: 82px; width: 3px; height: 14px; animation-delay: 0.88s; animation-duration: 0.32s; }
+.aj-mv-plane .aj-fw2 { left: -98px; bottom: 70px; width: 72px; height: 72px; animation-delay: 1.40s; animation-duration: 0.9s; }
+.aj-mv-plane .aj-rk2 { left: -63.5px; bottom: 92px; width: 3px; height: 14px; animation-delay: 1.08s; animation-duration: 0.32s; }
+.aj-mv-plane .aj-fw3 { left: -251px; bottom: -75px; width: 62px; height: 62px; animation-delay: 1.58s; animation-duration: 0.9s; }
+.aj-mv-plane .aj-rk3 { left: -221.5px; bottom: -58px; width: 3px; height: 14px; animation-delay: 1.26s; animation-duration: 0.32s; }
+.aj-mv-plane .aj-fw4 { left: -42px; bottom: -84px; width: 60px; height: 60px; animation-delay: 1.74s; animation-duration: 0.9s; }
+.aj-mv-plane .aj-rk4 { left: -13.5px; bottom: -68px; width: 3px; height: 14px; animation-delay: 1.42s; animation-duration: 0.32s; }
+.aj-mv-plane .aj-fw5 { left: -186px; bottom: 58px; width: 84px; height: 84px; animation-delay: 1.92s; animation-duration: 0.9s; }
+.aj-mv-plane .aj-rk5 { left: -145.5px; bottom: 86px; width: 3px; height: 14px; animation-delay: 1.60s; animation-duration: 0.32s; }
+.aj-mv-plane .aj-dust.aj-d1 { left: -117px; bottom: -1px; width: 22px; height: 14px; animation-name: aj-ap-dust1; } .aj-mv-plane .aj-dust.aj-d2 { left: -73px; bottom: -2px; width: 22px; height: 14px; animation-name: aj-ap-dust2; }
+@keyframes aj-ap-dust1 { 0%, 67.5% { transform: translate(0, 0) scale(0.3); opacity: 0; } 69% { transform: translate(-2px, 0) scale(0.8); opacity: 0.9; } 76%, 100% { transform: translate(-14px, -4px) scale(1.4); opacity: 0; } }
+@keyframes aj-ap-dust2 { 0%, 68% { transform: translate(0, 0) scale(0.3); opacity: 0; } 69.5% { transform: translate(2px, 0) scale(0.8); opacity: 0.9; } 77%, 100% { transform: translate(14px, -4px) scale(1.4); opacity: 0; } }
+.aj-mv-plane .aj-f1 { left: -103.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t1; animation-delay: 2.08s; animation-duration: 0.84s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f2 { left: -100.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t6; animation-delay: 2.10s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f3 { left: -97.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t5; animation-delay: 2.11s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f4 { left: -94.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t4; animation-delay: 2.12s; animation-duration: 0.84s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f5 { left: -91.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 2.08s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f6 { left: -88.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 2.10s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f7 { left: -85.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t1; animation-delay: 2.11s; animation-duration: 0.84s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f8 { left: -82.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t6; animation-delay: 2.12s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f9 { left: -79.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t5; animation-delay: 2.08s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f10 { left: -76.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t4; animation-delay: 2.10s; animation-duration: 0.84s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f11 { left: -73.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 2.11s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-plane .aj-f12 { left: -70.5px; bottom: 45.5px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 2.12s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-plane .aj-poof { left: -106px; bottom: 7px; animation-name: aj-poof-78; }
+.aj-jolt.aj-x-plane.aj-j0 { animation: aj-x-plane-0 3s ease-in-out backwards; } .aj-jolt.aj-x-plane.aj-j1 { animation: aj-x-plane-1 3s ease-in-out backwards; }
+@keyframes aj-x-plane-0 { 0%, 42.5%, 55%, 68.5%, 73%, 79%, 100% { transform: none; } 45% { transform: translate(0, 3px) rotate(0deg) scale(1.06, 0.8); } 47.5% { transform: translate(0, 0) rotate(-7deg) scale(1); } 50% { transform: translate(0, 0) rotate(5deg) scale(1); } 52.5% { transform: translate(0, 0) rotate(-2deg) scale(1); } 69.5% { transform: translate(0, 2px) rotate(0deg) scale(1.04, 0.92); } 71.5% { transform: translate(0, -2px) rotate(0deg) scale(1); } 74.5% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+@keyframes aj-x-plane-1 { 0%, 42.5%, 55%, 68.5%, 73%, 79%, 100% { transform: none; } 45% { transform: translate(0, 3px) rotate(0deg) scale(1.06, 0.8); } 47.5% { transform: translate(0, 0) rotate(-7deg) scale(1); } 50% { transform: translate(0, 0) rotate(5deg) scale(1); } 52.5% { transform: translate(0, 0) rotate(-2deg) scale(1); } 69.5% { transform: translate(0, 2px) rotate(0deg) scale(1.04, 0.92); } 71.5% { transform: translate(0, -2px) rotate(0deg) scale(1); } 74.5% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+
+/* ── KK: the gorilla, 2.9 s. In a gorilla costume he leaps in (a thud, dust) under a warm spotlight, hunches and
+   looks about, rises and pounds his chest: eight blows, a shockwave ring off every other one, leaves shaken down
+   from above. He roars (the jaw drops, roar lines, a big ring, the hand shakes), then lifts the costume's head off
+   and tosses it: it's him inside, grinning (a flash, sparkles, confetti, two fireworks); he pounds his chest once
+   more as himself and vanishes in a puff as the face takes over. ── */
+.aj-act.aj-mv-gorilla * { animation-duration: 2.9s; }
+.aj-after.aj-for-gorilla .aj-face, .aj-after.aj-for-gorilla .aj-face * { animation-duration: 2.9s; }
+.aj-mv-gorilla .aj-body { left: -125px; bottom: -23.02px; width: 126px; height: 129.5px; transform-origin: 63px 119px; z-index: 3; }
+.aj-mv-gorilla .aj-body { animation-name: aj-gr-body; }
+@keyframes aj-gr-body { 0% { transform: translate(-130px, -12px) rotate(-12deg) scale(0.99); opacity: 0; animation-timing-function: ease-out; } 2% { transform: translate(-112px, -22px) rotate(-8deg) scale(1.04); opacity: 1; animation-timing-function: ease-in; } 6% { transform: translate(-40px, -20px) rotate(4deg) scale(1.1); animation-timing-function: ease-in; } 9% { transform: translate(0, 2px) rotate(0deg) scale(1.23, 0.95); animation-timing-function: ease-out; } 12% { transform: translate(0, 3px) rotate(0deg) scale(1.14, 1.03); } 15% { transform: translate(-2px, 3px) rotate(0deg) scale(1.14, 1.03); } 18% { transform: translate(2px, 3px) rotate(0deg) scale(1.14, 1.03); } 21% { transform: translate(0, -2px) rotate(0deg) scale(1.1, 1.14); } 23%, 26.5%, 30%, 33.5%, 37%, 40.5%, 44%, 47.5% { transform: translate(0, 0) rotate(0deg) scale(1.13, 1.07); } 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25% { transform: translate(0, -2px) rotate(0deg) scale(1.1, 1.13); } 51% { transform: translate(0, -3px) rotate(0deg) scale(1.08, 1.17); } 53%, 55% { transform: translate(-1px, -3px) rotate(0deg) scale(1.08, 1.17); } 54% { transform: translate(1px, -3px) rotate(0deg) scale(1.08, 1.17); } 56.5%, 69.5% { transform: translate(0, 0) rotate(0deg) scale(1.1); } 64% { transform: translate(0, 0) rotate(0deg) scale(1.1); animation-timing-function: ease-out; } 66% { transform: translate(0, -6px) rotate(0deg) scale(1.1); animation-timing-function: ease-in; } 68% { transform: translate(0, 1px) rotate(0deg) scale(1.14, 1.06); } 78% { transform: translate(0, 0) rotate(0deg) scale(1.1); opacity: 1; } 87%, 100% { transform: translate(0, 8px) rotate(0deg) scale(0.5); opacity: 0; } }
+.aj-mv-gorilla .aj-r-arm-l { animation-name: aj-gr-al; }
+@keyframes aj-gr-al { 0%, 65% { transform: rotate(150deg); } 6% { transform: rotate(120deg); animation-timing-function: ease-in; } 9% { transform: rotate(20deg); } 12%, 15%, 18% { transform: rotate(12deg); } 21% { transform: rotate(60deg); } 23%, 30%, 37%, 44%, 67% { transform: rotate(30deg); } 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 69%, 73% { transform: rotate(52deg); } 26.5%, 33.5%, 40.5%, 47.5%, 71% { transform: rotate(66deg); } 51% { transform: rotate(100deg); } 56% { transform: rotate(96deg); } 59% { transform: rotate(165deg); } 62% { transform: rotate(172deg); } 76%, 100% { transform: rotate(45deg); } }
+.aj-mv-gorilla .aj-r-fore-l { animation-name: aj-gr-fl; }
+@keyframes aj-gr-fl { 0% { transform: rotate(20deg); } 6% { transform: rotate(30deg); animation-timing-function: ease-in; } 9%, 65% { transform: rotate(10deg); } 12%, 15%, 18% { transform: rotate(14deg); } 21% { transform: rotate(-80deg); } 23%, 30%, 37%, 44%, 67% { transform: rotate(-128deg); } 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 69%, 73% { transform: rotate(-95deg); } 26.5%, 33.5%, 40.5%, 47.5%, 71% { transform: rotate(-70deg); } 51% { transform: rotate(62deg); } 56% { transform: rotate(70deg); } 59% { transform: rotate(50deg); } 62% { transform: rotate(30deg); } 76%, 100% { transform: rotate(-110deg); } }
+.aj-mv-gorilla .aj-r-arm-r { animation-name: aj-gr-ar; }
+@keyframes aj-gr-ar { 0% { transform: rotate(-150deg); } 6% { transform: rotate(-120deg); animation-timing-function: ease-in; } 9% { transform: rotate(-20deg); } 12%, 15%, 18% { transform: rotate(-12deg); } 21% { transform: rotate(-60deg); } 23%, 30%, 37%, 44%, 67% { transform: rotate(-66deg); } 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 69%, 73% { transform: rotate(-52deg); } 26.5%, 33.5%, 40.5%, 47.5%, 71% { transform: rotate(-30deg); } 51% { transform: rotate(-100deg); } 56% { transform: rotate(-96deg); } 59% { transform: rotate(-165deg); } 62% { transform: rotate(-172deg); } 65% { transform: rotate(-40deg); } 76%, 100% { transform: rotate(-45deg); } }
+.aj-mv-gorilla .aj-r-fore-r { animation-name: aj-gr-fr; }
+@keyframes aj-gr-fr { 0%, 65% { transform: rotate(-20deg); } 6% { transform: rotate(-30deg); animation-timing-function: ease-in; } 9% { transform: rotate(-10deg); } 12%, 15%, 18% { transform: rotate(-14deg); } 21% { transform: rotate(80deg); } 23%, 30%, 37%, 44%, 67% { transform: rotate(70deg); } 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 69%, 73% { transform: rotate(95deg); } 26.5%, 33.5%, 40.5%, 47.5%, 71% { transform: rotate(128deg); } 51% { transform: rotate(-62deg); } 56% { transform: rotate(-70deg); } 59% { transform: rotate(-50deg); } 62% { transform: rotate(-30deg); } 76%, 100% { transform: rotate(110deg); } }
+.aj-mv-gorilla .aj-r-leg-l { animation-name: aj-gr-ll; }
+@keyframes aj-gr-ll { 0%, 9% { transform: rotate(30deg); } 6% { transform: rotate(20deg); animation-timing-function: ease-in; } 12% { transform: rotate(26deg); } 21% { transform: rotate(16deg); } 51% { transform: rotate(22deg); } 59%, 76%, 100% { transform: rotate(8deg); } }
+.aj-mv-gorilla .aj-r-shin-l { animation-name: aj-gr-sl; }
+@keyframes aj-gr-sl { 0% { transform: rotate(-60deg); } 6% { transform: rotate(-40deg); animation-timing-function: ease-in; } 9% { transform: rotate(-45deg); } 12% { transform: rotate(-36deg); } 21% { transform: rotate(-20deg); } 51% { transform: rotate(-24deg); } 59%, 76%, 100% { transform: rotate(-8deg); } }
+.aj-mv-gorilla .aj-r-leg-r { animation-name: aj-gr-lr; }
+@keyframes aj-gr-lr { 0%, 9% { transform: rotate(-30deg); } 6% { transform: rotate(-20deg); animation-timing-function: ease-in; } 12% { transform: rotate(-26deg); } 21% { transform: rotate(-16deg); } 51% { transform: rotate(-22deg); } 59%, 76%, 100% { transform: rotate(-8deg); } }
+.aj-mv-gorilla .aj-r-shin-r { animation-name: aj-gr-sr; }
+@keyframes aj-gr-sr { 0% { transform: rotate(60deg); } 6% { transform: rotate(40deg); animation-timing-function: ease-in; } 9% { transform: rotate(45deg); } 12% { transform: rotate(36deg); } 21% { transform: rotate(20deg); } 51% { transform: rotate(24deg); } 59%, 76%, 100% { transform: rotate(8deg); } }
+.aj-mv-gorilla .aj-r-head { animation-name: aj-gr-hd; }
+@keyframes aj-gr-hd { 0%, 71% { transform: rotate(-6deg); } 6% { transform: none; animation-timing-function: ease-in; } 9% { transform: rotate(8deg); } 12%, 21%, 59%, 62%, 67%, 73% { transform: none; } 15% { transform: rotate(-14deg); } 18% { transform: rotate(14deg); } 23%, 30%, 37%, 44% { transform: rotate(4deg); } 26.5%, 33.5%, 40.5%, 47.5% { transform: rotate(-4deg); } 51%, 56% { transform: rotate(-10deg); } 65%, 76%, 100% { transform: rotate(6deg); } }
+.aj-mv-gorilla .aj-r-all { animation-name: aj-gr-all; }
+@keyframes aj-gr-all { 0%, 22%, 100% { transform: none; } 12%, 20% { transform: translate(0, 3px); } }
+.aj-r-mask { transform-origin: 32px 22px; } .aj-mv-gorilla .aj-r-mask { animation-name: aj-gr-mask; }
+@keyframes aj-gr-mask { 0% { transform: none; opacity: 1; } 58% { transform: none; animation-timing-function: ease-out; } 61% { transform: translate(0, -15px) rotate(-4deg) scale(1); } 63% { transform: translate(0, -18px) rotate(-6deg) scale(1); animation-timing-function: linear; } 65% { transform: translate(-28px, -24px) rotate(-90deg) scale(1); animation-timing-function: linear; } 68% { transform: translate(-58px, -18px) rotate(-210deg) scale(0.85); opacity: 1; } 71%, 100% { transform: translate(-84px, 6px) rotate(-320deg) scale(0.7); opacity: 0; } }
+.aj-r-roar { opacity: 0; } .aj-rig .aj-r-roar, .aj-rig .aj-r-shut { transform-box: fill-box; transform-origin: 50% 0; }
+.aj-mv-gorilla .aj-r-roar { animation-name: aj-gr-roar; } .aj-mv-gorilla .aj-r-shut { animation-name: aj-gr-shut; }
+@keyframes aj-gr-roar { 0%, 50.5%, 57.5%, 100% { transform: scale(1, 0.4); opacity: 0; } 52% { transform: scale(1.1); opacity: 1; } 56% { transform: none; opacity: 1; } }
+@keyframes aj-gr-shut { 0%, 50.5%, 57.5%, 100% { opacity: 1; } 51%, 57% { opacity: 0; } }
+.aj-pool { left: -157px; bottom: -48.4px; width: 190px; height: 170px; z-index: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 232, 160, 0.75), rgba(255, 232, 160, 0.2) 62%, rgba(255, 232, 160, 0)); }
+.aj-mv-gorilla .aj-pool { animation-name: aj-gr-pool; }
+@keyframes aj-gr-pool { 0% { transform: scale(0.6); opacity: 0; } 8%, 82% { transform: none; opacity: 1; } 50%, 57% { transform: none; } 53% { transform: scale(1.12); } 92%, 100% { transform: none; opacity: 0; } }
+.aj-wave { left: -90px; bottom: -1.94px; width: 56px; height: 56px; z-index: 1; border-radius: 50%; border: 3.5px solid rgba(251, 191, 36, 0.95); box-sizing: border-box; }
+.aj-act .aj-wave { animation-name: aj-gr-wave; animation-duration: 0.5s; animation-timing-function: ease-out; }
+@keyframes aj-gr-wave { 0% { transform: scale(0.3); opacity: 0; } 6% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
+.aj-mv-gorilla .aj-w1 { animation-delay: 0.77s; }
+.aj-mv-gorilla .aj-w2 { animation-delay: 0.97s; }
+.aj-mv-gorilla .aj-w3 { animation-delay: 1.17s; }
+.aj-mv-gorilla .aj-w4 { animation-delay: 1.38s; }
+.aj-mv-gorilla .aj-w5 { left: -94px; bottom: 24.86px; width: 64px; height: 64px; animation-delay: 1.51s; animation-duration: 0.7s; }
+.aj-leaf { width: 16px; height: 10px; z-index: 4; }
+.aj-act .aj-leaf { animation-name: aj-gr-leaf; animation-duration: 1.3s; animation-timing-function: linear; }
+@keyframes aj-gr-leaf { 0% { transform: translate(0, -6px) rotate(0deg); opacity: 0; } 8% { transform: translate(0, 4px) rotate(30deg); opacity: 1; } 30% { transform: translate(14px, 34px) rotate(110deg); } 55% { transform: translate(-8px, 68px) rotate(200deg); } 80% { transform: translate(10px, 100px) rotate(280deg); opacity: 1; } 100% { transform: translate(-2px, 126px) rotate(340deg); opacity: 0; } }
+.aj-mv-gorilla .aj-l1 { left: -250px; bottom: 113px; width: 16px; height: 10px; animation-delay: 0.76s; }
+.aj-mv-gorilla .aj-l2 { left: -155px; bottom: 113px; width: 16px; height: 10px; animation-delay: 0.86s; }
+.aj-mv-gorilla .aj-l3 { left: -20px; bottom: 113px; width: 16px; height: 10px; animation-delay: 0.98s; }
+.aj-mv-gorilla .aj-l4 { left: -200px; bottom: 113px; width: 16px; height: 10px; animation-delay: 1.10s; }
+.aj-mv-gorilla .aj-l5 { left: -90px; bottom: 113px; width: 16px; height: 10px; animation-delay: 1.22s; }
+.aj-mv-gorilla .aj-l6 { left: -280px; bottom: 113px; width: 16px; height: 10px; animation-delay: 1.34s; }
+.aj-mv-gorilla .aj-burst { left: -110px; bottom: -1.14px; width: 96px; height: 96px; z-index: 1; animation-name: aj-gr-burst; }
+@keyframes aj-gr-burst { 0%, 50.5% { transform: rotate(0deg) scale(0); opacity: 0; } 52.5% { transform: rotate(20deg) scale(1.25); opacity: 0.9; } 55% { transform: rotate(34deg) scale(1.05); opacity: 0.9; } 58%, 100% { transform: rotate(50deg) scale(1.4); opacity: 0; } }
+.aj-roarl { left: -100px; bottom: 31.86px; width: 76px; height: 50px; z-index: 4; } .aj-mv-gorilla .aj-roarl { animation-name: aj-gr-roarl; }
+@keyframes aj-gr-roarl { 0%, 50.5% { transform: scale(0.6); opacity: 0; } 52% { transform: scale(1.05); opacity: 1; } 53.5% { transform: scale(0.9); } 55% { transform: scale(1.1); opacity: 1; } 57.5%, 100% { transform: scale(1.2); opacity: 0; } }
+.aj-mv-gorilla .aj-flash { left: -137px; top: auto; bottom: -18.14px; margin: 0; animation-name: aj-gr-flash; }
+@keyframes aj-gr-flash { 0%, 60% { transform: scale(0.3); opacity: 0; } 62% { transform: none; opacity: 1; } 70%, 100% { transform: scale(1.3); opacity: 0; } }
+.aj-mv-gorilla .aj-spk.aj-k1 { left: -99px; bottom: 71.86px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.55s ease-out 1.80s backwards; }
+.aj-mv-gorilla .aj-spk.aj-k2 { left: -41px; bottom: 79.86px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.55s ease-out 1.85s backwards; }
+.aj-mv-gorilla .aj-spk.aj-k3 { left: -35px; bottom: 43.86px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.55s ease-out 1.90s backwards; }
+.aj-mv-gorilla .aj-f1 { left: -76px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t1; animation-delay: 1.79s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f2 { left: -74px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t6; animation-delay: 1.80s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f3 { left: -72px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t5; animation-delay: 1.81s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f4 { left: -70px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t4; animation-delay: 1.79s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f5 { left: -68px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 1.80s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f6 { left: -66px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 1.81s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f7 { left: -64px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t1; animation-delay: 1.79s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f8 { left: -62px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t6; animation-delay: 1.80s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f9 { left: -60px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t5; animation-delay: 1.81s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f10 { left: -58px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t4; animation-delay: 1.79s; animation-duration: 0.86s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f11 { left: -56px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 1.80s; animation-duration: 0.88s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-f12 { left: -54px; bottom: 72.36px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 1.81s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-gorilla .aj-fw1 { left: -234px; bottom: 64px; width: 64px; height: 64px; animation-delay: 1.82s; animation-duration: 0.9s; }
+.aj-mv-gorilla .aj-rk1 { left: -203.5px; bottom: 82px; width: 3px; height: 14px; animation-delay: 1.50s; animation-duration: 0.32s; }
+.aj-mv-gorilla .aj-fw2 { left: -11px; bottom: 69px; width: 58px; height: 58px; animation-delay: 1.99s; animation-duration: 0.9s; }
+.aj-mv-gorilla .aj-rk2 { left: 16.5px; bottom: 84px; width: 3px; height: 14px; animation-delay: 1.67s; animation-duration: 0.32s; }
+.aj-mv-gorilla .aj-dust.aj-d1 { left: -91px; bottom: -18.4px; width: 22px; height: 14px; animation-name: aj-gr-dust1; } .aj-mv-gorilla .aj-dust.aj-d2 { left: -55px; bottom: -18.4px; width: 22px; height: 14px; animation-name: aj-gr-dust2; }
+@keyframes aj-gr-dust1 { 0%, 8.5% { transform: translate(0, 0) scale(0.3); opacity: 0; } 10% { transform: translate(-3px, 0) scale(0.9); opacity: 0.95; } 18%, 100% { transform: translate(-16px, -4px) scale(1.5); opacity: 0; } }
+@keyframes aj-gr-dust2 { 0%, 8.5% { transform: translate(0, 0) scale(0.3); opacity: 0; } 10% { transform: translate(3px, 0) scale(0.9); opacity: 0.95; } 18%, 100% { transform: translate(16px, -4px) scale(1.5); opacity: 0; } }
+.aj-mv-gorilla .aj-poof { left: -84px; bottom: 17.6px; animation-name: aj-poof-78; }
+.aj-jolt.aj-x-gorilla.aj-j0 { animation: aj-x-gorilla-0 2.9s ease-in-out backwards; } .aj-jolt.aj-x-gorilla.aj-j1 { animation: aj-x-gorilla-1 2.9s ease-in-out backwards; }
+@keyframes aj-x-gorilla-0 { 0%, 8.5%, 14%, 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 51%, 57%, 61%, 67%, 100% { transform: none; } 9.5% { transform: translate(0, 3px) rotate(0deg) scale(1.08, 0.84); } 12% { transform: translate(0, -2px) rotate(0deg) scale(1); } 23%, 30%, 37%, 44% { transform: translate(-1.5px, 0) rotate(0deg) scale(1); } 26.5%, 33.5%, 40.5%, 47.5% { transform: translate(1.5px, 0) rotate(0deg) scale(1); } 52%, 54.4% { transform: translate(0, 0) rotate(-4deg) scale(1); } 53.2% { transform: translate(0, 0) rotate(4deg) scale(1); } 55.6% { transform: translate(0, 0) rotate(3deg) scale(1); } 63% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+@keyframes aj-x-gorilla-1 { 0%, 8.5%, 14%, 24.75%, 28.25%, 31.75%, 35.25%, 38.75%, 42.25%, 45.75%, 49.25%, 51%, 57%, 61%, 67%, 100% { transform: none; } 9.5% { transform: translate(0, 3px) rotate(0deg) scale(1.08, 0.84); } 12% { transform: translate(0, -2px) rotate(0deg) scale(1); } 23%, 30%, 37%, 44% { transform: translate(-1.5px, 0) rotate(0deg) scale(1); } 26.5%, 33.5%, 40.5%, 47.5% { transform: translate(1.5px, 0) rotate(0deg) scale(1); } 52%, 54.4% { transform: translate(0, 0) rotate(-4deg) scale(1); } 53.2% { transform: translate(0, 0) rotate(4deg) scale(1); } 55.6% { transform: translate(0, 0) rotate(3deg) scale(1); } 63% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+
+/* ── KK, every other time: the crown, 2.9 s. He pops up and looks up: rays of light fan down from above and a crown
+   floats down, twinkling, as he kneels with his head bowed. It lands on his bald head with a gleam (a flash, a
+   burst of sparkles, the hand jumps); he rises as a royal cape swirls onto his shoulders, two fanfare trumpets
+   pop up and blow (notes), gold confetti falls, two fireworks, and he raises a scepter, chin up, the crown
+   gleaming again; then he vanishes in a puff as the face takes over. ── */
+.aj-act.aj-mv-crown * { animation-duration: 2.9s; }
+.aj-after.aj-for-crown .aj-face, .aj-after.aj-for-crown .aj-face * { animation-duration: 2.9s; }
+.aj-mv-crown .aj-body { left: -104.25px; bottom: -23.02px; width: 108.5px; height: 178.5px; transform-origin: 54.25px 171.5px; z-index: 3; }
+.aj-mv-crown .aj-body { animation-name: aj-cr-body; }
+@keyframes aj-cr-body { 0% { transform: translate(0, 8px) scale(0.5); opacity: 0; } 6% { transform: translate(0, -4px) scale(1.06); opacity: 1; } 9%, 53% { transform: none; } 20% { transform: none; animation-timing-function: ease-in-out; } 26%, 42% { transform: translate(0, 7px) scale(1.03, 0.95); } 43% { transform: translate(0, 8.5px) scale(1.06, 0.92); } 45% { transform: translate(0, 7px) scale(1.03, 0.95); animation-timing-function: ease-out; } 51% { transform: translate(0, -3px) scale(1); } 78% { transform: none; opacity: 1; } 87%, 100% { transform: translate(0, 8px) scale(0.45); opacity: 0; } }
+.aj-mv-crown .aj-r-arm-l { animation-name: aj-cr-al; }
+@keyframes aj-cr-al { 0% { transform: rotate(125deg); } 6% { transform: rotate(110deg); } 9% { transform: rotate(20deg); } 20% { transform: rotate(20deg); animation-timing-function: ease-in-out; } 26% { transform: rotate(24deg); } 42% { transform: rotate(24deg); animation-timing-function: ease-out; } 51% { transform: rotate(120deg); } 56% { transform: rotate(100deg); animation-timing-function: ease-out; } 61%, 64%, 70%, 100% { transform: rotate(45deg); } }
+.aj-mv-crown .aj-r-fore-l { animation-name: aj-cr-fl; }
+@keyframes aj-cr-fl { 0% { transform: none; } 6% { transform: rotate(10deg); } 9% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(-100deg); } 42% { transform: rotate(-100deg); animation-timing-function: ease-out; } 51% { transform: rotate(20deg); } 56% { transform: rotate(10deg); animation-timing-function: ease-out; } 61%, 64%, 70%, 100% { transform: rotate(-115deg); } }
+.aj-mv-crown .aj-r-arm-r { animation-name: aj-cr-ar; }
+@keyframes aj-cr-ar { 0% { transform: rotate(-125deg); } 6% { transform: rotate(-110deg); } 9% { transform: rotate(-20deg); } 20% { transform: rotate(-20deg); animation-timing-function: ease-in-out; } 26% { transform: rotate(-24deg); } 42% { transform: rotate(-24deg); animation-timing-function: ease-out; } 51% { transform: rotate(-120deg); } 56% { transform: rotate(-100deg); animation-timing-function: ease-out; } 61%, 70%, 100% { transform: rotate(-158deg); } 64% { transform: rotate(-150deg); } }
+.aj-mv-crown .aj-r-fore-r { animation-name: aj-cr-fr; }
+@keyframes aj-cr-fr { 0% { transform: none; } 6% { transform: rotate(-10deg); } 9% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(100deg); } 42% { transform: rotate(100deg); animation-timing-function: ease-out; } 51% { transform: rotate(-20deg); } 56% { transform: rotate(-10deg); animation-timing-function: ease-out; } 61%, 70%, 100% { transform: rotate(-8deg); } 64% { transform: rotate(-14deg); } }
+.aj-mv-crown .aj-r-leg-l { animation-name: aj-cr-ll; }
+@keyframes aj-cr-ll { 0% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(16deg); } 42% { transform: rotate(16deg); animation-timing-function: ease-out; } 51%, 100% { transform: none; } }
+.aj-mv-crown .aj-r-shin-l { animation-name: aj-cr-sl; }
+@keyframes aj-cr-sl { 0% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(-32deg); } 42% { transform: rotate(-32deg); animation-timing-function: ease-out; } 51%, 100% { transform: none; } }
+.aj-mv-crown .aj-r-leg-r { animation-name: aj-cr-lr; }
+@keyframes aj-cr-lr { 0% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(-16deg); } 42% { transform: rotate(-16deg); animation-timing-function: ease-out; } 51% { transform: none; animation-timing-function: ease-out; } 61%, 100% { transform: rotate(-12deg); } }
+.aj-mv-crown .aj-r-shin-r { animation-name: aj-cr-sr; }
+@keyframes aj-cr-sr { 0% { transform: none; animation-timing-function: ease-in-out; } 26% { transform: rotate(32deg); } 42% { transform: rotate(32deg); animation-timing-function: ease-out; } 51% { transform: none; animation-timing-function: ease-out; } 61%, 100% { transform: rotate(6deg); } }
+.aj-mv-crown .aj-r-head { animation-name: aj-cr-hd; }
+@keyframes aj-cr-hd { 0%, 9% { transform: none; } 14% { transform: rotate(-14deg); } 20% { transform: rotate(-14deg); animation-timing-function: ease-in-out; } 26%, 42% { transform: rotate(14deg); } 44% { transform: rotate(4deg); animation-timing-function: ease-out; } 51% { transform: rotate(-6deg); } 56% { transform: none; animation-timing-function: ease-out; } 61%, 70%, 100% { transform: rotate(-8deg); } 64% { transform: rotate(-10deg); } }
+.aj-mv-crown .aj-r-all { animation-name: aj-cr-all; }
+@keyframes aj-cr-all { 0%, 26%, 42%, 45%, 100% { transform: none; } 43% { transform: translate(0, 1px); } }
+.aj-r-crown { transform-origin: 32px -2px; } .aj-mv-crown .aj-r-crown { animation-name: aj-cr-crown; }
+@keyframes aj-cr-crown { 0%, 9% { transform: translate(0, -42px) rotate(0deg) scale(0.3); opacity: 0; } 13% { transform: translate(0, -42px) rotate(-6deg) scale(1.05); opacity: 1; } 15% { transform: translate(0, -41px) rotate(-6deg) scale(1); } 18% { transform: translate(0, -33.81px) rotate(6deg) scale(1); } 22% { transform: translate(0, -26.92px) rotate(-6deg) scale(1); } 26% { transform: translate(0, -20.37px) rotate(6deg) scale(1); } 30% { transform: translate(0, -14.22px) rotate(-6deg) scale(1); } 34% { transform: translate(0, -8.56px) rotate(6deg) scale(1); } 38% { transform: translate(0, -3.6px) rotate(-6deg) scale(1); animation-timing-function: ease-in; } 42%, 45% { transform: none; } 43% { transform: translate(0, 1px) rotate(0deg) scale(1.08, 0.9); } 100% { transform: none; opacity: 1; } }
+.aj-r-crown, .aj-r-cape, .aj-r-collar, .aj-r-scep { opacity: 0; }
+.aj-r-cape, .aj-r-collar { transform-origin: 32px 44px; } .aj-mv-crown .aj-r-cape { animation-name: aj-cr-cape; } .aj-mv-crown .aj-r-collar { animation-name: aj-cr-collar; }
+@keyframes aj-cr-cape { 0%, 44% { transform: rotate(0deg) scale(0.2, 0.1); opacity: 0; } 46% { transform: rotate(-14deg) scale(0.6, 0.4); opacity: 1; } 49% { transform: rotate(8deg) scale(1.15, 1.05); } 52% { transform: rotate(-4deg) scale(1); } 55%, 66% { transform: none; } 60% { transform: rotate(3deg) scale(1.04, 1); } 100% { transform: none; opacity: 1; } }
+@keyframes aj-cr-collar { 0%, 45% { transform: scale(0.2); opacity: 0; } 48% { transform: scale(1.15); opacity: 1; } 51% { transform: none; } 100% { transform: none; opacity: 1; } }
+.aj-mv-crown .aj-r-scep { animation-name: aj-cr-scep; }
+@keyframes aj-cr-scep { 0%, 57% { opacity: 0; } 59%, 100% { opacity: 1; } }
+.aj-rays { left: -50px; bottom: 134px; width: 0; height: 0; z-index: 1; }
+.aj-rays i { position: absolute; left: -14px; top: 0; width: 28px; height: 168px; transform-origin: 50% 0; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); background: linear-gradient(rgba(253, 224, 71, 0.6), rgba(253, 224, 71, 0)); }
+.aj-rays i:nth-child(1) { transform: rotate(-48deg); }
+.aj-rays i:nth-child(2) { transform: rotate(-36deg); }
+.aj-rays i:nth-child(3) { transform: rotate(-24deg); }
+.aj-rays i:nth-child(4) { transform: rotate(-12deg); }
+.aj-rays i:nth-child(5) { transform: rotate(0deg); }
+.aj-rays i:nth-child(6) { transform: rotate(12deg); }
+.aj-rays i:nth-child(7) { transform: rotate(24deg); }
+.aj-rays i:nth-child(8) { transform: rotate(36deg); }
+.aj-rays i:nth-child(9) { transform: rotate(48deg); }
+.aj-mv-crown .aj-rays { animation-name: aj-cr-rays; }
+@keyframes aj-cr-rays { 0%, 8% { transform: rotate(-6deg); opacity: 0; } 16% { transform: rotate(-2deg); opacity: 1; } 34% { transform: rotate(6deg); } 52% { transform: rotate(-4deg); } 70% { transform: rotate(5deg); } 84% { transform: none; opacity: 1; } 94%, 100% { transform: rotate(-2deg); opacity: 0; } }
+.aj-halo { left: -105px; bottom: -5.52px; width: 110px; height: 110px; z-index: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 230, 120, 0.62), rgba(255, 210, 80, 0.2) 58%, rgba(255, 210, 80, 0)); }
+.aj-mv-crown .aj-halo { animation-name: aj-cr-halo; }
+@keyframes aj-cr-halo { 0%, 41% { transform: translate(0, 0) scale(0.4); opacity: 0; } 44% { transform: translate(0, 0) scale(1.2); opacity: 1; } 52% { transform: translate(0, -10px) scale(1); } 82% { transform: translate(0, -10px) scale(1); opacity: 1; } 92%, 100% { transform: translate(0, -10px) scale(1); opacity: 0; } }
+.aj-gleam { left: -50px; bottom: 56.73px; width: 22px; height: 22px; z-index: 4; } .aj-mv-crown .aj-gleam { animation-name: aj-cr-gleam; }
+@keyframes aj-cr-gleam { 0%, 41.5% { transform: translate(0, 0) rotate(0deg) scale(0); opacity: 0; } 43.5% { transform: translate(0, 0) rotate(45deg) scale(1.45); opacity: 1; } 47% { transform: translate(0, 0) rotate(90deg) scale(0.8); opacity: 1; } 50% { transform: translate(0, 0) rotate(120deg) scale(0); opacity: 0; } 66% { transform: translate(0, -15px) rotate(0deg) scale(0); opacity: 0; } 68.5% { transform: translate(0, -15px) rotate(45deg) scale(1.4); opacity: 1; } 72%, 100% { transform: translate(0, -15px) rotate(100deg) scale(0); opacity: 0; } }
+.aj-mv-crown .aj-flash { left: -125px; top: auto; bottom: -14.27px; margin: 0; animation-name: aj-cr-flash; }
+@keyframes aj-cr-flash { 0%, 41.5% { transform: scale(0.3); opacity: 0; } 43.5% { transform: none; opacity: 1; } 52%, 100% { transform: scale(1.3); opacity: 0; } }
+.aj-mv-crown .aj-spk.aj-k1 { left: -83px; bottom: 103.73px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 0.42s backwards; }
+.aj-mv-crown .aj-spk.aj-k2 { left: -33px; bottom: 89.73px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 0.64s backwards; }
+.aj-mv-crown .aj-spk.aj-k3 { left: -79px; bottom: 63.73px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.55s ease-out 1.26s backwards; }
+.aj-mv-crown .aj-spk.aj-k4 { left: -31px; bottom: 53.73px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.55s ease-out 1.30s backwards; }
+.aj-trump { width: 66px; height: 52px; z-index: 4; transform-origin: 6% 42%; }
+.aj-mv-crown .aj-tp1 { left: -169px; bottom: 36px; width: 66px; height: 52px; animation-name: aj-cr-tp1; } .aj-mv-crown .aj-tp2 { left: -9px; bottom: 38px; width: 66px; height: 52px; animation-name: aj-cr-tp2; }
+@keyframes aj-cr-tp1 { 0%, 50% { transform: rotate(24deg) scale(0); opacity: 0; } 53% { transform: rotate(24deg) scale(-1.15, 1.15); opacity: 1; } 55%, 60%, 64%, 68%, 72% { transform: rotate(24deg) scale(-1, 1); } 58%, 62%, 66%, 70% { transform: rotate(20deg) scale(-1.08, 1.08); } 80% { transform: rotate(24deg) scale(-1, 1); opacity: 1; } 88%, 100% { transform: rotate(24deg) scale(-0.3, 0.3); opacity: 0; } }
+@keyframes aj-cr-tp2 { 0%, 50% { transform: rotate(-24deg) scale(0); opacity: 0; } 53% { transform: rotate(-24deg) scale(1.15); opacity: 1; } 55%, 60%, 64%, 68%, 72% { transform: rotate(-24deg) scale(1); } 58%, 62%, 66%, 70% { transform: rotate(-28deg) scale(1.08); } 80% { transform: rotate(-24deg) scale(1); opacity: 1; } 88%, 100% { transform: rotate(-24deg) scale(0.3); opacity: 0; } }
+.aj-tn { width: 13px; height: 16px; z-index: 4; } .aj-tn.aj-tn2, .aj-tn.aj-tn4 { width: 17px; }
+.aj-act .aj-tn { animation-name: aj-cr-note; animation-duration: 0.9s; animation-timing-function: ease-out; }
+@keyframes aj-cr-note { 0% { transform: translate(0, 0) rotate(0deg) scale(0.4); opacity: 0; } 15% { transform: translate(0, -4px) rotate(-10deg) scale(1.15); opacity: 1; } 60% { transform: translate(0, -20px) rotate(12deg) scale(1); opacity: 1; } 100% { transform: translate(0, -34px) rotate(-8deg) scale(1); opacity: 0; } }
+.aj-mv-crown .aj-tn1 { left: -200.5px; bottom: 76px; width: 13px; height: 16px; animation-delay: 1.65s; }
+.aj-mv-crown .aj-tn2 { left: 55.5px; bottom: 82px; width: 17px; height: 16px; animation-delay: 1.70s; }
+.aj-mv-crown .aj-tn3 { left: -186.5px; bottom: 88px; width: 13px; height: 16px; animation-delay: 1.90s; }
+.aj-mv-crown .aj-tn4 { left: 43.5px; bottom: 92px; width: 17px; height: 16px; animation-delay: 1.95s; }
+.aj-mv-crown .aj-f1 { left: -285px; bottom: 125.5px; width: 6px; height: 9px; animation-name: aj-cf-f1; animation-delay: 1.42s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f2 { left: -250px; bottom: 119.5px; width: 6px; height: 9px; animation-name: aj-cf-f2; animation-delay: 1.49s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f3 { left: -229px; bottom: 113.5px; width: 6px; height: 9px; animation-name: aj-cf-f3; animation-delay: 1.56s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f4 { left: -194px; bottom: 125.5px; width: 6px; height: 9px; animation-name: aj-cf-f1; animation-delay: 1.63s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f5 { left: -173px; bottom: 119.5px; width: 6px; height: 9px; animation-name: aj-cf-f2; animation-delay: 1.70s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f6 { left: -138px; bottom: 113.5px; width: 6px; height: 9px; animation-name: aj-cf-f3; animation-delay: 1.44s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f7 { left: -117px; bottom: 125.5px; width: 6px; height: 9px; animation-name: aj-cf-f1; animation-delay: 1.51s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f8 { left: -82px; bottom: 119.5px; width: 6px; height: 9px; animation-name: aj-cf-f2; animation-delay: 1.58s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f9 { left: -61px; bottom: 113.5px; width: 6px; height: 9px; animation-name: aj-cf-f3; animation-delay: 1.65s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f10 { left: -26px; bottom: 125.5px; width: 6px; height: 9px; animation-name: aj-cf-f1; animation-delay: 1.72s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f11 { left: -5px; bottom: 119.5px; width: 6px; height: 9px; animation-name: aj-cf-f2; animation-delay: 1.46s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-f12 { left: 30px; bottom: 113.5px; width: 6px; height: 9px; animation-name: aj-cf-f3; animation-delay: 1.53s; animation-duration: 1.08s; animation-timing-function: linear; }
+.aj-mv-crown .aj-fw1 { left: -251px; bottom: 65px; width: 62px; height: 62px; animation-delay: 1.65s; animation-duration: 0.9s; }
+.aj-mv-crown .aj-rk1 { left: -221.5px; bottom: 82px; width: 3px; height: 14px; animation-delay: 1.33s; animation-duration: 0.32s; }
+.aj-mv-crown .aj-fw2 { left: -131px; bottom: 81px; width: 58px; height: 58px; animation-delay: 1.88s; animation-duration: 0.9s; }
+.aj-mv-crown .aj-rk2 { left: -103.5px; bottom: 96px; width: 3px; height: 14px; animation-delay: 1.56s; animation-duration: 0.32s; }
+.aj-mv-crown .aj-poof { left: -72px; bottom: 17.6px; animation-name: aj-poof-78; }
+.aj-jolt.aj-x-crown.aj-j0 { animation: aj-x-crown-0 2.9s ease-in-out backwards; } .aj-jolt.aj-x-crown.aj-j1 { animation: aj-x-crown-1 2.9s ease-in-out backwards; }
+@keyframes aj-x-crown-0 { 0%, 41.5%, 48%, 54%, 67%, 74%, 100% { transform: none; } 43.5% { transform: translate(0, -5px) rotate(0deg) scale(1.14); } 46% { transform: translate(0, 1px) rotate(0deg) scale(1); } 56% { transform: translate(0, 0) rotate(-4deg) scale(1); } 60% { transform: translate(0, 0) rotate(4deg) scale(1); } 64% { transform: translate(0, 0) rotate(-3deg) scale(1); } 69% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+@keyframes aj-x-crown-1 { 0%, 41.5%, 48%, 54%, 67%, 74%, 100% { transform: none; } 43.5% { transform: translate(0, -5px) rotate(0deg) scale(1.14); } 46% { transform: translate(0, 1px) rotate(0deg) scale(1); } 56% { transform: translate(0, 0) rotate(-4deg) scale(1); } 60% { transform: translate(0, 0) rotate(4deg) scale(1); } 64% { transform: translate(0, 0) rotate(-3deg) scale(1); } 69% { transform: translate(0, -1px) rotate(0deg) scale(1.16); } }
+
+/* ── QQ, the ladies: the waltz, 2.8 s. In a bow tie he pops up under a pink spotlight and two queen cards (the queen
+   of hearts and the queen of spades, dancing) hop in either side; a little bow, a curtsy; then a waltz, his hands in
+   theirs, round and round (they circle him, passing in front and behind) with the one-two-three rise and fall, the
+   hearts starting to float up; he twirls them (each spins round) and spins himself, sparkles; then the gentleman's
+   bow, one hand on his middle, the other out, as they curtsy, a burst of hearts and a pink firework; then a puff. ── */
+.aj-act.aj-mv-waltz * { animation-duration: 2.8s; }
+.aj-after.aj-for-waltz .aj-face, .aj-after.aj-for-waltz .aj-face * { animation-duration: 2.8s; }
+.aj-mv-waltz .aj-body { left: -152.25px; bottom: -23.02px; width: 108.5px; height: 105px; transform-origin: 54.25px 94.5px; z-index: 3; }
+.aj-mv-waltz .aj-body { animation-name: aj-qq-body; }
+@keyframes aj-qq-body { 0% { transform: translate(0, 8px) rotate(0deg) scale(0.5); opacity: 0; } 6% { transform: translate(0, -4px) rotate(0deg) scale(1.06); opacity: 1; } 9%, 15%, 52%, 60%, 64% { transform: none; } 12% { transform: translate(0, 1px) rotate(0deg) scale(1); } 16% { transform: translate(0, 2px) rotate(0deg) scale(1); } 20% { transform: translate(6.43px, -2px) rotate(0deg) scale(1); } 24% { transform: translate(9.85px, -2px) rotate(0deg) scale(1); } 28% { transform: translate(8.66px, 2px) rotate(0deg) scale(1); } 32% { transform: translate(3.42px, -2px) rotate(0deg) scale(1); } 36% { transform: translate(-3.42px, -2px) rotate(0deg) scale(1); } 40% { transform: translate(-8.66px, 2px) rotate(0deg) scale(1); } 44% { transform: translate(-9.85px, -2px) rotate(0deg) scale(1); } 48% { transform: translate(-6.43px, -2px) rotate(0deg) scale(1); } 54%, 58%, 62% { transform: translate(0, 0) rotate(0deg) scale(0.1, 1); } 56% { transform: translate(0, 0) rotate(0deg) scale(-1, 1); } 66% { transform: translate(2px, 0) rotate(0deg) scale(1); animation-timing-function: ease-out; } 71%, 75% { transform: translate(4px, 1px) rotate(14deg) scale(1); } 78% { transform: none; opacity: 1; } 87%, 100% { transform: translate(0, 8px) rotate(0deg) scale(0.45); opacity: 0; } }
+.aj-mv-waltz .aj-r-arm-l { animation-name: aj-qq-al; }
+@keyframes aj-qq-al { 0% { transform: rotate(120deg); } 6% { transform: rotate(100deg); } 9%, 71%, 75%, 78%, 100% { transform: rotate(30deg); } 12% { transform: rotate(20deg); } 15% { transform: rotate(70deg); } 16%, 28%, 40% { transform: rotate(80deg); } 20%, 24%, 32%, 36%, 44%, 48% { transform: rotate(66deg); } 52% { transform: rotate(150deg); } 64% { transform: rotate(150deg); animation-timing-function: ease-out; } }
+.aj-mv-waltz .aj-r-fore-l { animation-name: aj-qq-fl; }
+@keyframes aj-qq-fl { 0%, 52% { transform: none; } 6% { transform: rotate(10deg); } 9%, 16%, 28%, 40% { transform: rotate(-20deg); } 12%, 78%, 100% { transform: rotate(-100deg); } 15% { transform: rotate(-10deg); } 20%, 24%, 32%, 36%, 44%, 48% { transform: rotate(-6deg); } 64% { transform: none; animation-timing-function: ease-out; } 71%, 75% { transform: rotate(-110deg); } }
+.aj-mv-waltz .aj-r-arm-r { animation-name: aj-qq-ar; }
+@keyframes aj-qq-ar { 0% { transform: rotate(-120deg); } 6% { transform: rotate(-100deg); } 9% { transform: rotate(-30deg); } 12% { transform: rotate(-90deg); } 15% { transform: rotate(-70deg); } 16%, 28%, 40% { transform: rotate(-80deg); } 20%, 24%, 32%, 36%, 44%, 48% { transform: rotate(-66deg); } 52% { transform: rotate(-150deg); } 64% { transform: rotate(-150deg); animation-timing-function: ease-out; } 71%, 75% { transform: rotate(-95deg); } 78%, 100% { transform: rotate(-60deg); } }
+.aj-mv-waltz .aj-r-fore-r { animation-name: aj-qq-fr; }
+@keyframes aj-qq-fr { 0%, 52%, 78%, 100% { transform: none; } 6%, 71%, 75% { transform: rotate(-10deg); } 9%, 16%, 28%, 40% { transform: rotate(20deg); } 12% { transform: rotate(-20deg); } 15% { transform: rotate(10deg); } 20%, 24%, 32%, 36%, 44%, 48% { transform: rotate(6deg); } 64% { transform: none; animation-timing-function: ease-out; } }
+.aj-mv-waltz .aj-r-leg-l { animation-name: aj-qq-ll; }
+@keyframes aj-qq-ll { 0%, 20%, 24%, 32%, 36%, 44%, 48%, 78%, 100% { transform: none; } 16%, 28%, 40% { transform: rotate(10deg); } 52% { transform: none; animation-timing-function: ease-out; } 71%, 75% { transform: rotate(-8deg); } }
+.aj-mv-waltz .aj-r-shin-l { animation-name: aj-qq-sl; }
+@keyframes aj-qq-sl { 0%, 20%, 24%, 32%, 36%, 44%, 48%, 71%, 100% { transform: none; } 16%, 28%, 40% { transform: rotate(-12deg); } 52% { transform: none; animation-timing-function: ease-out; } }
+.aj-mv-waltz .aj-r-leg-r { animation-name: aj-qq-lr; }
+@keyframes aj-qq-lr { 0%, 78%, 100% { transform: none; } 16%, 28%, 40% { transform: rotate(-6deg); } 20%, 24%, 32%, 36%, 44%, 48% { transform: rotate(4deg); } 52% { transform: none; animation-timing-function: ease-out; } 71%, 75% { transform: rotate(-16deg); } }
+.aj-mv-waltz .aj-r-shin-r { animation-name: aj-qq-sr; }
+@keyframes aj-qq-sr { 0%, 20%, 24%, 32%, 36%, 44%, 48%, 71%, 100% { transform: none; } 16%, 28%, 40% { transform: rotate(8deg); } 52% { transform: none; animation-timing-function: ease-out; } }
+.aj-mv-waltz .aj-r-head { animation-name: aj-qq-hd; }
+@keyframes aj-qq-hd { 0%, 15% { transform: none; } 12% { transform: rotate(10deg); } 16%, 20%, 24%, 40%, 44%, 48% { transform: rotate(6deg); } 28%, 32%, 36% { transform: rotate(-6deg); } 52% { transform: none; animation-timing-function: ease-out; } 71%, 75% { transform: rotate(14deg); } 78%, 100% { transform: rotate(4deg); } }
+.aj-mv-waltz .aj-r-all { animation-name: aj-qq-all; }
+@keyframes aj-qq-all { 0%, 78%, 100% { transform: none; } 66% { transform: none; animation-timing-function: ease-out; } 71%, 75% { transform: translate(-4px, 3px); } }
+.aj-queen { left: -124.4px; bottom: -20px; width: 52.8px; height: 72.6px; transform-origin: 26.4px 66px; z-index: 2; }
+.aj-queen g { transform-box: view-box; } .aj-qd { transform-origin: 0 28px; } .aj-qd-arm-l { transform-origin: -12px -3px; } .aj-qd-arm-r { transform-origin: 12px -3px; } .aj-qd-leg-l { transform-origin: -5px 17px; } .aj-qd-leg-r { transform-origin: 5px 17px; }
+.aj-mv-waltz .aj-qn1 { animation-name: aj-qq-q1; }
+@keyframes aj-qq-q1 { 0% { transform: translate(-94px, -18px) rotate(0deg) scale(0.4); opacity: 0; animation-timing-function: ease-out; z-index: 2; } 5% { transform: translate(-68px, -16px) rotate(0deg) scale(0.9); opacity: 1; animation-timing-function: ease-in; z-index: 2; } 8%, 12%, 60% { transform: translate(-54px, 0) rotate(0deg) scale(1); z-index: 2; } 10% { transform: translate(-54px, 0) rotate(0deg) scale(1.04, 0.94); z-index: 2; } 16%, 52% { transform: translate(-54px, 2px) rotate(0deg) scale(1); z-index: 2; } 18% { transform: translate(-47.32px, 1.58px) rotate(0deg) scale(1.03); z-index: 4; } 20% { transform: translate(-34.94px, 4.29px) rotate(0deg) scale(1.05); z-index: 4; } 22% { transform: translate(-18.34px, 6.29px) rotate(0deg) scale(1.07); z-index: 4; } 24% { transform: translate(0.47px, 7.36px) rotate(0deg) scale(1.08); z-index: 4; } 26% { transform: translate(19.23px, 7.36px) rotate(0deg) scale(1.08); z-index: 4; } 28% { transform: translate(35.66px, 9.79px) rotate(0deg) scale(1.07); z-index: 4; } 30% { transform: translate(47.79px, 4.29px) rotate(0deg) scale(1.05); z-index: 4; } 32% { transform: translate(54.16px, 1.58px) rotate(0deg) scale(1.03); z-index: 4; } 34% { transform: translate(54px, -1.5px) rotate(0deg) scale(1); z-index: 2; } 36% { transform: translate(47.32px, -2.18px) rotate(0deg) scale(0.97); z-index: 2; } 38% { transform: translate(34.94px, -2.79px) rotate(0deg) scale(0.95); z-index: 2; } 40% { transform: translate(18.34px, 0.27px) rotate(0deg) scale(0.93); z-index: 2; } 42% { transform: translate(-0.47px, -3.47px) rotate(0deg) scale(0.92); z-index: 2; } 44% { transform: translate(-19.23px, -3.47px) rotate(0deg) scale(0.92); z-index: 2; } 46% { transform: translate(-35.66px, -3.23px) rotate(0deg) scale(0.93); z-index: 2; } 48% { transform: translate(-47.79px, -2.79px) rotate(0deg) scale(0.95); z-index: 2; } 50% { transform: translate(-54.16px, -2.18px) rotate(0deg) scale(0.97); z-index: 2; } 54%, 58%, 62% { transform: translate(-54px, 0) rotate(0deg) scale(0.08, 1); z-index: 2; } 56% { transform: translate(-54px, 0) rotate(0deg) scale(-1, 1); z-index: 2; } 64% { transform: translate(-54px, 0) rotate(0deg) scale(1); animation-timing-function: ease-out; z-index: 2; } 71%, 75% { transform: translate(-56.7px, 3px) rotate(10deg) scale(1.04, 0.9); z-index: 2; } 78% { transform: translate(-54px, 0) rotate(0deg) scale(1); opacity: 1; z-index: 2; } 87%, 100% { transform: translate(-32.4px, 4px) rotate(0deg) scale(0.4); opacity: 0; z-index: 2; } }
+.aj-mv-waltz .aj-qn1 .aj-qd-arm-r { animation-name: aj-qq-q1-in; }
+@keyframes aj-qq-q1-in { 0%, 8%, 12%, 78%, 100% { transform: none; } 10% { transform: rotate(-50deg); } 16% { transform: rotate(-20deg); } 16%, 24%, 32%, 40%, 48% { transform: rotate(-30deg); } 20%, 28%, 36%, 44% { transform: rotate(-10deg); } 52%, 64% { transform: rotate(-70deg); } 71%, 75% { transform: rotate(40deg); } }
+.aj-mv-waltz .aj-qn1 .aj-qd-arm-l { animation-name: aj-qq-q1-out; }
+@keyframes aj-qq-q1-out { 0%, 8%, 78%, 100% { transform: none; } 12% { transform: rotate(30deg); } 16%, 24%, 32%, 40%, 48% { transform: rotate(20deg); } 20%, 28%, 36%, 44% { transform: rotate(40deg); } 52%, 64% { transform: rotate(60deg); } 71%, 75% { transform: rotate(70deg); } }
+.aj-mv-waltz .aj-qn2 { animation-name: aj-qq-q2; }
+@keyframes aj-qq-q2 { 0% { transform: translate(94px, -18px) rotate(0deg) scale(0.4); opacity: 0; animation-timing-function: ease-out; z-index: 2; } 5% { transform: translate(68px, -16px) rotate(0deg) scale(0.9); opacity: 1; animation-timing-function: ease-in; z-index: 2; } 8%, 12%, 60% { transform: translate(54px, 0) rotate(0deg) scale(1); z-index: 2; } 10% { transform: translate(54px, 0) rotate(0deg) scale(1.04, 0.94); z-index: 2; } 16%, 52% { transform: translate(54px, 2px) rotate(0deg) scale(1); z-index: 2; } 18% { transform: translate(54.16px, -2.18px) rotate(0deg) scale(0.97); z-index: 2; } 20% { transform: translate(47.79px, -2.79px) rotate(0deg) scale(0.95); z-index: 2; } 22% { transform: translate(35.66px, -3.23px) rotate(0deg) scale(0.93); z-index: 2; } 24% { transform: translate(19.23px, -3.47px) rotate(0deg) scale(0.92); z-index: 2; } 26% { transform: translate(0.47px, -3.47px) rotate(0deg) scale(0.92); z-index: 2; } 28% { transform: translate(-18.34px, 0.27px) rotate(0deg) scale(0.93); z-index: 2; } 30% { transform: translate(-34.94px, -2.79px) rotate(0deg) scale(0.95); z-index: 2; } 32% { transform: translate(-47.32px, -2.18px) rotate(0deg) scale(0.97); z-index: 2; } 34% { transform: translate(-54px, -1.5px) rotate(0deg) scale(1); z-index: 2; } 36% { transform: translate(-54.16px, 1.58px) rotate(0deg) scale(1.03); z-index: 4; } 38% { transform: translate(-47.79px, 4.29px) rotate(0deg) scale(1.05); z-index: 4; } 40% { transform: translate(-35.66px, 9.79px) rotate(0deg) scale(1.07); z-index: 4; } 42% { transform: translate(-19.23px, 7.36px) rotate(0deg) scale(1.08); z-index: 4; } 44% { transform: translate(-0.47px, 7.36px) rotate(0deg) scale(1.08); z-index: 4; } 46% { transform: translate(18.34px, 6.29px) rotate(0deg) scale(1.07); z-index: 4; } 48% { transform: translate(34.94px, 4.29px) rotate(0deg) scale(1.05); z-index: 4; } 50% { transform: translate(47.32px, 1.58px) rotate(0deg) scale(1.03); z-index: 4; } 54%, 58%, 62% { transform: translate(54px, 0) rotate(0deg) scale(0.08, 1); z-index: 2; } 56% { transform: translate(54px, 0) rotate(0deg) scale(-1, 1); z-index: 2; } 64% { transform: translate(54px, 0) rotate(0deg) scale(1); animation-timing-function: ease-out; z-index: 2; } 71%, 75% { transform: translate(56.7px, 3px) rotate(-10deg) scale(1.04, 0.9); z-index: 2; } 78% { transform: translate(54px, 0) rotate(0deg) scale(1); opacity: 1; z-index: 2; } 87%, 100% { transform: translate(32.4px, 4px) rotate(0deg) scale(0.4); opacity: 0; z-index: 2; } }
+.aj-mv-waltz .aj-qn2 .aj-qd-arm-l { animation-name: aj-qq-q2-in; }
+@keyframes aj-qq-q2-in { 0%, 8%, 12%, 78%, 100% { transform: none; } 10% { transform: rotate(50deg); } 16% { transform: rotate(20deg); } 16%, 24%, 32%, 40%, 48% { transform: rotate(30deg); } 20%, 28%, 36%, 44% { transform: rotate(10deg); } 52%, 64% { transform: rotate(70deg); } 71%, 75% { transform: rotate(-40deg); } }
+.aj-mv-waltz .aj-qn2 .aj-qd-arm-r { animation-name: aj-qq-q2-out; }
+@keyframes aj-qq-q2-out { 0%, 8%, 78%, 100% { transform: none; } 12% { transform: rotate(-30deg); } 16%, 24%, 32%, 40%, 48% { transform: rotate(-20deg); } 20%, 28%, 36%, 44% { transform: rotate(-40deg); } 52%, 64% { transform: rotate(-60deg); } 71%, 75% { transform: rotate(-70deg); } }
+.aj-mv-waltz .aj-qd-leg-l { animation-name: aj-qq-leg-l; } .aj-mv-waltz .aj-qd-leg-r { animation-name: aj-qq-leg-r; }
+@keyframes aj-qq-leg-l { 0%, 16%, 52%, 78%, 100% { transform: none; } 16%, 24%, 32%, 40%, 48% { transform: rotate(-6deg); } 20%, 28%, 36%, 44% { transform: rotate(14deg); } 71%, 75% { transform: rotate(18deg); } }
+@keyframes aj-qq-leg-r { 0%, 16%, 52%, 78%, 100% { transform: none; } 16%, 24%, 32%, 40%, 48% { transform: rotate(6deg); } 20%, 28%, 36%, 44% { transform: rotate(-14deg); } 71%, 75% { transform: rotate(-18deg); } }
+.aj-pink { left: -223px; bottom: -50.4px; width: 250px; height: 170px; z-index: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 122, 182, 0.5), rgba(255, 122, 182, 0.16) 60%, rgba(255, 122, 182, 0)); }
+.aj-mv-waltz .aj-pink { animation-name: aj-qq-pink; }
+@keyframes aj-qq-pink { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 8%, 84% { transform: none; opacity: 1; } 30% { transform: translate(8px, 0) scale(1); } 46% { transform: translate(-8px, 0) scale(1); } 70% { transform: translate(0, 0) scale(1.08); } 94%, 100% { transform: none; opacity: 0; } }
+.aj-heart { width: 14px; height: 15px; z-index: 4; }
+.aj-act .aj-heart { animation-name: aj-qq-heart; animation-duration: 1.1s; animation-timing-function: ease-out; }
+@keyframes aj-qq-heart { 0% { transform: translate(0, 0) rotate(0deg) scale(0.3); opacity: 0; } 12% { transform: translate(0, -6px) rotate(0deg) scale(1.15); opacity: 1; } 45% { transform: translate(-7px, -28px) rotate(-10deg) scale(1); opacity: 1; } 75% { transform: translate(5px, -48px) rotate(10deg) scale(1); opacity: 0.9; } 100% { transform: translate(-3px, -64px) rotate(-6deg) scale(0.9); opacity: 0; } }
+.aj-mv-waltz .aj-h1 { left: -169px; bottom: 38.5px; width: 14px; height: 15px; animation-delay: 0.65s; }
+.aj-mv-waltz .aj-h2 { left: -36.3px; bottom: 43.25px; width: 12.6px; height: 13.5px; animation-delay: 0.90s; }
+.aj-mv-waltz .aj-h3 { left: -139.7px; bottom: 67.75px; width: 15.4px; height: 16.5px; animation-delay: 1.15s; }
+.aj-mv-waltz .aj-h4 { left: -69px; bottom: 58.5px; width: 14px; height: 15px; animation-delay: 1.30s; }
+.aj-mv-waltz .aj-h5 { left: -121.1px; bottom: 50.25px; width: 18.2px; height: 19.5px; animation-delay: 1.90s; animation-duration: 0.78s; }
+.aj-mv-waltz .aj-h6 { left: -88.05px; bottom: 55.38px; width: 16.1px; height: 17.25px; animation-delay: 1.94s; animation-duration: 0.78s; }
+.aj-mv-waltz .aj-h7 { left: -153.35px; bottom: 48.12px; width: 14.7px; height: 15.75px; animation-delay: 1.98s; animation-duration: 0.78s; }
+.aj-mv-waltz .aj-h8 { left: -56.75px; bottom: 50.62px; width: 17.5px; height: 18.75px; animation-delay: 2.01s; animation-duration: 0.78s; }
+.aj-mv-waltz .aj-spk.aj-k1 { left: -199px; bottom: 89px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 0.30s backwards; }
+.aj-mv-waltz .aj-spk.aj-k2 { left: -19px; bottom: 99px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 0.60s backwards; }
+.aj-mv-waltz .aj-spk.aj-k3 { left: -159px; bottom: 111px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.50s backwards; }
+.aj-mv-waltz .aj-spk.aj-k4 { left: -49px; bottom: 107px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.60s backwards; }
+.aj-mv-waltz .aj-spk.aj-k5 { left: -105px; bottom: 119px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.70s backwards; }
+.aj-mv-waltz .aj-fw1 { left: -134px; bottom: 70px; width: 72px; height: 72px; animation-delay: 1.88s; animation-duration: 0.9s; }
+.aj-mv-waltz .aj-rk1 { left: -99.5px; bottom: 92px; width: 3px; height: 14px; animation-delay: 1.56s; animation-duration: 0.32s; }
+.aj-mv-waltz .aj-fw2 { left: -244px; bottom: 62px; width: 56px; height: 56px; animation-delay: 1.70s; animation-duration: 0.9s; }
+.aj-mv-waltz .aj-rk2 { left: -217.5px; bottom: 76px; width: 3px; height: 14px; animation-delay: 1.38s; animation-duration: 0.32s; }
+.aj-lights { left: -312px; bottom: -54px; width: 390px; height: 180px; z-index: 1; }
+.aj-lights i { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; opacity: 0; }
+.aj-lights i:nth-child(1) { left: 40px; top: 30px; background: radial-gradient(closest-side, rgba(255, 122, 182, 0.95), rgba(255, 122, 182, 0.3) 55%, rgba(255, 122, 182, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(1) { animation: aj-qq-light 0.72s ease-in-out 0.20s 3 backwards; }
+.aj-lights i:nth-child(2) { left: 120px; top: 12px; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.3) 55%, rgba(255, 255, 255, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(2) { animation: aj-qq-light 0.72s ease-in-out 0.25s 3 backwards; }
+.aj-lights i:nth-child(3) { left: 330px; top: 24px; background: radial-gradient(closest-side, rgba(251, 191, 36, 0.95), rgba(251, 191, 36, 0.3) 55%, rgba(251, 191, 36, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(3) { animation: aj-qq-light 0.72s ease-in-out 0.30s 3 backwards; }
+.aj-lights i:nth-child(4) { left: 370px; top: 70px; background: radial-gradient(closest-side, rgba(255, 179, 209, 0.95), rgba(255, 179, 209, 0.3) 55%, rgba(255, 179, 209, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(4) { animation: aj-qq-light 0.72s ease-in-out 0.35s 3 backwards; }
+.aj-lights i:nth-child(5) { left: 60px; top: 120px; background: radial-gradient(closest-side, rgba(255, 122, 182, 0.95), rgba(255, 122, 182, 0.3) 55%, rgba(255, 122, 182, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(5) { animation: aj-qq-light 0.72s ease-in-out 0.40s 3 backwards; }
+.aj-lights i:nth-child(6) { left: 300px; top: 150px; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.3) 55%, rgba(255, 255, 255, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(6) { animation: aj-qq-light 0.72s ease-in-out 0.45s 3 backwards; }
+.aj-lights i:nth-child(7) { left: 180px; top: 160px; background: radial-gradient(closest-side, rgba(251, 191, 36, 0.95), rgba(251, 191, 36, 0.3) 55%, rgba(251, 191, 36, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(7) { animation: aj-qq-light 0.72s ease-in-out 0.50s 3 backwards; }
+.aj-lights i:nth-child(8) { left: 240px; top: 6px; background: radial-gradient(closest-side, rgba(255, 179, 209, 0.95), rgba(255, 179, 209, 0.3) 55%, rgba(255, 179, 209, 0)); }
+.aj-mv-waltz .aj-lights i:nth-child(8) { animation: aj-qq-light 0.72s ease-in-out 0.55s 3 backwards; }
+@keyframes aj-qq-light { 0%, 100% { transform: scale(0.4); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } }
+.aj-mv-waltz .aj-lights { animation-name: aj-qq-lights; }
+@keyframes aj-qq-lights { 0%, 98%, 100% { opacity: 0; } 6%, 90% { opacity: 1; } }
+.aj-mv-waltz .aj-conf { border-radius: 50% 0; }
+.aj-mv-waltz .aj-f1 { left: -176px; bottom: 120px; width: 8px; height: 8px; animation-name: aj-cf-f1; animation-delay: 1.70s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f2 { left: -154px; bottom: 112px; width: 8px; height: 8px; animation-name: aj-cf-f2; animation-delay: 1.73s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f3 { left: -132px; bottom: 120px; width: 8px; height: 8px; animation-name: aj-cf-f3; animation-delay: 1.76s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f4 { left: -110px; bottom: 112px; width: 8px; height: 8px; animation-name: aj-cf-f1; animation-delay: 1.79s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f5 { left: -88px; bottom: 120px; width: 8px; height: 8px; animation-name: aj-cf-f2; animation-delay: 1.70s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f6 { left: -66px; bottom: 112px; width: 8px; height: 8px; animation-name: aj-cf-f3; animation-delay: 1.73s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f7 { left: -44px; bottom: 120px; width: 8px; height: 8px; animation-name: aj-cf-f1; animation-delay: 1.76s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-f8 { left: -22px; bottom: 112px; width: 8px; height: 8px; animation-name: aj-cf-f2; animation-delay: 1.79s; animation-duration: 0.98s; animation-timing-function: linear; }
+.aj-mv-waltz .aj-flash { left: -173px; top: auto; bottom: -38.4px; margin: 0; background: radial-gradient(rgba(255, 255, 255, 0.9) 0, rgba(255, 182, 214, 0.7) 24%, rgba(255, 122, 182, 0.3) 44%, rgba(255, 122, 182, 0) 66%); animation-name: aj-qq-flash; }
+@keyframes aj-qq-flash { 0%, 69% { transform: scale(0.3); opacity: 0; } 71.5% { transform: none; opacity: 0.9; } 80%, 100% { transform: scale(1.3); opacity: 0; } }
+.aj-mv-waltz .aj-poof { left: -120px; bottom: 17.6px; animation-name: aj-poof-78; }
+.aj-jolt.aj-x-waltz.aj-j0 { animation: aj-x-waltz-0 2.8s ease-in-out backwards; } .aj-jolt.aj-x-waltz.aj-j1 { animation: aj-x-waltz-1 2.8s ease-in-out backwards; }
+@keyframes aj-x-waltz-0 { 0%, 15%, 52%, 66%, 82%, 100% { transform: none; } 16%, 40% { transform: translate(0, 1px) rotate(4deg) scale(1); } 20%, 36%, 44% { transform: translate(0, -1px) rotate(-4deg) scale(1); } 24%, 32%, 48% { transform: translate(0, -1px) rotate(4deg) scale(1); } 28% { transform: translate(0, 1px) rotate(-4deg) scale(1); } 71%, 75% { transform: translate(0, 0) rotate(10deg) scale(1); } 78% { transform: translate(0, -1px) rotate(0deg) scale(1.14); } }
+@keyframes aj-x-waltz-1 { 0%, 15%, 52%, 66%, 82%, 100% { transform: none; } 16%, 40% { transform: translate(0, 1px) rotate(4deg) scale(1); } 20%, 36%, 44% { transform: translate(0, -1px) rotate(-4deg) scale(1); } 24%, 32%, 48% { transform: translate(0, -1px) rotate(4deg) scale(1); } 28% { transform: translate(0, 1px) rotate(-4deg) scale(1); } 71%, 75% { transform: translate(0, 0) rotate(10deg) scale(1); } 78% { transform: translate(0, -1px) rotate(0deg) scale(1.14); } }
+
+/* ── JJ, the jacks: 2.7 s, after the launch splash. He pops up beside the hand and a big jack (the splash's J♥, its
+   court picture empty) rises and flips face up under a green glow; he crouches, leaps and dives head first into it
+   (sparkles, the card wobbles) and there he is, its court picture, lifting his shades. A second, identical jack
+   slides out behind it, they shudder and snap apart sideways into the splash's fan (gold snap marks, speed lines,
+   a flash, a light sweeping the stage, suit pips flying, a sheen over both cards, a firework), hold, and go in a
+   puff as the face takes over. ── */
+.aj-act.aj-mv-split * { animation-duration: 2.7s; }
+.aj-after.aj-for-split .aj-face, .aj-after.aj-for-split .aj-face * { animation-duration: 2.7s; }
+.aj-mv-split .aj-body { left: -101px; bottom: -23.02px; width: 126px; height: 126px; transform-origin: 63px 85.75px; z-index: 3; }
+.aj-mv-split .aj-body { animation-name: aj-jj-body; }
+@keyframes aj-jj-body { 0% { transform: translate(0, 8px) rotate(0deg) scale(0.5); opacity: 0; } 6% { transform: translate(0, -4px) rotate(0deg) scale(1.06); opacity: 1; } 9% { transform: none; } 14% { transform: translate(0, 4px) rotate(0deg) scale(1.06, 0.9); } 18% { transform: translate(0, 5px) rotate(0deg) scale(1.08, 0.86); animation-timing-function: ease-out; } 20% { transform: translate(-6px, -10px) rotate(-10deg) scale(0.94, 1.08); animation-timing-function: ease-in; } 24% { transform: translate(-36px, -54px) rotate(-60deg) scale(1); } 28% { transform: translate(-68px, -54.77px) rotate(-150deg) scale(0.55); opacity: 1; } 30%, 100% { transform: translate(-80px, -44.77px) rotate(-170deg) scale(0.2); opacity: 0; } }
+.aj-mv-split .aj-r-arm-l { animation-name: aj-jj-al; }
+@keyframes aj-jj-al { 0% { transform: rotate(120deg); } 6% { transform: rotate(100deg); } 9% { transform: rotate(20deg); } 14% { transform: rotate(-30deg); } 18% { transform: rotate(-40deg); animation-timing-function: ease-out; } 21% { transform: rotate(175deg); } 26%, 100% { transform: rotate(178deg); } }
+.aj-mv-split .aj-r-fore-l { animation-name: aj-jj-fl; }
+@keyframes aj-jj-fl { 0%, 21%, 26%, 100% { transform: none; } 6% { transform: rotate(10deg); } 14% { transform: rotate(20deg); } 18% { transform: rotate(20deg); animation-timing-function: ease-out; } }
+.aj-mv-split .aj-r-arm-r { animation-name: aj-jj-ar; }
+@keyframes aj-jj-ar { 0% { transform: rotate(-120deg); } 6% { transform: rotate(-100deg); } 9% { transform: rotate(-20deg); } 14% { transform: rotate(30deg); } 18% { transform: rotate(40deg); animation-timing-function: ease-out; } 21% { transform: rotate(-175deg); } 26%, 100% { transform: rotate(-178deg); } }
+.aj-mv-split .aj-r-fore-r { animation-name: aj-jj-fr; }
+@keyframes aj-jj-fr { 0%, 21%, 26%, 100% { transform: none; } 6% { transform: rotate(-10deg); } 14% { transform: rotate(-20deg); } 18% { transform: rotate(-20deg); animation-timing-function: ease-out; } }
+.aj-mv-split .aj-r-leg-l { animation-name: aj-jj-ll; }
+@keyframes aj-jj-ll { 0%, 21% { transform: none; } 14% { transform: rotate(30deg); } 18% { transform: rotate(36deg); animation-timing-function: ease-out; } 26%, 100% { transform: rotate(10deg); } }
+.aj-mv-split .aj-r-shin-l { animation-name: aj-jj-sl; }
+@keyframes aj-jj-sl { 0% { transform: none; } 14% { transform: rotate(-60deg); } 18% { transform: rotate(-70deg); animation-timing-function: ease-out; } 21% { transform: rotate(10deg); } 26%, 100% { transform: rotate(20deg); } }
+.aj-mv-split .aj-r-leg-r { animation-name: aj-jj-lr; }
+@keyframes aj-jj-lr { 0%, 21% { transform: none; } 14% { transform: rotate(-30deg); } 18% { transform: rotate(-36deg); animation-timing-function: ease-out; } 26%, 100% { transform: rotate(-10deg); } }
+.aj-mv-split .aj-r-shin-r { animation-name: aj-jj-sr; }
+@keyframes aj-jj-sr { 0% { transform: none; } 14% { transform: rotate(60deg); } 18% { transform: rotate(70deg); animation-timing-function: ease-out; } 21% { transform: rotate(-10deg); } 26%, 100% { transform: rotate(-20deg); } }
+.aj-mv-split .aj-r-head { animation-name: aj-jj-hd; }
+@keyframes aj-jj-hd { 0%, 26%, 100% { transform: none; } 14% { transform: rotate(8deg); } 18% { transform: rotate(10deg); animation-timing-function: ease-out; } 21% { transform: rotate(-6deg); } }
+.aj-mv-split .aj-r-all { animation-name: aj-jj-all; }
+@keyframes aj-jj-all { 0%, 100% {  } }
+.aj-jack { left: -147px; bottom: 25.85px; width: 58px; height: 80.3px; z-index: 2; overflow: hidden; border-radius: 6px; }
+.aj-jack g { transform-box: view-box; } .aj-jc-pic { opacity: 0; transform-origin: 0 20px; } .aj-jc-shades { transform-origin: 0 -12px; }
+.aj-mv-split .aj-jk1 { z-index: 3; animation-name: aj-jj-c1; } .aj-mv-split .aj-jk2 { animation-name: aj-jj-c2; }
+@keyframes aj-jj-c1 { 0% { transform: translate(0, 40px) rotate(0deg) scale(0, 0.3); opacity: 0; } 4% { transform: translate(0, 30px) rotate(0deg) scale(0.05, 0.4); opacity: 1; animation-timing-function: ease-out; } 9% { transform: translate(0, -4px) rotate(0deg) scale(0.1, 1.02); } 12% { transform: translate(0, 0) rotate(0deg) scale(1.04); } 14%, 29.5%, 35%, 42% { transform: none; } 31% { transform: translate(0, 1px) rotate(0deg) scale(1.08, 0.92); } 33% { transform: translate(0, 0) rotate(0deg) scale(0.96, 1.04); } 43%, 45% { transform: translate(-2px, 0) rotate(-2deg) scale(1); } 44% { transform: translate(2px, 0) rotate(2deg) scale(1); } 46% { transform: none; animation-timing-function: cubic-bezier(.22, 1.5, .36, 1); } 49.5%, 70% { transform: translate(-42px, 3px) rotate(-14deg) scale(1); } 60% { transform: translate(-42px, 1px) rotate(-15deg) scale(1); } 78% { transform: translate(-42px, 3px) rotate(-14deg) scale(1); opacity: 1; } 87%, 100% { transform: translate(-12.6px, 4px) rotate(0deg) scale(0.35); opacity: 0; } }
+@keyframes aj-jj-c2 { 0%, 37.5% { transform: none; opacity: 0; } 38% { transform: translate(1px, 0) rotate(0deg) scale(1); opacity: 1; animation-timing-function: ease-out; } 40%, 42% { transform: translate(8px, -2px) rotate(4deg) scale(1); } 43%, 45% { transform: translate(10px, -2px) rotate(6deg) scale(1); } 44% { transform: translate(6px, -2px) rotate(2deg) scale(1); } 46% { transform: translate(8px, -2px) rotate(4deg) scale(1); animation-timing-function: cubic-bezier(.22, 1.5, .36, 1); } 49.5%, 70% { transform: translate(44px, -1px) rotate(8deg) scale(1); } 60% { transform: translate(44px, -3px) rotate(9deg) scale(1); } 78% { transform: translate(44px, -1px) rotate(8deg) scale(1); opacity: 1; } 87%, 100% { transform: translate(13.2px, 4px) rotate(0deg) scale(0.35); opacity: 0; } }
+.aj-mv-split .aj-jc-pic { animation-name: aj-jj-pic; } .aj-mv-split .aj-jc-shades { animation-name: aj-jj-shades; }
+@keyframes aj-jj-pic { 0%, 29.5% { transform: scale(0.3); opacity: 0; } 31.5% { transform: scale(1.15); opacity: 1; } 33.5% { transform: none; } 100% { transform: none; opacity: 1; } }
+@keyframes aj-jj-shades { 0%, 43%, 68%, 100% { transform: none; } 34%, 60% { transform: none; animation-timing-function: ease-out; } 36%, 62% { transform: translate(0, -22px) rotate(-8deg); } 40%, 66% { transform: translate(0, -22px) rotate(-8deg); animation-timing-function: ease-in; } 42% { transform: translate(0, 1px) rotate(1deg); } }
+.aj-sheen { position: absolute; top: -10%; left: -30%; width: 30%; height: 120%; opacity: 0; transform: skewX(-18deg); background: linear-gradient(90deg, rgba(255, 215, 106, 0), rgba(255, 248, 224, 0.9) 50%, rgba(255, 215, 106, 0)); }
+.aj-mv-split .aj-jk1 .aj-sheen { animation-name: aj-jj-sheen; } .aj-mv-split .aj-jk2 .aj-sheen { animation-name: aj-jj-sheen2; }
+@keyframes aj-jj-sheen { 0%, 50% { transform: skewX(-18deg); opacity: 0; } 50.5% { transform: skewX(-18deg); opacity: 1; } 57% { transform: translate(100px, 0) skewX(-18deg); opacity: 1; } 57.5%, 100% { transform: translate(100px, 0) skewX(-18deg); opacity: 0; } }
+@keyframes aj-jj-sheen2 { 0%, 52% { transform: skewX(-18deg); opacity: 0; } 52.5% { transform: skewX(-18deg); opacity: 1; } 59% { transform: translate(100px, 0) skewX(-18deg); opacity: 1; } 59.5%, 100% { transform: translate(100px, 0) skewX(-18deg); opacity: 0; } }
+.aj-felt { left: -266px; bottom: -30px; width: 300px; height: 200px; z-index: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(18, 98, 61, 0.75), rgba(15, 81, 50, 0.3) 55%, rgba(15, 81, 50, 0)); }
+.aj-mv-split .aj-felt { animation-name: aj-jj-felt; }
+@keyframes aj-jj-felt { 0% { transform: scale(0.5); opacity: 0; } 10%, 80% { transform: none; opacity: 1; } 46%, 56% { transform: none; } 49% { transform: scale(1.15); } 92%, 100% { transform: none; opacity: 0; } }
+.aj-sweep { left: -340px; bottom: -84px; width: 56px; height: 200px; z-index: 1; background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 250, 225, 0.32) 50%, rgba(255, 255, 255, 0)); }
+.aj-mv-split .aj-sweep { animation-name: aj-jj-sweep; animation-timing-function: ease-in-out; }
+@keyframes aj-jj-sweep { 0%, 47% { transform: translate(-60px, 0) rotate(20deg); opacity: 0; } 48% { transform: translate(-40px, 0) rotate(20deg); opacity: 1; } 62% { transform: translate(440px, 0) rotate(20deg); opacity: 1; } 63%, 100% { transform: translate(450px, 0) rotate(20deg); opacity: 0; } }
+.aj-snap { width: 20px; height: 30px; z-index: 4; } .aj-mv-split .aj-sn1 { left: -212px; bottom: 65px; width: 20px; height: 30px; transform-origin: 100% 50%; animation-name: aj-jj-sn1; } .aj-mv-split .aj-sn2 { left: -40px; bottom: 73px; width: 20px; height: 30px; transform-origin: 0 50%; animation-name: aj-jj-sn2; }
+@keyframes aj-jj-sn1 { 0%, 48.5% { transform: translate(0, 0) scale(0, 1); opacity: 0; } 50% { transform: translate(0, 0) scale(-0.4, 1); opacity: 1; } 52.5% { transform: translate(0, 0) scale(-1, 1); opacity: 1; } 58%, 100% { transform: translate(-10px, 0) scale(-0.4, 1); opacity: 0; } }
+@keyframes aj-jj-sn2 { 0%, 48.5% { transform: translate(0, 0) scale(0, 1); opacity: 0; } 50% { transform: translate(0, 0) scale(0.4, 1); opacity: 1; } 52.5% { transform: none; opacity: 1; } 58%, 100% { transform: translate(10px, 0) scale(0.4, 1); opacity: 0; } }
+.aj-strk { width: 46px; height: 18px; z-index: 1; } .aj-mv-split .aj-strk1 { left: -163px; bottom: 87px; width: 46px; height: 18px; animation-name: aj-jj-strk1; } .aj-mv-split .aj-strk2 { left: -115px; bottom: 37px; width: 46px; height: 18px; animation-name: aj-jj-strk2; }
+@keyframes aj-jj-strk1 { 0%, 46.5% { transform: translate(0, 0) scale(0.2, 1); opacity: 0; } 48% { transform: translate(-10px, 0) scale(1); opacity: 1; } 54%, 100% { transform: translate(-30px, 0) scale(0.4, 1); opacity: 0; } }
+@keyframes aj-jj-strk2 { 0%, 46.5% { transform: translate(0, 0) scale(0.2, 1); opacity: 0; } 48% { transform: translate(10px, 0) scale(1); opacity: 1; } 54%, 100% { transform: translate(30px, 0) scale(0.4, 1); opacity: 0; } }
+.aj-mv-split .aj-flash { left: -193px; top: auto; bottom: -9px; margin: 0; animation-name: aj-jj-flash; }
+@keyframes aj-jj-flash { 0%, 27%, 46.5% { transform: scale(0.3); opacity: 0; } 29.5% { transform: scale(0.55); opacity: 0.7; } 34% { transform: scale(0.7); opacity: 0; } 49% { transform: none; opacity: 1; } 57%, 100% { transform: scale(1.3); opacity: 0; } }
+.aj-pip { width: 10px; height: 15px; z-index: 4; }
+.aj-mv-split .aj-pp1 { left: -137px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t1; animation-delay: 1.30s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp2 { left: -133px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t6; animation-delay: 1.32s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp3 { left: -129px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t5; animation-delay: 1.34s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp4 { left: -125px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t4; animation-delay: 1.30s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp5 { left: -121px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t3; animation-delay: 1.32s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp6 { left: -117px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t2; animation-delay: 1.34s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp7 { left: -113px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t1; animation-delay: 1.30s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-pp8 { left: -109px; bottom: 68.5px; width: 10px; height: 15px; animation-name: aj-cf-t6; animation-delay: 1.32s; animation-duration: 0.95s; animation-timing-function: linear; }
+.aj-mv-split .aj-f1 { left: -142px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 1.34s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f2 { left: -136px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 1.35s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f3 { left: -130px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t1; animation-delay: 1.37s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f4 { left: -124px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t6; animation-delay: 1.34s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f5 { left: -118px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t5; animation-delay: 1.35s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f6 { left: -112px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t4; animation-delay: 1.37s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f7 { left: -106px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t3; animation-delay: 1.34s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-f8 { left: -100px; bottom: 91.5px; width: 6px; height: 9px; animation-name: aj-cf-t2; animation-delay: 1.35s; animation-duration: 0.90s; animation-timing-function: linear; }
+.aj-mv-split .aj-spk.aj-k1 { left: -199px; bottom: 103px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.36s backwards; }
+.aj-mv-split .aj-spk.aj-k2 { left: -43px; bottom: 107px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.42s backwards; }
+.aj-mv-split .aj-spk.aj-k3 { left: -123px; bottom: 115px; width: 14px; height: 14px; animation: aj-sp-twinkle 0.6s ease-out 1.56s backwards; }
+.aj-mv-split .aj-fw1 { left: -12px; bottom: 66px; width: 60px; height: 60px; animation-delay: 1.60s; animation-duration: 0.9s; }
+.aj-mv-split .aj-rk1 { left: 16.5px; bottom: 82px; width: 3px; height: 14px; animation-delay: 1.28s; animation-duration: 0.32s; }
+.aj-mv-split .aj-fw2 { left: -270px; bottom: 68px; width: 56px; height: 56px; animation-delay: 1.46s; animation-duration: 0.9s; }
+.aj-mv-split .aj-rk2 { left: -243.5px; bottom: 82px; width: 3px; height: 14px; animation-delay: 1.14s; animation-duration: 0.32s; }
+.aj-mv-split .aj-poof { left: -140px; bottom: 51px; animation-name: aj-poof-78; }
+.aj-jolt.aj-x-split.aj-j0 { animation: aj-x-split-0 2.7s ease-in-out backwards; } .aj-jolt.aj-x-split.aj-j1 { animation: aj-x-split-1 2.7s ease-in-out backwards; }
+@keyframes aj-x-split-0 { 0%, 46.5%, 53%, 58%, 65%, 100% { transform: none; } 48% { transform: translate(0, 0) scale(0.86, 1.06); } 50.5% { transform: translate(0, 0) scale(1.12, 0.94); } 60% { transform: translate(0, -1px) scale(1.16); } }
+@keyframes aj-x-split-1 { 0%, 46.5%, 53%, 58%, 65%, 100% { transform: none; } 48% { transform: translate(0, 0) scale(0.86, 1.06); } 50.5% { transform: translate(0, 0) scale(1.12, 0.94); } 60% { transform: translate(0, -1px) scale(1.16); } }
 
 /* ── shared by the body moves ── */
 .aj-mv-kick .aj-r-flush, .aj-mv-mallet .aj-r-flush, .aj-mv-slam .aj-r-flush { animation-name: aj-boil-flush; }

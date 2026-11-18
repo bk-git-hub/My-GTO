@@ -43,23 +43,23 @@ describe("남의 핸드: the verdict, worded from the player's side", () => {
   it("judges the player against the same chart: 차트보다 루즈 / 타이트 instead of 오버 / 언더플레이", () => {
     // BTN K9o open after folds: in the chart
     const btn = theirs(1, typed("BTN", "K9o"), "open");
-    expect(fastVerdictOf(btn)?.text).toBe("✓ 차트대로");
+    expect(fastVerdictOf(btn)?.text).toBe("✓ 차트대로 · 솔버 55bb 기준");
     // BB 72o calling a CO open: looser than the chart
     const bb = theirs(2, typed("BB", "72o", { spot: "open", opener: "CO" }), "call");
-    expect(fastVerdictOf(bb)).toMatchObject({ kind: "over", text: "⚠ 차트보다 루즈 (차트: 폴드)" });
+    expect(fastVerdictOf(bb)).toMatchObject({ kind: "over", text: "⚠ 차트보다 루즈 (차트: 폴드) · 솔버 55bb 기준" });
     // CO limping AQo: tighter (more passive) than the chart's open
     const limp = theirs(3, typed("CO", "AQo"), "limp");
-    expect(fastVerdictOf(limp)).toMatchObject({ kind: "under", text: "▽ 차트보다 타이트 (차트: 오픈)" });
+    expect(fastVerdictOf(limp)).toMatchObject({ kind: "under", text: "▽ 차트보다 타이트 (차트: 오픈) · 솔버 55bb 기준" });
     // the same hands of mine keep their own words
     const mine = fastHand(typed("BB", "72o", { spot: "open", opener: "CO" }), "call", base(4, "mine"), "mid", 9)!;
-    expect(fastVerdictOf(mine)?.text).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(fastVerdictOf(mine)?.text).toBe("⚠ 오버플레이 (차트: 폴드) · 솔버 55bb 기준");
     // a limp pot: no chart, the same for both
     expect(fastVerdictOf(theirs(5, typed("BTN", "A5s", { spot: "limp" }), "open"))?.text).toBe("차트 없음 · 림프 팟");
   });
 
   it("only rewords: kind, chart and frequency stay the verdict's", () => {
     const v = fastVerdict({ stage: "mid", players: 9, seat: "UTG", cls: "K9o", spot: "none", act: "open" });
-    expect(theirWords(v)).toEqual({ ...v, text: "⚠ 차트보다 루즈 (차트: 폴드)" });
+    expect(theirWords(v)).toEqual({ ...v, text: "⚠ 차트보다 루즈 (차트: 폴드) · 솔버 55bb 기준" });
     const ok = fastVerdict({ stage: "mid", players: 9, seat: "BTN", cls: "K9o", spot: "none", act: "open" });
     expect(theirWords(ok)).toEqual(ok);
     const mixed = { kind: "mixed" as const, text: "△ 섞는 핸드 (30%)", chart: "x", freq: 0.3 };
@@ -87,7 +87,7 @@ describe("남의 핸드: saving", () => {
   it("tells the AI review it was the other player's decision, not mine", () => {
     const call = theirs(2, typed("BB", "72o", { spot: "open", opener: "CO" }), "call");
     const facts = handFacts(call);
-    expect(facts).toContain("프리플랍 (빠른 기록, 상대 결정 하나): 미들 구간 · BB CO 오픈 → 콜 · 펍 차트 판정 ⚠ 차트보다 루즈 (차트: 폴드)");
+    expect(facts).toContain("프리플랍 (빠른 기록, 상대 결정 하나): 미들 구간 · BB CO 오픈 → 콜 · 차트 판정 ⚠ 차트보다 루즈 (차트: 폴드) · 솔버 55bb 기준");
     expect(facts).not.toContain("내 결정");
   });
 

@@ -25,7 +25,6 @@ import {
   KIND_LABEL,
   getNamedRanges,
   legendActions,
-  loadSolver,
   namedRanges,
   reachOf,
   reachShare,
@@ -39,9 +38,6 @@ import {
 } from "./charts";
 
 const playFreq = (s: ReturnType<typeof allScenarios>[number], h: string) => 1 - s.strategy[h].fold;
-
-// Every set, the solver set too: its stage chunks load first, as a solver screen does through useSolver (docs §6.3).
-await loadSolver();
 
 describe("chart sets", () => {
   it("build every scenario with unique ids and strategies that sum to 1", () => {
@@ -534,49 +530,6 @@ describe("solver-style scenario fields", () => {
     expect(spot).toContain("체크");
     expect(spot).not.toContain("폴드");
   });
-
-  it("charts page: the solver set's depths in one row, deepest first, and a size row at a depth with several stages (docs §6.8)", () => {
-    const set = getSet("solver");
-    for (const st of set.stages) {
-      // stageInfo: the depth is the data's stack, the size label the stage label without its "<depth>bb · ".
-      expect(st.depth, st.id).toBeGreaterThan(0);
-      expect(`${st.depth}bb · ${st.sizeLabel}`, st.id).toBe(st.label);
-    }
-    const depths = [...new Set(set.stages.map((s) => s.depth!))].sort((a, b) => b - a);
-    expect(depths.slice(0, 3)).toEqual([100, 55, 35]);
-    const html = renderPage(undefined, "solver");
-    const row = html.match(/<div class="seg depth-row[^"]*"[^>]*>(.*?)<\/div>/)![1];
-    expect(texts(row)).toEqual(depths.map((d) => `${d}bb`));
-    expect(row).toContain('<button class="on">100bb</button>');
-    // The page opens on the first stage, 100bb-2.2; the size row lists both 100bb stages in chart order.
-    const sizes = html.match(/<div class="seg small size-row"[^>]*>(.*?)<\/div>/)![1];
-    expect(texts(sizes)).toEqual(["오픈 2.2bb", "펍 사이즈 오픈 3bb"]);
-    expect(sizes).toContain('<button class="on">오픈 2.2bb</button>');
-    // No plain stage row and no stage <select> for a set with depths.
-    expect(html).not.toContain("stage-row");
-    expect(html).not.toContain('value="100bb-2.2"');
-    // The push/fold stage, when it ships, is the 10bb button and points to the Nash sets in its description.
-    const pf = set.stages.find((s) => s.id === "10bb-pf");
-    if (pf) {
-      expect(texts(row)).toContain("10bb");
-      expect(pf.sizeLabel).toBe("푸시/폴드");
-      expect(pf.description).toContain("'푸시/폴드 내쉬'");
-    }
-  });
-
-  it("charts page: a set whose stages carry no depth keeps the stage row or, past 5 stages, the stage select", () => {
-    const set = solverLike("solver-test", [rfi("CO")]);
-    const two = { ...set, stages: [set.stages[0], { ...set.stages[0], id: "55bb-2.2", label: "55bb · 오픈 2.2bb" }] };
-    const html = renderPage(two);
-    expect(html).not.toContain("depth-row");
-    expect(texts(html.match(/<div class="seg stage-row">(.*?)<\/div>/)![1])).toEqual(["100bb · 오픈 2.2bb", "55bb · 오픈 2.2bb"]);
-    // With depths on both, the same two stages become the depth row, with no size row (one stage per depth).
-    const deep = { ...two, stages: two.stages.map((st, i) => ({ ...st, depth: [100, 55][i], sizeLabel: "오픈 2.2bb" })) };
-    const html2 = renderPage(deep);
-    expect(texts(html2.match(/<div class="seg depth-row[^"]*"[^>]*>(.*?)<\/div>/)![1])).toEqual(["100bb", "55bb"]);
-    expect(html2).not.toContain("size-row");
-    expect(html2).not.toContain("stage-row");
-  });
 });
 
 // ───────────── The four hand-made / Nash sets behave exactly as before the solver fields ─────────────
@@ -617,7 +570,6 @@ describe("existing chart sets are unchanged", () => {
     expect(CHART_SETS[0].id).toBe("pub");
     for (const set of legacySets()) {
       expect(set.heroFilter, set.id).toBeUndefined();
-      for (const st of set.stages) expect([st.depth, st.sizeLabel], `${set.id} ${st.id}`).toEqual([undefined, undefined]);
       for (const s of allScenarios(set)) {
         expect([s.reachRange, s.noFold, s.weight], s.id).toEqual([undefined, undefined, undefined]);
         expect(["rfi", "vsOpen", "vs3bet", "vsShove"], s.id).toContain(s.kind);
@@ -680,8 +632,6 @@ describe("existing chart sets are unchanged", () => {
     for (const set of legacySets()) {
       const html = renderPage(undefined, set.id);
       expect(html).not.toContain("seat-filter");
-      // No depth row: their stage row (pub, cash6) or stage select (nash, shortnash) as before.
-      expect(html).not.toContain("depth-row");
       expect(html).not.toContain("도달");
       expect(html).not.toMatch(/class="[^"]*\bout\b/);
       // The page opens on the stage's first spot; its legend is the share of all 1326 combos, fold last.
