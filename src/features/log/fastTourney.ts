@@ -112,6 +112,10 @@ export const startCovers = (start: number, at: number): boolean => at >= start -
 export function tourneyEstimate(t: Tourney | null, at: number, fallback: LevelEstimate | null): LevelEstimate | null {
   // 직접 입력: the blinds are typed as they go up; nothing is guessed from a clock, not even the day's.
   if (t && isCustom(t)) return null;
+  // A tournament started from the sheet with no start time: no level is guessed from the clock (not from a
+  // day's start set for another one); the level is the one picked. A start time set makes the blinds go up by
+  // it. (One started by a hand on its own follows the start typed in the level picker for that day.)
+  if (t && !t.startSet && !t.auto) return null;
   if (t?.startSet && startCovers(t.start, at) && !(t.auto && fallback)) return { ...levelAt(t.start, at), startClock: clockOf(t.start) };
   return fallback;
 }
