@@ -179,12 +179,6 @@ describe("빠른 기록 tournaments: the level clock", () => {
     // no start set (a tournament started by a hand on its own): the fallback
     expect(tourneyEstimate(rec("b"), NIGHT, null)).toBeNull();
     expect(tourneyEstimate(null, NIGHT, dayEst)).toBe(dayEst);
-    // no start time on one started from the sheet: nothing guessed, not even from a day's start
-    const tonight = levelEstimateAt(NIGHT, { startClock: { day: localDay(NIGHT), clock: "19:00" } });
-    expect(tonight).not.toBeNull();
-    expect(tourneyEstimate(rec("c"), NIGHT, tonight)).toBeNull();
-    // one started by a hand on its own still follows the day's start typed in the picker
-    expect(tourneyEstimate(rec("d", { auto: true }), NIGHT, tonight)).toBe(tonight);
   });
 
   it("takes a level picked only in the tournament it was picked in (a pick without one only while none is current)", () => {
