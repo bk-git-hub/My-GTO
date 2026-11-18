@@ -80,7 +80,7 @@ import {
 import { BlindsPanel, BlindsSheet, CalcSheet, useCalcKeys } from "./CalcSheet";
 import { bbPart, checkSteps, chipSeries, chipsText, handLv, levelChip, levelNear, postedBy, signedText, type StackAt, type Unit } from "./fastChips";
 import { CheckRow, ChipsBlock, clock, copyText, FastItem, FastStatsRow } from "./FastParts";
-import { Bb, HandSheet, MoreToggle, ResultRow, type SheetMode } from "./FastResult";
+import { Bb, HandSheet, ResultRow, type SheetMode } from "./FastResult";
 import {
   cancelNewTourney,
   cancelTarget,
@@ -724,9 +724,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const stackPre = useMemo(() => (other ? NO_STACK : stackBefore(log, editing, at)), [other, log, editing, at]);
   const block = other ? null : blockOf(d, players, lvNow.level, anteNow, stackPre.chips);
   const waits = block !== null && block !== "class";
-  // A hand corrected with its decision on file shows the action row (its action lit); else the toggle decides.
-  const forced = !other && !!editing && fastActed(editing);
-  const actionsView = other || forced || s.actions === true;
+  // 빠른 기록 keeps the hand and its chips only: no action row (a corrected hand keeps a decision on file when it still fits).
+  const actionsView = other;
   // No level known (and 레벨 모름 not picked on purpose): the chip asks for one once a hand is typed, since a blind's chips and bb need it.
   const declined = !editing && lvNow.level === null && !!lvNow.picked;
   const wantLevel = lvNow.level === null && (block === "level" || (!declined && classDone(d)));
@@ -772,16 +771,6 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           return true;
         }
       : null,
-  );
-  /** "액션도 기록" / "액션 접기", at the bottom of what is typed (under the save slot, or under the actions); not while a decision on file is corrected. */
-  const moreToggle = forced ? null : (
-    <MoreToggle
-      open={actionsView}
-      onToggle={() => {
-        const c = cur();
-        set(c.actions ? without(c, "actions") : { ...c, actions: true });
-      }}
-    />
   );
   const savedSlot = saved ? (
     <>
@@ -869,6 +858,20 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     goneAt.current = Date.now();
     setTnMsg({ text: backTn ? `'${title}'에 이어 적어요` : "지웠어요 · 다음 핸드부터 새로 시작돼요" });
   }
+  /** 토너먼트 삭제: the current tournament with every hand in it (asked first; no undo). */
+  function deleteCurrent() {
+    if (!tn) return;
+    const n = hands.filter((h) => h.tourney === tn.id).length;
+    if (!confirm(n ? `'${tnTitle}'와 핸드 ${n}개를 지울까요? 되돌릴 수 없어요.` : `'${tnTitle}'를 지울까요?`)) return;
+    if (!deleteTourneyAll(tn.id)) return setTnMsg({ text: FULL_MSG, bad: true });
+    goneAt.current = Date.now();
+    setTnMsg({ text: "지웠어요 · 다음 핸드부터 새 토너먼트로 적혀요" });
+  }
+  const delBtn = (
+    <button type="button" className="ghost small danger tn-del-cur" onClick={deleteCurrent}>
+      토너먼트 삭제
+    </button>
+  );
   /** 이어 적기 on the last tournament's card. */
   function resumeLast(g: TourneyGroup) {
     if (!g.t || Date.now() - goneAt.current < 800) return;
@@ -1033,7 +1036,6 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
               )}
             </div>
           )}
-          {!actionsView && moreToggle}
         </>
       )}
 
@@ -1133,7 +1135,6 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             </div>
           </div>
           {/* Open, the toggle goes under the actions: the hand, the result, the board and the actions fit one screen. */}
-          {!other && moreToggle}
         </>
       )}
 
@@ -1244,6 +1245,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
               >
                 {tn && !other ? "요약 복사" : "오늘 요약 복사"}
               </button>
+              {tn && !other && delBtn}
               {other ? (
                 <button type="button" className="log-link" onClick={() => go("log/list/other")}>
                   지난 기록 ›
@@ -1260,7 +1262,10 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           <>
             {steps.length > 0 && <div className="fast-list">{checkRows([...steps].reverse())}</div>}
             {!tnFresh && <p className="muted small">아직 이 토너먼트에 핸드가 없어요. 핸드를 적으면 여기 모여요.</p>}
-            <div className="fast-today-foot end">{pastLink}</div>
+            <div className="fast-today-foot end">
+              {!tnFresh && delBtn}
+              {pastLink}
+            </div>
           </>
         ) : (
           <>
