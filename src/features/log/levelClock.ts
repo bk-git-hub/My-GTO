@@ -168,6 +168,53 @@ export function levelRow(level: number | null, schedule: LevelRow[] = PUB_SCHEDU
   return schedule.find((r) => r.level === level) ?? null;
 }
 
+// ───────────── blinds typed by hand (직접 입력) ─────────────
+
+/** The blinds a hand is played at, in chips: the small blind, the big blind, the BB ante (0: none). */
+export interface Blinds {
+  sb: number;
+  bb: number;
+  ante: number;
+}
+
+/**
+ * A level as 빠른 기록's chip maths take it: a 야자수 새틀 level (PUB_SCHEDULE), a 직접 입력 tournament's blinds,
+ * or null (not known). Existing `number | null` values are Lv as they are.
+ */
+export type Lv = number | Blinds | null;
+
+/** The biggest blind or ante that can be typed (8 digits). */
+export const BLINDS_MAX = 99_999_999;
+
+const blindInt = (x: unknown, min: number): x is number => typeof x === "number" && Number.isInteger(x) && x >= min && x <= BLINDS_MAX;
+
+/** Stored / typed blinds with valid fields only: integers, 1 ≤ sb ≤ bb ≤ BLINDS_MAX, 0 ≤ ante ≤ BLINDS_MAX; else null. */
+export function cleanBlinds(x: unknown): Blinds | null {
+  if (!x || typeof x !== "object") return null;
+  const r = x as Record<string, unknown>;
+  if (!blindInt(r.sb, 1) || !blindInt(r.bb, 1) || !blindInt(r.ante, 0) || r.sb > r.bb) return null;
+  return { sb: r.sb, bb: r.bb, ante: r.ante };
+}
+
+/** The blinds of `lv`: a schedule level's row (sb, bb, ante), custom blinds when valid, else null. */
+export function blindsOf(lv: Lv, schedule: LevelRow[] = PUB_SCHEDULE): Blinds | null {
+  if (lv === null) return null;
+  if (typeof lv === "number") {
+    const row = levelRow(lv, schedule);
+    return row ? { sb: row.sb, bb: row.bb, ante: row.ante } : null;
+  }
+  return cleanBlinds(lv);
+}
+
+/** The same blinds (both null counts as the same). */
+export const sameBlinds = (a: Blinds | null, b: Blinds | null): boolean => (a === null || b === null ? a === b : a.sb === b.sb && a.bb === b.bb && a.ante === b.ante);
+
+/** "다음 단계": the first 야자수 새틀 row whose big blind is above `b.bb` (its sb, bb, ante), or null past Lv30. Without blinds: Lv1's. */
+export function nextPubBlinds(b: Blinds | null): Blinds | null {
+  const row = PUB_SCHEDULE.find((r) => b === null || r.bb > b.bb);
+  return row ? { sb: row.sb, bb: row.bb, ante: row.ante } : null;
+}
+
 // ───────────── start time ─────────────
 
 /**

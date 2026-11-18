@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { cardText, parseCardText } from "./handAnalysis";
-import { estimatedLevel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
+import { estimatedLevel, handLevelLabel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
 import { estimateLabel, type LevelEstimate } from "./levelClock";
 
 /**
@@ -200,7 +200,7 @@ const lastClock = () => handLogStore.get().startClock?.clock ?? "19:00";
  * estimate, start setter and clock (the table flow passes none of them: the day's start time as always).
  */
 export function LevelRow(props: {
-  h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt">;
+  h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt"> & Partial<Pick<LoggedHand, "blinds">>;
   onLevel: (level: number | null, guessed: boolean) => void;
   onAnte: (bbAnte: boolean) => void;
   open: boolean;
@@ -238,7 +238,8 @@ export function LevelRow(props: {
     row.scrollLeft = at - (row.clientWidth - el.clientWidth) / 2;
   }, [open, estLv]);
 
-  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : "레벨 모름";
+  // A 직접 입력 hand carried to the table: its own blinds until a level is picked here (withLv replaces them).
+  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : h.level === null && h.blinds ? handLevelLabel({ level: null, blinds: h.blinds }) : "레벨 모름";
   const ante = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
   const sub = est ? `⏱ ${estimateLabel(est)}` : h.level === null ? "레벨이 기억 안 나면: 시작 시각으로 추정 ›" : null;
 

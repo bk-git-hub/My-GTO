@@ -106,16 +106,24 @@ describe("the bb on screen", () => {
     expect(html(createElement(CheckRow, { c }))).toContain('<span class="fc-count"><b class="fc-stack">65,000</b></span><span class="fc-diff up">+3,200</span>');
   });
 
-  it("reads the 칩 업데이트 typed back big with its bb, and the app's count with its bb", () => {
+  it("reads the app's count with its bb on the 칩 업데이트 calculator, and the stack typed big with its bb", () => {
     const sheet = html(createElement(ChipUpdateSheet, { now: { chips: 63000 }, level: 5, open: null, onSave: () => null, onClose: noop }));
-    expect(sheet).toContain('<b>63,000 <span class="bb">105bb</span></b>');
-    // nothing typed yet: the line keeps its place, empty
-    expect(sheet).toContain('<span class="tn-read" aria-live="polite"></span><small>칩 개수 그대로 (0이면 탈락)</small>');
+    expect(sheet).toContain('<span class="calc-note">앱이 센 스택 <b>63,000</b> <span class="bb">105bb</span></span>');
+    // nothing typed yet: the display asks, the line says what to type (the keypad, no input element)
+    expect(sheet).toContain('<b class="calc-num ph">지금 칩은?</b>');
+    expect(sheet).toContain('<div class="calc-line hint">칩 개수 그대로 · 0이면 탈락</div>');
+    expect(sheet).not.toContain("<input");
     expect(sheet).not.toContain("?bb");
   });
 
-  it("shows a start stack's bb at the first level (야자수 새틀 Lv1: 100/200)", () => {
+  it("shows a start stack's bb at the first level (야자수 새틀 Lv1: 100/200), or at a 직접 입력 tournament's starting BB", () => {
     const sheet = html(createElement(TourneySheet, { mode: "new", initial: { name: "", clock: "19:00", stack: "50000", memo: "" }, defaultName: "11/7 토너먼트", onSave: () => null, onClose: noop }));
-    expect(sheet).toContain('<small>= 50,000칩 <span class="bb tn-bb">250bb</span> (Lv1)</small>');
+    expect(sheet).toContain('class="tn-numfield" aria-label="시작 스택 50,000 · 계산기로 넣기">50,000 <span class="bb">250bb</span></button><small>Lv1 기준 · 누르면 계산기</small>');
+    const custom = html(
+      createElement(TourneySheet, { mode: "new", initial: { name: "", clock: "", stack: "30000", memo: "", structure: "custom", blinds: { sb: 100, bb: 200, ante: 200 } }, defaultName: "11/7 토너먼트", onSave: () => null, onClose: noop }),
+    );
+    expect(custom).toContain('>30,000 <span class="bb">150bb</span></button><small>BB 200 기준</small>');
+    expect(custom).toContain(">100/200 <small>앤티 200</small></button>");
+    expect(custom).not.toContain('type="time"');
   });
 });

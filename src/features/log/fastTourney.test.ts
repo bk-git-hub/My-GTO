@@ -12,9 +12,12 @@ import {
   fastSession,
   fieldsBlock,
   fieldsOf,
+  anteFor,
   groupChips,
   groupFor,
   infoOf,
+  isCustom,
+  levelFor,
   newFields,
   onTourneyDay,
   previousTourney,
@@ -22,6 +25,7 @@ import {
   runningUntagged,
   saveNewFast,
   setFastStartClock,
+  setTourneyBlinds,
   sheetLevelText,
   stampPick,
   stampStoredPick,
@@ -281,10 +285,10 @@ describe("빠른 기록 tournaments: the sheet and the buttons", () => {
   });
 
   it("offers the sheet's fields: the day's start (else now) and the pub's 50,000 for a new one; a record's own", () => {
-    expect(newFields(NIGHT)).toEqual({ name: "", clock: "22:05", stack: "50000", memo: "" });
+    expect(newFields(NIGHT)).toEqual({ name: "", clock: "22:05", stack: "50000", memo: "", structure: "pub", blinds: null });
     store({ startClock: DAY_START });
     expect(newFields(NIGHT).clock).toBe("19:00");
-    expect(fieldsOf(rec("a", { name: "n", memo: "m", startSet: true, startStack: 30000 }))).toEqual({ name: "n", clock: "19:00", stack: "30000", memo: "m" });
+    expect(fieldsOf(rec("a", { name: "n", memo: "m", startSet: true, startStack: 30000 }))).toEqual({ name: "n", clock: "19:00", stack: "30000", memo: "m", structure: "pub", blinds: null });
     expect(fieldsOf(rec("a"))).toMatchObject({ clock: "", stack: "" });
     expect(fieldsBlock({ name: "", clock: "", stack: "", memo: "" })).toBeNull();
     expect(fieldsBlock({ name: "", clock: "저녁", stack: "", memo: "" })).toBe("clock");
@@ -530,8 +534,10 @@ describe("빠른 기록 tournaments: the sheet's start time", () => {
 
   it("offers the pub's 50,000 as a value in the current tournament's sheet when its start stack isn't known, and the start its estimate runs on", () => {
     const est = { level: 9, phase: "level" as const, minutesIn: 5, minutesLeft: 15, elapsedMinutes: 185, startClock: "19:30" };
-    expect(currentFields(rec("a", { name: "n", startSet: true, startStack: 30000 }), est, true)).toEqual({ name: "n", clock: "19:00", stack: "30000", memo: "" });
-    expect(currentFields(rec("a", { startSet: true }), est, true)).toEqual({ name: "", clock: "19:00", stack: "50000", memo: "" });
+    expect(currentFields(rec("a", { name: "n", startSet: true, startStack: 30000 }), est, true)).toEqual({ name: "n", clock: "19:00", stack: "30000", memo: "", structure: "pub", blinds: null });
+    expect(currentFields(rec("a", { startSet: true }), est, true)).toEqual({ name: "", clock: "19:00", stack: "50000", memo: "", structure: "pub", blinds: null });
+    // 직접 입력: no 50,000 offered (a wrong start stack would skew every 스택 result), its blinds as on file
+    expect(currentFields(rec("a", { structure: "custom", blinds: { sb: 100, bb: 200, ante: 200 } }), est, true)).toMatchObject({ stack: "", structure: "custom", blinds: { sb: 100, bb: 200, ante: 200 } });
     // started by a hand on its own: the day's start it follows
     expect(currentFields(rec("a", { auto: true }), est, true).clock).toBe("19:30");
     expect(currentFields(rec("a", { auto: true }), est, false).clock).toBe("");
@@ -580,5 +586,91 @@ describe("빠른 기록 tournaments: the backup", () => {
       ["h1", "a"],
       ["h2", undefined],
     ]);
+  });
+});
+
+describe("빠른 기록 tournaments: 직접 입력 (blinds typed by hand)", () => {
+  const B = { sb: 100, bb: 200, ante: 200 };
+  const custom = { name: "목요일", clock: "19:00", stack: "30000", memo: "", structure: "custom" as const, blinds: B };
+
+  it("starts one with its structure and blinds, no start time (nothing estimated from a clock)", () => {
+    store({ startClock: DAY_START });
+    const id = startTourney(custom, NIGHT)!;
+    const t = ts().find((x) => x.id === id)!;
+    expect(t).toMatchObject({ structure: "custom", blinds: B, start: NIGHT, startStack: 30000, name: "목요일" });
+    expect(t).not.toHaveProperty("startSet");
+    expect(isCustom(t)).toBe(true);
+    // no estimate, not even the day's start
+    expect(tourneyEstimate(t, NIGHT, levelEstimateAt(NIGHT, handLogStore.get()))).toBeNull();
+    expect(fastEstimate(NIGHT)).toBeNull();
+    // the level new hands go in at: its blinds, never guessed; the ante from them
+    expect(levelFor(t, {}, [], NIGHT, null)).toEqual({ level: B, guessed: false, picked: false });
+    expect(anteFor(t, { noAnte: true })).toBe(true);
+    expect(anteFor({ ...t, blinds: { ...B, ante: 0 } }, {})).toBe(false);
+    expect(levelFor({ ...t, blinds: undefined }, {}, [], NIGHT, null).level).toBeNull();
+    // 야자수 새틀 as before
+    const pub = startTourney({ name: "", clock: "19:00", stack: "50000", memo: "", structure: "pub", blinds: null }, NIGHT + MIN)!;
+    const p = ts().find((x) => x.id === pub)!;
+    expect(p).not.toHaveProperty("structure");
+    expect(levelFor(p, {}, [], NIGHT + MIN, tourneyEstimate(p, NIGHT + MIN, null))).toMatchObject({ level: 9, guessed: true });
+    expect(anteFor(p, { noAnte: true })).toBe(false);
+  });
+
+  it("starts one with no blinds yet (asked for once a hand is typed)", () => {
+    const id = startTourney({ ...custom, blinds: null }, NIGHT)!;
+    const t = ts().find((x) => x.id === id)!;
+    expect(t).toMatchObject({ structure: "custom" });
+    expect(t).not.toHaveProperty("blinds");
+  });
+
+  it("sets its blinds from now on in one write; refuses bad blinds, a 야자수 새틀 one, a refused write", () => {
+    const id = startTourney(custom, NIGHT)!;
+    writes = [];
+    expect(setTourneyBlinds(id, { sb: 200, bb: 400, ante: 400 }, NIGHT + MIN)).toBe(true);
+    expect(writes.filter((k) => k === "mygto.handlog")).toHaveLength(1);
+    expect(ts().find((x) => x.id === id)).toMatchObject({ blinds: { sb: 200, bb: 400, ante: 400 }, updatedAt: NIGHT + MIN });
+    expect(setTourneyBlinds(id, { sb: 500, bb: 400, ante: 0 }, NIGHT + MIN)).toBe(false);
+    const pub = startTourney({ name: "", clock: "", stack: "", memo: "" }, NIGHT)!;
+    expect(setTourneyBlinds(pub, B, NIGHT)).toBe(false);
+    expect(setTourneyBlinds("nope", B, NIGHT)).toBe(false);
+    vi.stubGlobal("localStorage", {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("QuotaExceededError");
+      },
+    });
+    expect(setTourneyBlinds(id, { sb: 300, bb: 600, ante: 600 }, NIGHT + 2 * MIN)).toBe(false);
+    expect(ts().find((x) => x.id === id)?.blinds).toEqual({ sb: 200, bb: 400, ante: 400 });
+  });
+
+  it("switches structure in the sheet both ways, keeping its start; saved hands keep their own", () => {
+    store({ hands: [hand("h1", NIGHT - HOUR, { level: 7, tourney: "a" })], tourneys: [rec("a", { startSet: true, startStack: 50000 })] });
+    expect(editTourney("a", { ...fieldsOf(ts()[0]), structure: "custom", blinds: B }, NIGHT)).toBe(true);
+    expect(ts()[0]).toMatchObject({ structure: "custom", blinds: B, start: START, startSet: true, startStack: 50000 });
+    expect(fieldsOf(ts()[0])).toMatchObject({ structure: "custom", blinds: B });
+    expect(handLogStore.get().hands[0]).toMatchObject({ level: 7 });
+    expect(editTourney("a", { ...fieldsOf(ts()[0]), structure: "pub", blinds: null }, NIGHT + MIN)).toBe(true);
+    expect(ts()[0]).not.toHaveProperty("structure");
+    expect(ts()[0]).not.toHaveProperty("blinds");
+    expect(fastEstimate(NIGHT)?.level).toBe(9);
+  });
+
+  it("offers 야자수 새틀 with the pub's 50,000 for a new one; checks 직접 입력's blinds", () => {
+    expect(newFields(NIGHT)).toMatchObject({ structure: "pub", blinds: null, stack: "50000" });
+    expect(fieldsBlock({ ...custom })).toBeNull();
+    expect(fieldsBlock({ ...custom, blinds: null })).toBeNull();
+    expect(fieldsBlock({ ...custom, blinds: { sb: 300, bb: 200, ante: 0 } })).toBe("blinds");
+    // 직접 입력 has no clock to read
+    expect(fieldsBlock({ ...custom, clock: "저녁" })).toBeNull();
+  });
+
+  it("files a new hand of a 직접 입력 tournament with the tournament's blinds as its own", () => {
+    const id = startTourney(custom, NIGHT - HOUR)!;
+    const r = saveNewFast(hand("h1", NIGHT, { level: null, blinds: B, bbAnte: true, result: "fold", net: -400 }), NIGHT);
+    expect(r).toMatchObject({ ok: true, hand: { tourney: id } });
+    expect(handLogStore.get().hands[0]).toMatchObject({ level: null, blinds: B, net: -400 });
+    // the blinds raised later: the hand keeps its own
+    setTourneyBlinds(id, { sb: 200, bb: 400, ante: 400 }, NIGHT + MIN);
+    expect(handLogStore.get().hands[0].blinds).toEqual(B);
   });
 });

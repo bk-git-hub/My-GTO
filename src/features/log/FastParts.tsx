@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { ChipGraph } from "./ChipGraph";
-import { bbPart, chipSeries, marksOf, missedOf, oldestFirst, sessionMoney, signedText, type Unit } from "./fastChips";
+import { bbPart, chipSeries, handLv, marksOf, missedOf, oldestFirst, sessionMoney, signedText, type Unit } from "./fastChips";
 import { hasChips, type FastStats } from "./fastLog";
 import { Bb, MarksText, MoneyHead } from "./FastResult";
 import { VERDICT_MARK } from "./fastVerdict";
 import { fastActed, fastActText, fastVerdictOf, holeClass, type LoggedHand } from "./handLog";
+import type { Lv } from "./levelClock";
 import type { StackCheck } from "./tourney";
 
 /**
@@ -30,8 +31,8 @@ const shortVerdict = (t: string) =>
  * my stack after it when only that is on file ("스택 90,000": 스택 with the stack before unknown), or – for none.
  */
 function netShown(h: LoggedHand, view: Unit): string {
-  if (h.result === "fold") return h.net ? `폴드 ${signedText(h.net, view, h.level)}` : "폴드";
-  if (h.net !== null && h.net !== 0) return signedText(h.net, view, h.level);
+  if (h.result === "fold") return h.net ? `폴드 ${signedText(h.net, view, handLv(h))}` : "폴드";
+  if (h.net !== null && h.net !== 0) return signedText(h.net, view, handLv(h));
   if (h.net === 0) return "본전";
   if (h.result === null && h.stack !== null) return `스택 ${h.stack.toLocaleString()}`;
   return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : "–";
@@ -43,12 +44,12 @@ function netShown(h: LoggedHand, view: Unit): string {
  */
 function otherUnit(h: LoggedHand, view: Unit): { text: string; bb: boolean } | null {
   if (h.net !== null && h.net !== 0) {
-    const b = bbPart(h.net, h.level, true);
+    const b = bbPart(h.net, handLv(h), true);
     if (b === null) return null;
     return view === "bb" ? { text: Math.abs(h.net).toLocaleString(), bb: false } : { text: b, bb: true };
   }
   if (h.net === null && h.result === null && h.stack !== null) {
-    const b = bbPart(h.stack, h.level);
+    const b = bbPart(h.stack, handLv(h));
     return b === null ? null : { text: b, bb: true };
   }
   return null;
@@ -148,7 +149,7 @@ export function FastStatsRow({ stats, other }: { stats: FastStats; other: boolea
  * `level`, the level the hands around it were played at: levelNear; what it changed from the count, nothing
  * when that wasn't known), with 지우기 when it can be taken off here.
  */
-export function CheckRow({ c, level = null, onRemove }: { c: StackCheck & { diff: number | null }; level?: number | null; onRemove?: () => void }) {
+export function CheckRow({ c, level = null, onRemove }: { c: StackCheck & { diff: number | null }; level?: Lv; onRemove?: () => void }) {
   return (
     <div className="fast-check">
       <span className="fi-time">{clock(c.at)}</span>

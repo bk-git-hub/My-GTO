@@ -1,9 +1,10 @@
 /**
- * 빠른 기록's tournaments: the record itself (name, memo, start time, start stack, 칩 업데이트) and how the stored list
- * is kept clean and merged from a backup. Pure, with no value imports from the hand log, so handLog.ts can
- * use it at load time (its migration runs when the module loads). The rules about which tournament is
- * current, its hands and its screens are in fastTourney.ts.
+ * 빠른 기록's tournaments: the record itself (name, memo, start time, start stack, 칩 업데이트, its blind structure) and
+ * how the stored list is kept clean and merged from a backup. Pure, with no value imports from the hand log, so
+ * handLog.ts can use it at load time (its migration runs when the module loads). The rules about which
+ * tournament is current, its hands and its screens are in fastTourney.ts.
  */
+import { cleanBlinds, type Blinds } from "./levelClock";
 
 export interface Tourney {
   /** "t-<Date.now() base36>-<6 random base36>". */
@@ -33,6 +34,13 @@ export interface Tourney {
    * adjustment, not a hand), and the next hand's stack before it starts there. Absent: none.
    */
   checks?: StackCheck[];
+  /**
+   * The blind structure: absent = 야자수 새틀 (PUB_SCHEDULE / PUB_BREAKS: the clock or a level picked); "custom" = 직접
+   * 입력 (the blinds typed by hand as they go up: no level, no time estimate).
+   */
+  structure?: "custom";
+  /** 직접 입력 only: the blinds now (set in the sheet, changed with the level chip). Absent: not set yet. */
+  blinds?: Blinds;
 }
 
 /** One 칩 업데이트: at `at` (epoch ms) I had `stack` chips (0 … 999,999,999: 0 is busted). */
@@ -79,6 +87,8 @@ export function cleanTourney(x: unknown): Tourney | null {
   const stack = r.startStack;
   const startStack = typeof stack === "number" && Number.isInteger(stack) && stack >= 1 && stack <= STACK_MAX ? stack : null;
   const checks = cleanChecks(r.checks);
+  const custom = r.structure === "custom";
+  const blinds = custom ? cleanBlinds(r.blinds) : null;
   return {
     id: r.id,
     createdAt,
@@ -91,6 +101,8 @@ export function cleanTourney(x: unknown): Tourney | null {
     startStack,
     ...(r.auto === true ? { auto: true as const } : {}),
     ...(checks.length ? { checks } : {}),
+    ...(custom ? { structure: "custom" as const } : {}),
+    ...(blinds ? { blinds } : {}),
   };
 }
 

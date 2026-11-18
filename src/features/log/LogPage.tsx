@@ -24,14 +24,12 @@ import {
   hasDetail,
   holeClass,
   holeGuessed,
-  levelInfo,
   holeLabel,
   holeText,
   rememberedText,
   allPicked,
   isOther,
   knownNames,
-  levelLabel,
   livePicks,
   logView,
   memoBlocker,
@@ -56,7 +54,8 @@ import {
   type LoggedHand,
 } from "./handLog";
 import { FastView } from "./FastView";
-import { signedText } from "./fastChips";
+import { handLv, signedText } from "./fastChips";
+import { blindsOf } from "./levelClock";
 import { hasChips, resultText } from "./fastLog";
 import { reopenStep, type FlowStep } from "./flowSteps";
 import { VERDICT_MARK } from "./fastVerdict";
@@ -737,7 +736,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
   const chipPill = fast && h.result !== "fold" && !!h.net;
   const pill = h.result ? (chipPill ? signedText(h.net as number, "chips") : RESULT_LABEL[h.result]) : "";
   // Its line says only what the pill doesn't: the chips in bb, the board remembered (a fold without a board: nothing).
-  const bbPart = chipPill && levelInfo(h.level) ? signedText(h.net as number, "bb", h.level) : "";
+  const bbPart = chipPill && blindsOf(handLv(h)) ? signedText(h.net as number, "bb", handLv(h)) : "";
   const chips = fast && hasChips(h) ? [h.result ? bbPart : resultText(h), h.board.length ? `보드 ${rememberedText(h)}` : ""].filter(Boolean).join(" · ") : "";
   const decision = fast && fastActed(h) ? [h.quickPre?.stage ? STAGE_LABEL[h.quickPre.stage] : "", fastActText(h)].filter(Boolean).join(" · ") : "";
   const line = fast ? [decision, chips].filter(Boolean).join(" · ") : actionLine(h);
@@ -804,7 +803,7 @@ function PlayersView({ hands, go }: { hands: LoggedHand[]; go: Go }) {
   function analyse(name: string, entries: ReturnType<typeof villainBook>[number]["entries"]) {
     const lines = entries.map(({ hand, showdown }) => {
       const bb = stackBb(hand);
-      return `- ${dayLabel(hand.createdAt)} ${levelLabel(hand.level)} · 상대 ${showdown.seat || "자리 모름"} ${showdown.cards.length ? holeText(showdown.cards) : "카드 모름"}${showdown.did.trim() ? ` — ${showdown.did.trim()}` : ""} (${isOther(hand) ? `남의 핸드 기록${hand.mySeat ? `, 내 자리 ${hand.mySeat}` : ""}` : `내 자리 ${hand.seat || "모름"}${bb !== null ? `, 내 스택 ${bb}bb` : ""}`})`;
+      return `- ${dayLabel(hand.createdAt)} ${handLevelLabel({ level: hand.level, blinds: hand.blinds })} · 상대 ${showdown.seat || "자리 모름"} ${showdown.cards.length ? holeText(showdown.cards) : "카드 모름"}${showdown.did.trim() ? ` — ${showdown.did.trim()}` : ""} (${isOther(hand) ? `남의 핸드 기록${hand.mySeat ? `, 내 자리 ${hand.mySeat}` : ""}` : `내 자리 ${hand.seat || "모름"}${bb !== null ? `, 내 스택 ${bb}bb` : ""}`})`;
     });
     coach.open({
       id: `villain:${name}:${entries.length}:${entries[0].hand.updatedAt}`,
@@ -837,7 +836,7 @@ function PlayersView({ hands, go }: { hands: LoggedHand[]; go: Go }) {
                 <span className="small">{showdown.did.trim() || ""}</span>
               </span>
               <span className="muted small">
-                {dayLabel(hand.createdAt)} · {levelLabel(hand.level)}
+                {dayLabel(hand.createdAt)} · {handLevelLabel({ level: hand.level, blinds: hand.blinds })}
               </span>
             </button>
           ))}

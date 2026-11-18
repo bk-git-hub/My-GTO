@@ -142,19 +142,21 @@ describe("스택: the draft's result worked out from 지금 스택", () => {
 });
 
 describe("스택 on the keypad", () => {
-  it("takes the keypad to 지금 스택 and drops an amount; ⌫ empties it, then lets 스택 go back to the result", () => {
+  it("takes the keypad to 지금 스택 and drops an amount; ⌫ empties it (스택 let go), then closes the sheet", () => {
     const d = pickRes({ ...pickRes(typed("CO", "AKs"), "+"), amount: "3600" }, "stack");
     expect(d).toMatchObject({ res: "stack", focus: "stack" });
     expect(d).not.toHaveProperty("amount");
     const typedIn = byStack(typed("CO", "AKs"), "618" + "00".slice(0, 1) + "0");
     expect(typedIn).toMatchObject({ res: "stack", stackNow: "61800" });
     let b = typedIn;
-    for (let i = 0; i < 5; i++) b = backKey(b);
-    expect(b).toMatchObject({ res: "stack", focus: "stack" });
-    expect(b).not.toHaveProperty("stackNow");
+    for (let i = 0; i < 4; i++) b = backKey(b);
+    expect(b).toMatchObject({ res: "stack", stackNow: "6", focus: "stack" });
     b = backKey(b);
+    expect(b).toMatchObject({ focus: "stack" });
+    expect(b).not.toHaveProperty("stackNow");
     expect(b).not.toHaveProperty("res");
-    expect(b.focus).toBe("result");
+    b = backKey(b);
+    expect(b).not.toHaveProperty("focus");
     // 지금 스택 typed first (보드 row) stays when 스택 is tapped
     const first = [..."61800"].reduce((x, k) => typeDigit(x, k), setFocus(typed("CO", "AKs"), "stack"));
     expect(pickRes(first, "stack")).toMatchObject({ res: "stack", stackNow: "61800" });
@@ -427,9 +429,12 @@ describe("스택 the easy way: 지금 스택 alone, and a stack typed under 수�
     // a result picked first keeps it: 지금 스택 is then the stack on file
     const signed = [..."64200"].reduce((x, k) => typeDigit(x, k), setFocus({ ...pickRes(typed("CO", "AKs"), "+"), amount: "6000" }, "stack"));
     expect(signed).toMatchObject({ res: "+", amount: "6000", stackNow: "64200" });
-    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus(pickRes(typed("CO", "AKs"), "-"), "stack")).res).toBe("-");
-    // an amount typed with no sign yet: still asks for the sign
-    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus({ ...typed("CO", "AKs"), amount: "6000" }, "stack"))).not.toHaveProperty("res");
+    // a sign with no amount (a correction's), or 폴드 / 워크: the stack typed makes it 스택
+    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus(pickRes(typed("CO", "AKs"), "-"), "stack")).res).toBe("stack");
+    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus(pickRes(typed("CO", "AKs"), "fold"), "stack")).res).toBe("stack");
+    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus(pickRes(typed("BB", "AKs"), "walk"), "stack")).res).toBe("stack");
+    // an amount typed with no sign yet: the stack typed is 스택 too
+    expect([..."64200"].reduce((x, k) => typeDigit(x, k), setFocus({ ...typed("CO", "AKs"), amount: "6000" }, "stack"))).toMatchObject({ res: "stack", stackNow: "64200" });
   });
 
   it("moves an amount typed under 수익 / 손실 over to 지금 스택 when 스택 is tapped", () => {

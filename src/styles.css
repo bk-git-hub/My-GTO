@@ -25,8 +25,12 @@
   --pad-key: 46px;
   --pad-gap: 5px;
   --pad-font: 1.3rem;
+  /* 빠른 기록's calculator sheet: its keys (56px; 62px on tall phones; 48px only on short screens, not a target). */
+  --calc-key: 56px;
   color-scheme: dark;
 }
+@media (min-height: 740px) { :root { --calc-key: 62px; } }
+@media (max-height: 640px) { :root { --calc-key: 48px; } }
 
 /*
  * Suit colors, for every card in the app. --face-* color a suit on a white card face; --suit-* color
@@ -1158,11 +1162,7 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-acts .a-allin { background: rgba(179, 107, 255, 0.17); border-color: rgba(179, 107, 255, 0.6); color: #cfa6ff; }
 .fast-acts button.on { box-shadow: 0 0 0 2px var(--accent); }
 .fast-acts button:disabled { opacity: 0.32; }
-.fast-editing { display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); font-size: 0.78rem; }
-.fast-editing > span { flex: 1; min-width: 0; word-break: keep-all; }
-.fast-editing b { color: var(--accent); }
 .fast-mini { flex: none; height: 38px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 800; }
-.fast-mini.danger { color: var(--err); }
 /* today's hands */
 .fast-today { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
 .fast-today-head { display: flex; align-items: baseline; justify-content: space-between; }
@@ -1215,80 +1215,161 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-result.v-under b { color: var(--info); }
 @keyframes fast-result-in { from { opacity: 0; } to { opacity: 1; } }
 /*
- * 빠른 기록's chips and board (내 핸드). Everything above .fast-res keeps its size whatever is typed: the
- * keypad turns to digits or board ranks in the same grid, the row under it to 칩 | bb or ♠♥♦♣ at the same
- * height. 결과 (32 + 44), 보드 (44), the save slot (48) and 액션도 기록 (36) fit under the hand on a 390×664 screen.
+ * 빠른 기록's chips and board (내 핸드): typed on the calculator sheet (.calc, below), so the page under the hand
+ * keeps its size whatever is typed: the 결과 row (44), the save slot (48) and 액션도 기록 (36).
  */
-.fast-pad.digits button { font-variant-numeric: tabular-nums; }
-.fast-pad.digits .k-dd { font-size: 1.05rem; letter-spacing: -0.04em; }
-.fast-pad .k-d:disabled, .fast-pad .k-b:disabled { opacity: 0.25; }
-/* Board ranks: the same keys, a thin blue edge ("these go to the board"). */
-.fast-pad.board button { border-color: rgba(56, 189, 248, 0.45); }
-.fast-suits.suit4 { grid-template-columns: repeat(4, 1fr); }
-.fast-suits.suit4 button { font-size: 1.35rem; }
-.fast-suits.suit4 .s-s { color: var(--suit-s); } .fast-suits.suit4 .s-h { color: var(--suit-h); } .fast-suits.suit4 .s-d { color: var(--suit-d); } .fast-suits.suit4 .s-c { color: var(--suit-c); }
-.fast-suits.suit4 button.on { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 /* The hand line takes the keypad back to the hand: one clear button laid over the line, a little taller than it, without moving it. */
 .fast-label.hand-line { position: relative; }
 .hand-hit { position: absolute; inset: -4px 0 -1px; z-index: 1; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
 .hand-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.fast-res-head { display: flex; align-items: center; gap: 6px; height: 36px; }
-.frh-label, .fb-label { flex: none; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
-.fr-amt { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text); font-size: 1.08rem; font-weight: 900; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
-.fr-amt.hint { color: var(--muted); font-size: 0.78rem; font-weight: 700; }
-/* 50bb or more: amber, a 00 / 000 slip would show here first (the bb too: it is the number that gives it away). */
-.fr-amt.big, .fr-amt.big .bb { color: var(--open); }
-/* 스택's result over its sum, two lines in the same 36px: "+3,600 +6bb" over "지금 61,800 − 전 58,200". */
-.fr-amt.two { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding-top: 0; padding-bottom: 0; line-height: 1.08; }
-.fr-amt.two > span, .fr-amt.two > small { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fr-amt.two > span { font-size: 1rem; }
-.fr-amt.two > small { color: var(--muted); font-size: 0.68rem; font-weight: 700; }
-.fr-amt small .bb { font-weight: 800; }
-/* What a number on the line still needs ("· 수익? 손실?", "· 레벨을 골라 주세요"): smaller, so the numbers keep the room. */
-.fr-amt .fr-tail { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
-.fr-amt.two.hint > span { font-size: 0.8rem; }
-.fr-amt:disabled { opacity: 0.6; }
-/* Where the keypad types: the gold ring. */
-.fr-amt.on, .fb-slots.on, .fast-stack.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.fr-amt.on { background: var(--accent-soft); }
+/* Remembered board cards: a card without its suit as its rank alone (muted), a suit in its color. */
+.calc-slot .nos, .fi-board .nos, .rr-board .nos { color: #c7d0dd; }
+.calc-slot .s-s, .fi-board .s-s, .rr-board .s-s { color: var(--suit-s); } .calc-slot .s-h, .fi-board .s-h, .rr-board .s-h { color: var(--suit-h); } .calc-slot .s-d, .fi-board .s-d, .rr-board .s-d { color: var(--suit-d); } .calc-slot .s-c, .fi-board .s-c, .rr-board .s-c { color: var(--suit-c); }
+
+/*
+ * 빠른 기록's calculator sheet (CalcSheet.tsx): fixed to the bottom of the screen, never in the page's flow, so
+ * opening, typing, saving and closing move nothing. Its height at 390×664: 6 + top 32 + 6 + display 62 + 6 + keys
+ * (4 × 56 + 3 × 5) + 6 + buttons 50 + 6 = 413, from just under the hand row (y 250) to the bottom; every tab and
+ * panel keeps it. The hand's sheet is z 2: under the 아재 (.ajae-host 3, his layers take no taps), under the stage
+ * bar (4) and the head (5). Modal ones dim the page over everything (60; over the tournament sheet, 62).
+ */
+.calc { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: #0e131b; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.6); animation: calc-up 0.16s ease-out; }
+.calc.modal { z-index: 60; }
+.calc.over { z-index: 62; }
+.calc-dim { position: fixed; inset: 0; z-index: 59; background: rgba(0, 0, 0, 0.6); }
+.calc-dim.over { z-index: 61; }
+@keyframes calc-up { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .calc { animation: none; } }
+/* It comes up under the finger that tapped the class: for 250 ms its keys and buttons take no tap (.armed after). */
+.calc:not(.armed) .calc-top, .calc:not(.armed) .calc-disp, .calc:not(.armed) .calc-slots, .calc:not(.armed) .calc-keys, .calc:not(.armed) .calc-suits, .calc:not(.armed) .calc-fields, .calc:not(.armed) .calc-acts, .calc:not(.armed) .calc-lv { pointer-events: none; }
+/* For a moment after the sheet goes with a save, a clear layer where its buttons were takes a bounced second tap. */
+.calc-shield { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; height: calc(84px + env(safe-area-inset-bottom)); }
+.calc-top { flex: none; display: flex; align-items: center; gap: 6px; height: 32px; min-width: 0; }
+.calc-tabs { flex: none; display: flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.calc-tabs button { height: 26px; min-width: 44px; padding: 0 8px; border-radius: 8px; background: transparent; border: 0; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+.calc-tabs button.on { background: var(--panel-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-title { flex: none; font-size: 0.95rem; font-weight: 900; }
+.calc-note { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.76rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.calc-note b { color: var(--text); font-weight: 900; }
+.calc-note .bb { font-size: 0.8rem; }
+/* The action waiting for its result (액션도 기록): "오픈 · 결과는?". */
+.calc-act { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent); font-size: 0.78rem; font-weight: 800; }
+.calc-top .fast-lv { margin-left: auto; height: 32px; }
+.calc-x { flex: none; margin-left: auto; height: 32px; padding: 0 12px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; }
+.calc-next { flex: none; height: 32px; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+/* The display: the number big with its bb right next to it, the line under it (the result, or what to do). */
+.calc-disp { flex: none; display: flex; flex-direction: column; justify-content: center; height: 62px; padding: 0 4px; min-width: 0; }
+.calc-main { display: flex; align-items: baseline; gap: 10px; min-width: 0; height: 40px; white-space: nowrap; overflow: hidden; }
+.calc-num { flex: none; font-size: 2.2rem; line-height: 40px; font-weight: 900; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.calc-num::after { content: ""; display: inline-block; width: 2px; height: 0.9em; margin-left: 2px; vertical-align: -0.08em; background: var(--accent); }
+.calc-num.ph { color: var(--muted); font-size: 1.45rem; font-weight: 800; }
+.calc-num.ph::after { display: none; }
+.calc-num.long { font-size: 1.8rem; }
+.calc-num.longer { font-size: 1.5rem; }
+.calc-bb { flex: none; font-size: 1.5rem; line-height: 40px; }
+.calc-bb.long, .calc-bb.longer { font-size: 1.25rem; }
+/* A number typed in bb: the chips it comes to next to it. */
+.calc-conv { flex: none; color: #c7d0dd; font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.calc-main.big .calc-num, .calc-main.big .bb { color: var(--open); }
+.calc-main .calc-unit { margin-left: auto; align-self: center; }
+.calc-line { display: flex; align-items: baseline; gap: 6px; height: 22px; min-width: 0; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; }
+.calc-line b { flex: none; font-size: 1.05rem; font-weight: 900; }
+.calc-line b.up { color: #7ee2a2; }
+.calc-line b.down { color: #ff8a92; }
+.calc-line .bb { flex: none; font-size: 1.05rem; }
+.calc-line small { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.calc-line small.slip { flex: none; color: var(--open); font-weight: 800; }
+/* 50bb or more, or more than the stack before: amber (a 00 / 000 slip shows here first, the bb too). */
+.calc-line.big b, .calc-line.big .bb, .calc-line.big { color: var(--open); }
+.calc-line.hint { display: block; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 0.8rem; font-weight: 700; line-height: 22px; }
+.calc-line.hint .bb { font-size: 0.86rem; }
+.calc-line.bad { color: var(--err); font-size: 0.8rem; font-weight: 800; }
+.calc-tostack { height: 22px; margin-left: 6px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); border: 1px solid rgba(251, 191, 36, 0.55); color: var(--accent); font-size: 0.74rem; font-weight: 800; line-height: 1; vertical-align: 1px; }
+.calc-unit { flex: none; display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: var(--panel); border: 1px solid var(--line); }
+.calc-unit button { height: 30px; min-width: 40px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 0.76rem; font-weight: 800; }
+.calc-unit button.on { background: var(--panel-2); color: var(--text); }
+/* The keys: three full-width columns. */
+.calc-keys { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.calc-keys button { height: var(--calc-key); padding: 0; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 1.65rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.calc-keys button:active { background: #243044; }
+.calc-keys .k-000 { font-size: 1.3rem; letter-spacing: -0.02em; }
+.calc-keys .k-back { color: var(--muted); font-size: 1.4rem; }
+/* The board's ranks, five to a row, a thin blue edge ("these go to the board"); with the suits under them, as tall as the digits. */
+.calc-keys.ranks { grid-template-columns: repeat(5, 1fr); }
+.calc-keys.ranks button { height: calc((4 * var(--calc-key) - 49px) / 3); font-size: 1.4rem; border-color: rgba(56, 189, 248, 0.45); }
+.calc-keys.ranks button:disabled { opacity: 0.25; }
+.calc-keys.ranks .k-back { border-color: var(--line); }
+.calc-keys .k-done { color: var(--accent); border-color: rgba(251, 191, 36, 0.55); font-size: 0.95rem; }
+.calc-suits { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.calc-suits button { height: 48px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); font-size: 1.35rem; }
+.calc-suits .s-s { color: var(--suit-s); } .calc-suits .s-h { color: var(--suit-h); } .calc-suits .s-d { color: var(--suit-d); } .calc-suits .s-c { color: var(--suit-c); }
+.calc-suits button.on { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-suits button:disabled { opacity: 0.3; }
+/* The board's five slots in the display's place (the turn and the river set apart). */
+.calc-slots { flex: none; display: flex; align-items: center; gap: 6px; height: 62px; min-width: 0; }
+.calc-slot { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border-radius: 9px; background: var(--panel); border: 1px dashed var(--line); color: var(--muted); font-size: 1.15rem; font-weight: 900; line-height: 1; }
+.calc-slot.set { border-style: solid; background: var(--panel-2); color: var(--text); }
+.calc-slot.target { border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.calc-slot.turn { margin-left: 6px; }
+.calc-slots em { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
+/* The buttons: 폴드 (and 워크), then 저장, or − 손실 / + 수익 (금액: they save). */
+.calc-acts { flex: none; display: grid; grid-template-columns: 1fr 1.6fr; gap: 6px; }
+.calc-acts.n1 { grid-template-columns: 1fr; }
+.calc-acts.n3 { grid-template-columns: 1fr 1fr 1.5fr; }
+.calc-acts.n4 { grid-template-columns: 1fr 1fr 1.2fr 1.2fr; }
+.calc-acts.signs.n2 { grid-template-columns: 1fr 1fr; }
+.calc-acts.signs.n3 { grid-template-columns: 1fr 1.25fr 1.25fr; }
+.calc-acts button { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; height: 50px; padding: 0 4px; border-radius: 12px; background: #1c2532; border: 1px solid var(--line); color: var(--text); font-size: 1.1rem; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; }
+.calc-acts button small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 0.72rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.calc-acts button small .bb { font-size: 0.72rem; }
+.calc-acts button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.calc-acts button:disabled { opacity: 0.35; }
+.calc-acts .c-save { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.calc-acts .c-save small { color: rgba(27, 20, 0, 0.72); }
+.calc-acts .c-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-size: 0.98rem; }
+.calc-acts .c-save.plain small { color: var(--muted); }
+/* 저장 waiting: why, in its place (as the save slot does). */
+.calc-acts .c-save.wait { background: transparent; border: 1px dashed var(--line); color: var(--accent); font-size: 0.86rem; white-space: normal; text-align: center; }
+.calc-acts .c-save.wait:disabled { opacity: 1; }
+.calc-acts .c-lose { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
+.calc-acts .c-win { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
+.calc-acts .c-lose small, .calc-acts .c-win small { color: inherit; opacity: 0.85; }
+.calc-acts .c-lose.on, .calc-acts .c-win.on { box-shadow: inset 0 0 0 2px currentColor; }
+.calc-acts .c-none { font-size: 0.98rem; }
+/* The blinds editor: SB / BB / 앤티 in the display's place, the focused one ringed. */
+.calc-fields { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.calc-field { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; min-width: 0; height: 62px; padding: 0 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); color: var(--text); text-align: left; }
+.calc-field small { color: var(--muted); font-size: 0.72rem; font-weight: 800; }
+.calc-field small i { margin-left: 4px; font-style: normal; color: var(--bb); }
+.calc-field b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.45rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.calc-field.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: var(--accent-soft); }
+/* The 야자수 새틀 level picker in the keys' place, the sheet's height kept. */
+.calc-lv { flex: none; height: calc(62px + 6px + 4 * var(--calc-key) + 15px + 6px + 50px); overflow-y: auto; overscroll-behavior: contain; }
+.calc-lv .flow-row-box { margin: 0; }
+.calc-err { color: var(--err); }
+/* What the sheet covers keeps its layout, hidden: nothing peeks at its edges or takes a tap through a gap. */
+.fast.calc-open .fast-under, .fast.calc-open .fast-more, .fast.calc-open .fast-today { visibility: hidden; }
+/* Correcting a saved hand: its time, 삭제 and 취소 in the seat row's label line (the hand row stays where it is). */
+/* As tall as the 내 핸드 | 남의 핸드 toggle it stands in for (32px buttons in a 2px-padded, bordered box: 38px). */
+.fast-edit-mini { margin-left: auto; flex: none; display: flex; align-items: center; gap: 4px; height: 38px; color: var(--accent); font-size: 0.76rem; font-weight: 800; white-space: nowrap; }
+.fast-edit-mini button { height: 32px; padding: 0 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.76rem; font-weight: 800; }
+.fast-edit-mini button.danger { color: var(--err); }
+/* The page's 결과 row while the sheet is closed: what the hand saves as, with its bb; a tap opens the sheet. */
+.fast-resrow { display: flex; align-items: center; gap: 6px; height: 44px; }
+.fast-resrow .rr-sum { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.86rem; font-weight: 800; line-height: 42px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; font-variant-numeric: tabular-nums; }
+.fast-resrow .rr-sum.hint { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.fast-resrow .rr-sum:disabled { opacity: 1; background: transparent; border-style: dashed; }
+.fast-resrow .rr-sum .bb { font-size: 0.86rem; }
+.fast-resrow .rr-sum b.up { color: #7ee2a2; }
+.fast-resrow .rr-sum b.down { color: #ff8a92; }
+.fast-resrow .rr-sum b { font-weight: 900; }
+.rr-board { display: inline-flex; gap: 4px; }
+.fast-resrow .fast-lv { height: 44px; }
 .fast-lv { flex: none; height: 32px; padding: 0 9px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
 .fast-lv i { font-style: normal; color: var(--muted); font-size: 0.66rem; }
 /* An estimate (from the start time, or a level picked a while ago moved on by the schedule): dashed. Needed: gold. */
 .fast-lv.est { border-style: dashed; }
 .fast-lv.ask { border: 1px dashed var(--accent); color: var(--accent); background: var(--accent-soft); }
-.fast-res .flow-row-box { margin: 2px 0; }
-.fast-res-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.fast-res-chips.n2 { grid-template-columns: repeat(2, 1fr); }
-.fast-res-chips.n4 { grid-template-columns: repeat(4, 1fr); }
-.fast-res-chips.n5 { grid-template-columns: repeat(5, 1fr); gap: 5px; }
-.fast-res-chips button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 2px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.95rem; font-weight: 800; line-height: 1.12; white-space: nowrap; overflow: hidden; }
-.fast-res-chips small { font-size: 0.7rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
-.fast-res-chips small.bb { color: var(--bb); font-weight: 900; }
-.fast-res-chips .r-fold, .fast-res-chips .r-walk { background: #1c2532; }
-.fast-res-chips .r-lose.on { background: rgba(255, 90, 100, 0.16); border-color: var(--err); color: #ff8a92; }
-.fast-res-chips .r-win.on { background: rgba(34, 197, 94, 0.16); border-color: var(--ok); color: #7ee2a2; }
-.fast-res-chips .r-fold.on, .fast-res-chips .r-walk.on { border-color: var(--accent); }
-/* 스택: the result worked out from 지금 스택 (자동 계산). */
-.fast-res-chips .r-stack.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.fast-res-chips button.ask { border-color: var(--accent); color: var(--accent); }
-.fast-res-chips button:disabled { opacity: 0.3; }
-.fast-board { display: flex; align-items: center; gap: 6px; height: 44px; }
-.fb-slots { flex: none; display: flex; align-items: center; gap: 4px; height: 44px; padding: 0 3px; border-radius: 10px; background: transparent; border: 1px solid transparent; }
-.fb-slots.off { opacity: 0.35; }
-.fb-slot { display: flex; align-items: center; justify-content: center; width: 36px; height: 38px; margin: 0; padding: 0; border-radius: 7px; background: var(--panel); border: 1px dashed var(--line); color: var(--muted); font: inherit; font-size: 1rem; font-weight: 900; line-height: 1; }
-.fb-slot:disabled { opacity: 1; }
-/* The card the suit row is for. */
-.fb-slot.target { border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.fb-slot.turn { margin-left: 4px; }
-.fb-slot.set { border-style: solid; background: var(--panel-2); color: var(--text); }
-.fb-slot .nos, .fi-board .nos { color: #c7d0dd; }
-.fb-slot .s-s, .fi-board .s-s { color: var(--suit-s); } .fb-slot .s-h, .fi-board .s-h { color: var(--suit-h); } .fb-slot .s-d, .fi-board .s-d { color: var(--suit-d); } .fb-slot .s-c, .fi-board .s-c { color: var(--suit-c); }
-.fast-stack { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; padding: 0 6px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.8rem; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; }
-.fast-stack small { font-size: 0.68rem; font-weight: 700; color: var(--muted); }
-/* 지금 스택's bb under it, as big as the chips. */
-.fast-stack small.bb { font-size: 0.82rem; font-weight: 900; color: var(--bb); }
-.fast-stack.set { color: var(--text); }
-.fast-stack:disabled { opacity: 0.35; }
 /* The save slot's button: gold with a result, plain without one, the reason when it waits. */
 .fast-result .fs-save { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border-radius: 12px; background: var(--accent); border: 1px solid var(--accent); color: var(--accent-ink); font-size: 0.95rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fast-result .fs-save.plain { background: var(--panel-2); border-color: var(--line); color: var(--text); font-weight: 800; }
@@ -1378,13 +1459,6 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-check .fc-diff.up { color: var(--ok); }
 .fast-check .fc-diff.down { color: var(--err); }
 .fast-check .fast-mini { margin-left: auto; height: 34px; padding: 0 10px; color: var(--muted); }
-/* 칩 업데이트's sheet: what the app counts now. */
-.tn-count { display: flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.tn-count b { margin-left: auto; color: var(--text); font-size: 1.05rem; font-weight: 900; }
-.tn-count b small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
-/* 칩 업데이트's count and the stack typed, read back with its bb: big, the bb in its color. */
-.tn-read { min-height: 1.45em; color: var(--text); font-size: 1.15rem; font-weight: 900; line-height: 1.3; font-variant-numeric: tabular-nums; }
-.tn-count > small { margin-left: auto; font-size: 0.78rem; }
 .tn-cancel { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .tn-cancel button { margin-left: auto; height: 40px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--accent); font-size: 0.82rem; font-weight: 800; }
 .tn-all { height: auto; min-height: 32px; padding: 0 2px; font-size: inherit; vertical-align: baseline; }
@@ -1420,9 +1494,18 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .tn-field textarea { min-height: 64px; color: var(--text); font-size: 16px; }
 .tn-field small { color: var(--muted); font-size: 0.72rem; font-weight: 600; word-break: keep-all; }
 .tn-field small.tn-lv { color: var(--accent); font-weight: 800; }
-.tn-field small.tn-big { color: var(--open); font-weight: 800; }
-.tn-field small .tn-bb { font-size: 0.8rem; }
 .tn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* 구조: 야자수 새틀 | 직접 입력. */
+.tn-struct { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+.tn-struct button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 44px; border-radius: 9px; border: 0; background: transparent; color: #c7d0dd; font-size: 0.92rem; font-weight: 800; line-height: 1.15; }
+.tn-struct button.on { background: var(--accent); color: var(--accent-ink); }
+.tn-struct button small { font-size: 0.66rem; font-weight: 700; opacity: 0.8; }
+/* A number typed on the in-app keypad (시작 스택, 블라인드): looks like a field, opens the calculator. */
+.tn-numfield { display: flex; align-items: baseline; gap: 8px; min-width: 0; height: 44px; padding: 0 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); color: var(--text); font-size: 16px; font-weight: 800; line-height: 42px; white-space: nowrap; overflow: hidden; text-align: left; font-variant-numeric: tabular-nums; }
+.tn-numfield .bb { font-size: 0.9rem; }
+.tn-numfield small { color: var(--muted); font-size: 0.74rem; font-weight: 700; }
+.tn-numfield.empty { color: var(--muted); font-weight: 700; }
+.tn-sheet > p.tn-note { color: var(--accent); font-size: 0.78rem; font-weight: 700; }
 .tn-join { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: #c7d0dd; font-size: 0.84rem; font-weight: 700; word-break: keep-all; }
 .tn-join input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
 .tn-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; margin-top: 4px; }

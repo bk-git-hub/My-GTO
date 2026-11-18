@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useBackHandler } from "../../backNav";
-import { bbPart, chipsText, signedText, type StackAt } from "./fastChips";
+import { BlindsSheet, ChipsPad } from "./CalcSheet";
+import { bbPart, blindsText, chipsText, digitSlip, signedText, type StackAt } from "./fastChips";
 import { Bb } from "./FastResult";
-import { fieldsBlock, type TourneyFields } from "./fastTourney";
+import { fieldsBlock, PUB_START_STACK, type TourneyFields } from "./fastTourney";
+import { blindsOf, type Blinds, type Lv } from "./levelClock";
 import { STACK_MAX, type StackCheck } from "./tourney";
 
 /**
  * 빠른 기록's tournament sheet: a new tournament (새 토너먼트 기록) or the current one's details (its title
- * tapped): 이름, 시작 시간, 시작 스택, 메모. It sits at the top of the screen, over a dimmed page, so the
- * phone's keyboard never covers the fields; a tap outside it, 취소 or the header's ‹ closes it. Nothing
- * takes focus by itself (the keyboard comes up only for the field tapped).
+ * tapped): 구조 (야자수 새틀: the pub's structure, the level from the start time; 직접 입력: the blinds typed by
+ * hand as they go up), 이름, 시작 시간 (야자수 새틀 only), 시작 스택 and 블라인드 (직접 입력) on the in-app keypad,
+ * 메모. It sits at the top of the screen, over a dimmed page, so the phone's keyboard never covers the fields; a
+ * tap outside it, 취소 or the header's ‹ closes it. Nothing takes focus by itself.
  */
 export function TourneySheet(p: {
   mode: "new" | "edit";
@@ -26,33 +29,85 @@ export function TourneySheet(p: {
   note?: string;
   /** New only: today's hands from before tournaments still running; with some, a box (ticked) takes them into the new one. */
   join?: number;
+  /**
+   * The 시작 스택 shown is the pub's 50,000 offered, not a value on file (a new tournament; one whose start stack isn't
+   * known): left untouched, it is cleared on switching to 직접 입력 (a wrong start stack would skew every 스택 result)
+   * and comes back on switching back. Default: a new tournament's.
+   */
+  offered?: boolean;
   /** Saves the fields (`join`: the box ticked): an error to show, or null when saved (the caller closes the sheet). */
   onSave: (f: TourneyFields, join: boolean) => string | null;
   onDelete?: () => void;
   onClose: () => void;
 }) {
-  const [f, setF] = useState<TourneyFields>(p.initial);
+  const [f, setF] = useState<TourneyFields>(() => ({ ...p.initial, structure: p.initial.structure ?? "pub", blinds: p.initial.blinds ?? null }));
   const [err, setErr] = useState<string | null>(null);
   const [join, setJoin] = useState(true);
+  /** The keypad open over the sheet: 시작 스택, or 직접 입력's blinds. */
+  const [pad, setPad] = useState<null | "stack" | "blinds">(null);
+  /** 시작 스택 as it was when its keypad opened (취소 puts it back). */
+  const [padWas, setPadWas] = useState("");
+  const [touched, setTouched] = useState(false);
   const joinable = p.mode === "new" && (p.join ?? 0) > 0;
   useBackHandler(() => {
     p.onClose();
     return true;
   });
   const isNew = p.mode === "new";
+  const offered = (p.offered ?? isNew) && p.initial.stack === String(PUB_START_STACK);
+  const custom = f.structure === "custom";
   const stack = /^\d{1,9}$/.test(f.stack) && Number(f.stack) > 0 ? Number(f.stack) : null;
   const lv = p.levelText?.(f.clock) ?? null;
-  const put = (k: keyof TourneyFields, v: string) => {
+  /** The level 시작 스택's bb is counted at: 야자수 새틀 Lv1 (100/200), 직접 입력's starting blinds. */
+  const startLv: Lv = custom ? (f.blinds ?? null) : 1;
+  const startBb = blindsOf(startLv)?.bb ?? null;
+  const put = <K extends keyof TourneyFields>(k: K, v: TourneyFields[K]) => {
     setF((x) => ({ ...x, [k]: v }));
     setErr(null);
   };
+  /** 구조 switched: an untouched 50,000 offer goes for 직접 입력 and comes back for 야자수 새틀. */
+  function pickStructure(to: "pub" | "custom") {
+    if (to === f.structure) return;
+    setF((x) => ({
+      ...x,
+      structure: to,
+      ...(offered && !touched ? { stack: to === "custom" ? "" : String(PUB_START_STACK) } : {}),
+    }));
+    setErr(null);
+  }
 
   function save() {
     const b = fieldsBlock(f);
     if (b === "clock") return setErr("시각을 읽을 수 없어요 (예: 19:00)");
     if (b === "stack") return setErr("시작 스택은 숫자로 (예: 50000)");
+    if (b === "blinds") return setErr("블라인드를 다시 넣어 주세요");
     setErr(p.onSave(f, joinable && join));
   }
+
+  const switched = !isNew && (p.initial.structure ?? "pub") !== f.structure;
+  const stackField = (
+    <div className="tn-field">
+      시작 스택
+      <button
+        type="button"
+        className={`tn-numfield${stack === null ? " empty" : ""}`}
+        aria-label={`시작 스택 ${stack === null ? "모름" : chipsText(stack)} · 계산기로 넣기`}
+        onClick={() => {
+          setPadWas(f.stack);
+          setPad("stack");
+        }}
+      >
+        {stack !== null ? (
+          <>
+            {chipsText(stack)} <Bb v={bbPart(stack, startLv)} />
+          </>
+        ) : (
+          "모름"
+        )}
+      </button>
+      <small>{custom ? (startBb !== null ? `BB ${chipsText(startBb)} 기준` : "블라인드를 넣으면 bb로") : "Lv1 기준 · 누르면 계산기"}</small>
+    </div>
+  );
 
   return (
     <div className="tn-backdrop" onClick={p.onClose}>
@@ -68,40 +123,48 @@ export function TourneySheet(p: {
             {p.current && <span className="log-tag">지금 적는 중</span>}
           </div>
         )}
+        <div className="tn-struct" role="radiogroup" aria-label="구조">
+          <button type="button" role="radio" aria-checked={!custom} className={!custom ? "on" : ""} onClick={() => pickStructure("pub")}>
+            야자수 새틀
+            <small>구조표대로 · 레벨 자동</small>
+          </button>
+          <button type="button" role="radio" aria-checked={custom} className={custom ? "on" : ""} onClick={() => pickStructure("custom")}>
+            직접 입력
+            <small>블라인드를 직접</small>
+          </button>
+        </div>
         <label className="tn-field">
           이름
           <input type="text" value={f.name} maxLength={40} placeholder={p.defaultName} enterKeyHint="next" autoComplete="off" onChange={(e) => put("name", e.target.value)} />
         </label>
-        <div className="tn-grid">
-          <label className="tn-field">
-            시작 시간
-            <input type="time" value={f.clock} onChange={(e) => put("clock", e.target.value)} />
-            {lv ? <small className="tn-lv">{lv}</small> : <small>레벨 추정에 써요 · 모르면 비워 두세요</small>}
-          </label>
-          <label className="tn-field">
-            시작 스택
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={9}
-              value={f.stack}
-              placeholder="예: 50000"
-              autoComplete="off"
-              onChange={(e) => put("stack", e.target.value.replace(/[^0-9]/g, "").slice(0, 9))}
-            />
-            {/* Its bb at the first level's big blind (야자수 새틀 Lv1: 100/200). */}
-            <small>
-              {stack !== null ? (
-                <>
-                  = {chipsText(stack)}칩 <Bb v={bbPart(stack, 1)} className="tn-bb" /> (Lv1)
-                </>
-              ) : (
-                "모르면 비워 두세요"
-              )}
-            </small>
-          </label>
-        </div>
+        {custom ? (
+          <div className="tn-grid">
+            {stackField}
+            <div className="tn-field">
+              블라인드
+              <button type="button" className={`tn-numfield${f.blinds ? "" : " empty"}`} aria-label={`블라인드 ${f.blinds ? blindsText(f.blinds) : "없음"} · 넣기`} onClick={() => setPad("blinds")}>
+                {f.blinds ? (
+                  <>
+                    {chipsText(f.blinds.sb)}/{chipsText(f.blinds.bb)} <small>{f.blinds.ante ? `앤티 ${chipsText(f.blinds.ante)}` : "노앤티"}</small>
+                  </>
+                ) : (
+                  "＋ 넣기"
+                )}
+              </button>
+              <small>칠 때 레벨 칩에서 바꿔요</small>
+            </div>
+          </div>
+        ) : (
+          <div className="tn-grid">
+            <label className="tn-field">
+              시작 시간
+              <input type="time" value={f.clock} onChange={(e) => put("clock", e.target.value)} />
+              {lv ? <small className="tn-lv">{lv}</small> : <small>레벨 추정에 써요 · 모르면 비워 두세요</small>}
+            </label>
+            {stackField}
+          </div>
+        )}
+        {custom && <p className="tn-note">레벨은 칠 때 레벨 칩에서 바꿔요 · 시간으로 추정하지 않아요</p>}
         <label className="tn-field">
           메모
           <textarea rows={2} maxLength={500} value={f.memo} placeholder="바이인, 테이블, 특이사항…" onChange={(e) => put("memo", e.target.value)} />
@@ -112,7 +175,7 @@ export function TourneySheet(p: {
             <span>오늘 토너먼트 없이 적은 {p.join}핸드도 여기로 모으기</span>
           </label>
         )}
-        {p.note && <p>{p.note}</p>}
+        {switched ? <p>저장된 핸드의 블라인드는 그대로예요.</p> : p.note && !custom && <p>{p.note}</p>}
         {err && (
           <div className="cardtext-msg bad" role="alert">
             {err}
@@ -141,6 +204,47 @@ export function TourneySheet(p: {
           </div>
         )}
       </div>
+      {pad === "stack" && (
+        // The keypad over the sheet (and its dim): its own taps never reach the sheet's backdrop.
+        <div onClick={(e) => e.stopPropagation()}>
+          <ChipsPad
+            over
+            label="시작 스택"
+            title="시작 스택"
+            note={custom ? (f.blinds ? `직접 입력 · ${chipsText(f.blinds.sb)}/${chipsText(f.blinds.bb)}` : "직접 입력") : "야자수 새틀 · Lv1 100/200"}
+            value={f.stack}
+            fresh
+            placeholder="모름"
+            bb={stack !== null ? bbPart(stack, startLv) : null}
+            line={startBb !== null ? `${custom ? "" : "Lv1 "}BB ${chipsText(startBb)} 기준 · 모르면 지우기` : "블라인드를 넣으면 bb로 보여요"}
+            lineClass="hint"
+            left={{ label: "지우기", onClick: () => (put("stack", ""), setTouched(true)) }}
+            right={{ label: "확인", onClick: () => setPad(null) }}
+            onValue={(v) => {
+              put("stack", v);
+              setTouched(true);
+            }}
+            onClose={() => {
+              put("stack", padWas);
+              setPad(null);
+            }}
+          />
+        </div>
+      )}
+      {pad === "blinds" && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <BlindsSheet
+            over
+            initial={f.blinds ?? null}
+            applyNote="시작 블라인드"
+            onApply={(b: Blinds) => {
+              put("blinds", b);
+              setPad(null);
+            }}
+            onClose={() => setPad(null)}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -156,30 +260,30 @@ export function chipUpdateNote(
   text: string,
   now: StackAt,
   open: StackCheck | null,
-  level: number | null,
+  level: Lv,
 ): { read: { chips: string; bb: string | null } | null; text: string; tone: "big" | "diff" | null } {
   const stack = /^\d{1,9}$/.test(text) && Number(text) <= STACK_MAX ? Number(text) : null;
   if (stack === null) return { read: null, text: "칩 개수 그대로 (0이면 탈락)", tone: null };
   const count = now.chips;
   const ref = open ? open.stack : count;
   const diff = ref !== null ? stack - ref : null;
-  const big = count !== null && stack > 0 && count > 0 && (stack >= 3 * count || stack * 3 <= count);
+  const big = digitSlip(stack, count);
   const vs = diff === null ? "" : diff === 0 ? (open ? "방금과 같아요" : "앱이 센 것과 같아요") : `${open ? "방금보다" : "앱보다"} ${signedText(diff, "chips")}`;
   return { read: { chips: chipsText(stack), bb: bbPart(stack, level) }, text: [vs, big ? "자릿수 확인" : ""].filter(Boolean).join(" · ") || "칩 개수 그대로 (0이면 탈락)", tone: big ? "big" : diff ? "diff" : null };
 }
 
 /**
  * 칩 업데이트: my stack counted and typed at any moment (after a break, a rebuy or add-on, or to put the count
- * right). It shows what the app counts now (`now`: the start stack or the last stack on file plus every result
- * since; not known: why), and as the stack is typed, how far it is from that count: the difference goes on the
- * graph as an adjustment, not as a hand. `open`: the last 칩 업데이트, with no hand since, which this one puts right
- * in place: it is what the box shows ("방금 업데이트") and what the stack typed is measured against (chipUpdateNote,
- * which also tints a 0 too many or too few with "자릿수 확인"). The same sheet as the tournament's, at the top over the dimmed page; the field takes the focus (one field: the number pad comes
- * up at once where the phone allows it).
+ * right), on the in-app keypad in a modal calculator sheet. Its top row shows what the app counts now (`now`: the
+ * start stack or the last stack on file plus every result since; not known: why), and as the stack is typed, the
+ * count big with its bb and how far it is from that count: the difference goes on the graph as an adjustment, not
+ * as a hand. `open`: the last 칩 업데이트, with no hand since, which this one puts right in place: it is what the top
+ * row shows ("방금 업데이트") and what the stack typed is measured against (chipUpdateNote, which also tints a 0 too
+ * many or too few with "자릿수 확인"). No input element: the phone's keyboard never comes up.
  */
 export function ChipUpdateSheet(p: {
   now: StackAt;
-  level: number | null;
+  level: Lv;
   open: StackCheck | null;
   /** Saves the stack: an error to show, or null when saved (the caller closes the sheet). */
   onSave: (stack: number) => string | null;
@@ -187,73 +291,57 @@ export function ChipUpdateSheet(p: {
 }) {
   const [text, setText] = useState("");
   const [err, setErr] = useState<string | null>(null);
-  useBackHandler(() => {
-    p.onClose();
-    return true;
-  });
   const stack = /^\d{1,9}$/.test(text) && Number(text) <= STACK_MAX ? Number(text) : null;
-  // The box: the 칩 업데이트 just typed while it can be put right in place, else the app's count.
+  // The top row: the 칩 업데이트 just typed while it can be put right in place, else the app's count.
   const ref = p.open ? p.open.stack : p.now.chips;
   const note = chipUpdateNote(text, p.now, p.open, p.level);
-  const save = () => (stack === null ? setErr("칩 개수를 숫자로 넣어 주세요 (예: 61800)") : setErr(p.onSave(stack)));
+  const diff = stack !== null && ref !== null ? stack - ref : null;
+  const save = () => (stack === null ? setErr("칩 개수를 넣어 주세요 (0이면 탈락)") : setErr(p.onSave(stack)));
+  const line = err ? (
+    <span className="calc-err" role="alert">
+      {err}
+    </span>
+  ) : diff !== null && diff !== 0 ? (
+    <>
+      <b className={diff > 0 ? "up" : "down"}>{signedText(diff, "chips")}</b>
+      <Bb v={bbPart(diff, p.level, true)} />
+      <small>{p.open ? "방금보다" : "앱보다"} · 그래프에 보정으로</small>
+      {note.tone === "big" && <small className="slip">자릿수 확인</small>}
+    </>
+  ) : stack !== null ? (
+    note.text
+  ) : p.open ? (
+    `방금 넣은 ${chipsText(p.open.stack)}을 이걸로 고쳐요`
+  ) : (
+    "칩 개수 그대로 · 0이면 탈락"
+  );
   return (
-    <div className="tn-backdrop" onClick={p.onClose}>
-      <div className="tn-sheet" role="dialog" aria-modal="true" aria-label="칩 업데이트" onClick={(e) => e.stopPropagation()}>
-        <b>칩 업데이트</b>
-        <p>지금 칩을 세어서 넣으세요. 앱이 센 스택과 다르면 그 차이만 그래프에 보정으로 들어가요 (핸드로 세지 않아요).</p>
-        <div className="tn-count">
-          <span>{p.open ? "방금 업데이트" : "앱이 센 스택"}</span>
-          {ref !== null ? (
-            <b>
-              {chipsText(ref)} <Bb v={bbPart(ref, p.level)} />
-            </b>
-          ) : (
-            <small>{p.now.chips === null && p.now.why === "gap" ? "모름 · 결과 없는 핸드가 있어요" : "모름 · 시작 스택이 없어요"}</small>
-          )}
-        </div>
-        <label className="tn-field">
-          지금 스택
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={11}
-            value={text}
-            placeholder={ref !== null ? String(ref) : "예: 61800"}
-            autoComplete="off"
-            enterKeyHint="done"
-            autoFocus
-            onChange={(e) => {
-              setText(e.target.value.replace(/[^0-9]/g, "").slice(0, 9));
-              setErr(null);
-            }}
-            onKeyDown={(e) => e.key === "Enter" && save()}
-          />
-          {/* The stack typed, read back with its bb (the line keeps its height while empty: nothing moves as it is typed). */}
-          <span className="tn-read" aria-live="polite">
-            {note.read && (
-              <>
-                {note.read.chips}칩 <Bb v={note.read.bb} />
-              </>
-            )}
-          </span>
-          <small className={note.tone === "big" ? "tn-big" : note.tone === "diff" ? "tn-lv" : undefined}>{note.text}</small>
-        </label>
-        {p.open && <p>방금 넣은 칩 업데이트 ({chipsText(p.open.stack)})를 이걸로 고쳐요 · 그 뒤로 핸드가 없어서요.</p>}
-        {err && (
-          <div className="cardtext-msg bad" role="alert">
-            {err}
-          </div>
-        )}
-        <div className="tn-actions">
-          <button type="button" className="ghost" onClick={p.onClose}>
-            취소
-          </button>
-          <button type="button" className="tn-go" onClick={save}>
-            업데이트
-          </button>
-        </div>
-      </div>
-    </div>
+    <ChipsPad
+      label="칩 업데이트"
+      title="칩 업데이트"
+      note={
+        ref !== null ? (
+          <>
+            {p.open ? "방금 업데이트" : "앱이 센 스택"} <b>{chipsText(ref)}</b> <Bb v={bbPart(ref, p.level)} />
+          </>
+        ) : p.now.chips === null && p.now.why === "gap" ? (
+          "앱이 센 스택 모름 · 결과 없는 핸드가 있어요"
+        ) : (
+          "앱이 센 스택 모름 · 시작 스택이 없어요"
+        )
+      }
+      value={text}
+      placeholder="지금 칩은?"
+      bb={stack !== null ? bbPart(stack, p.level) : null}
+      line={line}
+      lineClass={err ? "bad" : note.tone === "big" ? "big" : stack === null || diff === null || diff === 0 ? "hint" : undefined}
+      left={{ label: "취소", onClick: p.onClose }}
+      right={{ label: "업데이트", onClick: save }}
+      onValue={(v) => {
+        setText(v);
+        setErr(null);
+      }}
+      onClose={p.onClose}
+    />
   );
 }

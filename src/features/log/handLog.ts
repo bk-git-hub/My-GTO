@@ -2,7 +2,7 @@ import { cardLabel, handClassOf, rankOf, RANKS, suitOf, type Card } from "../../
 import { createStore } from "../../state/store";
 import { sanitizeState, SCOUT_KEY } from "../scout/scoutModel";
 import { scoutToHands } from "./legacyScout";
-import { clockText, levelAt, levelRow, parseClock, type LevelEstimate } from "./levelClock";
+import { blindsOf, cleanBlinds, clockText, levelAt, levelRow, parseClock, type Blinds, type LevelEstimate, type Lv } from "./levelClock";
 import { actedPreflop, cleanPre, isStage, knownStage, preHasInfo, preSteps, shoveCap, STAGE_LABEL, summaryOf, summaryOfGame, summaryText, tidyPre, type PreStage, type QuickPre } from "./quickPre";
 import { amountLabel, MY_TAGS, positionsFor, POSITIONS, replay, streetLines, type LogStep, type SeatTags, type StepKind, type TableInput } from "./recorder";
 import { actLabel, fastVerdict, isFastSpot, theirWords, type FastInput, type FastSpot, type Verdict } from "./fastVerdict";
@@ -103,6 +103,11 @@ export interface LoggedHand {
    * tournaments existed (grouped by time gaps under 이전 기록). Never set by the table flow.
    */
   tourney?: string;
+  /**
+   * 빠른 기록 in a 직접 입력 tournament (and 남의 핸드 there): the blinds the hand was played at; `level` is null then
+   * and `bbAnte` is `blinds.ante > 0`. Absent: the hand's blinds are its level's (PUB_SCHEDULE), as always.
+   */
+  blinds?: Blinds;
 }
 
 /** The day's tournament start: the local day the clock time falls on, and the clock ("19:00"). */
@@ -266,6 +271,12 @@ export function tidyHand(h: LoggedHand): LoggedHand {
   if ("tourney" in next && !isTourneyId(next.tourney)) {
     const { tourney: _t, ...rest } = next;
     void _t;
+    next = rest;
+  }
+  // Blinds typed by hand: only valid ones, and only while no schedule level is set (a level picked later wins).
+  if ("blinds" in next && (next.level !== null || !cleanBlinds(next.blinds))) {
+    const { blinds: _b, ...rest } = next;
+    void _b;
     next = rest;
   }
   return next;
@@ -824,8 +835,8 @@ export function rememberSetup(h: Pick<LoggedHand, "level" | "players"> & Partial
 }
 
 /** The stage to remember after this hand: the one it tells (tapped, or from its stack), else the one before. */
-function stageMemo(h: Pick<LoggedHand, "level"> & Partial<Pick<LoggedHand, "stack" | "quickPre">>, s: HandLogState): { lastStage?: PreStage } {
-  const stage = knownStage(h.quickPre, stackBb({ stack: h.stack ?? null, level: h.level })) ?? lastStage(s);
+function stageMemo(h: Pick<LoggedHand, "level"> & Partial<Pick<LoggedHand, "stack" | "quickPre" | "blinds">>, s: HandLogState): { lastStage?: PreStage } {
+  const stage = knownStage(h.quickPre, stackBb({ stack: h.stack ?? null, level: h.level, ...(h.blinds ? { blinds: h.blinds } : {}) })) ?? lastStage(s);
   return stage ? { lastStage: stage } : {};
 }
 
@@ -913,11 +924,16 @@ export function levelLabel(level: number | null): string {
   return info ? `Lv${level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
 }
 
-/** A hand's level: levelLabel, plus " (추정)" when it came from the start time. */
-export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess">): string {
+/** A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드 400/800 · 앤티 800 (직접 입력)". */
+export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess" | "blinds">): string {
+  const b = h.level === null ? cleanBlinds(h.blinds) : null;
+  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${b.ante ? `앤티 ${b.ante.toLocaleString()}` : "앤티 없음"} (직접 입력)`;
   const label = levelLabel(h.level);
   return h.levelGuess && levelInfo(h.level) ? `${label} (추정)` : label;
 }
+
+/** A hand's level as the chip maths take it (fastChips handLv): its own 직접 입력 blinds, else its level. */
+const lvOfHand = (h: Pick<LoggedHand, "level" | "blinds">): Lv => (h.level === null && h.blinds ? h.blinds : h.level);
 
 /**
  * The hand with its level set: `guessed` when it came from the start-time estimate (levelEstimateAt).
@@ -927,11 +943,24 @@ export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess">): str
  * seat's real stack anyway.
  */
 export function withLevel(h: LoggedHand, level: number | null, guessed = false): LoggedHand {
-  const { levelGuess: _was, ...rest } = h;
+  return withLv(h, level, guessed);
+}
+
+/**
+ * withLevel for any Lv: a schedule level or none (the hand's own blinds dropped), or a 직접 입력 tournament's
+ * blinds (`level` null, `blinds` set, never estimated). Bets typed as chips rescale from the old big blind to
+ * the new one as withLevel does.
+ */
+export function withLv(h: LoggedHand, lv: Lv, guessed = false): LoggedHand {
+  const { levelGuess: _was, blinds: _b, ...rest } = h;
   void _was;
-  const from = levelInfo(h.level)?.bb ?? null;
-  const to = levelInfo(level)?.bb ?? null;
+  void _b;
+  const from = blindsOf(lvOfHand(h))?.bb ?? null;
+  const custom = lv !== null && typeof lv === "object" ? cleanBlinds(lv) : null;
+  const to = blindsOf(custom ?? (typeof lv === "number" ? lv : null))?.bb ?? null;
   const kept = from !== null && to !== null && from !== to ? rescaleBb(rest, from / to) : rest;
+  if (custom) return { ...kept, level: null, blinds: custom };
+  const level = typeof lv === "number" ? lv : null;
   return { ...kept, level, ...(guessed && level !== null ? { levelGuess: true as const } : {}) };
 }
 
@@ -1096,8 +1125,8 @@ export function laterStart(a: StartClock | undefined, b: StartClock | undefined)
 }
 
 /** My stack in big blinds, if both the stack and the level are known. */
-export function stackBb(h: Pick<LoggedHand, "stack" | "level">): number | null {
-  const info = levelInfo(h.level);
+export function stackBb(h: Pick<LoggedHand, "stack" | "level"> & { blinds?: Blinds }): number | null {
+  const info = blindsOf(lvOfHand(h));
   if (!info || h.stack === null || !(h.stack > 0)) return null;
   return Math.round((h.stack / info.bb) * 10) / 10;
 }
@@ -1276,8 +1305,9 @@ const OLD_EXPORT_KIND = "pubaz-hand-log";
 
 /**
  * The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess, fast, fastSpot, fastUnit,
- * fastStack, tourney), the start times and 빠른 기록's tournaments (with their 칩 업데이트). An older app reading it drops the tournaments and the
- * hands' `tourney` (it loses only the grouping), so the file keeps its marker and version.
+ * fastStack, tourney, blinds), the start times and 빠른 기록's tournaments (with their 칩 업데이트, structure and
+ * blinds). An older app reading it drops the tournaments, the hands' `tourney` (it loses only the grouping) and
+ * `blinds` (a 직접 입력 hand then reads as 레벨 모름; a tournament as 야자수 새틀), so the file keeps its marker and version.
  */
 export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[], tourneys?: Tourney[]): string {
   const sc = cleanStartClock(startClock);
@@ -1359,6 +1389,7 @@ export function sanitize(x: unknown): LoggedHand | null {
         }
       : {}),
     ...(isTourneyId(r.tourney) ? { tourney: r.tourney } : {}),
+    ...(level === null && cleanBlinds(r.blinds) ? { blinds: cleanBlinds(r.blinds) as Blinds } : {}),
   };
   return tidyHand(hand);
 }
@@ -1525,6 +1556,7 @@ function needsSanitize(x: unknown): boolean {
   if (badFastMarks(h)) return true;
   if (("guess" in h || "holeKind" in h) && (tidyGuess(h) !== h || ("holeKind" in h && !isHoleKind(h.holeKind)))) return true;
   if ("tourney" in h && !isTourneyId(h.tourney)) return true;
+  if ("blinds" in h && (h.level !== null || !cleanBlinds(h.blinds))) return true;
   return false;
 }
 

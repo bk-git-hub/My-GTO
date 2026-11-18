@@ -1,5 +1,5 @@
 import { useState, type PointerEvent, type ReactNode } from "react";
-import { bbPart, bbText1, MINUS, seriesAt, signedText, type ChipSeries } from "./fastChips";
+import { bbPart, handLv, bbText1, MINUS, seriesAt, signedText, type ChipSeries } from "./fastChips";
 import { Bb } from "./FastResult";
 import { holeClass, type LoggedHand } from "./handLog";
 
@@ -74,7 +74,7 @@ export function ChipGraph({ series: s, hands, title = "오늘 칩 흐름" }: { s
     if (v !== null && h) {
       // The hand's chips in both units, the bb in its color: "+12,800 +25.6bb".
       const chips = h.net === null ? "결과 없음" : h.result === "fold" && !h.net ? "폴드" : signedText(h.net, "chips");
-      const bb = h.net ? bbPart(h.net, h.level, true) : null;
+      const bb = h.net ? bbPart(h.net, handLv(h), true) : null;
       readout = (
         <>
           {`${pick}번째 · ${clock(h.createdAt)} ${h.seat} ${holeClass(h)} ${chips}`}

@@ -10,6 +10,7 @@ import {
   chipsText,
   convertText,
   draftResult,
+  handLv,
   marksOf,
   missedOf,
   missedPart,
@@ -39,10 +40,10 @@ import {
   rememberedText,
   tidyHand,
   withHole,
-  withLevel,
+  withLv,
   type LoggedHand,
 } from "./handLog";
-import { levelRow, levelSince, type LevelEstimate } from "./levelClock";
+import { blindsOf, cleanBlinds, levelRow, levelSince, type Blinds, type LevelEstimate, type Lv } from "./levelClock";
 import { cleanPre, isStage, STAGE_LABEL, type PreAction, type PreStage } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
 import { cleanGuess, holeFromRanks, setBoardGuess } from "./suitGuess";
@@ -112,6 +113,10 @@ export interface FastDraft {
   level?: number | null;
   levelGuess?: true;
   noAnte?: true;
+  /** Correcting a saved hand only: its own 직접 입력 blinds (its `level` null then). */
+  blinds?: Blinds;
+  /** 액션도 기록: the action tapped, waiting for its result in the calculator sheet (never 폴드: that saves at once). */
+  act?: PreAction;
 }
 
 export interface FastState {
@@ -139,6 +144,8 @@ export interface FastState {
   levelPick?: { level: number | null; at: number; t?: string };
   /** New hands without the BB ante (absent: the pub's BB ante). */
   noAnte?: true;
+  /** The calculator sheet's tab last used for the result: "amount" (금액); absent: 스택. */
+  entry?: "amount";
 }
 
 export const fastStore = createStore<Partial<FastState>>("mygto.fast", {});
@@ -194,19 +201,19 @@ export function tapRank(d: FastDraft, r: number): FastDraft {
   if (!Number.isInteger(r) || r < 0 || r > 12) return d;
   if (d.editing && classDone(d)) return d;
   const ranks = d.ranks.length >= 2 ? [r] : [...d.ranks, r];
-  return { ...d, ranks, suited: null };
+  return { ...omit(d, "act"), ranks, suited: null };
 }
 
 /** ⌫: the suitedness first, then the last rank. */
 export function undoTap(d: FastDraft): FastDraft {
-  if (d.suited !== null) return { ...d, suited: null };
-  return { ...d, ranks: d.ranks.slice(0, -1) };
+  if (d.suited !== null) return { ...omit(d, "act"), suited: null };
+  return { ...omit(d, "act"), ranks: d.ranks.slice(0, -1) };
 }
 
 /** 수딧 / 오프수트, for two different ranks. */
 export function pickSuited(d: FastDraft, suited: boolean): FastDraft {
   if (d.ranks.length !== 2 || d.ranks[0] === d.ranks[1]) return d;
-  return { ...d, suited };
+  return { ...omit(d, "act"), suited };
 }
 
 /** Two ranks of which a pair or with suitedness picked: the class is complete. */
@@ -228,15 +235,15 @@ export function withSeat(d: FastDraft, seat: string, players: number): FastDraft
   if (!positionsFor(players).includes(seat)) return d;
   const spot = spotsFor(players, seat).includes(d.spot) ? d.spot : "none";
   const opener = d.opener && (spot === "open" || spot === "shove") && seatsBefore(players, seat).includes(d.opener) ? d.opener : null;
-  // A walk is the BB's only.
-  const kept = d.res === "walk" && seat !== "BB" ? omit(d, "res") : d;
+  // A walk is the BB's only; an action waiting for its result goes with the seat it was tapped at.
+  const kept = d.res === "walk" && seat !== "BB" ? omit(d, "res", "act") : seat !== d.seat ? omit(d, "act") : d;
   return { ...kept, seat, spot, opener };
 }
 
 /** What happened before me; the opener only goes with an open or a shove (and stays when moving between them). */
 export function withSpot(d: FastDraft, spot: FastSpot): FastDraft {
   const keep = (spot === "open" || spot === "shove") && (d.spot === "open" || d.spot === "shove");
-  return { ...d, spot, opener: keep ? d.opener : null };
+  return { ...(spot === d.spot ? d : omit(d, "act")), spot, opener: keep ? d.opener : null };
 }
 
 /** Everything but my action is in: my seat at this table, the class, a spot that can happen there, its opener. */
@@ -296,9 +303,9 @@ export function fastHand(d: FastDraft, act: PreAction | undefined | null, base: 
   return tidyHand(withHole(h, c.hole, true, c.pair ? undefined : c.kind));
 }
 
-/** The level a hand goes in at, and whether it came from the start-time estimate. */
+/** The level a hand goes in at (a 야자수 새틀 level, a 직접 입력 tournament's blinds, or null), and whether it came from the start-time estimate. */
 export interface FastLevel {
-  level: number | null;
+  level: Lv;
   guessed: boolean;
 }
 
@@ -317,7 +324,7 @@ function withMarks(h: LoggedHand, marks: BoardMark[]): LoggedHand | null {
 }
 
 /** The draft's result as draftResult takes it: the sign and amount, 지금 스택 and the stack before the hand (for 스택). */
-const resultIn = (d: FastDraft, seat: string, level: number | null, bbAnte: boolean, before: number | null) => ({
+const resultIn = (d: FastDraft, seat: string, level: Lv, bbAnte: boolean, before: number | null) => ({
   res: d.res,
   amount: d.amount,
   unit: unitOf(d),
@@ -339,7 +346,7 @@ const resultIn = (d: FastDraft, seat: string, level: number | null, bbAnte: bool
  */
 export function withFastResult(h: LoggedHand, d: FastDraft, lv: FastLevel, bbAnte: boolean, before: number | null = null): LoggedHand | null {
   const unit = unitOf(d);
-  const { fastUnit: _u, fastStack: _s, ...was } = withLevel(h, lv.level, lv.guessed);
+  const { fastUnit: _u, fastStack: _s, ...was } = withLv(h, lv.level, lv.guessed);
   void _u;
   void _s;
   const out = draftResult(resultIn(d, was.seat, lv.level, bbAnte, before));
@@ -374,7 +381,7 @@ export function boardFits(d: FastDraft): boolean {
 }
 
 /** Why the draft can't be saved yet ("class" | "sign" | "level" | "stack" | "stackNow" | "over" | "board"), or null. `before`: my stack before the hand (스택, and a loss can't be bigger). */
-export function blockOf(d: FastDraft, players: number, level: number | null, bbAnte: boolean, before: number | null = null): FastBlock | null {
+export function blockOf(d: FastDraft, players: number, level: Lv, bbAnte: boolean, before: number | null = null): FastBlock | null {
   if (!positionsFor(players).includes(d.seat) || !classDone(d)) return "class";
   const out = draftResult(resultIn(d, d.seat, level, bbAnte, before));
   if ("block" in out) return out.block;
@@ -424,8 +431,45 @@ export function pickRes(d: FastDraft, res: FastRes): FastDraft {
 }
 
 /**
+ * The calculator sheet's tabs: 스택 (지금 스택: what is typed there stays; with nothing there, an amount typed
+ * under 금액 moves over to it, as pickRes does; 스택 is the result only once a stack is typed), 금액 (the amount;
+ * 스택 let go as the result, the amount and 지금 스택 kept), 보드 (the board, its suit row on the last card).
+ * Nothing typed is ever deleted by a tab.
+ */
+export function pickEntry(d: FastDraft, e: "stack" | "amount" | "board"): FastDraft {
+  if (e === "board") return pickBoardSlot(d, (d.board ?? []).length);
+  if (e === "amount") return { ...(d.res === "stack" ? omit(d, "res") : d), focus: "result" };
+  if (d.stackNow) return { ...d, res: "stack", focus: "stack" };
+  if (d.amount && unitOf(d) === stackUnitOf(d)) return { ...omit(d, "amount"), stackNow: d.amount, res: "stack", focus: "stack" };
+  return { ...(d.res === "+" || d.res === "-" || d.res === "stack" ? omit(d, "res") : d), focus: "stack" };
+}
+
+/**
+ * The class just completed (by a tap, with no keypad field yet and 액션도 기록 closed): the calculator sheet comes up
+ * in the tab used last (`entry`: 금액, else 스택), or, for a class typed again over a result already typed (⌫ back
+ * to the hand and a new tap), in the tab that result was typed in. The same draft otherwise.
+ */
+export function openOnClass(prev: FastDraft, next: FastDraft, s: Pick<FastState, "entry" | "actions">, forced = false): FastDraft {
+  if (classDone(prev) || !classDone(next) || next.focus || s.actions === true || forced) return next;
+  return entryField(next, s);
+}
+
+/**
+ * The draft with the calculator on the field its result was typed in: 금액 for a sign with its amount (or an
+ * amount, or a sign alone), 지금 스택 for a stack typed (스택 the result then, as typing it makes it), else the
+ * tab used last (`entry`).
+ */
+export function entryField(d: FastDraft, s: Pick<FastState, "entry">): FastDraft {
+  const signed = d.res === "+" || d.res === "-";
+  const amount = (signed && !!d.amount) || (!d.stackNow && d.res !== "stack" && (!!d.amount || signed));
+  if (amount || (!d.stackNow && d.res !== "stack" && s.entry === "amount")) return { ...d, focus: "result" };
+  return d.stackNow && d.res !== "stack" ? { ...d, res: "stack", focus: "stack" } : { ...d, focus: "stack" };
+}
+
+/**
  * A digit key ("0"–"9", "00", "000", ".") into the amount or 지금 스택, whichever has the keypad. 지금 스택
- * typed with no result picked (and no amount) is 스택: the result is worked out from it.
+ * typed is 스택 (the result worked out from it), after 폴드 / 워크 too; only a +/− draft with its amount
+ * (one stored with both) keeps its sign.
  */
 export function typeDigit(d: FastDraft, key: string): FastDraft {
   const f = focusOf(d);
@@ -434,11 +478,12 @@ export function typeDigit(d: FastDraft, key: string): FastDraft {
   const was = d[k] ?? "";
   const t = typeAmount(was, key, f === "result" ? unitOf(d) : stackUnitOf(d));
   if (t === was) return d;
-  // An amount typed after 폴드 / 워크 / 스택 asks for its sign; 지금 스택 typed with no result is 스택.
+  // An amount typed after 폴드 / 워크 / 스택 asks for its sign; 지금 스택 typed is 스택.
+  const both = (d.res === "+" || d.res === "-") && !!d.amount;
   const base =
     f === "result" && (d.res === "fold" || d.res === "walk" || d.res === "stack")
       ? omit(d, "res")
-      : f === "stack" && !d.res && !d.amount
+      : f === "stack" && !both && d.res !== "stack"
         ? { ...d, res: "stack" as const }
         : d;
   return withText(base, k, t);
@@ -486,23 +531,27 @@ export function tapBoardSuit(d: FastDraft, s: number): FastDraft {
 
 /**
  * ⌫ on whatever has the keypad: the hand as always (undoTap); the amount's last character, then its
- * sign, then back to the hand; 지금 스택's last character, then back to the board (스택: back to the
- * result, 스택 let go); the last board card's suit, then the card, then back to the result.
+ * sign, then back to the hand (the sheet closes); 지금 스택's last character (emptied: 스택 let go), then
+ * back to the hand; the last board card's suit, then the card, then back to the result: 금액 when the draft
+ * has a sign or an amount, else 스택. Back to the hand, an action waiting for its result goes too.
  */
 export function backKey(d: FastDraft): FastDraft {
   switch (focusOf(d)) {
     case "result":
       if (d.amount) return withText(d, "amount", d.amount.slice(0, -1));
       if (d.res) return omit(d, "res");
-      return setFocus(d, "hand");
+      return setFocus(omit(d, "act"), "hand");
     case "stack":
-      if (d.stackNow) return withText(d, "stackNow", d.stackNow.slice(0, -1));
-      return d.res === "stack" ? setFocus(omit(d, "res"), "result") : setFocus(d, "board");
+      if (d.stackNow) {
+        const t = withText(d, "stackNow", d.stackNow.slice(0, -1));
+        return t.stackNow || t.res !== "stack" ? t : omit(t, "res");
+      }
+      return setFocus(omit(d, "act"), "hand");
     case "board": {
       const marks = d.board ?? [];
       const last = marks[marks.length - 1];
       const b = omit(d, "boardAt");
-      if (!last) return setFocus(b, "result");
+      if (!last) return setFocus(b, d.amount || d.res === "+" || d.res === "-" ? "result" : "stack");
       if (last.s !== undefined) return { ...b, board: [...marks.slice(0, -1), { r: last.r }] };
       return marks.length > 1 ? { ...b, board: marks.slice(0, -1) } : omit(b, "board");
     }
@@ -531,7 +580,7 @@ export function switchUnit(d: FastDraft, to: Unit): FastDraft {
 }
 
 /** Chips as the draft's text in `unit`: the exact bb to 0.1 (else null), or the chips. */
-function textIn(chips: number, unit: Unit, level: number | null): string | null {
+function textIn(chips: number, unit: Unit, level: Lv): string | null {
   if (chips < 0 || !Number.isFinite(chips)) return null;
   if (unit === "chips") return AMOUNT_PATTERN.chips.test(String(chips)) ? String(chips) : null;
   const t = convertText(String(chips), "chips", "bb", level);
@@ -552,7 +601,8 @@ export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "
   const opener = spot === "open" || spot === "shove" ? (h.quickPre?.openerSeat ?? null) : null;
   const d: FastDraft = { seat: h.seat, ranks, suited, spot, opener, editing: h.id, ...(h.quickPre?.stage ? { stage: h.quickPre.stage } : {}), players: h.players };
   if (isOther(h)) return d;
-  const posted = postedBy(h.seat, h.level, h.bbAnte);
+  const lv = handLv(h);
+  const posted = postedBy(h.seat, lv, h.bbAnte);
   const fold = h.result === "fold" && (h.net === null || h.net === 0 || (posted !== null && h.net === -posted));
   // Worked out from 지금 스택: opened that way, to work it out again.
   const byStack = h.fastStack === true && h.stack !== null && h.result !== "fold";
@@ -561,10 +611,11 @@ export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "
   const after = h.stack !== null ? h.stack + (h.net ?? 0) : null;
   // Each text in its unit when it is exact there, else in chips: the amount's as typed (or, with none, the unit asked for).
   const amountIn: Unit = absNet === null ? unit : h.fastUnit === "bb" ? "bb" : "chips";
-  const u: Unit = amountIn === "bb" && (absNet === null || textIn(absNet, "bb", h.level) !== null) ? "bb" : "chips";
-  const su: Unit = stackUnit === "bb" && after !== null && textIn(after, "bb", h.level) !== null ? "bb" : "chips";
-  const amount = absNet !== null ? textIn(absNet, u, h.level) : res === "+" && h.result === "chop" ? "0" : null;
-  const stackNow = after !== null ? textIn(after, su, h.level) : null;
+  const u: Unit = amountIn === "bb" && (absNet === null || textIn(absNet, "bb", lv) !== null) ? "bb" : "chips";
+  const su: Unit = stackUnit === "bb" && after !== null && textIn(after, "bb", lv) !== null ? "bb" : "chips";
+  const amount = absNet !== null ? textIn(absNet, u, lv) : res === "+" && h.result === "chop" ? "0" : null;
+  const stackNow = after !== null ? textIn(after, su, lv) : null;
+  const blinds = h.level === null ? cleanBlinds(h.blinds) : null;
   const marks = marksOf(h.board, h.guess?.board);
   return {
     ...d,
@@ -574,10 +625,13 @@ export function draftOf(h: LoggedHand, unit: Unit = "chips", stackUnit: Unit = "
     ...(u === "bb" ? { unit: "bb" as const } : {}),
     ...(su === "bb" && stackNow ? { stackUnit: "bb" as const } : {}),
     ...(marks.length ? { board: marks } : {}),
+    // The calculator sheet opens in the hand's own tab: 금액 for an amount, else 스택.
+    focus: res === "+" || res === "-" ? ("result" as const) : ("stack" as const),
     // A level off the schedule isn't carried (cleanDraft would drop it): the hand's own stays then.
     ...(h.level === null || levelRow(h.level) ? { level: h.level } : {}),
     ...(h.levelGuess && h.level !== null && levelRow(h.level) ? { levelGuess: true as const } : {}),
     ...(!h.bbAnte ? { noAnte: true as const } : {}),
+    ...(blinds ? { blinds } : {}),
   };
 }
 
@@ -637,10 +691,15 @@ export function afterSave(s: FastState, saved: LoggedHand, hands: LoggedHand[], 
   return { ...s, draft: latest ? withSeat(back, nextSeat(s.players, saved.seat), s.players) : back, parked: null };
 }
 
-/** A saved hand opened in the editor (되돌리기, or tapped in the list): the new hand on screen is put aside. Only a hand still just a 빠른 기록, of the mode's kind. */
+/**
+ * A saved hand opened in the editor (되돌리기, or tapped in the list): the new hand on screen is put aside. Only a
+ * hand still just a 빠른 기록, of the mode's kind. The calculator sheet comes up on its result, unless the action
+ * rows are on screen (a hand with its decision on file, or 액션도 기록 open): the sheet would cover them.
+ */
 export function startEdit(s: FastState, h: LoggedHand, mode: FastMode = "mine"): FastState {
   if (!fastOnly(h) || !kindFits(h, mode)) return s;
-  return { ...s, draft: draftOf(h, s.unit === "bb" ? "bb" : "chips", s.stackUnit === "bb" ? "bb" : "chips"), parked: s.draft.editing ? s.parked : s.draft };
+  const d = draftOf(h, s.unit === "bb" ? "bb" : "chips", "chips");
+  return { ...s, draft: fastActed(h) || s.actions === true ? omit(d, "focus") : d, parked: s.draft.editing ? s.parked : s.draft };
 }
 
 /** Back to the new hand put aside (the corrected hand stays as it was saved). */
@@ -712,6 +771,9 @@ function cleanChips(r: Record<string, unknown>, d: FastDraft): Partial<FastDraft
   const res = FAST_RES.find((x) => x === r.res && (x !== "walk" || d.seat === "BB"));
   const focus = FOCI.find((x) => x === r.focus);
   const level = d.editing && (r.level === null || (typeof r.level === "number" && levelRow(r.level))) ? (r.level as number | null) : undefined;
+  const blinds = d.editing && typeof level !== "number" ? cleanBlinds(r.blinds) : null;
+  // An action waiting for its result: one of the spot's, never 폴드 (it saves at once), with the class complete.
+  const act = classDone(d) && r.act !== "fold" && actsFor(d.spot, d.seat).includes(r.act as PreAction) ? (r.act as PreAction) : null;
   return {
     ...(res ? { res } : {}),
     ...(amount ? { amount } : {}),
@@ -724,6 +786,8 @@ function cleanChips(r: Record<string, unknown>, d: FastDraft): Partial<FastDraft
     ...(level !== undefined ? { level } : {}),
     ...(typeof level === "number" && r.levelGuess === true ? { levelGuess: true as const } : {}),
     ...(d.editing && r.noAnte === true ? { noAnte: true as const } : {}),
+    ...(blinds ? { blinds } : {}),
+    ...(act ? { act } : {}),
   };
 }
 
@@ -750,6 +814,7 @@ export function cleanFastState(x: unknown, stage: PreStage = "mid", size = 9): F
     ...(r.actions === true ? { actions: true as const } : {}),
     ...(levelPick ? { levelPick } : {}),
     ...(r.noAnte === true ? { noAnte: true as const } : {}),
+    ...(r.entry === "amount" ? { entry: "amount" as const } : {}),
   };
 }
 
@@ -798,7 +863,7 @@ const clock = (t: number) => {
  * A 빠른 기록 hand's chips in words: "+12,000 (+20bb)", "폴드", "폴드 −300 (−0.5bb)", "본전", "수익" for a
  * win without an amount; "" with no result.
  */
-export function resultText(h: Pick<LoggedHand, "result" | "net" | "level">): string {
+export function resultText(h: Pick<LoggedHand, "result" | "net" | "level"> & { blinds?: Blinds }): string {
   const p = resultParts(h);
   return p.bb ? `${p.text} (${p.bb})` : p.text;
 }
@@ -807,9 +872,10 @@ export function resultText(h: Pick<LoggedHand, "result" | "net" | "level">): str
  * The same as the screen shows it, the bb apart so it can stand out next to the chips: "폴드 −300" and
  * "−0.5bb", "+12,000" and "+20bb", "본전" / "수익" / "" with no bb (null: also without a level).
  */
-export function resultParts(h: Pick<LoggedHand, "result" | "net" | "level">): { text: string; bb: string | null } {
-  if (h.result === "fold") return h.net ? { text: `폴드 ${signedText(h.net, "chips")}`, bb: bbPart(h.net, h.level, true) } : { text: "폴드", bb: null };
-  if (h.net !== null) return h.net === 0 ? { text: "본전", bb: null } : { text: signedText(h.net, "chips"), bb: bbPart(h.net, h.level, true) };
+export function resultParts(h: Pick<LoggedHand, "result" | "net" | "level"> & { blinds?: Blinds }): { text: string; bb: string | null } {
+  const lv = handLv(h);
+  if (h.result === "fold") return h.net ? { text: `폴드 ${signedText(h.net, "chips")}`, bb: bbPart(h.net, lv, true) } : { text: "폴드", bb: null };
+  if (h.net !== null) return h.net === 0 ? { text: "본전", bb: null } : { text: signedText(h.net, "chips"), bb: bbPart(h.net, lv, true) };
   return { text: h.result === "win" ? "수익" : h.result === "lose" ? "손실" : h.result === "chop" ? "본전" : "", bb: null };
 }
 
@@ -908,7 +974,7 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
   if (acted.length) lines.push(`차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · ${over} ${s.by.over} · ${under} ${s.by.under} · 차트 없음 ${s.by.none}`);
   if (!other) {
     const big = old.filter((h) => {
-      const row = levelRow(h.level);
+      const row = blindsOf(handLv(h));
       return row && h.net !== null && Math.abs(h.net) >= 10 * row.bb;
     });
     if (big.length) lines.push("", "[큰 팟 · 10bb 이상]", ...big.map((h) => `- ${fastLineText(h)}`));

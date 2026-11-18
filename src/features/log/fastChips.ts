@@ -1,6 +1,6 @@
 import { makeCard, rankOf, suitOf, type Card } from "../../poker/cards";
 import type { LoggedHand, Result } from "./handLog";
-import { levelRow } from "./levelClock";
+import { blindsOf, type Blinds, type Lv } from "./levelClock";
 import { nextBoardCard } from "./suitGuess";
 import type { StackCheck } from "./tourney";
 
@@ -33,16 +33,16 @@ export const MINUS = "−";
  * (`bbAnte`), every other seat nothing. Null when it posts something but the level isn't known.
  * Heads-up the SB is the button and posts the small blind.
  */
-export function postedBy(seat: string, level: number | null, bbAnte = true): number | null {
+export function postedBy(seat: string, level: Lv, bbAnte = true): number | null {
   if (seat !== "SB" && seat !== "BB") return 0;
-  const row = levelRow(level);
+  const row = blindsOf(level);
   if (!row) return null;
   return seat === "SB" ? row.sb : row.bb + (bbAnte ? row.ante : 0);
 }
 
 /** The BB's win when everyone folds to it: the small blind (its own blind and ante come back). Null without a level. */
-export function walkWin(level: number | null): number | null {
-  return levelRow(level)?.sb ?? null;
+export function walkWin(level: Lv): number | null {
+  return blindsOf(level)?.sb ?? null;
 }
 
 // ───────────── amounts ─────────────
@@ -78,11 +78,11 @@ export function amountValue(text: string): number | null {
 }
 
 /** An amount in chips: chips as typed; bb at the level's big blind, rounded to a chip. Null without the text, or bb without a level. */
-export function toChips(text: string, unit: Unit, level: number | null): number | null {
+export function toChips(text: string, unit: Unit, level: Lv): number | null {
   const v = amountValue(text);
   if (v === null) return null;
   if (unit === "chips") return Math.round(v);
-  const row = levelRow(level);
+  const row = blindsOf(level);
   return row ? Math.round(v * row.bb) : null;
 }
 
@@ -93,10 +93,10 @@ const oneDec = (x: number): string => String(Math.round(x * 10) / 10);
  * An amount's text in the other unit: chips → bb to 0.1bb ("12345" → "20.6" at Lv5), bb → chips exactly
  * ("20.5" → "12300"). Without a level, or with nothing typed, the text stays as it is.
  */
-export function convertText(text: string, from: Unit, to: Unit, level: number | null): string {
+export function convertText(text: string, from: Unit, to: Unit, level: Lv): string {
   if (from === to) return text;
   const v = amountValue(text);
-  const row = levelRow(level);
+  const row = blindsOf(level);
   if (v === null || !row) return text;
   return to === "bb" ? oneDec(v / row.bb) : String(Math.round(v * row.bb));
 }
@@ -115,8 +115,8 @@ export function unitText(text: string, to: Unit): string | null {
 }
 
 /** Chips in big blinds at the level, to 0.1; null without a level. */
-export function inBb(chips: number, level: number | null): number | null {
-  const row = levelRow(level);
+export function inBb(chips: number, level: Lv): number | null {
+  const row = blindsOf(level);
   return row ? Math.round((chips / row.bb) * 10) / 10 : null;
 }
 
@@ -136,7 +136,7 @@ export function chipsShort(n: number): string {
 export const bbText1 = (x: number): string => `${oneDec(x)}bb`;
 
 /** "+12,000" / "−12,000" / "본전"; in bb "+20bb" (chips again without a level). */
-export function signedText(n: number, unit: Unit, level: number | null = null): string {
+export function signedText(n: number, unit: Unit, level: Lv = null): string {
   if (n === 0) return "본전";
   const sign = n > 0 ? "+" : MINUS;
   const b = unit === "bb" ? inBb(Math.abs(n), level) : null;
@@ -147,7 +147,7 @@ export function signedText(n: number, unit: Unit, level: number | null = null): 
  * A chip number's bb on its own, for the screen to show next to the chips in its own color: "25.6bb", signed
  * "+25.6bb" / "−2bb". Null without a level (never "?bb"), and for 0 when signed (본전 says it).
  */
-export function bbPart(n: number, level: number | null, signed = false): string | null {
+export function bbPart(n: number, level: Lv, signed = false): string | null {
   const b = inBb(Math.abs(n), level);
   if (b === null || (signed && n === 0)) return null;
   return `${signed ? (n > 0 ? "+" : MINUS) : n < 0 ? MINUS : ""}${bbText1(b)}`;
@@ -157,24 +157,43 @@ export function bbPart(n: number, level: number | null, signed = false): string 
  * The level a moment between hands is counted at in bb (a 칩 업데이트's stack): the level of the last hand at or
  * before `at` that has one, else of the first one after it (chipSeries' rule for its points); null when no hand has one.
  */
-export function levelNear(hands: readonly LoggedHand[], at: number): number | null {
-  const old = [...hands].filter((h) => levelRow(h.level)).sort((a, b) => a.createdAt - b.createdAt);
+export function levelNear(hands: readonly LoggedHand[], at: number): Lv {
+  const old = [...hands].filter((h) => blindsOf(handLv(h))).sort((a, b) => a.createdAt - b.createdAt);
   const before = old.filter((h) => h.createdAt <= at);
-  return (before.length ? before[before.length - 1] : old[0])?.level ?? null;
+  const h = before.length ? before[before.length - 1] : old[0];
+  return h ? handLv(h) : null;
 }
 
 /** "+12,000 (+20bb)", "+12,000" without a level, "본전". */
-export function netBoth(net: number, level: number | null): string {
+export function netBoth(net: number, level: Lv): string {
   if (net === 0) return "본전";
   const b = inBb(net, level);
   return b !== null ? `${signedText(net, "chips")} (${signedText(net, "bb", level)})` : signedText(net, "chips");
 }
 
-/** The level chip: "Lv5 300/600", "Lv17 5,000/1만", "Lv26 5만/10만", "레벨 ?". */
-export function levelChip(level: number | null): string {
-  const row = levelRow(level);
-  return row ? `Lv${row.level} ${chipsShort(row.sb)}/${chipsShort(row.bb)}` : "레벨 ?";
+/**
+ * The level chip: "Lv5 300/600", "Lv17 5,000/1만", "Lv26 5만/10만", "레벨 ?"; a 직접 입력 tournament's blinds
+ * (`custom`): "400/800" (앤티 = BB), "400/800 (500)" (another 앤티), "400/800 노앤티", "블라인드 ?" (not set).
+ */
+export function levelChip(level: Lv, custom = false): string {
+  if (level !== null && typeof level === "object") {
+    const b = blindsOf(level);
+    if (!b) return custom ? "블라인드 ?" : "레벨 ?";
+    const pair = `${chipsShort(b.sb)}/${chipsShort(b.bb)}`;
+    return b.ante === b.bb ? pair : b.ante === 0 ? `${pair} 노앤티` : `${pair} (${chipsShort(b.ante)})`;
+  }
+  const row = blindsOf(level);
+  return row && level !== null ? `Lv${level} ${chipsShort(row.sb)}/${chipsShort(row.bb)}` : custom ? "블라인드 ?" : "레벨 ?";
 }
+
+/** Blinds in words: "400/800 · 앤티 800", "400/800 · 앤티 없음". */
+export const blindsText = (b: Blinds): string => `${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${b.ante ? `앤티 ${b.ante.toLocaleString()}` : "앤티 없음"}`;
+
+/** A hand's level as the chip maths take it: its own 직접 입력 blinds, else its schedule level (or null). */
+export const handLv = (h: Pick<LoggedHand, "level"> & { blinds?: Blinds }): Lv => h.blinds ?? h.level;
+
+/** A stack typed with a 0 too many or too few, most likely: 3× the one it is measured against or more, or a third or less (both above 0). */
+export const digitSlip = (now: number, ref: number | null): boolean => ref !== null && now > 0 && ref > 0 && (now >= 3 * ref || now * 3 <= ref);
 
 // ───────────── the draft's result ─────────────
 
@@ -209,7 +228,7 @@ export function draftResult(i: {
   amount?: string;
   unit: Unit;
   seat: string;
-  level: number | null;
+  level: Lv;
   bbAnte: boolean;
   stackNow?: string;
   stackUnit?: Unit;
@@ -304,7 +323,7 @@ export function sessionMoney(hands: LoggedHand[]): SessionMoney {
   for (const h of hands) {
     if (h.net !== null) {
       chips += h.net;
-      const row = levelRow(h.level);
+      const row = blindsOf(handLv(h));
       if (row) {
         bb += h.net / row.bb;
         anyBb = true;
@@ -374,7 +393,7 @@ export function chipSeries(hands: LoggedHand[], unit: Unit, startStack: number |
   const fromStart = startStack !== null && Number.isFinite(startStack) && startStack > 0;
   const cs = [...checks].sort((a, b) => a.at - b.at);
   if (!n || (old.every((h) => h.stack === null) && old.every((h) => h.net === null) && !cs.length)) return null;
-  const bbOf = old.map((h) => levelRow(h.level)?.bb ?? null);
+  const bbOf = old.map((h) => blindsOf(handLv(h))?.bb ?? null);
   const u: Unit = unit === "bb" && bbOf.some((b) => b !== null) ? "bb" : "chips";
   const d = old.map((h) => h.net ?? 0);
   const segments: ChipPoint[][] = [];

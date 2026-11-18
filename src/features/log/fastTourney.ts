@@ -2,6 +2,7 @@ import type { Go } from "../../backNav";
 import { levelChip, missedOf, oldestFirst, resultOfNet, sessionMoney, stackAt, type StackAt } from "./fastChips";
 import {
   cleanFastState,
+  fastLevel,
   fastStore,
   SESSION_GAP_MS,
   SESSION_IDLE_MS,
@@ -31,7 +32,7 @@ import {
   type HandLogState,
   type LoggedHand,
 } from "./handLog";
-import { durationText, levelAt, parseClock, type LevelEstimate } from "./levelClock";
+import { cleanBlinds, durationText, levelAt, parseClock, type Blinds, type LevelEstimate } from "./levelClock";
 import { cleanChecks, cleanTourneys, isStackChips, TOURNEY_MEMO_MAX, TOURNEY_NAME_MAX, withoutTourney, withTourney, type StackCheck, type Tourney } from "./tourney";
 
 /**
@@ -108,9 +109,26 @@ export const startCovers = (start: number, at: number): boolean => at >= start -
  * corrected in 핸드 복기 counts here too).
  */
 export function tourneyEstimate(t: Tourney | null, at: number, fallback: LevelEstimate | null): LevelEstimate | null {
+  // 직접 입력: the blinds are typed as they go up; nothing is guessed from a clock, not even the day's.
+  if (t && isCustom(t)) return null;
   if (t?.startSet && startCovers(t.start, at) && !(t.auto && fallback)) return { ...levelAt(t.start, at), startClock: clockOf(t.start) };
   return fallback;
 }
+
+/** A 직접 입력 tournament: its blinds are typed by hand (no 야자수 새틀 level, no time estimate). */
+export const isCustom = (t: Pick<Tourney, "structure"> | null | undefined): boolean => t?.structure === "custom";
+
+/**
+ * The level new hands go in at in tournament `t` (null: none current): a 직접 입력 tournament's blinds as set
+ * (none yet: null, never guessed), else fastLevel's (a level picked, else the estimate `est`).
+ */
+export function levelFor(t: Tourney | null, s: Pick<FastState, "levelPick">, session: LoggedHand[], now: number, est: LevelEstimate | null): FastLevel & { picked: boolean } {
+  if (t && isCustom(t)) return { level: t.blinds ?? null, guessed: false, picked: false };
+  return fastLevel(s, session, now, est, t?.id ?? null);
+}
+
+/** Whether new hands in `t` have the BB ante: a 직접 입력 tournament's from its blinds (앤티 0: none), else the toggle's. */
+export const anteFor = (t: Tourney | null, s: Pick<FastState, "noAnte">): boolean => (t && isCustom(t) ? (t.blinds?.ante ?? 0) > 0 : !s.noAnte);
 
 /** The estimate 빠른 기록 uses at `at`: the current tournament's start, else the day's (tourneyEstimate). */
 export function fastEstimate(at: number, s: HandLogState = handLogStore.get()): LevelEstimate | null {
@@ -439,6 +457,10 @@ export interface TourneyFields {
   /** Digits, or "" (not known). */
   stack: string;
   memo: string;
+  /** The blind structure: "pub" (or absent) = 야자수 새틀, "custom" = 직접 입력. */
+  structure?: "pub" | "custom";
+  /** 직접 입력's starting / current blinds; null or absent: not set. */
+  blinds?: Blinds | null;
 }
 
 /** How far before and after now the last start time used is offered for a new tournament: one running, or one about to begin. */
@@ -465,7 +487,7 @@ export function newFields(now: number, s: HandLogState = handLogStore.get()): To
   const last = day === null ? lastStartClock(s) : null;
   const ms = last !== null ? startMsFor(last, now) : null;
   const offer = day ?? (ms !== null && ms >= now - OFFER_BEFORE_MS && ms <= now + OFFER_AFTER_MS ? ms : now);
-  return { name: "", clock: clockOf(offer), stack: String(PUB_START_STACK), memo: "" };
+  return { name: "", clock: clockOf(offer), stack: String(PUB_START_STACK), memo: "", structure: "pub", blinds: null };
 }
 
 /**
@@ -516,7 +538,14 @@ export function startNote(t: Tourney, hands: LoggedHand[], current: boolean, now
 
 /** A tournament's fields as on file (no clock without a start set, no stack when it isn't known). */
 export function fieldsOf(t: Tourney): TourneyFields {
-  return { name: t.name, clock: t.startSet ? clockOf(t.start) : "", stack: t.startStack !== null ? String(t.startStack) : "", memo: t.memo };
+  return {
+    name: t.name,
+    clock: t.startSet ? clockOf(t.start) : "",
+    stack: t.startStack !== null ? String(t.startStack) : "",
+    memo: t.memo,
+    structure: isCustom(t) ? "custom" : "pub",
+    blinds: isCustom(t) ? (t.blinds ?? null) : null,
+  };
 }
 
 /**
@@ -526,14 +555,18 @@ export function fieldsOf(t: Tourney): TourneyFields {
  */
 export function currentFields(t: Tourney, est: LevelEstimate | null, onDay: boolean): TourneyFields {
   const f = fieldsOf(t);
-  return { ...f, ...(t.startStack === null ? { stack: String(PUB_START_STACK) } : {}), ...(t.auto && onDay && est?.startClock ? { clock: est.startClock } : {}) };
+  return { ...f, ...(t.startStack === null && !isCustom(t) ? { stack: String(PUB_START_STACK) } : {}), ...(t.auto && onDay && est?.startClock ? { clock: est.startClock } : {}) };
 }
 
-/** Why the fields can't be saved, or null: "clock" (can't be read as a time), "stack" (not 1 to 9 digits, or 0). Empty ones are fine (not known). */
-export function fieldsBlock(f: TourneyFields): "clock" | "stack" | null {
-  if (f.clock.trim() && !parseClock(f.clock)) return "clock";
+/**
+ * Why the fields can't be saved, or null: "clock" (can't be read as a time; 야자수 새틀 only), "stack" (not 1 to 9
+ * digits, or 0), "blinds" (직접 입력 with blinds that aren't valid). Empty ones are fine (not known).
+ */
+export function fieldsBlock(f: TourneyFields): "clock" | "stack" | "blinds" | null {
+  if (f.structure !== "custom" && f.clock.trim() && !parseClock(f.clock)) return "clock";
   const st = f.stack.trim();
   if (st && (!/^\d{1,9}$/.test(st) || Number(st) === 0)) return "stack";
+  if (f.structure === "custom" && f.blinds != null && !cleanBlinds(f.blinds)) return "blinds";
   return null;
 }
 
@@ -543,17 +576,23 @@ export function startMsFor(clock: string, ref: number): number | null {
   return sc ? startMsOf(sc) : null;
 }
 
-/** The record's fields from the sheet, its start read near `ref`; null when they can't be saved. */
-function fromFields(f: TourneyFields, ref: number): Pick<Tourney, "name" | "memo" | "startStack"> & { start: number | null } | null {
+/** The record's fields from the sheet, its start read near `ref` (직접 입력: none); null when they can't be saved. */
+function fromFields(f: TourneyFields, ref: number): (Pick<Tourney, "name" | "memo" | "startStack"> & { start: number | null; custom: boolean; blinds: Blinds | null }) | null {
   if (fieldsBlock(f)) return null;
   const st = f.stack.trim();
+  const custom = f.structure === "custom";
   return {
     name: f.name.trim().slice(0, TOURNEY_NAME_MAX).trim(),
     memo: f.memo.slice(0, TOURNEY_MEMO_MAX),
-    start: f.clock.trim() ? startMsFor(f.clock, ref) : null,
+    start: !custom && f.clock.trim() ? startMsFor(f.clock, ref) : null,
     startStack: st ? Number(st) : null,
+    custom,
+    blinds: custom ? cleanBlinds(f.blinds) : null,
   };
 }
+
+/** A record's structure fields: 직접 입력 with its blinds when set, else nothing (야자수 새틀). */
+const structureOf = (v: { custom: boolean; blinds: Blinds | null }): Pick<Tourney, "structure" | "blinds"> => (v.custom ? { structure: "custom", ...(v.blinds ? { blinds: v.blinds } : {}) } : {});
 
 // ───────────── store actions (one write each; a refused write leaves the store as it was) ─────────────
 
@@ -565,8 +604,9 @@ function write(next: HandLogState, prev: HandLogState): boolean {
 
 /**
  * A new tournament from the sheet; it becomes the current one (a level picked while none was current goes
- * with it). A clock left empty: no start set. `join`: today's running hands from before tournaments
- * (runningUntagged) go to it, in the same write. Returns its id, or null.
+ * with it). A clock left empty: no start set. 직접 입력: its structure and blinds, no start set (no estimate).
+ * `join`: today's running hands from before tournaments (runningUntagged) go to it, in the same write.
+ * Returns its id, or null.
  */
 export function startTourney(f: TourneyFields, now: number = Date.now(), join = false): string | null {
   const v = fromFields(f, now);
@@ -582,6 +622,7 @@ export function startTourney(f: TourneyFields, now: number = Date.now(), join = 
     start: v.start ?? now,
     ...(v.start !== null ? { startSet: true as const } : {}),
     startStack: v.startStack,
+    ...structureOf(v),
   };
   const ids = new Set(join ? runningUntagged(prev.hands, now).map((h) => h.id) : []);
   if (!write(tagHands(withTourney(prev, t), ids, t.id, now), prev)) return null;
@@ -592,7 +633,9 @@ export function startTourney(f: TourneyFields, now: number = Date.now(), join = 
 /**
  * The sheet's edits to tournament `id` (a stub made from its hands is stored by it). The clock is read near
  * its own start (else its first hand, else when it was made), so an old tournament keeps its date. It is no
- * longer `auto`; whether it is current doesn't change.
+ * longer `auto`; whether it is current doesn't change. Switched to 직접 입력: its structure and blinds, its
+ * start kept as it was (only shown); back to 야자수 새틀: both dropped, the clock applies to new hands again.
+ * Saved hands keep their own level or blinds either way.
  */
 export function editTourney(id: string, f: TourneyFields, now: number = Date.now()): boolean {
   const prev = handLogStore.get();
@@ -600,12 +643,30 @@ export function editTourney(id: string, f: TourneyFields, now: number = Date.now
   if (!t) return false;
   const v = fromFields(f, tourneyRef(t, prev.hands));
   if (!v) return false;
-  const { auto: _a, startSet: _s, ...rest } = t;
+  const { auto: _a, startSet: _s, structure: _st, blinds: _b, ...rest } = t;
   void _a;
   void _s;
-  const next: Tourney = { ...rest, name: v.name, memo: v.memo, start: v.start ?? t.start, ...(v.start !== null ? { startSet: true as const } : {}), startStack: v.startStack, updatedAt: now };
+  void _st;
+  void _b;
+  // 직접 입력 has no clock: its start stays as it was.
+  const start = v.custom ? { start: t.start, ...(t.startSet ? { startSet: true as const } : {}) } : { start: v.start ?? t.start, ...(v.start !== null ? { startSet: true as const } : {}) };
+  const next: Tourney = { ...rest, name: v.name, memo: v.memo, ...start, startStack: v.startStack, ...structureOf(v), updatedAt: now };
   // A start stack set or changed: the hands by 스택 work from it.
   return write(restack(withTourney(prev, next), id, now), prev);
+}
+
+/**
+ * 직접 입력: the blinds of tournament `id` from now on (new hands; saved ones keep theirs), in one write (a stub
+ * made from its hands is stored by it). False for blinds that aren't valid, a tournament that isn't 직접 입력,
+ * or a refused write (the store left as it was).
+ */
+export function setTourneyBlinds(id: string, b: Blinds, now: number = Date.now()): boolean {
+  const blinds = cleanBlinds(b);
+  if (!blinds) return false;
+  const prev = handLogStore.get();
+  const t = recordOf(id, cleanTourneys(prev.tourneys), prev.hands);
+  if (!t || !isCustom(t)) return false;
+  return write(withTourney(prev, { ...t, blinds, updatedAt: Math.max(now, t.updatedAt) }), prev);
 }
 
 /**
