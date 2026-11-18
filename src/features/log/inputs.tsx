@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { cardText, parseCardText } from "./handAnalysis";
-import { estimatedLevel, handLevelLabel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
-import { estimateLabel, type LevelEstimate } from "./levelClock";
+import { estimatedLevel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
+import { estimateLabel } from "./levelClock";
 
 /**
  * The hand recorder's inputs, shared by the table flow and the screen for another player's hand:
@@ -196,34 +196,25 @@ const lastClock = () => handLogStore.get().startClock?.clock ?? "19:00";
  * for this hand's time is shown under it ("⏱ Lv9 추정 · 19:00 시작 3시간 5분째"); without one, the way to
  * set it. Opened: the start time (one small field, remembered for the day), every level by its blinds
  * on one sideways row (800/1,600 can be picked without knowing it is Lv9), 레벨 모름, and the ante.
- * `onLevel` gets `guessed` true for a level taken from the start time. 빠른 기록 passes its tournament's
- * estimate, start setter and clock (the table flow passes none of them: the day's start time as always).
+ * `onLevel` gets `guessed` true for a level taken from the start time.
  */
 export function LevelRow(props: {
-  h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt"> & Partial<Pick<LoggedHand, "blinds">>;
+  h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt">;
   onLevel: (level: number | null, guessed: boolean) => void;
   onAnte: (bbAnte: boolean) => void;
   open: boolean;
   onToggle: () => void;
   editRef?: Ref<HTMLDivElement>;
   unknownLabel?: string;
-  /** 레벨 모름's second line: what happens without a level (the table flow counts in bb). */
-  unknownSub?: string;
-  /** The estimate to show and offer (빠른 기록: its tournament's); left out: the day's start time for h.createdAt. */
-  estimate?: LevelEstimate | null;
-  /** Sets the start typed and returns the estimate after it, or false (can't be read, storage refused); left out: the day's start for h.createdAt. */
-  onStartClock?: (clock: string) => LevelEstimate | null | false;
-  /** The clock offered in the field; left out: the last start set, else 19:00. */
-  clockDefault?: string;
 }) {
-  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름", unknownSub = "bb로 계산", onStartClock, clockDefault } = props;
+  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름" } = props;
   const starts = handLogStore.use();
-  const est = props.estimate !== undefined ? props.estimate : levelEstimateAt(h.createdAt, starts);
+  const est = levelEstimateAt(h.createdAt, starts);
   const estLv = estimatedLevel(est);
   const info = levelInfo(h.level);
   const bbChips = info?.bb ?? null;
   const [clockOpen, setClockOpen] = useState(false);
-  const [clock, setClock] = useState(() => clockDefault ?? lastClock());
+  const [clock, setClock] = useState(lastClock);
   const [msg, setMsg] = useState("");
   const strip = useRef<HTMLDivElement>(null);
 
@@ -238,15 +229,14 @@ export function LevelRow(props: {
     row.scrollLeft = at - (row.clientWidth - el.clientWidth) / 2;
   }, [open, estLv]);
 
-  // A 직접 입력 hand carried to the table: its own blinds until a level is picked here (withLv replaces them).
-  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : h.level === null && h.blinds ? handLevelLabel({ level: null, blinds: h.blinds }) : "레벨 모름";
+  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : "레벨 모름";
   const ante = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
   const sub = est ? `⏱ ${estimateLabel(est)}` : h.level === null ? "레벨이 기억 안 나면: 시작 시각으로 추정 ›" : null;
 
   function applyClock() {
     // The start of this hand's day (last night's hands filled in the next day keep last night's start).
-    const e = onStartClock ? onStartClock(clock) : setTodayStart(clock, h.createdAt) ? levelEstimateAt(h.createdAt) : false;
-    if (e === false) return setMsg("시각을 읽을 수 없어요 (예: 19:00)");
+    if (!setTodayStart(clock, h.createdAt)) return setMsg("시각을 읽을 수 없어요 (예: 19:00)");
+    const e = levelEstimateAt(h.createdAt);
     const lv = estimatedLevel(e);
     setClockOpen(false);
     if (lv !== null) {
@@ -299,7 +289,7 @@ export function LevelRow(props: {
           }}
         >
           <b>{unknownLabel}</b>
-          <small>{unknownSub}</small>
+          <small>bb로 계산</small>
         </button>
         {BLIND_LEVELS.map(([lv, sb, big]) => (
           <button key={lv} type="button" role="option" aria-selected={h.level === lv} className={`${h.level === lv ? "on" : ""}${estLv === lv ? " est" : ""}`} onClick={() => onLevel(lv, false)}>

@@ -2,8 +2,9 @@ import type { ChartSetDef, ScenarioDef, StageDef } from "../charts";
 import { NASH_STAGES, type NashStage } from "./nashData";
 
 /**
- * 푸시/폴드 내쉬 차트: scripts/make-nash.mjs가 계산한 칩EV 균형 (nashData.ts).
- * 펍 토너먼트 구조(9인, BB 앤티 1bb)에서 모두 같은 스택일 때의 정답 기준선이다.
+ * 푸시/폴드 내쉬 차트: scripts/make-nash.mjs가 프리플랍 솔버의 DCFR 엔진으로 계산한 칩EV 균형 (nashData.ts).
+ * 펍 토너먼트 구조(9인, BB 앤티 1bb)에서 모두 같은 스택일 때의 정답 기준선이다. 솔버 세트의 10bb 푸시/폴드
+ * 스테이지와 같은 게임·엔진·스케줄이라 10bb는 칸마다 같다 (src/data/nashData.test.ts).
  */
 
 const POS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -36,17 +37,17 @@ function stage(s: NashStage): StageDef {
     id: `${s.stack}bb`,
     label: `${s.stack}bb`,
     stack: `모두 ${s.stack}bb`,
-    description: "칩EV 내쉬 균형. 콜은 사이 자리가 모두 폴드한 경우이고, 콜이 한 명 나오면 나머지는 폴드한다고 가정해요.",
+    description: "DCFR로 계산한 칩EV 내쉬 균형. 콜은 사이 자리가 모두 폴드한 경우이고, 콜이 한 명 나오면 나머지는 폴드한다고 가정해요.",
     scenarios: [...push, ...calls],
   };
 }
 
 export const NASH: ChartSetDef = {
   id: "nash",
-  label: "푸시/폴드 내쉬 (9인·BB 앤티)",
+  label: "푸시/폴드 내쉬 (9인·BB 앤티·DCFR)",
   game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 푸시 or 폴드만 하는 구간",
   source:
-    "이 앱이 직접 계산한 칩EV 내쉬 균형이에요 (오픈소스 계산 코드: scripts/make-nash.mjs). 모두 같은 스택, 오버콜 없음, ICM(상금 구조) 미반영이라 버블이나 머니 근처에서는 콜을 더 좁혀야 해요.",
+    "이 앱의 프리플랍 솔버 엔진(DCFR)이 직접 계산한 칩EV 내쉬 균형이에요 (오픈소스 계산 코드: scripts/make-nash.mjs). 솔버 차트의 '10bb · 푸시/폴드'와 같은 엔진·같은 계산이라 10bb는 칸마다 똑같아요. 모두 같은 스택, 오버콜 없음, ICM(상금 구조) 미반영이라 버블이나 머니 근처에서는 콜을 더 좁혀야 해요.",
   positions: POS,
   stages: NASH_STAGES.map(stage),
 };

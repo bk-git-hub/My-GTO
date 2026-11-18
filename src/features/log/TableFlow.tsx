@@ -15,6 +15,7 @@ import {
   knownHole,
   lastStage,
   levelEstimateAt,
+  levelInfo,
   LOG_STREET_LABEL,
   myShowdown,
   RESULT_LABEL,
@@ -33,9 +34,7 @@ import {
   type LoggedHand,
   type Result,
 } from "./handLog";
-import { handLv } from "./fastChips";
 import { CardText, ChipRow, ChipsInput, levelDeclined, LevelRow, TableCard } from "./inputs";
-import { blindsOf } from "./levelClock";
 import { levelStage, OPEN_PRESETS, PRE_STAGES, preSteps, STAGE_LABEL, stageFor, type PreStage } from "./quickPre";
 import { BoardRanks, FlopPairFix, HoleEntry, SuitModeToggle } from "./SuitEntry";
 import { describeGuess } from "./suitGuess";
@@ -123,7 +122,7 @@ export function TableFlow(props: TableFlowProps) {
     setReplay((r) => ({ street, n: r.n + 1 }));
     setStep("result");
   };
-  const bbChips = blindsOf(handLv(h))?.bb ?? null;
+  const bbChips = levelInfo(h.level)?.bb ?? null;
   const fmt = (bb: number) => amountLabel(bb, bbChips);
 
   // Light replay for recording (no grading); the result screen runs the full analysis.
@@ -202,7 +201,7 @@ function SetupStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void
   const seats = positionsFor(h.players);
   const base = baseStack(tableOf(h));
   const bb = stackBb(h);
-  const bbChips = blindsOf(handLv(h))?.bb ?? null;
+  const bbChips = levelInfo(h.level)?.bb ?? null;
   /** What is open below the rows: the blinds editor, or one seat's stack (tapped on the table). */
   const [edit, setEdit] = useState<{ kind: "blind" } | { kind: "stack"; seat: string } | null>(null);
   const editRef = useRef<HTMLDivElement>(null);
@@ -374,7 +373,7 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
   const [suitless, setSuitless] = useState(false);
   /** A stage tapped for the first open's sizes (otherwise it follows the stacks, the level, the last one used). */
   const [stagePick, setStagePick] = useState<PreStage | null>(null);
-  const bbChips = blindsOf(handLv(h))?.bb ?? null;
+  const bbChips = levelInfo(h.level)?.bb ?? null;
   const verb = raiseVerb(g);
   const firstOpen = g.street === "preflop" && verb === "오픈";
   const stage = stagePick ?? openStage(h, actor ? actor.stack + actor.streetBet : null);
@@ -667,7 +666,7 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
   const [playing, setPlaying] = useState(false);
   const jumped = useRef(-1);
   const seats = positionsFor(h.players);
-  const bbChips = blindsOf(handLv(h))?.bb ?? null;
+  const bbChips = levelInfo(h.level)?.bb ?? null;
   const approx = !!a && a.suitGuess !== null && a.game.showdown;
   const autoFilled = useRef(false);
 
@@ -679,7 +678,7 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
   }, [h]);
   useEffect(() => {
     if (!a || a.heroNet === null) return;
-    const bbc = blindsOf(handLv(h))?.bb ?? null;
+    const bbc = levelInfo(h.level)?.bb ?? null;
     const net = bbc ? Math.round(a.heroNet * bbc) : a.heroNet;
     const result: Result = a.heroNet > 0 ? "win" : a.heroNet < 0 ? "lose" : "chop";
     // A showdown settled with guessed suits is only approximate (the guess steers clear of flushes):
