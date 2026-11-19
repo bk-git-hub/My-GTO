@@ -59,6 +59,10 @@ import {
   type FastLevel,
   type FastMode,
   type FastState,
+  fastBlankHand,
+  newDraft,
+  seatsBetween,
+  withFastResult,
 } from "./fastLog";
 import {
   estimatedLevel,
@@ -67,7 +71,9 @@ import {
   fastOnly,
   fastVerdictOf,
   freshHand,
+  deleteHands,
   handLogStore,
+  isOther,
   handRoute,
   holeClass,
   lastStage,
@@ -91,6 +97,11 @@ import {
   dateOf,
   defaultTitle,
   deleteTourneyAll,
+  isPending,
+  tourneyHands,
+  settleHands,
+  settleSpan,
+  type SettleSpan,
   anteFor,
   editTourney,
   fastEstimate,
@@ -126,11 +137,12 @@ import {
 import { LevelRow } from "./inputs";
 import { levelStage, PRE_STAGES, STAGE_LABEL, type PreAction } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
-import type { Blinds } from "./levelClock";
+import { blindsOf, type Blinds } from "./levelClock";
 import { cleanTourneys, type StackCheck, type Tourney } from "./tourney";
 import { GroupRes } from "./TourneyScreens";
 import { ChipUpdateSheet, TourneySheet } from "./TourneySheet";
 import { closeUndoOffer, deleteWithUndo } from "./undoDelete";
+import { SettleSheet } from "./SettleSheet";
 
 const FULL_MSG = "저장 공간이 꽉 차서 저장하지 못했어요. 백업한 뒤 오래된 기록을 지워 주세요.";
 /** 남의 핸드 has no stack. */
@@ -184,6 +196,8 @@ interface Saved {
   board: string;
   /** The slot's tint: the verdict's ("v-over"), or for a hand saved without a decision its result's ("r-win"). */
   tone: string;
+  /** The seats skipped since the hand before, saved with it as folds (되돌리기 takes them off). */
+  fills?: string[];
 }
 
 /** Why the save waits, as the save button says it. */
@@ -322,6 +336,10 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
    * editor in a sheet of its own.
    */
   const [panel, setPanel] = useState<null | "level" | "blinds">(null);
+  /** −1bb tapped this many times for the hand on screen (the bb I put in and lost; 0: not started). */
+  const [bbTaps, setBbTaps] = useState(0);
+  /** ⏳ 정리 on screen: the ⏳ hands a stack just known can fill, more than one alone. */
+  const [settle, setSettle] = useState<SettleSpan | null>(null);
   /** A save waiting for the level (a blind's fold or a walk tapped with no level known): it goes through once a level is picked. */
   const pending = useRef<(() => void) | null>(null);
   /** When the last hand was saved: a second tap bounced off 저장 / 폴드 is not taken by what comes up under it. */
@@ -393,6 +411,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     // The calculator comes up from 스택 입력 (or the result line), not by itself: the hand stays editable.
     const next = typed;
     set({ ...(also ? also(c) : c), draft: next });
+    setBbTaps(0);
     // Back to the hand (the sheet closed): the panel goes with it.
     if (focusOf(next) === "hand") setPanel(null);
     setSaved(null);
@@ -464,9 +483,31 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
    * was tapped) goes to the current tournament, or starts one on its own (saveNewFast: in the same write);
    * a level picked before that one now belongs to it. A corrected hand (`at` null) keeps its own.
    */
+  /**
+   * A new hand at a seat further round than the next one: the seats dealt between since my last hand in the
+   * current tournament (same table size, one orbit at most), as folds without cards, each at a time between.
+   */
+  function skippedFills(c: FastState, h: LoggedHand, at: number): LoggedHand[] {
+    if (other) return [];
+    const st = handLogStore.get();
+    const t = currentTourney(cleanTourneys(st.tourneys), st.hands, at);
+    if (!t) return [];
+    const last = tourneyHands(st.hands, t.id).reduce<LoggedHand | null>((b, x) => (x.fast === true && !isOther(x) && (!b || x.createdAt > b.createdAt) ? x : b), null);
+    if (!last || last.players !== h.players || last.createdAt >= at) return [];
+    const seats = seatsBetween(h.players, last.seat, h.seat);
+    return seats
+      .map((seat, k) => {
+        const when = last.createdAt + Math.round(((at - last.createdAt) * (k + 1)) / (seats.length + 1));
+        const { lv, ante } = levelNow(c, null, when);
+        const blank = fastBlankHand(newDraft(seat), { ...freshHand(mode), players: h.players, createdAt: when, updatedAt: when }, h.players);
+        return blank ? withFastResult(blank, pickRes(newDraft(seat), "fold"), lv, ante, null) : null;
+      })
+      .filter((x): x is LoggedHand => x !== null);
+  }
   function commit(c: FastState, h: LoggedHand, at: number | null) {
+    const fills = at !== null ? skippedFills(c, h, at) : [];
     // A corrected hand: the hands by 스택 after it in its tournament work from it (restack), in the same write.
-    const r = at !== null ? saveNewFast(h, at) : { ok: saveHand(h, (s) => restack(s, h.tourney, Date.now())), hand: h, started: null };
+    const r = at !== null ? saveNewFast(h, at, fills) : { ok: saveHand(h, (s) => restack(s, h.tourney, Date.now())), hand: h, started: null };
     setFull(!r.ok);
     // Not on file: the hand stays on screen to try again.
     if (!r.ok) return;
@@ -479,7 +520,9 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       else next = stampPick(next, r.started.id, at);
     }
     set(next);
-    setSaved(savedOf(r.hand, other));
+    setBbTaps(0);
+    setSaved(fills.length ? { ...savedOf(r.hand, other), fills: fills.map((x) => x.id) } : savedOf(r.hand, other));
+    if (!other && r.hand.fastStack === true && r.hand.net === null && r.hand.tourney) offerSettle(r.hand.tourney);
     savedAt.current = Date.now();
     setNudge(null);
     setPanel(null);
@@ -569,7 +612,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     // A new hand goes to the current tournament (or starts one) as it is saved; a corrected hand keeps its own.
     const base = editHand ?? { ...freshHand(mode), players: p };
     const kept = editHand ? keptAction(editHand, d) : null;
-    const made = (kept !== null ? fastHand(d, kept, base, draftStage(c), p, mode) : null) ?? fastHand(d, null, base, draftStage(c), p, mode);
+    // No cards typed (핸드 생략): a 폴드 or −1bb with my seat and the chips only.
+    const made = !classDone(d) ? fastBlankHand(d, base, p) : ((kept !== null ? fastHand(d, kept, base, draftStage(c), p, mode) : null) ?? fastHand(d, null, base, draftStage(c), p, mode));
     if (!made) return;
     const { hand: h, before } = fastResultNow(made, d, lv, ante, editHand, at);
     if (h) commit(c, h, editHand ? null : at);
@@ -586,6 +630,49 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     set({ ...c, draft: withSign });
     if (actionsView && c.draft.act) act(c.draft.act, false, "sheet");
     else save("save");
+  }
+  /**
+   * A stack just became known in tournament `id`: the ⏳ hands before it get their chips. One alone before a 칩
+   * 업데이트 at once (the words for it returned); more than one, or ended by a 스택 hand, the ⏳ 정리 sheet.
+   */
+  function offerSettle(id: string): string {
+    const span = settleSpan(handLogStore.get(), id);
+    if (!span) return "";
+    if (!span.end && span.pending.length === 1) {
+      const h = span.pending[0];
+      if (!settleHands(id, new Map([[h.id, span.total]]))) return "";
+      const off = (h.result === "win" && span.total < 0) || (h.result === "lose" && span.total > 0);
+      return ` · ⏳ ${holeClass(h) || h.seat} ${signedText(span.total, "chips")}${off ? " (부호 확인)" : ""}`;
+    }
+    setSettle(span);
+    return "";
+  }
+  /** − 손실 ⏳ / + 수익 ⏳: the hand saved with its sign and no chips yet (filled at the next 칩 업데이트). */
+  function later(x: "+" | "-") {
+    const c = cur();
+    set({ ...c, draft: { ...c.draft, res: x } });
+    save("save");
+  }
+  /** −1bb: one more bb I put in and lost (the level must be known to count it in chips). */
+  function tapBb() {
+    const c = cur();
+    const at = Date.now();
+    const { lv } = levelNow(c, null, at);
+    if (!blindsOf(lv.level)) {
+      const custom = customFor(c, null, at);
+      return askLevel(() => tapBb(), custom ? "블라인드를 넣으면 bb로 계산돼요" : "레벨을 고르면 bb로 계산돼요", custom);
+    }
+    setBbTaps((n) => Math.min(n + 1, 99));
+  }
+  /** The bb tapped, saved as a loss: that many bb (the BB's ante on top, posted with the big blind). */
+  function saveBb() {
+    const c = cur();
+    const { lv, ante } = levelNow(c, null, Date.now());
+    const row = blindsOf(lv.level);
+    if (!row || bbTaps < 1) return;
+    const loss = bbTaps * row.bb + (c.draft.seat === "BB" && ante ? row.ante : 0);
+    set({ ...c, draft: { ...without(c.draft, "unit"), res: "-", amount: String(loss) } });
+    save("save");
   }
   /** The sheet's tabs: what is typed stays; 스택 / 금액 is remembered for the next hands (a new hand's only). */
   function pickTab(e: SheetMode) {
@@ -689,6 +776,12 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   function undo() {
     // A second tap bounced off 저장 lands here (되돌리기 comes up under it): not taken.
     if (Date.now() - savedAt.current < 600) return;
+    // The seats filled as folds with it go again (the hand is opened to be put right).
+    if (saved?.fills?.length) {
+      const ids = saved.fills;
+      const tid = handLogStore.get().hands.find((x) => x.id === saved.id)?.tourney;
+      deleteHands(ids, (s) => restack(s, tid, Date.now()));
+    }
     const h = saved ? handLogStore.get().hands.find((x) => x.id === saved.id) : null;
     if (h) edit(h);
     setSaved(null);
@@ -732,6 +825,21 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const levelClass = `${lvNow.guessed ? " est" : ""}${wantLevel ? " ask" : ""}`;
   const levelText = `${levelChip(lvNow.level, custom)}${lvNow.guessed ? " (추정)" : ""}`;
   const canSave = classDone(d) && positionsFor(players).includes(d.seat);
+  /** A new hand with nothing typed for its result: the quick buttons are up. */
+  const quickOn = !editing && !d.res && !d.amount && !d.stackNow;
+  /** No rank typed: 폴드 / −1bb save the hand without its cards (핸드 생략). */
+  const blankOk = d.ranks.length === 0 && positionsFor(players).includes(d.seat);
+  const bbRow = blindsOf(lvNow.level);
+  /** The BB's ante goes with the bb tapped (posted with the big blind). */
+  const bbAnteOn = d.seat === "BB" && anteNow && !!bbRow && bbRow.ante > 0;
+  const bbLoss = bbRow && bbTaps > 0 ? bbTaps * bbRow.bb + (bbAnteOn ? bbRow.ante : 0) : null;
+  const slotHint = !d.ranks.length
+    ? "핸드를 넣거나, 안 넣고 폴드"
+    : needSuit && d.suited === null
+      ? "수딧인지 오프수트인지 골라 주세요"
+      : !classDone(d)
+        ? "랭크 하나 더"
+        : "결과를 골라 주세요";
   const next = nextSeat(players, d.seat);
   const saveLabel = waits
     ? blockText(block, custom)
@@ -791,6 +899,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             </>
           )}
           {saved.board}
+          {saved.fills?.length ? ` · 사이 ${saved.fills.length}핸드 폴드` : ""}
         </small>
       </span>
       <button type="button" onClick={undo}>
@@ -807,6 +916,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   /** My stack now (before the hand being typed), for the line by my seat; null when no count is known. */
   const seatStack = !other && !editing ? stackPre.chips : null;
   const seatStackBb = seatStack !== null ? bbPart(seatStack, lvLive.level) : null;
+  /** ⏳ hands in the current tournament (a sign, no chips yet). */
+  const pendingN = !other && tn ? session.filter(isPending).length : 0;
   // An empty tournament never resumed: "새 토너먼트 취소" back to the one current when it was started (cancelTarget), else "새 토너먼트 지우기".
   const tnFresh = !!tn && tnCount === 0 && tn.activeAt === tn.createdAt;
   const backTn = tn && tnFresh ? cancelTarget(tn, tourneys, hands) : null;
@@ -931,6 +1042,21 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             </span>
           ) : other ? (
             <QuickToggle mine={false} go={go} />
+          ) : seatStack === null && pendingN > 0 ? (
+            // ⏳ hands since the last stack known: a tap fills them (⏳ 정리), or asks the stack (칩 업데이트).
+            <button
+              type="button"
+              className="seat-stack pend"
+              disabled={!tn}
+              onClick={() => {
+                if (!tn) return;
+                const span = settleSpan(handLogStore.get(), tn.id);
+                if (span && (span.end || span.pending.length > 1)) setSettle(span);
+                else setSheet("chips");
+              }}
+            >
+              ⏳ {pendingN} <small>칩 업데이트</small>
+            </button>
           ) : seatStack !== null ? (
             // My stack now and its bb, by my seat (a tap: 칩 업데이트).
             <button type="button" className="seat-stack" aria-label={`내 스택 ${chipsText(seatStack)} · 칩 업데이트`} disabled={!tn} onClick={() => setSheet("chips")}>
@@ -1017,22 +1143,62 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             <div className={`fast-result fast-under${saved ? ` shown ${saved.tone}` : ""}`} role="status" aria-live="polite">
               {saved ? (
                 savedSlot
-              ) : canSave && !editing && !d.res && !d.amount && !d.stackNow ? (
-                // The hand in, nothing typed yet: 폴드 (saved at once) or 스택 입력 (the calculator). The hand stays editable till then.
-                <>
-                  <button type="button" className="fs-save fs-fold" onClick={() => save("fold")}>
-                    폴드
-                  </button>
-                  <button type="button" className="fs-save fs-stack" onClick={() => pickTab("stack")}>
-                    스택 입력
-                  </button>
-                </>
+              ) : quickOn ? (
+                <span className="fr-hint">{slotHint}</span>
               ) : canSave ? (
                 <button type="button" className={`fs-save${d.res || editing ? "" : " plain"}`} disabled={waits} onClick={() => save("save")}>
                   {saveLabel}
                 </button>
               ) : (
-                <span className="fr-hint">{needSuit ? "수딧인지 오프수트인지 골라 주세요" : "랭크 두 개를 누르세요"}</span>
+                <span className="fr-hint">{slotHint}</span>
+              )}
+            </div>
+          )}
+          {!actionsView && quickOn && (
+            // A new hand with nothing typed: 폴드 / −1bb (the chips known), − 손실 ⏳ / + 수익 ⏳ (the chips at the next
+            // 칩 업데이트), 스택 입력. 폴드 and −1bb need no cards (핸드 생략).
+            <div className="fast-quick fast-under">
+              {bbTaps > 0 ? (
+                <>
+                  <div className="fq-row">
+                    <button type="button" className="fq fq-ghost" onClick={() => setBbTaps(0)}>
+                      취소
+                    </button>
+                    <button type="button" className="fq fq-bb" onClick={tapBb}>
+                      −1bb 더
+                    </button>
+                  </div>
+                  <div className="fq-row">
+                    <button type="button" className="fq fq-save" disabled={bbLoss === null} onClick={saveBb}>
+                      저장 −{bbTaps}bb{bbAnteOn ? "+앤티" : ""}
+                      {bbLoss !== null && <small>−{chipsText(bbLoss)} · 다음 {next}</small>}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="fq-row">
+                    <button type="button" className="fq fq-fold" disabled={!blankOk && !canSave} onClick={() => save("fold")}>
+                      폴드
+                      {!canSave && <small>핸드 생략</small>}
+                    </button>
+                    <button type="button" className="fq fq-bb" disabled={!blankOk && !canSave} onClick={tapBb}>
+                      −1bb
+                      <small>넣은 만큼</small>
+                    </button>
+                  </div>
+                  <div className="fq-row">
+                    <button type="button" className="fq fq-lose" disabled={!canSave} onClick={() => later("-")}>
+                      − 손실 ⏳
+                    </button>
+                    <button type="button" className="fq fq-win" disabled={!canSave} onClick={() => later("+")}>
+                      + 수익 ⏳
+                    </button>
+                    <button type="button" className="fq fq-stack" disabled={!canSave} onClick={() => pickTab("stack")}>
+                      스택 입력
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -1306,6 +1472,23 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           onClose={() => setSheet(null)}
         />
       )}
+      {settle && !other && tn && (
+        <SettleSheet
+          key={settle.pending[0].id}
+          span={settle}
+          onSave={(nets, note) => {
+            if (!nets.size) {
+              setSettle(null);
+              return null;
+            }
+            if (!settleHands(tn.id, nets)) return FULL_MSG;
+            setSettle(null);
+            setTnMsg({ text: `⏳ ${nets.size}핸드 채웠어요${note}` });
+            return null;
+          }}
+          onClose={() => setSettle(null)}
+        />
+      )}
       {sheet === "chips" && !other && tn && (
         <ChipUpdateSheet
           now={countFor(tn, hands)}
@@ -1316,7 +1499,8 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             if (!checkStack(tn.id, stack, Date.now())) return FULL_MSG;
             setSheet(null);
             const diff = was === null ? null : stack - was;
-            setTnMsg({ text: `칩 업데이트 ${chipsText(stack)}${diff ? ` · 앱보다 ${signedText(diff, "chips")}` : diff === 0 ? " · 앱이 센 것과 같아요" : ""}` });
+            const filled = offerSettle(tn.id);
+            setTnMsg({ text: `칩 업데이트 ${chipsText(stack)}${diff ? ` · 앱보다 ${signedText(diff, "chips")}` : diff === 0 ? " · 앱이 센 것과 같아요" : ""}${filled}` });
             return null;
           }}
           onClose={() => setSheet(null)}

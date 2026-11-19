@@ -339,7 +339,10 @@ describe("빠른 기록 (react-dom/server)", () => {
     expect(html).toContain('<div class="fast"><div class="fast-bar">');
     expect(html).not.toContain('class="calc');
     // the save slot says what to tap next; 액션도 기록 is folded away, with no spot or action rows
-    expect(html).toContain('<div class="fast-result fast-under" role="status" aria-live="polite"><span class="fr-hint">랭크 두 개를 누르세요</span></div>');
+    expect(html).toContain('<div class="fast-result fast-under" role="status" aria-live="polite"><span class="fr-hint">핸드를 넣거나, 안 넣고 폴드</span></div>');
+    // the quick buttons: 폴드 / −1bb work without cards (핸드 생략); ⏳ and 스택 입력 wait for the hand
+    expect(html).toContain('<button type="button" class="fq fq-fold">폴드<small>핸드 생략</small></button><button type="button" class="fq fq-bb">−1bb<small>넣은 만큼</small></button>');
+    expect(html).toContain('<button type="button" class="fq fq-lose" disabled="">− 손실 ⏳</button><button type="button" class="fq fq-win" disabled="">+ 수익 ⏳</button><button type="button" class="fq fq-stack" disabled="">스택 입력</button>');
     // no 액션도 기록: no spot or action rows
     expect(html).not.toContain("fast-more");
     expect(html).not.toContain("fast-spots");
@@ -529,7 +532,8 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     expect(shut).not.toContain('class="calc');
     expect(shut).toContain('<button type="button" class="rr-sum hint">결과 · 누르면 계산기</button>');
     // The hand in, nothing typed: 폴드 | 스택 입력 (the calculator only on a tap, so the hand stays editable).
-    expect(shut).toContain('<button type="button" class="fs-save fs-fold">폴드</button><button type="button" class="fs-save fs-stack">스택 입력</button>');
+    expect(shut).toContain('<button type="button" class="fq fq-fold">폴드</button><button type="button" class="fq fq-bb">−1bb<small>넣은 만큼</small></button>');
+    expect(shut).toContain('<button type="button" class="fq fq-lose">− 손실 ⏳</button><button type="button" class="fq fq-win">+ 수익 ⏳</button><button type="button" class="fq fq-stack">스택 입력</button>');
   });
 
   it("types the board in the sheet's 보드 tab: five slots, the ranks five to a row with ⌫ and 완료, the ringed card's suit", () => {
