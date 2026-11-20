@@ -1019,7 +1019,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       )}
 
       <div className="fast-sec">
-        <div className="fast-label">
+        <div className="fast-label seat-line">
           {other ? "상대 포지션" : "내 포지션"} <b>{d.seat}</b>
           {editing ? (
             // Correcting a saved hand: its time, 삭제 and 취소 in this line (in the toggle's place), so the hand row stays where it is.

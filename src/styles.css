@@ -1123,6 +1123,10 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .fast-label .fast-toggle button { flex: none; height: 32px; padding: 0 10px; font-size: 0.76rem; }
 .fast-label { display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
 .fast-label > b { color: var(--accent); font-size: 0.86rem; }
+/* The seat line ("내 포지션 X") keeps the height of the toggle that once sat in it (and of 수정 중's line, 38 px)
+   whether or not my stack shows in it: the hand row stays put, with the room above it the 아재's moves count on
+   (98 px up to the stage bar with the page at the top; ajae.ts AJAE_ROOM counts on 96, the plane needs 93). */
+.fast-label.seat-line { min-height: 38px; }
 /* My stack and its bb by my seat (a tap: 칩 업데이트). */
 .fast-label .seat-stack { margin-left: auto; flex: none; height: 32px; padding: 0 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 0.86rem; font-weight: 900; white-space: nowrap; }
 .fast-label .seat-stack:disabled { opacity: 1; }
