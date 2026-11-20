@@ -658,11 +658,6 @@ export function ListView({ tab, hands, go, startPicking = false, startPicks = []
               ⚡ 빠른 기록
             </button>
           )}
-          {tab !== "mine" && (
-            <button type="button" className="log-new-btn other" onClick={() => go("log/other")}>
-              ＋ 남의 핸드
-            </button>
-          )}
           {hands.length > 0 && (
             <button type="button" className="log-edit-btn" onClick={() => setPicking(true)}>
               편집

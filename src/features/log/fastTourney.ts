@@ -18,6 +18,7 @@ import {
 import {
   cleanStartClock,
   fastOnly,
+  deleteHands,
   handLogStore,
   handRoute,
   isOther,
@@ -218,14 +219,17 @@ function tagHands(s: HandLogState, ids: Set<string>, id: string, now: number): H
  * (runningUntagged). `hand`: as saved; `started`: the tournament it started, else null. Nothing is kept
  * when the browser refuses the write.
  */
-export function saveNewFast(h: LoggedHand, now: number): { ok: boolean; hand: LoggedHand; started: Tourney | null } {
+export function saveNewFast(h: LoggedHand, now: number, extra: LoggedHand[] = []): { ok: boolean; hand: LoggedHand; started: Tourney | null } {
   const st = handLogStore.get();
   const nt = tourneyForNew(now, st);
   const hand: LoggedHand = { ...h, tourney: nt.id };
+  // `extra`: hands that go with it in the same write (the seats skipped since the last hand, as folds), same tournament.
+  const add = (x: HandLogState): HandLogState =>
+    extra.length ? { ...x, hands: [...x.hands.filter((y) => !extra.some((e) => e.id === y.id)), ...extra.map((e) => ({ ...e, tourney: nt.id }))].sort((a, b) => b.createdAt - a.createdAt) } : x;
   const t = nt.start;
-  if (!t) return { ok: saveHand(hand), hand, started: null };
+  if (!t) return { ok: saveHand(hand, add), hand, started: null };
   const join = new Set(runningUntagged(st.hands, now).map((x) => x.id));
-  const ok = saveHand(hand, (s) => tagHands(withTourney(s, t), join, t.id, now));
+  const ok = saveHand(hand, (s) => add(tagHands(withTourney(s, t), join, t.id, now)));
   return { ok, hand, started: ok ? t : null };
 }
 
@@ -443,6 +447,76 @@ export function restack(s: HandLogState, id: string | undefined, now: number): H
     own = own.map((x) => (x.id === h.id ? next : x));
   }
   return changed.size ? { ...s, hands: s.hands.map((x) => changed.get(x.id) ?? x) } : s;
+}
+
+/** ⏳: a 빠른 기록 hand of mine saved with its sign (− 손실 / + 수익) and no chips yet. */
+export const isPending = (h: LoggedHand): boolean => h.fast === true && !isOther(h) && (h.result === "win" || h.result === "lose") && h.net === null && h.fastStack !== true;
+
+/** ⏳ hands a known stack can fill: oldest first, what they made together, and the 스택 hand that ends them (if one does). */
+export interface SettleSpan {
+  pending: LoggedHand[];
+  total: number;
+  /** A 스택 hand whose own chips aren't known (its stack before is): it takes what the ⏳ hands don't. Null: a 칩 업데이트 ends them. */
+  end: LoggedHand | null;
+}
+
+/**
+ * The newest run of ⏳ hands in tournament `id` that a stack known after them can fill: from the last stack
+ * known before them (the start stack, a 칩 업데이트, a hand's stack) to the next one (a 칩 업데이트, or a 스택
+ * hand), with every other hand between them known in chips. Null when there is none (no stack known on either
+ * side, or a hand between with no chips on file: a blind's fold without a level, a result left out).
+ */
+export function settleSpan(s: Pick<HandLogState, "hands" | "tourneys">, id: string): SettleSpan | null {
+  const t = recordOf(id, cleanTourneys(s.tourneys), s.hands);
+  const own = tourneyHands(s.hands, id);
+  type Ev = { t: number; k: 0; h: LoggedHand } | { t: number; k: 1; stack: number };
+  const evs: Ev[] = [...own.map((h): Ev => ({ t: h.createdAt, k: 0, h })), ...cleanChecks(t?.checks).map((c): Ev => ({ t: c.at, k: 1, stack: c.stack }))].sort((a, b) => a.t - b.t || a.k - b.k);
+  const start = t?.startStack ?? null;
+  let known: number | null = start !== null && start > 0 ? start : null;
+  let sum = 0;
+  let pending: LoggedHand[] = [];
+  let blocked = false;
+  let found: SettleSpan | null = null;
+  const close = (stack: number, end: LoggedHand | null) => {
+    if (pending.length && known !== null && !blocked) found = { pending, total: stack - known - sum, end };
+  };
+  const reset = (k: number | null) => {
+    known = k;
+    sum = 0;
+    pending = [];
+    blocked = false;
+  };
+  for (const e of evs) {
+    if (e.k === 1) {
+      close(e.stack, null);
+      reset(e.stack);
+      continue;
+    }
+    const h = e.h;
+    if (h.stack !== null) {
+      // A 스택 hand with its chips unknown: its stack is the stack after it, and it shares what is left.
+      if (h.fastStack === true && h.net === null) close(h.stack, h);
+      else close(h.stack, null);
+      reset(h.stack + (h.net ?? 0));
+    } else if (isPending(h)) pending.push(h);
+    else if (h.net === null) blocked = true;
+    else sum += h.net;
+  }
+  return found;
+}
+
+/** The ⏳ hands' chips as worked out (`nets`: hand id → chips), in tournament `id`; the 스택 hands after them follow (restack). */
+export function settleHands(id: string, nets: ReadonlyMap<string, number>, now: number = Date.now()): boolean {
+  const prev = handLogStore.get();
+  let changed = false;
+  const hands = prev.hands.map((h) => {
+    const n = nets.get(h.id);
+    if (n === undefined || h.tourney !== id || !isPending(h) || !Number.isFinite(n)) return h;
+    changed = true;
+    return { ...h, net: n, result: resultOfNet(n), updatedAt: Math.max(now, h.updatedAt) };
+  });
+  if (!changed) return false;
+  return write(restack({ ...prev, hands }, id, now), prev);
 }
 
 /** restack for each of the tournaments `ids`. */
@@ -686,6 +760,13 @@ export function deleteTourney(id: string): boolean {
   const prev = handLogStore.get();
   if (prev.hands.some((h) => h.tourney === id) || !cleanTourneys(prev.tourneys).some((t) => t.id === id)) return false;
   return write(withoutTourney(prev, id), prev);
+}
+
+/** Deletes tournament `id` with every hand in it (mine and other players'). False when there was nothing to delete. */
+export function deleteTourneyAll(id: string): boolean {
+  const ids = handLogStore.get().hands.filter((h) => h.tourney === id).map((h) => h.id);
+  if (!ids.length) return deleteTourney(id);
+  return deleteHands(ids, (s) => withoutTourney(s, id)) !== null;
 }
 
 /**

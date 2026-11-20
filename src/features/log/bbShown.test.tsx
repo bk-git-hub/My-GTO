@@ -67,12 +67,12 @@ describe("the bb on its own", () => {
       { text: "폴드", bb: null },
       { text: "폴드", bb: null },
       { text: "본전", bb: null },
-      { text: "수익", bb: null },
+      { text: "수익 ⏳", bb: null },
       { text: "+12,000", bb: null },
       { text: "", bb: null },
     ]);
     // the words as they always were
-    expect(cases.map(resultText)).toEqual(["+12,000 (+20bb)", `${M}4,800 (${M}8bb)`, `폴드 ${netBoth(-300, 5)}`, "폴드", "폴드", "본전", "수익", "+12,000", ""]);
+    expect(cases.map(resultText)).toEqual(["+12,000 (+20bb)", `${M}4,800 (${M}8bb)`, `폴드 ${netBoth(-300, 5)}`, "폴드", "폴드", "본전", "수익 ⏳", "+12,000", ""]);
   });
 });
 

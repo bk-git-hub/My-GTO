@@ -21,6 +21,8 @@ export function TourneySheet(p: {
   defaultName: string;
   /** Edit only: no hand carries it (mine or other players'), so it can be deleted. */
   canDelete?: boolean;
+  /** Hands that go with it when it is deleted. */
+  handCount?: number;
   /** Edit only: it is the current tournament ("지금 적는 중" by the title). */
   current?: boolean;
   /** What the 시작 시간 typed gives now ("지금 Lv3 200/400", "시작 전 · 25분 뒤"), shown under it so a wrong start shows before saving; null: nothing to show. */
@@ -191,15 +193,15 @@ export function TourneySheet(p: {
         </div>
         {!isNew && p.canDelete && p.onDelete && (
           <div className="tn-del">
-            <span>핸드가 없는 토너먼트예요</span>
+            <span>{p.handCount ? `핸드 ${p.handCount}개도 같이 지워져요` : "핸드가 없는 토너먼트예요"}</span>
             <button
               type="button"
               className="ghost small danger"
               onClick={() => {
-                if (confirm("이 토너먼트를 지울까요?")) p.onDelete?.();
+                if (confirm(p.handCount ? `이 토너먼트와 핸드 ${p.handCount}개를 지울까요? 되돌릴 수 없어요.` : "이 토너먼트를 지울까요?")) p.onDelete?.();
               }}
             >
-              삭제
+              토너먼트 삭제
             </button>
           </div>
         )}

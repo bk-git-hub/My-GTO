@@ -57,10 +57,31 @@ export interface ScenarioMeta {
   targetExploitability: number;
   /** Starting ranges [OOP, IP] in the src/poker/range.ts syntax ("22+, A2s+, KTo:0.5"). */
   ranges: [string, string];
-  /** Where the ranges came from, as chart refs "<set>/<stage>/<scenario>:<action>", e.g. "cash6/100bb/bb-vs-btn:call". */
+  /**
+   * Where the ranges came from, as chart refs "<set>/<stage>/<scenario>:<action>", e.g. "cash6/100bb/bb-vs-btn:call".
+   * A calibration pack may name a solver stage the app doesn't ship yet (its ranges are in src/presolve/calRanges.ts).
+   */
   rangeSources?: [string, string];
   /** Which flops the pack covers, e.g. "all-1755" or "subset-95". */
   flopSet?: string;
+  /**
+   * Calibration packs only: every hand class starts with at least this weight in both ranges (ghost combos, so hands
+   * outside the source ranges get a measured EV). A class at exactly this weight is outside its source range.
+   */
+  ghostWeight?: number;
+  /**
+   * Calibration packs only: solved with the solver's 16-bit storage (`SolverInput.compress`), which halves a flop's
+   * memory. Absent: Float32 storage.
+   */
+  compress?: boolean;
+  /**
+   * Calibration packs only: what each flop file holds. "rootClasses": no action nodes, only the starting ranges and
+   * `FlopFile.rootClasses` (each class's root EV for both players and OOP's root frequencies per class), which is all
+   * the realization fit reads. Absent: the action nodes (docs/solver-packs.md "What is stored").
+   */
+  storage?: "rootClasses";
+  /** Calibration packs only: the last preflop raiser, 0 (OOP) or 1 (IP); null for a limped pot. */
+  aggressor?: Player | null;
 }
 
 /** A node shown in every file's summary. The game tree is the same on every flop of a pack. */
@@ -140,6 +161,18 @@ export interface EncodedRange {
   weights: string;
 }
 
+/**
+ * A range that gives every combo of a hand class the same weight (a chart range): one Uint8 per class (255 = 1),
+ * ALL_HANDS order; the combos that touch the board are left out when it is decoded. Used by the slim files of the
+ * calibration packs (`storage: "rootClasses"`), 226 characters instead of about 1,800.
+ */
+export interface ClassRange {
+  classes: string;
+}
+
+/** A flop file's starting range: per combo, or per class in a slim calibration file. */
+export type FileRange = EncodedRange | ClassRange;
+
 export interface FlopNode {
   /** Action indices from the flop root ([] = root, [0] = after OOP's first action, ...). */
   path: number[];
@@ -176,10 +209,35 @@ export interface FlopFile {
   iterations: number;
   /** % of pot. */
   exploitability: number;
-  /** Starting ranges [OOP, IP], board-blocked combos removed. */
-  ranges: [EncodedRange, EncodedRange];
-  /** Flop action nodes. Prefix-closed: every stored node's parent is stored too. */
+  /** Starting ranges [OOP, IP], board-blocked combos removed (per class in a `rootClasses` file: ClassRange). */
+  ranges: [FileRange, FileRange];
+  /**
+   * Flop action nodes. Prefix-closed: every stored node's parent is stored too. Empty in a file that holds
+   * `rootClasses` instead (a calibration pack with `storage: "rootClasses"`).
+   */
   nodes: FlopNode[];
+  /** The flop root per hand class, in place of the nodes (calibration packs with `storage: "rootClasses"`). */
+  rootClasses?: ClassRoot;
+}
+
+/**
+ * The flop root summarized per hand class (all 169, ALL_HANDS order), both players playing the solved strategies:
+ * what the realization fit reads (scripts/fit-realization.mjs), in about 1.6 KB instead of the action nodes.
+ */
+export interface ClassRoot {
+  /**
+   * Per player [OOP, IP], one Int16 LE value per class: the player's EV at the flop root (centi-bb, net from the start
+   * of the flop, the solver's root ev[p]), averaged over the class's combos in the starting range (weighted by the
+   * starting weight, which is the same for every combo of a class in a chart range). EV_NAN for a class with no combo.
+   */
+  ev: [string, string];
+  /** OOP's actions at the root, as a node's (`next` included). */
+  actions: PackAction[];
+  /**
+   * One Uint8 array per action, one value per class: OOP's root frequency of the action over the class's combos
+   * (weighted by starting weight). A class's values sum to 255, or are all 0 when OOP has no combo of it.
+   */
+  strategy: string[];
 }
 
 // ───────────────────────── decoded types ─────────────────────────
@@ -217,6 +275,16 @@ export interface DecodedFlop {
   nodes: DecodedNode[];
   /** The stored node at `path`, or undefined. */
   node(path: number[]): DecodedNode | undefined;
+  /** The per-class root of a `storage: "rootClasses"` file. */
+  rootClasses?: DecodedClassRoot;
+}
+
+export interface DecodedClassRoot {
+  /** [player][class]: the class's root EV (bb), ALL_HANDS order; NaN for a class with no combo. */
+  ev: [Float32Array, Float32Array];
+  actions: PackAction[];
+  /** [action][class]: OOP's root frequency; each class's values add up to 1 in action order, or are all 0. */
+  strategy: Float64Array[];
 }
 
 // ───────────────────────── base64 and binary arrays ─────────────────────────
@@ -596,6 +664,43 @@ export function decodeRange(r: EncodedRange): Float32Array {
   return out;
 }
 
+/**
+ * COMBOS-indexed weights (0..1) → ClassRange. Every combo of a class that is off `board` must have the same weight
+ * (as rangeWeights gives a hand-class range), else it throws: such a range needs the per-combo EncodedRange.
+ */
+export function encodeClassRange(weights: ArrayLike<number>, board: Card[]): ClassRange {
+  if (weights.length !== NUM_COMBOS) throw new Error(`range needs ${NUM_COMBOS} weights`);
+  const dead = deadMask(board);
+  const q = new Int16Array(NUM_CLASSES).fill(-1);
+  for (let i = 0; i < NUM_COMBOS; i++) {
+    const [a, b] = COMBOS[i].cards;
+    if (dead[a] || dead[b]) continue;
+    const v = quantizeUnit(weights[i]);
+    const c = COMBO_CLASS[i];
+    if (q[c] >= 0 && q[c] !== v) throw new Error(`${ALL_HANDS[c]}: its combos have different weights; use encodeRange`);
+    q[c] = v;
+  }
+  return { classes: encodeUint8(Array.from(q, (v) => Math.max(0, v))) };
+}
+
+/** ClassRange → COMBOS-indexed weights (0..1), combos touching `board` at 0. */
+export function decodeClassRange(r: ClassRange, board: Card[]): Float32Array {
+  const q = decodeUint8(r.classes);
+  if (q.length !== NUM_CLASSES) throw new Error(`class range needs ${NUM_CLASSES} values, got ${q.length}`);
+  const dead = deadMask(board);
+  const out = new Float32Array(NUM_COMBOS);
+  for (let i = 0; i < NUM_COMBOS; i++) {
+    const [a, b] = COMBOS[i].cards;
+    if (!dead[a] && !dead[b]) out[i] = q[COMBO_CLASS[i]] / Q_MAX;
+  }
+  return out;
+}
+
+/** A flop file's range (either form) → COMBOS-indexed weights (0..1). */
+export function decodeFileRange(r: FileRange, board: Card[]): Float32Array {
+  return "classes" in r ? decodeClassRange(r, board) : decodeRange(r);
+}
+
 /** What the pipeline hands to encodeFlopNode for one node. Per-combo inputs are COMBOS-indexed (like SolutionNode). */
 export interface FlopNodeSource {
   path: number[];
@@ -693,13 +798,89 @@ export function decodeFlopNode(node: FlopNode, stack: number, start?: ArrayLike<
   };
 }
 
+// ───────────────────────── the root per hand class ─────────────────────────
+
+/** Number of hand classes (ALL_HANDS). */
+export const NUM_CLASSES = 169;
+
+/** ALL_HANDS index of every combo's class, COMBOS-indexed. */
+export const COMBO_CLASS: Int16Array = (() => {
+  const idx = new Map(ALL_HANDS.map((h, i) => [h, i] as const));
+  return Int16Array.from(COMBOS, (c) => idx.get(c.hand)!);
+})();
+
+/** What the pipeline hands to encodeClassRoot: the solver's root. Per-combo inputs are COMBOS-indexed. */
+export interface ClassRootSource {
+  board: Card[];
+  /** Starting weights [OOP, IP] (SolutionNode.ranges at the root); combos touching the board are skipped. */
+  start: [ArrayLike<number>, ArrayLike<number>];
+  /** Root EV per combo [OOP, IP] (SolutionNode.ev at the root). */
+  ev: [ArrayLike<number>, ArrayLike<number>];
+  /** OOP's root actions. */
+  actions: PackAction[];
+  /** OOP's root strategy, one array per action (SolutionNode.strategy at the root). */
+  strategy: ArrayLike<number>[];
+}
+
+/** The per-class root of a solved flop (ClassRoot): start-weighted class means of the root EVs and of OOP's strategy. */
+export function encodeClassRoot(src: ClassRootSource): ClassRoot {
+  const A = src.actions.length;
+  if (src.strategy.length !== A) throw new Error("the root strategy needs one entry per action");
+  const dead = deadMask(src.board);
+  const live = (i: number, x: number): boolean => {
+    const [a, b] = COMBOS[i].cards;
+    return x > 0 && !dead[a] && !dead[b];
+  };
+  const ev = ([0, 1] as const).map((p) => {
+    const s = new Float64Array(NUM_CLASSES), w = new Float64Array(NUM_CLASSES);
+    for (let i = 0; i < NUM_COMBOS; i++) {
+      const x = src.start[p][i];
+      if (!live(i, x) || Number.isNaN(src.ev[p][i])) continue;
+      s[COMBO_CLASS[i]] += x * src.ev[p][i];
+      w[COMBO_CLASS[i]] += x;
+    }
+    return encodeInt16(Array.from(s, (v, c) => (w[c] > 0 ? quantizeEv(v / w[c]) : EV_NAN)));
+  }) as [string, string];
+  const sums = Array.from({ length: A }, () => new Float64Array(NUM_CLASSES));
+  const W = new Float64Array(NUM_CLASSES);
+  for (let i = 0; i < NUM_COMBOS; i++) {
+    const x = src.start[0][i];
+    if (!live(i, x)) continue;
+    const c = COMBO_CLASS[i];
+    W[c] += x;
+    for (let a = 0; a < A; a++) sums[a][c] += x * src.strategy[a][i];
+  }
+  const q = quantizeStrategy(sums.map((arr) => Array.from(arr, (v, c) => (W[c] > 0 ? v / W[c] : 0))));
+  for (let c = 0; c < NUM_CLASSES; c++) if (!(W[c] > 0)) for (let a = 0; a < A; a++) q[a][c] = 0;
+  return {
+    ev,
+    actions: src.actions.map((a) => ({ kind: a.kind, to: roundChips(a.to), label: a.label, next: a.next })),
+    strategy: q.map(encodeUint8),
+  };
+}
+
+export function decodeClassRoot(r: ClassRoot): DecodedClassRoot {
+  if (r.ev.length !== 2) throw new Error("rootClasses: ev needs one entry per player");
+  const ev = r.ev.map((s) => {
+    const raw = decodeInt16(s);
+    if (raw.length !== NUM_CLASSES) throw new Error(`rootClasses: ev has ${raw.length} values, not ${NUM_CLASSES}`);
+    return Float32Array.from(raw, dequantizeEv);
+  }) as [Float32Array, Float32Array];
+  if (r.strategy.length !== r.actions.length || r.actions.length < 1) throw new Error("rootClasses: one strategy entry per action, at least one action");
+  const q = r.strategy.map(decodeUint8);
+  if (q.some((s) => s.length !== NUM_CLASSES)) throw new Error(`rootClasses: strategy length ≠ ${NUM_CLASSES}`);
+  const strategy = dequantize(q);
+  for (let c = 0; c < NUM_CLASSES; c++) if (q.every((s) => s[c] === 0)) for (const s of strategy) s[c] = 0;
+  return { ev, actions: r.actions.map((a) => ({ ...a })), strategy };
+}
+
 export function decodeFlopFile(file: FlopFile): DecodedFlop {
   if (file.v !== PACK_FORMAT) throw new Error(`unsupported pack file version ${file.v}`);
   const board = parseBoardKey(file.board);
-  const ranges: [Float32Array, Float32Array] = [decodeRange(file.ranges[0]), decodeRange(file.ranges[1])];
+  const ranges: [Float32Array, Float32Array] = [decodeFileRange(file.ranges[0], board), decodeFileRange(file.ranges[1], board)];
   const nodes = file.nodes.map((n) => decodeFlopNode(n, file.stack, ranges[n.player]));
   const byPath = new Map(nodes.map((n) => [pathKey(n.path), n] as const));
-  return {
+  const out: DecodedFlop = {
     scenario: file.scenario,
     version: file.version,
     board,
@@ -712,6 +893,8 @@ export function decodeFlopFile(file: FlopFile): DecodedFlop {
     nodes,
     node: (path) => byPath.get(pathKey(path)),
   };
+  if (file.rootClasses !== undefined) out.rootClasses = decodeClassRoot(file.rootClasses);
+  return out;
 }
 
 /** Structural checks on a flop file. Returns the problems found (empty = valid). */
@@ -720,8 +903,9 @@ export function validateFlopFile(file: FlopFile): string[] {
   if (file.v !== PACK_FORMAT) errs.push(`v must be ${PACK_FORMAT}`);
   if (!SCENARIO_ID.test(file.scenario)) errs.push(`invalid scenario id ${file.scenario}`);
   let dead: Uint8Array = new Uint8Array(52);
+  let board: Card[] = [];
   try {
-    const board = parseBoardKey(file.board);
+    board = parseBoardKey(file.board);
     if (board.length !== 3) errs.push("board must be a flop");
     dead = deadMask(board);
   } catch (e) {
@@ -729,9 +913,11 @@ export function validateFlopFile(file: FlopFile): string[] {
   }
   if (!(file.pot > 0) || !(file.stack >= 0)) errs.push("pot must be > 0 and stack ≥ 0");
   const inRange: [Set<number>, Set<number>] = [new Set(), new Set()];
+  // The per-class form is for the slim files only, which hold no action nodes.
+  if (file.ranges.some((r) => "classes" in r) && (file.rootClasses === undefined || file.nodes.length)) errs.push("per-class ranges need rootClasses and no nodes");
   file.ranges.forEach((r, p) => {
     try {
-      const w = decodeRange(r);
+      const w = decodeFileRange(r, board);
       w.forEach((x, i) => {
         if (x > 0) {
           inRange[p].add(i);
@@ -749,7 +935,35 @@ export function validateFlopFile(file: FlopFile): string[] {
     if (byPath.has(key)) errs.push(`duplicate node ${key}`);
     byPath.set(key, node);
   }
-  if (!byPath.has("")) errs.push("missing root node");
+  if (!byPath.has("") && file.rootClasses === undefined) errs.push("missing root node");
+  if (file.rootClasses !== undefined) {
+    try {
+      const rc = decodeClassRoot(file.rootClasses);
+      // A class has an EV exactly when the player has a combo of it, and OOP's frequencies sum to 255 exactly then.
+      const has = inRange.map((set) => {
+        const h = new Uint8Array(NUM_CLASSES);
+        for (const i of set) h[COMBO_CLASS[i]] = 1;
+        return h;
+      });
+      for (const p of [0, 1] as const)
+        for (let c = 0; c < NUM_CLASSES; c++)
+          if (Number.isNaN(rc.ev[p][c]) === Boolean(has[p][c])) {
+            errs.push(`rootClasses: ${ALL_HANDS[c]} ${has[p][c] ? "has no" : "has an"} EV for player ${p}`);
+            break;
+          }
+      const q = file.rootClasses.strategy.map(decodeUint8);
+      for (let c = 0; c < NUM_CLASSES; c++) {
+        let s = 0;
+        for (const a of q) s += a[c];
+        if (s !== (has[0][c] ? Q_MAX : 0)) {
+          errs.push(`rootClasses: ${ALL_HANDS[c]} strategy sums to ${s}`);
+          break;
+        }
+      }
+    } catch (e) {
+      errs.push((e as Error).message);
+    }
+  }
   for (const node of file.nodes) {
     const key = pathKey(node.path);
     const at = `node "${key}"`;

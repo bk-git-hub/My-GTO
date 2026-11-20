@@ -1,23 +1,34 @@
 // Fits the postflop realization model of the preflop solver to our own flop packs and writes
 // src/poker/preflop/eqrFit.ts (design: model B, §3.4 and §3.7 of the preflop solver design, docs/preflop-solver.md).
 //
-// Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--packs <id,id,...>] [--limit <n>]
+// Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--packs <id,id,...>] [--cal-manifest <file>] [--limit <n>]
 //   --check        compute everything and compare with the committed eqrFit.ts; write nothing, exit 1 if it differs
 //   --workers <n>  flop files decoded and enumerated in parallel (default: one per CPU); the result does not depend on it
-//   --packs <ids>  fit on these packs of the manifest only, comma-separated ids, or "all" for every pack in the manifest.
-//                  Default: the packs the committed eqrFit.ts was fitted on (every pack in the manifest if it names none
-//                  or names one the manifest lacks), so a new pack in the manifest, such as pub-srp-utg-bb-55, kept out
-//                  of the fit on purpose (docs/preflop-solver.md §3.7), does not silently enter a bare run or --check.
-//                  The rest of the run is unchanged: the pack records, metrics and fit hash name only the packs used,
-//                  and --check compares that fit with the committed file. An unknown id is an error.
+//   --packs <ids>  fit on these packs only, comma-separated ids, or "all" for every pack in the app's manifest
+//                  (public/packs/manifest.json). Calibration packs (calibration/packs/manifest.json, never listed by the
+//                  app) enter a fit only when named here, e.g. --packs srp-btn-bb-100,pub-srp-btn-bb-55,cal-srp-btn-bb-20.
+//                  Default: the packs the committed eqrFit.ts was fitted on, looked up in both manifests (every pack in
+//                  the app's manifest if it names none or names one neither manifest has), so a new pack, such as
+//                  pub-srp-utg-bb-55, kept out of the fit on purpose (docs/preflop-solver.md §3.7), does not silently
+//                  enter a bare run or --check. The rest of the run is unchanged: the pack records, metrics and fit hash
+//                  name only the packs used, and --check compares that fit with the committed file. An unknown id is an
+//                  error.
+//   --cal-manifest <file>  the calibration manifest (default calibration/packs/manifest.json; its files are read from
+//                  the manifest's directory). For a scratch run of scripts/presolve.mjs --cal-out <dir>.
+//                  A pack whose manifest scenario records an aggressor other than IP (the calibration queue's OOP-raiser
+//                  and limped pots) is refused: this fit's form is the IP-aggressor pot.
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
 //
 // What it does:
-// 1. For every flop file of every pack fitted (the --packs ones of public/packs/manifest.json, or the default above):
+// 1. For every flop file of every pack fitted (the --packs ones of public/packs/manifest.json and the calibration
+//    manifest, or the default above):
 //    decode it with the app's decoder, read each combo's EV at OOP's root (node []) and at IP's first decision after
 //    OOP checks (node [check]), and compute each combo's flop equity against the opponent's stored range by full turn
 //    and river enumeration. The packs give OOP no flop bet, so IP's node after the check is IP's root; the script
 //    asserts OOP checks at least MIN_CHECK of its reach-weighted range, since IP's root EV is not stored otherwise.
+//    A slim calibration file (storage "rootClasses", docs/solver-packs.md) stores each class's root EV for both players
+//    instead of nodes: every combo of a class gets its class's EV, which gives the same class rows (the starting weight
+//    is the same for every combo of a class), and IP's root EV needs no check assertion.
 // 2. Per pack, side and hand class, with w = node weight × file weight: share = Σ w·EV / Σ w / pot (a pack's EV is
 //    what the combo gets out of the flop pot) and e = Σ w·equity / Σ w. Every class with Σ w > 0 is a row.
 // 3. Fits four forms by weighted least squares with ridge RIDGE on every fitted parameter, rows of all packs jointly;
@@ -44,6 +55,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
+import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
 import { equityTableSha256, load, loadEquityTable } from "./equity-cache.mjs";
@@ -162,12 +174,50 @@ if (!isMainThread && workerData?.eqrFit) {
     return [0, 1].map((p) => Float64Array.from(num[p], (v, i) => (den[p][i] > 0 ? v / den[p][i] : NaN)));
   }
 
-  function extract({ path, weight, sha256, scenario, pot }) {
-    const bytes = readFileSync(root + "public/packs/" + path);
+  /**
+   * A slim calibration file (storage "rootClasses"): each class's root EV for both players is stored, IP's included, so
+   * no node and no check assertion is needed. Every combo of a class in the range gets the class's EV; with the starting
+   * weight as its weight (the same for every combo of a class) the class rows are those of the full file.
+   */
+  function extractClasses(flop, path, weight) {
+    const rc = flop.rootClasses;
+    const eqs = flopEquities(flop.board, flop.ranges[0], flop.ranges[1]);
+    const sides = [0, 1].map((side) => {
+      const wEv = new Float64Array(N), wEq = new Float64Array(N), w = new Float64Array(N);
+      const range = flop.ranges[side];
+      for (let ci = 0; ci < 1326; ci++) {
+        const ww = range[ci] * weight;
+        if (!(ww > 0)) continue;
+        const c = CLS[ci];
+        const ev = rc.ev[side][c];
+        if (!Number.isFinite(ev)) throw new Error(`${path}: no root EV for class ${c} of player ${side}`);
+        const e = eqs[side][ci];
+        if (!Number.isFinite(e)) throw new Error(`${path}: no equity for combo ${ci}`);
+        wEv[c] += ww * ev;
+        wEq[c] += ww * e;
+        w[c] += ww;
+      }
+      return { wEv, wEq, w };
+    });
+    // OOP's check frequency at the root, for the report: IP's root EV does not depend on it here.
+    const check = rc.actions.findIndex((a) => a.kind === "check");
+    let tw = 0, cw = 0;
+    for (let ci = 0; ci < 1326; ci++) {
+      const x = flop.ranges[0][ci];
+      if (!(x > 0)) continue;
+      tw += x;
+      if (check >= 0) cw += x * rc.strategy[check][CLS[ci]];
+    }
+    return { board: flop.boardKey, check: cw / tw, ipRootStored: true, sides };
+  }
+
+  function extract({ dir, path, weight, sha256, scenario, pot }) {
+    const bytes = readFileSync(`${dir}/${path}`);
     const got = createHash("sha256").update(bytes).digest("hex");
     if (got !== sha256) throw new Error(`${path}: sha256 ${got} does not match the manifest`);
     const flop = decodeFlopFile(JSON.parse(bytes.toString("utf8")));
     if (flop.scenario !== scenario || Math.abs(flop.pot - pot) > 1e-9) throw new Error(`${path}: scenario or pot differs from the manifest`);
+    if (flop.rootClasses) return extractClasses(flop, path, weight);
     const rootNode = flop.node([]);
     const check = rootNode.actions.findIndex((a) => a.kind === "check");
     if (check < 0) throw new Error(`${path}: OOP has no check at the root`);
@@ -213,7 +263,13 @@ if (!isMainThread && workerData?.eqrFit) {
 
 if (isMainThread) {
   const { values: opt } = parseArgs({
-    options: { check: { type: "boolean", default: false }, workers: { type: "string" }, packs: { type: "string" }, limit: { type: "string" } },
+    options: {
+      check: { type: "boolean", default: false },
+      workers: { type: "string" },
+      packs: { type: "string" },
+      "cal-manifest": { type: "string" },
+      limit: { type: "string" },
+    },
   });
   const limit = opt.limit ? Number(opt.limit) : Infinity;
   const T0 = Date.now();
@@ -227,7 +283,26 @@ if (isMainThread) {
   const { eq, cnt } = table;
   const F = Array.from({ length: N }, (_, h) => handFeatures(h));
   const K = FEATURE_NAMES.length;
-  const manifest = JSON.parse(readFileSync(root + "public/packs/manifest.json", "utf8"));
+  // The app's manifest, then the calibration manifest (src/presolve/scenarios.ts PACK_SET_DIRS); every pack remembers
+  // the directory its files are read from.
+  const readManifest = (file) => {
+    const m = JSON.parse(readFileSync(file, "utf8"));
+    for (const p of m.packs) p.dir = dirname(file);
+    return m;
+  };
+  const manifest = readManifest(root + "public/packs/manifest.json");
+  const calFile = opt["cal-manifest"] !== undefined ? resolve(opt["cal-manifest"]) : root + "calibration/packs/manifest.json";
+  if (opt["cal-manifest"] !== undefined && !existsSync(calFile)) {
+    console.error(`--cal-manifest: ${calFile} does not exist`);
+    process.exit(2);
+  }
+  const calPacks = existsSync(calFile) ? readManifest(calFile).packs : [];
+  for (const p of calPacks)
+    if (manifest.packs.some((q) => q.id === p.id)) {
+      console.error(`${p.id} is in both public/packs/manifest.json and ${calFile}`);
+      process.exit(2);
+    }
+  const allPacks = [...manifest.packs, ...calPacks];
   if (opt.packs === undefined) {
     // Default: the committed fit's packs (see --packs above).
     let committed = [];
@@ -236,24 +311,34 @@ if (isMainThread) {
     } catch {
       committed = [];
     }
-    const ids = manifest.packs.map((p) => p.id);
+    const ids = allPacks.map((p) => p.id);
     if (committed.length && committed.every((id) => ids.includes(id))) {
       opt.packs = committed.join(",");
       const left = ids.filter((id) => !committed.includes(id));
-      console.log(`packs: ${committed.join(", ")} (the committed fit's)${left.length ? `; not in the fit: ${left.join(", ")} (--packs all to include)` : ""}`);
+      console.log(`packs: ${committed.join(", ")} (the committed fit's)${left.length ? `; not in the fit: ${left.join(", ")} (name them in --packs to include)` : ""}`);
     } else opt.packs = "all";
   }
   if (opt.packs === "all") opt.packs = manifest.packs.map((p) => p.id).join(",");
   {
-    // The packs to fit (--packs, or the default above): the named packs only, in manifest order (so the sums and the output keep the manifest's order).
+    // The packs to fit (--packs, or the default above): the named packs only, in manifest order, the app's manifest
+    // first (so the sums and the output keep the manifests' order).
     const want = opt.packs.split(",").map((s) => s.trim()).filter(Boolean);
-    const known = new Set(manifest.packs.map((p) => p.id));
+    const known = new Set(allPacks.map((p) => p.id));
     const unknown = want.filter((id) => !known.has(id));
     if (!want.length || unknown.length) {
-      console.error(`--packs: ${want.length ? `unknown pack id(s) ${unknown.join(", ")}` : "no pack ids"}; the manifest has ${[...known].join(", ")}`);
+      const cal = calPacks.length ? `; the calibration manifest has ${calPacks.map((p) => p.id).join(", ")}` : `; no calibration manifest at ${calFile}`;
+      console.error(`--packs: ${want.length ? `unknown pack id(s) ${unknown.join(", ")}` : "no pack ids"}; the app's manifest has ${manifest.packs.map((p) => p.id).join(", ")}${cal}`);
       process.exit(2);
     }
-    manifest.packs = manifest.packs.filter((p) => want.includes(p.id));
+    manifest.packs = allPacks.filter((p) => want.includes(p.id));
+    // The fitted form is the single raised pot with an IP aggressor (O = caller, I = aggressor). A calibration pack that
+    // records another aggressor (an OOP raiser, a limped pot) needs a fit with c and u per context; mixing its rows into
+    // this one would read the OOP raiser as a caller.
+    const other = manifest.packs.filter((p) => p.scenario.aggressor !== undefined && p.scenario.aggressor !== 1);
+    if (other.length) {
+      console.error(`--packs: ${other.map((p) => `${p.id} (aggressor ${p.scenario.aggressor === 0 ? "OOP" : "none, limped"})`).join(", ")}: this fit's form has an IP aggressor only`);
+      process.exit(2);
+    }
   }
   for (const pack of manifest.packs) pack.files = pack.files.slice(0, limit);
   const prio = new Map(FLOPS_BY_PRIORITY.map((f, i) => [f.key, i]));
@@ -261,7 +346,7 @@ if (isMainThread) {
   // ── 1. per-file extraction on a worker pool; results kept by file so every sum below runs in manifest order ──
   const jobs = [];
   manifest.packs.forEach((pack, p) =>
-    pack.files.forEach((f, k) => jobs.push({ key: `${p}:${k}`, path: f.path, weight: f.weight, sha256: f.sha256, scenario: pack.id, pot: pack.scenario.pot })),
+    pack.files.forEach((f, k) => jobs.push({ key: `${p}:${k}`, dir: pack.dir, path: f.path, weight: f.weight, sha256: f.sha256, scenario: pack.id, pot: pack.scenario.pot })),
   );
   const nWorkers = Math.max(1, Math.min(jobs.length, opt.workers ? Number(opt.workers) : cpus().length));
   const results = new Map();
@@ -306,7 +391,7 @@ if (isMainThread) {
       const r = results.get(`${p}:${k}`);
       const idx = prio.get(r.board);
       if (idx === undefined) throw new Error(`${pack.id}: board ${r.board} is not in FLOPS_BY_PRIORITY`);
-      if (r.check < MIN_CHECK) throw new Error(`${pack.id} ${r.board}: OOP checks only ${r.check.toFixed(4)} at the root; IP's root EV is not stored`);
+      if (r.check < MIN_CHECK && !r.ipRootStored) throw new Error(`${pack.id} ${r.board}: OOP checks only ${r.check.toFixed(4)} at the root; IP's root EV is not stored`);
       minCheck = Math.min(minCheck, r.check);
       addInto(all, r.sides);
       addInto(folds[idx % 2], r.sides);

@@ -303,6 +303,30 @@ export function fastHand(d: FastDraft, act: PreAction | undefined | null, base: 
   return tidyHand(withHole(h, c.hole, true, c.pair ? undefined : c.kind));
 }
 
+/** The seats dealt between `from` and `to` going round the table, at this table size (none: `to` is next, the same seat, or not at the table). */
+export function seatsBetween(players: number, from: string, to: string): string[] {
+  const seats = positionsFor(players);
+  if (!seats.includes(from) || !seats.includes(to) || from === to) return [];
+  const out: string[] = [];
+  let x = nextSeat(players, from);
+  while (x !== to && out.length < seats.length) {
+    out.push(x);
+    x = nextSeat(players, x);
+  }
+  return x === to ? out : [];
+}
+
+/** A hand saved without its cards (핸드 생략: 폴드 or −1bb with no rank typed): my seat, the table size and the chips only. */
+export function fastBlankHand(d: FastDraft, base: LoggedHand, players: number): LoggedHand | null {
+  if (!positionsFor(players).includes(d.seat) || d.ranks.length) return null;
+  const { quickPre: _q, fastSpot: _s, kind: _k, mySeat: _m, ...bare } = base;
+  void _q;
+  void _s;
+  void _k;
+  void _m;
+  return tidyHand({ ...bare, players, seat: d.seat, hole: [], fast: true });
+}
+
 /** The level a hand goes in at (a 야자수 새틀 level, a 직접 입력 tournament's blinds, or null), and whether it came from the start-time estimate. */
 export interface FastLevel {
   level: Lv;
@@ -876,7 +900,8 @@ export function resultParts(h: Pick<LoggedHand, "result" | "net" | "level"> & { 
   const lv = handLv(h);
   if (h.result === "fold") return h.net ? { text: `폴드 ${signedText(h.net, "chips")}`, bb: bbPart(h.net, lv, true) } : { text: "폴드", bb: null };
   if (h.net !== null) return h.net === 0 ? { text: "본전", bb: null } : { text: signedText(h.net, "chips"), bb: bbPart(h.net, lv, true) };
-  return { text: h.result === "win" ? "수익" : h.result === "lose" ? "손실" : h.result === "chop" ? "본전" : "", bb: null };
+  // A sign with no chips yet: ⏳ (filled at the next 칩 업데이트).
+  return { text: h.result === "win" ? "수익 ⏳" : h.result === "lose" ? "손실 ⏳" : h.result === "chop" ? "본전" : "", bb: null };
 }
 
 /** A hand has a chip result or a remembered board to show. */

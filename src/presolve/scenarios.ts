@@ -9,19 +9,35 @@
  *     2.5bb (openSize("pub", "mid", ...)) and starts at STAGE_STACK.mid = 55bb.
  * Single raised pot, BB calls: pot = 2 × open + SB + ante, effective stack = start − open − ante (the BB paid the
  * ante as well, so it is the shorter stack).
+ *
+ * Two sets of packs share the pipeline: SCENARIOS, the app's packs (public/packs, listed by the solver page), and
+ * CAL_SCENARIOS, calibration packs for the preflop solver's realization model (calibration/packs, a separate manifest
+ * the app never reads; they start from ranges of check-only solver stages plus ghost combos, see CAL_SCENARIOS).
  */
 import { getSet } from "../data/charts";
 import { ALL_HANDS, type HandClass } from "../poker/cards";
-import { rangeToString, type Range } from "../poker/range";
+import { parseRange, rangeToString, type Range } from "../poker/range";
 import { COMBOS } from "../play/handInfo";
 import { CASH_TABLE, PUB_TABLE } from "../play/engine";
 import { openSize, STAGE_STACK } from "../play/policy";
-import type { SolverInput, SolverStreet, StreetSizes } from "../solver/types";
+import type { Player, SolverInput, SolverStreet, StreetSizes } from "../solver/types";
+import { CAL_RANGES, CAL_STAGE_SOLVES } from "./calRanges";
 import { roundChips, type PackTier, type ScenarioMeta } from "./format";
 
+/**
+ * Which manifest a pack belongs to. "app": public/packs/manifest.json, deployed and listed by the app's solver page.
+ * "calibration": calibration/packs/manifest.json, outside public/ (never deployed, never listed), read by
+ * scripts/fit-realization.mjs only.
+ */
+export type PackSet = "app" | "calibration";
+
+/** Repo-relative directory of each set's manifest and flop files (scripts/presolve.mjs's default --out / --cal-out). */
+export const PACK_SET_DIRS: Record<PackSet, string> = { app: "public/packs", calibration: "calibration/packs" };
+
 export interface PresolveScenario {
-  /** Pack id, e.g. "srp-btn-bb-100". */
+  /** Pack id, e.g. "srp-btn-bb-100". Unique across both sets. */
   id: string;
+  set: PackSet;
   /** Korean pack title. */
   title: string;
   /** Pack version: bump it whenever anything that changes the numbers changes (sizes, ranges, targets, solver). */
@@ -33,6 +49,13 @@ export interface PresolveScenario {
   ranges: [Float32Array, Float32Array];
   /** Starting stack (bb) before the blinds, for reference. */
   startStack: number;
+  /**
+   * The presolve job's order (scripts/presolve.mjs, jobQueue in shard.ts): packs with a lower value are solved first,
+   * packs with the same value are interleaved. 0 for the app's packs and the first two calibration packs, so their
+   * order is as it always was; the calibration queue counts up from 1 in priority order. Not part of the pack: changing
+   * it needs no version bump.
+   */
+  queue: number;
 }
 
 // ───────────────────────── ranges from charts ─────────────────────────
@@ -96,6 +119,41 @@ export function srpPotStack(s: SrpSetup): { pot: number; stack: number } {
   return { pot: roundChips(pot), stack: roundChips(stack) };
 }
 
+/**
+ * Any heads-up flop of the 9-handed BB-ante game: who saw it, what each of them put in, and the blinds and ante of the
+ * seats that folded (dead money).
+ */
+export interface HuSetup {
+  /** Starting stack (bb) of every seat before posting. */
+  start: number;
+  /** The two seats [OOP, IP], as the charts name them ("BB", "SB", "BTN", "CO", "UTG", ...). */
+  seats: [string, string];
+  /** Each player's total bet when the flop comes (bb, the blind included): the open, 3-bet or 4-bet both called, 1 in a limped pot. */
+  put: number;
+  /** The BB's ante: dead money from the BB's stack, also when the BB folds. */
+  bbAnte: number;
+  sb?: number;
+  bb?: number;
+}
+
+/**
+ * Flop pot and effective stack of a heads-up pot: pot = 2 × put + the blinds of the seats that folded + the BB's ante;
+ * each player has start − put behind, the BB also less its ante. A single raised pot where the BB calls is
+ * srpPotStack's case: { seats: ["BB", opener], put: open }.
+ */
+export function huPotStack(s: HuSetup): { pot: number; stack: number } {
+  const sb = s.sb ?? 0.5, bb = s.bb ?? 1;
+  const [o, i] = s.seats;
+  if (o === i) throw new Error(`a heads-up pot needs two seats, got ${o} twice`);
+  const inSb = s.seats.includes("SB"), inBb = s.seats.includes("BB");
+  if (!(s.put >= (inBb ? bb : inSb ? sb : 0)) || !(s.put > 0)) throw new Error(`put ${s.put} is below a blind of ${s.seats.join(" / ")}`);
+  if (!inBb && !(s.put > bb)) throw new Error("without the BB in the pot, someone must have raised: put must be above the big blind");
+  const pot = 2 * s.put + (inSb ? 0 : sb) + (inBb ? 0 : bb) + s.bbAnte;
+  const stack = Math.min(...s.seats.map((seat) => s.start - s.put - (seat === "BB" ? s.bbAnte : 0)));
+  if (!(stack > 0)) throw new Error(`no stack behind at the flop (start ${s.start}, put ${s.put})`);
+  return { pot: roundChips(pot), stack: roundChips(stack) };
+}
+
 // ───────────────────────── tree presets ─────────────────────────
 
 const both = (oop: StreetSizes, ip: StreetSizes = oop): [StreetSizes, StreetSizes] => [
@@ -136,6 +194,48 @@ export const TREE_SRP: TreeSettings = {
   minBet: 1,
 };
 
+/**
+ * The calibration tree for pots where OOP raised last preflop (the SB's open, a blind's 3-bet, a 4-bet out of position,
+ * the CO's open the BTN flats): TREE_SRP with the roles swapped, so the aggressor keeps its betting.
+ *   flop   OOP bets 33% or 75%, IP may raise it by 60% of the pot after calling;
+ *          after OOP checks, IP bets 50% and OOP may raise that by 60% (the check-raise);
+ *          one raise per street (raiseLimit 1), so nobody re-raises;
+ *   turn and river: as TREE_SRP, one 66% bet each, no raises; no all-in button (allInThreshold as TREE_SRP).
+ * Without the check-raise of IP's 50% bet, IP could bet any two cards into a check it can't be raised from (the
+ * artifact that dropped the donk tree, see TREE_SRP); with it the flop is TREE_SRP's mirror plus IP's one bet size.
+ * A deep flop holds about 1.2 times TREE_SRP's action nodes (and needs `compress`, see CAL_SCENARIOS).
+ */
+export const TREE_OOP_AGGR: TreeSettings = {
+  sizes: {
+    flop: [
+      { bet: [0.33, 0.75], raise: [0.6] },
+      { bet: [0.5], raise: [0.6] },
+    ],
+    turn: both({ bet: [0.66], raise: [] }),
+    river: both({ bet: [0.66], raise: [] }),
+  },
+  raiseLimit: 1,
+  addAllIn: false,
+  allInThreshold: 0.67,
+  minBet: 1,
+};
+
+/**
+ * The calibration tree for a limped pot (the SB completes, the BB checks): nobody has the initiative, so both players
+ * bet 50% on the flop and may raise the other's bet by 60%; turn and river as TREE_SRP.
+ */
+export const TREE_LIMP: TreeSettings = {
+  sizes: {
+    flop: both({ bet: [0.5], raise: [0.6] }),
+    turn: both({ bet: [0.66], raise: [] }),
+    river: both({ bet: [0.66], raise: [] }),
+  },
+  raiseLimit: 1,
+  addAllIn: false,
+  allInThreshold: 0.67,
+  minBet: 1,
+};
+
 function copySizes(sizes: Record<SolverStreet, [StreetSizes, StreetSizes]>): Record<SolverStreet, [StreetSizes, StreetSizes]> {
   const out = {} as Record<SolverStreet, [StreetSizes, StreetSizes]>;
   for (const st of ["flop", "turn", "river"] as const) out[st] = both(sizes[st][0], sizes[st][1]);
@@ -149,7 +249,10 @@ export function treeInput(meta: TreeSettings): Required<Pick<SolverInput, "sizes
 
 /** The solver input for one flop of a scenario. */
 export function solverInput(sc: PresolveScenario, board: number[]): SolverInput {
-  return { board: board.slice(), ranges: [sc.ranges[0], sc.ranges[1]], pot: sc.meta.pot, stack: sc.meta.stack, ...treeInput(sc.meta) };
+  const input: SolverInput = { board: board.slice(), ranges: [sc.ranges[0], sc.ranges[1]], pot: sc.meta.pot, stack: sc.meta.stack, ...treeInput(sc.meta) };
+  // Only packs that record it solve with 16-bit storage; the others' input is what it always was.
+  if (sc.meta.compress) input.compress = true;
+  return input;
 }
 
 // ───────────────────────── scenarios ─────────────────────────
@@ -162,9 +265,21 @@ interface ScenarioDef {
   format: ScenarioMeta["format"];
   positions: [string, string];
   preflop: string;
-  setup: SrpSetup;
-  /** Chart refs [OOP, IP]. */
+  /** A single raised pot the BB calls (SrpSetup), or any heads-up pot (HuSetup, whose seats must be `positions`). */
+  setup: SrpSetup | HuSetup;
+  /** Chart refs [OOP, IP]; a calibration pack may join several refs of one line with LINE_SEP (lineRange). */
   rangeSources: [string, string];
+  /** The ranges [OOP, IP] when they don't come from the app's charts (default: chartRange of each rangeSource). */
+  ranges?: [Range, Range];
+  /** Calibration packs: raise every hand class of both ranges to at least this weight (ghost combos, withGhosts). */
+  ghostWeight?: number;
+  /** Calibration packs: ScenarioMeta.compress, storage and aggressor (written into the meta only when set). */
+  compress?: boolean;
+  storage?: ScenarioMeta["storage"];
+  aggressor?: ScenarioMeta["aggressor"];
+  /** PresolveScenario.queue (default 0). */
+  queue?: number;
+  set?: PackSet;
   tree: TreeSettings;
   iterations: number;
   targetExploitability: number;
@@ -172,9 +287,12 @@ interface ScenarioDef {
 }
 
 function build(d: ScenarioDef): PresolveScenario {
-  const { pot, stack } = srpPotStack(d.setup);
-  const r0 = chartRange(d.rangeSources[0]);
-  const r1 = chartRange(d.rangeSources[1]);
+  if ("seats" in d.setup && d.setup.seats.join() !== d.positions.join()) throw new Error(`${d.id}: setup seats ${d.setup.seats} ≠ positions ${d.positions}`);
+  const { pot, stack } = "seats" in d.setup ? huPotStack(d.setup) : srpPotStack(d.setup);
+  const src = d.ranges ?? [chartRange(d.rangeSources[0]), chartRange(d.rangeSources[1])];
+  const g = d.ghostWeight;
+  const [r0, r1] = g === undefined ? src : [withGhosts(src[0], g), withGhosts(src[1], g)];
+  const text = (p: 0 | 1) => (g === undefined ? rangeToString(src[p]) : ghostRangeString(src[p], g));
   const meta: ScenarioMeta = {
     format: d.format,
     positions: [d.positions[0], d.positions[1]],
@@ -188,11 +306,18 @@ function build(d: ScenarioDef): PresolveScenario {
     minBet: d.tree.minBet,
     iterations: d.iterations,
     targetExploitability: d.targetExploitability,
-    ranges: [rangeToString(r0), rangeToString(r1)],
+    ranges: [text(0), text(1)],
     rangeSources: [d.rangeSources[0], d.rangeSources[1]],
     flopSet: d.flopSet,
   };
-  return { id: d.id, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start };
+  // Only calibration packs carry the key, so the app packs' meta stays byte-identical to their manifest entries.
+  if (d.ghostWeight !== undefined) meta.ghostWeight = d.ghostWeight;
+  // The same for the keys of the calibration queue: the first two calibration packs have none of them.
+  if (d.compress !== undefined) meta.compress = d.compress;
+  if (d.storage !== undefined) meta.storage = d.storage;
+  if (d.aggressor !== undefined) meta.aggressor = d.aggressor;
+  const set = d.set ?? "app";
+  return { id: d.id, set, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start, queue: d.queue ?? 0 };
 }
 
 const CASH_OPEN = openSize("cash", "100bb", "BTN"); // 2.5
@@ -256,8 +381,344 @@ export const SCENARIOS: PresolveScenario[] = [
   }),
 ];
 
+// ───────────────────────── calibration packs ─────────────────────────
+
+/**
+ * The ghost-combo floor of the calibration packs: every hand class starts with at least this weight on both sides,
+ * so the classes just outside a range (the BB's folds and jams next to its calls, the BTN's folds and jams next to its
+ * opens) get a measured flop EV too. A refit can then place the fold boundary from measured EVs instead of
+ * extrapolating the model. A class at exactly this weight is a ghost: the source ranges are snapped to tenths.
+ *
+ * Ghosts are real combos to the solver, so they also shift the real hands' numbers. Measured on cal-srp-btn-bb-15
+ * Qs8h5h (the BTN's 12.6% open is the range ghosts dilute most), both solves at 0.13–0.14% of the pot, against no
+ * ghosts: this floor moves OOP's real classes' pot share by 0.025 on average (+0.019 signed: OOP realizes more against
+ * an IP range padded with hands it would not open) and IP's by 0.009; a 0.005 floor by 0.007 (+0.005) and 0.002. The
+ * convergence noise at the packs' 0.5% target is 0.003 (OOP) and 0.005 (IP). At 20bb (6% ghosts on IP) the 0.02 floor
+ * differs from 0.005 by 0.007 / 0.002. The cost does not depend on the floor (every combo is in both ranges either
+ * way), and ghostRangeString writes any floor exactly.
+ *
+ * So the floor is the smallest weight the packs' Uint8 encoding (k/255) keeps apart from zero with room: 2/255 ≈ 0.0078,
+ * which shifts the real classes about as little as 0.005 does (well under the 0.02 floor's 0.025) and still decodes to
+ * a nonzero weight.
+ */
+export const GHOST_WEIGHT = 2 / 255;
+
+/** `range` with every hand class raised to at least `floor`. */
+export function withGhosts(range: Range, floor: number = GHOST_WEIGHT): Range {
+  const out = {} as Range;
+  for (const h of ALL_HANDS) out[h] = Math.max(range[h] ?? 0, floor);
+  return out;
+}
+
+/**
+ * The range string of withGhosts(range, floor): the source range as rangeToString writes it, then every class outside
+ * it at exactly `floor` (rangeToString rounds to 0.01 and drops weights below 0.005, so it can't write a small floor).
+ * The source's classes keep their weight: a source weight below the floor would need the merged form, so it throws.
+ */
+export function ghostRangeString(range: Range, floor: number = GHOST_WEIGHT): string {
+  const ghosts: string[] = [];
+  for (const h of ALL_HANDS) {
+    const w = range[h] ?? 0;
+    if (w > 0 && w < floor) throw new Error(`${h} has weight ${w}, below the ghost floor ${floor}`);
+    if (!(w > 0)) ghosts.push(`${h}:${floor}`);
+  }
+  return [rangeToString(range), ...ghosts].filter(Boolean).join(", ");
+}
+
+/** A calibration pack's source range (src/presolve/calRanges.ts, generated by scripts/cal-ranges.mjs). */
+export function calRange(ref: string): Range {
+  const text = CAL_RANGES[ref];
+  if (text === undefined) throw new Error(`no calibration range for ${ref}; rerun scripts/cal-ranges.mjs`);
+  return parseRange(text);
+}
+
+/** Joins the refs of one preflop line in a range source: "solver/100bb-2.2/rfi-btn:open × solver/100bb-2.2/btn-open-vs-bb-3bet:call". */
+export const LINE_SEP = " × ";
+
+/**
+ * The range a player brings to the flop along a preflop line: the product of its own actions' frequencies, one ref per
+ * action (`one` reads a ref, e.g. calRange). The others' actions on the line don't depend on this player's hand, so they
+ * don't enter (card removal aside, as everywhere in the charts). The refs are snapped to tenths, so a product is an exact
+ * number of hundredths, which it is snapped to (and written exactly by rangeToString); a ref off the tenths throws.
+ */
+export function lineRange(source: string, one: (ref: string) => Range): Range {
+  const parts = source.split(LINE_SEP);
+  if (parts.length === 1) return one(source);
+  const rs = parts.map((ref) => {
+    const r = one(ref);
+    for (const h of ALL_HANDS) if (Math.abs((r[h] ?? 0) * 10 - Math.round((r[h] ?? 0) * 10)) > 1e-9) throw new Error(`${ref}: ${h} at ${r[h]} is not snapped to tenths`);
+    return r;
+  });
+  const out: Range = {};
+  for (const h of ALL_HANDS) {
+    const v = rs.reduce((prod, r) => prod * (r[h] ?? 0), 1);
+    if (v > 0) out[h] = Math.round(v * 100) / 100;
+  }
+  return out;
+}
+
+/**
+ * The 9-handed BB-ante short stages' own single raised pot: BTN opens 2bb, the SB folds, the BB calls. Pot
+ * 2 × 2 + 0.5 + 1 = 5.5; the stack is start − 3 (open and ante), so SPR 17 / 5.5 ≈ 3.1 at 20bb and 12 / 5.5 ≈ 2.2 at
+ * 15bb, where nothing calibrated the realization model before (the app's packs are at SPR 7.9 and 17.7).
+ * The tree is TREE_SRP, the app packs' tree, so the low-SPR rows differ from the deep ones in stack depth and ranges
+ * only. At these stacks it ends in an all-in sooner (allInThreshold): the check-raise of a 75% bet is an all-in, and so
+ * is the turn bet after a 75% flop bet is called.
+ */
+function calPack(start: 20 | 15): ScenarioDef {
+  const stageId = `${start}bb-2`;
+  const sources: [string, string] = [`solver/${stageId}/bb-vs-btn-open:call`, `solver/${stageId}/rfi-btn:open`];
+  return {
+    id: `cal-srp-btn-bb-${start}`,
+    title: `보정용 BTN vs BB 싱글 레이즈드 팟 (솔버 ${start}bb)`,
+    version: 1,
+    tier: "free",
+    format: "pub",
+    positions: ["BB", "BTN"],
+    preflop: `9인 모두 ${start}bb, BTN 2bb 오픈, SB 폴드, BB 콜 (BB 앤티 1bb)`,
+    setup: { start, open: 2, bbAnte: 1 },
+    rangeSources: sources,
+    ranges: [calRange(sources[0]), calRange(sources[1])],
+    ghostWeight: GHOST_WEIGHT,
+    set: "calibration",
+    tree: TREE_SRP,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  };
+}
+
+// ───────────────────────── the calibration queue ─────────────────────────
+
+/** The heads-up pots of the queue, per shipped stage (QUEUE names them as <kind> and the stage's tag). */
+type QueueKind = "srp-btn-bb" | "srp-co-bb" | "srp-utg-bb" | "srp-sb-bb" | "srp-co-btn" | "3bp-bb-btn" | "3bp-btn-co" | "3bp-sb-btn" | "3bp-bb-sb" | "4bp-co-btn" | "lp-sb-bb";
+
+/** The shipped solver stages the queue calibrates and the tag of their pack ids. */
+const QUEUE_STAGES: Record<string, string> = { "100bb-2.2": "100", "55bb-2.2": "55", "35bb-2": "35", "100bb-3": "100-o3" };
+
+interface QueueSpot {
+  positions: [string, string];
+  /** Each player's total bet at the flop (bb). */
+  put: number;
+  /** [OOP, IP] spots of the stage ("<scenario>:<action>"), joined with LINE_SEP along a line. */
+  spots: [string, string];
+  aggressor: Player | null;
+  tree: TreeSettings;
+  /** Korean, for the title: the pot. */
+  pot: string;
+  /** Korean, for the preflop description: the line. */
+  line: string;
+}
+
+/**
+ * The pots of one shipped stage, with the stage's own sizes (calRanges.ts records them; the tests check every put against
+ * the chart line it comes from). A player's flop range is the product of its own actions along the line (lineRange): the
+ * caller of a 3-bet brings its open × its call of the 3-bet, the 3-bettor its 3-bet range.
+ */
+function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
+  const st = CAL_STAGE_SOLVES[stage];
+  if (!st?.sizes) throw new Error(`no sizes recorded for stage ${stage}; rerun scripts/cal-ranges.mjs`);
+  const z = st.sizes;
+  const open = st.open, sbRaise = z.sbRaise;
+  const ip3 = roundChips(z.ip3 * open), blind3 = roundChips(z.blind3 * open), bbVsSb3 = roundChips(z.bbVsSb3 * sbRaise), four = roundChips(z.fourOOP * ip3);
+  const x = LINE_SEP;
+  const vsBb = (seat: string, spot: string): QueueSpot => ({
+    positions: ["BB", seat],
+    put: open,
+    spots: [`bb-vs-${spot}-open:call`, `rfi-${spot}:open`],
+    aggressor: 1,
+    tree: TREE_SRP,
+    pot: `${seat} vs BB 싱글 레이즈드 팟`,
+    line: `${seat} ${open}bb 오픈, 나머지 폴드, BB 콜`,
+  });
+  return {
+    "srp-btn-bb": vsBb("BTN", "btn"),
+    "srp-co-bb": vsBb("CO", "co"),
+    "srp-utg-bb": vsBb("UTG", "utg"),
+    "srp-sb-bb": {
+      positions: ["SB", "BB"],
+      put: sbRaise,
+      spots: ["rfi-sb:raise", "bb-vs-sb-open:call"],
+      aggressor: 0,
+      tree: TREE_OOP_AGGR,
+      pot: "SB vs BB 싱글 레이즈드 팟 (SB 오픈)",
+      line: `나머지 폴드, SB ${sbRaise}bb 오픈, BB 콜`,
+    },
+    "srp-co-btn": {
+      positions: ["CO", "BTN"],
+      put: open,
+      spots: ["rfi-co:open", "btn-vs-co-open:call"],
+      aggressor: 0,
+      tree: TREE_OOP_AGGR,
+      pot: "CO 오픈 vs BTN 콜 싱글 레이즈드 팟",
+      line: `CO ${open}bb 오픈, BTN 콜, 블라인드 폴드`,
+    },
+    "3bp-bb-btn": {
+      positions: ["BB", "BTN"],
+      put: blind3,
+      spots: ["bb-vs-btn-open:3bet", `rfi-btn:open${x}btn-open-vs-bb-3bet:call`],
+      aggressor: 0,
+      tree: TREE_OOP_AGGR,
+      pot: "BB 3벳 vs BTN 콜 3벳 팟",
+      line: `BTN ${open}bb 오픈, SB 폴드, BB 3벳 ${blind3}bb, BTN 콜`,
+    },
+    "3bp-btn-co": {
+      positions: ["CO", "BTN"],
+      put: ip3,
+      spots: [`rfi-co:open${x}co-open-vs-btn-3bet:call`, "btn-vs-co-open:3bet"],
+      aggressor: 1,
+      tree: TREE_SRP,
+      pot: "BTN 3벳 vs CO 콜 3벳 팟",
+      line: `CO ${open}bb 오픈, BTN 3벳 ${ip3}bb, 블라인드 폴드, CO 콜`,
+    },
+    "3bp-sb-btn": {
+      positions: ["SB", "BTN"],
+      put: blind3,
+      spots: ["sb-vs-btn-open:3bet", `rfi-btn:open${x}btn-open-vs-sb-3bet:call`],
+      aggressor: 0,
+      tree: TREE_OOP_AGGR,
+      pot: "SB 3벳 vs BTN 콜 3벳 팟",
+      line: `BTN ${open}bb 오픈, SB 3벳 ${blind3}bb, BB 폴드, BTN 콜`,
+    },
+    "3bp-bb-sb": {
+      positions: ["SB", "BB"],
+      put: bbVsSb3,
+      spots: [`rfi-sb:raise${x}sb-open-vs-bb-3bet:call`, "bb-vs-sb-open:3bet"],
+      aggressor: 1,
+      tree: TREE_SRP,
+      pot: "BB 3벳 vs SB 콜 3벳 팟",
+      line: `나머지 폴드, SB ${sbRaise}bb 오픈, BB 3벳 ${bbVsSb3}bb, SB 콜`,
+    },
+    "4bp-co-btn": {
+      positions: ["CO", "BTN"],
+      put: four,
+      spots: [`rfi-co:open${x}co-open-vs-btn-3bet:4bet`, `btn-vs-co-open:3bet${x}btn-3bet-vs-co-4bet:call`],
+      aggressor: 0,
+      tree: TREE_OOP_AGGR,
+      pot: "CO 4벳 vs BTN 콜 4벳 팟",
+      line: `CO ${open}bb 오픈, BTN 3벳 ${ip3}bb, 블라인드 폴드, CO 4벳 ${four}bb, BTN 콜`,
+    },
+    "lp-sb-bb": {
+      positions: ["SB", "BB"],
+      put: 1,
+      spots: ["rfi-sb:limp", "bb-vs-sb-limp:check"],
+      aggressor: null,
+      tree: TREE_LIMP,
+      pot: "SB 림프 vs BB 체크 림프 팟",
+      line: "나머지 폴드, SB 림프, BB 체크",
+    },
+  };
+}
+
+/**
+ * The calibration queue, in the order the presolve job solves it (PresolveScenario.queue 1, 2, ...), after the two short
+ * stage packs. Every pack is a heads-up flop of a shipped stage of the solver chart, with that stage's own ranges and
+ * sizes and ghost combos on both sides, so a refit sees the context, SPR and opponent range the chart applies the model
+ * to (docs/solver-packs.md "The calibration queue" gives each pack's purpose and cost):
+ *   1–13   the main stage (100bb, 2.2bb opens) and the SPR curve of its BTN vs BB pot (35bb 5.8, 55bb 8.8, 100bb 16.4,
+ *          next to the running 2.2 and 3.1): opener ranges vs the BB, the SB's open, an in-position caller, the four
+ *          3-bet pots, a small 4-bet pot and the limped pot;
+ *   14–26  the 3-bet and 4-bet pots of the other stages (SPR 1.5–4.4): the low-SPR α rule and the 4-bet / jam split;
+ *   27–41  the single raised and limped pots of the other stages.
+ * At 35bb the BTN flats the CO's open with 0.9% of hands, so that pot is not in the queue.
+ */
+const QUEUE: [QueueKind, string][] = [
+  ["srp-btn-bb", "35bb-2"],
+  ["srp-btn-bb", "100bb-2.2"],
+  ["srp-utg-bb", "100bb-2.2"],
+  ["3bp-bb-btn", "100bb-2.2"],
+  ["srp-co-bb", "100bb-2.2"],
+  ["3bp-btn-co", "100bb-2.2"],
+  ["srp-sb-bb", "100bb-2.2"],
+  ["3bp-sb-btn", "100bb-2.2"],
+  ["4bp-co-btn", "100bb-2.2"],
+  ["srp-co-btn", "100bb-2.2"],
+  ["srp-btn-bb", "55bb-2.2"],
+  ["3bp-bb-sb", "100bb-2.2"],
+  ["lp-sb-bb", "100bb-2.2"],
+  ["3bp-bb-btn", "55bb-2.2"],
+  ["3bp-btn-co", "55bb-2.2"],
+  ["3bp-sb-btn", "55bb-2.2"],
+  ["3bp-bb-sb", "55bb-2.2"],
+  ["3bp-bb-btn", "100bb-3"],
+  ["3bp-btn-co", "100bb-3"],
+  ["4bp-co-btn", "100bb-3"],
+  ["3bp-sb-btn", "100bb-3"],
+  ["3bp-bb-sb", "100bb-3"],
+  ["3bp-bb-btn", "35bb-2"],
+  ["3bp-btn-co", "35bb-2"],
+  ["3bp-sb-btn", "35bb-2"],
+  ["3bp-bb-sb", "35bb-2"],
+  ["srp-utg-bb", "55bb-2.2"],
+  ["srp-co-bb", "55bb-2.2"],
+  ["srp-sb-bb", "55bb-2.2"],
+  ["srp-co-btn", "55bb-2.2"],
+  ["lp-sb-bb", "55bb-2.2"],
+  ["srp-utg-bb", "35bb-2"],
+  ["srp-co-bb", "35bb-2"],
+  ["srp-sb-bb", "35bb-2"],
+  ["lp-sb-bb", "35bb-2"],
+  ["srp-btn-bb", "100bb-3"],
+  ["srp-utg-bb", "100bb-3"],
+  ["srp-co-bb", "100bb-3"],
+  ["srp-sb-bb", "100bb-3"],
+  ["srp-co-btn", "100bb-3"],
+  ["lp-sb-bb", "100bb-3"],
+];
+
+/**
+ * One pack of the queue. Like the short-stage packs (calPack) it starts from pinned chart ranges (calRanges.ts) with
+ * ghost combos, 300 iterations at most and 0.5% of the pot; unlike them it
+ *   - solves with 16-bit storage (`compress`): with every combo in both ranges a deep or 3-bet-pot flop needs 2.0–3.3 GB
+ *     in Float32 on a rainbow board, over the job's --max-mb 2000 and a quarter of a 16 GB runner; compressed every flop
+ *     of the queue fits in 1.7 GB (calibration.test.ts), at about 13% more time per iteration (docs/solver.md);
+ *   - writes slim files (`storage: "rootClasses"`): the ranges per class and each class's root EV for both players, all
+ *     that scripts/fit-realization.mjs reads, about 2.5 KB a flop instead of 55;
+ *   - records the preflop aggressor, and an OOP aggressor gets TREE_OOP_AGGR (a limped pot TREE_LIMP).
+ */
+function queuePack(kind: QueueKind, stage: string, queue: number): ScenarioDef {
+  const tag = QUEUE_STAGES[stage];
+  if (tag === undefined) throw new Error(`stage ${stage} is not in the queue's stages`);
+  const st = CAL_STAGE_SOLVES[stage];
+  const q = queueSpots(stage)[kind];
+  const sources = q.spots.map((spot) => spot.split(LINE_SEP).map((s) => `solver/${stage}/${s}`).join(LINE_SEP)) as [string, string];
+  return {
+    id: `cal-${kind}-${tag}`,
+    title: `보정용 ${q.pot} (솔버 ${st.stack}bb · 오픈 ${st.open}bb)`,
+    version: 1,
+    tier: "free",
+    format: "pub",
+    positions: q.positions,
+    preflop: `9인 모두 ${st.stack}bb, ${q.line} (BB 앤티 1bb)`,
+    setup: { start: st.stack, seats: q.positions, put: q.put, bbAnte: 1 },
+    rangeSources: sources,
+    ranges: [lineRange(sources[0], calRange), lineRange(sources[1], calRange)],
+    ghostWeight: GHOST_WEIGHT,
+    compress: true,
+    storage: "rootClasses",
+    aggressor: q.aggressor,
+    queue,
+    set: "calibration",
+    tree: q.tree,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  };
+}
+
+/**
+ * Calibration packs (calibration/packs, never listed by the app). First the two short-stage packs: the realization model
+ * of the preflop solver at SPR 2–3, where it decides the short stages' BB defense (docs/preflop-solver.md), from the
+ * short stages' draft solve with the shipped fit (calRanges.ts), with ghost combos on both sides. Then the calibration
+ * queue (QUEUE), solved one pack after the other in priority order.
+ */
+export const CAL_SCENARIOS: PresolveScenario[] = [build(calPack(20)), build(calPack(15)), ...QUEUE.map(([kind, stage], i) => build(queuePack(kind, stage, i + 1)))];
+
+/** Every pack of both sets, the app's first. */
+export const ALL_SCENARIOS: PresolveScenario[] = [...SCENARIOS, ...CAL_SCENARIOS];
+
 export function getScenario(id: string): PresolveScenario {
-  const sc = SCENARIOS.find((s) => s.id === id);
-  if (!sc) throw new Error(`unknown presolve scenario: ${id} (known: ${SCENARIOS.map((s) => s.id).join(", ")})`);
+  const sc = ALL_SCENARIOS.find((s) => s.id === id);
+  if (!sc) throw new Error(`unknown presolve scenario: ${id} (known: ${ALL_SCENARIOS.map((s) => s.id).join(", ")})`);
   return sc;
 }

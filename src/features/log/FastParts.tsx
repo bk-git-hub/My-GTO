@@ -35,7 +35,7 @@ function netShown(h: LoggedHand, view: Unit): string {
   if (h.net !== null && h.net !== 0) return signedText(h.net, view, handLv(h));
   if (h.net === 0) return "본전";
   if (h.result === null && h.stack !== null) return `스택 ${h.stack.toLocaleString()}`;
-  return h.result === "win" ? "수익" : h.result === "lose" ? "손실" : "–";
+  return h.result === "win" ? "수익 ⏳" : h.result === "lose" ? "손실 ⏳" : "–";
 }
 
 /**

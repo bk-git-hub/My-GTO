@@ -547,7 +547,7 @@ export function ResultRow(p: {
         <MarksText marks={p.marks} className="rr-board" />
       </Fragment>,
     );
-  const hint = !p.enabled ? "결과 · 핸드를 넣으면 계산기가 떠요" : parts.length ? null : "결과 · 누르면 계산기";
+  const hint = !p.enabled ? "결과" : parts.length ? null : "결과 · 누르면 계산기";
   return (
     <div className="fast-resrow fast-under">
       <button type="button" className={`rr-sum${hint ? " hint" : ""}`} disabled={!p.enabled} onClick={p.onOpen}>
