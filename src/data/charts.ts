@@ -27,8 +27,9 @@ export interface ActionDef {
 }
 
 /**
- * vs4bet, squeeze and vsLimp only occur in the solver set (src/data/sets/preflop.ts). Hand play looks scenarios up
- * by the other kinds only (src/play/policy.ts), so the new ones never reach it.
+ * vs4bet, squeeze and vsLimp only occur in the solver set (src/data/sets/preflop.ts). Cash hand play looks scenarios
+ * up by the other kinds only (src/play/policy.ts); tournament spots are read one at a time from the computed charts
+ * (src/play/computedChart.ts).
  */
 export type ScenarioKind = "rfi" | "vsOpen" | "vs3bet" | "vsShove" | "vs4bet" | "squeeze" | "vsLimp";
 
@@ -69,6 +70,9 @@ export interface ScenarioDef {
   flags?: PreflopFlag[];
   /** Hands the quiz never deals here (the solver set's flagged cells, docs §6.10). */
   quizSkip?: Partial<Record<HandClass, true>>;
+  /** The solver set: the data's confidence of the spot and how far (pp) it moved in the sensitivity solves. */
+  confidence?: "high" | "mid" | "low";
+  move?: number;
 }
 
 export interface StageDef {
@@ -121,7 +125,11 @@ export interface ChartSet extends Omit<ChartSetDef, "stages"> {
   stages: Stage[];
 }
 
-function buildScenario(set: ChartSetDef, stage: StageDef, def: ScenarioDef): Scenario {
+/**
+ * One scenario of a set's stage, as the set builds it. Exported for the one-spot reads of the solver data
+ * (src/data/sets/solverSpot.ts), which need only the ids and labels, not the whole set.
+ */
+export function buildScenario(set: Pick<ChartSetDef, "id">, stage: Pick<StageDef, "id" | "label" | "stack">, def: ScenarioDef): Scenario {
   // ...def below carries reachRange, noFold and weight to the Scenario unchanged.
   const ranges: Record<string, Range> = {};
   for (const a of def.actions) ranges[a.key] = parseRange(a.range);

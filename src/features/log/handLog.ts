@@ -105,7 +105,9 @@ export interface LoggedHand {
   tourney?: string;
   /**
    * 빠른 기록 in a 직접 입력 tournament (and 남의 핸드 there): the blinds the hand was played at; `level` is null then
-   * and `bbAnte` is `blinds.ante > 0`. Absent: the hand's blinds are its level's (PUB_SCHEDULE), as always.
+   * and `bbAnte` is `blinds.ante > 0`. In a ready-made structure's tournament (WPL) the same, with the level's
+   * number in `blinds.lv` (an older app reads the hand as 직접 입력 at those blinds). Absent: the hand's blinds are
+   * its level's (PUB_SCHEDULE), as always.
    */
   blinds?: Blinds;
 }
@@ -924,10 +926,15 @@ export function levelLabel(level: number | null): string {
   return info ? `Lv${level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
 }
 
-/** A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드 400/800 · 앤티 800 (직접 입력)". */
+/**
+ * A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드
+ * 400/800 · 앤티 800 (직접 입력)"; a ready-made structure's level (its blinds with their number): "L2 · 100/200 · 앤티 200".
+ */
 export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess" | "blinds">): string {
   const b = h.level === null ? cleanBlinds(h.blinds) : null;
-  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${b.ante ? `앤티 ${b.ante.toLocaleString()}` : "앤티 없음"} (직접 입력)`;
+  const ante = (x: Blinds) => (x.ante ? `앤티 ${x.ante.toLocaleString()}` : "앤티 없음");
+  if (b?.lv !== undefined) return `L${b.lv} · ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${ante(b)}`;
+  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${ante(b)} (직접 입력)`;
   const label = levelLabel(h.level);
   return h.levelGuess && levelInfo(h.level) ? `${label} (추정)` : label;
 }
@@ -1218,7 +1225,7 @@ export function handFacts(h: LoggedHand): string {
   const info = levelInfo(h.level);
   const other = isOther(h);
   const lines = [
-    `게임: 홀덤펍 토너먼트 · 9인 · BB 앤티(BB가 BB 금액만큼 앤티) · 시작 50,000 · ${other ? "사용자가 테이블에서 본 다른 플레이어(상대)의 핸드를 기록한 것 (사용자 본인의 핸드가 아님)" : "사용자가 실제로 친 핸드를 기록한 것"}`,
+    `게임: 홀덤펍 토너먼트 · ${h.players}인 · ${h.bbAnte === false ? "앤티 없음" : "BB 앤티(BB가 BB 금액만큼 앤티)"} · 시작 50,000 · ${other ? "사용자가 테이블에서 본 다른 플레이어(상대)의 핸드를 기록한 것 (사용자 본인의 핸드가 아님)" : "사용자가 실제로 친 핸드를 기록한 것"}`,
     `레벨: ${levelLabel(h.level)}${h.levelGuess && info ? " (시작 시각으로 추정)" : ""}`,
     `${subjectWord(h, "자리")}: ${h.seat || "모름"} · ${subjectWord(h, "핸드")}: ${handHoleText(h)}`,
     `${subjectWord(h, "스택")}: ${h.stack !== null ? `${h.stack.toLocaleString()}칩` : "모름"}${bb !== null ? ` (${bb}bb)` : ""}`,
@@ -1230,7 +1237,7 @@ export function handFacts(h: LoggedHand): string {
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
-    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · ${fv.text.includes("솔버") ? "차트 판정" : "펍 차트 판정"} ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
   } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
@@ -1308,6 +1315,8 @@ const OLD_EXPORT_KIND = "pubaz-hand-log";
  * fastStack, tourney, blinds), the start times and 빠른 기록's tournaments (with their 칩 업데이트, structure and
  * blinds). An older app reading it drops the tournaments, the hands' `tourney` (it loses only the grouping) and
  * `blinds` (a 직접 입력 hand then reads as 레벨 모름; a tournament as 야자수 새틀), so the file keeps its marker and version.
+ * A ready-made structure's tournament (`preset`, WPL) is 직접 입력 at its `blinds` to an app from before presets,
+ * and its hands 직접 입력 hands at theirs (only the level numbers are lost).
  */
 export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[], tourneys?: Tourney[]): string {
   const sc = cleanStartClock(startClock);

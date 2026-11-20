@@ -48,6 +48,24 @@ describe("lazy solver set", () => {
     expect(charts.allScenarios().some((s) => s.setId === "solver")).toBe(true);
   });
 
+  it("is not built by a hand review, 빠른 기록's verdict or hand play, which read one spot at a time", async () => {
+    const { built } = await fresh();
+    const { analyseHand } = await import("../features/log/handAnalysis");
+    const { emptyHand } = await import("../features/log/handLog");
+    const { fastVerdict } = await import("../features/log/fastVerdict");
+    const { parseCards } = await import("../poker/cards");
+    const h = { ...emptyHand(6), players: 9, seat: "BB", hole: parseCards("AdTd"), stack: 80000, steps: [
+      { s: "UTG", k: "fold" as const }, { s: "UTG+1", k: "fold" as const }, { s: "UTG+2", k: "fold" as const }, { s: "LJ", k: "fold" as const },
+      { s: "HJ", k: "fold" as const }, { s: "CO", k: "raise" as const, to: 2.5 }, { s: "BTN", k: "fold" as const }, { s: "SB", k: "fold" as const }, { s: "BB", k: "call" as const },
+    ] };
+    const a = analyseHand(h, { decisions: true, iterations: 200 });
+    expect(a.decisions[0].decision.chartInfo?.source).toBe("solver");
+    expect(fastVerdict({ stage: "mid", players: 9, seat: "BTN", cls: "AJo", spot: "none", act: "open" }).kind).toBe("ok");
+    const { PlayPage } = await import("../features/play/PlayPage");
+    renderToString(createElement(PlayPage));
+    expect(built()).toEqual([false, []]);
+  });
+
   it("is built by allScenarios() and by the calculator's named ranges", async () => {
     let { charts, built } = await fresh();
     charts.allScenarios();

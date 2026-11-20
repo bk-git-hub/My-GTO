@@ -182,7 +182,8 @@ describe("빠른 기록: the saved hand", () => {
     expect(tablePre(at(typed("BTN", "AJo", { spot: "limp" }), "open"))).toBeUndefined();
     expect(tablePre(at(typed("CO", "QQ", { spot: "3bet" }), "allin"))).toBeUndefined();
     const cold = at(typed("BTN", "QQ", { spot: "cold3" }), "call");
-    expect([tablePre(cold), cold.fastSpot, fastActText(cold), fastVerdictOf(cold)?.kind]).toEqual([undefined, "cold3", "오픈·3벳 → 콜", "ok"]);
+    // a cold 3-bet has no computed chart (the seats aren't recorded): no verdict, never the pub chart's
+    expect([tablePre(cold), cold.fastSpot, fastActText(cold), fastVerdictOf(cold)?.kind]).toEqual([undefined, "cold3", "오픈·3벳 → 콜", "none"]);
     expect(tablePre(at(typed("HJ", "K8s", { spot: "open", opener: "UTG" }), "fold"))).toBeUndefined();
   });
 
@@ -280,7 +281,15 @@ describe("빠른 기록: today's hands", () => {
   });
 
   it("counts the verdicts, 차트대로 out of the hands with a chart", () => {
-    expect(fastStats(sessionOf(hands, NOW))).toEqual({ total: 5, by: { ok: 2, mixed: 0, over: 1, under: 1, none: 1 }, graded: 4, okPct: 50 });
+    expect(fastStats(sessionOf(hands, NOW))).toEqual({ total: 5, by: { ok: 2, mixed: 0, over: 1, under: 1, none: 1 }, ref: 0, graded: 4, okPct: 50 });
+  });
+
+  it("counts 참고 (a chart answered, not to grade by) apart from 차트 없음, on screen and in the copy", () => {
+    // the SB's AA limp of the low-confidence 55bb chart: 참고
+    const withRef = [at(NOW - 5 * 60_000, typed("SB", "AA"), "limp"), ...hands];
+    const s = fastStats(sessionOf(withRef, NOW));
+    expect(s).toEqual({ total: 6, by: { ok: 2, mixed: 0, over: 1, under: 1, none: 2 }, ref: 1, graded: 4, okPct: 50 });
+    expect(sessionText(sessionOf(withRef, NOW)).split("\n")[1]).toBe("차트대로 2/4 (50%) · 섞는 핸드 0 · 오버플레이 1 · 언더플레이 1 · 참고 1 · 차트 없음 1");
   });
 
   it("copies as short text: the counts, overplays and underplays first, then every hand", () => {
@@ -725,7 +734,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     expect(ml[2]).toBe("스택 50,000 → 50,000 (지금 스택 기준)");
     // with a decision on some hand: the chart line after the chips
     const mixed = sessionText([...hands, at(NOW - 50 * 60_000, typed("BTN", "AJo"), "open")]).split("\n");
-    expect(mixed[0]).toContain("(펍 토너먼트, 펍아재 차트 기준)");
+    expect(mixed[0]).toContain("(펍 토너먼트, 계산된 차트 기준)");
     expect(mixed[3]).toBe("차트대로 1/1 (100%) · 섞는 핸드 0 · 오버플레이 0 · 언더플레이 0 · 차트 없음 0");
   });
 
@@ -748,7 +757,7 @@ describe("빠른 기록 v2: the copy text and the coach", () => {
     expect(plain.slice(1)).toEqual(sessionText(missed).split("\n").slice(1));
     // without a tournament: exactly as it always was
     expect(sessionText(hands).split("\n")[0]).toBe("PubAJ 빠른 기록 · 11월 8일 (일) · 2핸드 (펍 토너먼트)");
-    expect(sessionText(hands, "other", info).split("\n")[0]).toBe("PubAJ 남의 핸드 · 수요일 펍 · 11월 8일 (일) 19:00 시작 · 2핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)");
+    expect(sessionText(hands, "other", info).split("\n")[0]).toBe("PubAJ 남의 핸드 · 수요일 펍 · 11월 8일 (일) 19:00 시작 · 2핸드 (펍 토너먼트에서 본 다른 사람 핸드, 계산된 차트 기준)");
   });
 
   it("tells the coach the board as remembered, without the guessed suits as facts", () => {

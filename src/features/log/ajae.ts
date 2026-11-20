@@ -8,11 +8,13 @@ import { buttonSeat, positionsFor } from "./recorder";
  * 빠른 기록's 아재: the moment my two cards are in, the little 아재 by the hand reacts to how good they
  * are from my seat. The grade comes from the judge chart of the screen's stage (judgeChart.ts: our solver at 딥 and
  * 미들, our computed short-stack charts at 숏 and 푸시), first in (everyone folded to me), at every table size the
- * screen offers. 빠른 기록's verdict reads the same solver at 딥 and 미들 but the pub chart at 숏 and 푸시, so there
- * the two can disagree. Each tier has its moves, taken in turn
+ * screen offers. 빠른 기록's verdict reads the same charts per stage (computedChart.ts PICK_FOR_STAGE), so the two
+ * agree. Each tier has its moves, taken in turn
  * (AJAE_MOVES), so hands of the same tier in a row get a different show; the big pocket pairs have shows of their
- * own (AJAE_SPECIALS: AA flies a plane, KK is a gorilla or gets crowned, QQ waltzes, JJ splits into two jacks). He
- * never says a word. Everything here is pure; the art (the bald, mustached 아재 of the launch splash and the app
+ * own (AJAE_SPECIALS: AA flies a plane, KK is a gorilla or gets crowned, QQ waltzes, JJ splits into two jacks), and so
+ * do five hands with a story (AJAE_HAND_SHOWS: T2's cowboy hat, TT's 장땡, 38's 광땡, A8's dead man's hand, 96 swapped to 69
+ * and a blush).
+ * He never says a word. Everything here is pure; the art (the bald, mustached 아재 of the launch splash and the app
  * icon) and the moves are AjaeReaction.tsx and ajae.css.
  */
 
@@ -56,7 +58,8 @@ export const AJAE_MOVES = {
 /**
  * The face's stand-ins for the body moves when there is no room above the hand row for the whole 아재 (AJAE_ROOM):
  * the trash moves and 72o's rage both boil over in the face (fume); AA, KK and QQ's shows cheer, as AK's shove does
- * (ajaePairMove). meh and fold have only face moves, which always fit, so theirs never play.
+ * (ajaePairMove); a hand with a story whose show doesn't fit does what its tier's hands do (ajaeShowMove). meh and
+ * fold have only face moves, which always fit, so theirs never play.
  */
 export const AJAE_CRAMPED = { monster: "cheer", good: "nod", meh: "ponder", fold: "ponder", trash: "fume", hammer: "fume" } as const satisfies Record<AjaeTier, string>;
 
@@ -87,13 +90,73 @@ export const AJAE_SPECIALS = {
 export type AjaePair = keyof typeof AJAE_SPECIALS;
 export type AjaeSpecial = (typeof AJAE_SPECIALS)[AjaePair][number];
 
-export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier] | AjaeSpecial;
+/**
+ * Five hands with a story get a show of their own too, every time, at every seat, instead of the tier's move (the
+ * offsuit and the suited hand alike). Two are 섯다's best hands (no more of 섯다's 족보 than these), the rest poker lore;
+ * each about as lively as the good hands' mirror-ball shuffle, on its 2.5 s clock, and it reads in its first second:
+ * - T2, the cowboy: an homage to the poker legend who won it all twice with ten-deuce (no likeness of anyone: his hat
+ *   only). A cowboy hat comes spinning down out of a sunset glow onto his bald head (a gold star, dust), he tips it,
+ *   twirls a lasso and ropes the hand (it is yanked), hops with a yee-haw and the hat pops up off his head and back;
+ * - TT, 장땡: the hand's two tens rise out of it and flip into 화투's two 10월 cards (the deer under red maples, the
+ *   maples with their blue ribbon); he slaps them down 섯다-style (a burst, the hand jumps) and maple leaves rain down;
+ * - 38, 광땡: he squeezes two face-down 화투 cards (섯다's 쪼기), his shades fly up, and he flips them: 3월's cherry
+ *   blossom 광 and 8월's moon 광 float up glowing (each 광 emblem drawn as a glowing sun, no character on it) under
+ *   turning rays of light, cherry petals drifting, two fireworks;
+ * - A8, the dead man's hand: he holds two black cards, an ace and an eight, and a cold wind blows a tumbleweed across;
+ *   a cartoon skull in a little cowboy hat rises out of the hand clacking its jaw, he jumps, drops the cards and
+ *   shivers (pale, his teeth chattering, sweat flying, shiver lines) until it sinks away (spooky, nothing gory);
+ * - 96, the shy one: the hand's two cards rise out of it, the 9 and the 6, and with a wave of his hand they swap places
+ *   (two curved arrows) to read 6 9; he looks again, blushes deep red from his chin to the top of his bald head, steam
+ *   puffing off it, hides his face in his hands and twists bashfully, peeks once through his fingers and hides again,
+ *   little hearts floating up (tasteful: shy, nothing more).
+ * The resting face after one is the show's own, not the hand's tier's (AJAE_SHOW_REST): a gag never ends on the
+ * furious trash face.
+ */
+export const AJAE_HAND_SHOWS = {
+  T2o: "cowboy",
+  T2s: "cowboy",
+  TT: "jangttaeng",
+  "83o": "gwangttaeng",
+  "83s": "gwangttaeng",
+  A8o: "deadman",
+  A8s: "deadman",
+  "96o": "blush",
+  "96s": "blush",
+} as const satisfies Partial<Record<HandClass, string>>;
+
+/** The hands with a story (AJAE_HAND_SHOWS) and their shows. */
+export type AjaeShowHand = keyof typeof AJAE_HAND_SHOWS;
+export type AjaeHandShow = (typeof AJAE_HAND_SHOWS)[AjaeShowHand];
+
+export type AjaeMove = (typeof AJAE_MOVES)[AjaeTier][number] | (typeof AJAE_CRAMPED)[AjaeTier] | AjaeSpecial | AjaeHandShow;
 
 /** The pairs' shows (AJAE_SPECIALS). */
 export const SPECIAL_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(Object.values(AJAE_SPECIALS).flat());
 
-/** The moves where the whole 아재 performs beside the class (the others are the face's): the tiers' and the pairs' shows. */
-export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam", "rage", ...SPECIAL_MOVES]);
+/** The shows of the hands with a story (AJAE_HAND_SHOWS). */
+export const HAND_SHOW_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(Object.values(AJAE_HAND_SHOWS));
+
+/**
+ * The face he rests on after a hand with a story's show, whatever the hand's tier (T2, 38 and 96 are trash at most
+ * seats): pleased after the cowboy, 장땡 and 광땡; the fold face, shades up and pondering, after the dead man's hand;
+ * the "흠" face after 96's blush. Also once the reaction is at rest for good (cue.settled), as long as the show was
+ * what he played: a show that didn't fit, replaced by the tier's move, rests on the tier's face like that move.
+ */
+export const AJAE_SHOW_REST = {
+  cowboy: "good",
+  jangttaeng: "good",
+  gwangttaeng: "good",
+  deadman: "fold",
+  blush: "meh",
+} as const satisfies Record<AjaeHandShow, AjaeTier>;
+
+/** The face to rest on after `move` with the hand's tier on screen `tier`: a hand with a story's show's own (AJAE_SHOW_REST), else the tier's. */
+export function ajaeRestTier(move: AjaeMove, tier: AjaeTier): AjaeTier {
+  return (AJAE_SHOW_REST as Partial<Record<AjaeMove, AjaeTier>>)[move] ?? tier;
+}
+
+/** The moves where the whole 아재 performs beside the class (the others are the face's): the tiers', the pairs' and the hands' shows. */
+export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "shuffle", "robot", "kick", "mallet", "slam", "rage", ...SPECIAL_MOVES, ...HAND_SHOW_MOVES]);
 
 /**
  * The room each body move needs above the hand row, in px from the row's top up to the sticky stage bar's
@@ -102,8 +165,11 @@ export const BODY_MOVES: ReadonlySet<AjaeMove> = new Set<AjaeMove>(["shove", "sh
  * little. Scrolled further, the bar would cut his head off, so another move of the tier that fits plays instead,
  * or the face (AJAE_CRAMPED). The mirror ball hangs higher than the dancer: below BALL_ROOM the dance has none.
  * The pairs' shows count him and his props, not the sky around them (fireworks, confetti, rays of light and
- * searchlights may pass under the bar). A face move needs no room of its own (it pops in its slot), only less of
- * a pop below POP_ROOM.
+ * searchlights may pass under the bar); so do the hands' shows, measured in the app (the cowboy's hat spinning down onto
+ * his head and popping up off it in the yee-haw; TT's tens and 10월 cards hovering; 38's 광 cards hovering and their
+ * sparkles; A8's cards flung up as he jumps, and his surprise lines; 96's steam and hearts off his head), not their
+ * glows, rays, fireworks, falling leaves and petals, wind or thrown stars. A face move needs no room of its own (it
+ * pops in its slot), only less of a pop below POP_ROOM.
  */
 export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = {
   shuffle: 58,
@@ -118,6 +184,11 @@ export const AJAE_ROOM: Readonly<Partial<Record<AjaeMove, number>>> = {
   crown: 92,
   waltz: 52,
   split: 86,
+  cowboy: 79,
+  jangttaeng: 66,
+  gwangttaeng: 72,
+  deadman: 75,
+  blush: 68,
 };
 export const BALL_ROOM = 90;
 /**
@@ -157,6 +228,18 @@ export const ajaePair = (cls: HandClass): AjaePair | undefined => (Object.hasOwn
  */
 export function ajaePairMove(pair: AjaePair, k: number, tier: AjaeTier, kt: number, room?: number): AjaeMove {
   return fitting(AJAE_SPECIALS[pair], k, room) ?? ajaeMove(tier, kt, room);
+}
+
+/** `cls` as a hand with a story (AJAE_HAND_SHOWS), if it is one. */
+export const ajaeShowHand = (cls: HandClass): AjaeShowHand | undefined => (Object.hasOwn(AJAE_HAND_SHOWS, cls) ? (cls as AjaeShowHand) : undefined);
+
+/**
+ * The move for a reaction to a hand with a story, with `room` px above the hand row: its show if it fits, else, as for
+ * a pair, what the kt-th hand of its tier would do there (the tier's move that fits, or the face's stand-in). The
+ * caller leaves the tier's turn alone either way, as for a pair.
+ */
+export function ajaeShowMove(hand: AjaeShowHand, tier: AjaeTier, kt: number, room?: number): AjaeMove {
+  return fitting([AJAE_HAND_SHOWS[hand]], 0, room) ?? ajaeMove(tier, kt, room);
 }
 
 /** A card the rage rips: its rank (a letter of RANKS: T is the ten) and its suit (a letter of SUITS). */
@@ -267,7 +350,7 @@ export interface AjaeState {
   cue: AjaeCue | null;
   /** Reactions so far: the next cue's n. */
   n: number;
-  /** Reactions so far per tier, so each one takes the tier's next move (a pair with a show of its own doesn't count). */
+  /** Reactions so far per tier, so each one takes the tier's next move (a pair or a hand with a show of its own doesn't count). */
   seen: Partial<Record<AjaeTier, number>>;
   /** Reactions so far per pair with a show of its own (AJAE_SPECIALS), so KK alternates its two. */
   pairs: Partial<Record<AjaePair, number>>;
@@ -284,7 +367,7 @@ export const ajaeKey = (d: Pick<FastDraft, "ranks" | "suited" | "editing">): str
  * undefined: plenty; negative once the row is scrolled under the stage bar).
  * A class completed by this tap (the pair's second rank, 수딧 / 오프수트, or switching between them) reacts
  * with its tier's next move, or AA, KK, QQ and JJ with their own show's next (ajaePairMove: the tier's turn is
- * left for the other hands of the tier); a class no longer complete takes him away at once; anything else (my
+ * left for the other hands of the tier), or a hand with a story with its show (ajaeShowMove: the same); a class no longer complete takes him away at once; anything else (my
  * seat, the spot) keeps the reaction on screen. Pure: it is a state updater.
  */
 export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stage: PreStage, players: number, room?: number): AjaeState {
@@ -296,11 +379,13 @@ export function ajaeStep(s: AjaeState, before: FastDraft, after: FastDraft, stag
   const k = s.seen[tier] ?? 0;
   const pair = ajaePair(cls);
   const kp = pair ? (s.pairs[pair] ?? 0) : 0;
-  const move = pair ? ajaePairMove(pair, kp, tier, k, room) : ajaeMove(tier, k, room);
+  const story = ajaeShowHand(cls);
+  const move = pair ? ajaePairMove(pair, kp, tier, k, room) : story ? ajaeShowMove(story, tier, k, room) : ajaeMove(tier, k, room);
   const noBall = (move === "shuffle" || move === "robot") && room !== undefined && room < BALL_ROOM;
   const low = !BODY_MOVES.has(move) && room !== undefined && room < POP_ROOM;
   const cue: AjaeCue = { n: s.n + 1, key, cls, tier, move, ...(noBall ? { noBall: true as const } : {}), ...(low ? { low: true as const } : {}) };
   if (pair) return { ...s, cue, n: s.n + 1, pairs: { ...s.pairs, [pair]: kp + 1 } };
+  if (story) return { ...s, cue, n: s.n + 1 };
   return { ...s, cue, n: s.n + 1, seen: { ...s.seen, [tier]: k + 1 } };
 }
 

@@ -58,7 +58,7 @@ import { handLv, signedText } from "./fastChips";
 import { blindsOf } from "./levelClock";
 import { hasChips, resultText } from "./fastLog";
 import { reopenStep, type FlowStep } from "./flowSteps";
-import { VERDICT_MARK } from "./fastVerdict";
+import { listVerdictText } from "./fastVerdict";
 import { levelDeclined } from "./inputs";
 import { STAGE_LABEL } from "./quickPre";
 import { TableFlow } from "./TableFlow";
@@ -767,7 +767,7 @@ function HandRow({ h, onClick, picked }: { h: LoggedHand; onClick: () => void; p
       {line && <span className="log-pre small">{line}</span>}
       {verdict && (
         <span className={`log-verdict small v-${verdict.kind}`}>
-          {verdict.kind === "none" ? `${VERDICT_MARK.none} ${verdict.text}` : verdict.text}
+          {listVerdictText(verdict)}
         </span>
       )}
       <span className="muted small">

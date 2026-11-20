@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { countOuts } from "../../poker/equity";
-import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
+import { CHART_FOOTER, chartSourceText } from "../../play/computedChart";
+import { callPrice, legal, pot, toCall, winnablePot, type Game, type Street } from "../../play/engine";
+import { chartGraded, decisionTags, GRADE_MARK } from "../../play/table";
 import { useBackHandler } from "../../backNav";
 import { backStep, flowTabs, initialStep, lowerStep, type FlowStep } from "./flowSteps";
 import { analyseHand, SUIT_GUESS_NOTE, type HandAnalysis, type StreetView } from "./handAnalysis";
@@ -364,6 +366,9 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
   const boardMissing = !g.done && h.board.length < need;
   const potNow = pot(g);
   const call = idx !== null ? toCall(g, idx) : 0;
+  // The price of a call counts only the chips the caller can win: a covering all-in's chips beyond its stack are out.
+  const price = idx !== null ? callPrice(g, idx) : null;
+  const capped = idx !== null && call > 0 && winnablePot(g, idx) < potNow - 0.05;
   const tags = seatTags(h);
   const lines = streetLines(g, fmt, tags);
   const current = lines.find((l) => l.street === g.street);
@@ -446,7 +451,8 @@ function PlayStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => void;
         </div>
         <div>
           <span>필요 에퀴티</span>
-          <b>{call > 0 ? pct(call / (potNow + call)) : "-"}</b>
+          <b>{price !== null ? pct(price) : "-"}</b>
+          {capped ? <small>사이드팟 제외</small> : null}
         </div>
         <div className={a.current?.equity != null ? "eq" : ""}>
           <span>{subjectWord(h, "에퀴티")}</span>
@@ -767,17 +773,23 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
 
   const summary = () => {
     const eqLine = views.map((x) => `${LOG_STREET_LABEL[x.street as keyof typeof LOG_STREET_LABEL]} ${heroEq(x) !== null ? pct(heroEq(x)) : `추정 ${pct(x.estimate)}`}`).join(" → ");
-    const dec = a.decisions.map((d) => {
+    const dec = a.decisions.flatMap((d) => {
       const grade = { good: "좋은 선택", ok: "괜찮음", mistake: "실수", info: "참고" }[d.decision.grade];
-      return `- ${LOG_STREET_LABEL[d.street as keyof typeof LOG_STREET_LABEL]} ${d.decision.chosenLabel}: 필요 ${pct(d.decision.reqEquity)} · 그때 추정 ${pct(d.decision.equity)} · 실제 ${pct(d.actual)} [${grade}] ${d.decision.summary}${d.decision.chart ? ` (차트: ${d.decision.chart})` : ""}`;
+      const info = d.decision.chartInfo;
+      const head = `- ${LOG_STREET_LABEL[d.street as keyof typeof LOG_STREET_LABEL]} ${d.decision.chosenLabel}: 필요 ${pct(d.decision.reqEquity)} · 그때 추정 ${pct(d.decision.equity)} · 실제 ${pct(d.actual)} [${grade}] ${d.decision.summary}`;
+      // Preflop: the computed chart's lines (or why there is none); the facts carry the chart, its confidence and limits.
+      if (info) return [`${head} (${info.facts[0]})`, ...info.facts.slice(1).map((f) => `  ${f}`)];
+      return [`${head}${d.decision.chart ? ` (차트: ${d.decision.chart})` : ""}`];
     });
+    const sources = new Set(a.decisions.flatMap((d) => (d.decision.chartInfo?.source ? [d.decision.chartInfo.source] : [])));
     return [
       "",
       `스트리트별 ${subjectWord(h, "승률")} (공개된 패 기준, 없으면 추정 레인지 기준${a.suitGuess ? ", 수트 추정 카드가 있어 플러시 관련은 근사" : ""}):`,
       eqLine,
       "",
-      `${subjectWord(h, "결정")} 채점 (금액은 bb, 상대 레인지는 액션으로 좁힌 추정):`,
+      `${subjectWord(h, "결정")} 채점 (금액은 bb, 상대 레인지는 액션으로 좁힌 추정: 프리플랍은 계산된 차트, 차트 없는 곳과 플랍 이후는 기본 규칙):`,
       ...dec,
+      ...(sources.size ? ["", `프리플랍 차트 출처: ${chartSourceText(sources)}`] : []),
     ].join("\n");
   };
 
@@ -846,7 +858,7 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
       </div>
       {decisions.map((d, i) => (
         <div key={i} className={`flow-decision ${d.decision.grade}`}>
-          <div className="mark">{{ good: "✓", ok: "△", mistake: "✗", info: "·" }[d.decision.grade]}</div>
+          <div className="mark">{GRADE_MARK[d.decision.grade]}</div>
           <div>
             <b>
               {d.verb}
@@ -858,9 +870,17 @@ function ResultStep(props: { h: LoggedHand; set: (p: Partial<LoggedHand>) => voi
             </span>
             <br />
             <em>{d.decision.chart ?? evLine(d.decision, chipsIn, subjectWord(h, "선택"))}</em>
+            {decisionTags(d.decision).length > 0 && (
+              <span className="flow-tags">
+                {decisionTags(d.decision).map((t) => (
+                  <small key={t}>{t}</small>
+                ))}
+              </span>
+            )}
           </div>
         </div>
       ))}
+      {decisions.some((d) => d.street === "preflop" && chartGraded(d.decision)) && <div className="flow-chartnote">{CHART_FOOTER}</div>}
       {outs && outs.outs.length > 0 && (
         <div className="flow-outs">
           아웃 <b>{outs.outs.length}장</b>
