@@ -65,6 +65,7 @@ import {
   withFastResult,
 } from "./fastLog";
 import {
+  estimatedLevel,
   fastActed,
   fastActText,
   fastOnly,
@@ -103,11 +104,9 @@ import {
   type SettleSpan,
   anteFor,
   editTourney,
+  fastEstimate,
   isCustom,
   levelFor,
-  presetEstimate,
-  presetOf,
-  stageLevel,
   setTourneyBlinds,
   fastResultNow,
   fastSession,
@@ -132,14 +131,13 @@ import {
   tourneyEstimate,
   tourneyGroups,
   tourneyTitle,
-  tourneyWhenAt,
+  tourneyWhen,
   type TourneyGroup,
 } from "./fastTourney";
 import { LevelRow } from "./inputs";
 import { levelStage, PRE_STAGES, STAGE_LABEL, type PreAction } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
 import { blindsOf, type Blinds } from "./levelClock";
-import { presetBlinds, type StructurePreset } from "./structures";
 import { cleanTourneys, type StackCheck, type Tourney } from "./tourney";
 import { GroupRes } from "./TourneyScreens";
 import { ChipUpdateSheet, TourneySheet } from "./TourneySheet";
@@ -223,15 +221,9 @@ const editLevel = (d: FastDraft, h: LoggedHand): FastLevel =>
   d.blinds ? { level: d.blinds, guessed: false } : d.level !== undefined ? { level: d.level, guessed: !!d.levelGuess } : { level: handLv(h), guessed: !!h.levelGuess };
 const editAnte = (d: FastDraft, h: LoggedHand): boolean => (d.blinds ? d.blinds.ante > 0 : d.level !== undefined ? !d.noAnte : h.bbAnte);
 
-/**
- * A hand being corrected in a ready-made structure's tournament (WPL): its level is picked from that table. Not a
- * hand with a 야자수 새틀 level (one joined in, or saved before the tournament was switched): it keeps its own table.
- */
-const editPreset = (h: LoggedHand, ts: Tourney[]): StructurePreset | null => (h.level === null ? presetOf(ts.find((t) => t.id === h.tourney)) : null);
-
-/** A hand being corrected is a 직접 입력 one: blinds on its draft or on file, or a hand of a 직접 입력 tournament with no level (never a ready-made structure's). */
+/** A hand being corrected is a 직접 입력 one: blinds on its draft or on file, or a hand of a 직접 입력 tournament with no level. */
 const editCustom = (d: FastDraft, h: LoggedHand, ts: Tourney[]): boolean =>
-  !editPreset(h, ts) && (!!d.blinds || (h.level === null && (d.level === undefined || d.level === null) && (!!h.blinds || isCustom(ts.find((t) => t.id === h.tourney)))));
+  !!d.blinds || (h.level === null && (d.level === undefined || d.level === null) && (!!h.blinds || isCustom(ts.find((t) => t.id === h.tourney))));
 
 /** The sheet's tab for the field the keypad types into. */
 const modeOf = (f: ReturnType<typeof focusOf>): SheetMode => (f === "result" ? "amount" : f === "board" ? "board" : "stack");
@@ -278,7 +270,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const other = mode === "other";
   const store = storeFor(mode);
   // A first visit's stage: the level's usual one (from the tournament's or today's start time), else the last one used.
-  const [fallback] = useState(() => levelStage(stageLevel(Date.now())) ?? lastStage() ?? "mid");
+  const [fallback] = useState(() => levelStage(estimatedLevel(fastEstimate(Date.now()))) ?? lastStage() ?? "mid");
   // 남의 핸드's first visit starts at 빠른 기록's table (the same stage and table size).
   const [first] = useState(() => (other ? cleanFastState(fastStore.get(), fallback) : null));
   const clean = (x: unknown) => cleanFastState(x, first?.stage ?? fallback, first?.players);
@@ -578,10 +570,9 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     let base = editHand ?? { ...freshHand(mode), players: p };
     const saveAt = editHand ? null : at;
     if (other) {
-      // 남의 핸드 in a 직접 입력 tournament: the tournament's blinds, never an estimated level; in a ready-made structure's, its level now.
+      // 남의 핸드 in a 직접 입력 tournament: the tournament's blinds, never an estimated level.
       const t = editHand ? null : tourneyAt(at);
       if (t && isCustom(t)) base = { ...withLv(base, t.blinds ?? null), bbAnte: anteFor(t, c) };
-      else if (t && presetOf(t)) base = { ...withLv(base, levelNow(c, null, at).lv.level), bbAnte: anteFor(t, c) };
       const h = fastHand(c.draft, a, base, draftStage(c), p, mode);
       if (h) commit(c, h, saveAt);
       return;
@@ -726,13 +717,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
     // A save that waited for the level goes through with it.
     const then = pending.current;
     pending.current = null;
-    const editHand = editHandOf(c);
-    const p = editHand ? editPreset(editHand, cleanTourneys(handLogStore.get().tourneys)) : null;
-    if (c.draft.editing && p) {
-      // A ready-made structure's hand: that level's blinds with its number (레벨 모름: none).
-      const b = presetBlinds(p, level);
-      draft((v) => ({ ...without(without(without(without(v, "level"), "levelGuess"), "blinds"), "noAnte"), level: null, ...(b ? { blinds: b } : {}) }));
-    } else if (c.draft.editing) draft((v) => ({ ...without(without(without(v, "level"), "levelGuess"), "blinds"), level, ...(guessed && level !== null ? { levelGuess: true as const } : {}) }));
+    if (c.draft.editing) draft((v) => ({ ...without(without(without(v, "level"), "levelGuess"), "blinds"), level, ...(guessed && level !== null ? { levelGuess: true as const } : {}) }));
     else {
       // A level picked holds in the tournament it was picked in (none current: until a hand starts one, which takes it).
       const now = Date.now();
@@ -824,8 +809,6 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const unit = unitOf(d);
   /** A 직접 입력 tournament's blinds (typed by hand), not a 야자수 새틀 level: the corrected hand's own kind, else the current tournament's. */
   const custom = !other && (editing ? editCustom(d, editing, tourneys) : isCustom(tn));
-  /** A ready-made structure's tournament (WPL): the level picker shows its table, the chip its level number. The corrected hand's own, else the current one's. */
-  const preset = other ? null : editing ? editPreset(editing, tourneys) : presetOf(tn);
   const lvNow: FastLevel & { picked?: boolean } = editing ? editLevel(d, editing) : levelFor(tn, s, session, tick, est);
   /** The level now, even while an older hand is corrected (that hand's level is lvNow then): my stack now is in bb at it. */
   const lvLive: FastLevel = editing ? levelFor(tn, s, session, tick, est) : lvNow;
@@ -867,26 +850,17 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
         : d.res
           ? `저장 · 다음 핸드 ${next}`
           : `결과 없이 저장 · 다음 ${next}`;
-  /** The level picker's level: a 야자수 새틀 level, or a ready-made structure's level number (its blinds carry it). */
-  const pickerLevel = typeof lvNow.level === "number" ? lvNow.level : preset && lvNow.level ? (lvNow.level.lv ?? null) : null;
-  /** A ready-made structure's hand being corrected: its tournament's clock at the hand's time (never the day's 야자수 새틀 start). */
-  const editRec = editing && preset ? (tourneys.find((t) => t.id === editing.tourney) ?? null) : null;
   const picker =
     panel === "level" ? (
       <LevelRow
-        h={{ id: editing?.id ?? "fast-new", level: pickerLevel, ...(lvNow.guessed ? { levelGuess: true as const } : {}), bbAnte: anteNow, createdAt: editing?.createdAt ?? tick }}
+        h={{ id: editing?.id ?? "fast-new", level: typeof lvNow.level === "number" ? lvNow.level : null, ...(lvNow.guessed ? { levelGuess: true as const } : {}), bbAnte: anteNow, createdAt: editing?.createdAt ?? tick }}
         open
         onToggle={toggleLevel}
         onLevel={pickLevel}
         onAnte={pickAnte}
         unknownSub="칩으로만"
-        {...(preset ? { ladder: { rows: preset.schedule, breaks: preset.breaks } } : {})}
-        // A new hand: the tournament's clock (a hand being corrected keeps the day's start for its own time; a ready-made structure's, its tournament's).
-        {...(editing
-          ? editRec
-            ? { estimate: tourneyEstimate(editRec, editing.createdAt, null), onStartClock: (c: string) => presetEstimate(editRec, c, editing.createdAt), clockDefault: editRec.startSet ? clockOf(editRec.start) : preset?.clock }
-            : {}
-          : { estimate: est, onStartClock: (c: string) => setFastStartClock(c, Date.now()), clockDefault: tn?.startSet ? clockOf(tn.start) : (preset?.clock ?? undefined) })}
+        // A new hand: the tournament's clock (a hand being corrected keeps the day's start for its own time).
+        {...(editing ? {} : { estimate: est, onStartClock: (c: string) => setFastStartClock(c, Date.now()), clockDefault: tn?.startSet ? clockOf(tn.start) : undefined })}
       />
     ) : null;
   /** 직접 입력's blinds editor: a corrected hand's own blinds, else the tournament's (for new hands). */
@@ -951,7 +925,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   const tnRun = tn && !other ? chipSeries(session, "chips", tn.startStack, tnChecks) : null;
   const tnEnd = tnRun?.absolute ? Math.round(tnRun.end) : tnChecks.length ? tnChecks[tnChecks.length - 1].stack : null;
   // One started by a hand on its own follows the day's start time: the clock the estimate runs on.
-  const tnWhen = tn ? (tn.auto && tnOnDay && est?.startClock ? `${est.startClock} 시작` : tourneyWhenAt(tn, hands, tick)) : "";
+  const tnWhen = tn ? (tn.auto && tnOnDay && est?.startClock ? `${est.startClock} 시작` : tourneyWhen(tn, hands)) : "";
   // The line up to my stack now; the stack ends it with its bb at the level now, kept together with the word
   // before it ("→ 61,700 123.4bb", "지금 61,700 123.4bb": tnEndLead).
   const tnMeta = tn
@@ -1045,7 +1019,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       )}
 
       <div className="fast-sec">
-        <div className="fast-label seat-line">
+        <div className="fast-label">
           {other ? "상대 포지션" : "내 포지션"} <b>{d.seat}</b>
           {editing ? (
             // Correcting a saved hand: its time, 삭제 and 취소 in this line (in the toggle's place), so the hand row stays where it is.
@@ -1339,7 +1313,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
             </div>
             {tn && (
               <p className="tn-meta">
-                {tnTitle} · {tourneyWhenAt(tn, hands, tick)}
+                {tnTitle} · {tourneyWhen(tn, hands)}
               </p>
             )}
           </>
@@ -1486,7 +1460,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           mode="new"
           initial={newFields(Date.now())}
           defaultName={defaultTitle(Date.now())}
-          levelText={(clock, f) => sheetLevelText(clock, null, hands, Date.now(), f)}
+          levelText={(clock) => sheetLevelText(clock, null, hands, Date.now())}
           join={tn ? 0 : runningUntagged(hands, Date.now()).length}
           onSave={(f, join) => {
             const id = startTourney(f, Date.now(), join);
@@ -1539,7 +1513,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
           // A start stack not on file shows the pub's 50,000 as an offer (cleared on switching to 직접 입력).
           offered={tn.startStack === null}
           defaultName={tourneyTitle({ ...tn, name: "" }, hands)}
-          levelText={(clock, f) => sheetLevelText(clock, tn, hands, Date.now(), f)}
+          levelText={(clock) => sheetLevelText(clock, tn, hands, Date.now())}
           note={startNote(tn, hands, true, Date.now())}
           canDelete
           handCount={hands.filter((h) => h.tourney === tn.id).length}
@@ -1559,9 +1533,7 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
       {sheetOpen && (
         <CalcSheet label="결과 입력" className="hand">
           {panel === "level" && picker ? (
-            <LevelPanel onClose={toggleLevel} name={preset?.name ?? "야자수 새틀"}>
-              {picker}
-            </LevelPanel>
+            <LevelPanel onClose={toggleLevel}>{picker}</LevelPanel>
           ) : panel === "blinds" ? (
             <BlindsPanel initial={blindsNow} applyNote={blindsNote} onApply={applyBlinds} onCancel={closePanel} />
           ) : (
@@ -1613,14 +1585,14 @@ export function FastView({ hands, go, mode = "mine" }: { hands: LoggedHand[]; go
   );
 }
 
-/** The level picker in the hand's sheet, in the keys' place (the sheet keeps its height): "레벨 · 야자수 새틀 [닫기]" over it (`name`: the structure's). */
-function LevelPanel({ onClose, children, name }: { onClose: () => void; children: ReactNode; name: string }) {
+/** The 야자수 새틀 level picker in the hand's sheet, in the keys' place (the sheet keeps its height): "레벨 [닫기]" over it. */
+function LevelPanel({ onClose, children }: { onClose: () => void; children: ReactNode }) {
   useCalcKeys({ escape: onClose });
   return (
     <>
       <div className="calc-top">
         <b className="calc-title">레벨</b>
-        <span className="calc-note">{name}</span>
+        <span className="calc-note">야자수 새틀</span>
         <button type="button" className="calc-x" onClick={onClose}>
           닫기
         </button>

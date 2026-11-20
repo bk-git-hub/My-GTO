@@ -1,6 +1,6 @@
 import { Fragment, memo, useId, useMemo, type ReactNode } from "react";
 import { ajaeOn, useSettings } from "../../state/settings";
-import { ajaeCards, ajaeRestTier, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCard, type AjaeCue, type AjaeMove, type AjaeTier } from "./ajae";
+import { ajaeCards, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCard, type AjaeCue, type AjaeMove, type AjaeTier } from "./ajae";
 import type { PreStage } from "./quickPre";
 import "./ajae.css";
 
@@ -23,11 +23,7 @@ import "./ajae.css";
  *   hand's own two cards (ajaeCards), and its face waits for it on its longer clock (`.aj-for-rage` on the slot);
  * - the pairs' shows (AA's plane, KK's gorilla or crown, QQ's waltz, JJ's jacks) are body moves too, bigger:
  *   they use the whole stage around the hand (fireworks, confetti, searchlights, rays, flashes) for up to 3 s,
- *   and the face waits for their end on their own clock (`.aj-for-<move>` on the slot);
- * - the hands with a story (T2's cowboy hat and lasso, TT's tens turning into 화투's 10월 cards for 장땡, 38's 광 cards
- *   flashing for 광땡, A8's dead man's hand with its tumbleweed and skull, 96's cards swapped to 69 and the blush) are
- *   body moves on the tiers' 2.5 s clock, with props of their own (cards drawn, never written: the ranks are paths and
- *   the 광 emblem a drawn sun) and a face for the doll (DollHead's `mood`: shy or scared).
+ *   and the face waits for their end on their own clock (`.aj-for-<move>` on the slot).
  * With the page scrolled so far that the full pop would reach under the sticky stage bar, a face move pops
  * smaller, from the face's middle (cue.low).
  * When the tier on screen is no longer the one he reacted to (my seat or the stage changed), the face
@@ -46,8 +42,7 @@ export function AjaeReaction({ cue, seat, stage, players, off = false, children 
     <span className="ajae-host">
       {cue && tier && (
         <span key={cue.n} className={`aj-slot${playing ? (body ? ` aj-after${SPECIAL_MOVES.has(cue.move) || cue.move === "rage" ? ` aj-for-${cue.move}` : ""}` : cue.low ? " aj-pop aj-low" : " aj-pop") : ""}`} aria-hidden="true">
-          {/* the tier's face, or a hand with a story's own after its show (ajaeRestTier) */}
-          <AjaeFace tier={ajaeRestTier(cue.move, tier)} move={playing && !body ? cue.move : undefined} />
+          <AjaeFace tier={tier} move={playing && !body ? cue.move : undefined} />
         </span>
       )}
       {cue && body && (
@@ -268,24 +263,16 @@ const AjaeFace = memo(function AjaeFace({ tier, move }: { tier: AjaeTier; move?:
   );
 });
 
-/** What the doll's face can show besides glad and mad: shy (96: the blush) or scared (A8: the dead man's hand). */
-type Mood = "shy" | "scared";
-
 /**
  * The head of the doll, in the splash face's coordinates (-58 -84 116 136): glad (an open grin) or mad (red, V
  * brows, gritted teeth). `rage` (72o): mad, with a shocked O for the mouth too (the rage shows it before the teeth).
- * `mood` (the hands' shows): glad to begin with, then shy (a deep red blush coming up from his chin, pink cheeks with
- * blush lines, worried brows, a small wavy mouth) or scared (pale, his brows up, his teeth chattering); the brows are
- * the same two brows, drawn over the shades so they can rise above them, and ajae.css moves them.
  */
-function DollHead({ mad, rage, mood }: { mad: boolean; rage?: boolean; mood?: Mood }) {
+function DollHead({ mad, rage }: { mad: boolean; rage?: boolean }) {
   return (
     <>
       <Ears />
       <ellipse cx="0" cy="-12" rx="44" ry="48" fill={SKIN} stroke={INK} strokeWidth="4" />
       {mad && <ellipse className="aj-r-flush" cx="0" cy="-12" rx="41.5" ry="45.5" fill="#ff2d2d" opacity="0.62" />}
-      {mood === "shy" && <ellipse className="aj-r-blush" cx="0" cy="-12" rx="41.5" ry="45.5" fill="#ff1f4b" />}
-      {mood === "scared" && <ellipse className="aj-r-pale" cx="0" cy="-12" rx="41.5" ry="45.5" fill="#bfe8ff" />}
       <Shine />
       <g transform="translate(-21 -12)">
         <ellipse rx="8" ry="7.2" fill="#fff" stroke={INK} strokeWidth="2.4" />
@@ -295,23 +282,8 @@ function DollHead({ mad, rage, mood }: { mad: boolean; rage?: boolean; mood?: Mo
         <ellipse rx="8" ry="7.2" fill="#fff" stroke={INK} strokeWidth="2.4" />
         <circle cx="-1" cy="1" r="4.2" fill={INK} />
       </g>
-      {!mood && <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />}
-      {mood ? (
-        <>
-          <g className="aj-r-grin">
-            <path d="M-16 21 Q 0 47 16 21 Z" fill="#5a1d14" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
-            <path d="M-8 33.5 Q 0 28 8 33.5 Q 0 39 -8 33.5 Z" fill="#e0565b" />
-          </g>
-          {mood === "shy" ? (
-            <path className="aj-r-wavy" d="M-9 31 q 3 -3 6 0 q 3 3 6 0 q 3 -3 6 0" fill="none" stroke="#6b2d1e" strokeWidth="3" strokeLinecap="round" />
-          ) : (
-            <g className="aj-r-chatter">
-              <rect x="-12" y="22" width="24" height="12" rx="3" fill="#fff" stroke={INK} strokeWidth="2.6" />
-              <path d="M-12 28 L -8 25 L -4 31 L 0 25 L 4 31 L 8 25 L 12 28" fill="none" stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
-            </g>
-          )}
-        </>
-      ) : mad ? (
+      <path d="M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
+      {mad ? (
         <g className="aj-r-teeth">
           <rect x="-14" y="21" width="28" height="12" rx="3.5" fill="#fff" stroke={INK} strokeWidth="3" />
           <path d="M-14 27 H14 M-7 21 V33 M0 21 V33 M7 21 V33" stroke={INK} strokeWidth="2" />
@@ -324,20 +296,7 @@ function DollHead({ mad, rage, mood }: { mad: boolean; rage?: boolean; mood?: Mo
       )}
       {rage && <ellipse className="aj-r-oh" cx="0" cy="28" rx="7.5" ry="9" fill="#5a1d14" stroke={INK} strokeWidth="3" />}
       <path d={MUSTACHE} fill={STACHE} />
-      {mood === "shy" && (
-        <g className="aj-r-cheeks">
-          <ellipse cx="-27" cy="6" rx="9" ry="5.5" fill="#ff5c86" />
-          <ellipse cx="27" cy="6" rx="9" ry="5.5" fill="#ff5c86" />
-          <path d="M-32 9 L -29 3 M-27 9 L -24 3 M-22 9 L -19 3 M22 9 L 25 3 M27 9 L 30 3 M32 9 L 35 3" stroke="#c0123f" strokeWidth="2" strokeLinecap="round" />
-        </g>
-      )}
       <Shades className="aj-r-shades" />
-      {mood && (
-        <>
-          <path className="aj-r-brow-l" d="M-29 -14 Q -21 -19.5 -13 -15.5" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
-          <path className="aj-r-brow-r" d="M13 -15.5 Q 21 -19.5 29 -14" fill="none" stroke={STACHE} strokeWidth="3.6" strokeLinecap="round" />
-        </>
-      )}
       {mad && <path className="aj-r-vbrows" d="M-40 -40 L -9 -24 M40 -40 L 9 -24" stroke={INK} strokeWidth="9" strokeLinecap="round" />}
     </>
   );
@@ -426,10 +385,9 @@ const MALLET = (
  * `rage` (72o): the mad head with its shocked O, shock lines over his head and steam that shoots out of his ears.
  * The pairs' shows dress him up: `fur` puts him in the gorilla costume (KK; its head goes over his own),
  * `under` is drawn behind him (the plane's tail, a cape), `over` in front of his body but under his arms (the
- * plane's fuselage, a bow tie, the cape's collar), `top` on his head, turning with it (a crown, a cowboy hat, his
- * hands over his face). `mood`: the face of the hands' shows (DollHead).
+ * plane's fuselage, a bow tie, the cape's collar), `top` on his head, turning with it (a crown).
  */
-function Doll({ mad, rage, mood, wide, view, hold, fur, under, over, top }: { mad: boolean; rage?: boolean; mood?: Mood; wide?: boolean; view?: string; hold?: ReactNode; fur?: boolean; under?: ReactNode; over?: ReactNode; top?: ReactNode }) {
+function Doll({ mad, rage, wide, view, hold, fur, under, over, top }: { mad: boolean; rage?: boolean; wide?: boolean; view?: string; hold?: ReactNode; fur?: boolean; under?: ReactNode; over?: ReactNode; top?: ReactNode }) {
   const g = fur ? COSTUME : CLOTHES;
   return (
     <svg className="aj-rig" viewBox={view ?? (wide ? "-32 -32 168 136" : "-24 -16 112 120")} xmlns="http://www.w3.org/2000/svg">
@@ -459,7 +417,7 @@ function Doll({ mad, rage, mood, wide, view, hold, fur, under, over, top }: { ma
         )}
         <g className="aj-r-head">
           <g transform="translate(32 25) scale(0.4)">
-            <DollHead mad={mad || !!rage} rage={rage} mood={mood} />
+            <DollHead mad={mad || !!rage} rage={rage} />
           </g>
           {fur && <GorillaMask />}
           {top}
@@ -660,20 +618,6 @@ function RageCard({ rank, suit }: AjaeCard) {
     </svg>
   );
 }
-/**
- * A card with its rank drawn big in the middle (the rage's index, no text) and a small pip under it: 96's 9 and 6, which
- * swap places to read 69, so the ranks have to read at a glance.
- */
-function RankCard({ rank, suit }: AjaeCard) {
-  const { pip, color } = SUIT_PIP[suit];
-  return (
-    <svg viewBox="0 0 16 22">
-      <rect x="0.7" y="0.7" width="14.6" height="20.6" rx="2.4" fill="#fff" stroke={INK} strokeWidth="1.4" />
-      <path d={RANK_INDEX[rank] ?? ""} transform="translate(8 9.3) scale(2.05) translate(-4.55 -5.45)" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={pip} fill={color} transform="translate(5.6 14.9) scale(0.3)" />
-    </svg>
-  );
-}
 /** A scrap of a torn card. */
 const BitSvg = () => (
   <svg viewBox="0 0 8 6">
@@ -843,8 +787,6 @@ const FIREWORKS: Record<string, readonly string[]> = {
   crown: [GOLD, "#ff4d8d"],
   waltz: ["#ff7ab6", "#fff1a8"],
   split: [GOLD, "#38bdf8"],
-  jangttaeng: ["#f97316", "#e11d1d"],
-  gwangttaeng: [GOLD, "#ff8fb8"],
 };
 /** Confetti colours (a piece is a small rectangle; ajae.css throws it). */
 const CONFETTI = ["#fbbf24", "#ff4d8d", "#38bdf8", "#a3e635", "#fff", "#f97316", "#b36bff", "#fbbf24", "#ff4d8d", "#38bdf8", "#fff", "#a3e635"];
@@ -995,303 +937,6 @@ const PIPS: readonly (readonly [string, string])[] = [
   [DIAMOND, "#d6202f"],
   [CLUB, "#e5e7eb"],
 ];
-
-// ───────────── the hands' shows (AJAE_HAND_SHOWS): their props ─────────────
-
-/** A five-pointed star centred on (x, y), r from the centre to a point (a polygon's points). */
-const star5 = (x: number, y: number, r: number) =>
-  Array.from({ length: 10 }, (_, i) => {
-    const a = ((i * 36 - 90) * Math.PI) / 180;
-    const k = i % 2 ? r * 0.45 : r;
-    return `${(x + k * Math.cos(a)).toFixed(2)},${(y + k * Math.sin(a)).toFixed(2)}`;
-  }).join(" ");
-
-/** The cowboy hat's felt, its shading and highlight, the brim's underside and the band (a hat's browns, none of them his hair's). */
-const FELT = "#c98b4f";
-const FELT_DARK = "#a2652f";
-const FELT_LIGHT = "#e8b67f";
-const FELT_UNDER = "#7a4a22";
-const BAND = "#4a2a12";
-/**
- * A cowboy hat (T2), in the splash face's units like the crown, on his bald head: the brim curling up at both sides
- * (its underside showing in front), the pinched crown with its crease, a dark band with a silver concho.
- */
-const HAT = (
-  <g className="aj-r-hat">
-    <g transform="translate(32 25) scale(0.4)">
-      <path d="M-74 -58 Q -64 -38 -36 -40 Q 0 -34 36 -40 Q 64 -38 74 -58 Q 76 -32 40 -27 Q 0 -21 -40 -27 Q -76 -32 -74 -58 Z" fill={FELT_UNDER} stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
-      <path d="M-74 -58 Q -63 -44 -38 -44 M74 -58 Q 63 -44 38 -44" fill="none" stroke={FELT} strokeWidth="5" strokeLinecap="round" />
-      <path d="M-35 -40 C -38 -66, -32 -94, -16 -99 Q -7 -101 0 -91 Q 7 -101 16 -99 C 32 -94, 38 -66, 35 -40 Z" fill={FELT} stroke={INK} strokeWidth="3.6" strokeLinejoin="round" />
-      <path d="M0 -89 Q 3 -72 0 -56" fill="none" stroke={FELT_DARK} strokeWidth="3.2" strokeLinecap="round" />
-      <path d="M-22 -90 Q -29 -72 -27 -55" fill="none" stroke={FELT_LIGHT} strokeWidth="3.4" strokeLinecap="round" />
-      <path d="M-35 -53 Q 0 -46 35 -53 L 35 -41 Q 0 -34 -35 -41 Z" fill={BAND} stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
-      <circle cx="0" cy="-44" r="4.4" fill="#e5e7eb" stroke={INK} strokeWidth="1.6" />
-      <path d="M-40 -27 Q 0 -21 40 -27" fill="none" stroke="#5c3416" strokeWidth="2.4" strokeLinecap="round" />
-    </g>
-  </g>
-);
-/** The sheriff's star on his chest (T2). */
-const BADGE = (
-  <g className="aj-r-badge">
-    <polygon points={star5(24.5, 54.5, 4.4)} fill={GOLD} stroke={INK} strokeWidth="1.1" strokeLinejoin="round" />
-    <circle cx="24.5" cy="54.9" r="1.3" fill="#fff6c7" />
-  </g>
-);
-/** The lasso's rope in his fist (T2), hanging down his forearm's line: it points up into the loop when he raises his arm. */
-const ROPE = (
-  <g className="aj-r-rope">
-    <path d="M51 68.4 L 55.4 83.8" stroke={INK} strokeWidth="3.8" strokeLinecap="round" />
-    <path d="M51 68.4 L 55.4 83.8" stroke="#e2bd84" strokeWidth="2" strokeLinecap="round" />
-  </g>
-);
-/** The lasso's loop (T2): a rope ring with its knot; ajae.css lays it flat, spins it (.aj-lz-spin) and throws it over the hand. */
-const Lasso = () => (
-  <svg viewBox="-20 -20 40 40">
-    <g className="aj-lz-spin">
-      <circle r="16" fill="none" stroke={INK} strokeWidth="5" />
-      <circle r="16" fill="none" stroke="#e2bd84" strokeWidth="2.8" />
-      <circle r="16" fill="none" stroke="#a87b44" strokeWidth="2.8" strokeDasharray="2.6 4.4" />
-      <circle cx="11.3" cy="11.3" r="3.3" fill="#e2bd84" stroke={INK} strokeWidth="1.5" />
-    </g>
-  </svg>
-);
-/** The rope's whoosh round the twirling loop (T2). */
-const Whirl = () => (
-  <svg viewBox="-24 -12 48 24">
-    <path d="M-20 2 Q -16 -9 0 -9 Q 16 -9 20 2 M-14 8 Q 0 13 14 8" fill="none" stroke="#fde68a" strokeWidth="2.2" strokeLinecap="round" opacity="0.9" />
-  </svg>
-);
-/** A sheriff's star flying (T2). */
-const StarSvg = () => (
-  <svg viewBox="-10 -10 20 20">
-    <polygon points={star5(0, 0.6, 9)} fill={GOLD} stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-  </svg>
-);
-
-/** A maple leaf centred on (x, y), r from its centre to its top point: five toothed lobes (a polygon's points). */
-const maple = (x: number, y: number, r: number) => {
-  const lobes: readonly (readonly [number, number])[] = [[-90, 1], [-28, 0.94], [32, 0.6], [148, 0.6], [208, 0.94]];
-  const p = (deg: number, k: number) => `${(x + r * k * Math.cos((deg * Math.PI) / 180)).toFixed(2)},${(y + r * k * Math.sin((deg * Math.PI) / 180)).toFixed(2)}`;
-  return lobes
-    .flatMap(([a, k], i) => {
-      const next = lobes[(i + 1) % lobes.length][0] + (i === lobes.length - 1 ? 360 : 0);
-      return [p(a - 13, k * 0.66), p(a, k), p(a + 13, k * 0.66), p((a + next) / 2, i === 2 ? 0.22 : 0.36)];
-    })
-    .join(" ");
-};
-/** A cherry blossom centred on (x, y), r its radius: five pink petals and a gold heart. */
-function Blossom({ x, y, r }: { x: number; y: number; r: number }) {
-  return (
-    <g>
-      {[0, 72, 144, 216, 288].map((a) => (
-        <circle key={a} cx={x + r * 0.52 * Math.cos(((a - 90) * Math.PI) / 180)} cy={y + r * 0.52 * Math.sin(((a - 90) * Math.PI) / 180)} r={r * 0.5} fill="#ffb3cf" stroke="#d6336c" strokeWidth="0.5" />
-      ))}
-      <circle cx={x} cy={y} r={r * 0.24} fill="#fbbf24" />
-    </g>
-  );
-}
-/** 화투's red. */
-const HW_RED = "#c8102e";
-/** The 광 emblem, drawn (no character): a gold sun with its rays, in a card's top-left corner. */
-const Gwang = () => (
-  <g>
-    <path d="M9 3.2 V 4.8 M9 13.2 V 14.8 M3.2 9 H 4.8 M13.2 9 H 14.8 M4.9 4.9 L 6 6 M12 12 L 13.1 13.1 M4.9 13.1 L 6 12 M12 6 L 13.1 4.9" stroke="#f59e0b" strokeWidth="1.3" strokeLinecap="round" />
-    <circle cx="9" cy="9" r="4.2" fill="#fde047" stroke="#b45309" strokeWidth="1" />
-    <circle cx="8" cy="8" r="1.5" fill="#fffbe6" />
-  </g>
-);
-/**
- * A 화투 card (40 x 64: red edges, the picture inside): 10월's deer under red maples (`deer`) and its maples with the blue
- * ribbon (`ribbon`), TT's 장땡; 3월's cherry blossom 광 (`cherry`, a curtain below) and 8월's moon 광 (`moon`, the full
- * moon over a black hill in a red sky), 38's 광땡, each with its 광 emblem; and the plain red back (`back`).
- */
-function Hwatu({ kind }: { kind: "deer" | "ribbon" | "cherry" | "moon" | "back" }) {
-  return (
-    <svg viewBox="0 0 40 64">
-      <rect x="0.8" y="0.8" width="38.4" height="62.4" rx="3.4" fill={HW_RED} stroke={INK} strokeWidth="1.6" />
-      {kind === "back" && <rect x="4" y="4" width="32" height="56" rx="1.6" fill="none" stroke="#8f0b20" strokeWidth="1.6" />}
-      {kind === "deer" && (
-        <>
-          <rect x="3" y="3" width="34" height="58" rx="1.6" fill="#fff7e6" />
-          <path d="M3.5 9 Q 16 17 36.5 12 M14 13.6 Q 18 22 16 27" fill="none" stroke="#3f2a1d" strokeWidth="1.3" strokeLinecap="round" />
-          <polygon points={maple(10, 11, 6.2)} fill="#e11d1d" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(24, 9, 6.6)} fill="#f97316" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(32, 18, 5.2)} fill="#e11d1d" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(17, 24, 5)} fill="#dc2626" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <path d="M12 50 L 11 58 M15.5 50.5 L 15.5 58 M23.5 50.5 L 24 58 M27 50 L 28 58" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M26 44 Q 28 39 28.5 35" stroke={INK} strokeWidth="5.4" strokeLinecap="round" />
-          <path d="M26 44 Q 28 39 28.5 35" stroke="#b5652a" strokeWidth="3.4" strokeLinecap="round" />
-          <ellipse cx="19.5" cy="46.5" rx="10.5" ry="5.4" fill="#b5652a" stroke={INK} strokeWidth="1.3" />
-          <path d="M28.6 31.2 L 27.2 26.6 L 25.4 27.4 M27.6 28 L 26.6 25.4 M31.2 31 L 32.6 26.6 L 34.4 27.4 M32.2 28 L 33.2 25.4" fill="none" stroke="#5a3418" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-          <ellipse cx="30" cy="33.6" rx="4.6" ry="3" fill="#b5652a" stroke={INK} strokeWidth="1.2" />
-          <circle cx="31.4" cy="33" r="0.85" fill={INK} />
-          <circle cx="34.4" cy="34.4" r="0.8" fill={INK} />
-          <g fill="#fff3d6">
-            <circle cx="15" cy="44.6" r="1" />
-            <circle cx="19.5" cy="43.6" r="1" />
-            <circle cx="23.5" cy="45" r="1" />
-            <circle cx="9.6" cy="45" r="1.4" />
-          </g>
-        </>
-      )}
-      {kind === "ribbon" && (
-        <>
-          <rect x="3" y="3" width="34" height="58" rx="1.6" fill="#fff7e6" />
-          <path d="M3.5 7 Q 20 15 36.5 6 M3.5 56 Q 18 46 36.5 58" fill="none" stroke="#3f2a1d" strokeWidth="1.3" strokeLinecap="round" />
-          <polygon points={maple(8, 10, 5.6)} fill="#e11d1d" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(32, 9, 5.6)} fill="#f97316" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <path d="M12 12.5 L 28 12.5 L 26.4 47 L 20 42 L 13.6 47 Z" fill="#2563eb" stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
-          <path d="M15 15.5 L 25 15.5 L 23.8 42" fill="none" stroke="#93c5fd" strokeWidth="1.1" strokeLinecap="round" />
-          <polygon points={maple(9, 53, 5.8)} fill="#dc2626" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(30, 52, 6.2)} fill="#e11d1d" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-          <polygon points={maple(20, 56.5, 4.2)} fill="#f97316" stroke="#7f1010" strokeWidth="0.6" strokeLinejoin="round" />
-        </>
-      )}
-      {kind === "cherry" && (
-        <>
-          <rect x="3" y="3" width="34" height="58" rx="1.6" fill="#fff0f5" />
-          <path d="M37 10 Q 24 14 18 26 Q 14 32 4 34 M24 16 Q 30 22 36 22" fill="none" stroke="#4b2e2a" strokeWidth="1.6" strokeLinecap="round" />
-          <Blossom x={22} y={8.5} r={4.6} />
-          <Blossom x={31} y={13} r={4.6} />
-          <Blossom x={17} y={18} r={4.6} />
-          <Blossom x={28} y={23} r={4.2} />
-          <Blossom x={10} y={29} r={4.6} />
-          <Blossom x={21} y={30} r={4.2} />
-          <path d="M3 40 H 37 V 61 H 3 Z" fill={HW_RED} />
-          <path d="M3 40 Q 8 44 13 40 Q 18 44 23 40 Q 28 44 33 40 Q 35 42 37 40" fill="none" stroke="#fff" strokeWidth="1.6" />
-          <path d="M3 49 H 37 M3 55 H 37" stroke="#fde68a" strokeWidth="1.2" />
-          <path d="M9 41 V 61 M20 41 V 61 M31 41 V 61" stroke="#8f0b20" strokeWidth="1" />
-          <Gwang />
-        </>
-      )}
-      {kind === "moon" && (
-        <>
-          <rect x="3" y="3" width="34" height="58" rx="1.6" fill="#e0402c" />
-          <circle cx="21" cy="25" r="11.5" fill="#fff8dc" stroke="#facc15" strokeWidth="1.6" />
-          <path d="M3 44 Q 12 33 21 40 Q 29 34 37 38 V 61 H 3 Z" fill="#1c1917" />
-          <path d="M8 60 Q 9 50 13 44 M14 60 Q 15 52 19 46 M22 60 Q 24 51 28 45 M29 60 Q 30 53 34 47" fill="none" stroke="#f5f5f4" strokeWidth="0.9" strokeLinecap="round" />
-          <Gwang />
-        </>
-      )}
-    </svg>
-  );
-}
-/** A maple leaf falling (TT's 장땡: the 10월 maples rain down). */
-const LeafFall = ({ c }: { c: string }) => (
-  <svg viewBox="-8 -8 16 16">
-    <polygon points={maple(0, 0, 7.4)} fill={c} stroke={INK} strokeWidth="0.9" strokeLinejoin="round" />
-  </svg>
-);
-/** A cherry petal drifting (38's 광땡). */
-const PetalSvg = ({ c }: { c: string }) => (
-  <svg viewBox="-5 -6 10 12">
-    <path d="M0 -5.4 L 1.2 -3.6 L 2.6 -5 C 5 -2, 4 3.4, 0 5.4 C -4 3.4, -5 -2, -2.6 -5 L -1.2 -3.6 Z" fill={c} stroke="#be185d" strokeWidth="0.7" strokeLinejoin="round" />
-  </svg>
-);
-/** The maple leaves of TT's 장땡 and the cherry petals of 38's 광땡. */
-const AUTUMN = ["#e11d1d", "#f97316", "#dc2626", "#fbbf24", "#e11d1d", "#f97316", "#b91c1c", "#fb923c", "#e11d1d", "#fbbf24", "#dc2626", "#f97316"];
-const SAKURA = ["#ffb3cf", "#fff", "#ff8fb8", "#ffd1e1", "#ffb3cf", "#fff", "#ff8fb8", "#ffd1e1", "#ffb3cf", "#fff"];
-
-/** Bone white, and the shadows of the dead man's skull (A8). */
-const BONE = "#f4efe1";
-/**
- * The dead man's skull (A8): a round cartoon skull, big dark eye sockets with a green glint, a little nose, its teeth
- * and a jaw that clacks (.aj-sk-jaw), in a little cowboy hat. Spooky, not gory.
- */
-const Skull = () => (
-  <svg viewBox="-20 -30 40 52">
-    <path d="M-17 -16 Q 0 -8 17 -16 Q 15 -11 0 -10 Q -15 -11 -17 -16 Z" fill={FELT_UNDER} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M-14.5 2 C -16.5 -14, -8 -20.5, 0 -20.5 C 8 -20.5, 16.5 -14, 14.5 2 C 13.5 6.5, 10.5 7, 9.5 9.5 L -9.5 9.5 C -10.5 7, -13.5 6.5, -14.5 2 Z" fill={BONE} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
-    <path d="M-9 -16 C -10 -24, -6 -29, -2 -29 Q 0 -27 2 -29 C 6 -29, 10 -24, 9 -16 Z" fill={FELT} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M-9.4 -19.5 Q 0 -17 9.4 -19.5 L 9.2 -16 Q 0 -13.5 -9.2 -16 Z" fill={BAND} />
-    <path d="M-17 -16 Q -12 -12 -6 -13.4 M17 -16 Q 12 -12 6 -13.4" fill="none" stroke={FELT} strokeWidth="1.6" strokeLinecap="round" />
-    <ellipse cx="-6.2" cy="-2.5" rx="4.6" ry="5.2" fill={INK} />
-    <ellipse cx="6.2" cy="-2.5" rx="4.6" ry="5.2" fill={INK} />
-    <circle cx="-5.4" cy="-2" r="1.6" fill="#86efac" />
-    <circle cx="7" cy="-2" r="1.6" fill="#86efac" />
-    <path d="M0 2.6 L -2.2 6.4 L 2.2 6.4 Z" fill={INK} />
-    <rect x="-7.5" y="8.6" width="15" height="4.4" rx="1" fill="#fff" stroke={INK} strokeWidth="1.4" />
-    <path d="M-3.75 8.6 V 13 M0 8.6 V 13 M3.75 8.6 V 13" stroke={INK} strokeWidth="1.1" />
-    <g className="aj-sk-jaw">
-      <path d="M-9.5 12.6 Q -10 19.5 0 19.5 Q 10 19.5 9.5 12.6 Z" fill={BONE} stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M-7 13.2 H 7 M-3.5 13.2 V 16 M0 13.2 V 16.4 M3.5 13.2 V 16" stroke={INK} strokeWidth="1.1" />
-    </g>
-  </svg>
-);
-/** A tumbleweed (A8): a tangle of dry twigs rolling. */
-const Tumbleweed = () => (
-  <svg viewBox="-15 -15 30 30">
-    <circle r="12.5" fill="rgba(196, 149, 90, 0.35)" stroke="#8b5a2b" strokeWidth="1.6" />
-    <path
-      d="M-11 -4 Q 0 -15 11 -3 Q 3 10 -9 5 Q -2 -7 9 6 Q -1 13 -12 1 M-6 -10 Q 8 -8 6 9 Q -8 8 -7 -6 M4 -11 Q -10 -2 2 11 M-12 3 Q 0 0 12 -2"
-      fill="none"
-      stroke="#c4955a"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-    />
-    <path d="M-3 -8 Q 6 -3 0 5 Q -6 1 2 -6 M-9 -1 Q -3 8 7 2" fill="none" stroke="#7a4a22" strokeWidth="1.3" strokeLinecap="round" />
-    <path d="M12 -5 L 15 -7 M-13 6 L -15.5 8.5 M5 12 L 6 15 M-6 -12 L -8 -14.5" stroke="#8b5a2b" strokeWidth="1.3" strokeLinecap="round" />
-  </svg>
-);
-/** The cold wind (A8): streaks blowing across. */
-const WindSvg = () => (
-  <svg viewBox="0 0 80 24">
-    <path d="M78 4 Q 40 2 8 6 Q 0 7 2 12 M70 13 Q 40 11 16 14 M76 20 Q 50 19 30 21" fill="none" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" opacity="0.85" />
-  </svg>
-);
-/** A drop of cold sweat flying off him (A8). */
-const DropSvg = () => (
-  <svg viewBox="-6.5 -8 13 16">
-    <path d="M0 -7 C 2.6 -3, 5.4 0.4, 5.4 2.6 A 5.4 5.4 0 0 1 -5.4 2.6 C -5.4 0.4, -2.6 -3, 0 -7 Z" fill="#7dd3fc" stroke={INK} strokeWidth="1.5" />
-    <path d="M-2.4 2 Q -2.4 -0.4 -1 -2" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" />
-  </svg>
-);
-/** Shiver lines either side of him (A8). */
-const BrrSvg = () => (
-  <svg viewBox="0 0 12 28">
-    <path d="M3 2 q 3 3 0 6 q -3 3 0 6 q 3 3 0 6 q -3 3 0 6 M9 6 q 2.4 2.4 0 4.8 q -2.4 2.4 0 4.8 q 2.4 2.4 0 4.8" fill="none" stroke="#bae6fd" strokeWidth="1.8" strokeLinecap="round" />
-  </svg>
-);
-/** Surprise lines over his head (38's reveal, A8's fright). */
-const EekSvg = () => (
-  <svg viewBox="-20 -12 40 18">
-    <path d="M-16 4 L -10 -2 M0 -1 L 0 -10 M16 4 L 10 -2" stroke={INK} strokeWidth="4.2" strokeLinecap="round" />
-    <path d="M-16 4 L -10 -2 M0 -1 L 0 -10 M16 4 L 10 -2" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-/** Two curved arrows round each other (96: the two cards swapping places). */
-const SwirlSvg = () => (
-  <svg viewBox="-24 -14 48 28">
-    <path d="M-16 -2 Q -10 -11 2 -10 M2 -10 L -2 -13 M2 -10 L -1.4 -6.6 M16 2 Q 10 11 -2 10 M-2 10 L 2 13 M-2 10 L 1.4 6.6" fill="none" stroke={INK} strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M-16 -2 Q -10 -11 2 -10 M2 -10 L -2 -13 M2 -10 L -1.4 -6.6 M16 2 Q 10 11 -2 10 M-2 10 L 2 13 M-2 10 L 1.4 6.6" fill="none" stroke="#ffc2dc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-/** Shy lines beside his head (96): three short pink strokes. */
-const ShySvg = () => (
-  <svg viewBox="0 0 14 16">
-    <path d="M3 4 L 6 1.5 M2 9 L 7 6 M3 14 L 6 11.5" stroke="#ff7ab6" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-/**
- * His hands over his face (96: shy), in the splash face's units on his head: the backs of two hands, fingers up over his
- * shades, thumbs in by his nose; ajae.css parts them for a peek (.aj-r-palm-l, .aj-r-palm-r).
- */
-const PALMS = (
-  <g className="aj-r-palms">
-    <g transform="translate(32 25) scale(0.4)">
-      {[-1, 1].map((k) => (
-        <g key={k} className={`aj-r-palm-${k < 0 ? "l" : "r"}`}>
-          <path d={`M${-34.5 * k} -8 V -26 M${-27.5 * k} -8 V -33 M${-20.5 * k} -8 V -33 M${-13.5 * k} -8 V -28`} stroke={INK} strokeWidth="8.6" strokeLinecap="round" />
-          <path d={`M${-34.5 * k} -8 V -26 M${-27.5 * k} -8 V -33 M${-20.5 * k} -8 V -33 M${-13.5 * k} -8 V -28`} stroke={SKIN} strokeWidth="5.8" strokeLinecap="round" />
-          <rect x={k < 0 ? -38.5 : 9.5} y="-14" width="29" height="40" rx="9" fill={SKIN} stroke={INK} strokeWidth="2.6" />
-          <path d={`M${-12 * k} 12 L ${-5 * k} -4`} stroke={INK} strokeWidth="9.4" strokeLinecap="round" />
-          <path d={`M${-12 * k} 12 L ${-5 * k} -4`} stroke={SKIN} strokeWidth="6.6" strokeLinecap="round" />
-          <path d={`M${-31 * k} -10 Q ${-24 * k} -12.5 ${-17 * k} -10`} fill="none" stroke="#c98a5a" strokeWidth="1.8" strokeLinecap="round" />
-        </g>
-      ))}
-    </g>
-  </g>
-);
 
 const PuffSvg = () => (
   <svg viewBox="-12 -10 24 20">
@@ -1734,218 +1379,6 @@ const AjaeAct = memo(function AjaeAct({ move, cls }: { move: AjaeMove; cls: Ajae
             </span>
           ))}
           {confetti(GILT)}
-          {poof}
-        </>
-      );
-    case "cowboy":
-      return (
-        <>
-          <span className="aj-sunset" />
-          <span className="aj-rope" />
-          <span className="aj-body">
-            <Doll mad={false} view="-40 -60 144 164" top={HAT} over={BADGE} hold={ROPE} />
-          </span>
-          <span className="aj-lasso">
-            <Lasso />
-          </span>
-          <span className="aj-whirl">
-            <Whirl />
-          </span>
-          <span className="aj-burst">
-            <Star />
-          </span>
-          {Array.from({ length: 12 }, (_, i) => (
-            <span key={`s${i}`} className={`aj-sstar aj-ss${i + 1}`}>
-              <StarSvg />
-            </span>
-          ))}
-          {[1, 2, 3].map((i) => (
-            <span key={`k${i}`} className={`aj-spk aj-k${i}`}>
-              <SparkSvg fill={i === 2 ? "#fff" : GOLD} />
-            </span>
-          ))}
-          <span className="aj-dust aj-d1">
-            <DustSvg />
-          </span>
-          <span className="aj-dust aj-d2">
-            <DustSvg />
-          </span>
-          {poof}
-        </>
-      );
-    case "jangttaeng":
-      return (
-        <>
-          <span className="aj-autumn" />
-          {sky("jangttaeng")}
-          <span className="aj-flash" />
-          <span className="aj-body">
-            <Doll mad={false} view="-30 -16 124 120" />
-          </span>
-          {(["deer", "ribbon"] as const).map((kind, i) => (
-            <span key={kind} className={`aj-hw aj-hw${i + 1}`}>
-              <span className="aj-hw-pk">
-                <RageCard rank="T" suit={i ? "h" : "s"} />
-              </span>
-              <span className="aj-hw-fc">
-                <Hwatu kind={kind} />
-              </span>
-            </span>
-          ))}
-          <span className="aj-burst">
-            <Star />
-          </span>
-          <span className="aj-bang">
-            <svg viewBox="-20 -10 40 20">
-              <path d="M-18 6 L -8 2 M-14 -4 L -6 0 M18 6 L 8 2 M14 -4 L 6 0 M0 -9 L 0 -2" stroke={GOLD} strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          </span>
-          {AUTUMN.map((c, i) => (
-            <span key={`m${i}`} className={`aj-mleaf aj-ml${i + 1}`}>
-              <LeafFall c={c} />
-            </span>
-          ))}
-          {[1, 2, 3].map((i) => (
-            <span key={`k${i}`} className={`aj-spk aj-k${i}`}>
-              <SparkSvg fill={i === 2 ? "#fff" : GOLD} />
-            </span>
-          ))}
-          <span className="aj-dust aj-d1">
-            <DustSvg />
-          </span>
-          <span className="aj-dust aj-d2">
-            <DustSvg />
-          </span>
-          {poof}
-        </>
-      );
-    case "gwangttaeng":
-      return (
-        <>
-          <span className="aj-night" />
-          <span className="aj-gt-rays">
-            {Array.from({ length: 12 }, (_, i) => (
-              <i key={i} />
-            ))}
-          </span>
-          <span className="aj-glow" />
-          {sky("gwangttaeng")}
-          <span className="aj-flash" />
-          <span className="aj-body">
-            <Doll mad={false} view="-30 -16 124 120" />
-          </span>
-          {(["cherry", "moon"] as const).map((kind, i) => (
-            <span key={kind} className={`aj-gw aj-gw${i + 1}`}>
-              <span className="aj-gw-bk">
-                <Hwatu kind="back" />
-              </span>
-              <span className="aj-gw-fc">
-                <Hwatu kind={kind} />
-              </span>
-              <i className="aj-gw-sun" />
-            </span>
-          ))}
-          <span className="aj-eek">
-            <EekSvg />
-          </span>
-          {SAKURA.map((c, i) => (
-            <span key={`p${i}`} className={`aj-petal aj-pt${i + 1}`}>
-              <PetalSvg c={c} />
-            </span>
-          ))}
-          {[1, 2, 3, 4].map((i) => (
-            <span key={`k${i}`} className={`aj-spk aj-k${i}`}>
-              <SparkSvg fill={i % 2 ? GOLD : "#fff"} />
-            </span>
-          ))}
-          {poof}
-        </>
-      );
-    case "deadman":
-      return (
-        <>
-          <span className="aj-dusk" />
-          <span className="aj-ghost" />
-          <span className="aj-skull">
-            <Skull />
-          </span>
-          {[1, 2, 3, 4].map((i) => (
-            <span key={`w${i}`} className={`aj-wind aj-wd${i}`}>
-              <WindSvg />
-            </span>
-          ))}
-          <span className="aj-body">
-            <Doll mad={false} mood="scared" view="-30 -24 124 128" />
-          </span>
-          {(
-            [
-              ["A", "s"],
-              ["8", "c"],
-            ] as const
-          ).map(([rank, suit], i) => (
-            <span key={rank} className={`aj-dc aj-dc${i + 1}`}>
-              <RageCard rank={rank} suit={suit} />
-            </span>
-          ))}
-          <span className="aj-tumble">
-            <Tumbleweed />
-          </span>
-          <span className="aj-eek">
-            <EekSvg />
-          </span>
-          {[1, 2].map((i) => (
-            <span key={`b${i}`} className={`aj-brr aj-br${i}`}>
-              <BrrSvg />
-            </span>
-          ))}
-          {[1, 2, 3, 4].map((i) => (
-            <span key={`d${i}`} className={`aj-drop aj-dr${i}`}>
-              <DropSvg />
-            </span>
-          ))}
-          {[1, 2, 3].map((i) => (
-            <span key={`u${i}`} className={`aj-dust aj-d${i}`}>
-              <DustSvg />
-            </span>
-          ))}
-          {poof}
-        </>
-      );
-    case "blush":
-      return (
-        <>
-          <span className="aj-pinkglow" />
-          {ajaeCards(cls).map((c, i) => (
-            <span key={`n${i}`} className={`aj-nc aj-nc${i + 1}`}>
-              <RankCard {...c} />
-            </span>
-          ))}
-          <span className="aj-swirl">
-            <SwirlSvg />
-          </span>
-          <span className="aj-body">
-            <Doll mad={false} mood="shy" view="-30 -24 124 128" top={PALMS} />
-          </span>
-          {[1, 2].map((i) => (
-            <span key={`y${i}`} className={`aj-shy aj-sy${i}`}>
-              <ShySvg />
-            </span>
-          ))}
-          {[1, 2, 3, 4].map((i) => (
-            <span key={`b${i}`} className={`aj-bp aj-bp${i}`}>
-              <PuffSvg />
-            </span>
-          ))}
-          {HEARTS.map((c, i) => (
-            <span key={`h${i}`} className={`aj-luv aj-lv${i + 1}`}>
-              <HeartSvg c={c} />
-            </span>
-          ))}
-          {[1, 2, 3].map((i) => (
-            <span key={`k${i}`} className={`aj-spk aj-k${i}`}>
-              <SparkSvg fill={i === 2 ? "#fff" : "#ffc2dc"} />
-            </span>
-          ))}
           {poof}
         </>
       );

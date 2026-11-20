@@ -43,8 +43,7 @@ import {
   withLv,
   type LoggedHand,
 } from "./handLog";
-import { blindsOf, cleanBlinds, levelRow, levelSince, PUB_BREAKS, PUB_SCHEDULE, type Blinds, type BreakRow, type LevelEstimate, type LevelRow, type Lv } from "./levelClock";
-import { anyPresetLevel } from "./structures";
+import { blindsOf, cleanBlinds, levelRow, levelSince, type Blinds, type LevelEstimate, type Lv } from "./levelClock";
 import { cleanPre, isStage, STAGE_LABEL, type PreAction, type PreStage } from "./quickPre";
 import { buttonSeat, positionsFor, TABLE_SIZES } from "./recorder";
 import { cleanGuess, holeFromRanks, setBoardGuess } from "./suitGuess";
@@ -141,7 +140,6 @@ export interface FastState {
    * until SESSION_IDLE_MS after `at` or after the last of the session's hands logged since it with no pause
    * that long (pickLive: a hand logged after it had lapsed never brings it back). `t`: the tournament it was
    * picked in (fastTourney.ts); it holds only while that tournament is the current one (without: while none is).
-   * The level is in the tournament's own table: 야자수 새틀's, or a ready-made structure's (WPL: Lv1–46).
    */
   levelPick?: { level: number | null; at: number; t?: string };
   /** New hands without the BB ante (absent: the pub's BB ante). */
@@ -682,24 +680,12 @@ export function pickLive(at: number, session: LoggedHand[]): number {
  * none (never a stale last level: folds and bb amounts would go wrong unseen). `picked`: it comes from a
  * pick (레벨 모름 picked on purpose among them). A pick holds only in the tournament it was made in
  * (`tid`: the current one's id, null for none), so starting or resuming another never carries it over.
- * `schedule` / `breaks`: the tournament's table (a ready-made structure's; default 야자수 새틀's); a pick of a
- * level that table doesn't have is no pick (the structure was changed since). `from`: where a pick runs from (a
- * ready-made structure's lines it up with its clock: fastTourney.ts presetPickFrom); default the moment it was made.
  */
-export function fastLevel(
-  s: Pick<FastState, "levelPick">,
-  session: LoggedHand[],
-  now: number,
-  est: LevelEstimate | null = levelEstimateAt(now),
-  tid: string | null = null,
-  schedule: LevelRow[] = PUB_SCHEDULE,
-  breaks: BreakRow[] = PUB_BREAKS,
-  from: (level: number, at: number) => number = (_level, at) => at,
-): FastLevel & { picked: boolean } {
+export function fastLevel(s: Pick<FastState, "levelPick">, session: LoggedHand[], now: number, est: LevelEstimate | null = levelEstimateAt(now), tid: string | null = null): FastLevel & { picked: boolean } {
   const pick = s.levelPick;
-  if (pick && (pick.t ?? null) === tid && now - pickLive(pick.at, session) <= SESSION_IDLE_MS && (pick.level === null || levelRow(pick.level, schedule))) {
+  if (pick && (pick.t ?? null) === tid && now - pickLive(pick.at, session) <= SESSION_IDLE_MS) {
     if (pick.level === null) return { level: null, guessed: false, picked: true };
-    const level = levelSince(pick.level, from(pick.level, pick.at), now, schedule, breaks);
+    const level = levelSince(pick.level, pick.at, now);
     return { level, guessed: level !== pick.level, picked: true };
   }
   const lv = estimatedLevel(est);
@@ -838,7 +824,7 @@ export function cleanFastState(x: unknown, stage: PreStage = "mid", size = 9): F
   const pick = obj(r.levelPick);
   const pickT = typeof pick.t === "string" && pick.t && pick.t.length <= 64 ? pick.t : null;
   const levelPick =
-    typeof pick.at === "number" && Number.isFinite(pick.at) && (pick.level === null || (typeof pick.level === "number" && (levelRow(pick.level) || anyPresetLevel(pick.level))))
+    typeof pick.at === "number" && Number.isFinite(pick.at) && (pick.level === null || (typeof pick.level === "number" && levelRow(pick.level)))
       ? { level: pick.level as number | null, at: pick.at, ...(pickT ? { t: pickT } : {}) }
       : null;
   return {
@@ -948,10 +934,6 @@ export interface SessionInfo {
   memo: string;
   /** Its 칩 업데이트, when any. */
   checks?: StackCheck[];
-  /** A ready-made structure's event ("WPL 메인 이벤트"): it stands in place of 펍 토너먼트. */
-  event?: string;
-  /** A ready-made structure's line after "구조: " ("DAY1 · 30분 레벨 · L1–L4"). */
-  structure?: string;
 }
 
 /**
@@ -970,13 +952,11 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
   const old = [...hands].sort((a, b) => a.createdAt - b.createdAt);
   const day = new Date(old[0].createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" });
   const head = info ? `${info.title} · ${info.when}` : day;
-  const event = info?.event ?? "펍 토너먼트";
   const lines = [
     other
-      ? `PubAJ 남의 핸드 · ${head} · ${hands.length}핸드 (${event}에서 본 다른 사람 핸드, 펍아재 차트 기준)`
-      : `PubAJ 빠른 기록 · ${head} · ${hands.length}핸드 (${event}${acted.length ? ", 펍아재 차트 기준" : ""})`,
+      ? `PubAJ 남의 핸드 · ${head} · ${hands.length}핸드 (펍 토너먼트에서 본 다른 사람 핸드, 펍아재 차트 기준)`
+      : `PubAJ 빠른 기록 · ${head} · ${hands.length}핸드 (펍 토너먼트${acted.length ? ", 펍아재 차트 기준" : ""})`,
   ];
-  if (info?.structure) lines.push(`구조: ${info.structure}`);
   const memo = info?.memo.trim();
   if (memo) lines.push(`메모: ${memo.replace(/\s*\n\s*/g, " / ")}`);
   const startStack = info?.startStack ?? null;

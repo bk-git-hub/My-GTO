@@ -155,7 +155,7 @@ export function TourneyList({ hands, go }: { hands: LoggedHand[]; go: Go }) {
           mode="new"
           initial={newFields(Date.now())}
           defaultName={defaultTitle(Date.now())}
-          levelText={(clock, f) => sheetLevelText(clock, null, hands, Date.now(), f)}
+          levelText={(clock) => sheetLevelText(clock, null, hands, Date.now())}
           join={tourneys.some((g) => g.current) ? 0 : runningUntagged(hands, Date.now()).length}
           onSave={(f, join) => {
             if (!startTourney(f, Date.now(), join)) return FULL_MSG;
@@ -341,7 +341,7 @@ export function TourneyView({ kind, id, hands, go }: { kind: "tourney" | "legacy
           mode="edit"
           initial={fieldsOf(t)}
           defaultName={tourneyTitle({ ...t, name: "" }, hands)}
-          levelText={(clock, f) => sheetLevelText(clock, t, hands, Date.now(), f)}
+          levelText={(clock) => sheetLevelText(clock, t, hands, Date.now())}
           note={startNote(t, hands, g.current, Date.now())}
           canDelete
           handCount={total}

@@ -105,9 +105,7 @@ export interface LoggedHand {
   tourney?: string;
   /**
    * 빠른 기록 in a 직접 입력 tournament (and 남의 핸드 there): the blinds the hand was played at; `level` is null then
-   * and `bbAnte` is `blinds.ante > 0`. In a ready-made structure's tournament (WPL) the same, with the level's
-   * number in `blinds.lv` (an older app reads the hand as 직접 입력 at those blinds). Absent: the hand's blinds are
-   * its level's (PUB_SCHEDULE), as always.
+   * and `bbAnte` is `blinds.ante > 0`. Absent: the hand's blinds are its level's (PUB_SCHEDULE), as always.
    */
   blinds?: Blinds;
 }
@@ -926,15 +924,10 @@ export function levelLabel(level: number | null): string {
   return info ? `Lv${level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
 }
 
-/**
- * A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드
- * 400/800 · 앤티 800 (직접 입력)"; a ready-made structure's level (its blinds with their number): "L2 · 100/200 · 앤티 200".
- */
+/** A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드 400/800 · 앤티 800 (직접 입력)". */
 export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess" | "blinds">): string {
   const b = h.level === null ? cleanBlinds(h.blinds) : null;
-  const ante = (x: Blinds) => (x.ante ? `앤티 ${x.ante.toLocaleString()}` : "앤티 없음");
-  if (b?.lv !== undefined) return `L${b.lv} · ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${ante(b)}`;
-  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${ante(b)} (직접 입력)`;
+  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${b.ante ? `앤티 ${b.ante.toLocaleString()}` : "앤티 없음"} (직접 입력)`;
   const label = levelLabel(h.level);
   return h.levelGuess && levelInfo(h.level) ? `${label} (추정)` : label;
 }
@@ -1315,8 +1308,6 @@ const OLD_EXPORT_KIND = "pubaz-hand-log";
  * fastStack, tourney, blinds), the start times and 빠른 기록's tournaments (with their 칩 업데이트, structure and
  * blinds). An older app reading it drops the tournaments, the hands' `tourney` (it loses only the grouping) and
  * `blinds` (a 직접 입력 hand then reads as 레벨 모름; a tournament as 야자수 새틀), so the file keeps its marker and version.
- * A ready-made structure's tournament (`preset`, WPL) is 직접 입력 at its `blinds` to an app from before presets,
- * and its hands 직접 입력 hands at theirs (only the level numbers are lost).
  */
 export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[], tourneys?: Tourney[]): string {
   const sc = cleanStartClock(startClock);

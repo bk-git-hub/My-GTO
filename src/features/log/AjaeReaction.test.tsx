@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ALL_HANDS, RANKS } from "../../poker/cards";
 import { ajaeOn, settingsStore } from "../../state/settings";
-import { AJAE_CRAMPED, AJAE_HAND_SHOWS, AJAE_MOVES, AJAE_ROOM, AJAE_SHOW_REST, AJAE_SPECIALS, AJAE_START, ajaeCards, ajaeSeen, ajaeStep, ajaeTier, BODY_MOVES, HAND_SHOW_MOVES, SPECIAL_MOVES, type AjaeCue, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
+import { AJAE_CRAMPED, AJAE_MOVES, AJAE_SPECIALS, AJAE_START, ajaeCards, ajaeSeen, ajaeStep, ajaeTier, BODY_MOVES, SPECIAL_MOVES, type AjaeCue, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
 import { AjaeReaction } from "./AjaeReaction";
 import { fastHand, fastOtherStore, fastStore, newDraft, pickSuited, startEdit, tapRank, undoTap, withSeat, type FastDraft } from "./fastLog";
 import { emptyHand, handLogStore } from "./handLog";
@@ -235,8 +235,7 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       slam: ["aj-body", "aj-card aj-cd1", "aj-card aj-cd2", "aj-lines", "aj-bang", "aj-burst", "aj-dust aj-d1", "aj-dust aj-d2", ...fumes],
     };
     const parity: number[] = [];
-    // (not 83o: it has a show of its own, 광땡)
-    for (const [cls, move] of [["J4o", "rage"], ["93o", "kick"], ["Q4o", "mallet"], ["Q2o", "slam"], ["84o", "rage"]]) {
+    for (const [cls, move] of [["J4o", "rage"], ["93o", "kick"], ["Q4o", "mallet"], ["Q2o", "slam"], ["83o", "rage"]]) {
       const r = typeIn("CO", cls, s);
       s = r.s;
       const html = row(s, r.d);
@@ -374,13 +373,6 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
       for (const move of [...(AJAE_MOVES[tier] as readonly AjaeMove[]), AJAE_CRAMPED[tier]]) {
         const { cue, seat } = cueOf(tier, move);
         faces.push(render(<AjaeReaction cue={cue} seat={seat} stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>));
-      }
-    }
-    // and every show of his own: the pairs' and the hands with a story's (a hat is fine, hair never)
-    for (const [cls, moves] of [...Object.entries(AJAE_SPECIALS), ...Object.entries(AJAE_HAND_SHOWS).map(([c, m]) => [c, [m]] as const)]) {
-      for (const move of moves as readonly AjaeMove[]) {
-        const cue: AjaeCue = { n: 1, key: `${cls}|`, cls, tier: ajaeTier(cls, "CO", "mid", 9), move };
-        faces.push(render(<AjaeReaction cue={cue} seat="CO" stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>));
       }
     }
     for (const [name, markup] of [["splash", splash], ["icon", iconSvg], ...faces.map((f, i) => [`reaction ${i}`, f])] as [string, string][]) {
@@ -762,181 +754,6 @@ describe("빠른 기록's 아재 (react-dom/server)", () => {
         for (const decl of step[1].split(";").map((x) => x.trim()).filter(Boolean)) expect(["transform", "opacity", "animation-timing-function", "z-index", "clip-path"], `${k[1]}: ${decl}`).toContain(decl.split(":")[0].trim());
       }
     }
-  });
-
-  it("puts on a show for the hands with a story (T2's hat, TT's 장땡, 38's 광땡, A8's dead man's hand, 96 swapped to 69), then the show's resting face", () => {
-    const fireworks = (n: number) => Array.from({ length: n }, (_, i) => [`aj-rk aj-rk${i + 1}`, `aj-fw aj-fw${i + 1}`]).flat();
-    const many = (cls: string, n: number) => Array.from({ length: n }, (_, i) => `${cls}${i + 1}`);
-    const kids: Record<string, string[]> = {
-      cowboy: ["aj-sunset", "aj-rope", "aj-body", "aj-lasso", "aj-whirl", "aj-burst", ...many("aj-sstar aj-ss", 12), ...many("aj-spk aj-k", 3), "aj-dust aj-d1", "aj-dust aj-d2", "aj-poof"],
-      jangttaeng: ["aj-autumn", ...fireworks(2), "aj-flash", "aj-body", "aj-hw aj-hw1", "aj-hw aj-hw2", "aj-burst", "aj-bang", ...many("aj-mleaf aj-ml", 12), ...many("aj-spk aj-k", 3), "aj-dust aj-d1", "aj-dust aj-d2", "aj-poof"],
-      gwangttaeng: ["aj-night", "aj-gt-rays", "aj-glow", ...fireworks(2), "aj-flash", "aj-body", "aj-gw aj-gw1", "aj-gw aj-gw2", "aj-eek", ...many("aj-petal aj-pt", 10), ...many("aj-spk aj-k", 4), "aj-poof"],
-      deadman: ["aj-dusk", "aj-ghost", "aj-skull", ...many("aj-wind aj-wd", 4), "aj-body", "aj-dc aj-dc1", "aj-dc aj-dc2", "aj-tumble", "aj-eek", "aj-brr aj-br1", "aj-brr aj-br2", ...many("aj-drop aj-dr", 4), ...many("aj-dust aj-d", 3), "aj-poof"],
-      blush: ["aj-pinkglow", "aj-nc aj-nc1", "aj-nc aj-nc2", "aj-swirl", "aj-body", "aj-shy aj-sy1", "aj-shy aj-sy2", ...many("aj-bp aj-bp", 4), ...many("aj-luv aj-lv", 8), ...many("aj-spk aj-k", 3), "aj-poof"],
-    };
-    // the parts each show draws, and no other show's
-    const parts: Record<string, string[]> = {
-      cowboy: ["aj-r-hat", "aj-r-badge", "aj-r-rope", "aj-lz-spin"],
-      jangttaeng: ["aj-hw-pk", "aj-hw-fc"],
-      gwangttaeng: ["aj-gw-bk", "aj-gw-fc", "aj-gw-sun"],
-      deadman: ["aj-sk-jaw", "aj-r-pale", "aj-r-chatter"],
-      blush: ["aj-r-blush", "aj-r-cheeks", "aj-r-wavy", "aj-r-palms", "aj-r-palm-l", "aj-r-palm-r"],
-    };
-    const layers = (html: string) => (/<span class="aj-act[\s\S]*<\/span><span class="aj-jolt/.exec(html)?.[0].match(/<(span|i)[ >]/g) ?? []).length;
-    let s = AJAE_START;
-    for (const [seat, cls, move] of [["CO", "T2o", "cowboy"], ["BTN", "TT", "jangttaeng"], ["CO", "83o", "gwangttaeng"], ["HJ", "A8s", "deadman"], ["CO", "96o", "blush"], ["SB", "T2s", "cowboy"], ["UTG", "96s", "blush"], ["CO", "83s", "gwangttaeng"], ["CO", "A8o", "deadman"]]) {
-      const r = typeIn(seat, cls, s);
-      s = r.s;
-      const { tier, n } = s.cue!;
-      expect(s.cue!.move, cls).toBe(move);
-      expect(HAND_SHOW_MOVES.has(move as AjaeMove)).toBe(true);
-      expect(tier).toBe(ajaeTier(cls, seat, "mid", 9));
-      const html = row(s, r.d);
-      // the face waits in the slot on the body moves' own 2.5 s clock and rests on the show's own face (not the tier's)
-      expect(html).toContain(`<span class="aj-slot aj-after" aria-hidden="true"><span class="aj-face aj-${AJAE_SHOW_REST[move as keyof typeof AJAE_SHOW_REST]}"><svg`);
-      expect(html).toContain(`<span class="aj-act aj-mv-${move}" aria-hidden="true">`);
-      expect(html).toContain(`<span class="aj-jolt aj-x-${move} aj-j${n % 2}"><span class="fast-class done" aria-live="polite">CLS</span></span>`);
-      expect(actChildren(html), move).toEqual(kids[move]);
-      expect(layers(html), move).toBeGreaterThanOrEqual(18);
-      for (const part of parts[move]) expect(html, `${move} ${part}`).toContain(`class="${part}"`);
-      for (const [other, ps] of Object.entries(parts)) if (other !== move) for (const part of ps) expect(html, `${move} draws ${part}`).not.toContain(`class="${part}"`);
-    }
-    expect(s.seen).toEqual({});
-    // the cards are drawn, never written: TT's two tens, then the 화투; A8's black ace and eight; 96's own 9 and 6 (the
-    // offsuit 9 of clubs and 6 of diamonds, the suited two clubs), the 9 first, so that swapping them reads 69
-    const TEN = "M2.15 3.25 L 2.65 2.5 V 8.4 M5.8 2.5 A 1.2 2.95 0 1 1 5.8 8.4 A 1.2 2.95 0 1 1 5.8 2.5 Z";
-    const NINE = "M6.35 4.3 A 1.8 1.8 0 1 0 2.75 4.3 A 1.8 1.8 0 1 0 6.35 4.3 V 6.4 Q 6.35 8.4 4.5 8.4 Q 3.4 8.4 2.9 7.6";
-    const SIX = "M6.2 3.2 Q 5.7 2.5 4.6 2.5 Q 2.75 2.5 2.75 4.6 V 6.6 A 1.8 1.8 0 1 0 6.35 6.6 A 1.8 1.8 0 1 0 2.75 6.6";
-    const ACE = "M2.6 8.4 L 4.55 2.5 L 6.5 8.4 M3.3 6.4 H 5.8";
-    const EIGHT = "M4.55 5.3 A 1.4 1.4 0 1 1 4.55 2.5 A 1.4 1.4 0 1 1 4.55 5.3 A 1.55 1.55 0 1 0 4.55 8.4 A 1.55 1.55 0 1 0 4.55 5.3 Z";
-    const strokes = (markup: string) => [...markup.matchAll(/<path d="([^"]+)"(?: transform="[^"]*")? fill="none" stroke="([^"]+)"/g)].map((m) => [m[1], m[2]]);
-    const show = (seat: string, cls: string) => row(typeIn(seat, cls).s, typeIn(seat, cls).d);
-    const tt = show("CO", "TT");
-    const tens = [...tt.matchAll(/<span class="aj-hw-pk">(<svg[\s\S]*?<\/svg>)<\/span>/g)].map((m) => strokes(m[1])[0]);
-    expect(tens).toEqual([[TEN, "#1b1400"], [TEN, "#d6202f"]]);
-    expect(tt.match(/<span class="aj-hw-pk">/g)).toHaveLength(2);
-    expect(tt.match(/<span class="aj-hw-fc">/g)).toHaveLength(2);
-    const nc = (html: string) => [...html.matchAll(/<span class="aj-nc aj-nc\d">(<svg[\s\S]*?<\/svg>)<\/span>/g)].map((m) => strokes(m[1])[0]);
-    expect(nc(show("CO", "96o"))).toEqual([[NINE, "#1b1400"], [SIX, "#d6202f"]]);
-    expect(nc(show("CO", "96s"))).toEqual([[NINE, "#1b1400"], [SIX, "#1b1400"]]);
-    const dc = [...show("CO", "A8o").matchAll(/<span class="aj-dc aj-dc\d">(<svg[\s\S]*?<\/svg>)<\/span>/g)].map((m) => strokes(m[1])[0]);
-    expect(dc).toEqual([[ACE, "#1b1400"], [EIGHT, "#1b1400"]]);
-  });
-
-  it("ends the hands' shows on their own face, never the furious one: good after T2, TT and 38, fold after A8, meh after 96", () => {
-    /** The face's tier class in the slot (a face move adds aj-play and its move after it). */
-    const face = (html: string) => /<span class="aj-slot[^"]*" aria-hidden="true"><span class="aj-face (aj-\w+)[^"]*"><svg/.exec(html)?.[1];
-    const REST = { T2o: "aj-good", T2s: "aj-good", TT: "aj-good", "83o": "aj-good", "83s": "aj-good", A8o: "aj-fold", A8s: "aj-fold", "96o": "aj-meh", "96s": "aj-meh" } as const;
-    for (const seat of ["UTG", "HJ", "CO", "BTN", "SB", "BB"]) {
-      for (const [cls, rest] of Object.entries(REST)) {
-        const r = typeIn(seat, cls);
-        const html = row(r.s, r.d);
-        // as it plays: the face waits in the slot (aj-after, the good face's plain pop-in, no hot shake), and rests there
-        expect(html, `${cls} ${seat}`).toContain(`<span class="aj-slot aj-after" aria-hidden="true"><span class="aj-face ${rest}"><svg`);
-        // at rest for good (my seat changed and back, or the tier moved on): the same face, still
-        const settled = render(<AjaeReaction cue={{ ...r.s.cue!, settled: true }} seat={seat} stage="mid" players={9}><span className="fast-class">X</span></AjaeReaction>);
-        expect(face(settled), `${cls} ${seat}`).toBe(rest);
-        expect(settled).not.toContain("aj-act");
-      }
-    }
-    // T2o at the CO is trash: the cowboy ends pleased, but scrolled too far for him it is the rage, and the furious face after it
-    const top = typeIn("CO", "T2o");
-    expect(top.s.cue).toMatchObject({ tier: "trash", move: "cowboy" });
-    expect(face(row(top.s, top.d))).toBe("aj-good");
-    const scrolled = typeIn("CO", "T2o", AJAE_START, AJAE_ROOM.cowboy! - 1);
-    expect(scrolled.s.cue!.move).toBe("rage");
-    expect(row(scrolled.s, scrolled.d)).toContain('<span class="aj-slot aj-after aj-for-rage" aria-hidden="true"><span class="aj-face aj-trash"><svg');
-    // and a seat where the tier changes settles him on the show's face, not the new tier's
-    const a8 = typeIn("CO", "A8o");
-    expect(face(row(a8.s, withSeat(a8.d, "UTG", 9)))).toBe("aj-fold");
-    const t2 = typeIn("CO", "T2o");
-    for (const seat of ["UTG", "BTN", "BB"]) expect(face(row(t2.s, withSeat(t2.d, seat, 9))), seat).toBe("aj-good");
-    // the pairs' shows and every other move rest on the tier's face as before
-    expect(face(row(typeIn("CO", "AA").s, typeIn("CO", "AA").d))).toBe("aj-monster");
-    for (const seat of ["UTG", "BTN"]) {
-      const jj = typeIn(seat, "JJ");
-      expect(face(row(jj.s, jj.d)), seat).toBe(`aj-${ajaeTier("JJ", seat, "mid", 9)}`);
-    }
-    for (const [seat, cls] of [["CO", "J4o"], ["BTN", "72o"], ["CO", "JTs"], ["HJ", "Q9o"], ["UTG", "K9o"]]) {
-      const r = typeIn(seat, cls);
-      expect(face(row(r.s, r.d)), cls).toBe(`aj-${ajaeTier(cls, seat, "mid", 9)}`);
-    }
-  });
-
-  it("says no word and stays bald in the hands' shows too: no text, no Hangul, no 光; brown only for the mustache and the brows", () => {
-    const MUSTACHE_D = "M0 14 C -8 6, -24 5, -34 14 C -39 19, -46 19, -50 14 C -46 28, -28 31, -14 23 C -7 19, -3 18, 0 21 C 3 18, 7 19, 14 23 C 28 31, 46 28, 50 14 C 46 19, 39 19, 34 14 C 24 5, 8 6, 0 14 Z";
-    const BROWS = new Set(["M-29 -14 Q -21 -19.5 -13 -15.5", "M13 -15.5 Q 21 -19.5 29 -14", "M-29 -14 Q -21 -19.5 -13 -15.5 M13 -15.5 Q 21 -19.5 29 -14"]);
-    const brown = (markup: string): string[] => {
-      const out: string[] = [];
-      for (const m of markup.matchAll(/<(\w+)((?:[^>"]|"[^"]*")*)>/g)) {
-        if (!/#3b2a1e/i.test(m[2])) continue;
-        if (m[1] === "g") {
-          const inner = markup.slice(m.index! + m[0].length, markup.indexOf("</g>", m.index!));
-          for (const d of inner.matchAll(/ d="([^"]+)"/g)) out.push(d[1]);
-        } else out.push(/ d="([^"]+)"/.exec(m[2])?.[1] ?? `<${m[1]}>`);
-      }
-      return out;
-    };
-    let n = 0;
-    for (const [cls, move] of Object.entries(AJAE_HAND_SHOWS)) {
-      for (const settled of [false, true]) {
-        const cue: AjaeCue = { n: ++n, key: `${cls}|`, cls, tier: ajaeTier(cls, "CO", "mid", 9), move, ...(settled ? { settled: true as const } : {}) };
-        const html = render(
-          <AjaeReaction cue={cue} seat="CO" stage="mid" players={9}>
-            <span className="fast-class done">CLS</span>
-          </AjaeReaction>,
-        );
-        expect(html).not.toMatch(HANGUL);
-        // no character at all: not the 광 card's 光 (its emblem is a drawn sun), no letters, no digits (the cards' ranks are paths)
-        expect(html).not.toMatch(/[㐀-鿿豈-﫿]/);
-        for (const t of html.matchAll(/<text[^>]*>([^<]*)<\/text>/g)) expect(t[1].trim()).toBe("?");
-        expect(html.replace(/<[^>]*>/g, "").replace("CLS", "").replace(/[?\s]/g, "")).toBe("");
-        // the shows' own art has no text element at all (the face's hidden ? is the face's)
-        expect(/<span class="aj-act[\s\S]*<\/span><span class="aj-jolt/.exec(html)?.[0] ?? "").not.toContain("<text");
-        expect(html.includes("aj-act")).toBe(!settled);
-        const shapes = brown(html);
-        expect(shapes, move).toContain(MUSTACHE_D);
-        for (const d of shapes) expect(d === MUSTACHE_D || BROWS.has(d), `${move}: brown ${d}`).toBe(true);
-        for (const h of ["M-44 -10 C -50 -30", "M44 -10 C 50 -30", "M-14 -56 q 14 -8 30 2", "M-32 -50", "M32 -50"]) expect(html, `${move} has hair`).not.toContain(h);
-        expect(html).toMatch(/<ellipse cx="-43" cy="-8" rx="7.5" ry="10.5"/);
-        expect(html).toMatch(/<ellipse cx="43" cy="-8" rx="7.5" ry="10.5"/);
-        expect(html).toContain("M-26.4 -42 A13 6.5 -18 1 1 -1.6 -50 A13 6.5 -18 1 1 -26.4 -42 Z");
-        if (!settled) {
-          // the doll is the same bald head as the face (the cowboy hat sits on it; the skull's little hat is the skull's)
-          expect(html.match(/<ellipse cx="-43" cy="-8"/g)!.length, move).toBeGreaterThanOrEqual(2);
-          expect(html.match(/M-26\.4 -42 A13 6\.5 -18 1 1 -1\.6 -50/g)!.length, move).toBeGreaterThanOrEqual(2);
-        }
-      }
-    }
-  });
-
-  it("runs the hands' shows on CSS alone, on the body moves' 2.5 s clock (nothing outlasts it), cheap to animate, and not at all with reduce motion", () => {
-    for (const m of HAND_SHOW_MOVES) {
-      // the act's own clock is the body moves' 2.5 s (no clock of its own), and so is the face coming in after it
-      expect(declsOf(`.aj-act.aj-mv-${m} *`), m).toEqual([]);
-      expect(RULES.some((r) => r.sel.some((x) => x.startsWith(`.aj-after.aj-for-${m}`))), m).toBe(false);
-      for (const p of [0, 1]) expect(declsOf(`.aj-jolt.aj-x-${m}.aj-j${p}`).join(";"), m).toContain(" 2.5s ");
-      // every part of it with its own delay or repeats ends by then
-      for (const r of RULES.filter((x) => x.sel.some((sel) => sel.startsWith(`.aj-mv-${m} `)))) {
-        const delay = Number(/animation-delay: ([\d.]+)s/.exec(r.decl)?.[1] ?? NaN);
-        const own = Number(/animation-duration: ([\d.]+)s/.exec(r.decl)?.[1] ?? NaN);
-        if (!Number.isNaN(delay) && !Number.isNaN(own)) expect(delay + own, `${r.sel.join(",")}`).toBeLessThanOrEqual(2.5 + 1e-9);
-        const short = /animation: (aj-[\w-]+) ([\d.]+)s [\w-]+(?:\([^)]*\))?(?: ([\d.]+)s)?(?: (\d+))?/.exec(r.decl);
-        if (short) expect(Number(short[3] ?? 0) + Number(short[2]) * Number(short[4] ?? 1), r.sel.join(",")).toBeLessThanOrEqual(2.5 + 1e-9);
-      }
-      // his parts are hidden unless his show draws them; the act's own parts are hidden until it moves them (.aj-act > *)
-    }
-    for (const part of ["aj-r-hat", "aj-r-badge", "aj-r-rope", "aj-r-blush", "aj-r-pale", "aj-r-cheeks", "aj-r-wavy", "aj-r-chatter", "aj-r-palms"]) {
-      expect(RULES.some((r) => r.sel.includes(`.${part}`) && /opacity: 0;/.test(r.decl)), part).toBe(true);
-    }
-    // the hat, the lasso, the cards, the skull and the hands move by transform and opacity only (the keyframes test for every
-    // keyframes in the sheet holds them to that); the inner card faces swap in a step
-    for (const k of ["aj-jt-pk", "aj-jt-fc", "aj-gt-bk", "aj-gt-fc"]) expect(keyframes(k), k).toMatch(/opacity: [01];/);
-    // reduce motion: no act at all, so none of the five draws or moves; the face rests in its slot
-    const reduce = /@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? "";
-    expect(reduce).toContain(".aj-act { display: none; }");
-    expect(reduce).toContain(".aj-after .aj-face, .aj-after .aj-face *, .aj-jolt { animation: none !important; }");
-    for (const m of HAND_SHOW_MOVES) for (const sel of RULES.filter((r) => r.sel.some((x) => x.includes(`.aj-mv-${m}`))).flatMap((r) => r.sel)) expect(sel.includes(".aj-act") || sel.startsWith(`.aj-mv-${m}`) || sel.startsWith(`.aj-act.aj-mv-${m}`), sel).toBe(true);
   });
 
   it("has its switch in 설정, like 카드 색: on by default, off kept, and older saved settings load as on", async () => {

@@ -1,9 +1,9 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import { RANKS, SUITS, SUIT_SYMBOL, type Card } from "../../poker/cards";
 import { BLIND_LEVELS } from "../quiz/stackQuiz";
 import { cardText, parseCardText } from "./handAnalysis";
 import { estimatedLevel, handLevelLabel, handLogStore, levelEstimateAt, levelInfo, levelLabel, setTodayStart, type LoggedHand } from "./handLog";
-import { estimateLabel, type BreakRow, type LevelEstimate, type LevelRow as ScheduleRow } from "./levelClock";
+import { estimateLabel, type LevelEstimate } from "./levelClock";
 
 /**
  * The hand recorder's inputs, shared by the table flow and the screen for another player's hand:
@@ -197,9 +197,7 @@ const lastClock = () => handLogStore.get().startClock?.clock ?? "19:00";
  * set it. Opened: the start time (one small field, remembered for the day), every level by its blinds
  * on one sideways row (800/1,600 can be picked without knowing it is Lv9), 레벨 모름, and the ante.
  * `onLevel` gets `guessed` true for a level taken from the start time. 빠른 기록 passes its tournament's
- * estimate, start setter and clock (the table flow passes none of them: the day's start time as always), and
- * for a ready-made structure (WPL) its `ladder`: its levels by number ("L2"), its breaks between them, no ante
- * switch (its BB ante is always the big blind).
+ * estimate, start setter and clock (the table flow passes none of them: the day's start time as always).
  */
 export function LevelRow(props: {
   h: Pick<LoggedHand, "id" | "level" | "levelGuess" | "bbAnte" | "createdAt"> & Partial<Pick<LoggedHand, "blinds">>;
@@ -217,20 +215,13 @@ export function LevelRow(props: {
   onStartClock?: (clock: string) => LevelEstimate | null | false;
   /** The clock offered in the field; left out: the last start set, else 19:00. */
   clockDefault?: string;
-  /** A ready-made structure's table (`h.level` is then its level number): its levels and its breaks. */
-  ladder?: { rows: ScheduleRow[]; breaks: BreakRow[] };
 }) {
-  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름", unknownSub = "bb로 계산", onStartClock, clockDefault, ladder } = props;
+  const { h, onLevel, onAnte, open, onToggle, editRef, unknownLabel = "레벨 모름", unknownSub = "bb로 계산", onStartClock, clockDefault } = props;
   const starts = handLogStore.use();
   const est = props.estimate !== undefined ? props.estimate : levelEstimateAt(h.createdAt, starts);
   const estLv = estimatedLevel(est);
-  /** The level word: "Lv" for 야자수 새틀, "L" for a ready-made structure (its own numbers). */
-  const pre = ladder ? "L" : "Lv";
-  const ladderRow = ladder ? (ladder.rows.find((r) => r.level === h.level) ?? null) : null;
-  const info = ladder ? (ladderRow ? { sb: ladderRow.sb, bb: ladderRow.bb } : null) : levelInfo(h.level);
+  const info = levelInfo(h.level);
   const bbChips = info?.bb ?? null;
-  const items: [number, number, number][] = ladder ? ladder.rows.map((r) => [r.level, r.sb, r.bb]) : BLIND_LEVELS;
-  const breakAfter = (lv: number) => (ladder && lv !== items[items.length - 1][0] ? (ladder.breaks.find((b) => b.afterLevel === lv) ?? null) : null);
   const [clockOpen, setClockOpen] = useState(false);
   const [clock, setClock] = useState(() => clockDefault ?? lastClock());
   const [msg, setMsg] = useState("");
@@ -248,14 +239,9 @@ export function LevelRow(props: {
   }, [open, estLv]);
 
   // A 직접 입력 hand carried to the table: its own blinds until a level is picked here (withLv replaces them).
-  const label = ladder && info ? `L${h.level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : levelLabel(h.level);
-  const value = info ? `${label}${h.levelGuess && !est ? " (추정)" : ""}` : h.level === null && h.blinds ? handLevelLabel({ level: null, blinds: h.blinds }) : "레벨 모름";
+  const value = info ? `${levelLabel(h.level)}${h.levelGuess && !est ? " (추정)" : ""}` : h.level === null && h.blinds ? handLevelLabel({ level: null, blinds: h.blinds }) : "레벨 모름";
   const ante = !h.bbAnte ? "앤티 없음" : bbChips ? `BB 앤티 ${bbChips.toLocaleString()}` : "BB 앤티 1bb";
-  /** A ready-made structure's break on now: what else happens in it ("추가등록 마감 · 100칩 레이스"). */
-  const brkNote = ladder && est?.phase === "break" ? ladder.breaks.find((b) => b.afterLevel === est.level)?.note : undefined;
-  const estText = est ? estimateLabel(est, undefined, pre) : "";
-  // The note right after "휴식 중 (다음 L13)", before the clock's tail (the line is cut at the end on a phone).
-  const sub = est ? `⏱ ${brkNote ? estText.replace(" · ", ` · ${brkNote} · `) : estText}` : h.level === null ? "레벨이 기억 안 나면: 시작 시각으로 추정 ›" : null;
+  const sub = est ? `⏱ ${estimateLabel(est)}` : h.level === null ? "레벨이 기억 안 나면: 시작 시각으로 추정 ›" : null;
 
   function applyClock() {
     // The start of this hand's day (last night's hands filled in the next day keep last night's start).
@@ -274,12 +260,11 @@ export function LevelRow(props: {
       {est && !clockOpen ? (
         <div className="lv-start">
           <span>
-            ⏱ <b>{est.startClock}</b> 시작{estLv !== null ? ` · ${pre}${estLv} 추정` : ""}
+            ⏱ <b>{est.startClock}</b> 시작{estLv !== null ? ` · Lv${estLv} 추정` : ""}
           </span>
           {estLv !== null && (h.level !== estLv || !h.levelGuess) && (
             <button type="button" className="ghost small" onClick={() => onLevel(estLv, true)}>
-              {pre}
-              {estLv}로
+              Lv{estLv}로
             </button>
           )}
           <button type="button" className="ghost small" onClick={() => (setClock(est.startClock ?? lastClock()), setClockOpen(true))}>
@@ -316,39 +301,22 @@ export function LevelRow(props: {
           <b>{unknownLabel}</b>
           <small>{unknownSub}</small>
         </button>
-        {items.map(([lv, sb, big]) => {
-          const brk = breakAfter(lv);
-          return (
-            <Fragment key={lv}>
-              <button type="button" role="option" aria-selected={h.level === lv} className={`${h.level === lv ? "on" : ""}${estLv === lv ? " est" : ""}`} onClick={() => onLevel(lv, false)}>
-                <b>
-                  {sb.toLocaleString()}/{big.toLocaleString()}
-                </b>
-                <small>
-                  {pre}
-                  {lv}
-                  {estLv === lv ? " 추정" : ""}
-                </small>
-              </button>
-              {brk && (
-                // A break of the structure between two levels (lit while it is on; its note, "추가등록 마감 · 100칩 레이스", is in the line above then, and in the title).
-                <span className={`lv-brk${est?.phase === "break" && est.level === lv ? " now" : ""}`} title={brk.note} aria-hidden="true">
-                  <b>휴식</b>
-                  <small>{brk.minutes}분</small>
-                </span>
-              )}
-            </Fragment>
-          );
-        })}
+        {BLIND_LEVELS.map(([lv, sb, big]) => (
+          <button key={lv} type="button" role="option" aria-selected={h.level === lv} className={`${h.level === lv ? "on" : ""}${estLv === lv ? " est" : ""}`} onClick={() => onLevel(lv, false)}>
+            <b>
+              {sb.toLocaleString()}/{big.toLocaleString()}
+            </b>
+            <small>
+              Lv{lv}
+              {estLv === lv ? " 추정" : ""}
+            </small>
+          </button>
+        ))}
       </div>
-      {ladder ? (
-        <div className="lv-ante-note">BB 앤티 = BB (구조표대로)</div>
-      ) : (
-        <label className="flow-check">
-          <span>BB 앤티 (BB가 1bb 더 냄)</span>
-          <input type="checkbox" checked={h.bbAnte} onChange={(e) => onAnte(e.target.checked)} />
-        </label>
-      )}
+      <label className="flow-check">
+        <span>BB 앤티 (BB가 1bb 더 냄)</span>
+        <input type="checkbox" checked={h.bbAnte} onChange={(e) => onAnte(e.target.checked)} />
+      </label>
     </RowBox>
   );
 }

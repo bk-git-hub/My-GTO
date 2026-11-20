@@ -11,11 +11,14 @@ import { evaluate } from "../poker/evaluator";
 import { COMBOS } from "../play/handInfo";
 import type { PathStep, Player, Solution, SolutionNode, SolverInput } from "../solver/types";
 import {
+  COMBO_CLASS,
   NUM_COMBOS,
   PACK_FORMAT,
   boardKey,
   canonicalBoard,
   decodeFlopFile,
+  encodeClassRange,
+  encodeClassRoot,
   encodeFlopNode,
   encodeRange,
   summarizeFlop,
@@ -48,6 +51,11 @@ export interface ExtractOptions {
   targetBytes?: number;
   /** Compute the root equity by enumerating every runout (about a second for chart-sized ranges). Default true. */
   equity?: boolean;
+  /**
+   * What the file holds (ScenarioMeta.storage). Default: the action nodes. "rootClasses": no nodes, only the starting
+   * ranges per class (ClassRange) and the per-class root (FlopFile.rootClasses), the calibration queue's slim files.
+   */
+  storage?: "rootClasses";
 }
 
 export interface ExtractResult {
@@ -268,6 +276,7 @@ export function extractFlop(input: SolverInput, solution: Solution, meta: Extrac
   const root = solution.node([]);
   if (root.kind !== "action" || root.street !== "flop") throw new Error("the solve must start with a flop decision");
   const start: [Float32Array, Float32Array] = [root.ranges[0], root.ranges[1]];
+  if (opts.storage === "rootClasses") return extractRootClasses(input, solution, meta, opts, key, start);
   const startMass = [sum(start[0]), sum(start[1])];
 
   let visited = 0;
@@ -380,6 +389,49 @@ export function extractFlop(input: SolverInput, solution: Solution, meta: Extrac
 }
 
 /**
+ * The slim file of a calibration pack (`storage: "rootClasses"`): the starting ranges per class and the per-class root
+ * (each class's root EV for both players, OOP's root frequencies), no action nodes: what scripts/fit-realization.mjs
+ * reads, in about 2 KB. The manifest summary keeps the solver's root equity and EVs; its template is the root alone,
+ * from `rootClasses.actions` (summaryNodeDefs), so a changed root is caught, and with no node its frequency row is null.
+ * The ranges must give every combo of a class the same weight (chart ranges do).
+ */
+function extractRootClasses(
+  input: SolverInput,
+  solution: Solution,
+  meta: ExtractMeta,
+  opts: ExtractOptions,
+  key: string,
+  start: [Float32Array, Float32Array],
+): ExtractResult {
+  const board = Array.from(input.board);
+  const root = solution.node([]);
+  const acts = root.actions!;
+  const actions: PackAction[] = acts.map((a, k) => ({ kind: a.kind, to: a.to, label: a.label, next: childKind(solution.node([{ action: k }])) }));
+  const file: FlopFile = {
+    v: PACK_FORMAT,
+    scenario: meta.scenario,
+    version: meta.version,
+    board: key,
+    pot: input.pot,
+    stack: input.stack,
+    iterations: solution.iterations,
+    exploitability: round(solution.exploitability, 3),
+    ranges: [encodeClassRange(start[0], board), encodeClassRange(start[1], board)],
+    nodes: [],
+    rootClasses: encodeClassRoot({ board, start, ev: root.ev, actions, strategy: root.strategy! }),
+  };
+  const errs = validateFlopFile(file);
+  if (errs.length) throw new Error(`invalid pack file for ${key}: ${errs.slice(0, 5).join("; ")}`);
+  const json = JSON.stringify(file);
+  const bytes = byteLength(json);
+  const decoded = decodeFlopFile(file);
+  const summaryNodes = summaryNodeDefs(decoded, opts.summaryDepth ?? 2);
+  const equity = opts.equity === false ? ([NaN, NaN] as [number, number]) : rangeEquity(board, start[0], start[1]);
+  const summary = summarizeFlop(decoded, summaryNodes, { equity, ev: [rangeAverageEv(root, 0), rangeAverageEv(root, 1)] });
+  return { file, json, bytes, board: key, exploitability: file.exploitability, summary, summaryNodes, tooBig: bytes > MAX_BYTES, stats: { visited: 0, stored: 0, leftOut: 0 } };
+}
+
+/**
  * A manifest summary rebuilt from a stored file alone, for a file that has no manifest entry (e.g. the job
  * stopped between writing the file and the manifest). Inputs are quantized, so the root EV is within ~0.01 bb
  * of the solver's and the equity within ~0.002 of the exact ranges'. IP's EV is the pot minus OOP's.
@@ -387,19 +439,24 @@ export function extractFlop(input: SolverInput, solution: Solution, meta: Extrac
 export function summarizeFile(file: FlopFile, summaryDepth = 2): { summary: FlopSummary; summaryNodes: SummaryNodeDef[] } {
   const flop = decodeFlopFile(file);
   const summaryNodes = summaryNodeDefs(flop, summaryDepth);
-  const root = flop.node([]);
-  if (!root) throw new Error(`${file.board}: no root node`);
   const cs = compatibleWeights(flop.board, flop.ranges[1]);
   let s = 0, W = 0;
-  root.combos.forEach((c, j) => {
-    let ev = 0;
-    root.actions.forEach((_, a) => (ev += root.strategy[a][j] > 0 ? root.strategy[a][j] * root.ev[a][j] : 0));
+  const add = (c: number, ev: number) => {
     const k = flop.ranges[0][c] * cs[c];
     if (k > 0 && !Number.isNaN(ev)) {
       s += k * ev;
       W += k;
     }
-  });
+  };
+  const root = flop.node([]);
+  if (root)
+    root.combos.forEach((c, j) => {
+      let ev = 0;
+      root.actions.forEach((_, a) => (ev += root.strategy[a][j] > 0 ? root.strategy[a][j] * root.ev[a][j] : 0));
+      add(c, ev);
+    });
+  else if (flop.rootClasses) for (let c = 0; c < NUM_COMBOS; c++) add(c, flop.rootClasses.ev[0][COMBO_CLASS[c]]);
+  else throw new Error(`${file.board}: no root node`);
   const ev0 = W > 0 ? s / W : NaN;
   const equity = rangeEquity(flop.board, flop.ranges[0], flop.ranges[1]);
   return { summary: summarizeFlop(flop, summaryNodes, { equity, ev: [ev0, file.pot - ev0] }), summaryNodes };

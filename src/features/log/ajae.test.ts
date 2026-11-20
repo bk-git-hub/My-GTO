@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ALL_HANDS, RANKS } from "../../poker/cards";
-import { AJAE_CRAMPED, AJAE_HAND_SHOWS, AJAE_MOVES, AJAE_ROOM, AJAE_SHOW_REST, AJAE_SPECIALS, AJAE_START, BALL_ROOM, BODY_MOVES, HAND_SHOW_MOVES, POP_ROOM, SPECIAL_MOVES, ajaeCards, ajaeKey, ajaeMove, ajaePair, ajaePairMove, ajaeQuiet, ajaeRestTier, ajaeSeen, ajaeShowHand, ajaeShowMove, ajaeStep, ajaeTier, laterSeats, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
+import { AJAE_CRAMPED, AJAE_MOVES, AJAE_ROOM, AJAE_SPECIALS, AJAE_START, BALL_ROOM, BODY_MOVES, POP_ROOM, SPECIAL_MOVES, ajaeCards, ajaeKey, ajaeMove, ajaePair, ajaePairMove, ajaeQuiet, ajaeSeen, ajaeStep, ajaeTier, laterSeats, type AjaeMove, type AjaeState, type AjaeTier } from "./ajae";
 import { afterSave, cancelEdit, fastHand, forgetHands, newDraft, pickSuited, startEdit, tapRank, undoTap, withSeat, withSpot, type FastDraft, type FastState } from "./fastLog";
 import { emptyHand } from "./handLog";
 import { bbPlayShare, limpShare, raiseShare, TRASH_DEFENSE, trashDefenseShare } from "./judgeChart";
@@ -425,7 +425,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
       // each tier's move in turn, from the k-th reaction
       for (let k = 0; k < 6; k++) expect(ajaeMove(t, k)).toBe(AJAE_MOVES[t][k % AJAE_MOVES[t].length]);
     }
-    expect([...BODY_MOVES].sort()).toEqual(["blush", "cowboy", "crown", "deadman", "gorilla", "gwangttaeng", "jangttaeng", "kick", "mallet", "plane", "rage", "robot", "shove", "shuffle", "slam", "split", "waltz"]);
+    expect([...BODY_MOVES].sort()).toEqual(["crown", "gorilla", "kick", "mallet", "plane", "rage", "robot", "shove", "shuffle", "slam", "split", "waltz"]);
     // every body move knows the room it needs; the face's stand-ins are face moves
     for (const m of BODY_MOVES) expect(AJAE_ROOM[m]).toBeGreaterThan(0);
     for (const m of Object.values(AJAE_CRAMPED)) expect(BODY_MOVES.has(m)).toBe(false);
@@ -479,8 +479,7 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
   it("rages at five trash hands in a row by turns (rage, kick, mallet, slam, rage); 72o rages between them without taking trash's turn", () => {
     let s = AJAE_START;
     const played: string[] = [];
-    // (not 83o: it has a show of its own, 광땡)
-    for (const [seat, a, b] of [["CO", "J", "4"], ["UTG", "T", "3"], ["BTN", "7", "2"], ["HJ", "Q", "2"], ["BB", "8", "4"], ["SB", "9", "4"]]) {
+    for (const [seat, a, b] of [["CO", "J", "4"], ["UTG", "T", "3"], ["BTN", "7", "2"], ["HJ", "Q", "2"], ["BB", "8", "3"], ["SB", "9", "4"]]) {
       const two = typed(seat, a, b);
       s = ajaeStep(s, two, pickSuited(two, false), "mid", 9);
       expect(s.cue!.cls).toBe(`${a}${b}o`);
@@ -585,8 +584,8 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     const rage = ajaeStep(AJAE_START, j4, pickSuited(j4, false), "mid", 9, POP_ROOM - 1).cue!;
     expect(rage).toMatchObject({ move: "rage" });
     expect(rage.low).toBeUndefined();
-    // the full pop needs more room than any of the tiers' body moves but the mallet (the shows aside), and the ball more still
-    for (const m of BODY_MOVES) if (m !== "mallet" && !SPECIAL_MOVES.has(m) && !HAND_SHOW_MOVES.has(m)) expect(AJAE_ROOM[m]).toBeLessThan(POP_ROOM);
+    // the full pop needs more room than any of the tiers' body moves but the mallet, and the ball more still
+    for (const m of BODY_MOVES) if (m !== "mallet" && !SPECIAL_MOVES.has(m)) expect(AJAE_ROOM[m]).toBeLessThan(POP_ROOM);
     expect(POP_ROOM).toBeLessThan(BALL_ROOM);
   });
 
@@ -661,131 +660,5 @@ describe("ajaeStep: he reacts to a class completed by a tap, and only then", () 
     // the table size: 9 → 3 players puts me on the button (FastView's pickPlayers), where K9o is no fold
     expect(ajaeTier("K9o", "BTN", "mid", 3)).not.toBe("fold");
     expect(ajaeSeen(s, withSeat(k9o, "BTN", 3), "mid", 3).cue?.settled).toBe(true);
-  });
-});
-
-describe("the hands with a story: T2's cowboy hat, TT's 장땡, 38's 광땡, A8's dead man's hand, 96 swapped to 69", () => {
-  /** The 아재 after typing `cls` at `seat` (its last tap completes it). */
-  const typed = (s: AjaeState, seat: string, cls: string, stage: PreStage = "mid", players = 9, room?: number) => {
-    let d = tapRank(tapRank(newDraft(seat), R(cls[0])), R(cls[1]));
-    let before = tapRank(newDraft(seat), R(cls[0]));
-    if (cls[2]) [before, d] = [d, pickSuited(d, cls[2] === "s")];
-    return ajaeStep(s, before, d, stage, players, room);
-  };
-  const SHOWS = { T2o: "cowboy", T2s: "cowboy", TT: "jangttaeng", "83o": "gwangttaeng", "83s": "gwangttaeng", A8o: "deadman", A8s: "deadman", "96o": "blush", "96s": "blush" } as const;
-
-  it("has a show for T2, TT, 38, A8 and 96 (offsuit and suited alike), body moves of their own, in no tier's list and no pair's", () => {
-    expect(AJAE_HAND_SHOWS).toEqual(SHOWS);
-    expect([...HAND_SHOW_MOVES].sort()).toEqual(["blush", "cowboy", "deadman", "gwangttaeng", "jangttaeng"]);
-    for (const m of HAND_SHOW_MOVES) {
-      expect(BODY_MOVES.has(m)).toBe(true);
-      expect(SPECIAL_MOVES.has(m)).toBe(false);
-      for (const moves of Object.values(AJAE_MOVES)) expect(moves as readonly string[]).not.toContain(m);
-      expect(Object.values(AJAE_CRAMPED) as string[]).not.toContain(m);
-      // it knows the room it needs (measured in the app), and fits under the stage bar with the page at the top (96 px)
-      expect(AJAE_ROOM[m]).toBeGreaterThan(50);
-      expect(AJAE_ROOM[m]).toBeLessThanOrEqual(96);
-    }
-    // only those nine classes: no other 섯다 hand (no 49, no 땡 but 장땡), and the pairs keep theirs
-    expect(ALL_HANDS.filter((h) => ajaeShowHand(h))).toEqual(Object.keys(SHOWS).sort((a, b) => ALL_HANDS.indexOf(a) - ALL_HANDS.indexOf(b)));
-    for (const h of ["A8s", "A8o", "T2s", "T2o", "TT", "96s", "96o", "83s", "83o"]) expect(ajaePair(h)).toBeUndefined();
-    for (const h of ["AA", "KK", "QQ", "JJ", "99", "AKs", "A9o", "84o", "T3o", "72o", "94o", "A2o"]) expect(ajaeShowHand(h)).toBeUndefined();
-  });
-
-  it("plays its show every time, at every seat, stage and table size, resting on the hand's tier", () => {
-    for (const stage of PRE_STAGES) {
-      for (const players of [3, 6, 9, 10]) {
-        for (const seat of positionsFor(players)) {
-          for (const [cls, move] of Object.entries(SHOWS)) {
-            let s = AJAE_START;
-            for (let i = 0; i < 2; i++) {
-              s = typed(s, seat, cls, stage, players);
-              expect(s.cue, `${cls} ${seat} ${stage} ${players}`).toMatchObject({ cls, move, tier: ajaeTier(cls, seat, stage, players) });
-            }
-            // the tier's turn is left for the tier's other hands
-            expect(s.seen).toEqual({});
-            expect(s.pairs).toEqual({});
-          }
-        }
-      }
-    }
-    // 72o is still the hammer, and the hands around the new ones still take their tier's moves
-    expect(typed(AJAE_START, "BTN", "72o").cue).toMatchObject({ tier: "hammer", move: "rage" });
-    expect(typed(AJAE_START, "CO", "84o").cue!.move).toBe("rage");
-  });
-
-  it("leaves the tiers' turns alone: trash still goes rage, kick, mallet, slam and good shuffle, robot around the shows", () => {
-    let s = AJAE_START;
-    const played: string[] = [];
-    for (const [seat, cls] of [["CO", "J4o"], ["CO", "T2o"], ["CO", "83o"], ["CO", "96o"], ["CO", "J4o"], ["CO", "JTs"], ["CO", "TT"], ["CO", "A8o"], ["CO", "JTs"], ["CO", "Q2o"], ["CO", "T2s"]]) {
-      s = typed(s, seat, cls);
-      played.push(s.cue!.move);
-    }
-    expect(played).toEqual(["rage", "cowboy", "gwangttaeng", "blush", "kick", "shuffle", "jangttaeng", "deadman", "robot", "mallet", "cowboy"]);
-    expect(s.seen).toEqual({ trash: 3, good: 2 });
-    expect(s.pairs).toEqual({});
-    expect(s.n).toBe(11);
-    // the cue says nothing more than any other reaction's
-    expect(Object.keys(s.cue!).sort()).toEqual(["cls", "key", "move", "n", "tier"]);
-  });
-
-  it("plays what fits when the page is scrolled: the show from exactly its room, else what its tier's hands would (the tier's turn untouched)", () => {
-    for (const [cls, move] of Object.entries(SHOWS)) {
-      const need = AJAE_ROOM[move]!;
-      expect(typed(AJAE_START, "CO", cls, "mid", 9, need).cue!.move, cls).toBe(move);
-      const tier = ajaeTier(cls, "CO", "mid", 9);
-      const cramped = typed(AJAE_START, "CO", cls, "mid", 9, need - 1);
-      expect(cramped.cue!.move, cls).toBe(ajaeMove(tier, 0, need - 1));
-      expect(cramped.seen, cls).toEqual({});
-      // far scrolled, the face's stand-in, popping smaller
-      expect(typed(AJAE_START, "CO", cls, "mid", 9, 20).cue, cls).toMatchObject({ move: AJAE_CRAMPED[tier], low: true });
-    }
-    // T2o at the CO is trash: one px short of the hat, the rage (it fits), then the kick; TT is good: the dance without its ball
-    expect(typed(AJAE_START, "CO", "T2o", "mid", 9, AJAE_ROOM.cowboy! - 1).cue!.move).toBe("rage");
-    expect(typed(AJAE_START, "CO", "T2o", "mid", 9, 59).cue!.move).toBe("kick");
-    expect(typed(AJAE_START, "CO", "TT", "mid", 9, AJAE_ROOM.jangttaeng! - 1).cue).toMatchObject({ move: "shuffle", noBall: true });
-    // ajaeShowMove itself
-    expect(ajaeShowMove("T2o", "trash", 0)).toBe("cowboy");
-    expect(ajaeShowMove("96s", "fold", 0, AJAE_ROOM.blush)).toBe("blush");
-    expect(ajaeShowMove("T2o", "trash", 0, 0)).toBe("fume");
-    expect(ajaeShowMove("TT", "good", 1, 60)).toBe("robot");
-    expect(ajaeShowMove("A8o", "fold", 0, 10)).toBe("ponder");
-  });
-
-  it("rests on the show's own face, not the hand's tier's: good after the cowboy, 장땡 and 광땡, fold after the dead man's hand, meh after 96", () => {
-    expect(AJAE_SHOW_REST).toEqual({ cowboy: "good", jangttaeng: "good", gwangttaeng: "good", deadman: "fold", blush: "meh" });
-    expect(Object.keys(AJAE_SHOW_REST).sort()).toEqual([...HAND_SHOW_MOVES].sort());
-    const TIERS = ["monster", "good", "meh", "fold", "trash", "hammer"] as AjaeTier[];
-    for (const t of TIERS) {
-      for (const [m, rest] of Object.entries(AJAE_SHOW_REST)) expect(ajaeRestTier(m as AjaeMove, t), `${m} ${t}`).toBe(rest);
-      // every other move rests on the tier's face as before: the pairs' shows, the tiers' moves (the rage too), the stand-ins
-      for (const m of [...Object.values(AJAE_SPECIALS).flat(), ...Object.values(AJAE_MOVES).flat(), ...Object.values(AJAE_CRAMPED)] as AjaeMove[]) expect(ajaeRestTier(m, t), `${m} ${t}`).toBe(t);
-    }
-    // where it matters: T2o, 83o and 96o are trash at the CO (the furious face, steam and all, after a tier's move), and the
-    // shows end pleased or shy instead; A8o is good there and ends on the fold face, whose shades are up for the skull
-    for (const cls of ["T2o", "83o", "96o"]) expect(tier(cls, "CO"), cls).toBe("trash");
-    expect(tier("A8o", "CO")).toBe("good");
-    for (const [cls, rest] of [["T2o", "good"], ["TT", "good"], ["83o", "good"], ["A8o", "fold"], ["96o", "meh"]] as const) {
-      const cue = typed(AJAE_START, "CO", cls).cue!;
-      expect(ajaeRestTier(cue.move, cue.tier), cls).toBe(rest);
-      // the cue keeps the hand's tier (what settles it when my seat changes); only the face differs
-      expect(cue.tier, cls).toBe(tier(cls, "CO"));
-      // a show that didn't fit: the tier's move, and the tier's face after it
-      const cramped = typed(AJAE_START, "CO", cls, "mid", 9, AJAE_ROOM[cue.move]! - 1).cue!;
-      expect(ajaeRestTier(cramped.move, cramped.tier), cls).toBe(cramped.tier);
-    }
-  });
-
-  it("settles like any reaction: gone with its hand, at rest once the tier on screen changes, and never replays", () => {
-    // A8o: a fold at the UTG, good at the CO (the middle stage, 9-handed)
-    expect(ajaeTier("A8o", "UTG", "mid", 9)).toBe("fold");
-    expect(ajaeTier("A8o", "CO", "mid", 9)).toBe("good");
-    const s = typed(AJAE_START, "CO", "A8o");
-    const d = pickSuited(tapRank(tapRank(newDraft("CO"), R("A")), R("8")), false);
-    expect(ajaeSeen(s, d, "mid", 9)).toBe(s);
-    const moved = ajaeSeen(s, withSeat(d, "UTG", 9), "mid", 9);
-    expect(moved.cue).toMatchObject({ move: "deadman", tier: "good", settled: true });
-    expect(ajaeSeen(moved, d, "mid", 9).cue?.settled).toBe(true);
-    expect(ajaeSeen(s, undoTap(d), "mid", 9).cue).toBeNull();
   });
 });

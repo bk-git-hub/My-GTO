@@ -326,7 +326,7 @@ describe("빠른 기록 (react-dom/server)", () => {
     expect(html).toMatch(/<div class="fast-bar"><div class="fast-stages" role="group" aria-label="스택 구간 \(차트\)"><button type="button" class="" aria-pressed="false">딥<\/button><button type="button" class="on" aria-pressed="true">미들<\/button>/);
     expect(html).toContain('aria-label="테이블 9인 · 인원 바꾸기"');
     // the seat line: no 남의 핸드 toggle; no stack known yet, so nothing by the seat
-    expect(html).toContain('<div class="fast-label seat-line">내 포지션 <b>BTN</b></div>');
+    expect(html).toContain('<div class="fast-label">내 포지션 <b>BTN</b></div>');
     expect(html).toMatch(/<div class="fast-row fast-seats n9">(<button type="button" class="">[^<]+<\/button>){6}<button type="button" class="on">BTN<\/button>/);
     // the pad: 13 ranks and ⌫; 수딧 / 오프수트 wait for two different ranks
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
@@ -403,7 +403,7 @@ describe("빠른 기록 (react-dom/server)", () => {
     fastStore.set(startEdit({ stage: "mid", players: 9, draft: newDraft("LJ"), parked: null }, h));
     const html = page("fast");
     // 수정 중, 삭제 and 취소 in the seat row's label line (in the toggle's place): the hand row stays where it is
-    expect(html).toMatch(/<div class="fast-label seat-line">내 포지션 <b>HJ<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
+    expect(html).toMatch(/<div class="fast-label">내 포지션 <b>HJ<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
     expect(html).not.toContain("fast-editing");
     expect(html).not.toContain("fast-toggle");
     expect(html).toContain('<button type="button" class="a-call on">콜</button>');
@@ -619,7 +619,7 @@ describe("빠른 기록 v2: the chip result and the board (react-dom/server)", (
     put([h]);
     fastStore.set(startEdit({ stage: "mid", players: 9, draft: newDraft("CO"), parked: null }, h));
     const html = page("fast");
-    expect(html).toMatch(/<div class="fast-label seat-line">내 포지션 <b>BTN<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
+    expect(html).toMatch(/<div class="fast-label">내 포지션 <b>BTN<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
     expect(html).not.toContain("fast-editing");
     // the sheet in 금액 (the hand's own), its sign lit, the amount with its bb
     expect(html).toContain('<button type="button" role="tab" aria-selected="true" class="on">금액</button>');
@@ -738,7 +738,7 @@ describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/serve
     expect(html).toContain('<div class="fast-bar"><div class="fast-stages" role="group" aria-label="스택 구간 (차트)">');
     for (const k of "AKQJT98765432") expect(html).toContain(`<button type="button">${k}</button>`);
     // their seat, 남의 핸드 lit in the toggle
-    expect(html).toMatch(/<div class="fast-label seat-line">상대 포지션 <b>BTN<\/b><div class="seg small fast-toggle" role="tablist" aria-label="빠른 기록"><button type="button" role="tab" aria-selected="false" class="">내 핸드<\/button><button type="button" role="tab" aria-selected="true" class="on">남의 핸드<\/button><\/div>/);
+    expect(html).toMatch(/<div class="fast-label">상대 포지션 <b>BTN<\/b><div class="seg small fast-toggle" role="tablist" aria-label="빠른 기록"><button type="button" role="tab" aria-selected="false" class="">내 핸드<\/button><button type="button" role="tab" aria-selected="true" class="on">남의 핸드<\/button><\/div>/);
     // what happened before them, worded from their side
     expect(html).toContain('<div class="fast-label">상황<small>상대 앞에서</small></div>');
     expect(html).toMatch(/<button type="button" class="on"><span>폴드로<\/span><span>상대에게<\/span><\/button>/);
@@ -793,7 +793,7 @@ describe("남의 핸드: 빠른 기록 for other players' hands (react-dom/serve
     put([h]);
     fastOtherStore.set(startEdit({ stage: "mid", players: 9, draft: newDraft("BTN"), parked: null }, h, "other"));
     const html = page("other");
-    expect(html).toMatch(/<div class="fast-label seat-line">상대 포지션 <b>BB<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
+    expect(html).toMatch(/<div class="fast-label">상대 포지션 <b>BB<\/b><span class="fast-edit-mini" role="status"><span>✎ \d\d:\d\d 수정 중<\/span><button type="button" class="danger">삭제<\/button><button type="button">취소<\/button><\/span><\/div>/);
     expect(html).not.toContain('class="calc');
     expect(html).toContain('<button type="button" class="a-call on">콜</button>');
   });
@@ -1041,11 +1041,10 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
         onClose={noop}
       />,
     );
-    // 구조: 야자수 새틀 lit by default, 직접 입력 beside it, WPL 메인's three days under them (one choice)
+    // 구조: 야자수 새틀 lit by default, 직접 입력 beside it
     expect(html).toContain(
-      '<div class="tn-structs" role="radiogroup" aria-label="구조"><div class="tn-struct"><button type="button" role="radio" aria-checked="true" class="on">야자수 새틀<small>구조표대로 · 레벨 자동</small></button><button type="button" role="radio" aria-checked="false" class="">직접 입력<small>블라인드를 직접</small></button></div><div class="tn-struct tn-wpl">',
+      '<div class="tn-struct" role="radiogroup" aria-label="구조"><button type="button" role="radio" aria-checked="true" class="on">야자수 새틀<small>구조표대로 · 레벨 자동</small></button><button type="button" role="radio" aria-checked="false" class="">직접 입력<small>블라인드를 직접</small></button></div>',
     );
-    expect(html).toContain('<button type="button" role="radio" aria-checked="false" aria-label="WPL 메인 DAY1 · 10:00 시작" class="">DAY1<small>10:00</small></button>');
     // 시작 스택: a field-looking button (the in-app calculator), 50,000 with its bb at Lv1
     expect(html).toContain('<button type="button" class="tn-numfield" aria-label="시작 스택 50,000 · 계산기로 넣기">50,000 <span class="bb">250bb</span></button><small>Lv1 기준 · 누르면 계산기</small>');
     expect(html).not.toContain('inputMode="numeric"');
@@ -1127,27 +1126,6 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
     expect(render(<ChipUpdateSheet now={{ chips: null, why: "gap" }} level={5} open={null} onSave={() => null} onClose={noop} />)).toContain("앱이 센 스택 모름 · 결과 없는 핸드가 있어요");
     // one just typed, no hand since: put right in place
     expect(render(<ChipUpdateSheet now={{ chips: 63000 }} level={5} open={{ at: 1, stack: 61000 }} onSave={() => null} onClose={noop} />)).toContain("방금 넣은 61,000을 이걸로 고쳐요");
-  });
-
-  it("keeps the seat line one height with or without my stack (the old toggle's 38 px), so the hand row and the 아재's room stay put", async () => {
-    // No @types/node here: reach node:fs through an untyped handle (vitest serves an imported .css as empty).
-    const fs = (await import(/* @vite-ignore */ "node:fs" as string)) as { readFileSync(path: URL, encoding: "utf8"): string };
-    const styles = fs.readFileSync(new URL("../../styles.css", import.meta.url), "utf8");
-    const px = (sel: string, prop: string) => Number(new RegExp(`\\n${sel.replace(/\./g, "\\.")} \\{[^}]*?${prop}: (\\d+)px`).exec(styles)?.[1]);
-    // the line's floor is what the 내 핸드 | 남의 핸드 toggle made it (a 32 px button in a 2 px padded, 1 px bordered box),
-    // the height 수정 중's line keeps too; my stack's button (32 px) and its ⏳ button fit inside it
-    expect(px(".fast-label.seat-line", "min-height")).toBe(38);
-    expect(px(".fast-label .fast-toggle button", "height") + 2 * 2 + 2 * 1).toBe(38);
-    expect(px(".fast-edit-mini", "height")).toBe(38);
-    expect(px(".fast-label .seat-stack", "height")).toBeLessThanOrEqual(38);
-    // the seat line carries it whatever sits at its right end: nothing, my stack, the toggle (남의 핸드)
-    put([]);
-    expect(page("fast")).toMatch(/<div class="fast-label seat-line">내 포지션 <b>[A-Z+0-9]+<\/b><\/div>/);
-    put([fold(NIGHT - MIN, "a"), won(NIGHT - 2 * MIN, "a")], { tourneys: [rec("a", { startSet: undefined })] });
-    expect(page("fast")).toMatch(/<div class="fast-label seat-line">내 포지션 <b>[A-Z+0-9]+<\/b><button type="button" class="seat-stack[^"]*"/);
-    expect(page("other")).toContain('<div class="fast-label seat-line">상대 포지션 <b>');
-    // and only that line: the other labels keep their own height
-    expect(styles.match(/seat-line/g)).toHaveLength(1);
   });
 
   it("leaves everything above the list as it was, tournament or not", () => {
