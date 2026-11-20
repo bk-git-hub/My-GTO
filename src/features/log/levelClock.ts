@@ -15,6 +15,8 @@ export interface LevelRow {
 export interface BreakRow {
   afterLevel: number;
   minutes: number;
+  /** What else happens in it, as the structure sheet says ("추가등록 마감", "100 칩 레이스"); the level picker's line shows it while the break is on. */
+  note?: string;
 }
 
 /**
@@ -175,6 +177,11 @@ export interface Blinds {
   sb: number;
   bb: number;
   ante: number;
+  /**
+   * The level number in a ready-made structure (WPL 메인: structures.ts), for its label only ("L2 100/200"); the
+   * chips are the three fields above. Absent for blinds typed by hand. An older app drops it and keeps the chips.
+   */
+  lv?: number;
 }
 
 /**
@@ -188,13 +195,23 @@ export const BLINDS_MAX = 99_999_999;
 
 const blindInt = (x: unknown, min: number): x is number => typeof x === "number" && Number.isInteger(x) && x >= min && x <= BLINDS_MAX;
 
-/** Stored / typed blinds with valid fields only: integers, 1 ≤ sb ≤ bb ≤ BLINDS_MAX, 0 ≤ ante ≤ BLINDS_MAX; else null. */
+/** The biggest level number a structure's blinds may carry (`lv`). */
+export const LV_MAX = 99;
+
+/**
+ * Stored / typed blinds with valid fields only: integers, 1 ≤ sb ≤ bb ≤ BLINDS_MAX, 0 ≤ ante ≤ BLINDS_MAX, and a
+ * structure's level number `lv` (1 … LV_MAX) kept when there is one; else null.
+ */
 export function cleanBlinds(x: unknown): Blinds | null {
   if (!x || typeof x !== "object") return null;
   const r = x as Record<string, unknown>;
   if (!blindInt(r.sb, 1) || !blindInt(r.bb, 1) || !blindInt(r.ante, 0) || r.sb > r.bb) return null;
-  return { sb: r.sb, bb: r.bb, ante: r.ante };
+  const lv = typeof r.lv === "number" && Number.isInteger(r.lv) && r.lv >= 1 && r.lv <= LV_MAX ? r.lv : null;
+  return { sb: r.sb, bb: r.bb, ante: r.ante, ...(lv !== null ? { lv } : {}) };
 }
+
+/** The chips only (a structure's level number left out): what a 직접 입력 tournament keeps. */
+export const plainBlinds = (b: Blinds): Blinds => ({ sb: b.sb, bb: b.bb, ante: b.ante });
 
 /** The blinds of `lv`: a schedule level's row (sb, bb, ante), custom blinds when valid, else null. */
 export function blindsOf(lv: Lv, schedule: LevelRow[] = PUB_SCHEDULE): Blinds | null {
@@ -345,14 +362,15 @@ export function durationText(minutes: number): string {
 /**
  * Korean label for an estimate: "Lv9 추정 · 19:00 시작 3시간 5분째", "휴식 중 (다음 Lv10) · …",
  * "시작 전 · 19:00 시작까지 20분", "Lv30 이후 (구조표 끝) · …". The start clock comes from
- * `startClock` or the estimate itself; without one the tail reads "시작 3시간 5분째".
+ * `startClock` or the estimate itself; without one the tail reads "시작 3시간 5분째". `prefix`: a ready-made
+ * structure's level word ("L": "L2 추정").
  */
-export function estimateLabel(r: LevelEstimate, startClock?: string): string {
+export function estimateLabel(r: LevelEstimate, startClock?: string, prefix = "Lv"): string {
   const clock = (startClock !== undefined ? clockText(startClock) : null) ?? r.startClock ?? null;
   const since = clock ? `${clock} 시작` : "시작";
   if (r.phase === "before") return `시작 전${clock ? ` · ${clock} 시작까지 ${durationText(r.minutesLeft)}` : ""}`;
   const tail = ` · ${since} ${durationText(r.elapsedMinutes)}째`;
-  if (r.phase === "break") return `휴식 중${r.nextLevel !== undefined ? ` (다음 Lv${r.nextLevel})` : ""}${tail}`;
-  if (r.phase === "after") return `${r.level !== null ? `Lv${r.level} 이후 (구조표 끝)` : "구조표 끝"}${tail}`;
-  return `Lv${r.level} 추정${tail}`;
+  if (r.phase === "break") return `휴식 중${r.nextLevel !== undefined ? ` (다음 ${prefix}${r.nextLevel})` : ""}${tail}`;
+  if (r.phase === "after") return `${r.level !== null ? `${prefix}${r.level} 이후 (구조표 끝)` : "구조표 끝"}${tail}`;
+  return `${prefix}${r.level} 추정${tail}`;
 }

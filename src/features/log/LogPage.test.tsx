@@ -1041,10 +1041,11 @@ describe("빠른 기록's tournaments (react-dom/server)", () => {
         onClose={noop}
       />,
     );
-    // 구조: 야자수 새틀 lit by default, 직접 입력 beside it
+    // 구조: 야자수 새틀 lit by default, 직접 입력 beside it, WPL 메인's three days under them (one choice)
     expect(html).toContain(
-      '<div class="tn-struct" role="radiogroup" aria-label="구조"><button type="button" role="radio" aria-checked="true" class="on">야자수 새틀<small>구조표대로 · 레벨 자동</small></button><button type="button" role="radio" aria-checked="false" class="">직접 입력<small>블라인드를 직접</small></button></div>',
+      '<div class="tn-structs" role="radiogroup" aria-label="구조"><div class="tn-struct"><button type="button" role="radio" aria-checked="true" class="on">야자수 새틀<small>구조표대로 · 레벨 자동</small></button><button type="button" role="radio" aria-checked="false" class="">직접 입력<small>블라인드를 직접</small></button></div><div class="tn-struct tn-wpl">',
     );
+    expect(html).toContain('<button type="button" role="radio" aria-checked="false" aria-label="WPL 메인 DAY1 · 10:00 시작" class="">DAY1<small>10:00</small></button>');
     // 시작 스택: a field-looking button (the in-app calculator), 50,000 with its bb at Lv1
     expect(html).toContain('<button type="button" class="tn-numfield" aria-label="시작 스택 50,000 · 계산기로 넣기">50,000 <span class="bb">250bb</span></button><small>Lv1 기준 · 누르면 계산기</small>');
     expect(html).not.toContain('inputMode="numeric"');

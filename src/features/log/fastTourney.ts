@@ -23,6 +23,7 @@ import {
   handRoute,
   isOther,
   levelEstimateAt,
+  localDay,
   saveHand,
   setTodayStart,
   START_LEAD_MS,
@@ -33,7 +34,8 @@ import {
   type HandLogState,
   type LoggedHand,
 } from "./handLog";
-import { cleanBlinds, durationText, levelAt, parseClock, type Blinds, type LevelEstimate } from "./levelClock";
+import { cleanBlinds, durationText, levelAt, levelRow, levelStartMinutes, parseClock, plainBlinds, type Blinds, type LevelEstimate } from "./levelClock";
+import { presetBlinds, presetById, presetFrom, presetSpanMinutes, presetStart, type PresetId, type StructurePreset } from "./structures";
 import { cleanChecks, cleanTourneys, isStackChips, TOURNEY_MEMO_MAX, TOURNEY_NAME_MAX, withoutTourney, withTourney, type StackCheck, type Tourney } from "./tourney";
 
 /**
@@ -83,24 +85,86 @@ function firstHandAt(hands: LoggedHand[], id: string): number | null {
   return at;
 }
 
-/** When it was last used: its start or resume, or its newest hand. */
+/**
+ * When it was last used: its start or resume, or its newest hand. A ready-made structure's day (WPL) counts its
+ * start too: set up the night before, it is still live at its start the next morning (a start ahead: live till then).
+ */
 export function lastActivity(t: Tourney, hands: LoggedHand[]): number {
-  return Math.max(t.activeAt, lastHandAt(hands, t.id) ?? -Infinity);
+  const used = Math.max(t.activeAt, lastHandAt(hands, t.id) ?? -Infinity);
+  return t.startSet && presetOf(t) ? Math.max(used, t.start) : used;
 }
 
-/** The one started or resumed last (a tie: the one made later). */
-function latest(ts: Tourney[]): Tourney | null {
-  return ts.reduce<Tourney | null>((b, t) => (!b || t.activeAt > b.activeAt || (t.activeAt === b.activeAt && t.createdAt >= b.createdAt) ? t : b), null);
+/**
+ * When it counts as started (which one is current): its start or resume; a ready-made structure's day set up
+ * ahead, from its start once that has come (a pub tournament logged the night before doesn't hold its morning).
+ */
+function startedAt(t: Tourney, now: number): number {
+  return t.startSet && presetOf(t) && t.start <= now ? Math.max(t.activeAt, t.start) : t.activeAt;
+}
+
+/** The one started or resumed last by `now` (a tie: the one made later). */
+function latest(ts: Tourney[], now: number): Tourney | null {
+  return ts.reduce<Tourney | null>((b, t) => {
+    const a = b ? startedAt(b, now) : -Infinity;
+    const x = startedAt(t, now);
+    return !b || x > a || (x === a && t.createdAt >= b.createdAt) ? t : b;
+  }, null);
 }
 
 /** The current tournament at `now`: the one started or resumed last, if it was used within TOURNEY_IDLE_MS; else null. */
 export function currentTourney(ts: Tourney[], hands: LoggedHand[], now: number): Tourney | null {
-  const t = latest(ts);
+  const t = latest(ts, now);
   return t && now - lastActivity(t, hands) <= TOURNEY_IDLE_MS ? t : null;
 }
 
 /** A start covers the moments from 10 hours before it to 14 hours after (the same window as a day's start time). */
 export const startCovers = (start: number, at: number): boolean => at >= start - START_LEAD_MS && at < start + START_SPAN_MS;
+
+const MIN_MS = 60_000;
+
+/**
+ * A ready-made structure's day from `start` (at `startLevel`) covers from START_LEAD_MS before it to the end of its
+ * table, at least START_SPAN_MS (DAY3's sixteen 60-minute levels run longer than that).
+ */
+export function presetCovers(p: StructurePreset, startLevel: number | undefined, start: number, at: number): boolean {
+  return at >= start - START_LEAD_MS && at < start + Math.max(START_SPAN_MS, presetSpanMinutes(p, startLevel) * MIN_MS);
+}
+
+/** The local start at `clock` `delta` days from `ref`'s day, or null for a clock that can't be read. */
+function clockOn(clock: string, ref: number, delta: number): number | null {
+  const c = parseClock(clock);
+  if (!c || !Number.isFinite(ref)) return null;
+  const d = new Date(ref);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + delta, c.h, c.m).getTime();
+}
+
+/**
+ * The start a new tournament of ready-made structure `p` takes from its fixed `clock`, made at `now`: the first of
+ * yesterday's, today's and tomorrow's that can still be joined (now before it plus its joinMinutes). So DAY1's 10:00
+ * made in the evening is the next morning's, made after midnight or at the table it is that day's. Null for a clock
+ * that can't be read.
+ */
+export function presetStartMs(p: StructurePreset, clock: string, now: number): number | null {
+  for (const delta of [-1, 0, 1]) {
+    const c = clockOn(clock, now, delta);
+    if (c === null) return null;
+    if (now < c + p.joinMinutes * MIN_MS) return c;
+  }
+  return clockOn(clock, now, 1);
+}
+
+/**
+ * The start a hand at `at` of ready-made structure `p` (from `startLevel`) was played after: the latest of the
+ * days' starts at `clock` up to `at` whose day covers it (DAY3 played past 03:00 is still the day before's), else
+ * the clock read near `at` (startMsFor). Null for a clock that can't be read.
+ */
+function presetHandStart(p: StructurePreset, startLevel: number | undefined, clock: string, at: number): number | null {
+  for (const delta of [0, -1]) {
+    const c = clockOn(clock, at, delta);
+    if (c !== null && c <= at && presetCovers(p, startLevel, c, at)) return c;
+  }
+  return startMsFor(clock, at);
+}
 
 /**
  * The level at `at` by the tournament's start, when it has one set and it covers `at`; else `fallback` (the
@@ -110,26 +174,81 @@ export const startCovers = (start: number, at: number): boolean => at >= start -
  * corrected in 핸드 복기 counts here too).
  */
 export function tourneyEstimate(t: Tourney | null, at: number, fallback: LevelEstimate | null): LevelEstimate | null {
+  // A ready-made structure (WPL): its own table from its own start (and start level); never the day's 야자수 새틀 clock.
+  const p = presetOf(t);
+  if (t && p) return t.startSet && presetCovers(p, t.startLevel, t.start, at) ? { ...levelAt(t.start, at, presetFrom(p, t.startLevel), p.breaks), startClock: clockOf(t.start) } : null;
   // 직접 입력: the blinds are typed as they go up; nothing is guessed from a clock, not even the day's.
   if (t && isCustom(t)) return null;
   if (t?.startSet && startCovers(t.start, at) && !(t.auto && fallback)) return { ...levelAt(t.start, at), startClock: clockOf(t.start) };
   return fallback;
 }
 
-/** A 직접 입력 tournament: its blinds are typed by hand (no 야자수 새틀 level, no time estimate). */
-export const isCustom = (t: Pick<Tourney, "structure"> | null | undefined): boolean => t?.structure === "custom";
+/** The ready-made structure (WPL 메인 DAY1/2/3) tournament `t` follows, or null (야자수 새틀, 직접 입력). */
+export const presetOf = (t: Pick<Tourney, "structure" | "preset"> | null | undefined): StructurePreset | null => (t?.structure === "custom" ? presetById(t.preset) : null);
+
+/**
+ * What a start `clock` (read near `at`) gives at `at` by ready-made structure tournament `t`'s table (its start
+ * level), nothing stored: for a hand of it being corrected. False for a clock that can't be read or a tournament
+ * without a ready-made structure.
+ */
+export function presetEstimate(t: Tourney, clock: string, at: number): LevelEstimate | null | false {
+  const p = presetOf(t);
+  const start = p ? presetHandStart(p, t.startLevel, clock, at) : null;
+  if (!p || start === null) return false;
+  return { ...levelAt(start, at, presetFrom(p, t.startLevel), p.breaks), startClock: clockOf(start) };
+}
+
+/** A 직접 입력 tournament: its blinds are typed by hand (no 야자수 새틀 level, no time estimate). Not one with a ready-made structure. */
+export const isCustom = (t: Pick<Tourney, "structure" | "preset"> | null | undefined): boolean => t?.structure === "custom" && !presetOf(t);
 
 /**
  * The level new hands go in at in tournament `t` (null: none current): a 직접 입력 tournament's blinds as set
- * (none yet: null, never guessed), else fastLevel's (a level picked, else the estimate `est`).
+ * (none yet: null, never guessed); a ready-made structure's level (a level picked, moved on by its clock, else its
+ * clock `est`) as its blinds with their number; else fastLevel's (a level picked, else the estimate `est`).
  */
 export function levelFor(t: Tourney | null, s: Pick<FastState, "levelPick">, session: LoggedHand[], now: number, est: LevelEstimate | null): FastLevel & { picked: boolean } {
   if (t && isCustom(t)) return { level: t.blinds ?? null, guessed: false, picked: false };
+  const p = presetOf(t);
+  if (t && p) {
+    const r = fastLevel(s, session, now, est, t.id, p.schedule, p.breaks, (lv, at) => presetPickFrom(t, p, lv, at));
+    return { ...r, level: typeof r.level === "number" ? presetBlinds(p, r.level) : null };
+  }
   return fastLevel(s, session, now, est, t?.id ?? null);
 }
 
-/** Whether new hands in `t` have the BB ante: a 직접 입력 tournament's from its blinds (앤티 0: none), else the toggle's. */
-export const anteFor = (t: Tourney | null, s: Pick<FastState, "noAnte">): boolean => (t && isCustom(t) ? (t.blinds?.ante ?? 0) > 0 : !s.noAnte);
+/**
+ * Where a level picked at `at` in ready-made structure tournament `t` runs from, on its clock's boundaries: the floor
+ * keeps the structure's clock, so a pick moves the day by whole levels and never by the minutes of the tap. The
+ * level the clock is at (a tap that confirms it), or the one it comes to next (picked before the start or in the
+ * break before it): from where the clock has it, nothing moved. Another level: from the start of the clock's level
+ * at the pick (up to the picked level's length back). In a break, after the table, or with no start covering the
+ * pick: from the moment it was picked (as 야자수 새틀's picks).
+ */
+export function presetPickFrom(t: Tourney, p: StructurePreset, level: number, at: number): number {
+  if (!t.startSet || !presetCovers(p, t.startLevel, t.start, at)) return at;
+  const rows = presetFrom(p, t.startLevel);
+  const startOf = (lv: number): number | null => {
+    const m = levelStartMinutes(lv, rows, p.breaks);
+    return m === null ? null : t.start + m * MIN_MS;
+  };
+  const e = levelAt(t.start, at, rows, p.breaks);
+  if ((e.phase === "level" && e.level === level) || ((e.phase === "before" || e.phase === "break") && e.nextLevel === level)) return startOf(level) ?? at;
+  if (e.phase !== "level" || e.level === null) return at;
+  const from = startOf(e.level);
+  const len = levelRow(level, p.schedule)?.minutes ?? 0;
+  return from === null ? at : at - Math.min(at - from, len * MIN_MS);
+}
+
+/** Whether new hands in `t` have the BB ante: a 직접 입력 tournament's from its blinds (앤티 0: none), a ready-made structure's always, else the toggle's. */
+export const anteFor = (t: Tourney | null, s: Pick<FastState, "noAnte">): boolean => (t && isCustom(t) ? (t.blinds?.ante ?? 0) > 0 : presetOf(t) ? true : !s.noAnte);
+
+/** The stage 빠른 기록 opens at on a first visit, from the level the clock gives: 야자수 새틀's only (its levels are what levelStage knows). */
+export function stageLevel(at: number, s: HandLogState = handLogStore.get()): number | null {
+  const cur = currentTourney(cleanTourneys(s.tourneys), s.hands, at);
+  if (presetOf(cur) || isCustom(cur)) return null;
+  const e = fastEstimate(at, s);
+  return e && e.phase !== "before" ? e.level : null;
+}
 
 /** The estimate 빠른 기록 uses at `at`: the current tournament's start, else the day's (tourneyEstimate). */
 export function fastEstimate(at: number, s: HandLogState = handLogStore.get()): LevelEstimate | null {
@@ -186,6 +305,16 @@ export function stampPick(s: FastState, id: string, now: number): FastState {
   return { ...s, levelPick: { ...s.levelPick, t: id } };
 }
 
+/** A level picked in tournament `id` goes from 빠른 기록's stored editor (its structure changed: the number means another level now). */
+function dropStoredPick(id: string): void {
+  const raw = fastStore.get();
+  const p = raw.levelPick;
+  if (!p || typeof p !== "object" || p.t !== id) return;
+  const { levelPick: _p, ...rest } = raw;
+  void _p;
+  fastStore.set(rest);
+}
+
 /** The same on 빠른 기록's stored editor (a tournament started from 남의 핸드, or from the sheet: the level pick lives there). */
 export function stampStoredPick(id: string, now: number): void {
   const raw = fastStore.get();
@@ -224,13 +353,26 @@ export function saveNewFast(h: LoggedHand, now: number, extra: LoggedHand[] = []
   const nt = tourneyForNew(now, st);
   const hand: LoggedHand = { ...h, tourney: nt.id };
   // `extra`: hands that go with it in the same write (the seats skipped since the last hand, as folds), same tournament.
-  const add = (x: HandLogState): HandLogState =>
+  const withExtra = (x: HandLogState): HandLogState =>
     extra.length ? { ...x, hands: [...x.hands.filter((y) => !extra.some((e) => e.id === y.id)), ...extra.map((e) => ({ ...e, tourney: nt.id }))].sort((a, b) => b.createdAt - a.createdAt) } : x;
+  const add = (x: HandLogState): HandLogState => presetBlindsTo(withExtra(x), nt.id, hand);
   const t = nt.start;
   if (!t) return { ok: saveHand(hand, add), hand, started: null };
   const join = new Set(runningUntagged(st.hands, now).map((x) => x.id));
   const ok = saveHand(hand, (s) => add(tagHands(withTourney(s, t), join, t.id, now)));
   return { ok, hand, started: ok ? t : null };
+}
+
+/**
+ * A ready-made structure's tournament `id` with its stored `blinds` at hand `h`'s (in the same write as the hand):
+ * an older app reads it as 직접 입력 at those blinds, so they stay the blinds of now. Its updatedAt stays (only that
+ * app reads them). The same state back for any other tournament, or a hand with no blinds.
+ */
+function presetBlindsTo(s: HandLogState, id: string, h: LoggedHand): HandLogState {
+  const t = cleanTourneys(s.tourneys).find((x) => x.id === id);
+  const b = h.level === null ? cleanBlinds(h.blinds) : null;
+  if (!t || !presetOf(t) || !b || (t.blinds && t.blinds.sb === b.sb && t.blinds.bb === b.bb && t.blinds.ante === b.ante)) return s;
+  return withTourney(s, { ...t, blinds: plainBlinds(b) });
 }
 
 // ───────────── display ─────────────
@@ -267,9 +409,37 @@ export function tourneyWhen(t: Tourney, hands: LoggedHand[]): string {
   return first !== null ? `${clockOf(first)}부터` : "시작 시각 모름";
 }
 
-/** The tournament's lines for the copy text (sessionText). */
+/** tourneyWhen seen at `now`: a start still to come on a later day with its date ("11월 21일 (토) 10:00 시작": a WPL day set up the night before). */
+export function tourneyWhenAt(t: Tourney, hands: LoggedHand[], now: number): string {
+  return t.startSet && t.start > now && localDay(t.start) !== localDay(now) ? `${dateOf(t.start)} ${clockOf(t.start)} 시작` : tourneyWhen(t, hands);
+}
+
+/**
+ * The tournament's lines for the copy text (sessionText); a ready-made structure names its event ("WPL 메인 이벤트")
+ * and its day, pace and the levels its hands were played at ("DAY1 · 30분 레벨 · L1–L4"; none yet: "L19부터").
+ */
 export function infoOf(t: Tourney, hands: LoggedHand[]): SessionInfo {
-  return { title: tourneyTitle(t, hands), when: `${dateOf(tourneyDay(t, hands))} ${tourneyWhen(t, hands)}`, startStack: t.startStack, memo: t.memo, ...(t.checks?.length ? { checks: t.checks } : {}) };
+  const p = presetOf(t);
+  return {
+    title: tourneyTitle(t, hands),
+    when: `${dateOf(tourneyDay(t, hands))} ${tourneyWhen(t, hands)}`,
+    startStack: t.startStack,
+    memo: t.memo,
+    ...(t.checks?.length ? { checks: t.checks } : {}),
+    ...(p ? { event: p.event, structure: `${p.short} · ${presetFrom(p, t.startLevel)[0].minutes}분 레벨 · ${playedLevels(t, p, hands)}` } : {}),
+  };
+}
+
+/** The levels the hands of ready-made structure tournament `t` were played at: "L1–L4", "L2"; none: "L19부터" (its start level). */
+function playedLevels(t: Tourney, p: StructurePreset, hands: LoggedHand[]): string {
+  const lvs = allOf(hands, t.id).flatMap((h) => {
+    const b = h.level === null ? cleanBlinds(h.blinds) : null;
+    return b?.lv !== undefined ? [b.lv] : [];
+  });
+  if (!lvs.length) return `L${presetStart(p, t.startLevel)}부터`;
+  const lo = Math.min(...lvs);
+  const hi = Math.max(...lvs);
+  return lo === hi ? `L${lo}` : `L${lo}–L${hi}`;
 }
 
 // ───────────── the groups the 토너먼트 기록 screens list ─────────────
@@ -531,21 +701,26 @@ export interface TourneyFields {
   /** Digits, or "" (not known). */
   stack: string;
   memo: string;
-  /** The blind structure: "pub" (or absent) = 야자수 새틀, "custom" = 직접 입력. */
-  structure?: "pub" | "custom";
+  /** The blind structure: "pub" (or absent) = 야자수 새틀, "custom" = 직접 입력, or a ready-made one (structures.ts: "wpl1" …). */
+  structure?: "pub" | "custom" | PresetId;
   /** 직접 입력's starting / current blinds; null or absent: not set. */
   blinds?: Blinds | null;
+  /** A ready-made structure's start level (DAY2, DAY3); null or absent: its own. */
+  startLevel?: number | null;
 }
+
+/** The ready-made structure the sheet's fields pick, or null (야자수 새틀, 직접 입력). */
+export const fieldsPreset = (f: Pick<TourneyFields, "structure">): StructurePreset | null => presetById(f.structure);
 
 /** How far before and after now the last start time used is offered for a new tournament: one running, or one about to begin. */
 const OFFER_BEFORE_MS = 6 * 60 * 60 * 1000;
 const OFFER_AFTER_MS = 2 * 60 * 60 * 1000;
 
-/** The clock of the start set last (a day's start, or a tournament's), or null. */
+/** The clock of the start set last (a day's start, or a 야자수 새틀 / 직접 입력 tournament's: a WPL day's fixed start isn't the pub's), or null. */
 function lastStartClock(s: HandLogState): string | null {
   const day = startMsOf(cleanStartClock(s.startClock));
   const t = cleanTourneys(s.tourneys)
-    .filter((x) => x.startSet)
+    .filter((x) => x.startSet && !presetOf(x))
     .reduce<number | null>((m, x) => (m === null || x.start > m ? x.start : m), null);
   const last = day === null ? t : t === null ? day : Math.max(day, t);
   return last === null ? null : clockOf(last);
@@ -565,29 +740,49 @@ export function newFields(now: number, s: HandLogState = handLogStore.get()): To
 }
 
 /**
- * What the sheet's 시작 시간 (read near `ref`) gives at `now`, shown under it as it is typed: "지금 Lv3
- * 200/400", "지금 휴식 (Lv3 200/400)", "시작 전 · 25분 뒤", "지금 구조표 끝 (Lv…)"; null for an empty or
- * unreadable clock, or a start that doesn't cover `now` (another day's tournament).
+ * The start the sheet's 시작 시간 means: read near `ref` (startMsFor); for a new tournament (`fresh`) of a ready-made
+ * structure, the next of its fixed starts that can still be joined (presetStartMs: made the night before, the next
+ * morning's). Null for a clock that can't be read.
  */
-export function startLevelText(clock: string, ref: number, now: number): string | null {
+export function sheetStartMs(clock: string, ref: number, f?: Pick<TourneyFields, "structure">, fresh = false): number | null {
+  const p = f ? fieldsPreset(f) : null;
+  return p && fresh ? presetStartMs(p, clock, ref) : startMsFor(clock, ref);
+}
+
+/**
+ * What the sheet's 시작 시간 (read near `ref`, sheetStartMs) gives at `now`, shown under it as it is typed: "지금 Lv3
+ * 200/400", "지금 휴식 (Lv3 200/400)", "시작 전 · 25분 뒤", "지금 구조표 끝 (Lv…)"; null for an empty or
+ * unreadable clock, or a start that doesn't cover `now` (another day's tournament). `f`: a ready-made
+ * structure picked (and its start level): its table, "지금 L2 100/200", and a start on a later day by its date
+ * ("11월 21일 (토) 시작 · 12시간 뒤"), so a day set up the night before shows which day it is.
+ */
+export function startLevelText(clock: string, ref: number, now: number, f?: Pick<TourneyFields, "structure" | "startLevel">, fresh = false): string | null {
   if (!clock.trim()) return null;
-  const start = startMsFor(clock, ref);
-  if (start === null || !startCovers(start, now)) return null;
-  const e = levelAt(start, now);
+  const p = f ? fieldsPreset(f) : null;
+  const start = sheetStartMs(clock, ref, f, fresh);
+  if (start === null) return null;
+  const sl = f?.startLevel ?? undefined;
+  if (p && start > now) {
+    const left = durationText(Math.ceil((start - now) / MIN_MS));
+    return localDay(start) !== localDay(now) ? `${dateOf(start)} 시작 · ${left} 뒤` : `시작 전 · ${left} 뒤`;
+  }
+  if (p ? !presetCovers(p, sl, start, now) : !startCovers(start, now)) return null;
+  const e = p ? levelAt(start, now, presetFrom(p, sl), p.breaks) : levelAt(start, now);
+  const chip = (lv: number | null) => (p ? levelChip(presetBlinds(p, lv)) : levelChip(lv));
   if (e.phase === "before") return `시작 전 · ${durationText(e.minutesLeft)} 뒤`;
-  if (e.phase === "break") return `지금 휴식 (${levelChip(e.level)})`;
-  if (e.phase === "after") return `지금 구조표 끝 (${levelChip(e.level)})`;
-  return `지금 ${levelChip(e.level)}`;
+  if (e.phase === "break") return `지금 휴식 (${chip(e.level)})`;
+  if (e.phase === "after") return `지금 구조표 끝 (${chip(e.level)})`;
+  return `지금 ${chip(e.level)}`;
 }
 
 /**
  * The sheet's line under 시작 시간 for tournament `t` (null: a new one, its clock read near now): what the
- * clock gives now (startLevelText), or, for a tournament of another day, the day it counts for ("11월
- * 16일 (월) 시작 기준"); null for an empty clock.
+ * clock gives now (startLevelText, by the structure the fields `f` pick), or, for a tournament of another day,
+ * the day it counts for ("11월 16일 (월) 시작 기준"); null for an empty clock.
  */
-export function sheetLevelText(clock: string, t: Tourney | null, hands: LoggedHand[], now: number): string | null {
+export function sheetLevelText(clock: string, t: Tourney | null, hands: LoggedHand[], now: number, f?: Pick<TourneyFields, "structure" | "startLevel">): string | null {
   const ref = t ? tourneyRef(t, hands) : now;
-  const lv = startLevelText(clock, ref, now);
+  const lv = startLevelText(clock, ref, now, f, !t);
   if (lv || !t || !clock.trim()) return lv;
   const start = startMsFor(clock, ref);
   return start !== null ? `${dateOf(start)} 시작 기준` : null;
@@ -606,35 +801,39 @@ export function onTourneyDay(t: Tourney, hands: LoggedHand[], now: number): bool
 /** The edit sheet's line on what its 시작 시간 does: for the current one on its day, the estimate of hands to come; resumed on a later day, its first day only. */
 export function startNote(t: Tourney, hands: LoggedHand[], current: boolean, now: number): string {
   if (!current) return "저장된 핸드의 레벨은 그대로예요.";
-  if (onTourneyDay(t, hands, now)) return "시작 시간을 바꾸면 앞으로 적는 핸드의 레벨 추정이 바뀌어요 (저장된 핸드는 그대로).";
+  // A ready-made structure's day: still to come (set up ahead), or running by its table (DAY3 past 03:00 too).
+  const p = presetOf(t);
+  if (p && t.startSet ? now < t.start || presetCovers(p, t.startLevel, t.start, now) : onTourneyDay(t, hands, now)) return "시작 시간을 바꾸면 앞으로 적는 핸드의 레벨 추정이 바뀌어요 (저장된 핸드는 그대로).";
   return `${dateOf(tourneyRef(t, hands))}에 시작한 토너먼트라 시작 시간은 그날 기준이에요 · 오늘 레벨은 레벨 칩에서 골라 주세요.`;
 }
 
 /** A tournament's fields as on file (no clock without a start set, no stack when it isn't known). */
 export function fieldsOf(t: Tourney): TourneyFields {
+  const p = presetOf(t);
   return {
     name: t.name,
     clock: t.startSet ? clockOf(t.start) : "",
     stack: t.startStack !== null ? String(t.startStack) : "",
     memo: t.memo,
-    structure: isCustom(t) ? "custom" : "pub",
+    structure: p ? p.id : isCustom(t) ? "custom" : "pub",
     blinds: isCustom(t) ? (t.blinds ?? null) : null,
+    ...(p?.pickStart ? { startLevel: presetStart(p, t.startLevel) } : {}),
   };
 }
 
 /**
  * The current tournament's fields for 빠른 기록's sheet: as on file, with the pub's 50,000 offered as a value
- * when its start stack isn't known (the sheet shows "= 50,000칩"; cleared, it stays unknown); for one started
- * by a hand on its own, on its day, the start its estimate `est` runs on (the day's).
+ * when its start stack isn't known (야자수 새틀 only: the sheet shows "= 50,000칩"; cleared, it stays unknown); for one
+ * started by a hand on its own, on its day, the start its estimate `est` runs on (the day's).
  */
 export function currentFields(t: Tourney, est: LevelEstimate | null, onDay: boolean): TourneyFields {
   const f = fieldsOf(t);
-  return { ...f, ...(t.startStack === null && !isCustom(t) ? { stack: String(PUB_START_STACK) } : {}), ...(t.auto && onDay && est?.startClock ? { clock: est.startClock } : {}) };
+  return { ...f, ...(t.startStack === null && f.structure === "pub" ? { stack: String(PUB_START_STACK) } : {}), ...(t.auto && onDay && est?.startClock ? { clock: est.startClock } : {}) };
 }
 
 /**
- * Why the fields can't be saved, or null: "clock" (can't be read as a time; 야자수 새틀 only), "stack" (not 1 to 9
- * digits, or 0), "blinds" (직접 입력 with blinds that aren't valid). Empty ones are fine (not known).
+ * Why the fields can't be saved, or null: "clock" (can't be read as a time; 야자수 새틀 and ready-made structures), "stack"
+ * (not 1 to 9 digits, or 0), "blinds" (직접 입력 with blinds that aren't valid). Empty ones are fine (not known).
  */
 export function fieldsBlock(f: TourneyFields): "clock" | "stack" | "blinds" | null {
   if (f.structure !== "custom" && f.clock.trim() && !parseClock(f.clock)) return "clock";
@@ -650,23 +849,44 @@ export function startMsFor(clock: string, ref: number): number | null {
   return sc ? startMsOf(sc) : null;
 }
 
-/** The record's fields from the sheet, its start read near `ref` (직접 입력: none); null when they can't be saved. */
-function fromFields(f: TourneyFields, ref: number): (Pick<Tourney, "name" | "memo" | "startStack"> & { start: number | null; custom: boolean; blinds: Blinds | null }) | null {
+/** What the sheet's fields give a record's structure: 직접 입력 (its blinds), a ready-made one (its start level), or neither (야자수 새틀). */
+interface StructureFields {
+  custom: boolean;
+  blinds: Blinds | null;
+  preset: StructurePreset | null;
+  startLevel: number | null;
+}
+
+/** The record's fields from the sheet, its start read near `ref` (sheetStartMs; `fresh`: a new tournament; 직접 입력: none); null when they can't be saved. */
+function fromFields(f: TourneyFields, ref: number, fresh = false): (Pick<Tourney, "name" | "memo" | "startStack"> & { start: number | null } & StructureFields) | null {
   if (fieldsBlock(f)) return null;
   const st = f.stack.trim();
   const custom = f.structure === "custom";
+  const preset = fieldsPreset(f);
+  const blinds = custom ? cleanBlinds(f.blinds) : null;
   return {
     name: f.name.trim().slice(0, TOURNEY_NAME_MAX).trim(),
     memo: f.memo.slice(0, TOURNEY_MEMO_MAX),
-    start: !custom && f.clock.trim() ? startMsFor(f.clock, ref) : null,
+    start: !custom && f.clock.trim() ? sheetStartMs(f.clock, ref, f, fresh) : null,
     startStack: st ? Number(st) : null,
     custom,
-    blinds: custom ? cleanBlinds(f.blinds) : null,
+    blinds: blinds ? plainBlinds(blinds) : null,
+    preset,
+    startLevel: preset?.pickStart ? presetStart(preset, f.startLevel) : null,
   };
 }
 
-/** A record's structure fields: 직접 입력 with its blinds when set, else nothing (야자수 새틀). */
-const structureOf = (v: { custom: boolean; blinds: Blinds | null }): Pick<Tourney, "structure" | "blinds"> => (v.custom ? { structure: "custom", ...(v.blinds ? { blinds: v.blinds } : {}) } : {});
+/**
+ * A record's structure fields: 직접 입력 with its blinds when set; a ready-made one as 직접 입력 (for an older app) at its
+ * start level's blinds, with its id and start level; else nothing (야자수 새틀).
+ */
+function structureOf(v: StructureFields): Pick<Tourney, "structure" | "blinds" | "preset" | "startLevel"> {
+  if (v.preset) {
+    const b = presetBlinds(v.preset, presetStart(v.preset, v.startLevel));
+    return { structure: "custom", ...(b ? { blinds: plainBlinds(b) } : {}), preset: v.preset.id, ...(v.startLevel !== null ? { startLevel: v.startLevel } : {}) };
+  }
+  return v.custom ? { structure: "custom", ...(v.blinds ? { blinds: v.blinds } : {}) } : {};
+}
 
 // ───────────── store actions (one write each; a refused write leaves the store as it was) ─────────────
 
@@ -678,12 +898,15 @@ function write(next: HandLogState, prev: HandLogState): boolean {
 
 /**
  * A new tournament from the sheet; it becomes the current one (a level picked while none was current goes
- * with it). A clock left empty: no start set. 직접 입력: its structure and blinds, no start set (no estimate).
+ * with it, unless it has a ready-made structure: that runs on its own clock). A clock left empty: no start set.
+ * 직접 입력: its structure and blinds, no start set (no estimate). A ready-made structure (WPL): stored as 직접 입력
+ * at its start level's blinds (for an older app) with its id and start level; its start from the clock, the next
+ * day's once that day can no longer be joined (presetStartMs: DAY1 set up the evening before is the next morning's).
  * `join`: today's running hands from before tournaments (runningUntagged) go to it, in the same write.
  * Returns its id, or null.
  */
 export function startTourney(f: TourneyFields, now: number = Date.now(), join = false): string | null {
-  const v = fromFields(f, now);
+  const v = fromFields(f, now, true);
   if (!v) return null;
   const prev = handLogStore.get();
   const t: Tourney = {
@@ -700,7 +923,8 @@ export function startTourney(f: TourneyFields, now: number = Date.now(), join = 
   };
   const ids = new Set(join ? runningUntagged(prev.hands, now).map((h) => h.id) : []);
   if (!write(tagHands(withTourney(prev, t), ids, t.id, now), prev)) return null;
-  stampStoredPick(t.id, now);
+  // A ready-made structure's level runs on its own clock: a level picked before it (in 야자수 새틀's numbers) isn't its.
+  if (!presetOf(t)) stampStoredPick(t.id, now);
   return t.id;
 }
 
@@ -708,8 +932,9 @@ export function startTourney(f: TourneyFields, now: number = Date.now(), join = 
  * The sheet's edits to tournament `id` (a stub made from its hands is stored by it). The clock is read near
  * its own start (else its first hand, else when it was made), so an old tournament keeps its date. It is no
  * longer `auto`; whether it is current doesn't change. Switched to 직접 입력: its structure and blinds, its
- * start kept as it was (only shown); back to 야자수 새틀: both dropped, the clock applies to new hands again.
- * Saved hands keep their own level or blinds either way.
+ * start kept as it was (only shown); back to 야자수 새틀: both dropped, the clock applies to new hands again. To a
+ * ready-made structure (WPL): its preset and start level, the clock read as for 야자수 새틀, by its table. A level
+ * picked in it goes when the table or the start level changes. Saved hands keep their own level or blinds either way.
  */
 export function editTourney(id: string, f: TourneyFields, now: number = Date.now()): boolean {
   const prev = handLogStore.get();
@@ -717,16 +942,24 @@ export function editTourney(id: string, f: TourneyFields, now: number = Date.now
   if (!t) return false;
   const v = fromFields(f, tourneyRef(t, prev.hands));
   if (!v) return false;
-  const { auto: _a, startSet: _s, structure: _st, blinds: _b, ...rest } = t;
+  const { auto: _a, startSet: _s, structure: _st, blinds: _b, preset: _p, startLevel: _l, ...rest } = t;
   void _a;
   void _s;
   void _st;
   void _b;
+  void _p;
+  void _l;
   // 직접 입력 has no clock: its start stays as it was.
   const start = v.custom ? { start: t.start, ...(t.startSet ? { startSet: true as const } : {}) } : { start: v.start ?? t.start, ...(v.start !== null ? { startSet: true as const } : {}) };
-  const next: Tourney = { ...rest, name: v.name, memo: v.memo, ...start, startStack: v.startStack, ...structureOf(v), updatedAt: now };
+  // A ready-made structure kept with its start level: its blinds stay the blinds of now (its last hand's, for an older app).
+  const same = !!v.preset && presetOf(t)?.id === v.preset.id && (t.startLevel ?? null) === v.startLevel && !!t.blinds;
+  const next: Tourney = { ...rest, name: v.name, memo: v.memo, ...start, startStack: v.startStack, ...structureOf(v), ...(same ? { blinds: t.blinds } : {}), updatedAt: now };
   // A start stack set or changed: the hands by 스택 work from it.
-  return write(restack(withTourney(prev, next), id, now), prev);
+  if (!write(restack(withTourney(prev, next), id, now), prev)) return false;
+  // Another table (야자수 새틀 ↔ a ready-made one, or another day): a level picked in it would be read in the new one's
+  // numbers; another start level for the day: the clock from it is what was said last.
+  if (presetOf(t)?.id !== v.preset?.id || (t.startLevel ?? null) !== v.startLevel) dropStoredPick(id);
+  return true;
 }
 
 /**
@@ -735,8 +968,9 @@ export function editTourney(id: string, f: TourneyFields, now: number = Date.now
  * or a refused write (the store left as it was).
  */
 export function setTourneyBlinds(id: string, b: Blinds, now: number = Date.now()): boolean {
-  const blinds = cleanBlinds(b);
-  if (!blinds) return false;
+  const clean = cleanBlinds(b);
+  if (!clean) return false;
+  const blinds = plainBlinds(clean);
   const prev = handLogStore.get();
   const t = recordOf(id, cleanTourneys(prev.tourneys), prev.hands);
   if (!t || !isCustom(t)) return false;
@@ -751,7 +985,7 @@ export function resumeTourney(id: string, now: number = Date.now()): boolean {
   const prev = handLogStore.get();
   const t = recordOf(id, cleanTourneys(prev.tourneys), prev.hands);
   if (!t || !write(withTourney(prev, { ...t, activeAt: now, updatedAt: now }), prev)) return false;
-  stampStoredPick(id, now);
+  if (!presetOf(t)) stampStoredPick(id, now);
   return true;
 }
 
@@ -814,9 +1048,9 @@ export function countFor(t: Tourney, hands: LoggedHand[]): StackAt {
   return stackAt(tourneyHands(hands, t.id), t.startStack, (t.checks ?? []).filter((c) => c !== open));
 }
 
-/** The tournament started or resumed last before `id`, among the others (any age), or null. */
-export function previousTourney(ts: Tourney[], id: string): Tourney | null {
-  return latest(ts.filter((t) => t.id !== id));
+/** The tournament started or resumed last before `id`, among the others (any age), by `now` (default: whenever), or null. */
+export function previousTourney(ts: Tourney[], id: string, now = Infinity): Tourney | null {
+  return latest(ts.filter((t) => t.id !== id), now);
 }
 
 /**
@@ -826,7 +1060,7 @@ export function previousTourney(ts: Tourney[], id: string): Tourney | null {
  */
 export function cancelTarget(t: Tourney, ts: Tourney[], hands: LoggedHand[]): Tourney | null {
   if (t.activeAt !== t.createdAt) return null;
-  const back = previousTourney(ts, t.id);
+  const back = previousTourney(ts, t.id, t.createdAt);
   return back && t.createdAt - lastActivity(back, hands) <= TOURNEY_IDLE_MS ? back : null;
 }
 
@@ -855,6 +1089,17 @@ export function setFastStartClock(clock: string, at: number): LevelEstimate | nu
   const prev = handLogStore.get();
   const cur = currentTourney(cleanTourneys(prev.tourneys), prev.hands, at);
   const start = startMsFor(clock, at);
+  const p = presetOf(cur);
+  if (cur && p) {
+    // A ready-made structure's day: its own start only (the day's start is 야자수 새틀's, for the table flow), read near
+    // the start it has (a day set up the night before stays the next day's; late in the day it stays that day's).
+    const start = cur.startSet ? startMsFor(clock, cur.start) : presetStartMs(p, clock, at);
+    if (start === null) return false;
+    const { auto: _a, ...rest } = cur;
+    void _a;
+    if (!write(withTourney(prev, { ...rest, start, startSet: true, updatedAt: at }), prev)) return false;
+    return fastEstimate(at);
+  }
   if (cur && start !== null && (cur.startSet ? startCovers(cur.start, at) : startCovers(start, tourneyRef(cur, prev.hands)))) {
     const { auto: _a, ...rest } = cur;
     void _a;
