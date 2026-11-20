@@ -54,13 +54,10 @@ export function redirectRoute(route: string): string | null {
 /** 남의 핸드 기록 (another player's hand): reached from 빠른 기록's "내 핸드 | 남의 핸드" toggle, so that item is lit there. */
 const isOtherHand = (route: string) => route === "log/other" || route.startsWith("log/other/");
 
-/** 빠른 기록's tournament screens ("log/fast/past", "log/fast/t/<id>", "log/fast/s/<id>"). */
-const isTourneyScreen = (route: string) => route.startsWith("log/fast/");
-
-/** The hand-log item a "log…" route belongs to: the new hand, 빠른 기록 (another player's hand and the tournaments too), or the past hands (a saved hand too). */
+/** The hand-log item a "log…" route belongs to: the new hand, 빠른 기록 (another player's hand too), or the past hands (a saved hand too). */
 function logItem(route: string): string {
   if (route === "log" || route === "log/new") return "log";
-  if (route === "log/fast" || isTourneyScreen(route) || isOtherHand(route)) return "log/fast";
+  if (route === "log/fast" || isOtherHand(route)) return "log/fast";
   return "log/list";
 }
 
@@ -77,7 +74,6 @@ export function titleOf(route: string): string {
   if (route === "home") return "";
   if (route === "log" || route.startsWith("log/")) {
     if (isOtherHand(route)) return "남의 핸드 기록";
-    if (isTourneyScreen(route)) return "토너먼트 기록";
     const item = logItem(route);
     // A saved hand opened from the list: neither new nor the list itself.
     if (item === "log/list" && route !== "log/list" && !route.startsWith("log/list/") && route !== "log/players") return "핸드 기록";

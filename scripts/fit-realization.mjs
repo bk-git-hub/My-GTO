@@ -15,8 +15,6 @@
 //                  error.
 //   --cal-manifest <file>  the calibration manifest (default calibration/packs/manifest.json; its files are read from
 //                  the manifest's directory). For a scratch run of scripts/presolve.mjs --cal-out <dir>.
-//                  A pack whose manifest scenario records an aggressor other than IP (the calibration queue's OOP-raiser
-//                  and limped pots) is refused: this fit's form is the IP-aggressor pot.
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
 //
 // What it does:
@@ -26,9 +24,6 @@
 //    OOP checks (node [check]), and compute each combo's flop equity against the opponent's stored range by full turn
 //    and river enumeration. The packs give OOP no flop bet, so IP's node after the check is IP's root; the script
 //    asserts OOP checks at least MIN_CHECK of its reach-weighted range, since IP's root EV is not stored otherwise.
-//    A slim calibration file (storage "rootClasses", docs/solver-packs.md) stores each class's root EV for both players
-//    instead of nodes: every combo of a class gets its class's EV, which gives the same class rows (the starting weight
-//    is the same for every combo of a class), and IP's root EV needs no check assertion.
 // 2. Per pack, side and hand class, with w = node weight × file weight: share = Σ w·EV / Σ w / pot (a pack's EV is
 //    what the combo gets out of the flop pot) and e = Σ w·equity / Σ w. Every class with Σ w > 0 is a row.
 // 3. Fits four forms by weighted least squares with ridge RIDGE on every fitted parameter, rows of all packs jointly;
@@ -174,50 +169,12 @@ if (!isMainThread && workerData?.eqrFit) {
     return [0, 1].map((p) => Float64Array.from(num[p], (v, i) => (den[p][i] > 0 ? v / den[p][i] : NaN)));
   }
 
-  /**
-   * A slim calibration file (storage "rootClasses"): each class's root EV for both players is stored, IP's included, so
-   * no node and no check assertion is needed. Every combo of a class in the range gets the class's EV; with the starting
-   * weight as its weight (the same for every combo of a class) the class rows are those of the full file.
-   */
-  function extractClasses(flop, path, weight) {
-    const rc = flop.rootClasses;
-    const eqs = flopEquities(flop.board, flop.ranges[0], flop.ranges[1]);
-    const sides = [0, 1].map((side) => {
-      const wEv = new Float64Array(N), wEq = new Float64Array(N), w = new Float64Array(N);
-      const range = flop.ranges[side];
-      for (let ci = 0; ci < 1326; ci++) {
-        const ww = range[ci] * weight;
-        if (!(ww > 0)) continue;
-        const c = CLS[ci];
-        const ev = rc.ev[side][c];
-        if (!Number.isFinite(ev)) throw new Error(`${path}: no root EV for class ${c} of player ${side}`);
-        const e = eqs[side][ci];
-        if (!Number.isFinite(e)) throw new Error(`${path}: no equity for combo ${ci}`);
-        wEv[c] += ww * ev;
-        wEq[c] += ww * e;
-        w[c] += ww;
-      }
-      return { wEv, wEq, w };
-    });
-    // OOP's check frequency at the root, for the report: IP's root EV does not depend on it here.
-    const check = rc.actions.findIndex((a) => a.kind === "check");
-    let tw = 0, cw = 0;
-    for (let ci = 0; ci < 1326; ci++) {
-      const x = flop.ranges[0][ci];
-      if (!(x > 0)) continue;
-      tw += x;
-      if (check >= 0) cw += x * rc.strategy[check][CLS[ci]];
-    }
-    return { board: flop.boardKey, check: cw / tw, ipRootStored: true, sides };
-  }
-
   function extract({ dir, path, weight, sha256, scenario, pot }) {
     const bytes = readFileSync(`${dir}/${path}`);
     const got = createHash("sha256").update(bytes).digest("hex");
     if (got !== sha256) throw new Error(`${path}: sha256 ${got} does not match the manifest`);
     const flop = decodeFlopFile(JSON.parse(bytes.toString("utf8")));
     if (flop.scenario !== scenario || Math.abs(flop.pot - pot) > 1e-9) throw new Error(`${path}: scenario or pot differs from the manifest`);
-    if (flop.rootClasses) return extractClasses(flop, path, weight);
     const rootNode = flop.node([]);
     const check = rootNode.actions.findIndex((a) => a.kind === "check");
     if (check < 0) throw new Error(`${path}: OOP has no check at the root`);
@@ -331,14 +288,6 @@ if (isMainThread) {
       process.exit(2);
     }
     manifest.packs = allPacks.filter((p) => want.includes(p.id));
-    // The fitted form is the single raised pot with an IP aggressor (O = caller, I = aggressor). A calibration pack that
-    // records another aggressor (an OOP raiser, a limped pot) needs a fit with c and u per context; mixing its rows into
-    // this one would read the OOP raiser as a caller.
-    const other = manifest.packs.filter((p) => p.scenario.aggressor !== undefined && p.scenario.aggressor !== 1);
-    if (other.length) {
-      console.error(`--packs: ${other.map((p) => `${p.id} (aggressor ${p.scenario.aggressor === 0 ? "OOP" : "none, limped"})`).join(", ")}: this fit's form has an IP aggressor only`);
-      process.exit(2);
-    }
   }
   for (const pack of manifest.packs) pack.files = pack.files.slice(0, limit);
   const prio = new Map(FLOPS_BY_PRIORITY.map((f, i) => [f.key, i]));
@@ -391,7 +340,7 @@ if (isMainThread) {
       const r = results.get(`${p}:${k}`);
       const idx = prio.get(r.board);
       if (idx === undefined) throw new Error(`${pack.id}: board ${r.board} is not in FLOPS_BY_PRIORITY`);
-      if (r.check < MIN_CHECK && !r.ipRootStored) throw new Error(`${pack.id} ${r.board}: OOP checks only ${r.check.toFixed(4)} at the root; IP's root EV is not stored`);
+      if (r.check < MIN_CHECK) throw new Error(`${pack.id} ${r.board}: OOP checks only ${r.check.toFixed(4)} at the root; IP's root EV is not stored`);
       minCheck = Math.min(minCheck, r.check);
       addInto(all, r.sides);
       addInto(folds[idx % 2], r.sides);

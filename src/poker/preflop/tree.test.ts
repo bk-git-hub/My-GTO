@@ -202,12 +202,28 @@ describe("preflop tree: stages (§1.2) and seats (§1.1)", () => {
     expect(sizes("100bb-3")).toEqual([100, 3, 3.5, 3.5, 3, 3.5, 3, 2.3, 2.5, 3]);
     expect(sizes("55bb-2.2")).toEqual([55, 2.2, 3, 3.5, 3, 4, 3, 2.3, 2.5, 3]);
     expect(sizes("35bb-2")).toEqual([35, 2, 2.5, 3, 3, 4, 3, 2.3, 2.5, 3]);
-    expect(sizes("25bb-2")).toEqual([25, 2, 2.5, 3, 3, 4, 3, 2.3, 2.5, 3]);
+    for (const id of ["25bb-2", "20bb-2", "15bb-2", "10bb-pf"] as StageId[]) expect(sizes(id)).toEqual([Number(id.split("bb")[0]), 2, 2.5, 3, 3, 4, 3, 2.3, 2.5, 3]);
     for (const p of STAGE_PRESETS) {
       expect(p.cfg).toMatchObject({ players: 9, sb: 0.5, bb: 1, ante: 1, sqzPerCallerIP: 1, sqzPerCallerBlind: 1.25, jamMax: 40, minSprAfterCall: 1, maxFlop: 3 });
-      expect(p.cfg).toMatchObject({ coldCall: true, overcall: true, squeeze: true, sbLimp: true, cold4: "jam", allinOrder: "priority", mode: "full", valuation: "modelB" });
+      expect(p.cfg).toMatchObject({ coldCall: true, overcall: true, squeeze: true, sbLimp: true, allinOrder: "priority" });
     }
-    expect(STAGE_PRESETS.map((p) => p.status)).toEqual(["required", "required", "required", "optional", "check"]);
+    // 25bb has no cold jam behind a 3-bet by preset (§2.8: two equilibria with them); 10bb is push/fold on showdown
+    // equity; every other stage is the full tree with cold jams and model B.
+    const kind = (p: (typeof STAGE_PRESETS)[number]) => `${p.cfg.cold4} ${p.cfg.mode} ${p.cfg.valuation}`;
+    expect(Object.fromEntries(STAGE_PRESETS.map((p) => [p.id, `${p.status} ${kind(p)}`]))).toEqual({
+      "100bb-2.2": "required jam full modelB",
+      "100bb-3": "required jam full modelB",
+      "55bb-2.2": "required jam full modelB",
+      "35bb-2": "optional jam full modelB",
+      "25bb-2": "check none full modelB",
+      "20bb-2": "check jam full modelB",
+      "15bb-2": "check jam full modelB",
+      "10bb-pf": "optional jam pushfold equity",
+    });
+    // The push/fold stage's tree is pushFoldConfig's game for the same table.
+    const pf = buildTree(stageConfig("10bb-pf")), ref = buildTree(pushFoldConfig({ players: 9, stack: 10, sb: 0.5, bb: 1, bbAnte: 1 }));
+    expect(Array.from(pf.actTo)).toEqual(Array.from(ref.actTo));
+    expect(Array.from(pf.child)).toEqual(Array.from(ref.child));
     // A fresh copy each time, so an override never leaks into the preset.
     stageConfig("100bb-2.2").S = 1;
     expect(stageConfig("100bb-2.2").S).toBe(100);
@@ -247,7 +263,12 @@ describe("preflop tree: node and terminal counts", () => {
       "100bb-3": c(5190, 11213, 6024, 1710, 3517, 657, 84, 56, 1764, 672),
       "55bb-2.2": c(5160, 11123, 5964, 1680, 3502, 642, 84, 56, 1764, 672),
       "35bb-2": c(2490, 5346, 2857, 669, 1903, 145, 84, 56, 700, 224),
-      "25bb-2": c(1613, 3457, 1845, 387, 1258, 60, 84, 56, 413, 77),
+      // 25bb-2 ships on cold4 "none" by preset; with cold jams it was 1,613 / 3,457 / 1,845 (413 / 77 fold-outs).
+      "25bb-2": c(1256, 2743, 1488, 310, 978, 60, 84, 56, 336, 0),
+      // At 20bb and below every 3-bet is a jam, so both short stages have the same shape.
+      "20bb-2": c(1212, 2611, 1400, 266, 956, 38, 84, 56, 336, 0),
+      "15bb-2": c(1212, 2611, 1400, 266, 956, 38, 84, 56, 336, 0),
+      "10bb-pf": c(44, 88, 45, 9, 36, 0, 0, 0, 0, 0),
       "100bb-2.2 cold4 none": c(3468, 7769, 4302, 1374, 2131, 657, 84, 56, 1050, 336),
       "100bb-2.2 table order": c(5190, 11213, 6024, 1710, 3517, 657, 84, 56, 2100, 1974),
       "55bb-2.2 cold4 none": c(3438, 7679, 4242, 1344, 2116, 642, 84, 56, 1050, 336),

@@ -88,8 +88,7 @@ if (!isMainThread && workerData?.presolveJob) {
     const solveSeconds = (Date.now() - t0) / 1000;
     const mem = process.memoryUsage();
     const t1 = Date.now();
-    // Slim files for the packs that ask for them (ScenarioMeta.storage); every other pack is extracted as it always was.
-    const res = extractFlop(input, solver.solution(), { scenario: sc.id, version: sc.version }, ...(sc.meta.storage ? [{ storage: sc.meta.storage }] : []));
+    const res = extractFlop(input, solver.solution(), { scenario: sc.id, version: sc.version });
     parentPort.postMessage({
       type: "done",
       json: res.json,
@@ -178,7 +177,7 @@ if (isMainThread) {
   const { estimateMemory } = await load("src/solver/index.ts");
   const { PACK_FORMAT, packFilePath, validateManifest, validateFlopFile, decodeFlopFile, summaryNodeDefs } = await load("src/presolve/format.ts");
   const { summarizeFile, MAX_BYTES } = await load("src/presolve/extract.ts");
-  const { jobQueue, parseShard, shardFlops } = await load("src/presolve/shard.ts");
+  const { parseShard, shardFlops } = await load("src/presolve/shard.ts");
   let shard;
   try {
     shard = parseShard(opt.shard ?? "0/1");
@@ -249,19 +248,18 @@ if (isMainThread) {
       log(`${sc.id}: v${sc.version} was solved with uncommitted solver code (${old.solverCommit}); its provenance is unknown`);
   }
 
-  // Jobs: the next missing flops of each pack (of this shard) in priority order, interleaved across the packs of the same
-  // `queue` value, the lower values first (jobQueue: the calibration queue is solved one pack after the other).
-  let queue = [];
+  // Jobs: the next missing flops of each pack (of this shard) in priority order, interleaved across packs.
+  const queue = [];
   if (!rebuild) {
     const mine = shardFlops(FLOPS_BY_PRIORITY, count, shard); // by index in the full order, before skipping files on disk
     const of = shard.count > 1 ? `of shard ${shard.index}/${shard.count}'s ${mine.length} among the first ${count}` : `of the first ${count}`;
     const perPack = scenarios.map((sc) => {
       const have = new Set(existingBoards(sc));
       const todo = mine.filter((f) => !have.has(f.key));
-      log(`${sc.id} v${sc.version}: ${have.size} flops on disk, ${todo.length} ${of} to solve${sc.queue ? ` (queue ${sc.queue})` : ""}`);
-      return { queue: sc.queue ?? 0, jobs: todo.map((f) => ({ sc, flop: f })) };
+      log(`${sc.id} v${sc.version}: ${have.size} flops on disk, ${todo.length} ${of} to solve`);
+      return todo.map((f) => ({ sc, flop: f }));
     });
-    queue = jobQueue(perPack);
+    for (let i = 0; perPack.some((l) => i < l.length); i++) for (const l of perPack) if (i < l.length) queue.push(l[i]);
   }
 
   const estimate = (job) => {

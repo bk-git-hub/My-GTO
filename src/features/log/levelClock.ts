@@ -146,73 +146,9 @@ export function levelAt(startMs: number, atMs: number, schedule: LevelRow[] = PU
   return r;
 }
 
-/** Minutes from the tournament's start to the start of `level` (the breaks before it included), or null off the schedule. */
-export function levelStartMinutes(level: number, schedule: LevelRow[] = PUB_SCHEDULE, breaks: BreakRow[] = PUB_BREAKS): number | null {
-  const seg = timeline(schedule, breaks).find((s) => s.kind === "level" && s.level === level);
-  return seg ? seg.start / MIN : null;
-}
-
-/**
- * The level running at `atMs` when `level` was running at `pickMs`, taking the pick as that level's
- * start (so it never runs ahead of what was said): the schedule moves it on from there, breaks
- * included (in a break: the level just played). `level` itself before the pick or off the schedule.
- */
-export function levelSince(level: number, pickMs: number, atMs: number, schedule: LevelRow[] = PUB_SCHEDULE, breaks: BreakRow[] = PUB_BREAKS): number {
-  const off = levelStartMinutes(level, schedule, breaks);
-  if (off === null || !Number.isFinite(pickMs) || !Number.isFinite(atMs) || atMs <= pickMs) return level;
-  return levelAt(pickMs - off * MIN, atMs, schedule, breaks).level ?? level;
-}
-
 /** The blinds of a level in a schedule, or null when the schedule doesn't have it. */
 export function levelRow(level: number | null, schedule: LevelRow[] = PUB_SCHEDULE): LevelRow | null {
   return schedule.find((r) => r.level === level) ?? null;
-}
-
-// ───────────── blinds typed by hand (직접 입력) ─────────────
-
-/** The blinds a hand is played at, in chips: the small blind, the big blind, the BB ante (0: none). */
-export interface Blinds {
-  sb: number;
-  bb: number;
-  ante: number;
-}
-
-/**
- * A level as 빠른 기록's chip maths take it: a 야자수 새틀 level (PUB_SCHEDULE), a 직접 입력 tournament's blinds,
- * or null (not known). Existing `number | null` values are Lv as they are.
- */
-export type Lv = number | Blinds | null;
-
-/** The biggest blind or ante that can be typed (8 digits). */
-export const BLINDS_MAX = 99_999_999;
-
-const blindInt = (x: unknown, min: number): x is number => typeof x === "number" && Number.isInteger(x) && x >= min && x <= BLINDS_MAX;
-
-/** Stored / typed blinds with valid fields only: integers, 1 ≤ sb ≤ bb ≤ BLINDS_MAX, 0 ≤ ante ≤ BLINDS_MAX; else null. */
-export function cleanBlinds(x: unknown): Blinds | null {
-  if (!x || typeof x !== "object") return null;
-  const r = x as Record<string, unknown>;
-  if (!blindInt(r.sb, 1) || !blindInt(r.bb, 1) || !blindInt(r.ante, 0) || r.sb > r.bb) return null;
-  return { sb: r.sb, bb: r.bb, ante: r.ante };
-}
-
-/** The blinds of `lv`: a schedule level's row (sb, bb, ante), custom blinds when valid, else null. */
-export function blindsOf(lv: Lv, schedule: LevelRow[] = PUB_SCHEDULE): Blinds | null {
-  if (lv === null) return null;
-  if (typeof lv === "number") {
-    const row = levelRow(lv, schedule);
-    return row ? { sb: row.sb, bb: row.bb, ante: row.ante } : null;
-  }
-  return cleanBlinds(lv);
-}
-
-/** The same blinds (both null counts as the same). */
-export const sameBlinds = (a: Blinds | null, b: Blinds | null): boolean => (a === null || b === null ? a === b : a.sb === b.sb && a.bb === b.bb && a.ante === b.ante);
-
-/** "다음 단계": the first 야자수 새틀 row whose big blind is above `b.bb` (its sb, bb, ante), or null past Lv30. Without blinds: Lv1's. */
-export function nextPubBlinds(b: Blinds | null): Blinds | null {
-  const row = PUB_SCHEDULE.find((r) => b === null || r.bb > b.bb);
-  return row ? { sb: row.sb, bb: row.bb, ante: row.ante } : null;
 }
 
 // ───────────── start time ─────────────

@@ -87,13 +87,10 @@ const LOG_SCREENS = new Set(["log", "log/new", "log/quick", "log/fast", "log/lis
 
 /**
  * The screen above `route`, for back with no earlier entry: a saved hand → 지난 기록, 남의 핸드 → 빠른 기록
- * (its toggle lives there), 토너먼트 기록 → 빠른 기록 and one tournament → 토너먼트 기록, a solver report or
- * flop → the scenario list, everything else → home.
+ * (its toggle lives there), a solver report or flop → the scenario list, everything else → home.
  */
 export function parentRoute(route: string): string {
   if (route === "log/other" || route.startsWith("log/other/")) return "log/fast";
-  if (route === "log/fast/past") return "log/fast";
-  if (route.startsWith("log/fast/")) return "log/fast/past";
   if (route.startsWith("log/") && !LOG_SCREENS.has(route)) return "log/list";
   if (route.startsWith("solver/")) return "solver";
   return "home";

@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { cleanFastState, fastOtherStore, fastStore, forgetHands } from "./fastLog";
-import { restackAll } from "./fastTourney";
-import { deleteHands, handLogStore, undoDeletion, type Deletion } from "./handLog";
+import { deleteHands, undoDeletion, type Deletion } from "./handLog";
 
 /**
  * Deleting hands with 되돌리기: the hands go at once, and a toast at the bottom offers them back for a
@@ -43,13 +42,10 @@ export const useUndoNote = (): UndoNote | null => useSyncExternalStore(subscribe
 
 /**
  * Delete the hands `ids` and offer them back: a correction of one of them on 빠른 기록 / 남의 핸드 gives
- * way to the new hand put aside. The hands by 스택 after them in their tournaments are worked out again in
- * the same write (restack). Returns how many were deleted (0: none of them was on file).
+ * way to the new hand put aside. Returns how many were deleted (0: none of them was on file).
  */
 export function deleteWithUndo(ids: Iterable<string>, now: number = Date.now()): number {
-  const drop = new Set(ids);
-  const tns = handLogStore.get().hands.filter((h) => drop.has(h.id)).map((h) => h.tourney);
-  const d = deleteHands(drop, (s) => restackAll(s, tns, now));
+  const d = deleteHands(ids);
   if (!d) return 0;
   const gone = d.removed.map((r) => r.hand.id);
   for (const store of [fastStore, fastOtherStore]) {
@@ -68,8 +64,7 @@ export function deleteWithUndo(ids: Iterable<string>, now: number = Date.now()):
 export function undoLast(now: number = Date.now()): boolean {
   const d = note?.deletion;
   if (!d) return false;
-  // Back in place, the hands by 스택 after them work from them again.
-  const ok = undoDeletion(d, (s) => restackAll(s, d.removed.map((r) => r.hand.tourney), now));
+  const ok = undoDeletion(d);
   show(
     ok
       ? { key: ++seq, text: "되돌렸어요", deletion: null, until: now + 1800 }

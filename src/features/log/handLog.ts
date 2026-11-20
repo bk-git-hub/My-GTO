@@ -2,12 +2,11 @@ import { cardLabel, handClassOf, rankOf, RANKS, suitOf, type Card } from "../../
 import { createStore } from "../../state/store";
 import { sanitizeState, SCOUT_KEY } from "../scout/scoutModel";
 import { scoutToHands } from "./legacyScout";
-import { blindsOf, cleanBlinds, clockText, levelAt, levelRow, parseClock, type Blinds, type LevelEstimate, type Lv } from "./levelClock";
+import { clockText, levelAt, levelRow, parseClock, type LevelEstimate } from "./levelClock";
 import { actedPreflop, cleanPre, isStage, knownStage, preHasInfo, preSteps, shoveCap, STAGE_LABEL, summaryOf, summaryOfGame, summaryText, tidyPre, type PreStage, type QuickPre } from "./quickPre";
 import { amountLabel, MY_TAGS, positionsFor, POSITIONS, replay, streetLines, type LogStep, type SeatTags, type StepKind, type TableInput } from "./recorder";
 import { actLabel, fastVerdict, isFastSpot, theirWords, type FastInput, type FastSpot, type Verdict } from "./fastVerdict";
 import { cleanGuess, describeGuess, flopFromRanks, holeFromRanks, nextBoardCard, setBoardGuess, setHoleGuess, type FlopTexture, type HoleKind, type SuitGuess } from "./suitGuess";
-import { cleanTourneys, isTourneyId, mergeTourneys, type Tourney } from "./tourney";
 
 /**
  * Hands the user played at the pub, kept in this browser's localStorage only
@@ -83,31 +82,12 @@ export interface LoggedHand {
   /** The level came from the tournament start time (levelEstimateAt), not from the user. */
   levelGuess?: true;
   /**
-   * Saved on 빠른 기록: my seat and class, and the chip result (`result`, `net`) and the board cards I
-   * remember (`board`, suits typed or guessed: `guess.board`); with `fastSpot` also my preflop decision
-   * (what happened before me, my action; the stage, the action and the opener are in `quickPre`). Kept
-   * if the hand is carried on to the table.
+   * Saved on 빠른 기록 (one preflop decision of mine: seat, class, what happened before me, my action;
+   * the stage, the action and the opener are in `quickPre`). Kept if the hand is carried on to the table.
    */
   fast?: true;
-  /** 빠른 기록: what happened before my decision, only when the decision was recorded. Only with `fast`. */
+  /** 빠른 기록: what happened before my decision. Only with `fast`. */
   fastSpot?: FastSpot;
-  /** 빠른 기록: the amount (`net`) was typed in bb, so a correction opens it in bb. Only with `fast`; absent: chips. */
-  fastUnit?: "bb";
-  /**
-   * 빠른 기록: the result was worked out from 지금 스택 (스택: my chips after the hand less my stack before it;
-   * the stack before unknown: no result), so a correction opens it that way and works it out again. Only with `fast`.
-   */
-  fastStack?: true;
-  /**
-   * 빠른 기록 / 남의 핸드: the tournament (Tourney.id, tourney.ts) the hand was logged in. Absent: logged before
-   * tournaments existed (grouped by time gaps under 이전 기록). Never set by the table flow.
-   */
-  tourney?: string;
-  /**
-   * 빠른 기록 in a 직접 입력 tournament (and 남의 핸드 there): the blinds the hand was played at; `level` is null then
-   * and `bbAnte` is `blinds.ante > 0`. Absent: the hand's blinds are its level's (PUB_SCHEDULE), as always.
-   */
-  blinds?: Blinds;
 }
 
 /** The day's tournament start: the local day the clock time falls on, and the clock ("19:00"). */
@@ -140,8 +120,6 @@ export interface HandLogState {
   startClocks?: StartClock[];
   /** The scout records' one-time copy into other-hands has run (importScout). */
   scoutImport?: ScoutImport;
-  /** 빠른 기록's tournaments (tourney.ts), oldest first: kept like the start times, in the backup too. */
-  tourneys?: Tourney[];
 }
 
 export const handLogStore = createStore<HandLogState>("mygto.handlog", { hands: [], lastLevel: null });
@@ -237,13 +215,6 @@ export function tidyGuess(h: LoggedHand): LoggedHand {
   return { ...rest, ...(guess ? { guess } : {}), ...(holeKind ? { holeKind } : {}) };
 }
 
-/** 빠른 기록's marks out of step: the flag other than true, or a spot, a unit or a 스택 mark without it or not a known one. */
-const badFastMarks = (h: LoggedHand): boolean =>
-  ("fast" in h && h.fast !== true) ||
-  ("fastSpot" in h && (h.fast !== true || !isFastSpot(h.fastSpot))) ||
-  ("fastUnit" in h && (h.fast !== true || h.fastUnit !== "bb")) ||
-  ("fastStack" in h && (h.fast !== true || h.fastStack !== true));
-
 /**
  * The hand with every derived marker in step with the rest: tidyGuess, my seat only in another player's
  * hand and never the subject's seat or one missing at this table size, an estimated level only with a
@@ -262,22 +233,10 @@ export function tidyHand(h: LoggedHand): LoggedHand {
     void _l;
     next = rest;
   }
-  // 빠른 기록's marks: the flag only as true, its spot, its unit and its 스택 mark only with it and only known ones.
-  if (badFastMarks(next)) {
-    const { fast, fastSpot, fastUnit, fastStack, ...rest } = next;
-    next = fast === true ? { ...rest, fast, ...(isFastSpot(fastSpot) ? { fastSpot } : {}), ...(fastUnit === "bb" ? { fastUnit } : {}), ...(fastStack === true ? { fastStack } : {}) } : rest;
-  }
-  // The tournament it was logged in: only a usable id.
-  if ("tourney" in next && !isTourneyId(next.tourney)) {
-    const { tourney: _t, ...rest } = next;
-    void _t;
-    next = rest;
-  }
-  // Blinds typed by hand: only valid ones, and only while no schedule level is set (a level picked later wins).
-  if ("blinds" in next && (next.level !== null || !cleanBlinds(next.blinds))) {
-    const { blinds: _b, ...rest } = next;
-    void _b;
-    next = rest;
+  // 빠른 기록's marks: the flag only as true, its spot only with it and only a known one.
+  if (("fast" in next && next.fast !== true) || ("fastSpot" in next && (next.fast !== true || !isFastSpot(next.fastSpot)))) {
+    const { fast, fastSpot, ...rest } = next;
+    next = fast === true ? { ...rest, fast, ...(isFastSpot(fastSpot) ? { fastSpot } : {}) } : rest;
   }
   return next;
 }
@@ -517,18 +476,12 @@ export const handRoute = (h: Pick<LoggedHand, "id">): string => `log/${h.id}`;
 
 // ───────────── 빠른 기록 ─────────────
 
-/**
- * A hand from 빠른 기록 with nothing recorded on the table yet (no steps or showdowns). A board alone
- * comes from 빠른 기록 itself (the cards remembered), so it stays one.
- */
-export const fastOnly = (h: LoggedHand): boolean => h.fast === true && h.steps.length === 0 && h.showdowns.length === 0;
+/** A hand from 빠른 기록 with nothing recorded on the table yet (no steps, board or showdowns). */
+export const fastOnly = (h: LoggedHand): boolean => h.fast === true && h.steps.length === 0 && h.board.length === 0 && h.showdowns.length === 0;
 
-/** 빠른 기록 with my preflop decision on file (a spot; an action, or a walk): what the chart grades. */
-export const fastActed = (h: Pick<LoggedHand, "fast" | "fastSpot" | "quickPre">): boolean => h.fast === true && (isFastSpot(h.fastSpot) || h.quickPre?.action !== undefined);
-
-/** A 빠른 기록 hand as the verdict reads it (null for a hand not from there, without its class, or saved without a decision). */
+/** A 빠른 기록 hand as the verdict reads it (null for a hand not from there, or without its class). */
 export function fastInputOf(h: LoggedHand): FastInput | null {
-  if (!fastActed(h) || h.hole.length !== 2) return null;
+  if (h.fast !== true || h.hole.length !== 2) return null;
   const cls = holeClass(h);
   if (cls.length < 2 || (cls.length === 2 && cls[0] !== cls[1])) return null;
   return {
@@ -589,26 +542,17 @@ export type LogView =
   | { kind: "players" }
   /** 남의 핸드: another player's hands on the 빠른 기록 screen (other mode). */
   | { kind: "other" }
-  /** 빠른 기록's tournaments: the list, one tournament, one group of hands logged before tournaments (by any hand in it). */
-  | { kind: "tourneys" }
-  | { kind: "tourney"; id: string }
-  | { kind: "legacy"; id: string }
   | { kind: "edit"; id: string };
 
 /**
  * The screen a "#log/…" route shows: "" a new hand of mine (the hand first), "fast" 빠른 기록, "list", "list/mine",
  * "list/other", "players", "other" 남의 핸드 (빠른 기록 for other players' hands), "<id>" a saved hand in
- * the table flow, "fast/past" 빠른 기록's tournaments, "fast/t/<id>" one of them, "fast/s/<handId>" a group of
- * 빠른 기록 hands logged before tournaments. The old addresses "other/<id>" (a hand on the old 남의 핸드 screen) and the quick-record
+ * the table flow. The old addresses "other/<id>" (a hand on the old 남의 핸드 screen) and the quick-record
  * routes ("quick", "quick/<id>") open that hand in the table flow, or the entry screen if it is gone.
  */
 export function logView(sub: string, hands: LoggedHand[]): LogView {
   if (sub === "" || sub === "new" || sub === "quick") return { kind: "new" };
   if (sub === "fast") return { kind: "fast" };
-  // Hand ids never hold a "/", so these never shadow a saved hand.
-  if (sub === "fast/past") return { kind: "tourneys" };
-  if (sub.startsWith("fast/t/") && sub.length > "fast/t/".length) return { kind: "tourney", id: sub.slice("fast/t/".length) };
-  if (sub.startsWith("fast/s/") && sub.length > "fast/s/".length) return { kind: "legacy", id: sub.slice("fast/s/".length) };
   if (sub === "list") return { kind: "list", filter: "all" };
   if (sub === "list/mine") return { kind: "list", filter: "mine" };
   if (sub === "list/other") return { kind: "list", filter: "other" };
@@ -634,7 +578,7 @@ export function logView(sub: string, hands: LoggedHand[]): LogView {
  */
 export function unfinished(h: LoggedHand): boolean {
   if (h.result !== null || h.net !== null) return false;
-  // A hand jotted on 빠른 기록 is complete as it is, until it is carried on to the table.
+  // One decision jotted on 빠른 기록 is complete as it is, until it is carried on to the table.
   if (fastOnly(h)) return false;
   if (h.hole.length < 2 || !h.seat) return true;
   if (isOther(h) && h.steps.length === 0) return h.quickPre?.action === undefined && h.note.trim() === "";
@@ -707,19 +651,14 @@ export function hasDetail(h: LoggedHand): boolean {
   );
 }
 
-/**
- * Insert or update a hand. `also` changes the rest of the store in the same write (빠른 기록: the tournament a
- * first hand starts goes on file with it, or neither does). Returns false if the browser refused to store it
- * (storage full): then nothing of it is kept.
- */
-export function saveHand(h: LoggedHand, also?: (s: HandLogState) => HandLogState): boolean {
+/** Insert or update a hand. Returns false if the browser refused to store it (storage full). */
+export function saveHand(h: LoggedHand): boolean {
   const prev = handLogStore.get();
   const saved: LoggedHand = { ...h, updatedAt: Date.now() };
   const others = prev.hands.filter((x) => x.id !== h.id);
   const hands = [saved, ...others].sort((a, b) => b.createdAt - a.createdAt);
-  // Keep the rest of the store (the day's start time, the scout copy's note, the tournaments) as it is.
-  const next: HandLogState = { ...prev, hands, lastLevel: h.level ?? prev.lastLevel, lastPlayers: h.players, ...stageMemo(h, prev) };
-  const ok = handLogStore.set(also ? also(next) : next);
+  // Keep the rest of the store (the day's start time, the scout copy's note) as it is.
+  const ok = handLogStore.set({ ...prev, hands, lastLevel: h.level ?? prev.lastLevel, lastPlayers: h.players, ...stageMemo(h, prev) });
   if (!ok) handLogStore.set(prev);
   else requestPersistence();
   return ok;
@@ -784,29 +723,23 @@ export interface Deletion {
 }
 
 /**
- * Delete the hands `ids` from the log (the rest of the store untouched, but for what `also` changes in the
- * same write: 빠른 기록's hands by 스택 after them). A pointer to one of them (the hand put aside from 이어서)
- * is let go too. Null when none of them was on file.
+ * Delete the hands `ids` from the log (the rest of the store untouched). A pointer to one of them (the
+ * hand put aside from 이어서) is let go too. Null when none of them was on file.
  */
-export function deleteHands(ids: Iterable<string>, also?: (s: HandLogState) => HandLogState): Deletion | null {
+export function deleteHands(ids: Iterable<string>): Deletion | null {
   const prev = handLogStore.get();
   const { hands, removed } = removeHands(prev.hands, ids);
   if (!removed.length) return null;
-  const next: HandLogState = { ...prev, hands };
-  handLogStore.set(also ? also(next) : next);
+  handLogStore.set({ ...prev, hands });
   const aside = asideId !== null && removed.some((r) => r.hand.id === asideId) ? asideId : null;
   if (aside) asideId = null;
   return { removed, aside };
 }
 
-/**
- * 되돌리기: the deleted hands back in their places (`also`: the rest of the same write, as for deleteHands).
- * False if the browser refused to store them (they stay on screen until reload).
- */
-export function undoDeletion(d: Deletion, also?: (s: HandLogState) => HandLogState): boolean {
+/** 되돌리기: the deleted hands back in their places. False if the browser refused to store them (they stay on screen until reload). */
+export function undoDeletion(d: Deletion): boolean {
   const prev = handLogStore.get();
-  const next: HandLogState = { ...prev, hands: restoreHands(prev.hands, d.removed) };
-  const ok = handLogStore.set(also ? also(next) : next);
+  const ok = handLogStore.set({ ...prev, hands: restoreHands(prev.hands, d.removed) });
   if (d.aside && asideId === null) asideId = d.aside;
   if (ok) requestPersistence();
   return ok;
@@ -835,8 +768,8 @@ export function rememberSetup(h: Pick<LoggedHand, "level" | "players"> & Partial
 }
 
 /** The stage to remember after this hand: the one it tells (tapped, or from its stack), else the one before. */
-function stageMemo(h: Pick<LoggedHand, "level"> & Partial<Pick<LoggedHand, "stack" | "quickPre" | "blinds">>, s: HandLogState): { lastStage?: PreStage } {
-  const stage = knownStage(h.quickPre, stackBb({ stack: h.stack ?? null, level: h.level, ...(h.blinds ? { blinds: h.blinds } : {}) })) ?? lastStage(s);
+function stageMemo(h: Pick<LoggedHand, "level"> & Partial<Pick<LoggedHand, "stack" | "quickPre">>, s: HandLogState): { lastStage?: PreStage } {
+  const stage = knownStage(h.quickPre, stackBb({ stack: h.stack ?? null, level: h.level })) ?? lastStage(s);
   return stage ? { lastStage: stage } : {};
 }
 
@@ -924,16 +857,11 @@ export function levelLabel(level: number | null): string {
   return info ? `Lv${level} · ${info.sb.toLocaleString()}/${info.bb.toLocaleString()}` : "레벨 모름";
 }
 
-/** A hand's level: levelLabel, plus " (추정)" when it came from the start time; a 직접 입력 hand's blinds: "블라인드 400/800 · 앤티 800 (직접 입력)". */
-export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess" | "blinds">): string {
-  const b = h.level === null ? cleanBlinds(h.blinds) : null;
-  if (b) return `블라인드 ${b.sb.toLocaleString()}/${b.bb.toLocaleString()} · ${b.ante ? `앤티 ${b.ante.toLocaleString()}` : "앤티 없음"} (직접 입력)`;
+/** A hand's level: levelLabel, plus " (추정)" when it came from the start time. */
+export function handLevelLabel(h: Pick<LoggedHand, "level" | "levelGuess">): string {
   const label = levelLabel(h.level);
   return h.levelGuess && levelInfo(h.level) ? `${label} (추정)` : label;
 }
-
-/** A hand's level as the chip maths take it (fastChips handLv): its own 직접 입력 blinds, else its level. */
-const lvOfHand = (h: Pick<LoggedHand, "level" | "blinds">): Lv => (h.level === null && h.blinds ? h.blinds : h.level);
 
 /**
  * The hand with its level set: `guessed` when it came from the start-time estimate (levelEstimateAt).
@@ -943,24 +871,11 @@ const lvOfHand = (h: Pick<LoggedHand, "level" | "blinds">): Lv => (h.level === n
  * seat's real stack anyway.
  */
 export function withLevel(h: LoggedHand, level: number | null, guessed = false): LoggedHand {
-  return withLv(h, level, guessed);
-}
-
-/**
- * withLevel for any Lv: a schedule level or none (the hand's own blinds dropped), or a 직접 입력 tournament's
- * blinds (`level` null, `blinds` set, never estimated). Bets typed as chips rescale from the old big blind to
- * the new one as withLevel does.
- */
-export function withLv(h: LoggedHand, lv: Lv, guessed = false): LoggedHand {
-  const { levelGuess: _was, blinds: _b, ...rest } = h;
+  const { levelGuess: _was, ...rest } = h;
   void _was;
-  void _b;
-  const from = blindsOf(lvOfHand(h))?.bb ?? null;
-  const custom = lv !== null && typeof lv === "object" ? cleanBlinds(lv) : null;
-  const to = blindsOf(custom ?? (typeof lv === "number" ? lv : null))?.bb ?? null;
+  const from = levelInfo(h.level)?.bb ?? null;
+  const to = levelInfo(level)?.bb ?? null;
   const kept = from !== null && to !== null && from !== to ? rescaleBb(rest, from / to) : rest;
-  if (custom) return { ...kept, level: null, blinds: custom };
-  const level = typeof lv === "number" ? lv : null;
   return { ...kept, level, ...(guessed && level !== null ? { levelGuess: true as const } : {}) };
 }
 
@@ -1125,8 +1040,8 @@ export function laterStart(a: StartClock | undefined, b: StartClock | undefined)
 }
 
 /** My stack in big blinds, if both the stack and the level are known. */
-export function stackBb(h: Pick<LoggedHand, "stack" | "level"> & { blinds?: Blinds }): number | null {
-  const info = blindsOf(lvOfHand(h));
+export function stackBb(h: Pick<LoggedHand, "stack" | "level">): number | null {
+  const info = levelInfo(h.level);
   if (!info || h.stack === null || !(h.stack > 0)) return null;
   return Math.round((h.stack / info.bb) * 10) / 10;
 }
@@ -1183,12 +1098,6 @@ export function handHoleText(h: Pick<LoggedHand, "hole" | "guess" | "holeKind">)
   return holeGuessed(h) ? holeLabel(h) : holeText(h.hole);
 }
 
-/** The board as remembered on 빠른 기록: suits typed as "K♥", guessed ones as the rank only: "K♥ 7 2". */
-export function rememberedText(h: Pick<LoggedHand, "board" | "guess">): string {
-  const g = h.guess?.board ?? [];
-  return h.board.map((c, i) => (g.includes(i) ? RANKS[rankOf(c)] : cardLabel(c))).join(" ");
-}
-
 /** The board as text, with which streets' suits were guessed: "K♦ 9♦ 2♠ 6♣ (플랍 수트 추정)". */
 export function boardText(h: Pick<LoggedHand, "board" | "guess">): string {
   const g = boardGuessText(h);
@@ -1225,12 +1134,11 @@ export function handFacts(h: LoggedHand): string {
   ];
   if (other && h.mySeat) lines.push(`내 자리: ${h.mySeat} (같은 테이블에서 지켜봄)`);
   if (holeGuessed(h) || boardGuessText(h)) lines.push("참고: 수트를 추정한 카드가 있어 플러시 관련 승률은 근사값");
-  // A board remembered on 빠른 기록: the guessed suits would read as facts, so only what was typed.
-  if (h.board.length) lines.push(fastOnly(h) ? `보드 (빠른 기록 · 기억나는 카드만, 숫자만 적힌 건 수트 모름): ${rememberedText(h)}` : `보드: ${boardText(h)}`);
+  if (h.board.length) lines.push(`보드: ${boardText(h)}`);
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
-    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · ${fv.text.includes("솔버") ? "차트 판정" : "펍 차트 판정"} ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 펍 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
   } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
@@ -1303,18 +1211,12 @@ export function knownNames(hands: LoggedHand[]): string[] {
 export const EXPORT_KIND = "pubaj-hand-log";
 const OLD_EXPORT_KIND = "pubaz-hand-log";
 
-/**
- * The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess, fast, fastSpot, fastUnit,
- * fastStack, tourney, blinds), the start times and 빠른 기록's tournaments (with their 칩 업데이트, structure and
- * blinds). An older app reading it drops the tournaments, the hands' `tourney` (it loses only the grouping) and
- * `blinds` (a 직접 입력 hand then reads as 레벨 모름; a tournament as 야자수 새틀), so the file keeps its marker and version.
- */
-export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[], tourneys?: Tourney[]): string {
+/** The backup file: every hand (with kind, mySeat, guess, holeKind, levelGuess, fast, fastSpot) and the start times. */
+export function exportData(hands: LoggedHand[], startClock?: StartClock, startClocks?: StartClock[]): string {
   const sc = cleanStartClock(startClock);
   const days = cleanStartClocks(startClocks);
-  const ts = cleanTourneys(tourneys);
   return JSON.stringify(
-    { kind: EXPORT_KIND, version: 2, exportedAt: new Date().toISOString(), ...(sc ? { startClock: sc } : {}), ...(days.length ? { startClocks: days } : {}), ...(ts.length ? { tourneys: ts } : {}), hands },
+    { kind: EXPORT_KIND, version: 2, exportedAt: new Date().toISOString(), ...(sc ? { startClock: sc } : {}), ...(days.length ? { startClocks: days } : {}), hands },
     null,
     1,
   );
@@ -1380,16 +1282,7 @@ export function sanitize(x: unknown): LoggedHand | null {
     ...(guess ? { guess } : {}),
     ...(isHoleKind(r.holeKind) ? { holeKind: r.holeKind } : {}),
     ...(r.levelGuess === true && level !== null ? { levelGuess: true as const } : {}),
-    ...(r.fast === true
-      ? {
-          fast: true as const,
-          ...(isFastSpot(r.fastSpot) ? { fastSpot: r.fastSpot } : {}),
-          ...(r.fastUnit === "bb" ? { fastUnit: "bb" as const } : {}),
-          ...(r.fastStack === true ? { fastStack: true as const } : {}),
-        }
-      : {}),
-    ...(isTourneyId(r.tourney) ? { tourney: r.tourney } : {}),
-    ...(level === null && cleanBlinds(r.blinds) ? { blinds: cleanBlinds(r.blinds) as Blinds } : {}),
+    ...(r.fast === true ? { fast: true as const, ...(isFastSpot(r.fastSpot) ? { fastSpot: r.fastSpot } : {}) } : {}),
   };
   return tidyHand(hand);
 }
@@ -1400,7 +1293,6 @@ const withPre = (quickPre: QuickPre | undefined) => (quickPre ? { quickPre } : {
  * Merge an exported file into the current hands. A hand already here is replaced only if the file's
  * copy was edited more recently. `startClock` is the later of `currentStart` and the file's start time
  * (old files have none); `startClocks` every day's start from both (ours wins for a day both have).
- * `tourneys`: 빠른 기록's tournaments from both, one per id (the later edited wins; a tie: ours).
  * The old 정보 수집 data file (exportLegacyScout) is read too: its showdowns become other-hands, and
  * only ones not here yet are added. Throws with a readable message.
  */
@@ -1409,15 +1301,14 @@ export function mergeImport(
   current: LoggedHand[],
   currentStart?: StartClock,
   currentStarts?: StartClock[],
-  currentTourneys?: Tourney[],
-): { hands: LoggedHand[]; added: number; updated: number; startClock: StartClock | undefined; startClocks: StartClock[]; tourneys: Tourney[] } {
+): { hands: LoggedHand[]; added: number; updated: number; startClock: StartClock | undefined; startClocks: StartClock[] } {
   let data: unknown;
   try {
     data = JSON.parse(text);
   } catch {
     throw new Error("백업 파일을 읽을 수 없어요. PubAJ에서 내보낸 파일인지 확인해 주세요.");
   }
-  const d = data as { kind?: unknown; hands?: unknown; startClock?: unknown; startClocks?: unknown; sessions?: unknown; tourneys?: unknown };
+  const d = data as { kind?: unknown; hands?: unknown; startClock?: unknown; startClocks?: unknown; sessions?: unknown };
   const ours = cleanStartClocks(currentStarts);
   const byId = new Map(current.map((h) => [h.id, h]));
   let added = 0, updated = 0;
@@ -1429,7 +1320,7 @@ export function mergeImport(
       added++;
     }
     const hands = [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
-    return { hands, added, updated, startClock: cleanStartClock(currentStart), startClocks: ours, tourneys: cleanTourneys(currentTourneys) };
+    return { hands, added, updated, startClock: cleanStartClock(currentStart), startClocks: ours };
   }
   if (!d || (d.kind !== EXPORT_KIND && d.kind !== OLD_EXPORT_KIND) || !Array.isArray(d.hands)) throw new Error("PubAJ 핸드 기록 백업 파일이 아니에요.");
   for (const raw of d.hands) {
@@ -1444,22 +1335,7 @@ export function mergeImport(
   const hands = [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
   const theirs = cleanStartClocks([...(Array.isArray(d.startClocks) ? d.startClocks : []), ...(cleanStartClock(d.startClock) ? [d.startClock] : [])]);
   const startClocks = cleanStartClocks([...theirs, ...ours]);
-  return { hands, added, updated, startClock: laterStart(currentStart, cleanStartClock(d.startClock)), startClocks, tourneys: mergeTourneys(currentTourneys, d.tourneys) };
-}
-
-/** The backup file of the log as stored (지난 기록's 내보내기): every hand, the start times and 빠른 기록's tournaments. */
-export function backupText(s: HandLogState): string {
-  return exportData(s.hands, s.startClock, s.startClocks, s.tourneys);
-}
-
-/**
- * The log with a backup file merged in (지난 기록's 불러오기, mergeImport): its hands, start times and
- * tournaments, the rest of the store as it was; with the counts. Throws as mergeImport does.
- */
-export function withBackup(prev: HandLogState, text: string): { next: HandLogState; added: number; updated: number } {
-  const { hands, added, updated, startClock, startClocks, tourneys } = mergeImport(text, prev.hands, prev.startClock, prev.startClocks, prev.tourneys);
-  const next: HandLogState = { ...prev, hands, ...(startClock ? { startClock } : {}), ...(startClocks.length ? { startClocks } : {}), ...(tourneys.length ? { tourneys } : {}) };
-  return { next, added, updated };
+  return { hands, added, updated, startClock: laterStart(currentStart, cleanStartClock(d.startClock)), startClocks };
 }
 
 // ───────────── migrations ─────────────
@@ -1553,16 +1429,14 @@ function needsSanitize(x: unknown): boolean {
   if ("kind" in h && h.kind !== "other") return true;
   if ("mySeat" in h && (h.kind !== "other" || typeof h.mySeat !== "string" || h.mySeat === h.seat || !positionsFor(h.players).includes(h.mySeat))) return true;
   if ("levelGuess" in h && (h.levelGuess !== true || h.level === null)) return true;
-  if (badFastMarks(h)) return true;
+  if (("fast" in h && h.fast !== true) || ("fastSpot" in h && (h.fast !== true || !isFastSpot(h.fastSpot)))) return true;
   if (("guess" in h || "holeKind" in h) && (tidyGuess(h) !== h || ("holeKind" in h && !isHoleKind(h.holeKind)))) return true;
-  if ("tourney" in h && !isTourneyId(h.tourney)) return true;
-  if ("blinds" in h && (h.level !== null || !cleanBlinds(h.blinds))) return true;
   return false;
 }
 
 /**
  * Everything the stored hand log needs on load, in order: hands from older versions sanitized, quick
- * hands moved onto the table record (migrateQuick), a malformed start time or tournament dropped, and the scout
+ * hands moved onto the table record (migrateQuick), a malformed start time dropped, and the scout
  * records copied (importScout). Pure; null when nothing changes. Running it again changes nothing.
  */
 export function migrateStore(s: HandLogState, scoutRaw: string | null, now: number = Date.now()): HandLogState | null {
@@ -1586,14 +1460,6 @@ export function migrateStore(s: HandLogState, scoutRaw: string | null, now: numb
       const { startClocks: _bad, ...rest } = next;
       void _bad;
       next = days.length ? { ...rest, startClocks: days } : rest;
-    }
-  }
-  if ("tourneys" in s) {
-    const ts = cleanTourneys(s.tourneys);
-    if (JSON.stringify(ts) !== JSON.stringify(s.tourneys)) {
-      const { tourneys: _bad, ...rest } = next;
-      void _bad;
-      next = ts.length ? { ...rest, tourneys: ts } : rest;
     }
   }
   next = importScout(next, scoutRaw, now) ?? next;

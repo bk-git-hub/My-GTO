@@ -10,6 +10,11 @@ import { evaluate } from "./evaluator";
  * practice). Card removal between the shover and the caller is counted; the
  * folded players' cards are not. Solved by fictitious play over the 169 hand
  * classes.
+ *
+ * The charts (src/data/sets/nashData.ts) no longer come from this solver: scripts/make-nash.mjs solves the
+ * same game (pushFoldConfig in src/poker/preflop/tree.ts) with the preflop solver's DCFR engine, which
+ * converges where this fictitious play does not (docs/preflop-solver.md, PF-RED-4). This file keeps the
+ * equity table builder and the reference solver the engine's reduction tests compare against.
  */
 
 export const N = ALL_HANDS.length; // 169
