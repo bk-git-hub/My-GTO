@@ -1262,7 +1262,8 @@ to the solver set the first time 161 / 605 ms, the second time 15 / 64 ms. In No
 about 120 ms and holds 15 MB, the first `getNamedRanges()` about 110 ms and 7 MB more. There is no separate chunk: the
 data stays in the main bundle (about 1.30 MB minified, under workbox's 2 MiB precache limit).
 `src/data/lazySolver.test.ts` checks that the menu, the other sets, the pub quiz pool and the pub charts and quiz pages
-do not build it. Hand-play bots and grading do not use it in v1 (§9).
+do not build it. Hand review, hand-play bots and grading read the solver's spots one at a time instead
+(`src/data/sets/solverSpot.ts`, through `src/play/computedChart.ts`): they never build the set either (§9).
 
 ### 6.4 Scenario mapping
 
@@ -1820,6 +1821,37 @@ caution, and the quiz skips the flagged cells.
   are badged 높음 or 보통 except 100bb-3 vs the SB and 35bb vs the CO and the BTN (낮음, move over 20pp). Next: the short stacks (15–25bb and push/fold) in
   the solver, so 빠른 기록, hand play and the 아재 can move to it too, and a u that depends on the opponent's range,
   fitted with the UTG pack (v1.5).
+  **Hand review, coach facts and tournament hand play on the computed charts (2026-11-20):** every preflop decision
+  of a 9-handed-style tournament hand (복기, the opponents' range narrowing, the play bots, the hero's grade, the coach
+  facts, 빠른 기록's verdict) asks `src/play/computedChart.ts chartFor`: the solver at 100 / 55 / 35bb by the
+  effective stack (100bb-2.2 or 100bb-3 by the open's size: the line's first raise, or the decider's own first-in
+  raise, so one hand never switches stages between its open and the answer to a 3-bet; never by the BB's raise of the
+  SB's limp), shortNash at 12–30bb, nash below. A 30–45bb re-jam over an open the 35bb stage didn't export (from any
+  seat but the BB) reads shortNash 25bb, tagged "솔버 35bb엔 없는 라인", for the opener's call and the jammer's range
+  narrowing alike, so the call EV the review shows and the grade come from one model. A 30–45bb first-in jam it didn't
+  export (any but the SB's) gets no chart: shortNash's own 25bb equilibrium jams 0–0.6% of hands first in, so its
+  calls of a first-in jam are leftovers of `solveOpenJam`, not answers to a real jam; for the same reason a shortNash
+  call of a first-in jam whose equilibrium jam range is under 1% (at 20bb every seat but the CO and the BTN, at 25bb
+  every seat) is 낮음 and 참고 ("균형에선 거의 안 나오는 올인이라 참고만"). Facing a bet that puts the hero all-in,
+  the price (필요 에퀴티) and the call EV count only the chips the hero can win: the dead money and each player's chips
+  up to the hero's own total after the call (`src/play/engine.ts winnablePot`; a covering jam's chips beyond the
+  hero's stack and side pots above it are left out, and the review names them: "내 스택을 넘는 41bb 제외"). Facing an
+  all-in, a ✓ or ✗ those numbers contradict (a call EV against it of more than 1bb, or the equity 2 or more whole
+  points on the other side of the price, as the card shows them) is shown as △ ("콜 EV와 차트가 엇갈려요"). A real
+  line is read the way `classifyNode` reads the tree's (`src/play/preflopLine.ts`; `preflopLine.test.ts` replays every
+  exported spot's line and maps it back to its id), and a line the charts don't cover (another seat's limp, a cold
+  player behind a 3-bet, a called jam, an all-in answered out of R1's order, a line the export left out: "솔버가 이
+  라인을 풀지 않았어요") gets no chart and no grade, never the pub chart. Grades follow the quiz (close calls good, a 5%
+  mix ok); a ✗ softens to △ only for a flagged artifact cell, a 낮음 spot one step from the hero's action, or a raise
+  size off the chart's in the excusing direction. A raise over an all-in is graded and narrowed as a call of it. No
+  grade (참고): a limp or flat that shortNash and nash leave out (unless the chart folds the hand 100%), and a limp or
+  open of a premium (JJ+, AK) a 낮음 solver line limps (the SB's AA limp; its fold stays graded, and so does its all-in:
+  △ where the line's tree has an all-in, even at 0% (30–45bb), ✗ where it has none (55bb and up), and 빠른 기록 says
+  the same, never "⚠ 오버플레이 (차트: 림프)"). The 35bb vs-open, overcall and
+  squeeze spots of non-blind seats are shown as 낮음 (the cold4 "none" tree, which `confidence` can't measure: the cold
+  seats behind a squeeze may only fold too; in the four non-blind squeeze spots both stages export, 35bb overcalls
+  1.1–2.0% of hands and squeezes 8.5–10.0%, against 3.0–6.1% and 6.1–8.4% at 55bb). The pub set stays as hand-made study material (charts page, quiz, 레인지 암기); cash play keeps the
+  6-max chart.
 - **v1.1, UX:** a GTO hand-play mode (table "GTO 9인") whose bots and grading use the solver chart, with exact lookups
   by the §6.4 id of the node reached and the solved sizes; a "GTO 참고" line in pub mode; a "GTO vs 펍" compare view
   on the charts page; a tappable seat selector and a 단순화 toggle; a `55bb-2.5` stage if hand-play grading at mid

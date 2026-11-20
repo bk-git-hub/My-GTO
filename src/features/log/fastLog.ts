@@ -878,7 +878,9 @@ export function sessionOf(hands: LoggedHand[], now: number, mode: FastMode = "mi
 export interface FastStats {
   total: number;
   by: Record<VerdictKind, number>;
-  /** Hands with a chart for the spot (all but 차트 없음). */
+  /** Of `by.none`, the 참고 ones: a chart answered, but not to grade by (the rest have no chart). */
+  ref: number;
+  /** Hands with a chart grade for the spot (all but 참고 and 차트 없음). */
   graded: number;
   /** 차트대로 out of `graded`, 0~100, null with none graded. */
   okPct: number | null;
@@ -886,9 +888,14 @@ export interface FastStats {
 
 export function fastStats(hands: LoggedHand[]): FastStats {
   const by: Record<VerdictKind, number> = { ok: 0, mixed: 0, over: 0, under: 0, none: 0 };
-  for (const h of hands) by[fastVerdictOf(h)?.kind ?? "none"]++;
+  let ref = 0;
+  for (const h of hands) {
+    const v = fastVerdictOf(h);
+    by[v?.kind ?? "none"]++;
+    if (v?.ref) ref++;
+  }
   const graded = hands.length - by.none;
-  return { total: hands.length, by, graded, okPct: graded ? Math.round((by.ok / graded) * 100) : null };
+  return { total: hands.length, by, ref, graded, okPct: graded ? Math.round((by.ok / graded) * 100) : null };
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -973,8 +980,8 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
   const event = info?.event ?? "펍 토너먼트";
   const lines = [
     other
-      ? `PubAJ 남의 핸드 · ${head} · ${hands.length}핸드 (${event}에서 본 다른 사람 핸드, 펍아재 차트 기준)`
-      : `PubAJ 빠른 기록 · ${head} · ${hands.length}핸드 (${event}${acted.length ? ", 펍아재 차트 기준" : ""})`,
+      ? `PubAJ 남의 핸드 · ${head} · ${hands.length}핸드 (${event}에서 본 다른 사람 핸드, 계산된 차트 기준)`
+      : `PubAJ 빠른 기록 · ${head} · ${hands.length}핸드 (${event}${acted.length ? ", 계산된 차트 기준" : ""})`,
   ];
   if (info?.structure) lines.push(`구조: ${info.structure}`);
   const memo = info?.memo.trim();
@@ -1016,7 +1023,7 @@ export function sessionText(hands: LoggedHand[], mode: FastMode = "mine", info?:
       lines.push(`칩 업데이트 ${steps.join(" · ")}`);
     }
   }
-  if (acted.length) lines.push(`차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · ${over} ${s.by.over} · ${under} ${s.by.under} · 차트 없음 ${s.by.none}`);
+  if (acted.length) lines.push(`차트대로 ${s.by.ok}/${s.graded}${s.okPct !== null ? ` (${s.okPct}%)` : ""} · 섞는 핸드 ${s.by.mixed} · ${over} ${s.by.over} · ${under} ${s.by.under}${s.ref ? ` · 참고 ${s.ref}` : ""} · 차트 없음 ${s.by.none - s.ref}`);
   if (!other) {
     const big = old.filter((h) => {
       const row = blindsOf(handLv(h));

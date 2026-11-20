@@ -1225,7 +1225,7 @@ export function handFacts(h: LoggedHand): string {
   const info = levelInfo(h.level);
   const other = isOther(h);
   const lines = [
-    `게임: 홀덤펍 토너먼트 · 9인 · BB 앤티(BB가 BB 금액만큼 앤티) · 시작 50,000 · ${other ? "사용자가 테이블에서 본 다른 플레이어(상대)의 핸드를 기록한 것 (사용자 본인의 핸드가 아님)" : "사용자가 실제로 친 핸드를 기록한 것"}`,
+    `게임: 홀덤펍 토너먼트 · ${h.players}인 · ${h.bbAnte === false ? "앤티 없음" : "BB 앤티(BB가 BB 금액만큼 앤티)"} · 시작 50,000 · ${other ? "사용자가 테이블에서 본 다른 플레이어(상대)의 핸드를 기록한 것 (사용자 본인의 핸드가 아님)" : "사용자가 실제로 친 핸드를 기록한 것"}`,
     `레벨: ${levelLabel(h.level)}${h.levelGuess && info ? " (시작 시각으로 추정)" : ""}`,
     `${subjectWord(h, "자리")}: ${h.seat || "모름"} · ${subjectWord(h, "핸드")}: ${handHoleText(h)}`,
     `${subjectWord(h, "스택")}: ${h.stack !== null ? `${h.stack.toLocaleString()}칩` : "모름"}${bb !== null ? ` (${bb}bb)` : ""}`,
@@ -1237,7 +1237,7 @@ export function handFacts(h: LoggedHand): string {
   const fv = blockSays(h) ? fastVerdictOf(h) : null;
   if (fv && h.quickPre) {
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간 · ` : "";
-    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · ${fv.text.includes("솔버") ? "차트 판정" : "펍 차트 판정"} ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
+    lines.push(`프리플랍 (빠른 기록, ${other ? "상대 결정 하나" : "내 결정 하나"}): ${stage}${h.seat || "자리 모름"} ${fastActText(h)} · 차트 판정 ${fv.text}${fv.chart ? ` (${fv.chart})` : ""}`);
   } else if (h.quickPre && blockSays(h)) {
     const s = summaryOf(h.quickPre, h.seat, shoveBb(h));
     const stage = h.quickPre.stage ? `${STAGE_LABEL[h.quickPre.stage]} 구간` : "";
