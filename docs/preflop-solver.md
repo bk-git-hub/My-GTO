@@ -1834,14 +1834,17 @@ caution, and the quiz skips the flagged cells.
   on the UTG pack as well (§3.7 bias 2); the simplest within 0.005 RMS of the best), plus a ghost-combo calibration pack
   `cal-srp-btn-bb-100`: BTN 2.2 vs BB call, 9-handed with the ante, 100bb, the v1 solver's own ranges with every class
   floored at weight 0.02, so every hand at the fold boundary gets a measured best-response EV instead of an extrapolated
-  one. It lives outside `public/packs`, never listed by the app, and is round 1 of a closed loop. Then regenerate and
+  one. It lives outside `public/packs`, never listed by the app, and is round 1 of a closed loop. (Queued, with the
+  2/255 ghost floor of the short-stage packs: `docs/solver-packs.md` "The calibration queue".) Then regenerate and
   publish a before/after diff here. Then, once the user confirms, `solver` becomes the default chart set and replaces
   the hand-made pub chart as the reference: recommended only if every gate passes, no PF-SANITY warning remains and the
   BB-defense scenarios are badged 높음 or 보통.
 - **v2, more calibration and the tree:** calibration packs for an IP caller vs an OOP opener (`cal-srp-co-btn-100`
   first), a small 4-bet pot (`cal-4bp-co-btn-100`, for the low-SPR α rule), blind vs blind, a limped pot, OOP and IP
-  3-bet pots, and 55bb twins, all with an OOP donk option and IP's root EV stored in the flop format; c and u per
-  context and α as a function of SPR, replacing SPR_ALPHA and SPR_SURPLUS; two rounds of the closed loop
+  3-bet pots, and 55bb twins, all with an OOP donk option and IP's root EV stored in the flop format (queued, with
+  35bb and 100bb-3 twins, an OOP bet where OOP raised last and IP's root EV in the slim files: `docs/solver-packs.md`
+  "The calibration queue"); c and u per context and α as a function of SPR, replacing SPR_ALPHA and SPR_SURPLUS;
+  two rounds of the closed loop
   (chart → packs → fit → chart); 3-way all-ins for seats with voluntary chips, removing the PF-FROZEN lines; an exact
   3-way equity table; a bunching option; small cold 4-bets after PF-ABLATE.
 - **v3, the pub and ICM:** a pub-exploit version by node-locking: the other seats locked to pub profiles (wider opens,
