@@ -1,6 +1,8 @@
 # Presolve: solves the next flops of the solver chart packs (src/presolve/scenarios.ts) with our own solver and
-# commits them under public/packs/ (format: docs/solver-packs.md). Flops already on disk for a pack's version are
-# skipped, so every run continues where the last one stopped, in priority order.
+# commits them under public/packs/ (format: docs/solver-packs.md), and the calibration packs (CAL_SCENARIOS) under
+# calibration/packs/, a second manifest outside public/ that the app never lists or deploys (scripts/fit-realization.mjs
+# reads it). Flops already on disk for a pack's version are skipped, so every run continues where the last one
+# stopped, in priority order.
 #
 # The repository is public, so GitHub-hosted standard Linux runners are free with unlimited minutes: 4 vCPU,
 # 16 GB, up to 6 h per job, up to 20 jobs at once for the whole account (so `shards` stops at 16). Each run fans
@@ -22,12 +24,22 @@
 # scheduled run, and a run that solved nothing does not start another. A run with work takes ~5 h 15 min (setup,
 # 300 min of solving, merge). One run solves roughly 16 × 4 cores × ~290 min / ~11 min ≈ 1,700 flops,
 # about one whole pack (1,755 flops); a new pack version (new ranges, sizes or solver) is re-solved within a
-# day. With nothing left, a run ends within minutes.
+# day. With nothing left, a run ends within minutes. The two calibration packs (every combo in both ranges, so about
+# 7.4 core-minutes per flop, docs/solver-packs.md) take about 1.4 runs together: the first run leaves both about 70%
+# done and the run it starts finishes them.
+#
+# A push to master that changes a pack definition (scenarios.ts or the calibration ranges) starts a run at once,
+# instead of waiting up to 6 hours for the schedule; it solves only what is missing, like any other run.
 # GitHub's terms ask that Actions serve the project: these packs are the app's own data, and the total work is
 # fixed by the packs (the schedule only decides how soon it is done), so the runners sit idle once they are full.
 name: Presolve
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - src/presolve/scenarios.ts
+      - src/presolve/calRanges.ts
   schedule:
     # 05:23, 11:23, 17:23 and 23:23 UTC (14:23, 20:23, 02:23, 08:23 KST): all outside the busy 6–9 AM Pacific
     # window, when scheduled runs often start hours late.
@@ -144,22 +156,28 @@ jobs:
           node scripts/presolve.mjs --scenario "$SCENARIO" --shard "$SHARD" --budget-minutes "$((10#$BUDGET))" \
             --count "$COUNT" --workers "$(nproc)"
 
-      # Only the flop files this shard added, plus its manifest as shard-manifest.json (the merge job rebuilds
-      # manifest.json and only reads the exact summaries of these files from it). Also runs when solving failed
-      # or timed out: every file on disk was written whole (temp file + rename) after passing the write checks.
+      # Only the flop files this shard added (app packs under files/, calibration packs under cal-files/), plus
+      # its manifests as shard-manifest.json and shard-cal-manifest.json (the merge job rebuilds the manifests and
+      # only reads the exact summaries of these files from them). Also runs when solving failed or timed out: every
+      # file on disk was written whole (temp file + rename) after passing the write checks.
       - name: Collect new flops
         if: ${{ always() && steps.presolve.outcome != 'skipped' }}
         run: |
-          mkdir -p shard-out/files
-          git ls-files --others --exclude-standard -- public/packs \
-            | grep -E '^public/packs/[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$' > new-flops.txt || true
-          while IFS= read -r f; do
-            rel="${f#public/packs/}"
-            mkdir -p "shard-out/files/$(dirname "$rel")"
-            cp "$f" "shard-out/files/$rel"
-          done < new-flops.txt
-          cp public/packs/manifest.json shard-out/shard-manifest.json
-          echo "$(wc -l < new-flops.txt) new flop file(s) in shard ${{ matrix.shard }}"
+          mkdir -p shard-out/files shard-out/cal-files
+          total=0
+          for set in "public/packs:files:shard-manifest.json" "calibration/packs:cal-files:shard-cal-manifest.json"; do
+            IFS=: read -r dir out manifest <<< "$set"
+            git ls-files --others --exclude-standard -- "$dir" \
+              | grep -E "^${dir}/[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$" > new-flops.txt || true
+            while IFS= read -r f; do
+              rel="${f#"$dir"/}"
+              mkdir -p "shard-out/$out/$(dirname "$rel")"
+              cp "$f" "shard-out/$out/$rel"
+            done < new-flops.txt
+            total=$((total + $(wc -l < new-flops.txt)))
+            if [ -f "$dir/manifest.json" ]; then cp "$dir/manifest.json" "shard-out/$manifest"; fi
+          done
+          echo "$total new flop file(s) in shard ${{ matrix.shard }}"
 
       - name: Upload new flops
         if: ${{ always() && steps.presolve.outcome != 'skipped' }}
@@ -208,7 +226,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: shard-*
-          path: shards # one folder per shard: shards/shard-<i>/files/<pack>/v<k>/flop-*.json
+          # one folder per shard: shards/shard-<i>/files/<pack>/v<k>/flop-*.json (app packs) and
+          # shards/shard-<i>/cal-files/<pack>/v<k>/flop-*.json (calibration packs)
+          path: shards
 
       - name: Copy the shards' flops
         id: copy
@@ -217,33 +237,37 @@ jobs:
           # one is skipped, a different one keeps the existing file and is reported.
           added=0
           if [ -d shards ]; then
-            while IFS= read -r src; do
-              rel="${src#shards/*/files/}"
-              if ! [[ "$rel" =~ ^[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$ ]]; then
-                echo "::warning::Skipping unexpected artifact file $src"
-                continue
-              fi
-              dest="public/packs/$rel"
-              if [ -e "$dest" ]; then
-                cmp -s "$src" "$dest" || echo "::warning::$src differs from public/packs/$rel; keeping the existing file"
-                continue
-              fi
-              mkdir -p "$(dirname "$dest")"
-              cp "$src" "$dest"
-              added=$((added + 1))
-            done < <(find shards -type f -path 'shards/*/files/*' | sort)
+            for set in "files:public/packs" "cal-files:calibration/packs"; do
+              IFS=: read -r sub dir <<< "$set"
+              while IFS= read -r src; do
+                rel="${src#shards/*/"$sub"/}"
+                if ! [[ "$rel" =~ ^[a-z0-9-]+/v[0-9]+/flop-[2-9TJQKAshdc]{6}\.json$ ]]; then
+                  echo "::warning::Skipping unexpected artifact file $src"
+                  continue
+                fi
+                dest="$dir/$rel"
+                if [ -e "$dest" ]; then
+                  cmp -s "$src" "$dest" || echo "::warning::$src differs from $dest; keeping the existing file"
+                  continue
+                fi
+                mkdir -p "$(dirname "$dest")"
+                cp "$src" "$dest"
+                added=$((added + 1))
+              done < <(find shards -type f -path "shards/*/$sub/*" | sort)
+            done
           fi
           echo "new_flops=$added" >> "$GITHUB_OUTPUT"
-          echo "$added new flop file(s) copied into public/packs"
+          echo "$added new flop file(s) copied into public/packs and calibration/packs"
 
       # The same checks as before writing a solved flop; on a failure it exits 1 and nothing is committed (the
-      # shard artifacts stay for 2 days). Unchanged apart from generatedAt → not rewritten, no commit.
+      # shard artifacts stay for 2 days). Unchanged apart from generatedAt → not rewritten, no commit. It rebuilds
+      # both manifests (the app's and the calibration one) for the packs of the run's scenario.
       - name: Rebuild the manifest
         env:
           SCENARIO: ${{ inputs.scenario || 'all' }}
         run: |
           hints=()
-          for f in shards/*/shard-manifest.json; do
+          for f in shards/*/shard-manifest.json shards/*/shard-cal-manifest.json; do
             if [ -f "$f" ]; then hints+=(--summaries-from "$f"); fi
           done
           node scripts/presolve.mjs --rebuild-manifest --scenario "$SCENARIO" "${hints[@]}"
@@ -255,6 +279,7 @@ jobs:
           SCENARIO: ${{ inputs.scenario || 'all' }}
         run: |
           git add public/packs
+          if [ -d calibration/packs ]; then git add calibration/packs; fi
           if git diff --cached --quiet; then
             echo "No pack changes."
             exit 0
@@ -263,7 +288,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Presolve: ${NEW_FLOPS} new flops"
           hints=()
-          for f in shards/*/shard-manifest.json; do
+          for f in shards/*/shard-manifest.json shards/*/shard-cal-manifest.json; do
             if [ -f "$f" ]; then hints+=(--summaries-from "$f"); fi
           done
           remote="origin/${GITHUB_REF_NAME}"
@@ -277,18 +302,18 @@ jobs:
             sleep $((attempt * 5))
             git fetch origin "${GITHUB_REF_NAME}"
             if ! git rebase "$remote"; then
-              # The commit only touches public/packs. manifest.json is one line of derived data, so any manifest
-              # change on the branch conflicts with ours (e.g. "Re-run failed jobs" after this run's merge already
-              # pushed): keep the branch's files (a version's files never change) and rebuild the manifest over
-              # both sets with the branch's code, as a normal run would.
+              # The commit only touches public/packs and calibration/packs. Each manifest.json is one line of
+              # derived data, so any manifest change on the branch conflicts with ours (e.g. "Re-run failed jobs"
+              # after this run's merge already pushed): keep the branch's files (a version's files never change)
+              # and rebuild the manifests over both sets with the branch's code, as a normal run would.
               conflicts=$(git diff --name-only --diff-filter=U)
-              if [ -z "$conflicts" ] || grep -qv '^public/packs/' <<< "$conflicts"; then
+              if [ -z "$conflicts" ] || grep -qvE '^(public|calibration)/packs/' <<< "$conflicts"; then
                 git rebase --abort
-                echo "Rebase conflict outside public/packs; not pushing."
+                echo "Rebase conflict outside public/packs and calibration/packs; not pushing."
                 exit 1
               fi
               while IFS= read -r f; do
-                if [ "$f" != public/packs/manifest.json ]; then
+                if [ "$f" != public/packs/manifest.json ] && [ "$f" != calibration/packs/manifest.json ]; then
                   echo "::warning::$f differs from the branch's; keeping the branch's file"
                 fi
                 git checkout --ours -- "$f" # during a rebase, "ours" is the branch being rebased onto
@@ -299,6 +324,7 @@ jobs:
                 exit 1
               fi
               git add public/packs
+              if [ -d calibration/packs ]; then git add calibration/packs; fi
               if git diff --cached --quiet HEAD; then
                 git rebase --skip # everything this run adds is already on the branch
               else
@@ -310,7 +336,7 @@ jobs:
               exit 0
             fi
             # Count again: files the branch already had are no longer part of the commit.
-            n=$(git diff --name-only --diff-filter=A "$remote" HEAD -- public/packs | grep -cE '/flop-[^/]+\.json$' || true)
+            n=$(git diff --name-only --diff-filter=A "$remote" HEAD -- public/packs calibration/packs | grep -cE '/flop-[^/]+\.json$' || true)
             if [ "$(git log -1 --format=%s)" != "Presolve: ${n} new flops" ]; then
               git commit --amend --quiet -m "Presolve: ${n} new flops"
             fi
