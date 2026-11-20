@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useBackHandler } from "../../backNav";
 import { BlindsSheet, ChipsPad } from "./CalcSheet";
-import { bbPart, blindsText, chipsText, digitSlip, signedText, type StackAt } from "./fastChips";
+import { bbPart, blindsText, chipsText, digitSlip, levelChip, signedText, type StackAt } from "./fastChips";
 import { Bb } from "./FastResult";
-import { fieldsBlock, PUB_START_STACK, type TourneyFields } from "./fastTourney";
+import { fieldsBlock, fieldsPreset, PUB_START_STACK, type TourneyFields } from "./fastTourney";
 import { blindsOf, type Blinds, type Lv } from "./levelClock";
+import { presetBlinds, presetById, PRESET_IDS, PRESETS, presetStart, type PresetId } from "./structures";
 import { STACK_MAX, type StackCheck } from "./tourney";
 
 /**
  * 빠른 기록's tournament sheet: a new tournament (새 토너먼트 기록) or the current one's details (its title
  * tapped): 구조 (야자수 새틀: the pub's structure, the level from the start time; 직접 입력: the blinds typed by
- * hand as they go up), 이름, 시작 시간 (야자수 새틀 only), 시작 스택 and 블라인드 (직접 입력) on the in-app keypad,
- * 메모. It sits at the top of the screen, over a dimmed page, so the phone's keyboard never covers the fields; a
- * tap outside it, 취소 or the header's ‹ closes it. Nothing takes focus by itself.
+ * hand as they go up; WPL 메인 DAY1/2/3: the event's structure from its fixed start, its name, start time and
+ * stack filled in), 이름, 시작 시간 (not 직접 입력), 시작 레벨 (DAY2/3), 시작 스택 and 블라인드 (직접 입력) on the
+ * in-app keypad, 메모. It sits at the top of the screen, over a dimmed page, so the phone's keyboard never covers
+ * the fields; a tap outside it, 취소 or the header's ‹ closes it. Nothing takes focus by itself.
  */
 export function TourneySheet(p: {
   mode: "new" | "edit";
@@ -25,8 +27,8 @@ export function TourneySheet(p: {
   handCount?: number;
   /** Edit only: it is the current tournament ("지금 적는 중" by the title). */
   current?: boolean;
-  /** What the 시작 시간 typed gives now ("지금 Lv3 200/400", "시작 전 · 25분 뒤"), shown under it so a wrong start shows before saving; null: nothing to show. */
-  levelText?: (clock: string) => string | null;
+  /** What the 시작 시간 typed gives now by the structure picked ("지금 Lv3 200/400", "지금 L2 100/200", "시작 전 · 25분 뒤"), shown under it so a wrong start shows before saving; null: nothing to show. */
+  levelText?: (clock: string, f: TourneyFields) => string | null;
   /** A line above the buttons (edit: what changing the start does). */
   note?: string;
   /** New only: today's hands from before tournaments still running; with some, a box (ticked) takes them into the new one. */
@@ -42,7 +44,7 @@ export function TourneySheet(p: {
   onDelete?: () => void;
   onClose: () => void;
 }) {
-  const [f, setF] = useState<TourneyFields>(() => ({ ...p.initial, structure: p.initial.structure ?? "pub", blinds: p.initial.blinds ?? null }));
+  const [f, setF] = useState<TourneyFields>(() => ({ ...p.initial, structure: p.initial.structure ?? "pub", blinds: p.initial.blinds ?? null, startLevel: p.initial.startLevel ?? null }));
   const [err, setErr] = useState<string | null>(null);
   const [join, setJoin] = useState(true);
   /** The keypad open over the sheet: 시작 스택, or 직접 입력's blinds. */
@@ -58,22 +60,42 @@ export function TourneySheet(p: {
   const isNew = p.mode === "new";
   const offered = (p.offered ?? isNew) && p.initial.stack === String(PUB_START_STACK);
   const custom = f.structure === "custom";
+  /** A ready-made structure picked (WPL 메인 DAY1/2/3), or null. */
+  const preset = fieldsPreset(f);
   const stack = /^\d{1,9}$/.test(f.stack) && Number(f.stack) > 0 ? Number(f.stack) : null;
-  const lv = p.levelText?.(f.clock) ?? null;
-  /** The level 시작 스택's bb is counted at: 야자수 새틀 Lv1 (100/200), 직접 입력's starting blinds. */
-  const startLv: Lv = custom ? (f.blinds ?? null) : 1;
+  const lv = p.levelText?.(f.clock, f) ?? null;
+  /** A ready-made structure's start level (DAY2/3 picked, else its own). */
+  const presetLv = preset ? presetStart(preset, f.startLevel) : null;
+  /** The level 시작 스택's bb is counted at: 야자수 새틀 Lv1 (100/200), 직접 입력's starting blinds, a ready-made structure's start level. */
+  const startLv: Lv = custom ? (f.blinds ?? null) : preset ? presetBlinds(preset, presetLv) : 1;
   const startBb = blindsOf(startLv)?.bb ?? null;
+  /** "Lv1", "L19": the start level's word, for the lines about the stack's bb. */
+  const startWord = preset ? `L${presetLv}` : "Lv1";
   const put = <K extends keyof TourneyFields>(k: K, v: TourneyFields[K]) => {
     setF((x) => ({ ...x, [k]: v }));
     setErr(null);
   };
-  /** 구조 switched: an untouched 50,000 offer goes for 직접 입력 and comes back for 야자수 새틀. */
-  function pickStructure(to: "pub" | "custom") {
+  /** A name the sheet offered (a ready-made structure's), not one typed: it follows the structure picked. */
+  const offeredName = (name: string) => !name.trim() || PRESET_IDS.some((id) => PRESETS[id].name === name.trim());
+  /**
+   * 구조 switched: an untouched stack offer follows it (야자수 새틀's 50,000, nothing for 직접 입력, DAY1's 35,000, nothing
+   * for DAY2/3: their stack is the day before's); a ready-made structure brings its fixed start time and its name
+   * (over an empty name or another one's) and its start level; back from one, a new tournament's name and time go again.
+   */
+  function pickStructure(to: "pub" | "custom" | PresetId) {
     if (to === f.structure) return;
+    const np = presetById(to);
+    const was = fieldsPreset(f);
+    // A stack on file (editing) stays; a new tournament's untouched offer follows the structure.
+    const free = !touched && (offered || (isNew && !!was) || stack === null);
+    const offer = np ? (np.startStack !== null ? String(np.startStack) : "") : to === "custom" || !offered ? "" : String(PUB_START_STACK);
     setF((x) => ({
       ...x,
       structure: to,
-      ...(offered && !touched ? { stack: to === "custom" ? "" : String(PUB_START_STACK) } : {}),
+      ...(free ? { stack: offer } : {}),
+      ...(np ? { clock: np.clock } : was && x.clock === was.clock && !fieldsPreset(p.initial) ? { clock: p.initial.clock } : {}),
+      ...(np && offeredName(x.name) ? { name: np.name } : !np && was && isNew && offeredName(x.name) ? { name: "" } : {}),
+      startLevel: np?.pickStart ? (to === p.initial.structure ? presetStart(np, p.initial.startLevel) : np.startLevel) : null,
     }));
     setErr(null);
   }
@@ -107,8 +129,37 @@ export function TourneySheet(p: {
           "모름"
         )}
       </button>
-      <small>{custom ? (startBb !== null ? `BB ${chipsText(startBb)} 기준` : "블라인드를 넣으면 bb로") : "Lv1 기준 · 누르면 계산기"}</small>
+      <small>
+        {custom
+          ? startBb !== null
+            ? `BB ${chipsText(startBb)} 기준`
+            : "블라인드를 넣으면 bb로"
+          : preset?.pickStart && stack === null
+            ? `${preset.id === "wpl2" ? "DAY1" : "DAY2"} 끝난 칩을 넣어요`
+            : `${startWord} 기준 · 누르면 계산기`}
+      </small>
     </div>
+  );
+  /** DAY2/3: the level the day starts at (the sheet: it varies with the day before). */
+  const startLevelField = preset?.pickStart ? (
+    <label className="tn-field">
+      시작 레벨
+      <select className="select" value={presetLv ?? preset.startLevel} onChange={(e) => put("startLevel", Number(e.target.value))}>
+        {preset.schedule.map((r) => (
+          <option key={r.level} value={r.level}>
+            {levelChip(presetBlinds(preset, r.level))}
+          </option>
+        ))}
+      </select>
+      <small>{presetLv === preset.startLevel ? `보통 L${preset.startLevel} · 다르면 고르기` : `구조표는 L${preset.startLevel}부터`}</small>
+    </label>
+  ) : null;
+  const clockField = (
+    <label className="tn-field">
+      시작 시간
+      <input type="time" value={f.clock} onChange={(e) => put("clock", e.target.value)} />
+      {lv ? <small className="tn-lv">{lv}</small> : preset ? <small>{preset.clock} 시작 · 늦게 시작하면 바꾸기</small> : <small>레벨 추정에 써요 · 모르면 비워 두세요</small>}
+    </label>
   );
 
   return (
@@ -125,15 +176,29 @@ export function TourneySheet(p: {
             {p.current && <span className="log-tag">지금 적는 중</span>}
           </div>
         )}
-        <div className="tn-struct" role="radiogroup" aria-label="구조">
-          <button type="button" role="radio" aria-checked={!custom} className={!custom ? "on" : ""} onClick={() => pickStructure("pub")}>
-            야자수 새틀
-            <small>구조표대로 · 레벨 자동</small>
-          </button>
-          <button type="button" role="radio" aria-checked={custom} className={custom ? "on" : ""} onClick={() => pickStructure("custom")}>
-            직접 입력
-            <small>블라인드를 직접</small>
-          </button>
+        <div className="tn-structs" role="radiogroup" aria-label="구조">
+          <div className="tn-struct">
+            <button type="button" role="radio" aria-checked={f.structure === "pub"} className={f.structure === "pub" ? "on" : ""} onClick={() => pickStructure("pub")}>
+              야자수 새틀
+              <small>구조표대로 · 레벨 자동</small>
+            </button>
+            <button type="button" role="radio" aria-checked={custom} className={custom ? "on" : ""} onClick={() => pickStructure("custom")}>
+              직접 입력
+              <small>블라인드를 직접</small>
+            </button>
+          </div>
+          <div className="tn-struct tn-wpl">
+            <span className="tn-wpl-name" aria-hidden="true">
+              WPL
+              <small>메인</small>
+            </span>
+            {PRESET_IDS.map((id) => (
+              <button key={id} type="button" role="radio" aria-checked={f.structure === id} aria-label={`${PRESETS[id].name} · ${PRESETS[id].clock} 시작`} className={f.structure === id ? "on" : ""} onClick={() => pickStructure(id)}>
+                {PRESETS[id].short}
+                <small>{PRESETS[id].clock}</small>
+              </button>
+            ))}
+          </div>
         </div>
         <label className="tn-field">
           이름
@@ -156,13 +221,17 @@ export function TourneySheet(p: {
               <small>칠 때 레벨 칩에서 바꿔요</small>
             </div>
           </div>
+        ) : preset?.pickStart ? (
+          <>
+            <div className="tn-grid">
+              {clockField}
+              {stackField}
+            </div>
+            {startLevelField}
+          </>
         ) : (
           <div className="tn-grid">
-            <label className="tn-field">
-              시작 시간
-              <input type="time" value={f.clock} onChange={(e) => put("clock", e.target.value)} />
-              {lv ? <small className="tn-lv">{lv}</small> : <small>레벨 추정에 써요 · 모르면 비워 두세요</small>}
-            </label>
+            {clockField}
             {stackField}
           </div>
         )}
@@ -213,12 +282,20 @@ export function TourneySheet(p: {
             over
             label="시작 스택"
             title="시작 스택"
-            note={custom ? (f.blinds ? `직접 입력 · ${chipsText(f.blinds.sb)}/${chipsText(f.blinds.bb)}` : "직접 입력") : "야자수 새틀 · Lv1 100/200"}
+            note={
+              custom
+                ? f.blinds
+                  ? `직접 입력 · ${chipsText(f.blinds.sb)}/${chipsText(f.blinds.bb)}`
+                  : "직접 입력"
+                : preset
+                  ? `${preset.name} · ${levelChip(startLv)}`
+                  : "야자수 새틀 · Lv1 100/200"
+            }
             value={f.stack}
             fresh
             placeholder="모름"
             bb={stack !== null ? bbPart(stack, startLv) : null}
-            line={startBb !== null ? `${custom ? "" : "Lv1 "}BB ${chipsText(startBb)} 기준 · 모르면 지우기` : "블라인드를 넣으면 bb로 보여요"}
+            line={startBb !== null ? `${custom ? "" : `${startWord} `}BB ${chipsText(startBb)} 기준 · 모르면 지우기` : "블라인드를 넣으면 bb로 보여요"}
             lineClass="hint"
             left={{ label: "지우기", onClick: () => (put("stack", ""), setTouched(true)) }}
             right={{ label: "확인", onClick: () => setPad(null) }}

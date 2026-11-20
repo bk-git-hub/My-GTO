@@ -42,20 +42,3 @@ export function shardFlops<T>(order: readonly T[], limit: number, shard: Shard =
   for (let k = shard.index; k < end; k += shard.count) out.push(order[k]);
   return out;
 }
-
-/**
- * The order a run solves its flops in: the packs' lists of missing flops (each in priority order) grouped by the packs'
- * `queue` value, lower first; within a group the lists are interleaved, one flop of each pack in turn, in the order
- * given. With every pack at the same value this is the plain interleave the job has always used, so the app's packs and
- * the first calibration packs (all 0) keep their order, and a queue of packs (1, 2, ...) is solved one pack after the
- * other, each shard working through its share of a pack before it starts the next.
- */
-export function jobQueue<T>(lists: readonly { queue: number; jobs: readonly T[] }[]): T[] {
-  const ranks = [...new Set(lists.map((l) => l.queue))].sort((a, b) => a - b);
-  const out: T[] = [];
-  for (const r of ranks) {
-    const group = lists.filter((l) => l.queue === r).map((l) => l.jobs);
-    for (let i = 0; group.some((l) => i < l.length); i++) for (const l of group) if (i < l.length) out.push(l[i]);
-  }
-  return out;
-}

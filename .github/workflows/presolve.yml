@@ -24,19 +24,9 @@
 # scheduled run, and a run that solved nothing does not start another. A run with work takes ~5 h 15 min (setup,
 # 300 min of solving, merge). One run solves roughly 16 × 4 cores × ~290 min / ~11 min ≈ 1,700 flops,
 # about one whole pack (1,755 flops); a new pack version (new ranges, sizes or solver) is re-solved within a
-# day. With nothing left, a run ends within minutes. The two short-stage calibration packs (every combo in both
-# ranges, so about 7.4 core-minutes per flop, docs/solver-packs.md) take about 1.4 runs together: the first run leaves
-# both about 70% done and the run it starts finishes them.
-#
-# Then the calibration queue (CAL_SCENARIOS after those two; docs/solver-packs.md "The calibration queue"): 41 more
-# packs, solved one after the other in priority order (each pack's `queue` value; packs with the same value are
-# interleaved, and the app's packs and the first two have 0, so they keep their order), the pots with an IP raiser
-# first (the realization fit reads those today). Each flop solves with 16-bit storage (at most 1.93 GB a flop, so 4 per
-# runner and under the default --max-mb 2000) and writes a slim file of about 2 KB (the ranges and each hand class's
-# root EV, all the realization fit reads). By the dry runs and convergence probes, a queued flop costs about 2–51
-# core-minutes, a pack 0.2 to 5.3 runs, and the whole queue about 77 runs: about 16.7 days of back-to-back runs (6.7
-# for the 20 IP-raiser packs, then 10 for the rest), the most valuable packs first. The queue adds about 4 MB a pack to
-# the checkout (3.3–4.3 MB of flop files and 0.45 MB of manifest; about 170 MB in all).
+# day. With nothing left, a run ends within minutes. The two calibration packs (every combo in both ranges, so about
+# 7.4 core-minutes per flop, docs/solver-packs.md) take about 1.4 runs together: the first run leaves both about 70%
+# done and the run it starts finishes them.
 #
 # A push to master that changes a pack definition (scenarios.ts or the calibration ranges) starts a run at once,
 # instead of waiting up to 6 hours for the schedule; it solves only what is missing, like any other run.

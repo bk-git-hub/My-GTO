@@ -173,13 +173,14 @@ export function netBoth(net: number, level: Lv): string {
 
 /**
  * The level chip: "Lv5 300/600", "Lv17 5,000/1만", "Lv26 5만/10만", "레벨 ?"; a 직접 입력 tournament's blinds
- * (`custom`): "400/800" (앤티 = BB), "400/800 (500)" (another 앤티), "400/800 노앤티", "블라인드 ?" (not set).
+ * (`custom`): "400/800" (앤티 = BB), "400/800 (500)" (another 앤티), "400/800 노앤티", "블라인드 ?" (not set); a
+ * ready-made structure's level (blinds with their number): "L2 100/200".
  */
 export function levelChip(level: Lv, custom = false): string {
   if (level !== null && typeof level === "object") {
     const b = blindsOf(level);
     if (!b) return custom ? "블라인드 ?" : "레벨 ?";
-    const pair = `${chipsShort(b.sb)}/${chipsShort(b.bb)}`;
+    const pair = `${b.lv !== undefined ? `L${b.lv} ` : ""}${chipsShort(b.sb)}/${chipsShort(b.bb)}`;
     return b.ante === b.bb ? pair : b.ante === 0 ? `${pair} 노앤티` : `${pair} (${chipsShort(b.ante)})`;
   }
   const row = blindsOf(level);

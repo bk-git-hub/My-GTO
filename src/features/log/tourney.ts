@@ -4,7 +4,8 @@
  * handLog.ts can use it at load time (its migration runs when the module loads). The rules about which
  * tournament is current, its hands and its screens are in fastTourney.ts.
  */
-import { cleanBlinds, type Blinds } from "./levelClock";
+import { cleanBlinds, levelRow, plainBlinds, type Blinds } from "./levelClock";
+import { isPresetId, PRESETS, type PresetId } from "./structures";
 
 export interface Tourney {
   /** "t-<Date.now() base36>-<6 random base36>". */
@@ -39,8 +40,19 @@ export interface Tourney {
    * 입력 (the blinds typed by hand as they go up: no level, no time estimate).
    */
   structure?: "custom";
-  /** 직접 입력 only: the blinds now (set in the sheet, changed with the level chip). Absent: not set yet. */
+  /**
+   * 직접 입력: the blinds now (set in the sheet, changed with the level chip). Absent: not set yet. With `preset`: the
+   * blinds of its last hand (else of its start level), for an older app only (it reads the tournament as 직접 입력).
+   */
   blinds?: Blinds;
+  /**
+   * A ready-made structure (structures.ts: WPL 메인 DAY1/2/3), the level following the clock from `start` by its
+   * own table. Stored on top of `structure: "custom"` and its `blinds`, so an app from before presets reads the
+   * tournament as 직접 입력 at those blinds (never as 야자수 새틀 guessed from the clock).
+   */
+  preset?: PresetId;
+  /** `preset` only: the level the day started at, when it varies (DAY2, DAY3); absent: the preset's own. */
+  startLevel?: number;
 }
 
 /** One 칩 업데이트: at `at` (epoch ms) I had `stack` chips (0 … 999,999,999: 0 is busted). */
@@ -88,7 +100,10 @@ export function cleanTourney(x: unknown): Tourney | null {
   const startStack = typeof stack === "number" && Number.isInteger(stack) && stack >= 1 && stack <= STACK_MAX ? stack : null;
   const checks = cleanChecks(r.checks);
   const custom = r.structure === "custom";
-  const blinds = custom ? cleanBlinds(r.blinds) : null;
+  const clean = custom ? cleanBlinds(r.blinds) : null;
+  const blinds = clean ? plainBlinds(clean) : null;
+  const preset = custom && isPresetId(r.preset) ? r.preset : null;
+  const startLevel = preset && PRESETS[preset].pickStart && typeof r.startLevel === "number" && levelRow(r.startLevel, PRESETS[preset].schedule) ? r.startLevel : null;
   return {
     id: r.id,
     createdAt,
@@ -103,6 +118,8 @@ export function cleanTourney(x: unknown): Tourney | null {
     ...(checks.length ? { checks } : {}),
     ...(custom ? { structure: "custom" as const } : {}),
     ...(blinds ? { blinds } : {}),
+    ...(preset ? { preset } : {}),
+    ...(startLevel !== null ? { startLevel } : {}),
   };
 }
 
