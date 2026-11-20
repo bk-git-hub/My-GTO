@@ -73,27 +73,6 @@ export function stageReach(stage: PreflopStage): Map<string, Range> {
   return out;
 }
 
-/**
- * The hero's reach at one spot of `stage` (what stageReach gives for it), parsing only the earlier actions its
- * `reachFrom` names; undefined for a spot where the hero acts for the first time. The one-spot reads
- * (solverSpot.ts) use it, so that a hand review never parses the whole stage.
- */
-export function spotReach(stage: PreflopStage, sc: PreflopScenario): Range | undefined {
-  if (!sc.reachFrom?.length) return undefined;
-  const refs = sc.reachFrom.map((ref) => {
-    const [id, key] = ref.split(":");
-    const a = stage.scenarios.find((x) => x.id === id)?.actions.find((x) => x.key === key);
-    return a ? parseRange(a.range) : undefined;
-  });
-  const reach: Range = {};
-  for (const h of ALL_HANDS) {
-    let rho = 1;
-    for (const r of refs) rho *= r?.[h] ?? 0;
-    if (rho > 0) reach[h] = rho;
-  }
-  return reach;
-}
-
 /** The legend keys of a scenario: its actions in order, then fold unless noFold (the bit order of `close`). */
 const legendKeys = (sc: PreflopScenario) => [...sc.actions.map((a) => a.key), ...(sc.noFold ? [] : ["fold"])];
 
@@ -124,8 +103,8 @@ function quizSkipOf(flags: PreflopFlag[] | undefined): Partial<Record<HandClass,
   return out;
 }
 
-/** One spot of the data as the set's ScenarioDef (see the header); `reachRange` is the spot's stageReach entry. */
-export function solverScenarioDef(sc: PreflopScenario, reachRange: Range | undefined, stack: number): ScenarioDef {
+function scenario(sc: PreflopScenario, reach: Map<string, Range>, stack: number): ScenarioDef {
+  const reachRange = reach.get(sc.id);
   const close = decodeClose(sc);
   const quizSkip = quizSkipOf(sc.flags);
   return {
@@ -144,8 +123,6 @@ export function solverScenarioDef(sc: PreflopScenario, reachRange: Range | undef
     ...(close ? { close } : {}),
     ...(sc.flags?.length ? { flags: sc.flags } : {}),
     ...(quizSkip ? { quizSkip } : {}),
-    confidence: sc.confidence,
-    move: sc.move,
   };
 }
 
@@ -160,7 +137,7 @@ function stage(st: PreflopStage): StageDef {
     label: st.label,
     stack,
     description,
-    scenarios: st.scenarios.map((sc) => solverScenarioDef(sc, reach.get(sc.id), st.stack)),
+    scenarios: st.scenarios.map((sc) => scenario(sc, reach, st.stack)),
     ...(st.closeEps !== undefined ? { closeEps: st.closeEps } : {}),
   };
 }
@@ -175,30 +152,20 @@ export function solverSetDefBuilt(): boolean {
   return solverDef !== null;
 }
 
-/** The solver set's game line (the charts page and the coach facts). */
-export const SOLVER_GAME = "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)";
-
-/**
- * The solver set's "차트 출처" text: what the charts are and their limits. Its own function so that the coach facts of a
- * hand review can quote it without building the set.
- */
-export function solverSource(): string {
+/** The solver set's definition, built on the first call (stageReach and the close strings parse every spot). */
+export function solverSetDef(): ChartSetDef {
+  if (solverDef) return solverDef;
   // After the cold4 fallback (§2.8) a stage has no cold jam behind a 3-bet: the cold seat only folds there.
   const noColdJam = PREFLOP_STAGES.filter((st) => st.tree.cold4 === "none").map((st) => st.label);
   const COLD_TEXT =
     "3벳 뒤에 처음 액션하는 자리는 폴드나 올인만 해요 (콜드콜·작은 콜드 4벳 없음)." +
     (noColdJam.length ? ` ${noColdJam.join("·")}에서는 그 자리가 폴드만 해요.` : "");
-  return `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요. 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`;
-}
-
-/** The solver set's definition, built on the first call (stageReach and the close strings parse every spot). */
-export function solverSetDef(): ChartSetDef {
-  if (solverDef) return solverDef;
   solverDef = {
     id: SOLVER_ID,
     label: SOLVER_LABEL,
-    game: SOLVER_GAME,
-    source: solverSource(),
+    game: "홀덤펍 토너먼트 · 9인 · BB 앤티 1bb · 모두 같은 스택 · 칩EV (ICM 미반영)",
+    source:
+      `이 앱이 직접 만든 9인 프리플랍 솔버(DCFR)의 계산값이에요 (scripts/make-preflop.mjs). 상용 차트나 다른 솔버 결과는 쓰지 않았어요. 플랍 이후는 풀지 않고, 우리 포스트플랍 솔버 팩(BTN vs BB)에서 잰 에퀴티 실현율 모델로 근사했어요. 콜드콜·오버콜·스퀴즈가 있고, 플랍은 3명까지 봐요 (BB가 오버콜하면 4명). ${COLD_TEXT} 올인은 늘 두 명만 붙어요: 누가 콜하면 뒤 사람은 폴드해요. 멀티웨이 팟, 3벳·4벳 팟, IP 콜러의 실현율은 아직 보정 전 가정값이라 시나리오마다 신뢰도를 붙였어요. 아주 드문 라인(전체 판의 0.1~1% 미만)은 차트에서 뺐어요. 모두 같은 스택, ICM 미반영.`,
     positions: POS,
     heroFilter: true,
     stages: PREFLOP_STAGES.map(stage),

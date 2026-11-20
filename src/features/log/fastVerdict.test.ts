@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PreflopDecision } from "../../play/policy";
-import { actLabel, actsFor, fastVerdict, listVerdictText, seatsBefore, spotsFor, validInput, type FastInput } from "./fastVerdict";
+import { actLabel, actsFor, fastVerdict, seatsBefore, spotsFor, validInput, type FastInput } from "./fastVerdict";
 
 const v = (i: Partial<FastInput> & Pick<FastInput, "seat" | "cls">) => fastVerdict({ stage: "mid", players: 9, spot: "none", ...i });
 const text = (i: Partial<FastInput> & Pick<FastInput, "seat" | "cls">) => v(i).text;
@@ -34,28 +34,6 @@ describe("fastVerdict: unopened (RFI), by the solver at 딥 and 미들", () => {
     expect(text({ stage: "mid", seat: "UTG", cls: "66", act: "open" })).toBe(`✓ 차트대로${S55}`);
     expect(text({ stage: "deep", seat: "UTG", cls: "A5s", act: "open" })).toBe(`✓ 차트대로${S100}`);
     expect(text({ stage: "deep", seat: "UTG", cls: "QJo", act: "open" })).toBe(`⚠ 오버플레이 (차트: 폴드)${S100}`);
-  });
-
-  it("only shows the SB's AA limp of the low-confidence chart, never grades by it", () => {
-    for (const stage of ["deep", "mid"] as const)
-      for (const act of ["open", "limp"] as const) expect(v({ stage, seat: "SB", cls: "AA", act }), `${stage} ${act}`).toMatchObject({ kind: "none", ref: true, text: "참고 · 신뢰도 낮은 차트라 참고만" });
-    expect(v({ stage: "deep", seat: "SB", cls: "AA", act: "fold" }).kind).toBe("under");
-    // an open-shove is no limp or open: graded, as the hand review grades it. The 100bb and 55bb charts have no
-    // all-in, so it is an overplay of an all-in the chart lacks, never "(차트: 림프)", the limp the chart is doubted for
-    expect(v({ stage: "deep", seat: "SB", cls: "AA", act: "allin" })).toMatchObject({ kind: "over", text: `⚠ 오버플레이 (차트: 올인 없음)${S100}`, freq: 0 });
-    expect(v({ stage: "deep", seat: "SB", cls: "KK", act: "allin" })).toMatchObject({ kind: "over", text: `⚠ 오버플레이 (차트: 올인 없음)${S100}` });
-    expect(v({ stage: "mid", seat: "SB", cls: "AA", act: "allin" })).toMatchObject({ kind: "over", text: `⚠ 오버플레이 (차트: 올인 없음)${S55}` });
-    for (const stage of ["deep", "mid"] as const)
-      for (const cls of ["AA", "KK", "QQ", "JJ", "AKs", "AKo"] as const) expect(v({ stage, seat: "SB", cls, act: "allin" }).text, `${stage} ${cls}`).not.toContain("차트: 림프");
-    // a hand the chart doesn't limp keeps its reason (100bb BTN AA: the chart opens it)
-    expect(text({ stage: "deep", seat: "BTN", cls: "AA", act: "allin" })).toBe(`⚠ 오버플레이 (차트: 오픈)${S100}`);
-  });
-
-  it("puts no dash before a 참고 in 지난 기록, only before a 차트 없음", () => {
-    const ref = v({ stage: "deep", seat: "SB", cls: "AA", act: "limp" });
-    expect(listVerdictText(ref)).toBe("참고 · 신뢰도 낮은 차트라 참고만");
-    expect(listVerdictText(v({ seat: "BTN", cls: "72o", spot: "limp", act: "call" }))).toBe("– 차트 없음 · 림프 팟");
-    expect(listVerdictText(v({ seat: "CO", cls: "72o", act: "fold" }))).toBe(`✓ 차트대로${S55}`);
   });
 
   it("grades the SB's limps: the solver's SB limps much of its range into the BB", () => {
@@ -136,66 +114,80 @@ describe("fastVerdict: an unopened shove at deep and middle stacks", () => {
     expect(text({ stage: "deep", seat: "CO", cls: "33", act: "open" })).toBe(`✓ 차트대로${S100}`);
   });
 
-  it("has no chart for a shove at the deep or middle stack: nobody jams first in that deep", () => {
-    expect(v({ stage: "mid", seat: "BB", cls: "AJo", spot: "shove", opener: "CO", act: "call" })).toMatchObject({ kind: "none", text: "차트 없음 · 이 스택 차트에 없는 상황" });
+  it("takes a shove for a raise that commits the stack anyway (a deep 4-bet) as the chart's raise", () => {
+    expect(text({ stage: "deep", seat: "CO", cls: "KK", spot: "3bet", act: "allin" })).toBe("✓ 차트대로 · 차트는 4벳");
+  });
+});
+
+describe("fastVerdict: short and push stacks", () => {
+  it("grades opens and shoves by the short-stack chart (2bb open TT+ AQ+, else shove)", () => {
+    expect(text({ stage: "short", seat: "CO", cls: "A5o", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "CO", cls: "A5o", act: "open" })).toBe("✓ 차트대로 · 차트는 올인");
+    expect(text({ stage: "short", seat: "CO", cls: "A5o", act: "fold" })).toBe("▽ 언더플레이 (차트: 올인)");
+    expect(text({ stage: "short", seat: "UTG", cls: "AA", act: "open" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "UTG", cls: "AA", act: "allin" })).toBe("✓ 차트대로 · 차트는 2bb 오픈");
+    expect(text({ stage: "short", seat: "UTG", cls: "K9s", act: "allin" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+  });
+
+  it("3-bets all-in over an open, and the BB also calls some against a late open", () => {
+    expect(text({ stage: "short", seat: "CO", cls: "99", spot: "open", opener: "UTG", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "CO", cls: "KQo", spot: "open", opener: "UTG", act: "call" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(text({ stage: "short", seat: "BB", cls: "KTs", spot: "open", opener: "HJ", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "3bet" })).toBe("✓ 차트대로 · 차트는 3벳 올인");
+    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "call" })).toBe("▽ 언더플레이 (차트: 3벳 올인)");
+  });
+
+  it("calls shoves by the shover's seat", () => {
+    // vs UTG~LJ shove (short): call 99+ AQ+
+    expect(text({ stage: "short", seat: "BB", cls: "TT", spot: "shove", opener: "UTG", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "BB", cls: "88", spot: "shove", opener: "UTG", act: "call" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(text({ stage: "short", seat: "BB", cls: "AQo", spot: "shove", opener: "UTG", act: "fold" })).toBe("▽ 언더플레이 (차트: 콜)");
+    // vs a late shove: 77+ ATo+
+    expect(text({ stage: "short", seat: "BB", cls: "ATo", spot: "shove", opener: "BTN", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ stage: "push", seat: "SB", cls: "K2o", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ stage: "push", seat: "UTG", cls: "44", act: "allin" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(text({ stage: "push", seat: "BB", cls: "88", spot: "shove", opener: "BTN", act: "call" })).toBe("✓ 차트대로");
+    // the middle stage has a chart for a short stack's shove; deep has none
+    expect(text({ stage: "mid", seat: "BB", cls: "AJo", spot: "shove", opener: "CO", act: "call" })).toBe("✓ 차트대로");
     expect(v({ stage: "deep", seat: "BB", cls: "AJo", spot: "shove", opener: "CO", act: "call" }).kind).toBe("none");
   });
 });
 
-/** The short and push stages read our computed short-stack (17bb) and push/fold (10bb) charts, never the pub chart. */
-const N17 = " · 숏스택 17bb 기준";
-const P10 = " · 푸시폴드 10bb 기준";
-
-describe("fastVerdict: short and push stacks, by the computed charts", () => {
-  it("grades opens and shoves by the 17bb short-stack chart, a shove for its 2bb open as a size", () => {
-    expect(v({ stage: "short", seat: "CO", cls: "A5o", act: "open" })).toMatchObject({ kind: "ok", text: `✓ 차트대로${N17}`, chart: "숏스택 17bb CO 오픈·올인 레인지 · 2bb 오픈 100%" });
-    expect(text({ stage: "short", seat: "CO", cls: "A5o", act: "allin" })).toBe(`✓ 차트대로 · 차트는 2bb 오픈${N17}`);
-    expect(text({ stage: "short", seat: "CO", cls: "A5o", act: "fold" })).toBe(`▽ 언더플레이 (차트: 2bb 오픈)${N17}`);
-    expect(text({ stage: "short", seat: "UTG", cls: "AA", act: "open" })).toBe(`✓ 차트대로${N17}`);
-    expect(text({ stage: "short", seat: "UTG", cls: "K9s", act: "allin" })).toBe(`⚠ 오버플레이 (차트: 폴드)${N17}`);
+describe("fastVerdict: a 3-bet over my open", () => {
+  it("uses the open-vs-3bet chart (the middle stage 4-bets all-in)", () => {
+    expect(text({ seat: "CO", cls: "QQ", spot: "3bet", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ seat: "CO", cls: "QQ", spot: "3bet", act: "3bet" })).toBe("✓ 차트대로 · 차트는 4벳 올인");
+    expect(text({ seat: "CO", cls: "JJ", spot: "3bet", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ seat: "CO", cls: "98s", spot: "3bet", act: "call" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(text({ seat: "CO", cls: "AKo", spot: "3bet", act: "fold" })).toBe("▽ 언더플레이 (차트: 4벳 올인)");
+    expect(text({ stage: "deep", seat: "CO", cls: "QQ", spot: "3bet", act: "3bet" })).toBe("✓ 차트대로");
+    expect(text({ stage: "deep", seat: "CO", cls: "55", spot: "3bet", act: "call" })).toBe("✓ 차트대로");
   });
 
-  it("3-bets all-in over an open, and the BB also calls some", () => {
-    expect(text({ stage: "short", seat: "CO", cls: "99", spot: "open", opener: "UTG", act: "allin" })).toBe(`✓ 차트대로${N17}`);
-    expect(text({ stage: "short", seat: "CO", cls: "KQo", spot: "open", opener: "UTG", act: "call" })).toBe(`⚠ 오버플레이 (차트: 폴드)${N17}`);
-    expect(v({ stage: "short", seat: "BB", cls: "KTs", spot: "open", opener: "HJ", act: "call" })).toMatchObject({ kind: "ok", chart: "숏스택 17bb BB vs HJ 2bb 오픈 · 콜 80% · 3벳 올인 20%" });
-    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "allin" })).toBe(`✓ 차트대로${N17}`);
-    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "3bet" })).toBe(`✓ 차트대로 · 차트는 3벳 올인${N17}`);
-    expect(text({ stage: "short", seat: "BB", cls: "55", spot: "open", opener: "HJ", act: "call" })).toBe(`△ 섞는 핸드 (30%)${N17}`);
-  });
-
-  it("leaves a limp or flat the short-stack and push/fold charts don't have ungraded, unless they fold the hand", () => {
-    expect(v({ stage: "short", seat: "SB", cls: "K4o", act: "limp" })).toMatchObject({ kind: "none", ref: true, text: "참고 · 이 차트엔 림프·플랫이 없어요", freq: null });
-    // 차트 없음 is no 참고
-    expect(v({ seat: "BTN", cls: "72o", spot: "limp", act: "call" }).ref).toBeUndefined();
-    expect(text({ stage: "short", seat: "SB", cls: "72o", act: "limp" })).toBe(`⚠ 오버플레이 (차트: 폴드)${N17}`);
-    expect(v({ stage: "short", seat: "BTN", cls: "88", spot: "open", opener: "CO", act: "call" }).kind).toBe("none");
-    expect(v({ stage: "push", seat: "SB", cls: "K4o", act: "limp" }).kind).toBe("none");
-  });
-
-  it("calls shoves by the shover's seat, and pushes by the push/fold chart", () => {
-    expect(text({ stage: "short", seat: "BB", cls: "88", spot: "shove", opener: "UTG", act: "call" })).toBe(`✓ 차트대로${N17}`);
-    expect(text({ stage: "short", seat: "BB", cls: "A9o", spot: "shove", opener: "UTG", act: "call" })).toBe(`⚠ 오버플레이 (차트: 폴드)${N17}`);
-    expect(text({ stage: "short", seat: "BB", cls: "AQo", spot: "shove", opener: "UTG", act: "fold" })).toBe(`▽ 언더플레이 (차트: 콜)${N17}`);
-    expect(text({ stage: "short", seat: "BB", cls: "ATo", spot: "shove", opener: "BTN", act: "call" })).toBe(`✓ 차트대로${N17}`);
-    expect(v({ stage: "push", seat: "SB", cls: "K2o", act: "allin" })).toMatchObject({ kind: "ok", text: `✓ 차트대로${P10}`, chart: "푸시폴드 10bb SB 푸시 레인지 · 올인 100%" });
-    expect(text({ stage: "push", seat: "UTG", cls: "J8o", act: "allin" })).toBe(`⚠ 오버플레이 (차트: 폴드)${P10}`);
-    expect(text({ stage: "push", seat: "BB", cls: "88", spot: "shove", opener: "BTN", act: "call" })).toBe(`✓ 차트대로${P10}`);
-    expect(text({ stage: "push", seat: "BB", cls: "K7o", spot: "shove", opener: "UTG", act: "call" })).toBe(`⚠ 오버플레이 (차트: 폴드)${P10}`);
-    // a min-raise where the chart pushes is the push; facing a min-raise there is no push/fold spot
-    expect(text({ stage: "push", seat: "CO", cls: "AA", act: "open" })).toBe(`✓ 차트대로 · 차트는 올인${P10}`);
-    expect(v({ stage: "push", seat: "BB", cls: "AA", spot: "open", opener: "CO", act: "allin" }).kind).toBe("none");
+  it("short stacks 3-bet all-in: then it is a call or fold, and a shove back is a call", () => {
+    expect(text({ stage: "short", seat: "CO", cls: "77", spot: "3bet", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "CO", cls: "77", spot: "3bet", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ stage: "short", seat: "CO", cls: "65s", spot: "3bet", act: "call" })).toBe("⚠ 오버플레이 (차트: 폴드)");
   });
 });
 
-describe("fastVerdict: 3-bets", () => {
-  it("has no chart for a 3-bet over my open (whose 3-bet isn't recorded) or a cold 3-bet, never the pub chart's", () => {
-    expect(v({ stage: "deep", seat: "CO", cls: "KK", spot: "3bet", act: "allin" })).toMatchObject({ kind: "none", text: "차트 없음 · 3벳한 자리 몰라요", freq: null });
-    expect(text({ seat: "CO", cls: "QQ", spot: "3bet", act: "call" })).toBe("차트 없음 · 3벳한 자리 몰라요");
-    expect(text({ stage: "short", seat: "CO", cls: "77", spot: "3bet", act: "call" })).toBe("차트 없음 · 3벳한 자리 몰라요");
-    expect(v({ stage: "deep", seat: "BTN", cls: "55", spot: "cold3", act: "fold" })).toMatchObject({ kind: "none", text: "차트 없음 · 콜드 3벳" });
+describe("fastVerdict: a cold 3-bet (someone's open, another's 3-bet, then me)", () => {
+  it("continues with premiums only, not by the open-vs-3bet chart", () => {
+    const cold = { stage: "deep" as const, seat: "BTN", spot: "cold3" as const };
+    // the deep open-vs-3bet chart calls 55 and AQs; a cold 3-bet is folded with them
+    expect(v({ ...cold, cls: "55", act: "fold" })).toMatchObject({ kind: "ok", text: "✓ 차트대로", chart: "4벳 이상에 대응 (KK+, AKs) · 폴드 100%" });
+    expect(text({ ...cold, cls: "AQs", act: "fold" })).toBe("✓ 차트대로");
+    expect(text({ ...cold, cls: "AQs", act: "call" })).toBe("⚠ 오버플레이 (차트: 폴드)");
+    expect(text({ ...cold, cls: "QQ", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ ...cold, cls: "KK", act: "allin" })).toBe("✓ 차트대로");
+    expect(text({ ...cold, cls: "AKs", act: "fold" })).toBe("▽ 언더플레이 (차트: 4벳 올인)");
+    // short stacks: the 3-bet is a shove, so call QQ+ AK or fold
+    expect(text({ ...cold, stage: "short", cls: "AKo", act: "call" })).toBe("✓ 차트대로");
+    expect(text({ ...cold, stage: "short", cls: "JJ", act: "allin" })).toBe("⚠ 오버플레이 (차트: 폴드)");
     // two seats before me, and the BB can have one
-    expect(validInput({ stage: "deep", players: 9, seat: "UTG+1", cls: "AA", spot: "cold3", act: "call" })).toBe(false);
+    expect(validInput({ ...cold, players: 9, seat: "UTG+1", cls: "AA", act: "call" })).toBe(false);
+    expect(text({ ...cold, seat: "BB", cls: "AA", act: "allin" })).toBe("✓ 차트대로");
   });
 });
 

@@ -8,8 +8,8 @@ import { buttonSeat, positionsFor } from "./recorder";
  * 빠른 기록's 아재: the moment my two cards are in, the little 아재 by the hand reacts to how good they
  * are from my seat. The grade comes from the judge chart of the screen's stage (judgeChart.ts: our solver at 딥 and
  * 미들, our computed short-stack charts at 숏 and 푸시), first in (everyone folded to me), at every table size the
- * screen offers. 빠른 기록's verdict reads the same charts per stage (computedChart.ts PICK_FOR_STAGE), so the two
- * agree. Each tier has its moves, taken in turn
+ * screen offers. 빠른 기록's verdict reads the same solver at 딥 and 미들 but the pub chart at 숏 and 푸시, so there
+ * the two can disagree. Each tier has its moves, taken in turn
  * (AJAE_MOVES), so hands of the same tier in a row get a different show; the big pocket pairs have shows of their
  * own (AJAE_SPECIALS: AA flies a plane, KK is a gorilla or gets crowned, QQ waltzes, JJ splits into two jacks). He
  * never says a word. Everything here is pure; the art (the bald, mustached 아재 of the launch splash and the app

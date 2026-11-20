@@ -1,13 +1,10 @@
 import { cardLabel, fullDeck, RANKS, SUITS, type Card } from "../../poker/cards";
 import { evaluate } from "../../poker/evaluator";
 import { parseRange } from "../../poker/range";
-import { callPrice, legal, pot, type Game, type Street } from "../../play/engine";
+import { legal, pot, toCall, type Game, type Street } from "../../play/engine";
 import { equityVs, fullWeights } from "../../play/analysis";
 import { COMBOS, handFeatures } from "../../play/handInfo";
-import { reachOf } from "../../data/charts";
-import { chartFor, firstInRaise } from "../../play/computedChart";
-import { fallbackDecision } from "../../play/fallbackPolicy";
-import { postflopMoves, type MoveOption } from "../../play/policy";
+import { postflopMoves, preflopDecision } from "../../play/policy";
 import { mulberry32 } from "../../poker/pushfold";
 import { analyse, postflopSpot, preflopSpot, type Decision, type HeroMove, type PlayState } from "../../play/table";
 import { holeGuessed, seatTags, tableOf, type LoggedHand } from "./handLog";
@@ -17,11 +14,9 @@ import { cleanGuess } from "./suitGuess";
 
 /**
  * Analysis of a recorded hand, replayed through the play engine with the real cards:
- * opponents' ranges narrowed by their actions (preflop by the computed chart of their spot at the
- * hand's stacks, src/play/computedChart.ts, and plain fallback rules where no chart covers it;
- * postflop by the hand-play bot rules), my estimated equity on each street, exact equity against
- * the hands I saw at showdown, my decisions graded (preflop against the computed chart, never the
- * hand-made pub chart), and the chip result.
+ * opponents' ranges narrowed by their actions (the hand-play bot rules), my estimated
+ * equity on each street, exact equity against the hands I saw at showdown, my decisions
+ * graded, and the chip result.
  */
 
 // ───────────── card text ─────────────
@@ -122,7 +117,7 @@ export function equityKnown(hands: Card[][], board: Card[], iterations = 20000):
 /** Pub players limp wide; the charts never limp, so a limp narrows to this instead. */
 const LIMP_RANGE = parseRange("22+, A2s+, K2s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 75s+, 64s+, 54s, A2o+, K8o+, Q9o+, J9o+, T9o, 98o");
 
-/** Stack depth (bb) → the stage the fallback rules size by (shared with the quick screen's preflop block). */
+/** Stack depth (bb) → the pub chart stage the bot rules use (shared with the quick screen's preflop block). */
 export { stageFor };
 
 /**
@@ -136,30 +131,18 @@ function narrow(s: PlayState, idx: number, st: LogStep, boardKnown: boolean) {
   const tries: ((i: number) => number)[] = [];
   if (g.street === "preflop") {
     const spot = preflopSpot(s, idx);
-    // A first-in open picks the 100bb stage by its own size, as the hero's grade does (computedChart.ts stageOpen); a
-    // 30–45bb re-jam over an open reads the chart the opener's call of it is graded by (ChartForOptions.narrowing).
-    const ans = chartFor(g, idx, { stackUnknown: s.stackUnknown, narrowing: true, ...(st.k === "raise" && st.to !== undefined ? { ownRaise: st.to } : {}) });
-    const chartLimps = ans.ok && ans.scenario.actions.some((a) => a.key === "limp");
-    // Facing an all-in, a raise over it (isolating a shorter stack's jam) is a call of it: the charts only call there.
-    const k = st.k === "raise" && spot.facingAllIn ? "call" : st.k;
-    if (k === "call" && spot.raises === 0 && spot.seat !== "BB" && !chartLimps) {
+    if (st.k === "call" && spot.raises === 0 && spot.seat !== "BB") {
       tries.push((i) => LIMP_RANGE[COMBOS[i].hand] ?? 0);
     } else {
+      const dec = preflopDecision(spot);
       const allInTo = spot.myBet + spot.myStack;
-      const isAllIn = k === "raise" && (st.to ?? 0) >= allInTo - 1e-9;
-      const fallback = fallbackDecision(spot, firstInRaise(g, idx));
-      const prob = (moves: MoveOption[], strict: boolean) =>
-        moves.filter((o) => o.kind === k && (!strict || k !== "raise" || ((o.to ?? 0) >= allInTo - 1e-9) === isAllIn)).reduce((a, o) => a + o.prob, 0);
-      if (ans.ok) {
-        // The computed chart at these stacks; a hand its line never brings here takes the fallback rules, not the chart's fold.
-        const sc = ans.scenario;
-        const moves = (i: number) => {
-          const h = COMBOS[i].hand;
-          return reachOf(sc, h) > 0 ? ans.moves(h, allInTo, ans.sizeRatio) : fallback.moves(h);
-        };
-        tries.push((i) => prob(moves(i), true), (i) => prob(moves(i), false));
-      }
-      tries.push((i) => prob(fallback.moves(COMBOS[i].hand), true), (i) => prob(fallback.moves(COMBOS[i].hand), false));
+      const isAllIn = st.k === "raise" && (st.to ?? 0) >= allInTo - 1e-9;
+      const prob = (i: number, strict: boolean) =>
+        dec
+          .moves(COMBOS[i].hand)
+          .filter((o) => o.kind === st.k && (!strict || st.k !== "raise" || ((o.to ?? 0) >= allInTo - 1e-9) === isAllIn))
+          .reduce((a, o) => a + o.prob, 0);
+      tries.push((i) => prob(i, true), (i) => prob(i, false));
     }
   } else {
     if (!boardKnown) return;
@@ -308,7 +291,7 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
   const holes = seats.map((seat, i) => (i === heroIdx ? (heroCards ?? undefined) : known.get(seat)));
   const t = { ...tableOf(h), deck: deckFor(seats.length, holes, h.board) };
   const game0 = freshGame(t);
-  let s: PlayState = { mode: "pub", stageId: stageFor(baseStack(t)), heroIdx, game: game0, ranges: game0.players.map(() => fullWeights()), decisions: [], botNotes: {}, stackUnknown: t.heroStack === null };
+  let s: PlayState = { mode: "pub", stageId: stageFor(baseStack(t)), heroIdx, game: game0, ranges: game0.players.map(() => fullWeights()), decisions: [], botNotes: {} };
 
   const boardOn = (street: Street) => (h.board.length >= NEED[street] ? h.board.slice(0, NEED[street]) : null);
   const holeGuess = heroCards !== null && holeGuessed(h);
@@ -429,10 +412,10 @@ function analyseHandSeeded(h: LoggedHand, opts: { decisions?: boolean; iteration
   let current: HandAnalysis["current"] = null;
   if (!g.done && g.toAct === heroIdx && heroIdx >= 0) {
     const board = boardOn(g.street);
+    const call = toCall(g, heroIdx);
     current = {
       equity: heroCards && board ? estimate(s, heroCards, board, iterations) : null,
-      // The price of a call against the pot I can win (a covering all-in's chips beyond my stack left out).
-      need: callPrice(g, heroIdx),
+      need: call > 0 ? call / (pot(g) + call) : null,
     };
   }
   const suitGuess = holeGuess || boardGuess.length ? { hole: holeGuess, board: boardGuess } : null;

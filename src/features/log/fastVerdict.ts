@@ -1,23 +1,15 @@
-import { fullDeck, type HandClass } from "../../poker/cards";
-import { chartOffers, LOW_LIMP_SOFT, LOW_SOFT, lowConfidenceLimp, lowLimpJam, MODEL_GAP_SOFT } from "../../play/chartGrade";
-import { chartFor, PICK_FOR_STAGE, type ChartHit, type ChartPick } from "../../play/computedChart";
-import { act, legal, newGame, type Game } from "../../play/engine";
-import { openSize, STAGE_STACK, type MoveOption, type PreflopDecision, type PreflopSpot } from "../../play/policy";
-import { solverStageMeta } from "../../data/sets/solverSpot";
+import type { HandClass } from "../../poker/cards";
+import { openSize, preflopDecision, STAGE_STACK, type MoveOption, type PreflopDecision, type PreflopSpot } from "../../play/policy";
+import { solverChart, type SolverChart } from "./judgeChart";
 import type { PreAction, PreStage } from "./quickPre";
 import { positionsFor } from "./recorder";
 
 /**
  * 빠른 기록's verdict: was my preflop action in the chart for the stage, mixed, an overplay or an underplay.
- * The chart is the computed one of the screen's stage (computedChart.ts PICK_FOR_STAGE, the same charts as the
- * 아재's judgeChart.ts: our solver's 100bb with the 3bb open at 딥, 55bb at 미들, the short-stack chart at 17bb at 숏,
- * push/fold at 10bb at 푸시), looked up like a hand review does: an engine game built from the spot (fastGame),
- * then chartFor. The verdict names it ("· 솔버 100bb 기준"). Where the computed charts have no spot (a limp, an open
- * at the push stage, a shove at 딥 or 미들 where no one jams first in, a 3-bet whose seat isn't recorded, a cold
- * 3-bet) the verdict is "차트 없음", never the hand-made pub chart. As the hand review's grade (chartGrade.ts), a limp
- * or flat the short-stack and push/fold models leave out, and a limp or open of a premium a low-confidence solver line
- * limps, are "참고" (kind "none", `ref`), not graded; that premium's all-in is "△ 신뢰도 낮은 차트" where the chart's
- * tree has an all-in and "⚠ 오버플레이 (차트: 올인 없음)" where it has none, never "(차트: 림프)". Pure.
+ * First in and facing one open at the deep and middle stages, the chart is our solver's (judgeChart.ts
+ * solverChart: 100bb with the 3bb open, 55bb), and the verdict says so ("· 솔버 100bb 기준"). Every other spot
+ * (the short and push stages, a limp, a shove, a 3-bet) asks the pub chart the way the app's decision grading does
+ * (preflopDecision with a PreflopSpot built from the spot). Pure.
  */
 
 /** What happened before my decision. "3bet": my open got 3-bet (or more); "cold3": someone opened and another 3-bet before me. */
@@ -95,8 +87,6 @@ export type VerdictKind = "ok" | "mixed" | "over" | "under" | "none";
 
 export interface Verdict {
   kind: VerdictKind;
-  /** A chart answered but only for reference, not graded ("참고 · …", kind "none"): counted apart from 차트 없음. */
-  ref?: true;
   /** "✓ 차트대로", "△ 섞는 핸드", "⚠ 오버플레이 (차트: 폴드)", "▽ 언더플레이 (차트: 오픈 72%)", "차트 없음". */
   text: string;
   /** What the chart does with this hand: "BTN 오픈 레인지 · 오픈 100%"; "" without a chart. */
@@ -106,8 +96,6 @@ export interface Verdict {
 }
 
 const none = (text = "차트 없음"): Verdict => ({ kind: "none", text, chart: "", freq: null });
-/** "참고 · <why>": a chart answered, but not to grade by. */
-const ref = (why: string): Verdict => ({ kind: "none", ref: true, text: `참고 · ${why}`, chart: "", freq: null });
 
 /** The moves a chart offers, by what I could have tapped. */
 type Group = "fold" | "call" | "raise" | "allin";
@@ -118,8 +106,6 @@ const COMMIT = 0.2;
 const GROUPS: Group[] = ["allin", "raise", "call", "fold"];
 
 const pct = (f: number) => `${Math.round(f * 100)}%`;
-/** An overplay's reason when the chart has no all-in at all ("⚠ 오버플레이 (차트: 올인 없음)"). */
-const NO_JAM = "올인 없음";
 
 /** The spot as the chart lookup sees it: a stack for the stage, the blinds posted, the open's usual size. */
 export function spotOf(i: FastInput): PreflopSpot | null {
@@ -148,29 +134,6 @@ export function spotOf(i: FastInput): PreflopSpot | null {
     case "limp":
       return null;
   }
-}
-
-/**
- * The spot as an engine game at the chart's stack, with the hero to act: the seats before fold, an opener opens to
- * the chart's own size (or shoves). Null when the spot doesn't fit the table.
- */
-export function fastGame(i: FastInput, pick: ChartPick = PICK_FOR_STAGE[i.stage]): Game | null {
-  const seats = positionsFor(i.players);
-  const hero = seats.indexOf(i.seat);
-  if (hero < 0) return null;
-  let g = newGame(pick.stack, hero, fullDeck(), { seats, bbAnte: true });
-  const until = (seat: string) => {
-    while (!g.done && g.toAct !== null && g.players[g.toAct].seat !== seat) g = act(g, "fold");
-    return !g.done && g.toAct !== null;
-  };
-  if (i.spot === "open" || i.spot === "shove") {
-    if (!i.opener || !until(i.opener)) return null;
-    const meta = pick.source === "solver" ? solverStageMeta(pick.stageId) : null;
-    const size = meta ? (i.opener === "SB" ? meta.sbRaise : meta.open) : pick.open || 2;
-    g = act(g, "raise", i.spot === "shove" ? legal(g, g.toAct!).maxRaiseTo : size);
-  }
-  if (!until(i.seat)) return null;
-  return g;
 }
 
 /** The input names a real spot: my seat at this table, an opener before me, an action the spot offers. */
@@ -215,35 +178,23 @@ export function fastVerdict(i: FastInput, decide?: (spot: PreflopSpot) => Preflo
   if (!validInput(i)) return none();
   if (i.act === undefined) return none("워크");
   if (i.spot === "limp") return none("차트 없음 · 림프 팟");
-  let spot = spotOf(i);
+  const spot = spotOf(i);
   if (!spot) return none();
-  let pick: ChartPick | null = null;
-  let hit: ChartHit | null = null;
+  let solver: SolverChart | null = null;
   let moves: MoveOption[];
   let title = "";
   try {
-    if (decide) {
-      // A made-up chart (tests).
-      const dec = decide(spot);
+    // First in or facing one open at 딥 and 미들: the solver's chart (a `decide` given asks only it: tests).
+    if (!decide && (i.spot === "none" || i.spot === "open")) solver = solverChart(i.stage, i.players, i.seat, i.spot === "open" ? i.opener : undefined, spot.myBet + spot.myStack);
+    if (solver) {
+      title = `${solver.name} ${solver.title}`;
+      moves = solver.moves(i.cls);
+    } else {
+      const dec = (decide ?? preflopDecision)(spot);
+      // A cold 3-bet has no chart of its own: the policy's premium-only default, by its label.
+      if (!dec.scenario && i.spot !== "cold3") return none();
       title = dec.scenario?.title ?? dec.label;
       moves = dec.moves(i.cls);
-    } else {
-      if (i.spot === "3bet") return none("차트 없음 · 3벳한 자리 몰라요");
-      if (i.spot === "cold3") return none("차트 없음 · 콜드 3벳");
-      pick = PICK_FOR_STAGE[i.stage];
-      const g = fastGame(i, pick);
-      if (!g) return none();
-      const idx = g.toAct!;
-      const ans = chartFor(g, idx, { pin: pick });
-      if (!ans.ok) return none(`차트 없음 · ${ans.text.split(" · ").slice(1).join(" · ")}`);
-      const me = g.players[idx];
-      spot = { ...spot, myBet: me.streetBet, myStack: me.stack };
-      title = `${pick.name} ${ans.scenario.title}`;
-      moves = ans.moves(i.cls, legal(g, idx).maxRaiseTo);
-      hit = ans;
-      // A limp or open (not a fold or an all-in) of a premium the low-confidence chart limps.
-      const mine0 = myGroup(i.act, spot.facingAllIn);
-      if ((mine0 === "call" || mine0 === "raise") && lowConfidenceLimp(ans, i.cls)) return ref(LOW_LIMP_SOFT);
     }
   } catch {
     return none();
@@ -275,16 +226,8 @@ export function fastVerdict(i: FastInput, decide?: (spot: PreflopSpot) => Preflo
       size = groupLabel(other, i);
     }
   }
-  // A limp or flat the short-stack and push/fold models don't have: only a hand they fold outright is graded.
-  if (hit && hit.pick.source !== "solver" && !size && !chartOffers(hit, mine, allInTo) && freq.fold < 1 - 1e-9) return ref(MODEL_GAP_SOFT);
-  // The verdict names its chart: "✓ 차트대로 · 솔버 100bb 기준".
-  const named = (t: string) => (pick ? `${t} · ${pick.name} 기준` : t);
-  // The all-in of a premium the low-confidence chart limps (the SB's AA), as the hand review grades it: never "차트:
-  // 림프", the limp the chart is doubted for. A △ where the chart's tree has an all-in; where it has none (딥, 미들) an
-  // overplay of an all-in the chart doesn't have.
-  const lowJam = hit && mine === "allin" && f < 1e-9 ? lowLimpJam(hit, i.cls, allInTo) : null;
-  if (lowJam === "soft") return { kind: "mixed", text: named(`△ ${LOW_SOFT}`), chart, freq: 0 };
-  if (lowJam === "offTree") return { kind: "over", text: named(`⚠ 오버플레이 (차트: ${NO_JAM})`), chart, freq: 0 };
+  // The solver's verdict names its chart: "✓ 차트대로 · 솔버 100bb 기준".
+  const named = (t: string) => (solver ? `${t} · ${solver.name} 기준` : t);
   const sized = (t: string) => named(size ? `${t} · 차트는 ${size}` : t);
   if (f >= 0.5 - 1e-9) return { kind: "ok", text: sized("✓ 차트대로"), chart, freq: f };
   if (f > 1e-9) return { kind: "mixed", text: sized(`△ 섞는 핸드 (${pct(f)})`), chart, freq: f };
@@ -310,6 +253,3 @@ export function theirWords(v: Verdict): Verdict {
 
 /** The verdict's one-word mark for tight lists: ✓ △ ⚠ ▽ or –. */
 export const VERDICT_MARK: Record<VerdictKind, string> = { ok: "✓", mixed: "△", over: "⚠", under: "▽", none: "–" };
-
-/** The verdict in 지난 기록's rows: "– 차트 없음 · 림프 팟", but a 참고 without the dash ("참고 · …" is its own mark). */
-export const listVerdictText = (v: Verdict): string => (v.kind === "none" && !v.ref ? `${VERDICT_MARK.none} ${v.text}` : v.text);

@@ -77,23 +77,6 @@ export function pot(g: Game): number {
   return r1(g.dead + g.players.reduce((s, p) => s + p.total, 0));
 }
 
-/**
- * The pot seat `idx` plays for if it calls now: the dead money, and each player's chips up to idx's own total after
- * the call. A covering all-in's chips beyond my stack, and side pots between others above it, are not mine to win;
- * the call price and the call EV count only this. The same as pot(g) whenever I cover what I face.
- */
-export function winnablePot(g: Game, idx: number): number {
-  const me = g.players[idx];
-  const cap = me.total + Math.max(0, toCall(g, idx));
-  return r1(g.dead + g.players.reduce((s, p) => s + Math.min(p.total, cap), 0));
-}
-
-/** The equity seat `idx` needs to call (call ÷ the winnable pot after it), or null with nothing to call. */
-export function callPrice(g: Game, idx: number): number | null {
-  const call = toCall(g, idx);
-  return call > 0 ? call / (winnablePot(g, idx) + call) : null;
-}
-
 /** `stacks` optionally overrides the starting stack (bb) per seat index. */
 export function newGame(startStack: number, heroIdx: number, deck: Card[] = shuffle(fullDeck()), table: TableDef = PUB_TABLE, stacks?: number[]): Game {
   const d = deck.slice();

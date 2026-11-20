@@ -22,12 +22,9 @@ export const clock = (t: number) => {
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
-/**
- * A verdict for a list row: "⚠ 오버 (폴드)", "▽ 언더 (오픈 72%)", another player's "⚠ 루즈 (폴드)", "차트 없음", "참고" (its
- * reason is in the toast and in 지난 기록: here it would squeeze the action out of a 390px row).
- */
-export const shortVerdict = (t: string) =>
-  t.replace(/^참고 · .*$/, "참고").replace(/ · (솔버|숏스택|푸시폴드) \d+bb 기준$/, "").replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
+/** A verdict for a list row: "⚠ 오버 (폴드)", "▽ 언더 (오픈 72%)", another player's "⚠ 루즈 (폴드)", "차트 없음". */
+const shortVerdict = (t: string) =>
+  t.replace(/ · 솔버 \d+bb 기준$/, "").replace("오버플레이", "오버").replace("언더플레이", "언더").replace("차트보다 루즈", "루즈").replace("차트보다 타이트", "타이트").replace("차트: ", "").replace(" · 림프 팟", "");
 
 /**
  * A list row's chips: "+12,000" / "−6bb" in the unit shown, 폴드 (with the blind it cost: "폴드 −200"), 본전,
@@ -127,10 +124,7 @@ export function FastItem({ h, view, other, editing, onClick }: { h: LoggedHand; 
   );
 }
 
-/**
- * The chart line: 차트대로 out of the graded hands, overplays, underplays, mixed, then 참고 (a chart answered, not to grade
- * by) and 차트 없음 apart (nothing without a hand graded or not).
- */
+/** The chart line: 차트대로 out of the graded hands, overplays, underplays, mixed, none (nothing without a hand graded or not). */
 export function FastStatsRow({ stats, other }: { stats: FastStats; other: boolean }) {
   if (!stats.total) return null;
   return (
@@ -145,8 +139,7 @@ export function FastStatsRow({ stats, other }: { stats: FastStats; other: boolea
         ▽ {other ? "타이트" : "언더"} {stats.by.under}
       </span>
       <span className="v-mixed">△ 섞음 {stats.by.mixed}</span>
-      {stats.ref ? <span className="v-none">참고 {stats.ref}</span> : null}
-      {stats.by.none - stats.ref ? <span className="v-none">차트 없음 {stats.by.none - stats.ref}</span> : null}
+      {stats.by.none ? <span className="v-none">차트 없음 {stats.by.none}</span> : null}
     </div>
   );
 }

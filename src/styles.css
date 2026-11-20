@@ -863,12 +863,8 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .flow-decision.good { border-color: rgba(34, 197, 94, 0.55); background: rgba(34, 197, 94, 0.07); } .flow-decision.good .mark { color: var(--call); }
 .flow-decision.ok { border-color: rgba(255, 209, 102, 0.55); background: rgba(255, 209, 102, 0.06); } .flow-decision.ok .mark { color: #ffd166; }
 .flow-decision.mistake { border-color: rgba(255, 77, 90, 0.6); background: rgba(255, 77, 90, 0.07); } .flow-decision.mistake .mark { color: var(--raise); }
-.flow-decision.info .mark { font-size: 0.7rem; font-weight: 700; color: var(--muted); min-width: 26px; word-break: keep-all; }
 .flow-decision span { color: var(--muted); }
 .flow-decision em { font-style: normal; color: #9fb6e8; font-size: 0.75rem; }
-.flow-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
-.flow-tags small { font-size: 0.68rem; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; word-break: keep-all; }
-.flow-chartnote { font-size: 0.7rem; color: var(--muted); padding: 0 4px; }
 .flow-outs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.8rem; color: var(--muted); background: var(--panel); border: 1px dashed #3a4558; border-radius: 12px; padding: 7px 10px; }
 .flow-outs b { color: var(--text); }
 .flow-outs .mini { display: flex; flex-wrap: wrap; gap: 2px; }

@@ -3,11 +3,10 @@ import { CardRow } from "../../components/Cards";
 import { getSet } from "../../data/charts";
 import { cardLabel, handClassOf } from "../../poker/cards";
 import { equityVs } from "../../play/analysis";
-import { callPrice, heroNet, pot, toCall, winnablePot, type Game, type LogEntry, type Street } from "../../play/engine";
+import { heroNet, pot, toCall, type Game, type LogEntry, type Street } from "../../play/engine";
 import { handFeatures } from "../../play/handInfo";
-import { chartSourceText } from "../../play/computedChart";
-import { MODE_SET, PLAY_STAGES, type PlayMode } from "../../play/policy";
-import { heroAct, heroMoves, SIDE_POT_TEXT, startHand, type Decision, type PlayState } from "../../play/table";
+import { MODE_SET, STAGE_STACK, type PlayMode } from "../../play/policy";
+import { heroAct, heroMoves, startHand, type Decision, type PlayState } from "../../play/table";
 import { settingsStore, useSettings } from "../../state/settings";
 import { recordAnswer } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
@@ -26,17 +25,16 @@ import {
   type SessionTotals,
 } from "./verdict";
 
+const PUB_SET = getSet("pub");
 /** How each mode's bots play, for the page note and the AI review. */
 const BOT_TEXT: Record<PlayMode, string> = {
-  pub: "상대는 펍아재 봇이에요. 프리플랍은 앱이 직접 계산한 차트(솔버·숏스택·푸시폴드), 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요.",
+  pub: "상대는 펍아재 봇이에요. 프리플랍은 펍 토너먼트 차트, 플랍 이후는 패 강도 규칙(콜 많고 블러프 적은 펍 성향)으로 쳐요.",
   cash: "상대는 레귤러 봇이에요. 프리플랍은 6맥스 100bb 근사 GTO 차트, 플랍 이후는 패 강도 규칙(c벳·세미블러프가 많고 약한 패는 잘 접는 성향)으로 쳐요.",
 };
 const GRADE_TEXT = { good: "좋은 선택", ok: "괜찮음", mistake: "실수", info: "참고" } as const;
 const ACT_TEXT: Record<string, string> = { fold: "폴드", check: "체크", call: "콜", bet: "벳", raise: "레이즈", post: "블라인드" };
 const r1 = (x: number) => Math.round(x * 10) / 10;
 const pct = (x: number | null | undefined) => (x === null || x === undefined || !Number.isFinite(x) ? "-" : `${Math.round(x * 100)}%`);
-/** "팟 19": the pot a call plays for, and the chips beyond my stack it leaves out ("팟 19 (내 스택을 넘는 40bb 제외)"). */
-const potText = (d: Decision, unit = "") => `팟 ${r1(d.pot - (d.sidePot ?? 0))}${unit}${d.sidePot ? ` (${SIDE_POT_TEXT(d.sidePot)})` : ""}`;
 
 function entryText(e: LogEntry): string {
   if (e.kind === "post") return `${e.seat} ${e.amount}`;
@@ -54,18 +52,17 @@ function streetLog(g: Game, street: Street): string {
 /** Plain-text hand history + decision analysis for the AI review. */
 function reviewFacts(s: PlayState): string {
   const g = s.game;
+  const set = getSet(MODE_SET[s.mode]);
+  const stage = set.stages.find((x) => x.id === s.stageId)!;
   const hero = g.players[s.heroIdx];
-  const lines =
+  const lines = [
+    `게임: ${set.game}`,
     s.mode === "cash"
-      ? [`게임: ${getSet(MODE_SET.cash).game}`, `스택: 모두 ${g.startStack}bb, 블라인드 0.5/1bb, 앤티 없음, ${g.players.length}인`]
-      : [
-          `게임: 홀덤펍 토너먼트 · ${g.players.length}인 · BB 앤티 1bb · 모두 같은 스택`,
-          `스택 구간: ${PLAY_STAGES.find((x) => x.id === s.stageId)?.label ?? s.stageId} (모두 ${g.startStack}bb 시작)`,
-        ];
-  lines.push(
+      ? `스택: 모두 ${g.startStack}bb, 블라인드 0.5/1bb, 앤티 없음, ${g.players.length}인`
+      : `스택 구간: ${stage.label} (모두 ${g.startStack}bb 시작, BB 앤티 1bb)`,
     `내 자리: ${hero.seat}, 내 핸드: ${hero.hole.map(cardLabel).join(" ")} (${handClassOf(hero.hole[0], hero.hole[1])})`,
-    s.mode === "cash" ? `상대 봇: ${BOT_TEXT.cash} 솔버 아님.` : "상대 봇: 프리플랍은 우리 솔버 차트(숏스택·푸시폴드 포함), 플랍 이후는 펍 성향 규칙.",
-  );
+    `상대 봇: ${BOT_TEXT[s.mode]} 솔버 아님.`,
+  ];
   for (const st of ["preflop", "flop", "turn", "river"] as Street[]) {
     const acts = g.log.filter((e) => e.street === st && e.kind !== "post");
     if (!acts.length) continue;
@@ -76,10 +73,9 @@ function reviewFacts(s: PlayState): string {
   lines.push("", "내 결정 분석 (상대 레인지는 봇 규칙으로 좁힌 추정치, EV는 현재 스트리트 기준 근사):");
   for (const d of s.decisions) {
     lines.push(
-      `- ${STREET_LABEL[d.street]} ${potText(d, "bb")}, 콜 금액 ${r1(d.toCall)}bb, 필요 에퀴티 ${pct(d.reqEquity)}, 내 에퀴티 ${pct(d.equity)}, SPR ${r1(d.spr)} → 선택: ${d.chosenLabel} [${GRADE_TEXT[d.grade]}] ${d.summary}`,
+      `- ${STREET_LABEL[d.street]} 팟 ${r1(d.pot)}bb, 콜 금액 ${r1(d.toCall)}bb, 필요 에퀴티 ${pct(d.reqEquity)}, 내 에퀴티 ${pct(d.equity)}, SPR ${r1(d.spr)} → 선택: ${d.chosenLabel} [${GRADE_TEXT[d.grade]}] ${d.summary}`,
     );
-    if (d.chartInfo) lines.push(...d.chartInfo.facts.map((f) => `  ${f}`));
-    else if (d.chart) lines.push(`  차트: ${d.chart}`);
+    if (d.chart) lines.push(`  차트: ${d.chart}`);
     const evs = d.options.filter((o) => o.ev !== null).map((o) => `${o.label} ${o.ev! >= 0 ? "+" : ""}${o.ev}bb`);
     if (evs.length) lines.push(`  선택지 EV: ${evs.join(", ")}`);
     for (const v of d.villains) if (v.breakdown) lines.push(`  ${v.seat} 추정 레인지: ${v.breakdown}`);
@@ -90,8 +86,6 @@ function reviewFacts(s: PlayState): string {
     : "쇼다운 없음";
   // Decisions first: the coach should judge the play, not this one hand's chips.
   lines.push("", ...verdictReviewLines(s.decisions), `결과: ${net >= 0 ? "+" : ""}${net}bb · ${shown}`);
-  const sources = new Set(s.decisions.flatMap((d) => (d.chartInfo?.source ? [d.chartInfo.source] : [])));
-  if (sources.size) lines.push("", `프리플랍 차트 출처: ${chartSourceText(sources)}`);
   return lines.join("\n");
 }
 
@@ -187,9 +181,9 @@ export function PlayPage() {
               newHand(e.target.value);
             }}
           >
-            {PLAY_STAGES.map((st) => (
+            {PUB_SET.stages.map((st) => (
               <option key={st.id} value={st.id}>
-                {st.label}
+                {st.label} · {STAGE_STACK[st.id]}bb
               </option>
             ))}
           </select>
@@ -246,7 +240,7 @@ export function PlayPage() {
           <div className="row-between small">
             <span>
               {hero.seat} 차례 · 팟 {r1(potNow)}
-              {call > 0 ? ` · 콜 ${r1(call)} (필요 에퀴티 ${pct(callPrice(g, s.heroIdx))}${winnablePot(g, s.heroIdx) < potNow - 0.05 ? ", 내 스택을 넘는 칩 제외" : ""})` : ""}
+              {call > 0 ? ` · 콜 ${r1(call)} (필요 에퀴티 ${pct(call / (potNow + call))})` : ""}
             </span>
             <label className="hint-toggle">
               <input type="checkbox" checked={hint} onChange={(e) => setHint(e.target.checked)} /> 힌트
@@ -323,10 +317,8 @@ export function PlayPage() {
       )}
 
       <p className="muted small disclaimer">
-        {BOT_TEXT[mode]}{" "}
-        {mode === "pub"
-          ? "프리플랍은 그 차트로 채점하고(칩EV, ICM 미반영), 플랍 이후는 봇 규칙으로 좁힌 상대 레인지 기준 EV로 채점해요. 체크 EV는 끝까지 체크다운한다고 가정한 근사예요."
-          : "채점은 이 봇 규칙으로 좁힌 상대 레인지 기준 EV이고 솔버 답이 아니에요. 체크 EV는 끝까지 체크다운한다고 가정한 근사예요."}
+        {BOT_TEXT[mode]} 채점은 이 봇 규칙으로 좁힌 상대 레인지 기준 EV이고 솔버 답이 아니에요. 체크 EV는 끝까지 체크다운한다고 가정한
+        근사예요.
       </p>
     </div>
   );
@@ -346,9 +338,7 @@ function DecisionCard({ d }: { d: Decision }) {
         {STREET_LABEL[d.street]} · {d.chosenLabel} → {GRADE_TEXT[d.grade]}
       </strong>
       <div className="small">{d.summary}</div>
-      {/* A decision with no computed chart already says why in its summary. */}
-      {d.chart && d.chartInfo?.source !== null && <div className="muted small">차트: {d.chart}</div>}
-      {d.chartInfo && d.chartInfo.tags.length > 0 && <div className="muted small">{d.chartInfo.tags.join(" · ")}</div>}
+      {d.chart && <div className="muted small">차트: {d.chart}</div>}
       {evs.length > 0 && (
         <table className="facts">
           <tbody>
@@ -368,7 +358,7 @@ function DecisionCard({ d }: { d: Decision }) {
         </table>
       )}
       <div className="muted small">
-        {potText(d)} · 콜 {r1(d.toCall)} · 필요 에퀴티 {pct(d.reqEquity)} · 내 에퀴티 {pct(d.equity)} · SPR {r1(d.spr)}
+        팟 {r1(d.pot)} · 콜 {r1(d.toCall)} · 필요 에퀴티 {pct(d.reqEquity)} · 내 에퀴티 {pct(d.equity)} · SPR {r1(d.spr)}
       </div>
       {d.villains.map((v) => (
         <div key={v.seat} className="muted small">

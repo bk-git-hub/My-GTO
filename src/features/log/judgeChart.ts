@@ -1,5 +1,4 @@
 import type { HandClass } from "../../poker/cards";
-import { chartSeat } from "../../play/chartSeat";
 import type { MoveOption } from "../../play/policy";
 import { parseRange, type Range } from "../../poker/range";
 import { NASH_STAGES } from "../../data/sets/nashData";
@@ -165,7 +164,10 @@ export function warmJudgeCharts(): void {
  * A seat the table doesn't have stays as it is.
  */
 export function judgeSeat(players: number, seat: string): string {
-  return chartSeat(positionsFor(players), seat);
+  const seats = positionsFor(players);
+  const i = seats.indexOf(seat);
+  if (i < 0) return seat;
+  return POS[Math.max(0, POS.length - seats.length + i)];
 }
 
 /** How often `seat` raises or shoves `cls` first in at the stage (the BB: 0). */

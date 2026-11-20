@@ -14,7 +14,8 @@ browser). The manifest shape matches §9 "솔버 콘텐츠 팩" of `docs/server-
 
 The same pipeline also solves **calibration packs** for the preflop solver's realization model: the same file format
 with a second manifest, `calibration/packs/manifest.json`, outside `public/`. They are never deployed and the app never
-lists them; only `scripts/fit-realization.mjs` reads them (Calibration packs, below).
+lists them; only `scripts/fit-realization.mjs` reads them (Calibration packs, below). The packs of the calibration queue
+write slim files: no action nodes, only what the fit reads (`storage: "rootClasses"`, about 2 KB a flop).
 
 ## Scenarios
 
@@ -42,12 +43,21 @@ Calibration packs (`CAL_SCENARIOS`, set `"calibration"`, not in the app; section
 | `cal-srp-btn-bb-20` | Solver tournament, 9-handed, everyone 20bb, 1bb BB ante (the `20bb-2` stage) | BTN opens 2bb, SB folds, BB calls | 5.5 / 17 (3.09) | OOP `solver/20bb-2/bb-vs-btn-open:call`, IP `solver/20bb-2/rfi-btn:open`, each with ghost combos |
 | `cal-srp-btn-bb-15` | The same at 15bb (the `15bb-2` stage) | the same | 5.5 / 12 (2.18) | `solver/15bb-2/…` the same spots, with ghost combos |
 
+After them comes the calibration queue: 41 heads-up pots of the shipped solver stages (100bb-2.2, 55bb-2.2, 35bb-2,
+100bb-3) with each stage's own ranges and sizes, solved one pack after the other (The calibration queue, below, lists
+every pack).
+
 The pot counts all dead money (SB, ante): pot = 2 × open + 0.5 + ante, and the effective stack is the BB's,
 start − open − ante (the BB paid the ante too). `src/presolve/scenarios.ts` derives both from the play-mode rules
-(`openSize`, `STAGE_STACK`, `PUB_TABLE.bbAnte`). The numbers above are what the pipeline is expected to use; the
+(`openSize`, `STAGE_STACK`, `PUB_TABLE.bbAnte`). Any other heads-up pot (`huPotStack`): pot = 2 × put + the blinds of the
+seats that folded + the BB's ante, where put is each player's total bet when the flop comes (the open, 3-bet or 4-bet
+both called, 1 in a limped pot); each player has start − put behind, the BB also less its ante. The numbers above are what the pipeline is expected to use; the
 manifest's `scenario` block is the authority. A chart ref is `<set>/<stage>/<scenario>:<action>`, the ids of
 `src/data/charts.ts` (`Scenario.id` + an action key); the range string written into the manifest is the
-hand-class frequency of that action (`Scenario.strategy[hand][action]`).
+hand-class frequency of that action (`Scenario.strategy[hand][action]`). A calibration pack may join the refs of one
+player's line with ` × ` (`LINE_SEP`), e.g. `solver/100bb-2.2/rfi-btn:open × solver/100bb-2.2/btn-open-vs-bb-3bet:call`
+for the BTN that opened and called the BB's 3-bet: its flop range is the product of its own actions' frequencies
+(`lineRange`; the others' actions on the line don't depend on its hand).
 
 ## Files
 
@@ -120,7 +130,10 @@ are Korean, so bytes ≠ string length).
 the solve targets `iterations` and `targetExploitability` (% of pot), the starting `ranges` as range strings
 (`src/poker/range.ts` syntax) and optionally `rangeSources` (chart refs), `preflop` (Korean description),
 `flopSet` (which flops the pack covers) and, in calibration packs only, `ghostWeight` (the ghost-combo floor of both
-ranges). `treeSettings(meta)` turns it into solver input fields.
+ranges; in the queue's packs only on the classes that reach each player's last decision, so a class missing from a
+range string is one the player never holds there), and in the calibration queue's packs `compress: true` (solved with the solver's 16-bit storage),
+`storage: "rootClasses"` (slim files, below) and `aggressor` (the last preflop raiser: 0 OOP, 1 IP, null in a limped
+pot). `treeSettings(meta)` turns it into solver input fields.
 
 **summaryNodes**: the game tree is the same on every flop of a pack (it depends only on pot, stack and
 sizes), so the action labels of the summarized nodes are written once per pack. They are every action node
@@ -185,6 +198,41 @@ A file's `path` may point to an older `v<k>/` directory of the same pack when it
   probabilities along the path). Left out when it is 1 for every combo (always at the root and at IP's first
   decision). Absolute reach = starting weight × reach; `DecodedNode.weight` holds it.
 
+### Slim files (calibration queue, `storage: "rootClasses"`)
+
+```jsonc
+{
+  "v": 1, "scenario": "cal-3bp-bb-btn-100", "version": 1, "board": "Qs8h5h",
+  "pot": 19.1, "stack": 90.2, "iterations": 64, "exploitability": 0.48,
+  "ranges": [ { "classes": "<uint8 ×169>" }, { "classes": "<uint8 ×169>" } ],
+  "nodes": [],
+  "rootClasses": {
+    "ev": ["<int16 ×169>", "<int16 ×169>"],
+    "actions": [ { "kind": "check", "to": 0, "label": "체크", "next": "action" },
+                 { "kind": "bet", "to": 6.303, "label": "벳 33%", "next": "action" }, ... ],
+    "strategy": ["<uint8 ×169>", "<uint8 ×169>", "<uint8 ×169>"]
+  }
+}
+```
+
+- `ranges[p].classes` (`ClassRange`): one Uint8 weight per hand class in `ALL_HANDS` order; every combo of the class that
+  is off the board has it (chart ranges are the same for every combo of a class; `encodeClassRange` refuses one that
+  is not). Decoded, it is the same per-combo range an `EncodedRange` gives. Only allowed together with `rootClasses`
+  and no nodes.
+- `rootClasses.ev[p]`: player p's EV at the flop root per class (Int16 centi-bb, net from the start of the flop, the
+  solver's root `ev[p]`), averaged over the class's combos in the range with their starting weights; EV_NAN exactly for
+  a class the player doesn't hold. IP's root EV is stored directly, so it doesn't need OOP to check at the root.
+- `rootClasses.actions` and `strategy`: OOP's root actions and, per action, its frequency per class (start-weighted;
+  each class sums to 255, or is all 0 for a class OOP doesn't hold).
+- The manifest entry of a slim pack has `summaryNodes: []` and every file's `summary.freq` is `[]`; `summary.equity` and
+  `summary.ev` are the solver's, as in every pack.
+
+That is exactly what the realization fit reads (Calibration of the preflop solver, below): per class, the root EV of
+each side, and per combo the ranges for the equities. The fit's row weight for a combo is its node weight, starting
+weight × relative reach (1 at the root), the same for every combo of a class, so the per-class mean gives the class
+rows of a full file (within the two 0.005 bb roundings). A slim file is about 1.8 KB with one OOP root action and 2.4 KB
+with three, against 54–59 KB for the full files of the first calibration packs.
+
 ### Encodings and quantization
 
 All binary arrays are standard base64 **without** `=` padding (decoders accept either).
@@ -223,7 +271,7 @@ both players' relative reach mass (roughly how often the node is reached); per n
 
 Not stored: turn and river nodes and chance nodes (the app solves the turn live, below); the opponent's EV at a
 node; combos whose reach rounds to 0 at a node; nodes below the depth limit; preflop. Exact floats are not
-kept anywhere; everything is quantized as above.
+kept anywhere; everything is quantized as above. (A slim calibration file stores no nodes at all, see above.)
 
 ## Turn solving from a flop line
 
@@ -278,9 +326,11 @@ script every 6 hours in parallel shards (below).
   COMBOS-indexed starting ranges from the charts' effective frequencies), `CAL_SCENARIOS` (the calibration packs, set
   `"calibration"`, ranges from `calRanges.ts` plus ghost combos), `ALL_SCENARIOS`, `getScenario(id)` (either set),
   `PACK_SET_DIRS` (each set's directory), `chartRange(ref)`, `calRange(ref)`, `withGhosts`, `ghostRangeString`,
-  `srpPotStack`, `solverInput(sc, board)` and the tree preset. `calRanges.ts` holds the calibration packs' source
-  ranges (generated by `scripts/cal-ranges.mjs`), `sets.ts` the rules that route each set to its directory
-  (`setDirs`, `writesCommitted`, `misplacedPacks`). A full flop tree multiplies every flop line by 49 turn × 48 river
+  `srpPotStack`, `huPotStack`, `lineRange`, `lineReach`, `solverInput(sc, board)` (with `compress: true` only for a pack whose meta
+  records it) and the tree presets. `calRanges.ts` holds the calibration packs' source ranges and their chart lines
+  (generated by `scripts/cal-ranges.mjs`), `sets.ts` the rules that route each set to its directory
+  (`setDirs`, `writesCommitted`, `misplacedPacks`). Every scenario has a `queue` value (the job's order, below): 0 for the
+  app's packs and the first two calibration packs, 1–41 for the calibration queue. A full flop tree multiplies every flop line by 49 turn × 48 river
   cards, so the tree is small. `TREE_SRP`, used by every pack: on the flop OOP only checks and may raise IP's bet by 60% of the pot
   after calling (the check-raise), IP bets 33% or 75% and can't re-raise; turn and river: one 66% bet each, no
   raises; no all-in button (`allInThreshold` still turns big bets into all-ins). The root therefore has a
@@ -288,12 +338,17 @@ script every 6 hours in parallel shards (below).
   pub 1.20–1.36 GB per flop. A tree with an OOP donk bet and no raises at all fits in 1.3 GB, but there the
   solver donks about half the time because IP can't raise the donk (a tree artifact), so it was dropped. Flop
   raises for both players plus turn raises would need 3.5–8 GB. Timings are in the Pipeline numbers below.
+  Two more presets serve the calibration queue: `TREE_OOP_AGGR` for pots where OOP raised last preflop (the flop is
+  TREE_SRP's mirror: OOP bets 33% or 75% and IP may raise 60%; after OOP checks, IP bets 50% and OOP may check-raise
+  60%; one raise per street) and `TREE_LIMP` for the limped pot (both bet 50% and may raise 60%); turn and river as
+  TREE_SRP.
 - `flops.ts`: textures of the 1755 classes, `FLOPS_BY_PRIORITY` (greedy weighted k-median over texture
   features, so every prefix is a representative subset: the first 25 already mix monotone, two-tone, rainbow,
   paired, high, low and connected boards) and `representativeWeightsFor(keys)` / `representativeWeights(n)`
   (every class assigned to its nearest solved flop; these are the manifest's `weight`s, summing to 22100).
-- `extract.ts`: `extractFlop(input, solution, { scenario, version })` → the flop file, its JSON and byte count,
-  the summary and the summary template. Action EVs are `solution.node([...path, a]).ev[actor]`; the root
+- `extract.ts`: `extractFlop(input, solution, { scenario, version }, opts)` → the flop file, its JSON and byte count,
+  the summary and the summary template; `opts.storage: "rootClasses"` writes a slim file (per-class ranges and root,
+  no nodes). Action EVs are `solution.node([...path, a]).ev[actor]`; the root
   equity enumerates every runout (`rangeEquity`); the root EV is the pair-weighted range average
   (`rangeAverageEv`). `summarizeFile(file)` rebuilds a summary from a stored file.
 - `scripts/presolve.mjs --scenario <id,...|all> --count <n> --budget-minutes <m> [--workers n] [--max-mb mb]
@@ -303,7 +358,12 @@ script every 6 hours in parallel shards (below).
   committed directory). A run reads and rewrites only the manifests of the sets it covers; a calibration pack never
   enters `public/packs/manifest.json`. It solves the first `count` flops of the priority order that have no
   file yet for the pack's version, one flop per worker thread, skipping flops over `--max-mb`, abandoning any
-  solve that would pass the budget, and writing each file and the manifest atomically as it goes. Before a
+  solve that would pass the budget, and writing each file and the manifest atomically as it goes. The order is
+  `jobQueue` (`shard.ts`): the packs' lists of missing flops grouped by their `queue` value, lower first, and
+  interleaved within a group (one flop of each pack in turn). With every pack at 0 that is the plain interleave the job
+  always used; the calibration queue (1, 2, ...) is solved one pack after the other, each shard finishing its share of a
+  pack before it starts the next, so the packs finish in priority order. A pack whose meta has `storage` is extracted
+  with it; every other pack exactly as before. Before a
   file is written it must pass two checks, because a file under `v<version>/` is never replaced: its
   exploitability must be at most 1.5 × the scenario's `targetExploitability` (else it is logged as above the
   limit and not written; `--accept-above-target` overrides), and its summary nodes must match the pack's
@@ -397,7 +457,22 @@ this means:
 - The fit reads IP's root EV at IP's node after OOP's check, which is IP's root only because OOP never bets the flop
   in these trees (`sizes.flop[0].bet` is `[]`); the opponent's EV at a node is not stored. It stops if OOP checks
   less than 99.9% of its range at the root, so a pack that gives OOP a donk bet first needs IP's root EV in the flop
-  file.
+  file. The slim files of the calibration queue store it (`rootClasses.ev[1]`, the solver's root EV of IP), so their
+  OOP may bet; the fit then reads both sides from `rootClasses` (every combo of a class gets the class's EV, which gives
+  the class rows of a full file) and needs no check assertion.
+- **Exactly what the fit reads**, per flop file: the board, the pot (checked against the manifest), both starting ranges
+  per combo (weights, and the per-combo flop equities it enumerates against the other range), and per combo of each
+  side the root EV (Σ strategy × action EV at OOP's root and at IP's node after the check); from the manifest the
+  file's path, sha256 and weight, the pack's version, format, pot, stack and range strings (the expectations over the
+  opponent's range). It aggregates per hand class at once, with a combo's node weight (the same for every combo of a
+  class at the root). The planned refits (v1.5 and the low-SPR refit, `docs/preflop-solver.md` §9) use the same class
+  rows: other forms, α per SPR, c and u per context and a u that depends on the opponent's range all fit per-class
+  shares and equities. Nothing deeper in the tree, no strategy and no per-combo EV within a class enters. The slim
+  files hold that and OOP's root frequencies per class (a few hundred bytes, to see how an OOP raiser plays).
+- The fitted form is the single raised pot with an IP aggressor (O = caller, I = aggressor). `fit-realization.mjs`
+  refuses a pack whose manifest scenario records another `aggressor` (the queue's OOP-raiser and limped pots): they
+  are for a fit with c and u per context. The SPR shrinks are not in the fitted form either (the app's packs sit at
+  SPR 7.9 and 17.7), so every pack below SPR 6 is for the low-SPR refit as well.
 - The trees (no OOP donk bet, two IP sizes) and the hand-made chart ranges are the calibration's known biases.
   The calibration packs below are the first packs made for the fit alone.
 - Calibration packs enter a fit only when `--packs` names them (`--packs all` is still the app's manifest); the
@@ -465,6 +540,160 @@ below SPR 6):
   solve changes them, and the packs then need a version bump (the presolve job refuses changed settings otherwise).
   Like every pack, they record their `solverCommit` and never replace a file.
 
+### The calibration queue
+
+After the two short-stage packs, `CAL_SCENARIOS` holds the calibration queue (`QUEUE` in `scenarios.ts`): 41 heads-up
+pots of the shipped solver stages, each with its stage's own ranges and sizes, solved one pack after the other
+(`queue` 1–41, `jobQueue`). Their purpose is the refit that raises the confidence of the chart scenarios the app badges
+낮음 or 보통 (`docs/preflop-solver.md` §6.6): today the realization model is fitted on one context (BTN vs BB, IP raiser,
+hand-made ranges, SPR 7.9 and 17.7) and every other context, SPR and opponent range is a named prior (§3.8) or an
+extrapolation (§3.7 biases 2, 3, 6, 7, 9). Each pack measures one of them where the chart applies it. Every pack is
+heads-up: the postflop solver (`src/solver`) solves two players, so the multiway part of the model (§3.6: κ_k, α_mw,
+c_pos) stays uncalibrated, and a 3-way postflop chart would need a multiway solver first.
+
+- **Ranges: the shipped chart's, pinned.** `calRanges.ts` (`node scripts/cal-ranges.mjs --from src/data/sets/preflopData.ts
+  --keep`, which keeps the short stages' committed ranges) holds every spot of the queue's lines at the shipped fit
+  `2862daa7a90f`, with the stage's sizes and each spot's chart line (`CAL_RANGE_LINES`). A player's flop range is the
+  product of its own actions along the line (`lineRange`): the 3-bettor brings its 3-bet range, the caller of a 3-bet its
+  open × its call, the 4-bettor its open × its 4-bet. The tests check every ref against the shipped chart (scenario,
+  action, line, `reachFrom`, and the numbers while the chart's fit is the pinned one), every put against its chart line,
+  and every pot and stack against a hand-worked table. A refit that regenerates the charts does not change a pack in
+  place: the pins only move when `cal-ranges.mjs` is rerun, and then the packs need a version bump.
+- **Ghost combos**, as in the first two packs (`GHOST_WEIGHT` = 2/255), on the classes that reach each player's last
+  decision of its line (`lineReach`): every class for a one-decision line (the BB facing an open, the opener, the
+  3-bettor, the limper, the BB checking a limp), the open range for the caller of a 3-bet and for the 4-bettor, the
+  3-bet range for the caller of a 4-bet. A hand the player never holds at that decision (the BTN's 72o when it calls a
+  3-bet) has no fold boundary to measure, and ghosting it only moves the real hands' numbers. With every class
+  ghosted, ghosts were 15% and 12% of the 100bb-3 4-bet pot's ranges (4% and 5% of hands) and 11% and 8% of the 100bb
+  one's; on their first flop (Qs8h5h, against a no-ghost solve to 0.1% of the pot) they moved the real classes' pot
+  share by 0.037 OOP / 0.046 IP (100bb-3) and 0.029 / 0.034 (100bb), +0.02 to +0.05 signed (each side realizes more
+  against a range padded with hands it never faces), 5 to 20 times the convergence noise; a 1/255 floor on every
+  class still moved it 0.017 / 0.023 and 0.013 / 0.018. On the reaching classes only, ghosts are 5.1% / 1.4% and 3.7%
+  / 0.9% of those ranges and move the pot share 0.008 / 0.013 and 0.008 / 0.009 (+0.001 to +0.009 signed; 0.009 /
+  0.012 and 0.013 / 0.011 on the rainbow Qs8h5d), against 0.004 / 0.002 and 0.007 / 0.005 of convergence noise at the
+  0.5% target (the no-ghost solve at the target against the one at 0.1%), about what the running packs' ghosts cost
+  (Calibration packs, above). Ghosts are now at most 8.0% of a range's weighted combos: the BTN's flat of the 100bb CO
+  open (8.1% of hands, a one-decision line); there 2/255 moves the real classes' pot share 0.011 / 0.010 (+0.005 /
+  +0.004 signed) against a no-ghost solve at the same target on Qs8h5h, 1/255 0.006 / 0.005, so it keeps 2/255.
+  Everywhere else ghosts are at most 5.9% (`calibration.test.ts` pins every range under 8.1%). The reach rule also
+  leaves the callers of 3-bets and 4-bets with fewer combos, so those packs need less memory and time (below).
+- **Trees.** A pot with an IP raiser keeps `TREE_SRP`, the app packs' tree, so those rows differ from the fitted ones in
+  stack, ranges and pot only. A pot with an OOP raiser (the SB's open, the blinds' 3-bets, the CO's 4-bet, the CO's open
+  that the BTN flats) gets `TREE_OOP_AGGR` (the raiser bets 33% or 75%, the caller may raise 60%; checked to, the caller
+  bets 50% and may be check-raised 60%), and the limped pot `TREE_LIMP`. In TREE_SRP an OOP raiser could never bet, which
+  would measure a tree artifact, not realization. `aggressor` in the meta says which applies; the fit refuses the OOP and
+  limped ones (its form has an IP raiser).
+- **16-bit storage** (`compress: true`): with every combo in both ranges, a rainbow flop needs up to 3.8 GB in Float32
+  (over 2 GB, the job's `--max-mb` 2000, in 27 of the 41 packs; too much for 4 at once on a 16 GB runner in 20).
+  Compressed, the largest flop of the queue is 1,928 MB (the deep OOP-raiser pots, on a rainbow board; 3.6% under
+  `--max-mb`, so a bigger tree would get those flops skipped on every run, which the tests catch), a pack's mean flop
+  102–1,198 MB, and 4 run at once. It costs about 13% more time per iteration and as many iterations
+  (`docs/solver.md`); one rule for every queued pack keeps their numbers comparable.
+- **Slim files** (`storage: "rootClasses"`, Files above): 1.87–2.46 KB a flop on the dry runs below.
+
+**Order.** The pots with an IP raiser come first, because `fit-realization.mjs` can read them now: its form is the
+IP-aggressor pot, and it refuses an OOP raiser or a limped pot until a fit with c and u per context exists (Trees,
+above; `docs/preflop-solver.md` §9 v2). 1–7: the main stage (100bb, 2.2bb opens) and the SPR curve of its BTN vs BB
+pot (35bb 5.8, 55bb 8.8, 100bb 16.4, next to the running 2.2 and 3.1). The SPR knee comes first because the low-SPR
+refit the running packs feed is next, then the v1.5 round-1 pack and the biggest measured miss (range-aware u), the CO
+opener, the IP 3-bettor and the BB's 3-bet of the SB. 8–13: the IP-raiser 3-bet pots of the other stages (SPR
+1.7–4.4), for α's low-SPR rule. 14–20: the opener series vs the BB of the other stages. Then the pots with an OOP
+raiser and the limped pots, in the same order of value: 21–26 the main stage's (the blind 3-bet pot where PF-SANITY-6
+fires first, then the SB's open, the SB's 3-bet, the small 4-bet pot, the IP caller and the limped pot), 27–33 the
+OOP-raiser 3-bet and 4-bet pots of the other stages (SPR 1.5–3.9: α's low-SPR rule and the 4-bet / jam split;
+PF-SANITY-6 fires on 27 / 21 spots at 100bb-3 / 55bb), 34–41 their SB opens, IP callers and limped pots. These 21
+packs are 45.8 runs (10 days) of the queue; they wait for that fit either way, and solving them last puts the
+measurements a fit can use today first. The BTN flats the CO's 35bb open with 0.9% of hands, so that pot is left out.
+
+| # | id | stage | OOP / IP | preflop | pot / stack (SPR) | ranges (OOP; IP) | purpose (badges: §6.6 confidence, move in pp) | core-min / flop | runs | KB / flop |
+|---|---|---|---|---|---|---|---|---|---|---|
+<!-- queue-table:start -->
+| 1 | `cal-srp-btn-bb-35` | 35bb-2 | BB / BTN | BTN 2bb 오픈, 나머지 폴드, BB 콜 | 5.5 / 32 (5.82) | bb-vs-btn-open:call; rfi-btn:open | SPR 5.8, the knee of the surplus shrink (SPR_SURPLUS = 6), between the running 3.1 and the app's 7.9; 35bb BB defense is 낮음 (vs BTN 23.6, vs CO 22.6) | 15.1 | 1.47 | 1.87 |
+| 2 | `cal-srp-btn-bb-100` | 100bb-2.2 | BB / BTN | BTN 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 96.8 (16.41) | bb-vs-btn-open:call; rfi-btn:open | §9's round-1 pack: the main stage's own ranges at SPR 16.4, ghosts at the BB's fold boundary (bias 3, the extrapolated 72o / AA rows); bb-vs-btn-open 보통 18.7 | 21.7 | 2.13 | 1.88 |
+| 3 | `cal-srp-utg-bb-100` | 100bb-2.2 | BB / UTG | UTG 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 96.8 (16.41) | bb-vs-utg-open:call; rfi-utg:open | a u that depends on the opener's range (bias 2), with the solver's ranges at 100bb (pub-srp-utg-bb-55 is the hand-made chart at 55bb, 2.5bb); bb-vs-utg-open 보통 13.8 | 22.5 | 2.21 | 1.88 |
+| 4 | `cal-srp-co-bb-100` | 100bb-2.2 | BB / CO | CO 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 96.8 (16.41) | bb-vs-co-open:call; rfi-co:open | the middle of the opener series (CO 35% between UTG 14% and BTN 54%); bb-vs-co-open 보통 11.0 | 22.5 | 2.21 | 1.88 |
+| 5 | `cal-3bp-btn-co-100` | 100bb-2.2 | CO / BTN | CO 2.2bb 오픈, BTN 3벳 6.6bb, 블라인드 폴드, CO 콜 | 15.7 / 93.4 (5.95) | rfi-co:open × co-open-vs-btn-3bet:call; btn-vs-co-open:3bet | IP 3-bettor (the fitted role) at SPR 6.0 with 3-bet ranges; co-open-vs-btn-3bet 낮음 21.7 | 11.6 | 1.12 | 1.88 |
+| 6 | `cal-srp-btn-bb-55` | 55bb-2.2 | BB / BTN | BTN 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 51.8 (8.78) | bb-vs-btn-open:call; rfi-btn:open | SPR 8.8 with the solver's ranges (the app's 55bb pack has the hand-made pub ranges at 7.9); 55bb bb-vs-btn-open 보통 18.4 | 19 | 1.86 | 1.87 |
+| 7 | `cal-3bp-bb-sb-100` | 100bb-2.2 | SB / BB | 나머지 폴드, SB 3bb 오픈, BB 3벳 9bb, SB 콜 | 19 / 90 (4.74) | rfi-sb:raise × sb-open-vs-bb-3bet:call; bb-vs-sb-open:3bet | blind vs blind 3-bet pot; sb-open-vs-bb-3bet 낮음 36.2, the stage's least confident spot | 10.9 | 1.05 | 1.87 |
+| 8 | `cal-3bp-btn-co-55` | 55bb-2.2 | CO / BTN | CO 2.2bb 오픈, BTN 3벳 6.6bb, 블라인드 폴드, CO 콜 | 15.7 / 48.4 (3.08) | rfi-co:open × co-open-vs-btn-3bet:call; btn-vs-co-open:3bet | SPR 3.1, IP 3-bettor; co-open-vs-btn-3bet 낮음 21.0 | 7.6 | 0.73 | 1.88 |
+| 9 | `cal-3bp-bb-sb-55` | 55bb-2.2 | SB / BB | 나머지 폴드, SB 3bb 오픈, BB 3벳 9bb, SB 콜 | 19 / 45 (2.37) | rfi-sb:raise × sb-open-vs-bb-3bet:call; bb-vs-sb-open:3bet | SPR 2.4; sb-open-vs-bb-3bet 낮음 37.0 | 9.4 | 0.91 | 1.87 |
+| 10 | `cal-3bp-btn-co-100-o3` | 100bb-3 | CO / BTN | CO 3bb 오픈, BTN 3벳 9bb, 블라인드 폴드, CO 콜 | 20.5 / 91 (4.44) | rfi-co:open × co-open-vs-btn-3bet:call; btn-vs-co-open:3bet | SPR 4.4; co-open-vs-btn-3bet 낮음 23.5 | 10.6 | 1.03 | 1.88 |
+| 11 | `cal-3bp-bb-sb-100-o3` | 100bb-3 | SB / BB | 나머지 폴드, SB 3.5bb 오픈, BB 3벳 10.5bb, SB 콜 | 22 / 88.5 (4.02) | rfi-sb:raise × sb-open-vs-bb-3bet:call; bb-vs-sb-open:3bet | SPR 4.0; sb-open-vs-bb-3bet 낮음 32.0 | 11.2 | 1.08 | 1.88 |
+| 12 | `cal-3bp-btn-co-35` | 35bb-2 | CO / BTN | CO 2bb 오픈, BTN 3벳 6bb, 블라인드 폴드, CO 콜 | 14.5 / 29 (2) | rfi-co:open × co-open-vs-btn-3bet:call; btn-vs-co-open:3bet | SPR 2.0; co-open-vs-btn-3bet 낮음 25.2 | 7.4 | 0.71 | 1.87 |
+| 13 | `cal-3bp-bb-sb-35` | 35bb-2 | SB / BB | 나머지 폴드, SB 2.5bb 오픈, BB 3벳 7.5bb, SB 콜 | 16 / 26.5 (1.66) | rfi-sb:raise × sb-open-vs-bb-3bet:call; bb-vs-sb-open:3bet | SPR 1.7; sb-open-vs-bb-3bet 낮음 33.3 | 4.9 | 0.47 | 1.87 |
+| 14 | `cal-srp-utg-bb-55` | 55bb-2.2 | BB / UTG | UTG 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 51.8 (8.78) | bb-vs-utg-open:call; rfi-utg:open | the opener series at SPR 8.8; bb-vs-utg-open 보통 10.6 | 19 | 1.86 | 1.88 |
+| 15 | `cal-srp-co-bb-55` | 55bb-2.2 | BB / CO | CO 2.2bb 오픈, 나머지 폴드, BB 콜 | 5.9 / 51.8 (8.78) | bb-vs-co-open:call; rfi-co:open | bb-vs-co-open 보통 16.7 | 19 | 1.86 | 1.87 |
+| 16 | `cal-srp-utg-bb-35` | 35bb-2 | BB / UTG | UTG 2bb 오픈, 나머지 폴드, BB 콜 | 5.5 / 32 (5.82) | bb-vs-utg-open:call; rfi-utg:open | the opener series at SPR 5.8; bb-vs-utg-open 보통 15.5 | 15.1 | 1.47 | 1.87 |
+| 17 | `cal-srp-co-bb-35` | 35bb-2 | BB / CO | CO 2bb 오픈, 나머지 폴드, BB 콜 | 5.5 / 32 (5.82) | bb-vs-co-open:call; rfi-co:open | bb-vs-co-open 낮음 22.6 | 19 | 1.86 | 1.87 |
+| 18 | `cal-srp-btn-bb-100-o3` | 100bb-3 | BB / BTN | BTN 3bb 오픈, 나머지 폴드, BB 콜 | 7.5 / 96 (12.8) | bb-vs-btn-open:call; rfi-btn:open | the pub's open size at SPR 12.8: other ranges at the same stack; bb-vs-btn-open 보통 10.9 | 22.6 | 2.22 | 1.88 |
+| 19 | `cal-srp-utg-bb-100-o3` | 100bb-3 | BB / UTG | UTG 3bb 오픈, 나머지 폴드, BB 콜 | 7.5 / 96 (12.8) | bb-vs-utg-open:call; rfi-utg:open | UTG's 13% open vs a 13% BB call: the tightest pair; bb-vs-utg-open 높음 5.8 | 22.6 | 2.22 | 1.88 |
+| 20 | `cal-srp-co-bb-100-o3` | 100bb-3 | BB / CO | CO 3bb 오픈, 나머지 폴드, BB 콜 | 7.5 / 96 (12.8) | bb-vs-co-open:call; rfi-co:open | bb-vs-co-open 보통 9.4 | 22.6 | 2.22 | 1.88 |
+| 21 | `cal-3bp-bb-btn-100` | 100bb-2.2 | BB / BTN | BTN 2.2bb 오픈, SB 폴드, BB 3벳 8.8bb, BTN 콜 | 19.1 / 90.2 (4.72) | bb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-bb-3bet:call | blind 3-bet pot, OOP raiser, SPR 4.7: ⅓·c, s = 0.79, α below SPR 6; PF-SANITY-6 fires on blind 3-bets here (낮음); btn-open-vs-bb-3bet 낮음 20.1 | 23.5 | 2.32 | 2.46 |
+| 22 | `cal-srp-sb-bb-100` | 100bb-2.2 | SB / BB | 나머지 폴드, SB 3bb 오픈, BB 콜 | 7 / 96 (13.71) | rfi-sb:raise; bb-vs-sb-open:call | the SB's open: an OOP raiser in a single raised pot; rfi-sb 낮음 28.3, bb-vs-sb-open 보통 18.1 | 31.5 | 3.15 | 2.45 |
+| 23 | `cal-3bp-sb-btn-100` | 100bb-2.2 | SB / BTN | BTN 2.2bb 오픈, SB 3벳 8.8bb, BB 폴드, BTN 콜 | 19.6 / 91.2 (4.65) | sb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-sb-3bet:call | the SB's 3-bet (OOP raiser, the BB's blind and ante dead); btn-open-vs-sb-3bet 보통 18.2, sb-vs-btn-open 보통 8.9 | 18.9 | 1.84 | 2.45 |
+| 24 | `cal-4bp-co-btn-100` | 100bb-2.2 | CO / BTN | CO 2.2bb 오픈, BTN 3벳 6.6bb, 블라인드 폴드, CO 4벳 16.5bb, BTN 콜 | 35.5 / 83.5 (2.35) | rfi-co:open × co-open-vs-btn-3bet:4bet; btn-vs-co-open:3bet × btn-3bet-vs-co-4bet:call | §9's small 4-bet pot at SPR 2.35: the low-SPR α rule that splits small 4-bets from jams; btn-3bet-vs-co-4bet 낮음 27.3 | 4 | 0.38 | 2.46 |
+| 25 | `cal-srp-co-btn-100` | 100bb-2.2 | CO / BTN | CO 2.2bb 오픈, BTN 콜, 블라인드 폴드 | 6.9 / 97.8 (14.17) | rfi-co:open; btn-vs-co-open:call | §9's in-position caller (u_call in position is never fitted, the role rule); btn-vs-co-open 높음 7.8, the BTN's flats of earlier opens 낮음 (UTG–LJ) and 보통 (HJ) | 42.1 | 4.29 | 2.46 |
+| 26 | `cal-lp-sb-bb-100` | 100bb-2.2 | SB / BB | 나머지 폴드, SB 림프, BB 체크 | 3 / 98 (32.67) | rfi-sb:limp; bb-vs-sb-limp:check | the limped pot (⅔·c, both u_call), SPR 32.7; bb-vs-sb-limp 낮음 28.9, rfi-sb 낮음 28.3 | 23.4 | 2.31 | 2.16 |
+| 27 | `cal-3bp-bb-btn-55` | 55bb-2.2 | BB / BTN | BTN 2.2bb 오픈, SB 폴드, BB 3벳 8.8bb, BTN 콜 | 19.1 / 45.2 (2.37) | bb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-bb-3bet:call | 3-bet pots at 55bb, SPR 2.4: α's low-SPR shrink in 3-bet pots; 55bb PF-SANITY-6 on 21 spots | 8.8 | 0.85 | 2.45 |
+| 28 | `cal-3bp-sb-btn-55` | 55bb-2.2 | SB / BTN | BTN 2.2bb 오픈, SB 3벳 8.8bb, BB 폴드, BTN 콜 | 19.6 / 46.2 (2.36) | sb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-sb-3bet:call | SPR 2.4; btn-open-vs-sb-3bet 낮음 27.8 | 8.2 | 0.79 | 2.45 |
+| 29 | `cal-3bp-bb-btn-100-o3` | 100bb-3 | BB / BTN | BTN 3bb 오픈, SB 폴드, BB 3벳 10.5bb, BTN 콜 | 22.5 / 88.5 (3.93) | bb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-bb-3bet:call | the pub's 3bb opens (blind 3-bets 3.5×), SPR 3.9; 100bb-3 has the most PF-SANITY-6 spots (27); btn-open-vs-bb-3bet 낮음 18.3 | 15.2 | 1.47 | 2.46 |
+| 30 | `cal-4bp-co-btn-100-o3` | 100bb-3 | CO / BTN | CO 3bb 오픈, BTN 3벳 9bb, 블라인드 폴드, CO 4벳 22.5bb, BTN 콜 | 47.5 / 77.5 (1.63) | rfi-co:open × co-open-vs-btn-3bet:4bet; btn-vs-co-open:3bet × btn-3bet-vs-co-4bet:call | 4-bet pot at SPR 1.6, right at SPR_ALPHA; btn-3bet-vs-co-4bet 낮음 25.2 | 2.4 | 0.23 | 2.46 |
+| 31 | `cal-3bp-sb-btn-100-o3` | 100bb-3 | SB / BTN | BTN 3bb 오픈, SB 3벳 10.5bb, BB 폴드, BTN 콜 | 23 / 89.5 (3.89) | sb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-sb-3bet:call | SPR 3.9; btn-open-vs-sb-3bet 낮음 17.5 | 17.3 | 1.68 | 2.46 |
+| 32 | `cal-3bp-bb-btn-35` | 35bb-2 | BB / BTN | BTN 2bb 오픈, SB 폴드, BB 3벳 8bb, BTN 콜 | 17.5 / 26 (1.49) | bb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-bb-3bet:call | SPR 1.5: the SPR_ALPHA = 1.5 shrink itself; btn-open-vs-bb-3bet 낮음 23.1 | 4.9 | 0.47 | 2.45 |
+| 33 | `cal-3bp-sb-btn-35` | 35bb-2 | SB / BTN | BTN 2bb 오픈, SB 3벳 8bb, BB 폴드, BTN 콜 | 18 / 27 (1.5) | sb-vs-btn-open:3bet; rfi-btn:open × btn-open-vs-sb-3bet:call | SPR 1.5; btn-open-vs-sb-3bet 낮음 28.2 | 4 | 0.38 | 2.45 |
+| 34 | `cal-srp-sb-bb-55` | 55bb-2.2 | SB / BB | 나머지 폴드, SB 3bb 오픈, BB 콜 | 7 / 51 (7.29) | rfi-sb:raise; bb-vs-sb-open:call | OOP raiser at SPR 7.3; rfi-sb 낮음 29.8, bb-vs-sb-open 보통 17.4 | 28.2 | 2.81 | 2.45 |
+| 35 | `cal-srp-co-btn-55` | 55bb-2.2 | CO / BTN | CO 2.2bb 오픈, BTN 콜, 블라인드 폴드 | 6.9 / 52.8 (7.65) | rfi-co:open; btn-vs-co-open:call | IP caller at SPR 7.7; btn-vs-co-open 보통 18.0 | 31.7 | 3.17 | 2.45 |
+| 36 | `cal-lp-sb-bb-55` | 55bb-2.2 | SB / BB | 나머지 폴드, SB 림프, BB 체크 | 3 / 53 (17.67) | rfi-sb:limp; bb-vs-sb-limp:check | limped pot at SPR 17.7; bb-vs-sb-limp 낮음 32.5 | 26.2 | 2.59 | 2.16 |
+| 37 | `cal-srp-sb-bb-35` | 35bb-2 | SB / BB | 나머지 폴드, SB 2.5bb 오픈, BB 콜 | 6 / 31.5 (5.25) | rfi-sb:raise; bb-vs-sb-open:call | OOP raiser at SPR 5.3; rfi-sb 낮음 29.1 | 26.2 | 2.59 | 2.45 |
+| 38 | `cal-lp-sb-bb-35` | 35bb-2 | SB / BB | 나머지 폴드, SB 림프, BB 체크 | 3 / 33 (11) | rfi-sb:limp; bb-vs-sb-limp:check | limped pot at SPR 11; bb-vs-sb-limp 낮음 22.4 | 26.6 | 2.64 | 2.16 |
+| 39 | `cal-srp-sb-bb-100-o3` | 100bb-3 | SB / BB | 나머지 폴드, SB 3.5bb 오픈, BB 콜 | 8 / 95.5 (11.94) | rfi-sb:raise; bb-vs-sb-open:call | rfi-sb 낮음 24.2, bb-vs-sb-open 낮음 20.2 | 41.8 | 4.26 | 2.45 |
+| 40 | `cal-srp-co-btn-100-o3` | 100bb-3 | CO / BTN | CO 3bb 오픈, BTN 콜, 블라인드 폴드 | 8.5 / 97 (11.41) | rfi-co:open; btn-vs-co-open:call | btn-vs-co-open 보통 9.0 | 51.1 | 5.29 | 2.46 |
+| 41 | `cal-lp-sb-bb-100-o3` | 100bb-3 | SB / BB | 나머지 폴드, SB 림프, BB 체크 | 3 / 98 (32.67) | rfi-sb:limp; bb-vs-sb-limp:check | bb-vs-sb-limp 낮음 26.8 | 23.4 | 2.31 | 2.16 |
+<!-- queue-table:end -->
+
+**Cost.** Every pack was dry-run on its first priority flop (Qs8h5h, two-tone, about the mean flop by memory) with
+`node scripts/presolve.mjs --scenario <ids> --count 1 --budget-minutes 8 --iterations 20 --workers 4
+--accept-above-target` on a 4-core machine, next to `cal-srp-btn-bb-15` on the same board (20 iterations in 1.2 min).
+The runner cost of a flop is estimated as 7.0 × r × I / 57 + 0.4 core-minutes: the short-stage packs' estimate above
+(7.0 core-minutes of solving at 57 iterations, plus 0.4 for the extraction, which the slim files keep, since the root
+equity enumeration is most of it) scaled by r, the pack's time for 20 iterations over `cal-srp-btn-bb-15`'s on the
+same machine and board, and by I, the iterations it needs to reach 0.5% of the pot (checked every 10, as on the
+runners). The 18 packs whose ranges the ghost rule changed (the 3-bet and 4-bet pots) were dry-run again the same way,
+four at a time, next to two unchanged packs that set this machine's speed against the first dry runs (1.02×; r is
+taken at the first runs' speed). I was measured by solving the same flop to the target (300 iterations at most, 0.5%)
+for 10 packs: `cal-srp-btn-bb-15` 50 (0.473%); `cal-srp-btn-bb-100` 80 (0.462%); `cal-srp-sb-bb-100` 80 (0.406%);
+`cal-srp-co-btn-100` 110 (0.421%); `cal-srp-btn-bb-35` 60 (0.49%); `cal-lp-sb-bb-100` 90 (0.405%);
+`cal-4bp-co-btn-100-o3` 50 (0.477%); `cal-4bp-co-btn-100` 60 (0.426%); `cal-3bp-btn-co-55` 60 (0.459%);
+`cal-3bp-bb-btn-100` 100 (0.456%). The others are extrapolated from the dry run's exploitability after 20 iterations
+with exploitability ∝ iterations^−k, k = 1.89 (the probes' mean; 1.91, 1.99, 1.86, 1.93, 2.02, 1.94, 1.94, 1.73,
+1.67). The worst converger, the 100bb-3 IP caller (10.971% after 20 iterations), comes to about 110, well under the
+300 a flop may take before it is not written. On the probes, this extrapolation from 20 iterations misses the measured
+counts by −20 once, −10 once, 0 five times and +10 twice (iterations), so the iteration counts are good to about ±10%.
+That covers the extrapolation only: the 7.0 itself is the short-stage packs' estimate, not a runner measurement yet
+(their first run was still going when this was written), and every row scales with it. A run gives each of its 16 × 4
+workers about 290 minutes, less about half a flop: a worker does not start a flop its pack's timings say would not
+finish before the deadline, and from then on the run starts nothing, so every worker idles for about half a flop at
+the end (25 minutes for the 51-minute flops of the 100bb-3 IP caller, 1–21 for the others). So a pack takes 1,755 × c
+/ (64 × (290 − c / 2)) runs for c core-minutes a flop, and a run takes about 5 h 15 min. The estimates span 2.4–51.1
+core-minutes a flop (`cal-4bp-co-btn-100-o3` to `cal-srp-co-btn-100-o3`) and 0.23–5.29 runs a pack: in all about 76.5
+runs, 16.7 days of back-to-back runs, after the short-stage packs: 30.7 runs (6.7 days) for the IP-raiser packs 1–20
+(12.1 / 2.6 for 1–7, 4.9 / 1.1 for 8–13, 13.7 / 3 for 14–20), then 45.8 (10 days) for 21–41 (14.3 / 3.1, 5.9 / 1.3 and
+25.7 / 5.6). One more loss is not in these numbers: when a run moves to the next pack of the queue late in a run, that
+pack has no timings yet, so its first flops start with only `MIN_START_MS` (4 minutes) checked and can be abandoned at
+the deadline (at most a flop per worker; the next run solves them). The real runner numbers will replace these: the
+shard logs print every flop's iterations and minutes, and the short-stage packs' first runs calibrate the 7.0.
+
+**Size.** The dry runs wrote 1.87–2.46 KB a flop: 1.87–1.88 KB with one OOP root action (TREE_SRP), 2.16 KB in the
+limped pots (two), 2.45–2.46 KB with an OOP raiser (three), the reach rule's packs included. That is 3.3–4.3 MB a pack
+of 1,755 flops and about 154 MB for the whole queue, against about 100 MB a pack for the full files of the first two
+calibration packs. The calibration manifest grows by about 0.45 MB a pack (a file entry is about 250 bytes, its path
+and sha256 most of it; about 18 MB with the whole queue); if that matters, the per-pack index files of Size budget (a
+v2 manifest) are the fix.
+
+**Changing the queue.** `queue` is only the job's order: moving a pack needs no version bump, and a pack that has no
+files yet can be dropped from `QUEUE` (one with files keeps them in the manifest). Everything else about a pack is in
+its meta and needs a version bump once it has files, as for every pack.
+
 ## API (`src/presolve/format.ts`)
 
 - Binary: `encodeBase64`/`decodeBase64`, `encodeUint8`/`decodeUint8`, `encodeInt16`/`decodeInt16`,
@@ -474,7 +703,9 @@ below SPR 6):
   `comboString`, `mapComboSuits`, `invertSuitMap`.
 - Paths: `packFilePath(scenarioId, version, board)`, `pathKey`, `PACKS_DIR`, `MANIFEST_PATH`.
 - Writing: `encodeRange`, `encodeFlopNode(source)` (COMBOS-indexed solver arrays in, quantized node out),
-  `summaryNodeDefs`, `summarizeFlop`, `validateFlopFile`, `validateManifest`.
-- Reading: `decodeRange`, `decodeFlopNode`, `decodeFlopFile`, `nodeActionTotals`, `aggregateByHandClass`
+  `encodeClassRange`, `encodeClassRoot` (slim files), `summaryNodeDefs`, `summarizeFlop`, `validateFlopFile`,
+  `validateManifest`.
+- Reading: `decodeRange`, `decodeClassRange`, `decodeFileRange` (either form), `decodeClassRoot`, `decodeFlopNode`,
+  `decodeFlopFile` (`rootClasses` in a slim file), `COMBO_CLASS`, `NUM_CLASSES`, `nodeActionTotals`, `aggregateByHandClass`
   (169 hand classes, weighted by reach × starting weight), `comboRows`, `rangesAfter`, `turnStart`,
   `treeSettings`.

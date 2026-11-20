@@ -15,36 +15,18 @@ export const LATE_SEATS = ["HJ", "CO", "BTN", "SB"];
 
 /** pub: 9-handed pub tournament with BB ante. cash: 6-max 100bb cash game. */
 export type PlayMode = "pub" | "cash";
-/**
- * The hand-made chart set a mode's bots play from: cash only (the 6-max chart; the solver models no 6-max game without
- * an ante). Tournament play, hand review and every grade read our computed charts (computedChart.ts), never the
- * hand-made pub chart, which stays on the charts page and in the quizzes as study material only.
- */
-export const MODE_SET: Record<"cash", string> = { cash: "cash6" };
+/** Chart set each mode's bots play from. */
+export const MODE_SET: Record<PlayMode, string> = { pub: "pub", cash: "cash6" };
 
 export function playStage(mode: PlayMode, stageId: string): Stage {
-  if (mode !== "cash") throw new Error("tournament spots read computedChart.ts, not a hand-made chart");
   const set = getSet(MODE_SET[mode]);
   return set.stages.find((s) => s.id === stageId) ?? set.stages[0];
 }
 
-/** Starting stack (bb) per play stage. */
-export const STAGE_STACK: Record<string, number> = { deep: 100, mid: 55, "35bb": 35, short: 17, push: 11, "100bb": 100 };
-
-/**
- * The tournament stages of hand play, by stack: the bots and the grading read the computed chart of that stack
- * (computedChart.ts: the solver's 100bb with the 3bb open, 55bb and 35bb, the short-stack chart at 17bb, push/fold at
- * 11bb). The ids are the old pub stages' (and "35bb"), so the play:<stage> stats carry on.
- */
-export const PLAY_STAGES: { id: string; label: string }[] = [
-  { id: "deep", label: "딥 · 100bb (3bb 오픈)" },
-  { id: "mid", label: "미들 · 55bb" },
-  { id: "35bb", label: "35bb" },
-  { id: "short", label: "숏 · 17bb" },
-  { id: "push", label: "푸시/폴드 · 11bb" },
-];
+/** Starting stack (bb) per chart stage. */
+export const STAGE_STACK: Record<string, number> = { deep: 100, mid: 55, short: 17, push: 11, "100bb": 100 };
 /** Open size (bb) for the "open" action per pub stage. */
-const OPEN_SIZE: Record<string, number> = { deep: 3, mid: 2.5, "35bb": 2, short: 2, push: 2 };
+const OPEN_SIZE: Record<string, number> = { deep: 3, mid: 2.5, short: 2, push: 2 };
 
 /** First-in raise size (bb), before adding 1bb per limper. Cash: 2.5bb, 3bb from the SB. */
 export function openSize(mode: PlayMode, stageId: string, seat: string): number {
@@ -156,7 +138,7 @@ const chartSeat = <T extends string | undefined>(s: T): T => ((s && CHART_SEAT[s
 export function preflopDecision(spot0: PreflopSpot): PreflopDecision {
   const spot = { ...spot0, seat: chartSeat(spot0.seat), openerSeat: chartSeat(spot0.openerSeat), lastRaiserSeat: chartSeat(spot0.lastRaiserSeat) };
   const stage = playStage(spot.mode, spot.stageId);
-  const seats = getSet(MODE_SET.cash).positions;
+  const seats = getSet(MODE_SET[spot.mode]).positions;
   const allInTo = spot.myBet + spot.myStack;
   const cap = (x: number) => Math.min(x, allInTo);
 
