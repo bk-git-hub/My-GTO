@@ -76,6 +76,9 @@ describe("hand log", () => {
     expect(f).toContain("빨간모자 BB");
     expect(f).toContain("(K9s) — 올인 콜");
     expect(f).toContain("결과: 짐 -34,000칩 (-42.5bb)");
+    // the game line follows the table: its size and its ante
+    expect(f).toContain(`게임: 홀덤펍 토너먼트 · ${h.players}인 · BB 앤티`);
+    expect(handFacts({ ...h, players: 6, bbAnte: false })).toContain("게임: 홀덤펍 토너먼트 · 6인 · 앤티 없음");
   });
 
   it("groups showdowns by nickname, unnamed last", () => {

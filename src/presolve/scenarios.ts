@@ -297,8 +297,12 @@ export const SCENARIOS: PresolveScenario[] = [
  * convergence noise at the packs' 0.5% target is 0.003 (OOP) and 0.005 (IP). At 20bb (6% ghosts on IP) the 0.02 floor
  * differs from 0.005 by 0.007 / 0.002. The cost does not depend on the floor (every combo is in both ranges either
  * way), and ghostRangeString writes any floor exactly.
+ *
+ * So the floor is the smallest weight the packs' Uint8 encoding (k/255) keeps apart from zero with room: 2/255 ≈ 0.0078,
+ * which shifts the real classes about as little as 0.005 does (well under the 0.02 floor's 0.025) and still decodes to
+ * a nonzero weight.
  */
-export const GHOST_WEIGHT = 0.02;
+export const GHOST_WEIGHT = 2 / 255;
 
 /** `range` with every hand class raised to at least `floor`. */
 export function withGhosts(range: Range, floor: number = GHOST_WEIGHT): Range {

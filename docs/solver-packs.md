@@ -429,20 +429,21 @@ below SPR 6):
   open (`rfi-btn:open`: 23.0%, 12.6%; the SB's fold and the BB's call don't depend on the BTN's hand, so this is its
   flop range). Both are capped the solver's way: the BB jams AA, KK, AKs and the like instead of flatting, and the
   BTN jams much of what it plays at 15bb.
-- **Ghost combos.** Every hand class starts with at least `GHOST_WEIGHT` = 0.02 on both sides (`withGhosts`, recorded
+- **Ghost combos.** Every hand class starts with at least `GHOST_WEIGHT` = 2/255 ≈ 0.0078 on both sides (`withGhosts`, recorded
   as the meta's `ghostWeight`), so the hands just outside a range (the BB's folds and its jams next to its flats, the
   BTN's folds and jams next to its opens) get a measured flop EV and a refit can place the fold boundary from
-  measurements instead of extrapolating. The source ranges are snapped to tenths, so a class at exactly 0.02 is a
-  ghost. Ghosts are 1.4% (OOP, 62 classes) and 6.0% (IP, 116 classes) of the weighted combos at 20bb, 2.4% (80) and
-  11.9% (140) at 15bb (the BTN's narrow 15bb open). Ghosts are real combos to the solver, so they move the
+  measurements instead of extrapolating. The source ranges are snapped to tenths, so a class at exactly 2/255 is a
+  ghost. At the 0.02 floor first tried, ghosts were 1.4% (OOP, 62 classes) and 6.0% (IP, 116 classes) of the weighted
+  combos at 20bb, 2.4% (80) and 11.9% (140) at 15bb (the BTN's narrow 15bb open); at 2/255 they are about 0.4 of that. Ghosts are real combos to the solver, so they move the
   real hands' numbers too. On `cal-srp-btn-bb-15` Qs8h5h, solved to 0.13–0.14% of the pot with and without ghosts,
   the 0.02 floor moves OOP's real classes' pot share by 0.025 on average (+0.019 signed: OOP realizes more against an
   IP range padded with hands the BTN would not open) and IP's by 0.009; a 0.005 floor by 0.007 (+0.005) and 0.002.
   The convergence noise at the packs' 0.5% target is 0.003 (OOP) and 0.005 (IP), and the deep-stack fit's whole RMS
   is 0.014 / 0.019. At 20bb (6% ghosts on IP) 0.02 and 0.005 differ by 0.007 / 0.002 on Qs8h5h. The floor does not
   change the cost (every combo is in both ranges either way); `ghostRangeString` writes any floor exactly in the
-  meta's range strings (`rangeToString` rounds to 0.01).
-  The fit weights a class row by its reach, so ghost rows weigh 2% of a full class; a refit that wants them to set
+  meta's range strings (`rangeToString` rounds to 0.01). So the floor is 2/255: the smallest weight the packs' Uint8
+  encoding keeps apart from zero with room, which moves the real classes about as little as 0.005 does.
+  The fit weights a class row by its reach, so ghost rows weigh under 1% of a full class; a refit that wants them to set
   the boundary has to weight them on purpose.
 - **What the fit reads is stored.** OOP only checks at the root (no donk bet), so OOP's root EV is its check EV at
   node `[]` and IP's root EV is its EV at node `[0]`, both for every combo (ghosts included: every combo has weight,

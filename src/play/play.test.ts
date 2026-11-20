@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { parseCards } from "../poker/cards";
-import { act, CASH_TABLE, heroNet, newGame, pot } from "./engine";
+import { getSet } from "../data/charts";
+import { act, callPrice, CASH_TABLE, heroNet, legal, newGame, pot, winnablePot } from "./engine";
 import { handFeatures } from "./handInfo";
-import { preflopDecision, type PlayMode, type PreflopSpot } from "./policy";
+import { preflopDecision, STAGE_STACK, type PlayMode, type PreflopSpot } from "./policy";
 import { heroAct, heroMoves, startHand } from "./table";
 
 /** Chips on the table: stacks plus the pot while the hand runs, stacks only once it's paid out. */
@@ -33,6 +34,47 @@ describe("engine", () => {
     expect(g.done).toBe(true);
     expect(g.board).toHaveLength(5);
     expect(totalChips(g)).toBeCloseTo(90);
+  });
+
+  it("prices a call by the pot I can win: a covering all-in's chips beyond my stack are not mine", () => {
+    // 9-handed, the BTN has 50bb, the BB 10bb: the BTN jams, the rest fold to the BB
+    let g = newGame(100, 8, undefined, undefined, [100, 100, 100, 100, 100, 100, 50, 100, 10]);
+    for (let i = 0; i < 6; i++) g = act(g, "fold");
+    g = act(g, "raise", 50);
+    g = act(g, "fold"); // SB
+    expect(pot(g)).toBeCloseTo(52.5); // 1 ante + 0.5 + 50 + 1
+    // the BB can put in 9 more (10 less the ante): 9 of the BTN's 50 are contested
+    expect(winnablePot(g, 8)).toBeCloseTo(11.5);
+    expect(callPrice(g, 8)).toBeCloseTo(8 / 19.5, 9); // 41%, not 8 / 60.5 = 13%
+    // with equal stacks the BB's ante still leaves the jammer's last bb uncontested
+    let eq = newGame(18, 8);
+    for (let i = 0; i < 5; i++) eq = act(eq, "fold");
+    eq = act(eq, "raise", 18); // CO
+    eq = act(eq, "fold");
+    eq = act(eq, "fold");
+    expect(winnablePot(eq, 8)).toBeCloseTo(19.5);
+    expect(callPrice(eq, 8)).toBeCloseTo(16 / 35.5, 9);
+  });
+
+  it("counts side pots between others above my stack out of the price, and nothing when I cover", () => {
+    // UTG 20bb jams, HJ (UTG+1 here) 60bb calls, the BB with 100bb decides: it covers both, the whole pot is its
+    let g = newGame(100, 8, undefined, undefined, [20, 60, 100, 100, 100, 100, 100, 100, 100]);
+    g = act(g, "raise", 20);
+    g = act(g, "raise", 60); // UTG+1 shoves over it
+    for (let i = 0; i < 6; i++) g = act(g, "fold");
+    expect(winnablePot(g, 8)).toBeCloseTo(pot(g));
+    // a 30bb BB in the same spot plays for 30 of each stack only: the 20, 30 of the 60, the blinds and the ante
+    let s = newGame(100, 8, undefined, undefined, [20, 60, 100, 100, 100, 100, 100, 100, 30]);
+    s = act(s, "raise", 20);
+    s = act(s, "raise", 60);
+    for (let i = 0; i < 6; i++) s = act(s, "fold");
+    expect(pot(s)).toBeCloseTo(1 + 20 + 60 + 0.5 + 1);
+    expect(winnablePot(s, 8)).toBeCloseTo(1 + 20 + 29 + 0.5 + 1); // the BB's own total after a call is 29 (30 less the ante)
+    // nothing to call, no price
+    let w = newGame(100, 8);
+    for (let i = 0; i < 7; i++) w = act(w, "call");
+    expect(callPrice(w, 8)).toBeNull();
+    expect(winnablePot(w, 8)).toBeCloseTo(pot(w));
   });
 });
 
@@ -74,26 +116,50 @@ describe("cash table", () => {
 });
 
 describe("full hands with bots", () => {
-  it("plays 375 random hands to the end without losing chips", () => {
-    const runs: [PlayMode, string][] = [["pub", "deep"], ["pub", "mid"], ["pub", "short"], ["pub", "push"], ["cash", "100bb"]];
+  it("plays 450 random hands to the end without losing chips, the bots on the computed charts", () => {
+    const pubTitles = new Set(getSet("pub").stages.flatMap((st) => st.scenarios.map((sc) => sc.title)));
+    const runs: [PlayMode, string][] = [["pub", "deep"], ["pub", "mid"], ["pub", "35bb"], ["pub", "short"], ["pub", "push"], ["cash", "100bb"]];
     for (const [mode, stage] of runs) {
       for (let n = 0; n < 75; n++) {
         let s = startHand(mode, stage);
+        expect(s.game.startStack).toBe(STAGE_STACK[stage]);
         const start = s.game.startStack * s.game.players.length;
         let guard = 0;
         while (!s.game.done && guard++ < 60) {
           const moves = heroMoves(s);
           expect(moves.length).toBeGreaterThan(0);
-          s = heroAct(s, moves[Math.floor(Math.random() * moves.length)]);
+          // now and then a min-raise, which no chart makes, so the bots' fallback rules get played too
+          const L = legal(s.game, s.heroIdx);
+          const pick = Math.random() < 0.15 && L.canRaise ? { key: `raise:${L.minRaiseTo}`, label: `레이즈 ${L.minRaiseTo}`, kind: "raise" as const, to: L.minRaiseTo } : moves[Math.floor(Math.random() * moves.length)];
+          s = heroAct(s, pick);
         }
         expect(s.game.done).toBe(true);
         const chips = s.game.players.reduce((a, p) => a + p.stack, 0);
         expect(chips).toBeCloseTo(start, 1);
         expect(Number.isFinite(heroNet(s.game))).toBe(true);
         for (const d of s.decisions) expect(d.options.length).toBeGreaterThan(0);
+        for (const note of Object.values(s.botNotes)) expect(mode === "cash" || !pubTitles.has(note), note).toBe(true);
+        if (mode === "pub")
+          for (const d of s.decisions.filter((x) => x.street === "preflop")) expect(d.chartInfo, d.chosenLabel).toBeDefined();
       }
     }
-  }, 60000);
+  }, 120000);
+
+  it("opens the bots at the chart's sizes", () => {
+    // 100bb: the 3bb-open stage; 55bb: 2.2bb
+    for (const [stage, size] of [["deep", 3], ["mid", 2.2]] as const) {
+      let seen = false;
+      for (let n = 0; n < 40 && !seen; n++) {
+        const s = startHand("pub", stage, 8);
+        const open = s.game.log.find((e) => e.kind === "raise" && e.seat !== "SB" && !e.allIn);
+        if (open && s.game.log.filter((e) => e.kind === "raise").length === 1) {
+          expect(open.amount).toBe(size);
+          seen = true;
+        }
+      }
+      expect(seen).toBe(true);
+    }
+  });
 });
 
 describe("cash preflop policy", () => {
