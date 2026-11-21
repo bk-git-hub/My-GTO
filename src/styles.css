@@ -510,11 +510,6 @@ textarea { resize: vertical; }
 .cta-text b { font-size: 1.15rem; }
 .cta-text span { font-size: 0.85rem; opacity: 0.9; }
 .cta-go { font-size: 1.3rem; font-weight: 800; }
-.weak {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left;
-  padding: 12px 14px; border-radius: var(--radius); background: var(--accent-soft); border: 1px solid var(--accent); color: var(--text); font-size: 0.9rem;
-}
-div.weak.muted { border-style: dashed; color: var(--muted); }
 .home-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .home-stats div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 4px; text-align: center; display: flex; flex-direction: column; }
 .home-stats b { font-size: 1.2rem; }

@@ -1,46 +1,16 @@
 import { accuracy, useStats, type Tally } from "../../state/stats";
 import { useCoach } from "../coach/CoachContext";
 
-const STAGE_LABEL: Record<string, string> = { deep: "딥", mid: "미들", short: "숏", push: "푸시/폴드" };
-
-interface Weak {
-  label: string;
-  route: string;
-  t: Tally;
-}
-
-/** Lowest-accuracy stage+seat in the range drill (at least 5 answers). */
-function weakestSpot(byKey: Record<string, Tally>): Weak | null {
-  let worst: Weak | null = null;
-  for (const [key, t] of Object.entries(byKey)) {
-    if (t.attempts < 5) continue;
-    let m = key.match(/^stack:(deep|mid|short|push):(.+)$/);
-    let w: Weak | null = null;
-    if (m) w = { label: `펍아재 ${STAGE_LABEL[m[1]]} · ${m[2]}`, route: `quiz/stack/pub/${m[1]}/${encodeURIComponent(m[2])}`, t };
-    m = key.match(/^stack-cash:100bb:(.+)$/);
-    if (m) w = { label: `100bb 캐시 · ${m[1]}`, route: `quiz/stack/cash/all/${encodeURIComponent(m[1])}`, t };
-    m = key.match(/^stack:vs:(deep|mid|short|push):(.+)$/);
-    if (m) w = { label: `펍아재 ${STAGE_LABEL[m[1]]} · ${m[2]} vs 오픈`, route: `quiz/stack/pub/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
-    m = key.match(/^stack-nash:(\d+bb):(.+)$/);
-    if (m) w = { label: `푸시/폴드 내쉬 ${m[1]} · ${m[2]} 푸시`, route: `quiz/stack/nash/${m[1]}/${encodeURIComponent(m[2])}`, t };
-    m = key.match(/^stack-nash:vs:(\d+bb):(.+)$/);
-    if (m) w = { label: `푸시/폴드 내쉬 ${m[1]} · ${m[2]} vs 올인`, route: `quiz/stack/nash/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
-    m = key.match(/^stack-short:(\d+bb):(.+)$/);
-    if (m) w = { label: `숏스택 내쉬 ${m[1]} · ${m[2]} 오픈`, route: `quiz/stack/short/${m[1]}/${encodeURIComponent(m[2])}`, t };
-    m = key.match(/^stack-short:vs:(\d+bb):(.+)$/);
-    if (m) w = { label: `숏스택 내쉬 ${m[1]} · ${m[2]} vs 오픈`, route: `quiz/stack/short/${m[1]}/${encodeURIComponent(m[2])}/vs`, t };
-    m = key.match(/^stack-cash:vs:100bb:(.+)$/);
-    if (m) w = { label: `100bb 캐시 · ${m[1]} vs 오픈`, route: `quiz/stack/cash/all/${encodeURIComponent(m[1])}/vs`, t };
-    if (w && (!worst || w.t.correct / w.t.attempts < worst.t.correct / worst.t.attempts)) worst = w;
-  }
-  return worst;
+/** Every quiz's answers together, for the one 퀴즈 card. */
+const QUIZ_KEYS = ["stack", "stack-cash", "preflop", "odds", "equity"];
+function quizTally(byKey: Record<string, Tally>): Tally {
+  return QUIZ_KEYS.reduce<Tally>((t, k) => ({ attempts: t.attempts + (byKey[k]?.attempts ?? 0), correct: t.correct + (byKey[k]?.correct ?? 0) }), { attempts: 0, correct: 0 });
 }
 
 export function HomePage({ go }: { go: (route: string) => void }) {
   const stats = useStats();
   const coach = useCoach();
   const by = stats.byKey;
-  const weak = weakestSpot(by);
 
   const cards: { route: string; icon: string; title: string; desc: string; stat?: string; tone: string }[] = [
     { route: "charts", icon: "▦", title: "펍아재 차트", desc: "스택 구간별 레인지 보기", tone: "gray" },
@@ -48,11 +18,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
     { route: "log", icon: "✎", title: "핸드 복기", desc: "기억나는 핸드부터 · 자리·액션은 나중에 이어서", tone: "blue" },
     { route: "log/list", icon: "☰", title: "지난 기록 보기", desc: "내 핸드 · 남의 핸드 따로, 작성 중 이어 쓰기", tone: "gray" },
     { route: "log/fast", icon: "⚡", title: "빠른 기록", desc: "핸드마다 칩 증감 · 기억나는 보드만", tone: "green" },
-    { route: "quiz/stack/pub", icon: "◎", title: "레인지 암기 · 펍아재", desc: "내 스택·평균 스택 보고 폴드/오픈/올인", stat: accuracy(by["stack"]), tone: "gold" },
-    { route: "quiz/stack/cash", icon: "◎", title: "레인지 암기 · 100bb 캐시", desc: "6맥스 100bb 오픈 레인지", stat: accuracy(by["stack-cash"]), tone: "blue" },
-    { route: "quiz/preflop", icon: "?", title: "프리플랍 퀴즈", desc: "RFI · vs 레이즈 · vs 올인", stat: accuracy(by["preflop"]), tone: "red" },
-    { route: "quiz/odds", icon: "÷", title: "팟 오즈·EV", desc: "필요 에퀴티, MDF, 아웃츠", stat: accuracy(by["odds"]), tone: "green" },
-    { route: "quiz/equity", icon: "%", title: "에퀴티 감각", desc: "핸드 vs 핸드, 플랍 올인", stat: accuracy(by["equity"]), tone: "purple" },
+    { route: "quiz", icon: "?", title: "퀴즈", desc: "레인지 암기 · 프리플랍 · 팟 오즈·EV · 에퀴티", stat: accuracy(quizTally(by)), tone: "gold" },
     { route: "calc", icon: "∑", title: "계산기", desc: "에퀴티 · 팟 오즈 · 콜 EV", tone: "gray" },
   ];
 
@@ -83,17 +49,6 @@ export function HomePage({ go }: { go: (route: string) => void }) {
         </span>
         <span className="cta-go">→</span>
       </button>
-
-      {weak ? (
-        <button className="weak" onClick={() => go(weak.route)}>
-          <span>
-            <b>약점 연습</b> {weak.label} · 정답률 {accuracy(weak.t)} ({weak.t.attempts}문제)
-          </span>
-          <span className="cta-go">→</span>
-        </button>
-      ) : (
-        <div className="weak muted">레인지 암기를 자리마다 5문제 이상 풀면, 가장 약한 자리를 찾아서 여기 띄워 줄게요.</div>
-      )}
 
       <div className="home-grid">
         {cards.map((c) => (
