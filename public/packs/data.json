@@ -1,0 +1,12 @@
+{
+  "v": 2,
+  "repo": "bk-git-hub/My-GTO",
+  "commit": "05fff7363aed6eb0308a3a661d72f6d7fc5ac09e",
+  "dir": "packs/",
+  "generatedAt": "2026-11-21T11:56:19Z",
+  "catalog": {
+    "path": "manifest.json",
+    "sha256": "b9e66e1a11f2d5f577177a59c82df8f2134f2ac22257f6f0b221a597282aad51",
+    "bytes": 10147
+  }
+}

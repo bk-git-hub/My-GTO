@@ -1,21 +1,24 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { pushRoute, type Go, type GoHow } from "../../backNav";
 import type { HandClass } from "../../poker/cards";
-import type { FileEntry } from "../../presolve/format";
+import type { FileEntry, PackEntry } from "../../presolve/format";
 import { FlopView, type GridMode } from "./FlopView";
-import { packClient, type LoadedFlop, type ManifestState, type PackClient } from "./packs";
+import { browserOffline, packClient, type CatalogState, type LoadedFlop, type PackClient } from "./packs";
 import { DEFAULT_REPORT, ReportView, type ReportState } from "./ReportView";
-import { ScenarioPicker } from "./ScenarioPicker";
+import { SpotPicker } from "./SpotPicker";
 import { parseRoute, routeOf } from "./view";
 
 type Load<T> = { status: "loading" } | { status: "error"; message: string } | { status: "done"; value: T };
 
-function useManifest(client: PackClient, attempt: number): Load<ManifestState> {
-  const [state, setState] = useState<Load<ManifestState>>({ status: "loading" });
+/** Flop classes a full pack covers (format.ts flopClasses). */
+const FULL_PACK = 1755;
+
+function useCatalog(client: PackClient, attempt: number): Load<CatalogState> {
+  const [state, setState] = useState<Load<CatalogState>>({ status: "loading" });
   useEffect(() => {
     let live = true;
     setState({ status: "loading" });
-    client.manifest().then(
+    client.catalog().then(
       (value) => live && setState({ status: "done", value }),
       (e: Error) => live && setState({ status: "error", message: e.message }),
     );
@@ -24,6 +27,24 @@ function useManifest(client: PackClient, attempt: number): Load<ManifestState> {
     };
   }, [client, attempt]);
   return state;
+}
+
+function usePack(client: PackClient, id: string | undefined, attempt: number): Load<PackEntry> | null {
+  const [state, setState] = useState<{ id: string; load: Load<PackEntry> } | null>(null);
+  useEffect(() => {
+    if (!id) return;
+    let live = true;
+    setState({ id, load: { status: "loading" } });
+    client.pack(id).then(
+      (value) => live && setState({ id, load: { status: "done", value } }),
+      (e: Error) => live && setState({ id, load: { status: "error", message: e.message } }),
+    );
+    return () => {
+      live = false;
+    };
+  }, [client, id, attempt]);
+  if (!id) return null;
+  return state && state.id === id ? state.load : { status: "loading" };
 }
 
 function useFlop(client: PackClient, entry: FileEntry | undefined, attempt: number): Load<LoadedFlop> | null {
@@ -62,7 +83,7 @@ function isAbove(next: number[], path: number[]): boolean {
 
 /**
  * "솔버 차트": precomputed flop strategies (docs/solver-packs.md). Routes under #solver:
- * solver → scenario list, solver/<pack> → flop report, solver/<pack>/<board>[/<path>] → a flop node.
+ * solver → the spot picker, solver/<pack> → flop report, solver/<pack>/<board>[/<path>] → a flop node.
  * The links back up ("← 시나리오", "← 리포트", a crumb) go back to the screen (GoHow "back"), so the header's
  * ‹ doesn't lead down again into the screen just left.
  */
@@ -80,28 +101,30 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
     client.reset();
     setAttempt((n) => n + 1);
   };
-  const manifest = useManifest(client, attempt);
+  const catalog = useCatalog(client, attempt);
   const route = parseRoute(sub);
   const [report, setReport] = useState<ReportState>(DEFAULT_REPORT);
   const [selected, setSelected] = useState<HandClass | null>(null);
   const [gridMode, setGridMode] = useState<GridMode>("strategy");
 
-  const ready = manifest.status === "done" && manifest.value.status === "ready" ? manifest.value.manifest : null;
-  const pack = ready?.packs.find((p) => p.id === route.packId);
+  const state = catalog.status === "done" && catalog.value.status === "ready" ? catalog.value : null;
+  const listed = state?.catalog.packs.find((p) => p.id === route.packId);
+  const packLoad = usePack(client, listed ? listed.id : undefined, attempt);
+  const pack = packLoad?.status === "done" ? packLoad.value : undefined;
   const entry = pack?.files.find((f) => f.board === route.board);
   const flop = useFlop(client, entry, attempt);
 
-  if (manifest.status === "loading") return <Message title="팩 목록 불러오는 중…" />;
-  if (manifest.status === "error")
+  if (catalog.status === "loading") return <Message title="팩 불러오는 중…" />;
+  if (catalog.status === "error")
     return (
-      <Message title="팩 목록을 불러오지 못했어요">
-        <p className="muted small">{manifest.message}</p>
+      <Message title="팩을 불러오지 못했어요">
+        <p className="muted small">{catalog.message}</p>
         <button className="primary small" onClick={retry}>
           다시 시도
         </button>
       </Message>
     );
-  if (!ready)
+  if (!state)
     return (
       <Message title="아직 계산된 팩이 없음">
         <p className="muted small">
@@ -113,22 +136,49 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
       </Message>
     );
 
-  if (!pack) {
+  // A fallback list (the last one this device saw, or the bundled packs): offline, or online with both CDNs down.
+  const offline = state.offline && (
+    <p className="notice small sv-gone">{browserOffline() ? "오프라인 · 열어 본 플랍만 볼 수 있어요" : "팩 서버에 연결하지 못했어요 · 열어 본 플랍은 볼 수 있어요"}</p>
+  );
+  if (!listed) {
+    const planned = route.packId ? state.catalog.planned?.find((p) => p.id === route.packId) : undefined;
     return (
       <>
-        {route.packId && <p className="notice small sv-gone">이 시나리오는 지금 팩 목록에 없어요.</p>}
-        <ScenarioPicker packs={ready.packs} onPick={(id) => navigate(routeOf(id))} />
+        {offline}
+        {route.packId && <p className="notice small sv-gone">{planned ? `${planned.title}: 아직 계산 중이에요.` : "이 시나리오는 지금 팩 목록에 없어요."}</p>}
+        <SpotPicker catalog={state.catalog} onPick={(id) => navigate(routeOf(id))} />
       </>
+    );
+  }
+  if (!pack) {
+    if (!packLoad || packLoad.status === "loading") return <Message title="팩 불러오는 중…" />;
+    return (
+      <Message title="팩을 불러오지 못했어요">
+        <p className="muted small">{packLoad.status === "error" ? packLoad.message : ""}</p>
+        <div className="row-gap">
+          <button className="primary small" onClick={retry}>
+            다시 시도
+          </button>
+          <button className="ghost small" onClick={() => navigate(routeOf(), "back")}>
+            ← 팩 목록
+          </button>
+        </div>
+      </Message>
     );
   }
 
   const toReport = () => navigate(routeOf(pack.id), "back");
   if (!route.board) {
-    return <ReportView pack={pack} state={report} onState={setReport} onOpen={(b) => navigate(routeOf(pack.id, b))} onBack={() => navigate(routeOf(), "back")} />;
+    return (
+      <>
+        {offline}
+        <ReportView pack={pack} state={report} onState={setReport} onOpen={(b) => navigate(routeOf(pack.id, b))} onBack={() => navigate(routeOf(), "back")} />
+      </>
+    );
   }
   if (!entry || route.badPath) {
     return (
-      <Message title={entry ? "잘못된 라인 주소예요" : "이 보드는 팩에 없어요"}>
+      <Message title={entry ? "잘못된 라인 주소예요" : pack.files.length < FULL_PACK ? "이 플랍은 아직 계산 중이에요" : "이 보드는 팩에 없어요"}>
         <button className="ghost small" onClick={entry ? () => navigate(routeOf(pack.id, entry.board), "back") : toReport}>
           {entry ? "플랍 처음으로" : "← 리포트"}
         </button>
@@ -152,7 +202,9 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
     );
 
   return (
-    <FlopView
+    <>
+      {offline}
+      <FlopView
       pack={pack}
       loaded={flop.value}
       path={route.path}
@@ -162,6 +214,7 @@ export function SolverPage({ sub = "", go, client: given }: { sub?: string; go?:
       onReport={toReport}
       gridMode={gridMode}
       onGridMode={setGridMode}
-    />
+      />
+    </>
   );
 }

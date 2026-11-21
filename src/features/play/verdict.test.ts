@@ -12,7 +12,9 @@ import {
   mismatchNote,
   missLine,
   MISTAKE_BUT_WON,
+  refMiss,
   sessionLine,
+  tableVerdict,
   verdictReviewLines,
   type GradedDecision,
 } from "./verdict";
@@ -21,6 +23,54 @@ const dec = (grade: Grade, over: Partial<GradedDecision> = {}): GradedDecision =
 /** A preflop decision graded by the chart alone. */
 const chart = (grade: Grade) => dec(grade, { street: "preflop", chosen: "call", chosenLabel: "콜 2.5" });
 const turnCall = (grade: Grade) => dec(grade, { street: "turn", chosen: "call", chosenLabel: "콜 4" });
+/** A 참고 river call the EV model against these AIs put well below folding (the reviewer's −54bb hand). */
+const riverCall29 = dec("info", {
+  street: "river",
+  chosen: "call",
+  chosenLabel: "콜 29.9",
+  pot: 80,
+  reason: "멀티웨이는 솔버 없음 · 근사",
+  options: [
+    { key: "fold", label: "폴드", ev: 0 },
+    { key: "call", label: "콜 29.9", ev: -12.4 },
+  ],
+});
+/** A 참고 flop check the EV model agrees with (within the ✓ margin). */
+const flopCheckOk = dec("info", {
+  pot: 12,
+  reason: "멀티웨이는 솔버 없음 · 근사",
+  options: [
+    { key: "check", label: "체크", ev: 3.1 },
+    { key: "raise:4", label: "벳 33% (4) ≈", ev: 3.5 },
+  ],
+});
+
+describe("the AI table verdict: what was graded, and 참고 decisions that went against the EV model", () => {
+  it("refMiss: only 참고 rows, beyond the ✓ margin of 0.15bb or 5% of the pot", () => {
+    expect(refMiss(riverCall29)).toBe(true);
+    expect(refMiss(flopCheckOk)).toBe(false);
+    expect(refMiss({ ...riverCall29, grade: "mistake" })).toBe(false);
+    expect(refMiss({ ...riverCall29, reason: undefined })).toBe(false);
+  });
+
+  it("a graded preflop and a 참고 river call against the model: no 'judgement was right' note, the call named instead", () => {
+    const v = tableVerdict([chart("good"), flopCheckOk, riverCall29], -54);
+    expect(v.headline).toBe("프리플랍 판단 좋았어요");
+    expect(v.scope).toBe("채점 1개 · 참고 2개");
+    expect(v.notes).toEqual(["참고 결정 중 이 AI들 기준 EV가 더 높은 선택이 있었어요: 리버 콜 (근사라 채점엔 안 넣어요)"]);
+    expect(v.notes).not.toContain(GOOD_BUT_LOST);
+  });
+
+  it("keeps the luck note when the 참고 decisions agreed with the model, and the plain headline when all was graded", () => {
+    const v = tableVerdict([chart("good"), flopCheckOk], -10);
+    expect([v.headline, v.scope, v.notes]).toEqual(["프리플랍 판단 좋았어요", "채점 1개 · 참고 1개", [GOOD_BUT_LOST]]);
+    const all = tableVerdict([chart("good"), dec("good")], -10);
+    expect([all.headline, all.scope, all.notes]).toEqual(["판단 좋았어요", null, [GOOD_BUT_LOST]]);
+    expect(tableVerdict([chart("good"), dec("ok"), flopCheckOk], 5).headline).toBe("프리플랍·플랍 판단 괜찮았어요");
+    expect(tableVerdict([dec("mistake"), riverCall29], 5).notes).toEqual([MISTAKE_BUT_WON, "참고 결정 중 이 AI들 기준 EV가 더 높은 선택이 있었어요: 리버 콜 (근사라 채점엔 안 넣어요)"]);
+    expect(tableVerdict([flopCheckOk], null)).toEqual({ headline: "채점할 결정이 없었어요", scope: "참고 1개", notes: [] });
+  });
+});
 
 describe("handVerdict: the worst graded decision sets the class and headline", () => {
   it("all good -> green 판단 좋았어요", () => {
@@ -193,9 +243,15 @@ describe("verdictReviewLines: the AI review reads the verdict before the chips",
     expect(lines.join("\n")).not.toMatch(/EV/);
   });
 
-  it("has only the verdict and the rule without graded decisions", () => {
+  it("has only the verdict, the 참고 count and the rule without graded decisions", () => {
     const lines = verdictReviewLines([dec("info")]);
     expect(lines[0]).toBe("판단 평가: 채점할 결정이 없었어요");
-    expect(lines).toHaveLength(2);
+    expect(lines[1]).toBe("참고만 한 결정 1개 (채점 안 함)");
+    expect(lines).toHaveLength(3);
+  });
+
+  it("names 참고 decisions that went against the EV model, as 참고", () => {
+    const lines = verdictReviewLines([chart("good"), riverCall29]);
+    expect(lines[1]).toBe("참고만 한 결정 1개 (채점 안 함) · 이 AI들 기준 EV 최고와 다른 선택: 리버 콜");
   });
 });

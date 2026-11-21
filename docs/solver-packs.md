@@ -7,7 +7,9 @@ first flop decisions without solving anything on the device. The numbers come fr
 
 A GitHub Action runs the presolve pipeline back to back while flops are left (and every 6 hours as a backstop),
 split over parallel jobs. It solves the next flops (in priority order) that have no file yet in each pack's current
-version directory under `public/packs/`, and rewrites `public/packs/manifest.json` (see Pipeline below).
+version, and publishes the app's packs on the `packs-data` branch, a data-only branch the app reads through a free CDN
+pinned to a commit (Data branch, below; `public/packs/data.json` on master names the commit). Before the data branch
+the app's packs lived in `public/packs/` and were deployed with the app; that copy is frozen (R1/R2, below).
 The format lives in `src/presolve/format.ts` (types plus pure encode/decode helpers that run in Node and in the
 browser). The manifest shape matches §9 "솔버 콘텐츠 팩" of `docs/server-design.md` (branch
 `claude/lucid-brown-8ikhmc`) and adds fields to it.
@@ -36,6 +38,25 @@ dominated hands such as Q7s or A4o against a strong range. It is measured, not f
 on purpose and uses it as held-out data, which shows that the BB realizes more against a strong range than the
 range-blind model says (§3.7 bias 2 there). It is the data for a model that depends on the opponent's range.
 
+The app's solver-chart packs (`sv-…`, 24 packs, The app queue below): the heads-up spots a 9-handed BB-ante pub
+tournament player meets most, from the shipped solver chart's own ranges and sizes (stages `55bb-2.2`, `35bb-2`,
+`100bb-2.2`): single raised pots UTG/HJ/CO/BTN/SB vs BB and the 3-bet pots BB vs BTN, BTN vs CO and SB vs BTN, at 55bb
+and 35bb first, then 100bb. Their catalog entries carry a `spot` tag (chart, stage, stack, pot, raiser, caller, and the
+chart's lowest `confidence` among the spots the two ranges come from), which the app's picker and lookups use
+(`src/features/solver/registry.ts`). The picker lists the stacks 35 · 55 · 100bb (55bb first) and marks a pack that
+starts from a range the chart rates 낮음 with "프리플랍 신뢰도 낮음" (12 of the 24: the SB's open at every stack, the
+BB's call of the CO and BTN at 35bb, the BB's 3-bet pot vs the BTN at 35bb and the BTN's call at 100bb, the CO's call of
+the BTN's 3-bet at every stack, the BTN's call of the SB's 3-bet at 55 and 35bb): the flop solve is exact for those
+ranges, but the ranges are the chart's least certain. While no row of the chosen stack and pot has a flop yet, the
+earlier packs (다른 팩) are shown opened.
+
+The AI 테이블 reads the same catalog (`src/features/play/packSource.ts`, `src/play/packMatch.ts` `catalogIndex`): every
+catalog entry has the pack's `scenario` (positions, ranges, rangeSources, pot, stack), so the registry lists every pack
+with its file list pending. When a heads-up flop is dealt, the oracle asks in one load for the file lists of the packs
+that pass every check but the file's (`pendingPacks`, `LoadKey` `{ kind: "packs", ids }`), `client.pack(id)` downloads
+those indexes (up to about 0.55 MB each, kept in the pack cache) and the match runs. Opening the table costs the catalog
+alone; loading every index up front would download about 15 MB once the app queue is full.
+
 Calibration packs (`CAL_SCENARIOS`, set `"calibration"`, not in the app; section Calibration packs below):
 
 | id | Game | Preflop | Flop pot / stack (SPR) | Ranges |
@@ -62,26 +83,36 @@ for the BTN that opened and called the BB's 3-bet: its flop range is the product
 ## Files
 
 ```
-public/packs/manifest.json
-public/packs/<scenario>/v<version>/flop-<board>.json      e.g. srp-btn-bb-100/v1/flop-AsKh7d.json
-calibration/packs/manifest.json                            calibration packs only (same format)
-calibration/packs/<scenario>/v<version>/flop-<board>.json  e.g. cal-srp-btn-bb-20/v1/flop-Qs8h5h.json
+packs-data branch (checked out at packs-data/ on master's side, gitignored):
+  packs/manifest.json                                  the app's catalog (v2): one entry per pack
+  packs/<scenario>/v<version>/index-<sha16>.json       a pack's file list (v2 index, content-addressed)
+  packs/<scenario>/v<version>/flop-<board>.json        e.g. srp-btn-bb-100/v1/flop-AsKh7d.json
+  README.md, vercel.json                               what the branch is; Vercel builds disabled
+master:
+  public/packs/data.json                               the data pointer: commit and catalog sha256
+  public/packs/manifest.json, public/packs/<scenario>/… the frozen pre-branch copy of the first three packs (until R2)
+  calibration/packs/manifest.json                      calibration packs only (v1 manifest, as always)
+  calibration/packs/<scenario>/v<version>/flop-<board>.json  e.g. cal-srp-btn-bb-20/v1/flop-Qs8h5h.json
 ```
 
-Everything below about paths, manifests and files holds for both directories; a file's `path` is relative to the
-directory of the manifest that lists it. Pack ids are unique across the two manifests, and a pack is listed in its own
-set's manifest only (`scripts/presolve.mjs` refuses to run when a manifest lists a pack of the other set).
+Everything below about paths, manifests and files holds for both sets; a file's `path` is relative to the directory of
+the manifest (or catalog) that lists it, `packs/` (`PACKS_DIR`). Pack ids are unique across the two sets, and a pack is
+listed in its own set's manifest only (`scripts/presolve.mjs` refuses to run when a manifest lists a pack of the other
+set). `src/presolve/store.ts` reads and writes both: the app's catalog and indexes are joined into the same v1-shaped
+manifest in memory, so the pipeline treats the sets alike.
 
-Paths in the manifest are relative to `packs/` (`PACKS_DIR`), so the app fetches
-`${import.meta.env.BASE_URL}packs/<path>`. A file at a given path never changes: it can be cached forever
-(`Cache-Control: public, max-age=31536000, immutable`); only the manifest is cached briefly. The PWA
-precache does not include `.json`, so packs are not part of the app install: the app downloads the files it
-needs, checks their sha256 with WebCrypto and keeps them in Cache Storage for offline use.
+A file at a given path never changes: it can be cached forever, and the CDN URLs are pinned to a commit anyway. The PWA
+precache does not include `.json`, so packs are not part of the app install: the app downloads the files it needs,
+checks their sha256 with WebCrypto and keeps them in Cache Storage for offline use (Offline, below).
 
 Every file is `JSON.stringify` output (no whitespace). `bytes` and `sha256` are over its UTF-8 bytes (labels
 are Korean, so bytes ≠ string length).
 
 ## Manifest
+
+The v1 manifest below is what the calibration packs keep (`calibration/packs/manifest.json`) and what the app's packs
+are in memory; on the data branch the app's manifest is split into a catalog and one index per pack (Data branch, below),
+which join back to exactly this.
 
 ```jsonc
 {
@@ -314,9 +345,9 @@ so cash packs that need room should set `addAllIn: false` (an oversized raise st
 `allInThreshold`), which brings the cash depth-2 file (6 nodes) to about 44 KB raw, 29 KB gzip. The pipeline stops adding deeper nodes
 when the next one would cross 60 KB, and never writes a file above 96 KB.
 
-The manifest grows by ~400 bytes per file (path, sha256, summary). A pack covering a representative subset
-(50–200 flops) keeps it well under 100 KB; covering all 1755 classes in several packs would call for moving
-the file lists into per-pack index files in a v2 manifest.
+The manifest grows by ~400 bytes per file (path, sha256, summary), about 0.55 MB for a whole pack. The app's packs
+therefore keep their file lists in per-pack indexes (the v2 catalog, Data branch below): the catalog is about 10 KB with
+27 packs, and the app downloads a pack's index (0.55 MB raw, about 0.13 MB brotli) only when the pack is opened.
 
 ## Pipeline
 
@@ -352,12 +383,19 @@ script every 6 hours in parallel shards (below).
   no nodes). Action EVs are `solution.node([...path, a]).ev[actor]`; the root
   equity enumerates every runout (`rangeEquity`); the root EV is the pair-weighted range average
   (`rangeAverageEv`). `summarizeFile(file)` rebuilds a summary from a stored file.
-- `scripts/presolve.mjs --scenario <id,...|all> --count <n> --budget-minutes <m> [--workers n] [--max-mb mb]
-  [--out dir] [--cal-out dir] [--dry-run]`: `all` is every pack of both sets. Each set has its own directory and
-  manifest: the app's packs go to `--out` (default `public/packs`), the calibration packs to `--cal-out` (default
-  `calibration/packs` with the default `--out`, else `<out>/calibration`, so an experiment never writes into a
-  committed directory). A run reads and rewrites only the manifests of the sets it covers; a calibration pack never
-  enters `public/packs/manifest.json`. It solves the first `count` flops of the priority order that have no
+- `scripts/presolve.mjs --scenario <id,...|all> [--set app|calibration] --count <n> --budget-minutes <m> [--workers n]
+  [--max-mb mb] [--out dir] [--cal-out dir] [--dry-run]`: `all` is every pack of both sets (`--set` keeps one). Each set
+  has its own directory and manifest: the app's packs go to `--out` (default `packs-data/packs`, the data branch's
+  checkout, as a v2 catalog; the script refuses to run there while it has no `manifest.json`, so a missing checkout can
+  never make it solve every pack again), the calibration packs to `--cal-out` (default `calibration/packs` with the
+  default `--out`, else `<out>/calibration`, so an experiment never writes into a committed directory). A pack's
+  existing flops are the files on disk plus the ones its index lists (the workflow's checkout of the data branch has
+  the indexes but no flop files); a listed flop not on disk keeps its published entry, and a file on disk that differs
+  from the published one is an error (the published entry stays). `--summaries-out <file>` writes the exact summaries of
+  the files the run wrote (for the merge's `--summaries-from`, which takes that file or a v1 manifest).
+  `PRESOLVE_SOLVER_COMMIT` names the solver commit instead of `git log` (a shallow clone without it is refused when
+  writing committed packs). A run reads and rewrites only the manifests of the sets it covers; a calibration pack never
+  enters the app's catalog. It solves the first `count` flops of the priority order that have no
   file yet for the pack's version, one flop per worker thread, skipping flops over `--max-mb`, abandoning any
   solve that would pass the budget, and writing each file and the manifest atomically as it goes. The order is
   `jobQueue` (`shard.ts`): the packs' lists of missing flops grouped by their `queue` value, lower first, and
@@ -372,7 +410,7 @@ script every 6 hours in parallel shards (below).
   rewritten when something other than `generatedAt` changes, so a run that adds nothing leaves no diff and
   makes no commit. A pack whose files can't be summarized keeps its previous manifest entry; the other packs
   are still updated. It refuses to run when a pack's settings changed without a version bump.
-  When it writes into a committed directory (`public/packs` or `calibration/packs`) it also refuses `--iterations` /
+  When it writes into a committed directory (`packs-data/packs` or `calibration/packs`) it also refuses `--iterations` /
   `--target` (they change the numbers but are not recorded in the pack; use a scratch `--out` for experiments) and
   refuses to run while `src/solver` has uncommitted changes (`--allow-dirty` overrides), so `solverCommit` always
   names code that exists.
@@ -380,7 +418,9 @@ script every 6 hours in parallel shards (below).
   order, not among the missing flops) belongs to shard k % n, so jobs started from the same commit solve
   disjoint flops whatever they find on disk; each shard keeps the priority order, the `--count` prefix, the
   skip-what-exists rule and the budget. No flag is `0/1`, everything.
-- `--rebuild-manifest` solves nothing: it rebuilds each covered set's `manifest.json` from each pack's current-version
+- `--rebuild-manifest [--seed <v1 manifest>]` solves nothing (`--seed`, once: start the app's set from a v1 manifest,
+  how `scripts/packs-migrate.mjs` moves `public/packs` to the data branch byte for byte): it rebuilds each covered set's
+  `manifest.json` from each pack's current-version
   files on disk (after copying in the files of several shards) and writes it exactly as a run does (atomically, only when
   more than `generatedAt` changes, the old version's entry kept until the new version has a file, the same
   settings-vs-manifest checks). A file the manifest doesn't list yet gets the checks a run applies before
@@ -398,12 +438,12 @@ BTN c-bets ~55% mixing 33% and 75%, BB facing 33% folds ~32%, calls ~52%, check-
 The workflow (public repository: standard runners with 4 vCPU and 16 GB, unlimited minutes, 6 h per job) runs
 every 6 hours, at 05:23, 11:23, 17:23 and 23:23 UTC, and starts 16 `solve` jobs with `--shard i/16 --workers $(nproc) --budget-minutes 300 --count 1755` (4 workers on
 these runners); each uploads the flop files it added (app packs under `files/`, calibration packs under `cal-files/`)
-and its manifests (`shard-manifest.json`, `shard-cal-manifest.json`), for the summaries. All jobs check out the
+and their exact summaries (`summaries.json`, from `--summaries-out`). All jobs check out the
 branch head that a first `plan` job reads when the run starts, so a run that waited behind another one continues
 from that run's commit. A `merge` job, which also runs when some shards failed or timed out, copies the files
-into one checkout (`public/packs` and `calibration/packs`; an existing file is never replaced), runs
-`--rebuild-manifest` with all the shards' manifests as `--summaries-from` and pushes one commit, "Presolve: N new
-flops" (N counts both directories; nothing is committed when the rebuild exits 1; the shard artifacts are kept for 2
+into one checkout (the app's packs and `calibration/packs`; an existing file is never replaced), runs
+`--rebuild-manifest` with all the shards' summaries as `--summaries-from` and pushes one commit to each branch (below),
+"Presolve: N new flops" on master (N counts both sets; nothing is committed when the rebuild exits 1; the shard artifacts are kept for 2
 days). When the branch changed a manifest meanwhile (a one-line manifest always conflicts), the push keeps the
 branch's files, runs `--rebuild-manifest` again on top of the branch and counts N again. The result is the manifest one unsharded run over the same flops would write: a local 2-shard
 simulation gave byte-identical flop files and an identical manifest apart from `generatedAt`. At ~11
@@ -414,10 +454,167 @@ trigger), so the runs follow each other back to back (the concurrency group make
 to finish). A run that pushed nothing does not, so it never loops without progress (for example when only flops
 over `--max-mb` are left), and the 6-hourly schedule stays as the backstop: GitHub sometimes never starts a
 scheduled run (neither the 11:23 nor the 17:23 UTC run of 2026-11-16 started). With nothing left a run ends
-within minutes. A push to `master` that changes `src/presolve/scenarios.ts` or `src/presolve/calRanges.ts` (a new
+within minutes. A push to `master` that changes `src/presolve/scenarios.ts`, `src/presolve/calRanges.ts` or `src/presolve/appRanges.ts` (a new
 pack, a version bump, new calibration ranges) also starts a run at once; it solves only what is missing, like any
 run, and its pushes then start the next runs as above. The bot's own "Presolve" commits never trigger it: they touch
 only the pack directories, and pushes made with `GITHUB_TOKEN` start no workflow anyway.
+
+**Since the data branch** the workflow differs in these points (`.github/workflows/presolve.yml`):
+- *plan* reads three things once: master's head, the solver's last commit (from a blobless full history, passed to every
+  job as `PRESOLVE_SOLVER_COMMIT`) and packs-data's head (`git ls-remote`; the run fails without the branch).
+- *solve* checks master out shallow and packs-data at the plan's commit shallow, blobless and sparse (`packs/manifest.json`
+  and `packs/*/v*/index-*.json`, about 0.6 MB a pack): it knows what is published from the indexes and downloads no flop
+  file. It uploads the new flop files (every flop file in that checkout is new) and `summaries.json`.
+- *merge* checks out the same two (master blobless, so old pack blobs are never fetched), copies the shards' files in
+  with `scripts/packs-ingest.mjs` (never replacing a file; an app file "exists" when its index lists it), runs
+  `--rebuild-manifest`, commits "Packs: N new flops" on packs-data (`git add --sparse -A packs`) and pushes it. A
+  rejected push is redone on the new head: reset to it, copy and rebuild again (indexes are content-addressed and flop
+  files never change, so this is always safe). Then `scripts/packs-pointer.mjs` points `public/packs/data.json` at
+  packs-data's head and master gets one commit "Presolve: N new flops" (calibration packs and data.json) with the old
+  rebase loop. If the data push succeeds and the master push fails, the app keeps an older but consistent pointer and the
+  next run fixes it. A local simulation (2 shards, a rejected push, a scratch bare repository) gave a catalog equal to
+  one unsharded run's apart from `generatedAt` and byte-identical indexes and flop files.
+
+## Data branch
+
+The app's packs grew past what should be deployed with the app and kept in master's history (159 MB for three packs,
+about 1.15 GB more for the app queue). They live on the orphan branch `packs-data`, which holds only data (Files,
+above) and is never merged. Pushes to it do not deploy (its `vercel.json` and master's disable Vercel builds for it).
+
+**Catalog v2** (`format.ts`: `Catalog`, `CatalogPack`, `PackIndex`, `DataPointer`, `splitManifest`, `joinCatalog`,
+`validateCatalog`, `validatePackIndex`, `validatePointer`, `cdnUrls`). The catalog is the v1 manifest with each pack's
+`files` replaced by `flops` (count), `weight` (their sum) and `index` (`{ path, sha256, bytes }` of
+`<id>/v<version>/index-<first 16 hex of its sha256>.json`), plus the pack's `spot` tag; `planned` lists the app packs the
+code defines that have no file yet (the picker's 준비 중). An index is `{ v: 2, id, version, files }`, the v1 file list
+exactly, so joining the catalog with its indexes gives the v1 manifest back (the migration checks it entry for entry).
+The script writes the indexes that changed (new content, new name), then the catalog, then deletes the indexes no longer
+referenced, and writes nothing when only `generatedAt` would change.
+
+**Pointer** (`public/packs/data.json`, outside the app's version like every file under public/packs):
+`{ "v": 2, "repo": "bk-git-hub/My-GTO", "commit": "<full 40-hex packs-data commit>", "dir": "packs/", "generatedAt",
+"catalog": { "path": "manifest.json", "sha256", "bytes" } }`. `repo` lets the data move to another repository without an
+app release.
+
+**Fetching** (`src/features/solver/packs.ts`). data.json from our own origin (no-cache), then the catalog, a pack's index
+when it is opened and each flop file from `https://cdn.jsdelivr.net/gh/<repo>@<commit>/packs/<path>`, with
+`https://raw.githubusercontent.com/<repo>/<commit>/packs/<path>` as the fallback. Each file is checked by sha256 against
+the step before (the pointer for the catalog, the catalog for an index, the index for a flop); a wrong hash, a network
+error, a non-OK status or an HTML body tries the next source, and a host that failed twice is tried last for the rest of
+the session. Plain GETs without headers, so no CORS preflight (both CDNs send `access-control-allow-origin: *`). Always
+the full SHA: jsDelivr serves a commit URL as `immutable` for a year, but takes a 7-character SHA for a branch (cached
+for a week). jsDelivr serves files up to 20 MB from GitHub (ours: flop files ≤ 96 KB, indexes ~0.55 MB, the catalog a
+few KB); its README also names 150 MB as the limit of a package, which it did not apply to single files of this
+repository (over 350 MB), but that is not guaranteed: raw.githubusercontent.com is the fallback, and `repo` can move the
+data. raw.githubusercontent.com throttles per IP without documenting it, which is why it is second. The three packs that
+were bundled with the app (`LEGACY_PACKS`) fall back to their bundled copy for one release, and so does the list: when
+the data branch can't be read (both CDNs down, a broken data.json) and the device has no catalog of it, the bundled v1
+manifest is listed (flagged as a fallback). Without data.json the client reads `${BASE_URL}packs/manifest.json` (v1) as
+before, so the client works before the branch exists. In dev builds
+`?packsData=<url>/` reads data.json and every file from a local mirror of the branch.
+
+**Offline** (`src/features/solver/packCache.ts`): the app's own Cache Storage (not the service worker's, so it works on a
+first visit and on iOS before a worker controls the page). Files are kept by sha256 (a new data commit never downloads
+an unchanged file again) and only after the hash matched; aliases keep the last pointer, catalog, each pack's last index
+and the last v1 manifest. The last pointer is kept only together with a catalog verified against it, so an offline
+start reads files from the catalog's own commit. Offline, the app uses them: the packs and flops viewed before open, and
+the page says "오프라인 · 열어 본 플랍만 볼 수 있어요"; a pack or flop never opened says it can't be loaded. Online with
+both CDNs down (navigator.onLine true) it says "팩 서버에 연결하지 못했어요 · 열어 본 플랍은 볼 수 있어요" instead, and
+a pack it can't load "팩 서버에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요." Above 3,000 files (about 100 MB)
+the oldest are dropped; the aliases never (the limit counts files: each data commit a user opens adds its catalog and the
+opened packs' indexes, up to 0.55 MB each, so tens of MB at most on top). The first write asks for persistent storage
+where that shows no prompt (`askPersist`: not while the permission is still "prompt", where Firefox would ask). Without
+the Cache API (plain http on a LAN address) nothing is kept. The settings page says the packs come from jsDelivr and
+GitHub.
+
+**Releases.** R1 (with the data branch): the client prefers data.json; `public/packs/manifest.json` and its files stay
+deployed, frozen (nothing writes them), for installed clients of earlier releases and as the legacy fallback. R2, at
+least two weeks later: `git rm -r public/packs/{srp-btn-bb-100,pub-srp-btn-bb-55,pub-srp-utg-bb-55}
+public/packs/manifest.json` (data.json stays), drop `LEGACY_PACKS`, the v1 reading and the bundled-list fallback from
+`packs.ts`, and `LEGACY_APP_DIR` with the fallbacks that read it (`scripts/fit-realization.mjs`,
+`src/presolve/calibration.test.ts`), and move the AI 테이블's test packs (`src/play/testPacks.ts`, which read
+public/packs) to a fixture; the deployed bundle loses 159 MB. Until then `fit-realization.mjs` reads the app's
+packs from the data branch's checkout and falls back to the frozen copy (the three packs' files are byte-identical, so
+`--check` stays reproducible). After R2 it needs a full worktree of packs-data at packs-data/ (it reads the flop files)
+and says so when there is none; `calibration.test.ts` then skips its comparison of the app's packs on a clone without
+that worktree instead of failing.
+
+**Starting the branch** (`scripts/packs-migrate.mjs`): copies the 5,265 files the v1 manifest lists (154 MB; checked by
+size and sha256; the 15 stale files of `pub-srp-btn-bb-55/v1` stay behind), rebuilds the catalog from the v1 entries
+(`--rebuild-manifest --seed`, exact summaries and solverCommit), checks that a second rebuild changes nothing and that the
+joined catalog equals the v1 manifest entry for entry, and writes README.md and vercel.json.
+
+**Without the data branch** the presolve workflow does not stop: when `packs-data` is missing, or the plan job can't
+make the same sparse checkout of it the shards make, the run solves the calibration packs only (`--set calibration`,
+which `presolve.mjs`'s missing-checkout guard allows), with a warning. `packs-ingest.mjs` skips app files when there is
+no app catalog. In the rare rebase conflict of the master commit (a re-run), data.json is pointed at packs-data's
+current head, never back at an older commit.
+
+**Repository size.** About 0.85 GB packed after the app queue (GitHub recommends under 1 GB, strongly under 5 GB). A
+refit re-solves the 24 solver-chart packs under a new version, which doubles that; delete the old version directories
+from the branch tip once the new version is complete (the history keeps them), or move the data to its own repository
+(`repo` in the pointer).
+
+## The app queue
+
+`APP_QUEUE` in `scenarios.ts` (`appPack`): 24 packs, ids `sv-<pot>-<raiser>-<caller>-<stack>`. Ranges: the shipped solver
+chart's (`src/data/sets/preflopData.ts`, fit `2862daa7a90f`), pinned in `src/presolve/appRanges.ts` (`node
+scripts/cal-ranges.mjs --app --from src/data/sets/preflopData.ts [--check]`, which also pins the chart's `confidence` of
+each spot; the pack's `spot.confidence` is the lowest over both lines), each player's flop range the product of its
+own actions along the line (`lineRange`: the 3-bet caller brings its open × its call). Pinned because a chart
+regeneration with live chart refs would stop the whole presolve job at "settings differ"; regenerate the pins on purpose
+and bump the packs. No ghost combos, full flop files (viewable), 300 iterations at most, 0.5% of the pot. An IP raiser gets
+`TREE_SRP`, an OOP raiser (the SB's open, the blinds' 3-bets) `TREE_OOP_AGGR`; `aggressor` is recorded. The SB's open
+solves with 16-bit storage (`compress`): its Float32 rainbow flops need more than `--max-mb 2000` at 55bb and 100bb.
+
+**Order** (`queue` below 0, so before every calibration pack; only the order, no version bump): −3 the single raised
+pots against the BB at 55bb and 35bb (10 packs, interleaved; after the first run each has about 236 representative
+flops), −2 the 3-bet pots at 55bb and 35bb (6), −1 all eight at 100bb. The first three app packs and the short-stage
+calibration packs keep 0, the calibration queue 1–41: it waits about 3.2–3.7 days, and the packs it has started keep
+their files.
+
+**Cost.** Every pack was dry-run on its first priority flop (Qs8h5h) with `node scripts/presolve.mjs --scenario <ids>
+--count 1 --iterations 20 --workers 4 --accept-above-target --out <scratch> --cal-out <scratch>` on a 4-core machine,
+four flops at a time, next to `pub-srp-btn-bb-55` on the same board (1.4 min for 20 iterations, run at the end with less
+company, so r below is somewhat high for the first flops). core-min / flop = 7.7 × r × I / 74 + extraction, as for the
+calibration queue (7.7 core-minutes per flop of `pub-srp-btn-bb-55` on the runners at 74 iterations; I extrapolated from
+the exploitability after 20 iterations with k = 1.89); runs = 1755 × c / (64 × (290 − c / 2)). The design's controlled
+probe (two processes at a time, three baselines) gave about 15% less; the truth is likely between the two columns.
+
+| # | id | OOP / IP | pot / stack (SPR) | tree | 20 it (min) | extract (s) | expl. 20 it | I | core-min / flop | runs | KB / flop | MB / pack |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `sv-srp-utg-bb-55` | BB / UTG | 5.9 / 51.8 (8.78) | SRP | 0.9 | 9 | 4.36% | 67 | 4.1–4.9 | 0.39–0.47 | 17.0 | 29 |
+| 2 | `sv-srp-hj-bb-55` | BB / HJ | 5.9 / 51.8 (8.78) | SRP | 1.6 | 16 | 5.05% | 73 | 7.4–9.1 | 0.71–0.87 | 27.8 | 48 |
+| 3 | `sv-srp-co-bb-55` | BB / CO | 5.9 / 51.8 (8.78) | SRP | 1.7 | 26 | 5.15% | 74 | 7.8–9.7 | 0.75–0.93 | 31.0 | 53 |
+| 4 | `sv-srp-btn-bb-55` | BB / BTN | 5.9 / 51.8 (8.78) | SRP | 2.3 | 32 | 4.95% | 72 | 9.4–12.7 | 0.90–1.23 | 37.4 | 64 |
+| 5 | `sv-srp-sb-bb-55` | SB / BB | 7 / 51 (7.29) | OOP_AGGR, 16-bit | 3.0 | 20 | 6.14% | 81 | 14.6–18.4 | 1.42–1.80 | 52.1 | 89 |
+| 6 | `sv-3bp-bb-btn-55` | BB / BTN | 19.1 / 45.2 (2.37) | OOP_AGGR | 0.5 | 5 | 3.06% | 56 | 2.2–2.5 | 0.21–0.24 | 23.5 | 40 |
+| 7 | `sv-3bp-btn-co-55` | CO / BTN | 15.7 / 48.4 (3.08) | SRP | 0.4 | 4 | 3.03% | 56 | 1.7–2.1 | 0.16–0.19 | 13.8 | 24 |
+| 8 | `sv-3bp-sb-btn-55` | SB / BTN | 19.6 / 46.2 (2.36) | OOP_AGGR | 0.5 | 4 | 3.36% | 59 | 2.1–2.6 | 0.20–0.25 | 21.4 | 37 |
+| 9 | `sv-srp-utg-bb-35` | BB / UTG | 5.5 / 32 (5.82) | SRP | 1.2 | 7 | 3.63% | 61 | 3.6–5.9 | 0.34–0.56 | 19.8 | 34 |
+| 10 | `sv-srp-hj-bb-35` | BB / HJ | 5.5 / 32 (5.82) | SRP | 1.5 | 15 | 4.10% | 65 | 5.6–7.7 | 0.53–0.74 | 29.0 | 50 |
+| 11 | `sv-srp-co-bb-35` | BB / CO | 5.5 / 32 (5.82) | SRP | 1.3 | 14 | 4.46% | 68 | 6.5–7.0 | 0.62–0.67 | 31.3 | 54 |
+| 12 | `sv-srp-btn-bb-35` | BB / BTN | 5.5 / 32 (5.82) | SRP | 1.6 | 16 | 4.10% | 65 | 7.0–8.2 | 0.67–0.78 | 36.6 | 63 |
+| 13 | `sv-srp-sb-bb-35` | SB / BB | 6 / 31.5 (5.25) | OOP_AGGR, 16-bit | 2.3 | 18 | 4.63% | 70 | 11.6–12.3 | 1.12–1.19 | 51.1 | 88 |
+| 14 | `sv-3bp-bb-btn-35` | BB / BTN | 17.5 / 26 (1.49) | OOP_AGGR | 0.3 | 3 | 2.23% | 47 | 1.3–1.5 | 0.12–0.14 | 19.8 | 34 |
+| 15 | `sv-3bp-btn-co-35` | CO / BTN | 14.5 / 29 (2.00) | SRP | 0.4 | 6 | 1.89% | 43 | 1.5–1.7 | 0.14–0.16 | 14.5 | 25 |
+| 16 | `sv-3bp-sb-btn-35` | SB / BTN | 18 / 27 (1.50) | OOP_AGGR | 0.4 | 3 | 1.47% | 38 | 1.2–1.5 | 0.11–0.14 | 22.8 | 39 |
+| 17 | `sv-srp-utg-bb-100` | BB / UTG | 5.9 / 96.8 (16.41) | SRP | 0.9 | 7 | 5.72% | 78 | 4.8–5.6 | 0.46–0.54 | 16.9 | 29 |
+| 18 | `sv-srp-hj-bb-100` | BB / HJ | 5.9 / 96.8 (16.41) | SRP | 1.4 | 11 | 6.63% | 84 | 8.0–9.2 | 0.77–0.88 | 25.9 | 44 |
+| 19 | `sv-srp-co-bb-100` | BB / CO | 5.9 / 96.8 (16.41) | SRP | 1.6 | 14 | 6.47% | 83 | 9.0–10.3 | 0.86–0.99 | 30.8 | 53 |
+| 20 | `sv-srp-btn-bb-100` | BB / BTN | 5.9 / 96.8 (16.41) | SRP | 1.8 | 21 | 6.53% | 83 | 11.1–11.6 | 1.07–1.12 | 37.8 | 65 |
+| 21 | `sv-srp-sb-bb-100` | SB / BB | 7 / 96 (13.71) | OOP_AGGR, 16-bit | 2.6 | 20 | 6.47% | 83 | 15.8–16.5 | 1.54–1.60 | 50.8 | 87 |
+| 22 | `sv-3bp-bb-btn-100` | BB / BTN | 19.1 / 90.2 (4.72) | OOP_AGGR | 0.8 | 7 | 6.48% | 83 | 5.3–5.4 | 0.51–0.52 | 24.5 | 42 |
+| 23 | `sv-3bp-btn-co-100` | CO / BTN | 15.7 / 93.4 (5.95) | SRP | 0.5 | 7 | 3.96% | 64 | 2.8 | 0.26–0.27 | 14.6 | 25 |
+| 24 | `sv-3bp-sb-btn-100` | SB / BTN | 19.6 / 91.2 (4.65) | OOP_AGGR | 0.8 | 7 | 6.55% | 84 | 5.3–5.4 | 0.51 | 25.0 | 43 |
+
+In all 14.4–16.8 runs, about 3.1–3.7 days of back-to-back runs: −3 7.5–9.1 runs, −2 0.95–1.1, −1 6.0–6.4. Checked
+against the last real run (469142a: 1,200 flops of `cal-srp-btn-bb-35` and 37 of `cal-srp-btn-bb-100`, about 18,900
+core-minutes in these units against 18,080 predicted), the model is about 5% pessimistic, so the low end is likelier;
+the slowest of 16 shards carries about 1.036 × the mean load (from per-flop memory), so the app waves end about 4% after
+the estimate. Files 14–52 KB
+(6 flop nodes, 8 in the OOP-raiser trees), every one under the 60 KB target: about 1.13 GB raw for the 24 packs, 10–25 KB
+compressed per flop download. Possible later additions (each 0.4–1.5 runs): LJ/UTG+1/UTG+2 vs BB, the CO's open the BTN
+flats (`TREE_OOP_AGGR`), the `100bb-3` stage.
 
 ## Versioning and the presolve job
 
@@ -702,7 +899,11 @@ its meta and needs a version bump once it has files, as for every pack.
 - Quantization: `quantizeStrategy`, `dequantize`, `quantizeUnit`, `quantizeEv`/`dequantizeEv`, `roundChips`.
 - Boards and combos: `boardKey`, `parseBoardKey`, `canonicalBoard`, `flopClasses`, `comboIndex`,
   `comboString`, `mapComboSuits`, `invertSuitMap`.
-- Paths: `packFilePath(scenarioId, version, board)`, `pathKey`, `PACKS_DIR`, `MANIFEST_PATH`.
+- Paths: `packFilePath(scenarioId, version, board)`, `pathKey`, `PACKS_DIR`, `MANIFEST_PATH`, `indexFilePath`, `isSafeRelPath`.
+- Catalog v2 (the app's packs on the data branch): `CATALOG_FORMAT`, `SpotTag`, `FileRef`, `CatalogPack`, `PlannedPack`,
+  `Catalog`, `PackIndex`, `DataPointer`, `splitManifest`, `joinCatalog`, `packFromIndex`, `validateCatalog`,
+  `validatePackIndex`, `validatePointer`, `cdnUrls`, `utf8Bytes`. `src/presolve/store.ts`: `readSetManifest`,
+  `writeSetManifest` (a file-system adapter in, so it is tested in memory), `listedBoards`, `canon`.
 - Writing: `encodeRange`, `encodeFlopNode(source)` (COMBOS-indexed solver arrays in, quantized node out),
   `encodeClassRange`, `encodeClassRoot` (slim files), `summaryNodeDefs`, `summarizeFlop`, `validateFlopFile`,
   `validateManifest`.

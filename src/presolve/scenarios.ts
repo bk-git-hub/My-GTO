@@ -11,9 +11,10 @@
  * ante as well, so it is the shorter stack). The calibration queue's other heads-up pots (3-bet, 4-bet and limped pots,
  * an in-position caller) follow the same rules through huPotStack.
  *
- * Two sets of packs share the pipeline: SCENARIOS, the app's packs (public/packs, listed by the solver page), and
- * CAL_SCENARIOS, calibration packs for the preflop solver's realization model (calibration/packs, a separate manifest
- * the app never reads; they start from ranges of check-only solver stages plus ghost combos, see CAL_SCENARIOS).
+ * Two sets of packs share the pipeline: SCENARIOS, the app's packs (the `packs-data` branch, served by a CDN and listed
+ * by the solver page: the first three packs and the solver-chart packs of APP_QUEUE), and CAL_SCENARIOS, calibration
+ * packs for the preflop solver's realization model (calibration/packs, a separate manifest the app never reads; they
+ * start from ranges of check-only solver stages plus ghost combos, see CAL_SCENARIOS).
  */
 import { getSet } from "../data/charts";
 import { ALL_HANDS, type HandClass } from "../poker/cards";
@@ -22,18 +23,30 @@ import { COMBOS } from "../play/handInfo";
 import { CASH_TABLE, PUB_TABLE } from "../play/engine";
 import { openSize, STAGE_STACK } from "../play/policy";
 import type { Player, SolverInput, SolverStreet, StreetSizes } from "../solver/types";
+import { APP_RANGES, APP_STAGE_SOLVES } from "./appRanges";
 import { CAL_RANGES, CAL_STAGE_SOLVES } from "./calRanges";
-import { roundChips, type PackTier, type ScenarioMeta } from "./format";
+import { roundChips, type PackTier, type PlannedPack, type ScenarioMeta, type SpotTag } from "./format";
 
 /**
- * Which manifest a pack belongs to. "app": public/packs/manifest.json, deployed and listed by the app's solver page.
- * "calibration": calibration/packs/manifest.json, outside public/ (never deployed, never listed), read by
- * scripts/fit-realization.mjs only.
+ * Which manifest a pack belongs to. "app": the catalog on the `packs-data` branch (packs/manifest.json there, a v2
+ * catalog with one index per pack, src/presolve/store.ts), served by a CDN pinned to a commit and listed by the app's
+ * solver page. "calibration": calibration/packs/manifest.json on master, outside public/ (never deployed, never listed),
+ * read by scripts/fit-realization.mjs only.
  */
 export type PackSet = "app" | "calibration";
 
-/** Repo-relative directory of each set's manifest and flop files (scripts/presolve.mjs's default --out / --cal-out). */
-export const PACK_SET_DIRS: Record<PackSet, string> = { app: "public/packs", calibration: "calibration/packs" };
+/**
+ * Repo-relative directory of each set's manifest and flop files (scripts/presolve.mjs's default --out / --cal-out). The
+ * app's is a checkout of the `packs-data` branch at packs-data/ (gitignored on master): `git worktree add packs-data
+ * packs-data`, or the sparse checkout the presolve workflow makes.
+ */
+export const PACK_SET_DIRS: Record<PackSet, string> = { app: "packs-data/packs", calibration: "calibration/packs" };
+
+/**
+ * Where the app's packs were before the data branch: still deployed with the app (frozen, nothing writes it) for clients
+ * of earlier releases and as the fallback of the three packs it holds, until it is removed (docs/solver-packs.md R2).
+ */
+export const LEGACY_APP_DIR = "public/packs";
 
 export interface PresolveScenario {
   /** Pack id, e.g. "srp-btn-bb-100". Unique across both sets. */
@@ -46,6 +59,11 @@ export interface PresolveScenario {
   tier: PackTier;
   /** Everything written into the manifest's `scenario` block. */
   meta: ScenarioMeta;
+  /**
+   * App packs: the chart spot the pack solves, written into the catalog beside the meta (not in it, so the meta of the
+   * first three packs stays byte-identical). The picker, AI 테이블 and hand review find packs by it.
+   */
+  spot?: SpotTag;
   /** Starting weights [OOP, IP], COMBOS-indexed (1326), from the charts' effective frequencies. */
   ranges: [Float32Array, Float32Array];
   /** Starting stack (bb) before the blinds, for reference. */
@@ -285,6 +303,8 @@ interface ScenarioDef {
   /** PresolveScenario.queue (default 0). */
   queue?: number;
   set?: PackSet;
+  /** PresolveScenario.spot. */
+  spot?: SpotTag;
   tree: TreeSettings;
   iterations: number;
   targetExploitability: number;
@@ -322,7 +342,9 @@ function build(d: ScenarioDef): PresolveScenario {
   if (d.storage !== undefined) meta.storage = d.storage;
   if (d.aggressor !== undefined) meta.aggressor = d.aggressor;
   const set = d.set ?? "app";
-  return { id: d.id, set, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start, queue: d.queue ?? 0 };
+  const sc: PresolveScenario = { id: d.id, set, title: d.title, version: d.version, tier: d.tier, meta, ranges: [rangeWeights(r0), rangeWeights(r1)], startStack: d.setup.start, queue: d.queue ?? 0 };
+  if (d.spot) sc.spot = { ...d.spot };
+  return sc;
 }
 
 const CASH_OPEN = openSize("cash", "100bb", "BTN"); // 2.5
@@ -330,7 +352,8 @@ const PUB_MID_OPEN = openSize("pub", "mid", "BTN"); // 2.5
 const PUB_MID_OPEN_UTG = openSize("pub", "mid", "UTG"); // 2.5
 const PUB_MID_START = STAGE_STACK.mid; // 55
 
-export const SCENARIOS: PresolveScenario[] = [
+/** The app's first three packs (complete; on the data branch since it exists). */
+const LEGACY_SCENARIOS: PresolveScenario[] = [
   build({
     id: "srp-btn-bb-100",
     title: "BTN vs BB 싱글 레이즈드 팟 (캐시 100bb)",
@@ -345,6 +368,7 @@ export const SCENARIOS: PresolveScenario[] = [
     preflop: `BTN ${CASH_OPEN}bb 오픈, SB 폴드, BB 콜`,
     setup: { start: STAGE_STACK["100bb"], open: CASH_OPEN, bbAnte: CASH_TABLE.bbAnte ? 1 : 0 },
     rangeSources: ["cash6/100bb/bb-vs-btn:call", "cash6/100bb/rfi-btn:raise"],
+    spot: { chart: "cash6", stage: "100bb", stack: 100, pot: "srp", raiser: "BTN", caller: "BB" },
     tree: TREE_SRP,
     iterations: 300,
     targetExploitability: 0.5,
@@ -361,6 +385,7 @@ export const SCENARIOS: PresolveScenario[] = [
     preflop: `BTN ${PUB_MID_OPEN}bb 오픈, SB 폴드, BB 콜 (BB 앤티 1bb)`,
     setup: { start: PUB_MID_START, open: PUB_MID_OPEN, bbAnte: PUB_TABLE.bbAnte ? 1 : 0 },
     rangeSources: ["pub/mid/bb-vs-btn:call", "pub/mid/rfi-btn:open"],
+    spot: { chart: "pub", stage: "mid", stack: PUB_MID_START, pot: "srp", raiser: "BTN", caller: "BB" },
     tree: TREE_SRP,
     iterations: 300,
     targetExploitability: 0.5,
@@ -379,6 +404,7 @@ export const SCENARIOS: PresolveScenario[] = [
     preflop: `UTG ${PUB_MID_OPEN_UTG}bb 오픈, 나머지 폴드, BB 콜 (BB 앤티 1bb)`,
     setup: { start: PUB_MID_START, open: PUB_MID_OPEN_UTG, bbAnte: PUB_TABLE.bbAnte ? 1 : 0 },
     rangeSources: ["pub/mid/bb-vs-utg:call", "pub/mid/rfi-utg:open"],
+    spot: { chart: "pub", stage: "mid", stack: PUB_MID_START, pot: "srp", raiser: "UTG", caller: "BB" },
     tree: TREE_SRP,
     iterations: 300,
     targetExploitability: 0.5,
@@ -528,8 +554,11 @@ function calPack(start: 20 | 15): ScenarioDef {
 
 // ───────────────────────── the calibration queue ─────────────────────────
 
-/** The heads-up pots of the queue, per shipped stage (QUEUE names them as <kind> and the stage's tag). */
-type QueueKind = "srp-btn-bb" | "srp-co-bb" | "srp-utg-bb" | "srp-sb-bb" | "srp-co-btn" | "3bp-bb-btn" | "3bp-btn-co" | "3bp-sb-btn" | "3bp-bb-sb" | "4bp-co-btn" | "lp-sb-bb";
+/**
+ * The heads-up pots of the queue, per shipped stage (QUEUE names them as <kind> and the stage's tag). "srp-hj-bb" is only
+ * in the app's queue (APP_QUEUE).
+ */
+type QueueKind = "srp-btn-bb" | "srp-co-bb" | "srp-utg-bb" | "srp-hj-bb" | "srp-sb-bb" | "srp-co-btn" | "3bp-bb-btn" | "3bp-btn-co" | "3bp-sb-btn" | "3bp-bb-sb" | "4bp-co-btn" | "lp-sb-bb";
 
 /** The shipped solver stages the queue calibrates and the tag of their pack ids. */
 const QUEUE_STAGES: Record<string, string> = { "100bb-2.2": "100", "55bb-2.2": "55", "35bb-2": "35", "100bb-3": "100-o3" };
@@ -546,6 +575,8 @@ interface QueueSpot {
   pot: string;
   /** Korean, for the preflop description: the line. */
   line: string;
+  /** Korean, for an app pack's title: who raised and who called ("HJ 오픈 vs BB 콜", "BB 3벳 vs BTN 콜"). */
+  short: string;
 }
 
 /**
@@ -553,8 +584,8 @@ interface QueueSpot {
  * the chart line it comes from). A player's flop range is the product of its own actions along the line (lineRange): the
  * caller of a 3-bet brings its open × its call of the 3-bet, the 3-bettor its 3-bet range.
  */
-function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
-  const st = CAL_STAGE_SOLVES[stage];
+function queueSpots(stage: string, solves: Record<string, { open: number; sizes?: Record<string, number> }> = CAL_STAGE_SOLVES): Record<QueueKind, QueueSpot> {
+  const st = solves[stage];
   if (!st?.sizes) throw new Error(`no sizes recorded for stage ${stage}; rerun scripts/cal-ranges.mjs`);
   const z = st.sizes;
   const open = st.open, sbRaise = z.sbRaise;
@@ -568,11 +599,13 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
     tree: TREE_SRP,
     pot: `${seat} vs BB 싱글 레이즈드 팟`,
     line: `${seat} ${open}bb 오픈, 나머지 폴드, BB 콜`,
+    short: `${seat} 오픈 vs BB 콜`,
   });
   return {
     "srp-btn-bb": vsBb("BTN", "btn"),
     "srp-co-bb": vsBb("CO", "co"),
     "srp-utg-bb": vsBb("UTG", "utg"),
+    "srp-hj-bb": vsBb("HJ", "hj"),
     "srp-sb-bb": {
       positions: ["SB", "BB"],
       put: sbRaise,
@@ -581,6 +614,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_OOP_AGGR,
       pot: "SB vs BB 싱글 레이즈드 팟 (SB 오픈)",
       line: `나머지 폴드, SB ${sbRaise}bb 오픈, BB 콜`,
+      short: "SB 오픈 vs BB 콜",
     },
     "srp-co-btn": {
       positions: ["CO", "BTN"],
@@ -590,6 +624,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_OOP_AGGR,
       pot: "CO 오픈 vs BTN 콜 싱글 레이즈드 팟",
       line: `CO ${open}bb 오픈, BTN 콜, 블라인드 폴드`,
+      short: "CO 오픈 vs BTN 콜",
     },
     "3bp-bb-btn": {
       positions: ["BB", "BTN"],
@@ -599,6 +634,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_OOP_AGGR,
       pot: "BB 3벳 vs BTN 콜 3벳 팟",
       line: `BTN ${open}bb 오픈, SB 폴드, BB 3벳 ${blind3}bb, BTN 콜`,
+      short: "BB 3벳 vs BTN 콜",
     },
     "3bp-btn-co": {
       positions: ["CO", "BTN"],
@@ -608,6 +644,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_SRP,
       pot: "BTN 3벳 vs CO 콜 3벳 팟",
       line: `CO ${open}bb 오픈, BTN 3벳 ${ip3}bb, 블라인드 폴드, CO 콜`,
+      short: "BTN 3벳 vs CO 콜",
     },
     "3bp-sb-btn": {
       positions: ["SB", "BTN"],
@@ -617,6 +654,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_OOP_AGGR,
       pot: "SB 3벳 vs BTN 콜 3벳 팟",
       line: `BTN ${open}bb 오픈, SB 3벳 ${blind3}bb, BB 폴드, BTN 콜`,
+      short: "SB 3벳 vs BTN 콜",
     },
     "3bp-bb-sb": {
       positions: ["SB", "BB"],
@@ -626,6 +664,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_SRP,
       pot: "BB 3벳 vs SB 콜 3벳 팟",
       line: `나머지 폴드, SB ${sbRaise}bb 오픈, BB 3벳 ${bbVsSb3}bb, SB 콜`,
+      short: "BB 3벳 vs SB 콜",
     },
     "4bp-co-btn": {
       positions: ["CO", "BTN"],
@@ -635,6 +674,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_OOP_AGGR,
       pot: "CO 4벳 vs BTN 콜 4벳 팟",
       line: `CO ${open}bb 오픈, BTN 3벳 ${ip3}bb, 블라인드 폴드, CO 4벳 ${four}bb, BTN 콜`,
+      short: "CO 4벳 vs BTN 콜",
     },
     "lp-sb-bb": {
       positions: ["SB", "BB"],
@@ -644,6 +684,7 @@ function queueSpots(stage: string): Record<QueueKind, QueueSpot> {
       tree: TREE_LIMP,
       pot: "SB 림프 vs BB 체크 림프 팟",
       line: "나머지 폴드, SB 림프, BB 체크",
+      short: "SB 림프 vs BB 체크",
     },
   };
 }
@@ -753,6 +794,114 @@ function queuePack(kind: QueueKind, stage: string, queue: number): ScenarioDef {
     targetExploitability: 0.5,
     flopSet: "priority",
   };
+}
+
+// ───────────────────────── the app queue ─────────────────────────
+
+/** The app's solver-chart pots: what a 9-handed BB-ante pub tournament player meets most heads-up. */
+export type AppKind = "srp-utg-bb" | "srp-hj-bb" | "srp-co-bb" | "srp-btn-bb" | "srp-sb-bb" | "3bp-bb-btn" | "3bp-btn-co" | "3bp-sb-btn";
+
+/** The shipped solver stages the app's packs come from and the tag of their pack ids. */
+export const APP_STAGES: Record<string, string> = { "55bb-2.2": "55", "35bb-2": "35", "100bb-2.2": "100" };
+
+/** An app pack's source range (src/presolve/appRanges.ts, generated by scripts/cal-ranges.mjs --app). */
+export function appRange(ref: string): Range {
+  const text = APP_RANGES[ref];
+  if (text === undefined) throw new Error(`no app range for ${ref}; rerun scripts/cal-ranges.mjs --app`);
+  return parseRange(text);
+}
+
+/**
+ * The app's solver-chart packs, in the order the presolve job solves them (PresolveScenario.queue below 0, so before
+ * every calibration pack; the app's first three packs and the first calibration packs are 0, the calibration queue 1–41):
+ *   −3  the single raised pots against the BB at 55bb and 35bb (the spots met most often), interleaved;
+ *   −2  the 3-bet pots BB vs BTN, BTN vs CO, SB vs BTN at 55bb and 35bb;
+ *   −1  all eight at 100bb.
+ * `queue` is only the order: moving a pack needs no version bump (docs/solver-packs.md "The app queue").
+ */
+export const APP_QUEUE: [AppKind, string, number][] = [
+  ["srp-utg-bb", "55bb-2.2", -3],
+  ["srp-hj-bb", "55bb-2.2", -3],
+  ["srp-co-bb", "55bb-2.2", -3],
+  ["srp-btn-bb", "55bb-2.2", -3],
+  ["srp-sb-bb", "55bb-2.2", -3],
+  ["3bp-bb-btn", "55bb-2.2", -2],
+  ["3bp-btn-co", "55bb-2.2", -2],
+  ["3bp-sb-btn", "55bb-2.2", -2],
+  ["srp-utg-bb", "35bb-2", -3],
+  ["srp-hj-bb", "35bb-2", -3],
+  ["srp-co-bb", "35bb-2", -3],
+  ["srp-btn-bb", "35bb-2", -3],
+  ["srp-sb-bb", "35bb-2", -3],
+  ["3bp-bb-btn", "35bb-2", -2],
+  ["3bp-btn-co", "35bb-2", -2],
+  ["3bp-sb-btn", "35bb-2", -2],
+  ["srp-utg-bb", "100bb-2.2", -1],
+  ["srp-hj-bb", "100bb-2.2", -1],
+  ["srp-co-bb", "100bb-2.2", -1],
+  ["srp-btn-bb", "100bb-2.2", -1],
+  ["srp-sb-bb", "100bb-2.2", -1],
+  ["3bp-bb-btn", "100bb-2.2", -1],
+  ["3bp-btn-co", "100bb-2.2", -1],
+  ["3bp-sb-btn", "100bb-2.2", -1],
+];
+
+/**
+ * One app pack: a heads-up flop of a shipped stage of the solver chart, with the stage's own ranges (pinned in
+ * appRanges.ts; a player's flop range is the product of its own actions along the line, lineRange) and sizes. Full flop
+ * files like the first three packs (every flop node at depth ≤ 2, viewable), 300 iterations at most, 0.5% of the pot,
+ * no ghost combos. An IP raiser gets TREE_SRP (the first packs' tree), an OOP raiser TREE_OOP_AGGR (the queue's tree, so
+ * the 3-bettor or the SB keeps its betting). The SB's open is solved with 16-bit storage: its Float32 rainbow flops need
+ * more than the job's --max-mb 2000 at 55bb and 100bb.
+ */
+function appPack(kind: AppKind, stage: string, queue: number): ScenarioDef {
+  const tag = APP_STAGES[stage];
+  if (tag === undefined) throw new Error(`stage ${stage} is not an app stage`);
+  const st = APP_STAGE_SOLVES[stage];
+  if (!st) throw new Error(`no app ranges for stage ${stage}; rerun scripts/cal-ranges.mjs --app`);
+  const q = queueSpots(stage, APP_STAGE_SOLVES)[kind];
+  const sources = q.spots.map((spot) => spot.split(LINE_SEP).map((s) => `solver/${stage}/${s}`).join(LINE_SEP)) as [string, string];
+  const agg = q.aggressor as Player;
+  // The chart's lowest confidence among the spots of both lines (an open × its call of the 3-bet: both spots count).
+  const RANK = { low: 0, mid: 1, high: 2 } as const;
+  let confidence: "high" | "mid" | "low" = "high";
+  for (const part of q.spots.flatMap((spot) => spot.split(LINE_SEP))) {
+    const c = st.confidence?.[part.split(":")[0]];
+    if (!c) throw new Error(`no chart confidence for ${part} at ${stage}; rerun scripts/cal-ranges.mjs --app`);
+    if (RANK[c] < RANK[confidence]) confidence = c;
+  }
+  return {
+    id: `sv-${kind}-${tag}`,
+    title: `${q.short} · ${st.stack}bb`,
+    version: 1,
+    tier: "free",
+    format: "pub",
+    positions: q.positions,
+    preflop: `${q.line} (9인 모두 ${st.stack}bb, BB 앤티 1bb)`,
+    setup: { start: st.stack, seats: q.positions, put: q.put, bbAnte: 1 },
+    rangeSources: sources,
+    ranges: [lineRange(sources[0], appRange), lineRange(sources[1], appRange)],
+    ...(kind === "srp-sb-bb" ? { compress: true } : {}),
+    aggressor: agg,
+    queue,
+    spot: { chart: "solver", stage, stack: st.stack, pot: kind.startsWith("3bp") ? "3bp" : "srp", raiser: q.positions[agg], caller: q.positions[1 - agg], confidence },
+    tree: q.tree,
+    iterations: 300,
+    targetExploitability: 0.5,
+    flopSet: "priority",
+  };
+}
+
+/** The app's packs: the first three, then the solver-chart packs of APP_QUEUE. */
+export const SCENARIOS: PresolveScenario[] = [...LEGACY_SCENARIOS, ...APP_QUEUE.map(([kind, stage, queue]) => build(appPack(kind, stage, queue)))];
+
+/** The app packs the code defines that have no file yet, for the catalog's `planned` list (the picker's 준비 중). */
+export function plannedPacks(withFiles: ReadonlySet<string>): PlannedPack[] {
+  return SCENARIOS.filter((sc) => !withFiles.has(sc.id)).map((sc) => {
+    const p: PlannedPack = { id: sc.id, title: sc.title, pot: sc.meta.pot, stack: sc.meta.stack };
+    if (sc.spot) p.spot = { ...sc.spot };
+    return p;
+  });
 }
 
 /**

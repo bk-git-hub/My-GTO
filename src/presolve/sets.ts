@@ -41,3 +41,10 @@ export function misplacedPacks(manifestIds: string[], set: PackSet, scenarios: {
   const owner = new Map(scenarios.map((s) => [s.id, s.set]));
   return manifestIds.filter((id) => owner.has(id) && owner.get(id) !== set);
 }
+
+/**
+ * The manifest format each set is written in: the app's packs as a v2 catalog with per-pack indexes (they live on the
+ * data branch and the app downloads only the lists of the packs it opens), the calibration packs as the v1 manifest
+ * they have always had (src/presolve/store.ts).
+ */
+export const SET_FORMAT: Record<PackSet, 1 | 2> = { app: 2, calibration: 1 };

@@ -4,7 +4,10 @@ import { parseRange } from "../poker/range";
 import { COMBOS } from "../play/handInfo";
 import { estimateMemory } from "../solver/index";
 import { canonicalBoard, packFilePath } from "./format";
-import { SCENARIOS, chartRange, getScenario, rangeWeights, solverInput, srpPotStack, weightedCombos } from "./scenarios";
+import { SCENARIOS as ALL_APP, chartRange, getScenario, rangeWeights, solverInput, srpPotStack, weightedCombos } from "./scenarios";
+
+/** The app's first three packs (the solver-chart packs have their own tests in appPacks.test.ts). */
+const SCENARIOS = ALL_APP.slice(0, 3);
 
 describe("presolve scenarios", () => {
   it("derives pot and stack from the table rules", () => {

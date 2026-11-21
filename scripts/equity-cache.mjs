@@ -3,11 +3,15 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
 import { runnerImport } from "vite";
 
-const root = new URL("..", import.meta.url).pathname;
-export const load = async (p) => (await runnerImport(root + p)).module;
+// fileURLToPath, not URL.pathname: on Windows the pathname is "/C:/...", and it keeps %-escapes (spaces, Korean folder
+// names) that the file system doesn't know. `load` hands vite a native absolute path, as vite does with its own config.
+const root = fileURLToPath(new URL("..", import.meta.url));
+export const load = async (p) => (await runnerImport(join(root, p))).module;
 export const SAMPLES = 12000;
 
 /**

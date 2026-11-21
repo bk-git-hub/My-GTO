@@ -4,3 +4,9 @@ dev-dist
 *.local
 .DS_Store
 *.tsbuildinfo
+# The packs-data branch's checkout or a symlink to one (scripts/presolve.mjs writes the app's packs there; never on master)
+/packs-data
+# The presolve worker's state (scripts/presolve-worker.mjs): its own clone of the data branches, logs, unpushed flops
+/.presolve-worker
+# The workflow's checkout of packs-inbox (in the solve and merge jobs)
+/packs-inbox

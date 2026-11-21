@@ -4,8 +4,9 @@
 // Usage: node scripts/fit-realization.mjs [--check] [--workers <n>] [--packs <id,id,...>] [--cal-manifest <file>] [--limit <n>]
 //   --check        compute everything and compare with the committed eqrFit.ts; write nothing, exit 1 if it differs
 //   --workers <n>  flop files decoded and enumerated in parallel (default: one per CPU); the result does not depend on it
-//   --packs <ids>  fit on these packs only, comma-separated ids, or "all" for every pack in the app's manifest
-//                  (public/packs/manifest.json). Calibration packs (calibration/packs/manifest.json, never listed by the
+//   --packs <ids>  fit on these packs only, comma-separated ids, or "all" for every IP-aggressor pack in the app's manifest
+//                  (the catalog of the packs-data branch's checkout, packs-data/packs, read with src/presolve/store.ts;
+//                  without that checkout the frozen copy in public/packs/manifest.json). Calibration packs (calibration/packs/manifest.json, never listed by the
 //                  app) enter a fit only when named here, e.g. --packs srp-btn-bb-100,pub-srp-btn-bb-55,cal-srp-btn-bb-20.
 //                  Default: the packs the committed eqrFit.ts was fitted on, looked up in both manifests (every pack in
 //                  the app's manifest if it names none or names one neither manifest has), so a new pack, such as
@@ -20,7 +21,7 @@
 //   --limit <n>    development only: use the first n files of each pack, print the fit and write nothing
 //
 // What it does:
-// 1. For every flop file of every pack fitted (the --packs ones of public/packs/manifest.json and the calibration
+// 1. For every flop file of every pack fitted (the --packs ones of the app's packs and the calibration
 //    manifest, or the default above):
 //    decode it with the app's decoder, read each combo's EV at OOP's root (node []) and at IP's first decision after
 //    OOP checks (node [check]), and compute each combo's flop equity against the opponent's stored range by full turn
@@ -53,7 +54,7 @@
 //    equities, from KAPPA_DEALS seeded deals per k against fixed reference ranges.
 // Every sum runs in a fixed order, so the output depends only on the packs and the equity table.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -279,6 +280,7 @@ if (isMainThread) {
   const { FEATURE_NAMES, handFeatures } = await load("src/poker/preflop/features.ts");
   const { evaluate } = await load("src/poker/evaluator.ts");
   const { mulberry32 } = await load("src/poker/pushfold.ts");
+  const { PACK_SET_DIRS, LEGACY_APP_DIR } = await load("src/presolve/scenarios.ts");
   const table = await loadEquityTable();
   const { eq, cnt } = table;
   const F = Array.from({ length: N }, (_, h) => handFeatures(h));
@@ -290,7 +292,22 @@ if (isMainThread) {
     for (const p of m.packs) p.dir = dirname(file);
     return m;
   };
-  const manifest = readManifest(root + "public/packs/manifest.json");
+  // The app's packs: the data branch's checkout (a v2 catalog joined with its indexes, the same v1-shaped entries), or
+  // without it the copy public/packs kept from before the data branch (its three packs' files are byte-identical).
+  const appDir = root + PACK_SET_DIRS.app;
+  let manifest;
+  if (existsSync(`${appDir}/manifest.json`)) {
+    const { readSetManifest, nodeStoreFs } = await load("src/presolve/store.ts");
+    const fsx = nodeStoreFs({ existsSync, readFileSync, writeFileSync, renameSync, mkdirSync, rmSync, readdirSync }, process.pid);
+    manifest = readSetManifest(fsx, appDir, "app", (t) => createHash("sha256").update(t).digest("hex")).manifest;
+    for (const p of manifest.packs) p.dir = appDir;
+  } else if (existsSync(root + LEGACY_APP_DIR + "/manifest.json")) manifest = readManifest(root + LEGACY_APP_DIR + "/manifest.json");
+  else {
+    // After R2 (docs/solver-packs.md "Releases") the app's packs exist only on the data branch: a full checkout is needed
+    // (the fit reads the flop files, not only the catalog).
+    console.error(`${PACK_SET_DIRS.app}/manifest.json is missing: check out the packs-data branch there first (git fetch origin packs-data && git worktree add packs-data origin/packs-data).`);
+    process.exit(2);
+  }
   const calFile = opt["cal-manifest"] !== undefined ? resolve(opt["cal-manifest"]) : root + "calibration/packs/manifest.json";
   if (opt["cal-manifest"] !== undefined && !existsSync(calFile)) {
     console.error(`--cal-manifest: ${calFile} does not exist`);
@@ -299,7 +316,7 @@ if (isMainThread) {
   const calPacks = existsSync(calFile) ? readManifest(calFile).packs : [];
   for (const p of calPacks)
     if (manifest.packs.some((q) => q.id === p.id)) {
-      console.error(`${p.id} is in both public/packs/manifest.json and ${calFile}`);
+      console.error(`${p.id} is in both the app's packs and ${calFile}`);
       process.exit(2);
     }
   const allPacks = [...manifest.packs, ...calPacks];
@@ -318,7 +335,13 @@ if (isMainThread) {
       console.log(`packs: ${committed.join(", ")} (the committed fit's)${left.length ? `; not in the fit: ${left.join(", ")} (name them in --packs to include)` : ""}`);
     } else opt.packs = "all";
   }
-  if (opt.packs === "all") opt.packs = manifest.packs.map((p) => p.id).join(",");
+  if (opt.packs === "all") {
+    // Every pack of the app's manifest this fit's form covers: the app queue's OOP-raiser packs (the SB's open, the
+    // blinds' 3-bets) are left out, as a named one is refused below.
+    const ip = manifest.packs.filter((p) => p.scenario.aggressor === undefined || p.scenario.aggressor === 1);
+    if (ip.length < manifest.packs.length) console.log(`--packs all: ${manifest.packs.length - ip.length} pack(s) with an OOP raiser left out (this fit's form has an IP aggressor)`);
+    opt.packs = ip.map((p) => p.id).join(",");
+  }
   {
     // The packs to fit (--packs, or the default above): the named packs only, in manifest order, the app's manifest
     // first (so the sums and the output keep the manifests' order).

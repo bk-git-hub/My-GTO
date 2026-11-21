@@ -30,6 +30,7 @@ import {
   ALL_SCENARIOS,
   CAL_SCENARIOS,
   GHOST_WEIGHT,
+  LEGACY_APP_DIR,
   LINE_SEP,
   PACK_SET_DIRS,
   SCENARIOS,
@@ -49,8 +50,9 @@ import {
   weightedCombos,
   withGhosts,
 } from "./scenarios";
-import { misplacedPacks, setDirs, writesCommitted } from "./sets";
+import { misplacedPacks, SET_FORMAT, setDirs, writesCommitted } from "./sets";
 import { jobQueue } from "./shard";
+import { readSetManifest, type StoreFs } from "./store";
 
 // No @types/node here: reach node:fs and node:crypto through untyped handles (as cardColors.test.tsx does).
 const fs = (await import(/* @vite-ignore */ "node:fs" as string)) as { existsSync(path: string): boolean; readFileSync(path: string, encoding: "utf8"): string };
@@ -61,6 +63,25 @@ const readManifest = (dir: string): Manifest | null => {
   const file = `${root}${dir}/manifest.json`;
   return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as Manifest) : null;
 };
+const readFs: StoreFs = {
+  exists: (p) => fs.existsSync(p),
+  read: (p) => fs.readFileSync(p, "utf8"),
+  write: () => {
+    throw new Error("read only");
+  },
+  remove: () => {
+    throw new Error("read only");
+  },
+  list: () => [],
+};
+/**
+ * The app's packs: the data branch's checkout when there is one (store.ts joins its catalog), else the frozen v1 copy;
+ * null when neither is there (a clone without the packs-data worktree once R2 has removed public/packs).
+ */
+const readAppManifest = (): Manifest | null =>
+  fs.existsSync(`${root}${PACK_SET_DIRS.app}/manifest.json`) ? readSetManifest(readFs, `${root}${PACK_SET_DIRS.app}`, "app", sha256).manifest : readManifest(LEGACY_APP_DIR);
+/** The app's first three packs (complete, moved to the data branch byte for byte). */
+const LEGACY = SCENARIOS.slice(0, 3);
 /** Combo-weighted share of all hands. */
 const share = (r: Record<string, number>) => ALL_HANDS.reduce((s, h) => s + (r[h] ?? 0) * comboCount(h), 0) / 1326;
 /** The two short-stage packs (being solved: their files must not change), then the queue. */
@@ -161,11 +182,13 @@ describe("calibration packs", () => {
   });
 
   it("never enter the app's packs", () => {
-    // The app's three packs are unchanged and stay the only "app" packs.
-    expect(SCENARIOS.map((s) => s.id)).toEqual(["srp-btn-bb-100", "pub-srp-btn-bb-55", "pub-srp-utg-bb-55"]);
+    // The app's first three packs are unchanged and come first; the rest of the app's packs are the solver chart's (sv-).
+    expect(LEGACY.map((s) => s.id)).toEqual(["srp-btn-bb-100", "pub-srp-btn-bb-55", "pub-srp-utg-bb-55"]);
     for (const sc of SCENARIOS) {
       expect(sc.set).toBe("app");
       expect("ghostWeight" in sc.meta).toBe(false);
+      expect("storage" in sc.meta).toBe(false);
+      expect(LEGACY.includes(sc) || sc.id.startsWith("sv-"), sc.id).toBe(true);
     }
     expect(ALL_SCENARIOS).toEqual([...SCENARIOS, ...CAL_SCENARIOS]);
     expect(new Set(ALL_SCENARIOS.map((s) => s.id)).size).toBe(ALL_SCENARIOS.length);
@@ -173,18 +196,23 @@ describe("calibration packs", () => {
       expect(sc.id.startsWith("cal-")).toBe(true);
       expect(getScenario(sc.id)).toBe(sc);
     }
-    // The calibration manifest lives outside public/, so it is never deployed and the app's pack client (which reads
+    // The app's packs are on the data branch (its checkout at packs-data/, a v2 catalog); the calibration manifest lives
+    // on master outside public/, so it is never deployed and the app's pack client (data.json, the CDN, or the frozen
     // `${BASE_URL}packs/manifest.json`, src/features/solver/packs.ts) can't reach it.
-    expect(PACK_SET_DIRS.app).toBe("public/packs");
+    expect(PACK_SET_DIRS.app).toBe("packs-data/packs");
+    expect(LEGACY_APP_DIR).toBe("public/packs");
+    expect(SET_FORMAT).toEqual({ app: 2, calibration: 1 });
     expect(PACK_SET_DIRS.calibration.startsWith("public/")).toBe(false);
-    const app = readManifest(PACK_SET_DIRS.app)!;
+    // Without either copy of the app's packs (no packs-data worktree after R2) there is nothing on disk to compare.
+    const app = readAppManifest();
     const appIds = new Set(SCENARIOS.map((s) => s.id));
-    for (const p of app.packs) expect(appIds.has(p.id), p.id).toBe(true);
+    for (const p of app?.packs ?? []) expect(appIds.has(p.id), p.id).toBe(true);
     // The app packs' settings are byte-identical to what their manifest entries were solved with.
-    for (const sc of SCENARIOS) {
-      const entry = app.packs.find((p) => p.id === sc.id)!;
-      expect(entry.version).toBe(sc.version);
-      expect(JSON.stringify(entry.scenario)).toBe(JSON.stringify(sc.meta));
+    for (const sc of app ? SCENARIOS : []) {
+      const entry = app!.packs.find((p) => p.id === sc.id);
+      if (!entry && !LEGACY.includes(sc)) continue; // a solver-chart pack with no file yet
+      expect(entry!.version).toBe(sc.version);
+      expect(JSON.stringify(entry!.scenario)).toBe(JSON.stringify(sc.meta));
     }
     const cal = readManifest(PACK_SET_DIRS.calibration);
     if (cal) {
@@ -194,10 +222,10 @@ describe("calibration packs", () => {
   });
 
   it("are routed to their own directory and manifest by the presolve script", () => {
-    const committed = { app: "/repo/public/packs", calibration: "/repo/calibration/packs" };
+    const committed = { app: "/repo/packs-data/packs", calibration: "/repo/calibration/packs" };
     // Default --out: both committed directories.
-    expect(setDirs({ out: "/repo/public/packs", committed })).toEqual(committed);
-    expect(setDirs({ out: "/repo/public/packs/", committed })).toEqual(committed);
+    expect(setDirs({ out: "/repo/packs-data/packs", committed })).toEqual(committed);
+    expect(setDirs({ out: "/repo/packs-data/packs/", committed })).toEqual(committed);
     // A scratch --out keeps the calibration packs inside it, never in the committed directory.
     expect(setDirs({ out: "/tmp/x", committed })).toEqual({ app: "/tmp/x", calibration: "/tmp/x/calibration" });
     expect(setDirs({ out: "/tmp/x", calOut: "/tmp/y", committed })).toEqual({ app: "/tmp/x", calibration: "/tmp/y" });
@@ -205,7 +233,7 @@ describe("calibration packs", () => {
     // The experiment guards apply when a covered set writes into a committed directory.
     expect(writesCommitted(committed, ["app", "calibration"], committed)).toBe(true);
     expect(writesCommitted({ app: "/tmp/x", calibration: "/repo/calibration/packs" }, ["calibration"], committed)).toBe(true);
-    expect(writesCommitted({ app: "/repo/public/packs", calibration: "/tmp/c" }, ["calibration"], committed)).toBe(false);
+    expect(writesCommitted({ app: "/repo/packs-data/packs", calibration: "/tmp/c" }, ["calibration"], committed)).toBe(false);
     expect(writesCommitted({ app: "/tmp/x", calibration: "/tmp/x/calibration" }, ["app", "calibration"], committed)).toBe(false);
     // A pack in the other set's manifest is refused (unknown ids are left alone, as the script always did).
     expect(misplacedPacks(["srp-btn-bb-100", "cal-srp-btn-bb-20", "old-pack"], "app", ALL_SCENARIOS)).toEqual(["cal-srp-btn-bb-20"]);
@@ -293,8 +321,10 @@ describe("the calibration queue", () => {
       expect(sc.meta).toMatchObject({ format: "pub", ghostWeight: GHOST_WEIGHT, compress: true, storage: "rootClasses", iterations: 300, targetExploitability: 0.5, flopSet: "priority" });
       expect(sc.id).toMatch(/^cal-(srp|3bp|4bp|lp)-[a-z]+-[a-z]+-(100|55|35|100-o3)$/);
     });
-    // The app's packs and the running packs keep queue 0, so the job interleaves them as it always did.
-    for (const sc of [...SCENARIOS, ...SHORT]) expect(sc.queue).toBe(0);
+    // The app's first packs and the running packs keep queue 0, so the job interleaves them as it always did; the app's
+    // solver-chart packs come before all of them (appPacks.test.ts).
+    for (const sc of [...LEGACY, ...SHORT]) expect(sc.queue).toBe(0);
+    for (const sc of SCENARIOS.slice(3)) expect(sc.queue).toBeLessThan(0);
   });
 
   it("derive pot and stack from the stage's sizes: dead blinds, the BB's ante, the stacks behind", () => {
@@ -469,11 +499,13 @@ describe("the calibration queue", () => {
     expect(jobQueue([{ queue: 0, jobs: ["a1", "a2", "a3"] }, { queue: 0, jobs: ["b1"] }, { queue: 0, jobs: ["c1", "c2"] }])).toEqual(["a1", "b1", "c1", "a2", "c2", "a3"]);
     expect(jobQueue([{ queue: 2, jobs: ["q2"] }, { queue: 0, jobs: ["a1", "a2"] }, { queue: 1, jobs: ["q1a", "q1b"] }, { queue: 0, jobs: ["b1"] }])).toEqual(["a1", "b1", "a2", "q1a", "q1b", "q2"]);
     expect(jobQueue([])).toEqual([]);
-    // The real packs: the app's and the running packs first (interleaved), then the queue in its order.
+    // The real packs: the app queue (queue < 0), then the app's first and the running packs (interleaved), then the
+    // calibration queue in its order.
     const order = jobQueue(ALL_SCENARIOS.map((sc) => ({ queue: sc.queue, jobs: [`${sc.id}#0`, `${sc.id}#1`] }))).map((j) => j.split("#")[0]);
-    const first = [...SCENARIOS, ...SHORT].map((sc) => sc.id);
-    expect(order.slice(0, 2 * first.length)).toEqual([...first, ...first]);
-    expect([...new Set(order.slice(2 * first.length))]).toEqual(QUEUE.map((s) => s.id));
+    const appQueue = SCENARIOS.slice(3).length;
+    const first = [...LEGACY, ...SHORT].map((sc) => sc.id);
+    expect(order.slice(2 * appQueue, 2 * appQueue + 2 * first.length)).toEqual([...first, ...first]);
+    expect([...new Set(order.slice(2 * appQueue + 2 * first.length))]).toEqual(QUEUE.map((s) => s.id));
   });
 });
 

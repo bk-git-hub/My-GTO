@@ -117,12 +117,29 @@ export default defineConfig(async () => ({
         ],
       },
       workbox: {
-        // No json: solver packs (public/packs, regenerated nightly) are never precached.
+        // No json: solver packs (the data branch via the CDN, public/packs/data.json) are never precached.
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
         // iOS launch images (public/splash) are read once, when the app is added to the Home Screen.
         globIgnores: ["**/node_modules/**/*", "splash/**"],
-        // Navigations to the API or to pack files go to the network, not the app shell.
-        navigateFallbackDenylist: [/^\/api\//, /^\/packs\//],
+        // Navigations to the API, to pack files or to the pack cache's keys (src/features/solver/packCache.ts) go to the
+        // network, not the app shell. The data branch's files (the CDN) are cached by the app itself (Cache Storage).
+        navigateFallbackDenylist: [/^\/api\//, /^\/packs\//, /^\/__pack-cache\//],
+        // The packs bundled with the app (public/packs, until R2 removes them, docs/solver-packs.md): flop files never
+        // change at a given path, so the ones a hand or the solver page opened are served from the cache first; the v1
+        // manifest goes to the network first, the last copy when offline or slow. (These patterns match our own origin
+        // only: Workbox matches a cross-origin URL only from its start.)
+        runtimeCaching: [
+          {
+            urlPattern: /\/packs\/[^/]+\/v\d+\/flop-[^/]+\.json$/,
+            handler: "CacheFirst",
+            options: { cacheName: "pubaj-flop-packs", expiration: { maxEntries: 300 }, cacheableResponse: { statuses: [200] } },
+          },
+          {
+            urlPattern: /\/packs\/manifest\.json$/,
+            handler: "NetworkFirst",
+            options: { cacheName: "pubaj-pack-manifest", networkTimeoutSeconds: 4, expiration: { maxEntries: 2 }, cacheableResponse: { statuses: [200] } },
+          },
+        ],
         // The first install controls the open page right away (same build, nothing to mix up).
         clientsClaim: true,
         importScripts: [SW_MIGRATE_FILE],

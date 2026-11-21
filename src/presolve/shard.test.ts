@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FLOPS_BY_PRIORITY } from "./flops";
-import { parseShard, shardFlops, shardOf, WHOLE } from "./shard";
+import { jobQueue, parseOrder, parseShard, shardFlops, shardOf, WHOLE } from "./shard";
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
@@ -61,5 +61,56 @@ describe("presolve shards", () => {
     const onDisk = new Set([0, 1, 2, 5, 13, 21]);
     const todo = shardFlops(order, 40, { index: 1, count: 4 }).filter((k) => !onDisk.has(k));
     expect(todo).toEqual([9, 17, 25, 29, 33, 37]);
+  });
+
+  it("orders packs by queue value, negative ones first (the app queue before the packs at 0 and the calibration queue)", () => {
+    expect(
+      jobQueue([
+        { queue: 1, jobs: ["c1"] },
+        { queue: 0, jobs: ["l1", "l2"] },
+        { queue: -1, jobs: ["h1"] },
+        { queue: -3, jobs: ["s1", "s2"] },
+        { queue: -2, jobs: ["t1"] },
+        { queue: -3, jobs: ["u1"] },
+      ]),
+    ).toEqual(["s1", "u1", "s2", "t1", "h1", "l1", "l2", "c1"]);
+  });
+
+  it("parses --order", () => {
+    expect(parseOrder("priority")).toBe("priority");
+    expect(parseOrder("reverse")).toBe("reverse");
+    for (const bad of ["", "back", "Reverse", "front"]) expect(() => parseOrder(bad), bad).toThrow(/--order/);
+  });
+
+  it("takes the same queue back to front with --order reverse", () => {
+    const lists = [
+      { queue: 41, jobs: ["z1", "z2", "z3"] },
+      { queue: -2, jobs: ["a1", "a2"] },
+      { queue: -2, jobs: ["b1"] },
+      { queue: 7, jobs: [] },
+    ];
+    const forward = jobQueue(lists);
+    expect(forward).toEqual(["a1", "b1", "a2", "z1", "z2", "z3"]);
+    expect(jobQueue(lists, "priority")).toEqual(forward);
+    // The last flop of the last pack first: the worker starts where the shards would end.
+    expect(jobQueue(lists, "reverse")).toEqual(["z3", "z2", "z1", "a2", "b1", "a1"]);
+    expect(jobQueue([], "reverse")).toEqual([]);
+  });
+
+  it("meets the shards only once the queue is done: front and back never take the same job before", () => {
+    // Shards (n of them, by priority index) work front to back while a worker works back to front over the same missing
+    // flops, both skipping whatever the other has finished; until their solved counts add up to the queue, they're disjoint.
+    const order = range(60);
+    const lists = [
+      { queue: 0, jobs: order.map((k) => `p${k}`) },
+      { queue: 3, jobs: order.slice(0, 40).map((k) => `q${k}`) },
+    ];
+    const forward = jobQueue(lists);
+    const back = jobQueue(lists, "reverse");
+    for (let front = 0; front <= forward.length; front += 7) {
+      const taken = new Set(forward.slice(0, front));
+      const rest = back.filter((j) => !taken.has(j));
+      expect(rest).toEqual(back.slice(0, forward.length - front));
+    }
   });
 });

@@ -5,6 +5,10 @@
  * belongs to shard k % n. The assignment depends only on the order, never on which files exist, so shards
  * started from the same commit solve disjoint flops whatever each one finds on disk, and every shard works
  * through its flops in priority order (the first flops of each shard together are the first flops overall).
+ *
+ * A machine outside the workflow (scripts/presolve-worker.mjs) takes the same queue from the other end (`--order
+ * reverse`): the shards work front to back, the worker back to front, both skipping what is already solved, so neither
+ * needs to claim a flop and the two meet once the queue is done.
  */
 
 export interface Shard {
@@ -44,18 +48,32 @@ export function shardFlops<T>(order: readonly T[], limit: number, shard: Shard =
 }
 
 /**
+ * Which end of the queue a run starts from: "priority" (front to back: the workflow's shards, and the default) or
+ * "reverse" (back to front: the presolve worker on someone's own machine).
+ */
+export type JobOrder = "priority" | "reverse";
+
+/** Parses `--order`; throws on anything but the two orders. */
+export function parseOrder(text: string): JobOrder {
+  if (text === "priority" || text === "reverse") return text;
+  throw new Error(`--order must be priority or reverse (got "${text}")`);
+}
+
+/**
  * The order a run solves its flops in: the packs' lists of missing flops (each in priority order) grouped by the packs'
  * `queue` value, lower first; within a group the lists are interleaved, one flop of each pack in turn, in the order
  * given. With every pack at the same value this is the plain interleave the job has always used, so the app's packs and
  * the first calibration packs (all 0) keep their order, and a queue of packs (1, 2, ...) is solved one pack after the
- * other, each shard working through its share of a pack before it starts the next.
+ * other, each shard working through its share of a pack before it starts the next. `"reverse"` gives exactly the same
+ * jobs back to front (the last flop of the last pack first), so a run in each order over the same lists only meets the
+ * other at the end.
  */
-export function jobQueue<T>(lists: readonly { queue: number; jobs: readonly T[] }[]): T[] {
+export function jobQueue<T>(lists: readonly { queue: number; jobs: readonly T[] }[], order: JobOrder = "priority"): T[] {
   const ranks = [...new Set(lists.map((l) => l.queue))].sort((a, b) => a - b);
   const out: T[] = [];
   for (const r of ranks) {
     const group = lists.filter((l) => l.queue === r).map((l) => l.jobs);
     for (let i = 0; group.some((l) => i < l.length); i++) for (const l of group) if (i < l.length) out.push(l[i]);
   }
-  return out;
+  return order === "reverse" ? out.reverse() : out;
 }

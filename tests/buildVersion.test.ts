@@ -6,7 +6,9 @@ const nodeProcess = (globalThis as { process?: { env: Record<string, string | un
 const importNode = <T>(name: string): Promise<T> => import(/* @vite-ignore */ name) as Promise<T>;
 
 async function configVersion(): Promise<unknown> {
-  const loaded = await loadConfigFromFile({ command: "build", mode: "production" }, undefined, nodeProcess.cwd(), "silent");
+  // The native loader imports vite.config.ts with Node (types stripped) instead of bundling it to a temp file in
+  // node_modules/.vite-temp: node_modules is shared by every worktree, so a test must not write there.
+  const loaded = await loadConfigFromFile({ command: "build", mode: "production" }, undefined, nodeProcess.cwd(), "silent", undefined, "native");
   return loaded?.config.define;
 }
 
@@ -25,6 +27,20 @@ describe("app version", () => {
       if (before === undefined) delete nodeProcess.env.VERCEL_GIT_COMMIT_SHA;
       else nodeProcess.env.VERCEL_GIT_COMMIT_SHA = before;
     }
+  });
+});
+
+describe("the solver packs' data pointer", () => {
+  it("is not part of the version: the presolve job rewrites public/packs/data.json every run", async () => {
+    const fs = await importNode<{ readFileSync(path: string, enc: "utf8"): string }>("node:fs");
+    const src = fs.readFileSync(`${nodeProcess.cwd()}/vite.config.ts`, "utf8");
+    const m = /const VERSION_SKIP = (\/.*\/);/.exec(src);
+    expect(m).not.toBeNull();
+    const skip = new Function(`return ${m![1]}`)() as RegExp;
+    expect(skip.test("public/packs/data.json")).toBe(true);
+    expect(skip.test("public/packs/manifest.json")).toBe(true);
+    expect(skip.test("public/icons/icon.svg")).toBe(false);
+    expect(skip.test("src/features/solver/packs.ts")).toBe(false);
   });
 });
 

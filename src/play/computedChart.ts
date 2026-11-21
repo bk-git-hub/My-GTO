@@ -194,7 +194,8 @@ function moveOf(key: string, label: string, allInTo: number, scale: number): Omi
   return { kind: "raise", to: Number.isFinite(size) ? Math.min(allInTo, r1(size * scale)) : allInTo };
 }
 
-function scenarioOf(pick: ChartPick, spotId: string): { scenario: Scenario; line: string; confidence: ChartHit["confidence"] } | null {
+/** One spot of a chart (pick + spot id), or null when the data has no such spot. */
+export function scenarioOf(pick: ChartPick, spotId: string): { scenario: Scenario; line: string; confidence: ChartHit["confidence"] } | null {
   if (pick.source === "solver") {
     const hit = solverSpot(pick.stageId, spotId);
     return hit ? { scenario: hit.scenario, line: hit.line, confidence: hit.confidence } : null;
