@@ -1,0 +1,73 @@
+# Cloud fleet: the Google Cloud side of the presolve, in the user's free-trial project (12 vCPUs across all regions,
+# T2D spot VMs: one vCPU is one physical core). GitHub Actions reaches it through workload identity federation, so no
+# key exists anywhere: the provider only trusts workflows of bk-git-hub/My-GTO running on refs/heads/master (a fork's
+# pull request cannot get a token), and the pubaj-fleet service account it impersonates may only manage this project's
+# instances and storage. Worker VMs will run as pubaj-worker and write their flop files to the results bucket, where the
+# presolve merge job picks them up (once scripts/presolve-worker.mjs has its cloud sink).
+#
+# Actions (workflow_dispatch):
+#   status  instances, managed groups, CPU quota and usage, buckets
+#   bucket  create the private results bucket (idempotent), let pubaj-worker write to it, then status
+name: Cloud fleet
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "status | bucket"
+        required: true
+        default: status
+        type: choice
+        options: [status, bucket]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cloud-fleet
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT: pubaj-515415
+  GCP_PROVIDER: projects/722841917678/locations/global/workloadIdentityPools/github/providers/my-gto
+  GCP_SA: pubaj-fleet@pubaj-515415.iam.gserviceaccount.com
+  WORKER_SA: pubaj-worker@pubaj-515415.iam.gserviceaccount.com
+  REGION: us-central1
+  BUCKET: pubaj-515415-presolve
+
+jobs:
+  fleet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT }}
+          workload_identity_provider: ${{ env.GCP_PROVIDER }}
+          service_account: ${{ env.GCP_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT }}
+
+      - name: Create the results bucket
+        if: inputs.action == 'bucket'
+        run: |
+          if ! gcloud storage buckets describe "gs://$BUCKET" >/dev/null 2>&1; then
+            gcloud storage buckets create "gs://$BUCKET" --location="$REGION" --uniform-bucket-level-access --public-access-prevention
+          fi
+          gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" \
+            --member="serviceAccount:$WORKER_SA" --role=roles/storage.objectAdmin >/dev/null
+          echo "Bucket gs://$BUCKET ready; pubaj-worker may write to it."
+
+      - name: Status
+        run: |
+          echo "## Instances"
+          gcloud compute instances list --format="table(name,zone.basename(),machineType.basename(),status,scheduling.provisioningModel)"
+          echo "## Managed instance groups"
+          gcloud compute instance-groups managed list --format="table(name,location(),targetSize,size)" || true
+          echo "## CPU quota (limit, usage)"
+          gcloud compute project-info describe --flatten="quotas[]" --format="value(quotas.metric,quotas.limit,quotas.usage)" | grep -E "^CPUS_ALL_REGIONS\s" || true
+          gcloud compute regions describe "$REGION" --flatten="quotas[]" --format="value(quotas.metric,quotas.limit,quotas.usage)" | grep -E "^(CPUS|T2D_CPUS)\s" || true
+          echo "## Buckets"
+          gcloud storage buckets list --format="value(name,location)" || true
