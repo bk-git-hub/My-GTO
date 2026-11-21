@@ -22,6 +22,7 @@ function lazySource(fail: "none" | "manifest" | "flop" = "none") {
       packs = testPacks();
       return true;
     }
+    if (key.kind === "packs") return true; // testPacks are complete: nothing pending
     if (fail === "flop") return false;
     files.add(key.path);
     return true;

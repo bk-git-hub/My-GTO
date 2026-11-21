@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
-    "deploymentEnabled": { "solver-wip": false }
+    "deploymentEnabled": { "solver-wip": false, "packs-data": false }
   },
   "rewrites": [{ "source": "/api/anthropic/:path*", "destination": "/api/anthropic?path=:path*" }]
 }

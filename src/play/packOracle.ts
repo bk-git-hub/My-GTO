@@ -1,7 +1,7 @@
 import { canonicalBoard, comboIndex, mapComboSuits, type DecodedFlop, type DecodedNode } from "../presolve/format";
 import type { Card } from "../poker/cards";
 import type { Game } from "./engine";
-import { flopPair, matchableLines, matchPack, type PackInfo, type PackMatch } from "./packMatch";
+import { flopPair, matchableLines, matchPack, pendingPacks, type PackInfo, type PackMatch } from "./packMatch";
 import type { MoveOption } from "./policy";
 import type { LoadKey, PlayState, PostflopOracle } from "./table";
 
@@ -217,8 +217,15 @@ export function createOracle(src: OracleSource): PostflopOracle {
       const g = s.game;
       if (!s.profiles || g.done || g.street !== "flop" || s.post?.failed) return null;
       if (g.players[s.heroIdx].folded) return null;
-      // The manifest only where some pack could match (not for a limped pot or a line off the charts).
-      if (s.post === undefined) return packEligible(s) && !src.packs() && matchableLines(s) ? { kind: "manifest" } : null;
+      // The manifest only where some pack could match (not for a limped pot or a line off the charts), then, in one load,
+      // the file lists of the packs that could match this flop (the catalog lists packs without their files).
+      if (s.post === undefined) {
+        if (!packEligible(s) || !matchableLines(s)) return null;
+        const packs = src.packs();
+        if (!packs) return { kind: "manifest" };
+        const ids = pendingPacks(s, packs);
+        return ids.length ? { kind: "packs", ids } : null;
+      }
       const m = s.post.match;
       return m && !src.flop(m.file.path) ? { kind: "flop", path: m.file.path } : null;
     },

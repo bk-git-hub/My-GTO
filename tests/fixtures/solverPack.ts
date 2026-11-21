@@ -15,15 +15,20 @@ import {
   encodeRange,
   flopClasses,
   packFilePath,
+  splitManifest,
   summarizeFlop,
   summaryNodeDefs,
+  type Catalog,
+  type DataPointer,
   type FileEntry,
   type FlopFile,
   type FlopNodeSource,
   type Manifest,
   type PackAction,
   type PackEntry,
+  type PlannedPack,
   type ScenarioMeta,
+  type SpotTag,
 } from "../../src/presolve/format";
 import type { Player, StreetSizes } from "../../src/solver/types";
 
@@ -510,4 +515,45 @@ export async function buildSyntheticPacks(specs: PackSpec[] = SYNTHETIC_SPECS, s
     packs.push({ id: spec.id, title: spec.title, version: 1, tier: spec.tier, scenario: spec.meta, summaryNodes: defs ?? [], files: entries });
   }
   return { manifest: { v: 1, generatedAt: "2026-11-05T00:00:00Z", packs }, files, flops };
+}
+
+export interface SyntheticCatalog {
+  /** public/packs/data.json pointing at a made-up commit. */
+  pointer: DataPointer;
+  catalog: Catalog;
+  /** The would-be data branch's packs/ directory: path → file text (manifest.json, the indexes and the flop files). */
+  files: Map<string, string>;
+}
+
+/**
+ * The synthetic packs as the data branch would hold them (format.ts "catalog v2"): a catalog, one index per pack and the
+ * flop files, plus a data pointer. `spots` tags packs; `planned` adds packs with no file yet.
+ */
+export async function buildSyntheticCatalog(
+  packs?: SyntheticPacks,
+  opts: { spots?: Record<string, SpotTag>; planned?: PlannedPack[]; commit?: string; repo?: string } = {},
+): Promise<SyntheticCatalog> {
+  const src = packs ?? (await buildSyntheticPacks());
+  const enc = new TextEncoder();
+  const hashes = new Map<string, string>();
+  for (const p of src.manifest.packs) {
+    const json = JSON.stringify({ v: 2, id: p.id, version: p.version, files: p.files });
+    hashes.set(json, await sha256(enc.encode(json)));
+  }
+  const { catalog, indexes } = splitManifest(src.manifest, { spot: (id) => opts.spots?.[id], planned: opts.planned }, (t) => hashes.get(t)!);
+  const files = new Map<string, string>();
+  const catalogJson = JSON.stringify(catalog);
+  files.set("manifest.json", catalogJson);
+  for (const ix of indexes) files.set(ix.path, ix.json);
+  for (const f of src.files) files.set(f.path, f.json);
+  const bytes = enc.encode(catalogJson);
+  const pointer: DataPointer = {
+    v: 2,
+    repo: opts.repo ?? "bk-git-hub/My-GTO",
+    commit: opts.commit ?? "0123456789abcdef0123456789abcdef01234567",
+    dir: "packs/",
+    generatedAt: "2026-11-21T00:00:00Z",
+    catalog: { path: "manifest.json", sha256: await sha256(bytes), bytes: bytes.length },
+  };
+  return { pointer, catalog, files };
 }

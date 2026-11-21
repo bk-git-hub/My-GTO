@@ -207,6 +207,8 @@ export function SettingsPage() {
         프리플랍 차트는 앱이 직접 계산한 솔버·내쉬 값이에요 (칩EV, ICM 미반영, 플랍 이후는 근사). 펍아재·캐시 차트는 손으로 만든
         학습용 차트예요. 에퀴티·팟 오즈 숫자도 앱이 직접 계산해요 (플랍·턴·리버 대 핸드는 정확 계산, 프리플랍과 레인지는 시뮬레이션).
       </p>
+
+      <p className="muted small disclaimer">솔버 팩은 jsDelivr·GitHub에서 받아요. 열어 본 플랍은 기기에 저장돼 오프라인에서도 보여요.</p>
     </div>
   );
 }

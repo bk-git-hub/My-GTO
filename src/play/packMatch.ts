@@ -1,7 +1,7 @@
 import { ALL_HANDS, comboCount } from "../poker/cards";
 import { parseRange } from "../poker/range";
 import type { Verb } from "../poker/preflop/tree";
-import { canonicalBoard, type FileEntry, type Manifest, type ScenarioMeta } from "../presolve/format";
+import { canonicalBoard, type FileEntry, type Manifest, type PackEntry, type ScenarioMeta } from "../presolve/format";
 import { chartSeat } from "./chartSeat";
 import { pot, type Game } from "./engine";
 import { preflopLine } from "./preflopLine";
@@ -44,6 +44,11 @@ export interface PackInfo {
   meta: ScenarioMeta;
   /** Canonical board key → file. */
   files: Map<string, FileEntry>;
+  /**
+   * The file list is not loaded yet (empty `files`): the data branch's catalog names the pack, and its index is loaded
+   * only when a hand could use it (packOracle asks for it as { kind: "packs", ids }).
+   */
+  pending?: boolean;
   /** [OOP, IP]. */
   sides: [PackSide, PackSide];
 }
@@ -65,11 +70,23 @@ export function refVerb(ref: string): Verb {
  * malformed pack never takes the others down.
  */
 export function packIndex(m: Manifest): PackInfo[] {
+  return packList((m.packs ?? []).filter((p) => p?.files?.length));
+}
+
+/**
+ * The registry from the data branch's catalog (src/presolve/format.ts CatalogPack: the v1 entry without its files): every
+ * pack with a flop is listed with its file list pending, loaded when a hand needs it (packSource.ts).
+ */
+export function catalogIndex(packs: readonly (Omit<PackEntry, "files"> & { flops: number })[]): PackInfo[] {
+  return packList(packs.filter((p) => p && p.flops > 0).map((p) => ({ ...p, files: [] }))).map((info) => ({ ...info, pending: true }));
+}
+
+function packList(entries: readonly PackEntry[]): PackInfo[] {
   const out: PackInfo[] = [];
-  for (const p of m.packs ?? []) {
+  for (const p of entries) {
     try {
       const meta = p.scenario;
-      if (!meta || meta.storage === "rootClasses" || meta.positions?.length !== 2 || !p.files?.length || !meta.ranges || !meta.rangeSources) continue;
+      if (!meta || meta.storage === "rootClasses" || meta.positions?.length !== 2 || !Array.isArray(p.files) || !meta.ranges || !meta.rangeSources) continue;
       if (!(meta.pot > 0) || !(meta.stack > 0)) continue;
       if ([0, 1].some((i) => typeof meta.rangeSources![i] !== "string" || typeof meta.ranges[i] !== "string" || typeof meta.positions[i] !== "string")) continue;
       const sides = [0, 1].map((i): PackSide => {
@@ -212,7 +229,7 @@ export function matchableLines(s: PlayState): [SeatLine, SeatLine] | null {
 }
 
 /** The best pack for the flop of `s` (heads-up, both lines recorded), or null. */
-export function matchPack(s: PlayState, packs: readonly PackInfo[]): PackMatch | null {
+export function matchPack(s: PlayState, packs: readonly PackInfo[], pendingOut?: string[]): PackMatch | null {
   const g = s.game;
   const lines = matchableLines(s);
   if (!lines) return null;
@@ -233,6 +250,11 @@ export function matchPack(s: PlayState, packs: readonly PackInfo[]): PackMatch |
     if (!(ratio >= MATCH_LIMITS.sprMin && ratio <= MATCH_LIMITS.sprMax)) continue;
     const dist = [rangeDist(lines[0].freq!, po.classFreq), rangeDist(lines[1].freq!, pi.classFreq)] as [Dist, Dist];
     if (!dist.every(distOk)) continue;
+    // A pack that would compete but whose file list isn't loaded yet: named in pendingOut (pendingPacks), skipped here.
+    if (pk.pending) {
+      pendingOut?.push(pk.id);
+      continue;
+    }
     const file = pk.files.get(board);
     if (!file) continue;
     const sameRefs = sameList(po.refs, lines[0].refs) && sameList(pi.refs, lines[1].refs);
@@ -274,6 +296,14 @@ export function matchPack(s: PlayState, packs: readonly PackInfo[]): PackMatch |
   }
   cands.sort((a, b) => Number(a.cross) - Number(b.cross) || a.score - b.score);
   return cands[0]?.m ?? null;
+}
+
+/** The packs whose file list must load before this flop can be matched: they pass every check but the file's. Pure. */
+export function pendingPacks(s: PlayState, packs: readonly PackInfo[]): string[] {
+  if (!packs.some((p) => p.pending)) return [];
+  const out: string[] = [];
+  matchPack(s, packs, out);
+  return out;
 }
 
 /** "지금 있는 솔버 팩 3개: BTN vs BB …": the packs the manifest holds, by title. */

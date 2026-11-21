@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FLOPS_BY_PRIORITY } from "./flops";
-import { parseShard, shardFlops, shardOf, WHOLE } from "./shard";
+import { jobQueue, parseShard, shardFlops, shardOf, WHOLE } from "./shard";
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
@@ -61,5 +61,18 @@ describe("presolve shards", () => {
     const onDisk = new Set([0, 1, 2, 5, 13, 21]);
     const todo = shardFlops(order, 40, { index: 1, count: 4 }).filter((k) => !onDisk.has(k));
     expect(todo).toEqual([9, 17, 25, 29, 33, 37]);
+  });
+
+  it("orders packs by queue value, negative ones first (the app queue before the packs at 0 and the calibration queue)", () => {
+    expect(
+      jobQueue([
+        { queue: 1, jobs: ["c1"] },
+        { queue: 0, jobs: ["l1", "l2"] },
+        { queue: -1, jobs: ["h1"] },
+        { queue: -3, jobs: ["s1", "s2"] },
+        { queue: -2, jobs: ["t1"] },
+        { queue: -3, jobs: ["u1"] },
+      ]),
+    ).toEqual(["s1", "u1", "s2", "t1", "h1", "l1", "l2", "c1"]);
   });
 });

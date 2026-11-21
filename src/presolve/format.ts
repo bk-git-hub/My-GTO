@@ -1,5 +1,6 @@
 /**
- * Solver content packs: the files the presolve pipeline writes under public/packs/ and the app reads.
+ * Solver content packs: the files the presolve pipeline writes (the app's packs on the packs-data branch, the calibration
+ * packs under calibration/packs/) and the app reads.
  * See docs/solver-packs.md for the layout and the meaning of every field.
  *
  * Pure TypeScript with no DOM or Node APIs: the same module runs in the pipeline (Node) and in the app.
@@ -16,7 +17,7 @@ export const PACK_FORMAT = 1;
 export const NUM_COMBOS = 1326;
 /** Unordered 3-card flops in a 52-card deck: C(52, 3). */
 export const RAW_FLOPS = 22100;
-/** Paths in the manifest are relative to this directory (served from public/packs/). */
+/** Paths in a manifest or catalog are relative to this directory (packs/ on the data branch). */
 export const PACKS_DIR = "packs/";
 export const MANIFEST_PATH = "packs/manifest.json";
 /** Quantized 1.0 for strategies, reach and range weights. */
@@ -1056,6 +1057,242 @@ export function validateManifest(m: Manifest): string[] {
     if (weight > RAW_FLOPS) errs.push(`${at}: file weights add up to ${weight} > ${RAW_FLOPS}`);
   }
   return errs;
+}
+
+// ───────────────────────── catalog v2 (app packs on the data branch) ─────────────────────────
+//
+// The app's packs live on the `packs-data` branch, served by a CDN pinned to a commit (docs/solver-packs.md "Data
+// branch"). Its manifest is split: a small catalog (`packs/manifest.json`, v2) with one entry per pack and a reference to
+// the pack's file list (`<id>/v<k>/index-<sha16>.json`, content-addressed), so the app downloads only the lists of the
+// packs it opens. `public/packs/data.json` on master points at the commit. The calibration packs keep the v1 manifest.
+
+/** Format version of the app's catalog, its per-pack indexes and the data pointer. */
+export const CATALOG_FORMAT = 2;
+
+/** Which chart spot a pack solves: what the picker, AI 테이블 and hand review look packs up by. */
+export interface SpotTag {
+  /** The chart set the ranges come from (src/data/charts.ts set id). */
+  chart: "solver" | "pub" | "cash6";
+  /** The chart stage, e.g. "55bb-2.2" (solver), "mid" (pub), "100bb" (cash6). */
+  stage: string;
+  /** Everyone's stack at the start of the hand (bb). */
+  stack: number;
+  pot: "srp" | "3bp";
+  /** The last preflop raiser's seat ("UTG", "HJ", "CO", "BTN", "SB", "BB"). */
+  raiser: string;
+  /** The seat that called it. */
+  caller: string;
+  /**
+   * Solver-chart packs: the chart's lowest confidence among the spots the two starting ranges come from (pinned with the
+   * ranges in appRanges.ts). "low" means a range the chart itself rates 낮음; the flop solve is exact for those ranges.
+   */
+  confidence?: "high" | "mid" | "low";
+}
+
+/** A file on the data branch: path relative to the catalog's directory, its sha256 and size. */
+export interface FileRef {
+  path: string;
+  sha256: string;
+  bytes: number;
+}
+
+/** A pack in the catalog: the v1 PackEntry without its file list, which is in `index`. */
+export interface CatalogPack extends Omit<PackEntry, "files"> {
+  spot?: SpotTag;
+  /** Number of flop files (the index's `files.length`). */
+  flops: number;
+  /** Σ of the files' weights (22100 once the representative weights cover every flop). */
+  weight: number;
+  index: FileRef;
+}
+
+/** An app pack the code defines that has no file yet (the picker shows it as 준비 중). */
+export interface PlannedPack {
+  id: string;
+  title: string;
+  spot?: SpotTag;
+  pot: number;
+  stack: number;
+}
+
+export interface Catalog {
+  v: 2;
+  generatedAt?: string;
+  packs: CatalogPack[];
+  planned?: PlannedPack[];
+}
+
+/** A pack's file list, `packs/<id>/v<version>/index-<sha16>.json`. */
+export interface PackIndex {
+  v: 2;
+  id: string;
+  version: number;
+  files: FileEntry[];
+  /** Reserved (phase 2): base64 Uint16 per flop class, the nearest solved flop. */
+  near?: string;
+}
+
+/** `public/packs/data.json` on master: which commit of the data branch the app reads, and the catalog's hash. */
+export interface DataPointer {
+  v: 2;
+  /** GitHub "owner/name" holding the data branch. */
+  repo: string;
+  /** Full 40-hex commit (jsDelivr treats a short SHA as a branch and caches it for a week). */
+  commit: string;
+  /** Directory of the catalog inside the commit, ending in "/" ("packs/"). */
+  dir: string;
+  generatedAt?: string;
+  catalog: FileRef;
+}
+
+/** `<id>/v<version>/index-<first 16 hex of the index's sha256>.json`, relative to the catalog's directory. */
+export function indexFilePath(id: string, version: number, sha256: string): string {
+  if (!SCENARIO_ID.test(id)) throw new Error(`invalid scenario id: ${id}`);
+  if (!Number.isInteger(version) || version < 1) throw new Error(`invalid pack version: ${version}`);
+  if (!/^[0-9a-f]{64}$/.test(sha256)) throw new Error(`invalid sha256: ${sha256}`);
+  return `${id}/v${version}/index-${sha256.slice(0, 16)}.json`;
+}
+
+/** UTF-8 byte length of a string (labels are Korean, so bytes ≠ length). */
+export function utf8Bytes(s: string): number {
+  let n = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c < 0x80) n += 1;
+    else if (c < 0x800) n += 2;
+    else if (c >= 0xd800 && c <= 0xdbff && i + 1 < s.length) {
+      n += 4;
+      i++;
+    } else n += 3;
+  }
+  return n;
+}
+
+/** The v1 PackEntry of a catalog pack and its index (key order as the presolve job writes v1 entries). */
+export function packFromIndex(p: CatalogPack, idx: PackIndex): PackEntry {
+  const e: PackEntry = { id: p.id, title: p.title, version: p.version, tier: p.tier, scenario: p.scenario, summaryNodes: p.summaryNodes, files: idx.files };
+  if (p.solverCommit !== undefined) e.solverCommit = p.solverCommit;
+  return e;
+}
+
+export interface SplitOptions {
+  /** The spot tag of a pack, by id (undefined: none). */
+  spot?: (id: string) => SpotTag | undefined;
+  planned?: PlannedPack[];
+}
+
+/**
+ * A v1 manifest as a v2 catalog plus one index per pack. `hash` is a synchronous sha256 (lowercase hex) of a string's
+ * UTF-8 bytes. Every index is `JSON.stringify` output, so its name and the catalog's reference follow from its content.
+ */
+export function splitManifest(m: Manifest, opts: SplitOptions, hash: (text: string) => string): { catalog: Catalog; indexes: { path: string; json: string }[] } {
+  const indexes: { path: string; json: string }[] = [];
+  const packs = m.packs.map((p): CatalogPack => {
+    const idx: PackIndex = { v: CATALOG_FORMAT, id: p.id, version: p.version, files: p.files };
+    const json = JSON.stringify(idx);
+    const sha256 = hash(json);
+    const path = indexFilePath(p.id, p.version, sha256);
+    indexes.push({ path, json });
+    const spot = opts.spot?.(p.id);
+    const out = { id: p.id, title: p.title, version: p.version, tier: p.tier } as CatalogPack;
+    if (spot) out.spot = spot;
+    out.scenario = p.scenario;
+    out.summaryNodes = p.summaryNodes;
+    if (p.solverCommit !== undefined) out.solverCommit = p.solverCommit;
+    out.flops = p.files.length;
+    out.weight = p.files.reduce((s, f) => s + f.weight, 0);
+    out.index = { path, sha256, bytes: utf8Bytes(json) };
+    return out;
+  });
+  const catalog: Catalog = { v: CATALOG_FORMAT, generatedAt: m.generatedAt, packs };
+  if (opts.planned?.length) catalog.planned = opts.planned;
+  return { catalog, indexes };
+}
+
+/** The v1-shaped manifest of a catalog (`readIndex` returns each pack's index), so code written for v1 keeps working. */
+export function joinCatalog(cat: Catalog, readIndex: (p: CatalogPack) => PackIndex): Manifest {
+  const m: Manifest = { v: PACK_FORMAT, generatedAt: cat.generatedAt, packs: cat.packs.map((p) => packFromIndex(p, readIndex(p))) };
+  if (cat.generatedAt === undefined) delete m.generatedAt;
+  return m;
+}
+
+/** A relative path of plain segments (no "..", no leading "/"): safe to put after a CDN base URL. */
+export function isSafeRelPath(path: string): boolean {
+  return /^[A-Za-z0-9_-][A-Za-z0-9._-]*(\/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$/.test(path) && !path.split("/").some((s) => s === "." || s === "..");
+}
+
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+function fileRefErrors(r: FileRef | undefined, at: string): string[] {
+  const errs: string[] = [];
+  if (!r || typeof r !== "object") return [`${at}: missing`];
+  if (typeof r.path !== "string" || !isSafeRelPath(r.path)) errs.push(`${at}: invalid path`);
+  if (typeof r.sha256 !== "string" || !SHA256_HEX.test(r.sha256)) errs.push(`${at}: sha256 must be 64 lowercase hex characters`);
+  if (!Number.isInteger(r.bytes) || r.bytes <= 0) errs.push(`${at}: invalid byte count`);
+  return errs;
+}
+
+/** Structural checks on a catalog. Returns the problems found (empty = valid). */
+export function validateCatalog(c: Catalog): string[] {
+  const errs: string[] = [];
+  if (!c || c.v !== CATALOG_FORMAT) return [`v must be ${CATALOG_FORMAT}`];
+  if (!Array.isArray(c.packs)) return ["packs must be an array"];
+  const ids = new Set<string>();
+  for (const p of c.packs) {
+    const at = `pack ${p?.id}`;
+    if (typeof p?.id !== "string" || !SCENARIO_ID.test(p.id)) {
+      errs.push(`${at}: invalid id`);
+      continue;
+    }
+    if (ids.has(p.id)) errs.push(`${at}: duplicate id`);
+    ids.add(p.id);
+    if (!Number.isInteger(p.version) || p.version < 1) errs.push(`${at}: invalid version`);
+    if (p.tier !== "free" && p.tier !== "pro") errs.push(`${at}: invalid tier`);
+    if (!p.scenario || !Array.isArray(p.summaryNodes)) errs.push(`${at}: scenario and summaryNodes are required`);
+    if (!Number.isInteger(p.flops) || p.flops < 0) errs.push(`${at}: invalid flop count`);
+    if (!(p.weight >= 0) || p.weight > RAW_FLOPS) errs.push(`${at}: weight must be within 0..${RAW_FLOPS}`);
+    errs.push(...fileRefErrors(p.index, `${at} index`));
+    if (p.index && typeof p.index.path === "string" && SHA256_HEX.test(p.index.sha256 ?? "") && Number.isInteger(p.version) && p.version >= 1) {
+      if (p.index.path !== indexFilePath(p.id, p.version, p.index.sha256)) errs.push(`${at}: index path must be ${p.id}/v${p.version}/index-<sha16>.json`);
+    }
+  }
+  for (const q of c.planned ?? []) {
+    if (typeof q?.id !== "string" || !SCENARIO_ID.test(q.id)) errs.push(`planned ${q?.id}: invalid id`);
+    else if (ids.has(q.id)) errs.push(`planned ${q.id}: also in packs`);
+    else ids.add(q.id);
+  }
+  return errs;
+}
+
+/** Checks an index against its catalog entry: same pack and version, the catalog's count and weight, valid files. */
+export function validatePackIndex(idx: PackIndex, pack: CatalogPack): string[] {
+  if (!idx || idx.v !== CATALOG_FORMAT) return [`index of ${pack.id}: v must be ${CATALOG_FORMAT}`];
+  const errs: string[] = [];
+  if (idx.id !== pack.id || idx.version !== pack.version) errs.push(`index of ${pack.id}: says ${idx.id} v${idx.version}, catalog has v${pack.version}`);
+  if (!Array.isArray(idx.files)) return [...errs, `index of ${pack.id}: files must be an array`];
+  if (idx.files.length !== pack.flops) errs.push(`index of ${pack.id}: ${idx.files.length} files, catalog says ${pack.flops}`);
+  const w = idx.files.reduce((s, f) => s + (f?.weight ?? 0), 0);
+  if (Math.abs(w - pack.weight) > 1e-6) errs.push(`index of ${pack.id}: weights add up to ${w}, catalog says ${pack.weight}`);
+  errs.push(...validateManifest({ v: PACK_FORMAT, packs: [packFromIndex(pack, idx)] }));
+  return errs;
+}
+
+/** Checks a data pointer: a full commit SHA, a plain repo name and directory, a valid catalog reference. */
+export function validatePointer(p: DataPointer): string[] {
+  if (!p || p.v !== CATALOG_FORMAT) return [`v must be ${CATALOG_FORMAT}`];
+  const errs: string[] = [];
+  if (typeof p.repo !== "string" || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(p.repo) || p.repo.includes("..")) errs.push("repo must be owner/name");
+  if (typeof p.commit !== "string" || !/^[0-9a-f]{40}$/.test(p.commit)) errs.push("commit must be a full 40-hex SHA");
+  if (typeof p.dir !== "string" || !(p.dir === "" || (p.dir.endsWith("/") && isSafeRelPath(p.dir.slice(0, -1))))) errs.push('dir must be "" or a relative directory ending in "/"');
+  errs.push(...fileRefErrors(p.catalog, "catalog"));
+  return errs;
+}
+
+/** The URLs of a data-branch file, in the order to try: jsDelivr pinned to the commit, then raw.githubusercontent.com. */
+export function cdnUrls(pointer: Pick<DataPointer, "repo" | "commit" | "dir">, path: string): string[] {
+  if (!isSafeRelPath(path)) throw new Error(`unsafe path: ${path}`);
+  const rel = `${pointer.dir}${path}`;
+  return [`https://cdn.jsdelivr.net/gh/${pointer.repo}@${pointer.commit}/${rel}`, `https://raw.githubusercontent.com/${pointer.repo}/${pointer.commit}/${rel}`];
 }
 
 // ───────────────────────── viewer helpers ─────────────────────────

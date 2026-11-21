@@ -155,7 +155,7 @@ export interface PlayState {
   /** What each AI action was based on, by game.log index. */
   srcs?: Record<number, AiSource>;
   /** Set once when the flop is dealt: the matched solver pack, or why packs aren't used. */
-  post?: { match: PackMatch | null; failed?: "manifest" | "flop" };
+  post?: { match: PackMatch | null; failed?: LoadKey["kind"] };
   /** runBots stopped: this must load first (advance.ts loads it and runs the bots again). */
   needs?: LoadKey;
   /** A replay of an earlier spot of a hand ("다시 이 상황"): never recorded. */
@@ -168,7 +168,7 @@ export interface PlayState {
  */
 export type AiSource = "chart" | "cashChart" | "fallback" | "solver" | "solverApprox" | "rule";
 
-export type LoadKey = { kind: "manifest" } | { kind: "flop"; path: string };
+export type LoadKey = { kind: "manifest" } | { kind: "packs"; ids: string[] } | { kind: "flop"; path: string };
 
 /** The AI table's postflop data (packOracle.ts createOracle over packSource.ts). Synchronous: what isn't loaded is `needs`. */
 export interface PostflopOracle {

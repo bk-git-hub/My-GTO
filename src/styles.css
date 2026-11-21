@@ -1063,6 +1063,17 @@ div.weak.muted { border-style: dashed; color: var(--muted); }
 .sv-packs { display: flex; flex-direction: column; gap: 8px; }
 .sv-pack { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; color: var(--text); }
 .sv-pack b { font-size: 0.98rem; }
+/* spot picker */
+.sv-spot { display: flex; flex-direction: column; align-items: stretch; gap: 5px; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 11px 14px; color: var(--text); }
+.sv-spot b { font-size: 0.98rem; }
+.sv-spot.off { border-left-color: var(--line); opacity: 0.6; cursor: default; }
+.sv-planned { font-size: 0.74rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.sv-low { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1px solid var(--warn); border-radius: 999px; color: var(--warn); font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+.sv-progress { display: block; height: 4px; border-radius: 2px; background: var(--panel-2); overflow: hidden; }
+.sv-progress i { display: block; height: 100%; background: var(--accent); }
+.sv-others { margin-top: 4px; }
+.sv-others > summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; font-weight: 700; padding: 8px 2px; }
+.sv-others[open] > summary { margin-bottom: 6px; }
 
 /* bars and legends */
 .sv-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--fold); }
