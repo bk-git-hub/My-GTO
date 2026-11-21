@@ -79,7 +79,7 @@ export function HomePage({ go }: { go: (route: string) => void }) {
         <span className="cta-icon">♠</span>
         <span className="cta-text">
           <b>핸드 플레이</b>
-          <span>펍아재 9인 토너먼트 · 100bb 캐시 · 한 핸드를 리버까지, 결정마다 EV 채점</span>
+          <span>펍아재 9인 토너먼트 · 100bb 캐시 · AI들과 한 핸드를 리버까지, 차트·솔버로 채점</span>
         </span>
         <span className="cta-go">→</span>
       </button>

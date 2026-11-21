@@ -1,7 +1,7 @@
 import { cardLabel, fullDeck, type Card } from "../poker/cards";
 import { evaluate } from "../poker/evaluator";
 import { COMBOS, handFeatures, type Tier } from "./handInfo";
-import { postflopMoves, type PostflopSpot } from "./policy";
+import { postflopMoves, type MoveOption, type PostflopSpot } from "./policy";
 
 export type Weights = Float64Array; // per COMBOS index
 
@@ -119,9 +119,10 @@ export function rangeBreakdown(w: Weights, board: Card[], dead: Card[]): string 
 
 /**
  * Probability that a villain with this weighted range folds / continues to a
- * hero bet, and the continuing range. Uses the same rules the bots play by.
+ * hero bet, and the continuing range. Uses the same rules the bots play by; `movesFor` (the AI table) gives each
+ * combo's moves instead (table.ts botPostflopMoves: solver pack rows, profiles).
  */
-export function responseToBet(w: Weights, board: Card[], dead: Card[], spot: PostflopSpot) {
+export function responseToBet(w: Weights, board: Card[], dead: Card[], spot: PostflopSpot, movesFor?: (cards: [Card, Card]) => MoveOption[]) {
   const d = new Set([...dead, ...board]);
   const cont = new Float64Array(COMBOS.length);
   let total = 0, fold = 0;
@@ -129,7 +130,7 @@ export function responseToBet(w: Weights, board: Card[], dead: Card[], spot: Pos
     if (w[i] <= 0) continue;
     const c = COMBOS[i].cards;
     if (d.has(c[0]) || d.has(c[1])) continue;
-    const moves = postflopMoves(handFeatures(c, board), spot);
+    const moves = movesFor ? movesFor(c) : postflopMoves(handFeatures(c, board), spot);
     const pf = moves.find((m) => m.kind === "fold")?.prob ?? 0;
     total += w[i];
     fold += w[i] * pf;

@@ -9,8 +9,8 @@ import type { Decision } from "../../play/table";
 
 export const STREET_LABEL: Record<Street, string> = { preflop: "프리플랍", flop: "플랍", turn: "턴", river: "리버" };
 
-/** What the verdict needs from a decision. */
-export type GradedDecision = Pick<Decision, "street" | "grade" | "chosen" | "chosenLabel">;
+/** What the verdict needs from a decision (a 참고 row of the AI table also carries the EV model's options). */
+export type GradedDecision = Pick<Decision, "street" | "grade" | "chosen" | "chosenLabel"> & Partial<Pick<Decision, "options" | "pot" | "reason">>;
 
 const r1 = (x: number) => Math.round(x * 10) / 10;
 
@@ -126,12 +126,62 @@ export function sessionLine(t: SessionTotals): string | null {
   return `이번 세션 ${t.hands}핸드${decisions} · 결과 합계 ${net === "본전" ? "0bb" : net}`;
 }
 
+/**
+ * A 참고 decision (not graded: multiway, turn, river, no pack) whose move is not the best one by the EV model against
+ * these AIs, by more than the ✓ margin of an EV grade (0.15bb or 5% of the pot). It is never a grade (the model is
+ * approximate), only a hint that the hand's headline doesn't cover that decision.
+ */
+export function refMiss(d: GradedDecision): boolean {
+  if (d.grade !== "info" || !d.reason || !d.options) return false;
+  const evs = d.options.filter((o) => o.ev !== null) as { key: string; ev: number }[];
+  const mine = evs.find((o) => o.key === d.chosen);
+  if (!mine || evs.length < 2) return false;
+  const best = Math.max(...evs.map((o) => o.ev));
+  return best - mine.ev > Math.max(0.15, (d.pot ?? 0) * 0.05);
+}
+
+const named = (ds: readonly GradedDecision[]) => ds.map((d) => `${STREET_LABEL[d.street]} ${moveName(d.chosenLabel)}`).join(", ");
+
+export interface TableVerdict {
+  /** "프리플랍 판단 좋았어요" when only part of the hand was graded; else handVerdict's headline. */
+  headline: string;
+  /** "채점 1개 · 참고 4개"; null when every decision was graded. */
+  scope: string | null;
+  /** Under the verdict: the luck note (only when no 참고 decision went against the EV model) and the 참고 note. */
+  notes: string[];
+}
+
+/**
+ * The AI table's end-of-hand verdict. Most postflop decisions are 참고 there, so the headline names the streets it
+ * graded, the scope line counts the rest, and "판단이 맞아도 한 판은 질 수 있어요" is kept for hands whose 참고 decisions
+ * agreed with the EV model; otherwise those decisions are named, plainly as 참고.
+ */
+export function tableVerdict(decisions: readonly GradedDecision[], net: number | null): TableVerdict {
+  const v = handVerdict(decisions);
+  const info = decisions.filter((d) => d.grade === "info");
+  const misses = decisions.filter(refMiss);
+  const streets = [...new Set(decisions.filter((d) => d.grade !== "info").map((d) => STREET_LABEL[d.street]))].join("·");
+  const headline = info.length && (v.kind === "good" || v.kind === "ok") ? `${streets} ${v.headline}` : v.headline;
+  // The 참고 decisions that went against the model are named in the note below, not counted here as well.
+  const scope = !info.length ? null : v.graded ? `채점 ${v.graded}개 · 참고 ${info.length}개` : `참고 ${info.length}개`;
+  const notes: string[] = [];
+  if (net !== null) {
+    const m = mismatchNote(v.kind, net, foldedOnly(decisions));
+    if (m && !(m === GOOD_BUT_LOST && misses.length)) notes.push(m);
+  }
+  if (misses.length) notes.push(`참고 결정 중 이 AI들 기준 EV가 더 높은 선택이 있었어요: ${named(misses)} (근사라 채점엔 안 넣어요)`);
+  return { headline, scope, notes };
+}
+
 /** The verdict lines of the AI review, placed before the chip result so the coach reads them first. */
 export function verdictReviewLines(decisions: readonly GradedDecision[]): string[] {
   const v = handVerdict(decisions);
   const miss = missLine(decisions);
   const lines = [v.kind === "none" ? `판단 평가: ${v.headline}` : `판단 평가: ${v.headline} (채점한 결정 ${v.graded}개 중 실수 ${v.mistakes}개)`];
   if (miss) lines.push(miss);
+  const info = decisions.filter((d) => d.grade === "info").length;
+  const misses = decisions.filter(refMiss);
+  if (info) lines.push(`참고만 한 결정 ${info}개 (채점 안 함)${misses.length ? ` · 이 AI들 기준 EV 최고와 다른 선택: ${named(misses)}` : ""}`);
   lines.push(
     "리뷰 기준: 이 한 판의 칩 결과가 아니라 각 결정이 그 시점의 정보로 맞았는지로 평가해줘. 좋은 판단도 한 판은 질 수 있고, 실수해도 이길 수 있어.",
   );

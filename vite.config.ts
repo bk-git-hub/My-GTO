@@ -123,6 +123,22 @@ export default defineConfig(async () => ({
         globIgnores: ["**/node_modules/**/*", "splash/**"],
         // Navigations to the API or to pack files go to the network, not the app shell.
         navigateFallbackDenylist: [/^\/api\//, /^\/packs\//],
+        // Solver packs offline (the AI table at the pub): flop files never change at a given path
+        // (docs/solver-packs.md), so the ones a hand or the solver page opened are served from the cache first. The
+        // manifest (the registry that names them) changes with every pack release: the network first, the last copy
+        // when offline or slow, so the flop files already cached stay reachable without a connection.
+        runtimeCaching: [
+          {
+            urlPattern: /\/packs\/[^/]+\/v\d+\/flop-[^/]+\.json$/,
+            handler: "CacheFirst",
+            options: { cacheName: "pubaj-flop-packs", expiration: { maxEntries: 300 }, cacheableResponse: { statuses: [200] } },
+          },
+          {
+            urlPattern: /\/packs\/manifest\.json$/,
+            handler: "NetworkFirst",
+            options: { cacheName: "pubaj-pack-manifest", networkTimeoutSeconds: 4, expiration: { maxEntries: 2 }, cacheableResponse: { statuses: [200] } },
+          },
+        ],
         // The first install controls the open page right away (same build, nothing to mix up).
         clientsClaim: true,
         importScripts: [SW_MIGRATE_FILE],

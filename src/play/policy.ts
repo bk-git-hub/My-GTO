@@ -8,6 +8,8 @@ export interface MoveOption {
   kind: "fold" | "check" | "call" | "raise";
   to?: number;
   prob: number;
+  /** At a solver pack node (AI table): the node's action index this move is (packOracle.ts). */
+  ai?: number;
 }
 
 export const EARLY_SEATS = ["UTG", "UTG+1", "UTG+2"];
@@ -240,6 +242,11 @@ export interface PostflopSpot {
   street: "flop" | "turn" | "river";
   /** Bot tendencies. Defaults to "pub". */
   style?: BotStyle;
+  /**
+   * AI table only (table.ts postflopSpot sets it when the hand has profiles): no live player acts after me on this
+   * street. Multiway, made hands up to a combo draw bet 1.25× as often in last position and 0.8× otherwise.
+   */
+  lastToAct?: boolean;
 }
 
 /**
@@ -275,6 +282,7 @@ export function postflopMoves(f: HandFeatures, s: PostflopSpot): MoveOption[] {
     }
     if (reg && t === 1.5) p = Math.max(p, 0.4);
     if (multi && t <= 2) p /= 2;
+    if (multi && s.lastToAct !== undefined && t <= 2.5) p = Math.min(0.95, p * (s.lastToAct ? 1.25 : 0.8));
     // Low SPR: strong hands just get it in.
     const to = t >= 3 && s.myStack <= s.pot * 1.2 ? allInTo : betTo(frac);
     const out: MoveOption[] = [
